@@ -142,7 +142,7 @@ int CvLuaLeague::lGetName(lua_State* L)
 int CvLuaLeague::lCanChangeCustomName(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->CanChangeCustomName(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -193,8 +193,8 @@ int CvLuaLeague::lGetTurnsUntilVictorySession(lua_State* L)
 int CvLuaLeague::lCanProposeEnactAnyChoice(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
-	const PlayerTypes eProposer = (PlayerTypes) lua_tointeger(L, 3);
+	const ResolutionTypes eResolution = static_cast<ResolutionTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eProposer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	const bool bValue = pLeague->CanProposeEnactAnyChoice(eResolution, eProposer);
 	lua_pushboolean(L, bValue);
@@ -205,8 +205,8 @@ int CvLuaLeague::lCanProposeEnactAnyChoice(lua_State* L)
 int CvLuaLeague::lCanProposeEnact(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
-	const PlayerTypes eProposer = (PlayerTypes) lua_tointeger(L, 3);
+	const ResolutionTypes eResolution = static_cast<ResolutionTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eProposer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const int iChoice = lua_tointeger(L, 4);
 
 	const bool bValue = pLeague->CanProposeEnact(eResolution, eProposer, iChoice);
@@ -219,7 +219,7 @@ int CvLuaLeague::lCanProposeRepeal(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
 	const int iResolutionID = lua_tointeger(L, 2);
-	const PlayerTypes eProposer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes eProposer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	const bool bValue = pLeague->CanProposeRepeal(iResolutionID, eProposer);
 	lua_pushboolean(L, bValue);
@@ -242,8 +242,8 @@ int CvLuaLeague::lIsProposed(lua_State* L)
 int CvLuaLeague::lGetChoicesForDecision(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionDecisionTypes eDecision = (ResolutionDecisionTypes) lua_tointeger(L, 2);
-	const PlayerTypes eDecider = (PlayerTypes) lua_tointeger(L, 3);
+	const ResolutionDecisionTypes eDecision = static_cast<ResolutionDecisionTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eDecider = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
@@ -263,7 +263,7 @@ int CvLuaLeague::lGetChoicesForDecision(lua_State* L)
 int CvLuaLeague::lGetTextForChoice(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionDecisionTypes eDecision = (ResolutionDecisionTypes) lua_tointeger(L, 2);
+	const ResolutionDecisionTypes eDecision = static_cast<ResolutionDecisionTypes>(lua_tointeger(L, 2));
 	const int iChoice = lua_tointeger(L, 3);
 
 	const CvString sResult = pLeague->GetTextForChoice(eDecision, iChoice);
@@ -418,7 +418,7 @@ int CvLuaLeague::lGetActiveResolutions(lua_State* L)
 int CvLuaLeague::lIsMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->IsMember(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -429,7 +429,7 @@ int CvLuaLeague::lIsMember(lua_State* L)
 int CvLuaLeague::lCanVote(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->CanVote(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -440,7 +440,7 @@ int CvLuaLeague::lCanVote(lua_State* L)
 int CvLuaLeague::lGetRemainingVotesForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetRemainingVotesForMember(ePlayer);
 	lua_pushinteger(L, iValue);
@@ -451,7 +451,7 @@ int CvLuaLeague::lGetRemainingVotesForMember(lua_State* L)
 int CvLuaLeague::lGetSpentVotesForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetSpentVotesForMember(ePlayer);
 	lua_pushinteger(L, iValue);
@@ -462,7 +462,7 @@ int CvLuaLeague::lGetSpentVotesForMember(lua_State* L)
 int CvLuaLeague::lGetCoreVotesForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetCoreVotesForMember(ePlayer);
 	lua_pushinteger(L, iValue);
@@ -473,7 +473,7 @@ int CvLuaLeague::lGetCoreVotesForMember(lua_State* L)
 int CvLuaLeague::lCalculateStartingVotesForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->CalculateStartingVotesForMember(ePlayer);
 	lua_pushinteger(L, iValue);
@@ -484,7 +484,7 @@ int CvLuaLeague::lCalculateStartingVotesForMember(lua_State* L)
 int CvLuaLeague::lCanPropose(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->CanPropose(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -495,7 +495,7 @@ int CvLuaLeague::lCanPropose(lua_State* L)
 int CvLuaLeague::lGetRemainingProposalsForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetRemainingProposalsForMember(ePlayer);
 	lua_pushinteger(L, iValue);
@@ -506,7 +506,7 @@ int CvLuaLeague::lGetRemainingProposalsForMember(lua_State* L)
 int CvLuaLeague::lIsHostMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->IsHostMember(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -537,8 +537,8 @@ int CvLuaLeague::lIsUnitedNations(lua_State* L)
 int CvLuaLeague::lDoProposeEnact(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const ResolutionTypes eResolution = static_cast<ResolutionTypes>(lua_tointeger(L, 2));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const int iChoice = luaL_optint(L, 4, LeagueHelpers::CHOICE_NONE);
 
 	pLeague->DoProposeEnact(eResolution, ePlayer, iChoice);
@@ -550,7 +550,7 @@ int CvLuaLeague::lDoProposeRepeal(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
 	const int iProposal = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	pLeague->DoProposeRepeal(iProposal, ePlayer);
 	return 0;
@@ -561,7 +561,7 @@ int CvLuaLeague::lDoVoteEnact(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
 	const int iProposal = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const int iNumVotes = lua_tointeger(L, 4);
 	const int iChoice = lua_tointeger(L, 5);
 
@@ -574,7 +574,7 @@ int CvLuaLeague::lDoVoteRepeal(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
 	const int iProposal = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const int iNumVotes = lua_tointeger(L, 4);
 	const int iChoice = lua_tointeger(L, 5);
 
@@ -586,7 +586,7 @@ int CvLuaLeague::lDoVoteRepeal(lua_State* L)
 int CvLuaLeague::lDoVoteAbstain(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iNumVotes = lua_tointeger(L, 3);
 
 	pLeague->DoVoteAbstain(ePlayer, iNumVotes);
@@ -597,7 +597,7 @@ int CvLuaLeague::lDoVoteAbstain(lua_State* L)
 int CvLuaLeague::lIsProjectActive(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->IsProjectActive(eLeagueProject);
 	lua_pushboolean(L, bValue);
@@ -608,7 +608,7 @@ int CvLuaLeague::lIsProjectActive(lua_State* L)
 int CvLuaLeague::lIsProjectComplete(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->IsProjectComplete(eLeagueProject);
 	lua_pushboolean(L, bValue);
@@ -620,7 +620,7 @@ int CvLuaLeague::lIsProjectComplete(lua_State* L)
 int CvLuaLeague::lGetProjectCostPerPlayer(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetProjectCostPerPlayer(eLeagueProject);
 	lua_pushinteger(L, iValue);
@@ -631,7 +631,7 @@ int CvLuaLeague::lGetProjectCostPerPlayer(lua_State* L)
 int CvLuaLeague::lGetProjectBuildingCostPerPlayer(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const BuildingTypes eRewardBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eRewardBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetProjectBuildingCostPerPlayer(eRewardBuilding);
 	lua_pushinteger(L, iValue);
@@ -642,7 +642,7 @@ int CvLuaLeague::lGetProjectBuildingCostPerPlayer(lua_State* L)
 int CvLuaLeague::lGetProjectCost(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 2));
 
 	const int iValue = pLeague->GetProjectCost(eLeagueProject);
 	lua_pushinteger(L, iValue);
@@ -653,8 +653,8 @@ int CvLuaLeague::lGetProjectCost(lua_State* L)
 int CvLuaLeague::lGetMemberContribution(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 3));
 
 	const int iValue = pLeague->GetMemberContribution(ePlayer, eLeagueProject, true);
 	lua_pushinteger(L, iValue);
@@ -665,8 +665,8 @@ int CvLuaLeague::lGetMemberContribution(lua_State* L)
 int CvLuaLeague::lGetMemberContributionTier(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 3));
 
 	const int iValue = pLeague->GetMemberContributionTier(ePlayer, eLeagueProject);
 	lua_pushinteger(L, iValue);
@@ -677,11 +677,11 @@ int CvLuaLeague::lGetMemberContributionTier(lua_State* L)
 int CvLuaLeague::lGetContributionTierThreshold(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const CvLeague::ContributionTier eTier = (CvLeague::ContributionTier) lua_tointeger(L, 2);
-	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
+	const CvLeague::ContributionTier eTier = static_cast<CvLeague::ContributionTier>(lua_tointeger(L, 2));
+	const LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 3));
 
 	float fValue = pLeague->GetContributionTierThreshold(eTier, eLeagueProject);
-	const int iValue = (int) fValue;
+	const int iValue = static_cast<int>(fValue);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -730,8 +730,8 @@ int CvLuaLeague::lGetSpaceShipPurchaseMod(lua_State* L)
 int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	const int iValue = pLeague->GetPotentialVotesForMember(ePlayer, eFromPlayer);
 	lua_pushinteger(L, iValue);
@@ -742,7 +742,7 @@ int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bValue = pLeague->IsPlayerEmbargoed(ePlayer);
 	lua_pushboolean(L, bValue);
@@ -753,7 +753,7 @@ int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)
 int CvLuaLeague::lGetResolutionName(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
+	const ResolutionTypes eResolution = static_cast<ResolutionTypes>(lua_tointeger(L, 2));
 	const int iResolutionID = lua_tointeger(L, 3);
 	const int iProposerChoice = lua_tointeger(L, 4);
 	const bool bIncludePrefix = lua_toboolean(L, 5);
@@ -767,8 +767,8 @@ int CvLuaLeague::lGetResolutionName(lua_State* L)
 int CvLuaLeague::lGetResolutionDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
-	const PlayerTypes eObserver = (PlayerTypes) lua_tointeger(L, 3);
+	const ResolutionTypes eResolution = static_cast<ResolutionTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eObserver = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const int iResolutionID = lua_tointeger(L, 4);
 	const int iProposerChoice = lua_tointeger(L, 5);
 
@@ -781,8 +781,8 @@ int CvLuaLeague::lGetResolutionDetails(lua_State* L)
 int CvLuaLeague::lGetMemberDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes eMember = (PlayerTypes) lua_tointeger(L, 2);
-	const PlayerTypes eObserver = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes eMember = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eObserver = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	CvString sValue = pLeague->GetMemberDetails(eMember, eObserver);
 	lua_pushstring(L, sValue.c_str());
@@ -793,8 +793,8 @@ int CvLuaLeague::lGetMemberDetails(lua_State* L)
 int CvLuaLeague::lGetProjectDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueProjectTypes eProject = (LeagueProjectTypes) lua_tointeger(L, 2);
-	const PlayerTypes eObserver = (PlayerTypes) luaL_optint(L, 3, NO_PLAYER);
+	const LeagueProjectTypes eProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eObserver = static_cast<PlayerTypes>(luaL_optint(L, 3, NO_PLAYER));
 
 	CvString sValue = pLeague->GetProjectDetails(eProject, eObserver);
 	lua_pushstring(L, sValue.c_str());
@@ -806,8 +806,8 @@ int CvLuaLeague::lGetProjectRewardTierDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
 	const int iTier = lua_tointeger(L, 2);
-	const LeagueProjectTypes eProject = (LeagueProjectTypes) lua_tointeger(L, 3);
-	const PlayerTypes eObserver = (PlayerTypes) luaL_optint(L, 4, NO_PLAYER);
+	const LeagueProjectTypes eProject = static_cast<LeagueProjectTypes>(lua_tointeger(L, 3));
+	const PlayerTypes eObserver = static_cast<PlayerTypes>(luaL_optint(L, 4, NO_PLAYER));
 
 	CvString sValue = pLeague->GetProjectRewardTierDetails(iTier, eProject, eObserver);
 	lua_pushstring(L, sValue.c_str());
@@ -818,7 +818,7 @@ int CvLuaLeague::lGetProjectRewardTierDetails(lua_State* L)
 int CvLuaLeague::lGetCurrentEffectsSummary(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const PlayerTypes eObserver = (PlayerTypes) luaL_optint(L, 2, NO_PLAYER);
+	const PlayerTypes eObserver = static_cast<PlayerTypes>(luaL_optint(L, 2, NO_PLAYER));
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
@@ -837,7 +837,7 @@ int CvLuaLeague::lGetCurrentEffectsSummary(lua_State* L)
 int CvLuaLeague::lGetLeagueSplashTitle(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueSpecialSessionTypes eGoverningSpecialSession = (LeagueSpecialSessionTypes) lua_tointeger(L, 2);
+	const LeagueSpecialSessionTypes eGoverningSpecialSession = static_cast<LeagueSpecialSessionTypes>(lua_tointeger(L, 2));
 	const bool bJustFounded = lua_toboolean(L, 3);
 
 	CvString sValue = pLeague->GetLeagueSplashTitle(eGoverningSpecialSession, bJustFounded);
@@ -849,7 +849,7 @@ int CvLuaLeague::lGetLeagueSplashTitle(lua_State* L)
 int CvLuaLeague::lGetLeagueSplashDescription(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueSpecialSessionTypes eGoverningSpecialSession = (LeagueSpecialSessionTypes) lua_tointeger(L, 2);
+	const LeagueSpecialSessionTypes eGoverningSpecialSession = static_cast<LeagueSpecialSessionTypes>(lua_tointeger(L, 2));
 	const bool bJustFounded = lua_toboolean(L, 3);
 
 	CvString sValue = pLeague->GetLeagueSplashDescription(eGoverningSpecialSession, bJustFounded);
@@ -861,7 +861,7 @@ int CvLuaLeague::lGetLeagueSplashDescription(lua_State* L)
 int CvLuaLeague::lGetLeagueSplashThisEraDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueSpecialSessionTypes eGoverningSpecialSession = (LeagueSpecialSessionTypes) lua_tointeger(L, 2);
+	const LeagueSpecialSessionTypes eGoverningSpecialSession = static_cast<LeagueSpecialSessionTypes>(lua_tointeger(L, 2));
 	const bool bJustFounded = lua_toboolean(L, 3);
 
 	CvString sValue = pLeague->GetLeagueSplashThisEraDetails(eGoverningSpecialSession, bJustFounded);
@@ -873,7 +873,7 @@ int CvLuaLeague::lGetLeagueSplashThisEraDetails(lua_State* L)
 int CvLuaLeague::lGetLeagueSplashNextEraDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const LeagueSpecialSessionTypes eGoverningSpecialSession = (LeagueSpecialSessionTypes) lua_tointeger(L, 2);
+	const LeagueSpecialSessionTypes eGoverningSpecialSession = static_cast<LeagueSpecialSessionTypes>(lua_tointeger(L, 2));
 	const bool bJustFounded = lua_toboolean(L, 3);
 
 	CvString sValue = pLeague->GetLeagueSplashNextEraDetails(eGoverningSpecialSession, bJustFounded);
@@ -885,7 +885,7 @@ int CvLuaLeague::lGetLeagueSplashNextEraDetails(lua_State* L)
 int CvLuaLeague::lGetGreatPersonRateModifierDetails(lua_State* L)
 {
 	CvLeague* pLeague = GetInstance(L);
-	const UnitClassTypes eGreatPersonClass = (UnitClassTypes) lua_tointeger(L, 2);
+	const UnitClassTypes eGreatPersonClass = static_cast<UnitClassTypes>(lua_tointeger(L, 2));
 
 	CvString sValue = pLeague->GetGreatPersonRateModifierDetails(eGreatPersonClass);
 	lua_pushstring(L, sValue.c_str());

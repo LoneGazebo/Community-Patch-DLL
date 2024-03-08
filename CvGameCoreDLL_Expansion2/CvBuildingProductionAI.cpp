@@ -263,7 +263,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			int iNumOthersConstructing = 0;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				
 				if (eLoopPlayer == kPlayer.GetID())
 					continue;
@@ -291,7 +291,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		//Minor Check
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 			if (eMinor != NO_PLAYER)
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
@@ -300,15 +300,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
 					{
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
+						if (static_cast<BuildingTypes>(pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS)) == eBuilding)
 						{
 							iBonus += 10;
 						}
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
+						if (static_cast<BuildingTypes>(pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER)) == eBuilding)
 						{
 							iBonus += 10;
 						}
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
+						if (static_cast<BuildingTypes>(pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER)) == eBuilding)
 						{
 							iBonus += 10;
 						}
@@ -609,7 +609,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (m_pCity->isCoastal())
 	{
-		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+		AICityStrategyTypes eStrategyLakeBound = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND"));
 		if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 		{
 			if (pkBuildingInfo->GetBorderObstacleWater() > 0)
@@ -718,7 +718,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if (pkUnitInfo->GetPrereqAndTech() == NO_TECH)
 				iBonus += 1000;
-			else if (kPlayer.HasTech((TechTypes)pkUnitInfo->GetPrereqAndTech()))
+			else if (kPlayer.HasTech(static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech())))
 				iBonus += 1000;
 			else
 				iBonus += 50;
@@ -754,7 +754,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
 		{
-			DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
+			DomainTypes eTestDomain = static_cast<DomainTypes>(iDomainLoop);
 			if(eTestDomain != NO_DOMAIN)
 			{
 				int iTempBonus = 0;
@@ -1060,7 +1060,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
@@ -1081,13 +1081,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 
 	int iEra = 0; //default
-	TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
+	TechTypes eTech = static_cast<TechTypes>(pkBuildingInfo->GetPrereqAndTech());
 	if (eTech != NO_TECH)
 	{
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
 		if (pEntry)
 		{
-			EraTypes eEra = (EraTypes)pEntry->GetEra();
+			EraTypes eEra = static_cast<EraTypes>(pEntry->GetEra());
 			if (eEra != NO_ERA)
 				iEra = pEntry->GetEra();
 		}

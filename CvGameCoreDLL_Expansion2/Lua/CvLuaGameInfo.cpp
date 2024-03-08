@@ -63,7 +63,7 @@ int CvLuaGameInfo::pRegisterActions(lua_State* L)
 
 		kEntry["ConfirmCommand"]	= pEntry->isConfirmCommand();
 		kEntry["Visible"]			= pEntry->isVisible();
-		kEntry["SubType"]			= (int)pEntry->getSubType();
+		kEntry["SubType"]			= static_cast<int>(pEntry->getSubType());
 
 		kEntry["Type"]				= pEntry->GetType();
 		kEntry["TextKey"]			= pEntry->GetTextKey();

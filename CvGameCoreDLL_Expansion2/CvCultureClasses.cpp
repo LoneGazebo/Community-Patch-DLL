@@ -94,7 +94,7 @@ void CvGameCulture::DoTurn()
 {
 	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(uiPlayer);
 		CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 		if (kPlayer.isAlive())
 		{
@@ -178,7 +178,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	int iValue = 0;
 	
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
-		YieldTypes eYield = (YieldTypes) iYield;
+		YieldTypes eYield = static_cast<YieldTypes>(iYield);
 		
 		if (eYield == YIELD_CULTURE) {
 			iValue = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
@@ -191,12 +191,12 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
 		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 
-		GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-		GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
-		GreatWorkClass eFilmClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_FILM");
-		GreatWorkClass eRelicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_RELIC");
+		GreatWorkClass eWritingClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE"));
+		GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
+		GreatWorkClass eArtifactsClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+		GreatWorkClass eMusicClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_MUSIC"));
+		GreatWorkClass eFilmClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_FILM"));
+		GreatWorkClass eRelicClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_RELIC"));
 		if(pWork->m_eClassType == eWritingClass)
 		{
 			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
@@ -359,7 +359,7 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 
 	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(uiPlayer);
 
 		int iCityLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
@@ -371,11 +371,11 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
-					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 				}
 				if (eBuilding != NO_BUILDING)
 				{
@@ -387,7 +387,7 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 							int iNumSlots = pkBuilding->GetGreatWorkCount();
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex == iIndex)
 								{
 									return ePlayer;
@@ -428,7 +428,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 
 	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(uiPlayer);
 
 		int iCityLoop = 0;
 		CvCity* pCity = NULL;
@@ -441,11 +441,11 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
-					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 				}
 				if (eBuilding != NO_BUILDING)
 				{
@@ -457,7 +457,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 							int iNumSlots = pkBuilding->GetGreatWorkCount();
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex == iIndex)
 								{
 									return pCity;
@@ -484,7 +484,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 
 	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(uiPlayer);
 
 		int iCityLoop = 0;
 		CvCity* pCity = NULL;
@@ -492,7 +492,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 		{
 			for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iBuildingClassLoop;
+				BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
 
@@ -502,7 +502,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+					eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(eBuildingClass));
 				}
 				if (eBuilding != NO_BUILDING)
 				{
@@ -514,7 +514,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 							int iNumSlots = pkBuilding->GetGreatWorkCount();
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex == iIndex)
 								{
 									return pCity->GetCityCulture()->GetThemingBonus(eBuildingClass);
@@ -555,10 +555,10 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	CvPlayerCulture* pCulture1 = GET_PLAYER(ePlayer1).GetCulture();
 	CvPlayerCulture* pCulture2 = GET_PLAYER(ePlayer2).GetCulture();
 
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	GreatWorkClass eWritingClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE"));
+	GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
+	GreatWorkClass eArtifactsClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+	GreatWorkClass eMusicClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_MUSIC"));
 
 	GreatWorkClass eClass1 = GetGreatWorkClass(iWork1);
 	GreatWorkClass eClass2 = GetGreatWorkClass(iWork2);
@@ -679,11 +679,11 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
-					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 				}
 				if (eBuilding != NO_BUILDING)
 				{
@@ -695,13 +695,13 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 							int iNumSlots = pkBuilding->GetGreatWorkCount();
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (ui == 0)
 								{
 									if (iGreatWorkIndex == iWork1)
 									{
 										pCity1 = pCity;
-										eBuildingClass1 = (BuildingClassTypes)iBuildingClassLoop;
+										eBuildingClass1 = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 										iSwapIndex1 = iI;
 										break;
 									}
@@ -711,7 +711,7 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 									if (iGreatWorkIndex == iWork2)
 									{
 										pCity2 = pCity;
-										eBuildingClass2 = (BuildingClassTypes)iBuildingClassLoop;
+										eBuildingClass2 = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 										iSwapIndex2 = iI;
 										break;
 									}
@@ -772,10 +772,10 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 	if(!pCity1 || !pCity2)
 		return;
 
-	int workType1 = pCity1->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1);
-	int workType2 = pCity2->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2);
-	pCity1->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1, workType2);
-	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
+	int workType1 = pCity1->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClass1), iWorkIndex1);
+	int workType2 = pCity2->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClass2), iWorkIndex2);
+	pCity1->GetCityBuildings()->SetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClass1), iWorkIndex1, workType2);
+	pCity2->GetCityBuildings()->SetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClass2), iWorkIndex2, workType1);
 
 #if defined(MOD_BALANCE_CORE)
 	pCity1->UpdateAllNonPlotYields(true);
@@ -793,7 +793,7 @@ int CvGameCulture::GetNumCivsInfluentialForWin() const
 	int iAliveMajors = 0;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayerLoop));
 		if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		{
 			iAliveMajors++;
@@ -1054,11 +1054,11 @@ bool CvPlayerCulture::ControlsGreatWork (int iIndex)
 			// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 			}
 			if (eBuilding != NO_BUILDING)
 			{
@@ -1070,7 +1070,7 @@ bool CvPlayerCulture::ControlsGreatWork (int iIndex)
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
-							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 							if (iGreatWorkIndex == iIndex)
 							{
 								return true;
@@ -1099,11 +1099,11 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 			}
 			if (eBuilding != NO_BUILDING)
 			{
@@ -1115,7 +1115,7 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
-							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 							if (iGreatWorkIndex == iSearchIndex)
 							{
 								iReturnCityID = pLoopCity->GetID();
@@ -1135,10 +1135,10 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 {
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	GreatWorkClass eWritingClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE"));
+	GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
+	GreatWorkClass eArtifactsClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+	GreatWorkClass eMusicClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_MUSIC"));
 
 	vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
 	vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
@@ -1162,11 +1162,11 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 			BuildingTypes eBuilding = NO_BUILDING;
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 			}
 			if (eBuilding != NO_BUILDING)
 			{
@@ -1205,7 +1205,7 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
-							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 							if (iGreatWorkIndex != -1)
 							{
 								CvGreatWorkInMyEmpire work;
@@ -1255,10 +1255,10 @@ void CvPlayerCulture::DoSwapGreatWorks(YieldTypes eFocusYield)
 void CvPlayerCulture::DoSwapGreatWorks()
 {
 #endif
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	GreatWorkClass eWritingClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE"));
+	GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
+	GreatWorkClass eArtifactsClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+	GreatWorkClass eMusicClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_MUSIC"));
 
 	vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
 	vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
@@ -1283,11 +1283,11 @@ void CvPlayerCulture::DoSwapGreatWorks()
 
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 			}
 			if (eBuilding != NO_BUILDING)
 			{
@@ -1336,7 +1336,7 @@ void CvPlayerCulture::DoSwapGreatWorks()
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
-							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 							if (iGreatWorkIndex != -1)
 							{
 								CvGreatWorkInMyEmpire work;
@@ -1724,7 +1724,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 		// If not enough works, try other theming bonuses
 		int iCountSlots = pkEntry->GetGreatWorkCount();
-		if (worksToConsider.size() < (unsigned int)iCountSlots)
+		if (worksToConsider.size() < static_cast<unsigned int>(iCountSlots))
 		{
 			continue;
 		}
@@ -1752,7 +1752,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 			// Loop through the rest looking for works that will match up
 			it2 = it;
-			for (it2++; it2 != worksToConsider.end() && aWorksChosen.size() < (unsigned int)iCountSlots; it2++)
+			for (it2++; it2 != worksToConsider.end() && aWorksChosen.size() < static_cast<unsigned int>(iCountSlots); it2++)
 			{
 				if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it2->m_eEra, aErasSeen, it2->m_ePlayer, aPlayersSeen, m_pPlayer->GetID()))
 				{
@@ -1787,8 +1787,8 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 				aWorksToDiscard.clear();
 				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 				{
-					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-					if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer) && !m_pPlayer->IsAtWarWith((PlayerTypes)iLoopPlayer))
+					CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
+					if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(static_cast<PlayerTypes>(iLoopPlayer)) && !m_pPlayer->IsAtWarWith(static_cast<PlayerTypes>(iLoopPlayer)))
 					{
 						int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
 
@@ -1908,12 +1908,12 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 							{
-								if (eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+								if (eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE")))
 									continue;
 							}
 							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 							{
-								if (eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART") && eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+								if (eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART")) && eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT")))
 									continue;
 							}
 
@@ -1958,11 +1958,11 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 								//If it does match, add to actual list of things to grab and discard (paired up).
 								aGreatWorkPairs.push_back(iToBeAcquiredWorkIndex, iToBeDiscardedWorkIndex);
 								//And add our discarded work to our list of things to discard so we don't assume it still exists.
-								if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+								if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE")))
 									SetSwappableWritingIndex(-1);
-								else if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART"))
+								else if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART")))
 									SetSwappableArtIndex(-1);
-								else if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+								else if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT")))
 								SetSwappableArtifactIndex(-1);
 							}
 						}
@@ -2102,9 +2102,9 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 			if (bThemedProperly)
 			{
 				int iSlot = 0;
-				for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
+				for (int jJ = 0; jJ < static_cast<int>(aWorksChosen.size()); jJ++)
 				{
-					for (int kK = 0; kK < (int)worksToConsider.size(); kK++)
+					for (int kK = 0; kK < static_cast<int>(worksToConsider.size()); kK++)
 					{
 						if (worksToConsider[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
 						{
@@ -2302,7 +2302,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 	vector<EraTypes> aArtifactsErasSeen;
 
 	int iWorksInHalf = iNumSlots / 2;
-	if (iWorksInHalf % 2 != 0 || (int)works1.size() < iWorksInHalf || (int)works2.size() < iWorksInHalf)
+	if (iWorksInHalf % 2 != 0 || static_cast<int>(works1.size()) < iWorksInHalf || static_cast<int>(works2.size()) < iWorksInHalf)
 	{
 		return false;
 	}
@@ -2340,7 +2340,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 		// Loop through the rest looking for works that will match up
 		vector<CvGreatWorkInMyEmpire>::const_iterator it2 = it;
-		for (it2++; it2 != works2.end() && aArtifactsChosen.size() < (unsigned int)iWorksInHalf; it2++)
+		for (it2++; it2 != works2.end() && aArtifactsChosen.size() < static_cast<unsigned int>(iWorksInHalf); it2++)
 		{
 			if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it2->m_eEra, aArtifactsErasSeen, it2->m_ePlayer, aArtifactsPlayersSeen, m_pPlayer->GetID()))
 			{
@@ -2358,7 +2358,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 			// Now see if we can get the right number of art works to work as well
 			vector<CvGreatWorkInMyEmpire>::iterator it3;
-			for (it3 = works1.begin(); it3 != works1.end() && aWorksChosen.size() < (unsigned int)iNumSlots; it3++)
+			for (it3 = works1.begin(); it3 != works1.end() && aWorksChosen.size() < static_cast<unsigned int>(iNumSlots); it3++)
 			{
 				// First, make sure this "starter" is valid
 				if (pkBonusInfo->IsRequiresOwner() && it3->m_ePlayer != m_pPlayer->GetID())
@@ -2388,7 +2388,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 				// Loop through the rest looking for works that will match up
 				vector<CvGreatWorkInMyEmpire>::const_iterator it4 = it3;
-				for (it4++; it4 != works1.end() && aWorksChosen.size() < (unsigned int)iNumSlots; it4++)
+				for (it4++; it4 != works1.end() && aWorksChosen.size() < static_cast<unsigned int>(iNumSlots); it4++)
 				{
 					if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it4->m_eEra, aErasSeen, it4->m_ePlayer, aPlayersSeen, m_pPlayer->GetID()))
 					{
@@ -2419,8 +2419,8 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 					aWorksToDiscard.clear();
 					for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 					{
-						CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-						if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer) && !m_pPlayer->IsAtWarWith((PlayerTypes)iLoopPlayer))
+						CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
+						if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(static_cast<PlayerTypes>(iLoopPlayer)) && !m_pPlayer->IsAtWarWith(static_cast<PlayerTypes>(iLoopPlayer)))
 						{
 							int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
 
@@ -2540,12 +2540,12 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 								if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 								{
-									if (eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+									if (eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE")))
 										continue;
 								}
 								else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 								{
-									if (eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART") && eClass != (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+									if (eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART")) && eClass != static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT")))
 										continue;
 								}
 
@@ -2590,11 +2590,11 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 									//If it does match, add to actual list of things to grab and discard (paired up).
 									aGreatWorkPairs.push_back(iToBeAcquiredWorkIndex, iToBeDiscardedWorkIndex);
 									//And add our discarded work to our list of things to discard so we don't assume it still exists.
-									if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+									if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE")))
 										SetSwappableWritingIndex(-1);
-									else if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART"))
+									else if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART")))
 										SetSwappableArtIndex(-1);
-									else if (eClass2 == (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+									else if (eClass2 == static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT")))
 										SetSwappableArtifactIndex(-1);
 								}
 							}
@@ -2732,9 +2732,9 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				if (bThemedProperly)
 				{
 					int iSlot = 0;
-					for (int jJ = 0; jJ < (int)aWorksChosen.size(); jJ++)
+					for (int jJ = 0; jJ < static_cast<int>(aWorksChosen.size()); jJ++)
 					{
-						for (int kK = 0; kK < (int)works1.size(); kK++)
+						for (int kK = 0; kK < static_cast<int>(works1.size()); kK++)
 						{
 							if (works1[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
 							{
@@ -2745,7 +2745,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 								}
 							}
 						}
-						for (int kK = 0; kK < (int)works2.size(); kK++)
+						for (int kK = 0; kK < static_cast<int>(works2.size()); kK++)
 						{
 							if (works2[kK].m_iGreatWorkIndex == aWorksChosen[jJ])
 							{
@@ -3364,7 +3364,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 	GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(pPlot);
-	GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
 
 	switch (eChoice)
 	{
@@ -3373,7 +3373,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		break;
 	case ARCHAEOLOGY_LANDMARK:
 	{
-		ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+		ImprovementTypes eLandmarkImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
 		if (eLandmarkImprovement != NO_IMPROVEMENT)
 		{
 			pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
@@ -3550,7 +3550,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
-		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_LITERATURE")), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
@@ -3680,11 +3680,11 @@ void CvPlayerCulture::DoTurn()
 		// Move over last turn's numbers
 		m_aiLastTurnCulturalInfluence[iLoopPlayer] = m_aiCulturalInfluence[iLoopPlayer];
 
-		CvPlayer &kOtherPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kOtherPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 		if (iLoopPlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 		{
-			m_aiCulturalInfluence[iLoopPlayer] += GetInfluencePerTurn((PlayerTypes)iLoopPlayer);
+			m_aiCulturalInfluence[iLoopPlayer] += GetInfluencePerTurn(static_cast<PlayerTypes>(iLoopPlayer));
 		}
 
 		//and store off our delta
@@ -3700,7 +3700,7 @@ void CvPlayerCulture::DoTurn()
 
 	int iThisTurnInfluentialCivs = GetNumCivsInfluentialOn();
 
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_CULTURAL", true));
 	const bool bCultureVictoryValid = (eVictory == NO_VICTORY || GC.getGame().isVictoryValid(eVictory));
 
 	if (iThisTurnInfluentialCivs > 0 && !GC.getGame().GetGameCulture()->GetReportedSomeoneInfluential())
@@ -3713,7 +3713,7 @@ void CvPlayerCulture::DoTurn()
 			CvString							unmetFirstInfluentialInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_UNMET_INFLUENTIAL_TT");
 
 			for(int iNotifyPlayerID = 0; iNotifyPlayerID < MAX_MAJOR_CIVS; ++iNotifyPlayerID){
-				PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyPlayerID;
+				PlayerTypes eNotifyPlayer = static_cast<PlayerTypes>(iNotifyPlayerID);
 				CvPlayerAI& kNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 
 				if (m_pPlayer->GetID() == eNotifyPlayer){	
@@ -3749,7 +3749,7 @@ void CvPlayerCulture::DoTurn()
 			Localization::String	someoneCloseTwoInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_TT");
 			CvString							unmetCloseTwoInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_UNMET_TT");
 			for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-				PlayerTypes eCurPlayer = (PlayerTypes) iNotifyLoop;
+				PlayerTypes eCurPlayer = static_cast<PlayerTypes>(iNotifyLoop);
 				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
 
 				if (eCurPlayer == m_pPlayer->GetID()){	
@@ -3793,7 +3793,7 @@ void CvPlayerCulture::DoTurn()
 			Localization::String	someoneCloseOneInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_TT");
 			CvString							unmetCloseOneInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_UNMET_TT");
 			for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-				PlayerTypes eCurPlayer = (PlayerTypes) iNotifyLoop;
+				PlayerTypes eCurPlayer = static_cast<PlayerTypes>(iNotifyLoop);
 				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
 
 				if (eCurPlayer == m_pPlayer->GetID()){	
@@ -3830,7 +3830,7 @@ void CvPlayerCulture::DoTurn()
 	{
 		CvString strOurInfluenceInfo = "";
 		CvString strOurInfluenceInfoBad = "";
-		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
 		if(ePlayer == NO_PLAYER)
 		{
 			continue;
@@ -3933,7 +3933,7 @@ void CvPlayerCulture::DoTurn()
 	{
 		CvString strTheirInfluenceInfo = "";
 		CvString strTheirInfluenceInfoBad = "";
-		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
 		if(ePlayer == NO_PLAYER)
 		{
 			continue;
@@ -4047,11 +4047,11 @@ void CvPlayerCulture::DoTurn()
 
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
-					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+					eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 				}
 				if (eBuilding != NO_BUILDING)
 				{
@@ -4063,7 +4063,7 @@ void CvPlayerCulture::DoTurn()
 							int iNumSlots = pkBuilding->GetGreatWorkCount();
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex != NO_GREAT_WORK)
 								{
 									bool bDupe = false;
@@ -4100,7 +4100,7 @@ void CvPlayerCulture::DoTurn()
 		// check for having broadcast towers filled
 		PolicyBranchTypes eCurrentBranchType = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 
-		if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM))
+		if (eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM)))
 		{
 			int iNumWorksInBroadcastTowers = 0;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
@@ -4112,11 +4112,11 @@ void CvPlayerCulture::DoTurn()
 
 					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 					{
-						eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+						eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 					}
 					else
 					{
-						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+						eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 					}
 					if (eBuilding != NO_BUILDING)
 					{
@@ -4130,7 +4130,7 @@ void CvPlayerCulture::DoTurn()
 								bool bAnySlotEmpty = false;
 								for (int iI = 0; iI < iNumSlots; iI++)
 								{
-									int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+									int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 									if (iGreatWorkIndex == NO_GREAT_WORK)
 									{
 										bAnySlotEmpty = true;
@@ -4299,7 +4299,7 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 
-	if ((int)ePlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
+	if (static_cast<int>(ePlayer) != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
 		// check to see if the other player has the Great Firewall
 		bool bTargetHasGreatFirewall = m_pPlayer->IsNullifyInfluenceModifier();
@@ -4429,11 +4429,11 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 
-	float iTheirCultureThisTurn = (float)m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) + (float)kOtherPlayer.GetJONSCultureEverGenerated();
-	float iTheirCultureLastTurn = (float)kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() + kOtherPlayer.GetCulture()->GetLastTurnCPT();
+	float iTheirCultureThisTurn = static_cast<float>(m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer)) + static_cast<float>(kOtherPlayer.GetJONSCultureEverGenerated());
+	float iTheirCultureLastTurn = static_cast<float>(kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture()) + kOtherPlayer.GetCulture()->GetLastTurnCPT();
 
-	float iOurTourismThisTurn = (float)GetInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
-	float iOurTourismLastTurn = (float)GetLastTurnInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer);
+	float iOurTourismThisTurn = static_cast<float>(GetInfluenceOn(ePlayer)) + static_cast<float>(m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer));
+	float iOurTourismLastTurn = static_cast<float>(GetLastTurnInfluenceOn(ePlayer)) + static_cast<float>(m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer));
 
 	if (iTheirCultureLastTurn <= 0)
 		iTheirCultureLastTurn = 1;
@@ -4530,7 +4530,7 @@ int CvPlayerCulture::GetNumCivsInfluentialOn() const
 	int iRtnValue = 0;
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
 		{
 			if (GetInfluenceLevel(kPlayer.GetID()) >= INFLUENCE_LEVEL_INFLUENTIAL)
@@ -4549,7 +4549,7 @@ int CvPlayerCulture::GetNumCivsToBeInfluentialOn() const
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
 		{
 			iRtnValue++;
@@ -4567,14 +4567,14 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
 		{
 			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
 			|| (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
-				int iInfluenceOn = GetInfluenceOn((PlayerTypes)iLoopPlayer);
+				int iInfluenceOn = GetInfluenceOn(static_cast<PlayerTypes>(iLoopPlayer));
 				int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
 				int iPercent = 0;
 
@@ -4586,7 +4586,7 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 				if (iPercent < iLowestPercent)
 				{
 					iLowestPercent = iPercent;
-					eRtnValue = (PlayerTypes)iLoopPlayer;
+					eRtnValue = static_cast<PlayerTypes>(iLoopPlayer);
 				}
 			}
 		}
@@ -4900,7 +4900,7 @@ int CvPlayerCulture::GetTourism()
 	int iStartEra = /*ANCIENT*/ GD_INT_GET(TOURISM_START_ERA);
 	int iStartTech = /*AGRICULTURE*/ GD_INT_GET(TOURISM_START_TECH);
 	
-	if ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra))
+	if ((iStartTech == -1 || m_pPlayer->HasTech(static_cast<TechTypes>(iStartTech))) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra))
 	{
 		int iLoop = 0;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
@@ -5004,7 +5004,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (eLoopPlayer != ePlayer && eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 			{
@@ -5236,7 +5236,7 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
@@ -5261,7 +5261,7 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
@@ -5283,7 +5283,7 @@ void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eO
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (eLoopPlayer == m_pPlayer->GetID() || eLoopPlayer == eOtherPlayer)
 			continue;
@@ -5327,7 +5327,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 	for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 	{
-		PolicyBranchTypes eIdeologyBranch = (PolicyBranchTypes)iPolicyBranch;
+		PolicyBranchTypes eIdeologyBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 		if (eIdeologyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* kIdeology = GC.getPolicyBranchInfo(eIdeologyBranch);
@@ -5345,7 +5345,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 					sIdeologyIcon += "]";
 				}
-				if (MOD_ISKA_HERITAGE && eIdeologyBranch == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE))
+				if (MOD_ISKA_HERITAGE && eIdeologyBranch == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_HERITAGE)))
 				{
 					sIdeologyIcon = "[ICON_RELIGION]";
 				}
@@ -5364,7 +5364,7 @@ void CvPlayerCulture::DoPublicOpinion()
 						sTemp += sIdeologyIcon;
 					}
 
-					strWorldIdeologyPressureString += ((Localization::String)sTemp).toUTF8();
+					strWorldIdeologyPressureString += static_cast<Localization::String>(sTemp).toUTF8();
 				}
 			}
 		}
@@ -5373,7 +5373,7 @@ void CvPlayerCulture::DoPublicOpinion()
 	// Look at each civ
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		{
 			PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -5381,17 +5381,17 @@ void CvPlayerCulture::DoPublicOpinion()
 			{
 				int iCulturalDominanceOverUs = 0;
 				int iTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
-				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel(static_cast<PlayerTypes>(iLoopPlayer));
 
 				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 				{
 					//Only for popular+ civs.
-					if (iTheirInfluenceLevel > (int)INFLUENCE_LEVEL_FAMILIAR)
+					if (iTheirInfluenceLevel > static_cast<int>(INFLUENCE_LEVEL_FAMILIAR))
 					{
 						//INFLUENCE_TREND_RISING = 1, INFLUENCE_TREND_STATIC = 0, INFLUENCE_TREND_FALLING = -1
 
-						iTheirInfluenceLevel -= (int)(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
-						iOurInfluenceLevel -= (int)(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
+						iTheirInfluenceLevel -= static_cast<int>(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
+						iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
 					}
 				}
 
@@ -5409,7 +5409,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 						sTheirIdeologyIcon += "]";
 					}
-					if (MOD_ISKA_HERITAGE && eOtherCivIdeology == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE))
+					if (MOD_ISKA_HERITAGE && eOtherCivIdeology == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_HERITAGE)))
 					{
 						sTheirIdeologyIcon = "[ICON_RELIGION]";
 					}
@@ -5442,7 +5442,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 			sIdeologyIcon += "]";
 		}
-		if (MOD_ISKA_HERITAGE && eOurIdeology == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE))
+		if (MOD_ISKA_HERITAGE && eOurIdeology == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_HERITAGE)))
 		{
 			sIdeologyIcon = "[ICON_RELIGION]";
 		}
@@ -5453,7 +5453,7 @@ void CvPlayerCulture::DoPublicOpinion()
 		int iNumIdeologies = 0;
 		for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 		{
-			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel())
+			if (GC.getPolicyBranchInfo(static_cast<PolicyBranchTypes>(iPolicyBranch))->IsPurchaseByLevel())
 				iNumIdeologies++;
 		}
 		iNumCivsNotFollowingOurIdeology /= iNumIdeologies;
@@ -5485,7 +5485,7 @@ void CvPlayerCulture::DoPublicOpinion()
 		int iTurnLag = 30;
 		iTurnLag *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iTurnLag /= 100;
-		iTurnsSinceIdeology = (int)ceil((iTurnLag - iTurnsSinceIdeology) / 10.0);
+		iTurnsSinceIdeology = static_cast<int>(ceil((iTurnLag - iTurnsSinceIdeology) / 10.0));
 		if (iTurnsSinceIdeology > 0)
 		{
 			Localization::String locText = Localization::Lookup("TXT_KEY_IDEOLOGY_INFLUENCE_RECENTLY_ADOPTED");
@@ -5511,7 +5511,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 	for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 	{
-		PolicyBranchTypes eIdeologyBranch = (PolicyBranchTypes)iPolicyBranch;
+		PolicyBranchTypes eIdeologyBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 		if (eIdeologyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* kIdeology = GC.getPolicyBranchInfo(eIdeologyBranch);
@@ -5559,19 +5559,19 @@ void CvPlayerCulture::DoPublicOpinion()
 		int iGreatestDominance = -1;
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
-			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 			if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
 			{
 				PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 				if (eOtherCivIdeology == m_ePreferredIdeology)
 				{
-					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel(static_cast<PlayerTypes>(iLoopPlayer));
 					if (iCulturalDominanceOverUs > 0)
 					{
 						if (iCulturalDominanceOverUs > iGreatestDominance)
 						{
 							iGreatestDominance = iCulturalDominanceOverUs;
-							m_eOpinionBiggestInfluence = (PlayerTypes)iLoopPlayer;
+							m_eOpinionBiggestInfluence = static_cast<PlayerTypes>(iLoopPlayer);
 						}
 					}
 				}
@@ -5592,7 +5592,7 @@ void CvPlayerCulture::DoPublicOpinion()
 	bool bHasIdeologyInfluence = false;
 	for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 	{
-		PolicyBranchTypes eIdeologyBranch = (PolicyBranchTypes)iPolicyBranch;
+		PolicyBranchTypes eIdeologyBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 		if (eIdeologyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* kIdeology = GC.getPolicyBranchInfo(eIdeologyBranch);
@@ -5606,7 +5606,7 @@ void CvPlayerCulture::DoPublicOpinion()
 					sTemp += "[ENDCOLOR]:[NEWLINE]";
 					sTemp += vIdeologyPressureStrings[eIdeologyBranch];
 
-					vIdeologyPressureStrings[eIdeologyBranch] = ((Localization::String)sTemp).toUTF8();
+					vIdeologyPressureStrings[eIdeologyBranch] = static_cast<Localization::String>(sTemp).toUTF8();
 
 					bHasIdeologyInfluence = true;
 				}
@@ -5687,7 +5687,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 	// Start with World Congress
 	for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 	{
-		PolicyBranchTypes eIdeologyBranch = (PolicyBranchTypes)iPolicyBranch;
+		PolicyBranchTypes eIdeologyBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 		if (eIdeologyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			aIdeologyPressure[eIdeologyBranch] = GC.getGame().GetGameLeagues()->GetPressureForIdeology(m_pPlayer->GetID(), eIdeologyBranch);
@@ -5697,24 +5697,24 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 	// Look at each civ
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		{
 			PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 			if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE)
 			{
 				int iTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
-				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel(static_cast<PlayerTypes>(iLoopPlayer));
 
 				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 				{
 					//Only for popular+ civs.
-					if (iTheirInfluenceLevel <= (int)INFLUENCE_LEVEL_FAMILIAR)
+					if (iTheirInfluenceLevel <= static_cast<int>(INFLUENCE_LEVEL_FAMILIAR))
 						continue;
 
 					//INFLUENCE_TREND_RISING = 1, INFLUENCE_TREND_STATIC = 0, INFLUENCE_TREND_FALLING = -1
-					iTheirInfluenceLevel -= (int)(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
-					iOurInfluenceLevel -= (int)(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
+					iTheirInfluenceLevel -= static_cast<int>(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
+					iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
 				}
 
 				int iCulturalDominanceOverUs = max(0, iTheirInfluenceLevel) - max(0, iOurInfluenceLevel);
@@ -5732,7 +5732,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 		int iNumIdeologies = 0;
 		for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 		{
-			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel())
+			if (GC.getPolicyBranchInfo(static_cast<PolicyBranchTypes>(iPolicyBranch))->IsPurchaseByLevel())
 				iNumIdeologies++;
 		}
 		iNumCivsNotFollowingNewIdeology /= iNumIdeologies;
@@ -5745,7 +5745,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 
 	for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 	{
-		PolicyBranchTypes eIdeologyBranch = (PolicyBranchTypes)iPolicyBranch;
+		PolicyBranchTypes eIdeologyBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 		if (eIdeologyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* kIdeology = GC.getPolicyBranchInfo(eIdeologyBranch);
@@ -5806,7 +5806,7 @@ int CvPlayerCulture::GetNumCivsFollowingIdeology(PolicyBranchTypes ePolicyBranch
 	// determine which civs have run out of techs to steal
 	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(ui);
 
 		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == ePolicyBranch)
 			iFollowers++;
@@ -5820,7 +5820,7 @@ int CvPlayerCulture::GetNumCivsFollowingAnyIdeology()
 	// determine which civs have run out of techs to steal
 	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(ui);
 
 		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
 			iFollowers++;
@@ -5836,7 +5836,7 @@ int CvPlayerCulture::GetMaxPropagandaDiplomatsWanted() const
 	// determine which civs have run out of techs to steal
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(ui);
 
 		if (m_pPlayer->GetID() == eOtherPlayer)
 		{
@@ -5917,7 +5917,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 	fPerCityUnhappy = min(10.f,max(1.f,fPerCityUnhappy));
 	fUnhappyPerXPop = min(100.f,max(1.f,fUnhappyPerXPop));
 
-	return (int) max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop);
+	return static_cast<int>(max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop));
 }
 
 // LOGGING FUNCTIONS
@@ -5960,15 +5960,15 @@ void CvPlayerCulture::LogCultureData()
 	AppendToLog(strHeader, strLog, "# Cities", m_pPlayer->getNumCities());
 
 	// Guilds
-	TechTypes eTechDrama = (TechTypes)GC.getInfoTypeForString("TECH_DRAMA", true);
-	TechTypes eTechGuilds = (TechTypes)GC.getInfoTypeForString("TECH_GUILDS", true);
-	TechTypes eTechAcoustics = (TechTypes)GC.getInfoTypeForString("TECH_ACOUSTICS", true);
-	BuildingClassTypes eWritersGuildClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD", true);
-	BuildingClassTypes eArtistsGuildClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD", true);
-	BuildingClassTypes eMusiciansGuildClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD", true);
-	BuildingTypes eWritersGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
-	BuildingTypes eArtistsGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
-	BuildingTypes eMusiciansGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
+	TechTypes eTechDrama = static_cast<TechTypes>(GC.getInfoTypeForString("TECH_DRAMA", true));
+	TechTypes eTechGuilds = static_cast<TechTypes>(GC.getInfoTypeForString("TECH_GUILDS", true));
+	TechTypes eTechAcoustics = static_cast<TechTypes>(GC.getInfoTypeForString("TECH_ACOUSTICS", true));
+	BuildingClassTypes eWritersGuildClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD", true));
+	BuildingClassTypes eArtistsGuildClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD", true));
+	BuildingClassTypes eMusiciansGuildClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD", true));
+	BuildingTypes eWritersGuild = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true));
+	BuildingTypes eArtistsGuild = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true));
+	BuildingTypes eMusiciansGuild = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true));
 
 	if (eWritersGuildClass != NO_BUILDINGCLASS && eWritersGuild != NO_BUILDING)
 	{
@@ -6087,7 +6087,7 @@ void CvPlayerCulture::LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDi
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 	CvString strLine;
-	strLine.Format ("Acquiring Multiple non-Artifact Works from Players: %d, Discarded: %d, Acquired: %d", (int)eOtherPlayer, iWorkDiscarded, iWorkAcquired);
+	strLine.Format ("Acquiring Multiple non-Artifact Works from Players: %d, Discarded: %d, Acquired: %d", static_cast<int>(eOtherPlayer), iWorkDiscarded, iWorkAcquired);
 	CvString strTurn;
 	strTurn.Format (", %d,", GC.getGame().getGameTurn());
 	strLine = strPlayerName + strTurn + strLine;
@@ -6107,7 +6107,7 @@ void CvPlayerCulture::LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWo
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 	CvString strLine;
-	strLine.Format ("Acquiring Multiple Artifacts/Art from Players: %d, Discarded: %d, Acquired: %d", (int)eOtherPlayer, iWorkDiscarded, iWorkAcquired);
+	strLine.Format ("Acquiring Multiple Artifacts/Art from Players: %d, Discarded: %d, Acquired: %d", static_cast<int>(eOtherPlayer), iWorkDiscarded, iWorkAcquired);
 	CvString strTurn;
 	strTurn.Format (", %d,", GC.getGame().getGameTurn());
 	strLine = strPlayerName + strTurn + strLine;
@@ -6128,7 +6128,7 @@ void CvPlayerCulture::LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded,
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 	CvString strLine;
-	strLine.Format ("Acquired Work from Player: %d, Discarded: %d, Acquired: %d", (int)eOtherPlayer, iWorkDiscarded, iWorkAcquired);
+	strLine.Format ("Acquired Work from Player: %d, Discarded: %d, Acquired: %d", static_cast<int>(eOtherPlayer), iWorkDiscarded, iWorkAcquired);
 	CvString strTurn;
 	strTurn.Format (", %d,", GC.getGame().getGameTurn());
 	strLine = strPlayerName + strTurn + strLine;
@@ -6266,11 +6266,11 @@ void CvCityCulture::ClearGreatWorks()
 		// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
-			eBuilding = m_pCity ->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+			eBuilding = m_pCity ->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 		}
 		if (eBuilding != NO_BUILDING)
 		{
@@ -6282,7 +6282,7 @@ void CvCityCulture::ClearGreatWorks()
 					int iNumSlots = pkBuilding->GetGreatWorkCount();
 					for (int iI = 0; iI < iNumSlots; iI++)
 					{
-						m_pCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
+						m_pCity->GetCityBuildings()->SetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI, -1);
 					}
 				}
 			}
@@ -6300,16 +6300,16 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && m_pCity->HasBuildingClass((BuildingClassTypes)iBuildingClassLoop))
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && m_pCity->HasBuildingClass(static_cast<BuildingClassTypes>(iBuildingClassLoop)))
 		{
 			continue;
 		}
 		const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
-		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+		BuildingTypes eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 		if (eBuilding != NO_BUILDING)
 		{
 			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-			CvBuildingClassInfo *pkBuildingClass = GC.getBuildingClassInfo((BuildingClassTypes)iBuildingClassLoop);
+			CvBuildingClassInfo *pkBuildingClass = GC.getBuildingClassInfo(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 			if (pkBuilding && pkBuildingClass && !isWorldWonderClass(*pkBuildingClass))
 			{
 				int iNumSlots = pkBuilding->GetGreatWorkCount();
@@ -6418,7 +6418,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 		if (pkBuilding)
 		{
 			int iTourism = pkBuilding->GetTechEnhancedTourism();
-			if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
+			if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pkBuilding->GetEnhancedYieldTech())))
 			{
 				iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
@@ -6564,7 +6564,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			PlayerTypes eLoopPlayer;
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if(eLoopPlayer != ePlayer && eLoopPlayer != m_pCity->getOwner() && kCityPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 				{
@@ -6788,7 +6788,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		if (pkBuilding)
 		{
 			int iTechEnhancedTourism = pkBuilding->GetTechEnhancedTourism();
-			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
+			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pkBuilding->GetEnhancedYieldTech())))
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
@@ -6856,9 +6856,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
-			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 			PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-			if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && iLoopPlayer != m_pCity->getOwner() && GET_TEAM(kCityPlayer.getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iLoopPlayer).getTeam()))
+			if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && iLoopPlayer != m_pCity->getOwner() && GET_TEAM(kCityPlayer.getTeam()).isHasMet(GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer)).getTeam()))
 			{
 				// City shares religion with this player
 				if (kPlayer.GetReligions()->GetStateReligion() == ePlayerReligion)
@@ -6883,7 +6883,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				}
 
 				// Trade route with this player
-				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pCity->getOwner(), (PlayerTypes)iLoopPlayer))
+				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pCity->getOwner(), static_cast<PlayerTypes>(iLoopPlayer)))
 				{
 					if (tradeRouteCivs.length() > 0)
 					{
@@ -6909,9 +6909,9 @@ CvString CvCityCulture::GetTourismTooltip()
 					PlayerTypes eLoopPlayer;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
-						if(eLoopPlayer !=(PlayerTypes) iLoopPlayer && eLoopPlayer != m_pCity->getOwner() && kCityPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+						if(eLoopPlayer !=static_cast<PlayerTypes>(iLoopPlayer) && eLoopPlayer != m_pCity->getOwner() && kCityPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 						{
 							// Are they at war with me too?
 							if (GET_TEAM(kCityPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
@@ -7520,12 +7520,12 @@ bool CvCityCulture::IsThemingBonusPossible(BuildingClassTypes eBuildingClass) co
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 		}
 	}
 	else
 	{
-		eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+		eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 	}
 	CvBuildingEntry *pkBuilding = GC.GetGameBuildings()->GetEntry(eBuilding);
 	if (pkBuilding)
@@ -7559,12 +7559,12 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+					eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 				}
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+				eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 			}
 			CvBuildingEntry *pkBuilding = GC.GetGameBuildings()->GetEntry(eBuilding);
 			if (pkBuilding)
@@ -7613,12 +7613,12 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+				eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 			}
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			eBuilding = static_cast<BuildingTypes>(kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 		}
 		CvBuildingEntry *pkBuilding = GC.GetGameBuildings()->GetEntry(eBuilding);
 		if (pkBuilding)
@@ -7628,8 +7628,8 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 			{
 				szBonusString.Format("+%d [ICON_TOURISM]/[ICON_CULTURE]: ", GetThemingBonus(eBuildingClass));
 
-				if (pkBuilding->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_LOUVRE") ||
-					pkBuilding->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_HERMITAGE"))
+				if (pkBuilding->GetBuildingClassType() == static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_LOUVRE")) ||
+					pkBuilding->GetBuildingClassType() == static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_HERMITAGE")))
 				{
 					szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription());
 				}
@@ -7680,7 +7680,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 				szRtnValue += "[NEWLINE]";
 				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) 
 				{
-					YieldTypes eYield = (YieldTypes) iYield;
+					YieldTypes eYield = static_cast<YieldTypes>(iYield);
 					if(eYield != NO_YIELD)
 					{
 						int iYieldBonus = pkBuilding->GetThemingYieldBonus(eYield);
@@ -7703,7 +7703,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 				szRtnValue += "[NEWLINE]";
 				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) 
 				{
-					YieldTypes eYield = (YieldTypes) iYield;
+					YieldTypes eYield = static_cast<YieldTypes>(iYield);
 					if(eYield != NO_YIELD)
 					{
 						int iYieldBonus = pkBuilding->GetThemingYieldBonus(eYield);
@@ -7776,7 +7776,7 @@ void CvCityCulture::LogGreatWorks(FILogFile* pLog)
 	strMsg = m_pCity->getName() + ", ";
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		BuildingClassTypes eBldgClass = (BuildingClassTypes)iI;
+		BuildingClassTypes eBldgClass = static_cast<BuildingClassTypes>(iI);
 		
 		for (int jJ = 0; jJ < 4; jJ++)
 		{
@@ -7807,7 +7807,7 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBuildingClass);
+			eBuilding = static_cast<BuildingTypes>(pkCivInfo->getCivilizationBuildings(eBuildingClass));
 		}
 		if(NO_BUILDING != eBuilding)
 		{
@@ -7835,7 +7835,7 @@ void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBuildingClass);
+			eBuilding = static_cast<BuildingTypes>(pkCivInfo->getCivilizationBuildings(eBuildingClass));
 		}
 		if (NO_BUILDING != eBuilding)
 		{
@@ -8048,8 +8048,8 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	set<PlayerTypes> aPlayersSeen;
 
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
-	GreatWorkClass eArtifactClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+	GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
 
 	if (pkEntry)
 	{
@@ -8059,7 +8059,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			return -1;  // No theming bonus if some slots still empty or too many entries
 		}
 
-		EraTypes eFirstEra = (EraTypes) GC.getNumEraInfos();
+		EraTypes eFirstEra = static_cast<EraTypes>(GC.getNumEraInfos());
 		EraTypes eLastEra = NO_ERA;
 
 		// Store info on the attributes of all our Great Works
@@ -8119,7 +8119,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 				bValid = false;
 			}
 
-			if (bValid && bonusInfo->IsUniqueEras() && aErasSeen.size()<(size_t)iNumSlots)
+			if (bValid && bonusInfo->IsUniqueEras() && aErasSeen.size()<static_cast<size_t>(iNumSlots))
 			{
 				bValid = false;
 			}
@@ -8143,7 +8143,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 				bValid = false;
 			}
 
-			if (bValid && bonusInfo->IsRequiresUniquePlayers() && aPlayersSeen.size()<(size_t)iNumSlots)
+			if (bValid && bonusInfo->IsRequiresUniquePlayers() && aPlayersSeen.size()<static_cast<size_t>(iNumSlots))
 			{
 				bValid = false;
 			}

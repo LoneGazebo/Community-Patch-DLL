@@ -32,7 +32,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eDefaultUnit = (UnitTypes) pkUnitClassInfo->getDefaultUnitIndex();
+			const UnitTypes eDefaultUnit = static_cast<UnitTypes>(pkUnitClassInfo->getDefaultUnitIndex());
 
 			// If the UnitClass doesn't have a Default Unit available to everyone, skip it
 			if (eDefaultUnit == NO_UNIT)
@@ -57,7 +57,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 				continue;
 			}
 
-			const TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
+			const TechTypes ePrereqTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
 
 			// Unit has to require a Tech, otherwise it's too easy!
 			if (ePrereqTech == NO_TECH)
@@ -76,17 +76,17 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 
 			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				if (GET_PLAYER((PlayerTypes) iMajorLoop).isAlive())
+				if (GET_PLAYER(static_cast<PlayerTypes>(iMajorLoop)).isAlive())
 				{
 					// If a player already has one of this Unit, throw it out - we want something more advanced
-					if (GET_PLAYER((PlayerTypes) iMajorLoop).getUnitClassCount(eUnitClass) > 0)
+					if (GET_PLAYER(static_cast<PlayerTypes>(iMajorLoop)).getUnitClassCount(eUnitClass) > 0)
 					{
 						bValid = false;
 						break;
 					}
 
 					// Even if no one has this Unit lying around, if all players already have the Tech which unlocks it, throw it out - too easy
-					if (bAllPlayersHaveTech && !GET_TEAM((TeamTypes) GET_PLAYER((PlayerTypes) iMajorLoop).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+					if (bAllPlayersHaveTech && !GET_TEAM((TeamTypes) GET_PLAYER(static_cast<PlayerTypes>(iMajorLoop)).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 					{
 						bAllPlayersHaveTech = false;
 					}
@@ -120,7 +120,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 
 	for (int i = UnitClassesVector.size() - 1; i >= 0; i--)
 	{
-		const UnitClassTypes eUnitClass = (UnitClassTypes) UnitClassesVector.GetElement(i);
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(UnitClassesVector.GetElement(i));
 
 		// First Unit we find in this sorted Vector is our guy
 		if (bValid)
@@ -144,19 +144,19 @@ int CvGameQueries::GetTeamClosenessScore(int** aaiDistances, int* aiStartingLocs
 
 	for(int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
 	{
-		if(GET_TEAM((TeamTypes)iTeam).isAlive())
+		if(GET_TEAM(static_cast<TeamTypes>(iTeam)).isAlive())
 		{
 			int iTeamTotalDist = 0;
 			int iNumEdges = 0;
 			for(int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
 			{
-				if(GET_PLAYER((PlayerTypes)iPlayer).isAlive())
+				if(GET_PLAYER(static_cast<PlayerTypes>(iPlayer)).isAlive())
 				{
-					if(GET_PLAYER((PlayerTypes)iPlayer).getTeam() == (TeamTypes)iTeam)
+					if(GET_PLAYER(static_cast<PlayerTypes>(iPlayer)).getTeam() == static_cast<TeamTypes>(iTeam))
 					{
 						for(int iOtherPlayer = 0; iOtherPlayer < iPlayer; iOtherPlayer++)
 						{
-							if(GET_PLAYER((PlayerTypes)iOtherPlayer).getTeam() == (TeamTypes)iTeam)
+							if(GET_PLAYER(static_cast<PlayerTypes>(iOtherPlayer)).getTeam() == static_cast<TeamTypes>(iTeam))
 							{
 								// Add the edge between these two players that are on the same team
 								iNumEdges++;

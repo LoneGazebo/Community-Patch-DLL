@@ -592,7 +592,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 #if defined(MOD_BALANCE_CORE)
-		ePromotion = (PromotionTypes)iI;
+		ePromotion = static_cast<PromotionTypes>(iI);
 
 		// If upgrading, transfer memory of the promotions the old unit has ever obtained (this is in initWithNamedOffset() instead of convert() because promotions can get granted here, and the game needs to know if the promotion is ever obtained before promotions are granted)
 		if (eReason == REASON_UPGRADE && pPassUnit != NULL && pPassUnit->IsPromotionEverObtained(ePromotion))
@@ -769,9 +769,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	GC.getGame().incrementUnitClassCreatedCount((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
-	GET_TEAM(getTeam()).changeUnitClassCount(((UnitClassTypes)(getUnitInfo().GetUnitClassType())), 1);
-	kPlayer.changeUnitClassCount(((UnitClassTypes)(getUnitInfo().GetUnitClassType())), 1);
+	GC.getGame().incrementUnitClassCreatedCount(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()));
+	GET_TEAM(getTeam()).changeUnitClassCount(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()), 1);
+	kPlayer.changeUnitClassCount(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()), 1);
 
 	// Builder Limit
 	if(getUnitInfo().GetWorkRate() > 0 && getUnitInfo().GetDomainType() == DOMAIN_LAND)
@@ -784,16 +784,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		// use speed modifier to increase the work count, but not for archaeologists since they are killed anyways after dig site build.
 		int ibuildercharges = getUnitInfo().GetBuilderStrength();
-		UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+		UnitClassTypes eArchaeologistClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true));
 		if (getUnitClassType() != eArchaeologistClass)
 		{
 			const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 			if (0 != iworkerspeedmodifier)
 			{
-				float fTemp = (float)ibuildercharges;
+				float fTemp = static_cast<float>(ibuildercharges);
 				fTemp *= (100 + iworkerspeedmodifier);
 				fTemp /= 100;
-				ibuildercharges = (int)ceil(fTemp); // Round up
+				ibuildercharges = static_cast<int>(ceil(fTemp)); // Round up
 			}
 		}
 		setBuilderStrength(ibuildercharges);
@@ -851,7 +851,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			{
 				if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
 				{
-					kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+					kPlayer.changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
 				}
 			}
 		}
@@ -863,7 +863,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
 		{
-			kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+			kPlayer.changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -893,9 +893,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
-			ePromotion = (PromotionTypes) iI;
+			ePromotion = static_cast<PromotionTypes>(iI);
 
-			PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+			PromotionTypes ePromotionRoughTerrain = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN"));
 			if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
 				continue;
 
@@ -904,13 +904,13 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
+	const UnitCombatTypes unitCombatType = static_cast<UnitCombatTypes>(getUnitCombatType());
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
 		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
 		{
-			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			const PromotionTypes promotionID = static_cast<PromotionTypes>(iJ);
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(promotionID, unitCombatType))
 			{
 				setHasPromotion(promotionID, true);
@@ -924,7 +924,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		int iNumEraInfos = GC.getNumEraInfos();
 		for(int iEraLoop = 0; iEraLoop < iNumEraInfos; iEraLoop++)
 		{
-			eEra = (EraTypes) iEraLoop;
+			eEra = static_cast<EraTypes>(iEraLoop);
 			if((m_pUnitInfo->GetEraCombatStrength(eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 			{
 				SetBaseCombatStrength(m_pUnitInfo->GetEraCombatStrength(eEra));
@@ -934,7 +934,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				UnitCombatTypes eUnitCombatClass;
 				for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 				{
-					eUnitCombatClass = (UnitCombatTypes) iI;
+					eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
 					if((m_pUnitInfo->GetUnitNewEraCombatType(eUnitCombatClass, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 					{
 						setUnitCombatType(eUnitCombatClass);
@@ -943,7 +943,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				PromotionTypes ePromotion;
 				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 				{
-					ePromotion = (PromotionTypes) iI;
+					ePromotion = static_cast<PromotionTypes>(iI);
 					if((m_pUnitInfo->GetUnitNewEraPromotions(ePromotion, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 					{
 						setHasPromotion(ePromotion, true);
@@ -958,7 +958,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		// Any free Promotions to apply?
 		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
 		{
-			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			const PromotionTypes promotionID = static_cast<PromotionTypes>(iJ);
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(promotionID, unitClassType))
 			{
 				setHasPromotion(promotionID, true);
@@ -971,7 +971,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Free Promotions from Policies, Techs, etc.
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
-		ePromotion = (PromotionTypes) iI;
+		ePromotion = static_cast<PromotionTypes>(iI);
 
 		if(kPlayer.IsFreePromotion(ePromotion))
 		{
@@ -1031,7 +1031,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
 	if (IsEmbarkDeepWater()) {
-		setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION), false);
+		setHasPromotion(static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION)), false);
 		setHasPromotion(kPlayer.GetDeepWaterEmbarkationPromotion(), true);
 	}
 
@@ -1112,11 +1112,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
-				int theseFollowers = pCityReligions->GetNumFollowers((ReligionTypes) i);
+				int theseFollowers = pCityReligions->GetNumFollowers(static_cast<ReligionTypes>(i));
 
 				if (randFollower <= theseFollowers)
 				{
-					eReligion = (ReligionTypes) i;
+					eReligion = static_cast<ReligionTypes>(i);
 					break;
 				}
 
@@ -1142,11 +1142,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
-				int theseFollowers = pCityReligions->GetNumFollowers((ReligionTypes) i);
+				int theseFollowers = pCityReligions->GetNumFollowers(static_cast<ReligionTypes>(i));
 
 				if (randFollower <= theseFollowers)
 				{
-					eReligion = (ReligionTypes) i;
+					eReligion = static_cast<ReligionTypes>(i);
 					break;
 				}
 
@@ -1188,7 +1188,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		SetGAPBlastStrength(getGAPBlast());
 	}
 
-	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
+	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
 	{
 		kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
@@ -1233,21 +1233,21 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	// Message for World Unit being born
-	if(isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
+	if(isWorldUnitClass(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType())))
 	{
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			if(GET_PLAYER((PlayerTypes)iI).isAlive() && GC.getGame().getActivePlayer())
+			if(GET_PLAYER(static_cast<PlayerTypes>(iI)).isAlive() && GC.getGame().getActivePlayer())
 			{
-				if(GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+				if(GET_TEAM(getTeam()).isHasMet(GET_PLAYER(static_cast<PlayerTypes>(iI)).getTeam()))
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_CREATED_UNIT", kPlayer.getNameKey(), getNameKey());
-					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"), getX(), getY(), true, true*/);
+					DLLUI->AddMessage(0, static_cast<PlayerTypes>(iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"), getX(), getY(), true, true*/);
 				}
 				else
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_MISC_UNKNOWN_CREATED_UNIT", getNameKey());
-					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")*/);
+					DLLUI->AddMessage(0, static_cast<PlayerTypes>(iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")*/);
 				}
 			}
 		}
@@ -1335,7 +1335,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
 			// Does this Minor want us to spawn a Unit?
-			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorCivLoop);
 			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(getOwner(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GREAT_PERSON);
 		}
@@ -1686,7 +1686,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
-	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
+	m_eCombatType = (NO_UNIT != m_eUnitType) ? static_cast<UnitCombatTypes>(m_pUnitInfo->GetUnitCombatType()) : NO_UNITCOMBAT;
 	m_iNumAttacks = (m_iBaseCombat > 0 || m_iBaseRangedCombat > 0) ? 1 : 0;
 	m_iAttacksMade = 0;
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GD_INT_GET(MAX_HIT_POINTS);
@@ -1847,7 +1847,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_unitClassModifier.resize(GC.getNumUnitClassInfos());
 		for(int i = 0; i < GC.getNumUnitClassInfos(); i++)
 		{
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)i);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(i));
 			if(!pkUnitClassInfo)
 			{
 				continue;
@@ -2316,7 +2316,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 		if(pUnitNode)
 		{
-			pkOldUnits = (IDInfo*)_malloca(pPlot->getNumUnits() * sizeof(IDInfo));	// Allocate an array on the stack, it shouldn't be too large
+			pkOldUnits = static_cast<IDInfo*>((0));	// Allocate an array on the stack, it shouldn't be too large
 			IDInfo* pkEntry = pkOldUnits;
 			while(pUnitNode != NULL)
 			{
@@ -2412,7 +2412,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				if (!IsCombatSupportUnit())
 				{
 					// AI cares less about lost workers / etc in lategame
-					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(eUnitOwner).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
+					int iEraFactor = !isBarbarian() ? max(8 - static_cast<int>(GET_PLAYER(eUnitOwner).GetCurrentEra()), 1) : static_cast<int>(GC.getGame().getCurrentEra());
 
 					if (IsGreatPerson())
 					{
@@ -2477,7 +2477,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 						// Loop through all masters and penalize them
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
@@ -2502,7 +2502,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 						// Loop through all masters and penalize them
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
@@ -2520,7 +2520,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer))
 							{
 								// If the unit killed was a Barbarian combat unit, calculate unit value (comparing against the vassal's typical unit power)
@@ -2602,10 +2602,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		{
 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
+				if (GET_PLAYER(static_cast<PlayerTypes>(iI)).isAlive())
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey());
-					DLLUI->AddUnitMessage(0, GetIDInfo(), ((PlayerTypes)iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_MAJOR_EVENT);
+					DLLUI->AddUnitMessage(0, GetIDInfo(), static_cast<PlayerTypes>(iI), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_MAJOR_EVENT);
 				}
 			}
 		}
@@ -2724,8 +2724,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	CvAssertMsg(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
 	CvAssertMsg(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
 
-	GET_TEAM(getTeam()).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
-	GET_PLAYER(eUnitOwner).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
+	GET_TEAM(getTeam()).changeUnitClassCount(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()), -1);
+	GET_PLAYER(eUnitOwner).changeUnitClassCount(static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType()), -1);
 
 	// Builder Limit
 	if(getUnitInfo().GetWorkRate() > 0 && getUnitInfo().GetDomainType() == DOMAIN_LAND)
@@ -2832,7 +2832,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
 		{
-			GET_PLAYER(eUnitOwner).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
+			GET_PLAYER(eUnitOwner).changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
 	// Let's force a visibility update to all nearby units (in the domain)--within range--if this general is captured or killed regardless if there is another general around to give the bonus
@@ -2982,7 +2982,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 	if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->IsCivilianUnit() && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
 	{
-		PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PRISONER_WAR");
+		PromotionTypes ePromotionForced = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_PRISONER_WAR"));
 		if (ePromotionForced != NO_PROMOTION && !pkCapturedUnit->HasPromotion(ePromotionForced))
 		{
 			pkCapturedUnit->setHasPromotion(ePromotionForced, true);
@@ -2991,7 +2991,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 	if (pkCapturedUnit->IsCombatUnit() && kCaptureDef.bConscript)
 	{
-		PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CONSCRIPT");
+		PromotionTypes ePromotionForced = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_CONSCRIPT"));
 		if (ePromotionForced != NO_PROMOTION)
 		{
 			kCapturingPlayer.changeNumUnitsSupplyFree(1);
@@ -3253,7 +3253,7 @@ void CvUnit::doTurn()
 #if defined(MOD_BALANCE_CORE)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
+		ChangeNumTimesAttackedThisTurn(static_cast<PlayerTypes>(iPlayerLoop), (-1 * GetNumTimesAttackedThisTurn(static_cast<PlayerTypes>(iPlayerLoop))));
 	}
 
 	//Behind enemy lines?
@@ -3278,7 +3278,7 @@ void CvUnit::doTurn()
 		int iTotalMovePenalty = 0;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
 
 			if (pAdjacentPlot != NULL)
 			{
@@ -3421,7 +3421,7 @@ bool CvUnit::isActionRecommended(int iAction)
 
 	if(GC.getActionInfo(iAction)->getMissionType() == CvTypes::getMISSION_BUILD())
 	{
-		eBuild = ((BuildTypes)(GC.getActionInfo(iAction)->getMissionData()));
+		eBuild = static_cast<BuildTypes>((GC.getActionInfo(iAction)->getMissionData()));
 		CvAssert(eBuild != NO_BUILD);
 		CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
@@ -3470,14 +3470,14 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		CvPlot* pAdjacentPlot = NULL;
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
+			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), static_cast<DirectionTypes>(iI));
 
 			if(pAdjacentPlot != NULL)
 			{
 				FeatureTypes eFeature = pAdjacentPlot->getFeatureType();
 				if(eFeature != NO_FEATURE)
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getFeatureInfo(eFeature)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3495,7 +3495,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{				
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3514,7 +3514,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
 				if(eAdjacentTerrain != NO_TERRAIN && (eAdjacentTerrain <= TERRAIN_SNOW))
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3532,7 +3532,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3549,7 +3549,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				// Starting terrain that provides free promotions?
 				if(pAdjacentPlot->isHills())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3567,7 +3567,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3583,7 +3583,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				}
 				if(pAdjacentPlot->isMountain())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3601,7 +3601,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3617,7 +3617,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				}
 				if(pAdjacentPlot->isShallowWater() && !pAdjacentPlot->isLake())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_COAST)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_COAST)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3635,7 +3635,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3651,7 +3651,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				}
 				if(!pAdjacentPlot->isShallowWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->isWater())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_OCEAN)->getAdjacentSpawnLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_OCEAN)->getAdjacentSpawnLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3669,7 +3669,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							}
 							if(!bNoPromotion)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+								PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 								// Unit has negation promotion
 								if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 								{
@@ -3689,7 +3689,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		FeatureTypes eFeature = pNewPlot->getFeatureType();
 		if(eFeature != NO_FEATURE)
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getFeatureInfo(eFeature)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3707,7 +3707,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3725,7 +3725,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		TerrainTypes eTerrain = pNewPlot->getTerrainType();
 		if(eTerrain != NO_TERRAIN && (eTerrain <= TERRAIN_SNOW))
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(eTerrain)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3743,7 +3743,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3759,7 +3759,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isHills())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_HILL)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3777,7 +3777,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3793,7 +3793,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isMountain())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3811,7 +3811,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3827,7 +3827,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isShallowWater() && !pNewPlot->isLake())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_COAST)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_COAST)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3845,7 +3845,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3861,7 +3861,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(!pNewPlot->isShallowWater() && !pNewPlot->isLake() && pNewPlot->isWater())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_OCEAN)->getSpawnLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_OCEAN)->getSpawnLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3879,7 +3879,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3900,7 +3900,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		FeatureTypes eFeature = pNewPlot->getFeatureType();
 		if(eFeature != NO_FEATURE)
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getFeatureInfo(eFeature)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3918,7 +3918,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -3939,7 +3939,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			//Only check for it to be owned by the player if that's valid!
 			if (!GC.getImprovementInfo(eNeededImprovement)->IsOwnerOnly() || pNewPlot->getOwner() == getOwner())
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3957,7 +3957,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -3980,7 +3980,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		TerrainTypes eTerrain = pNewPlot->getTerrainType();
 		if(eTerrain != NO_TERRAIN && (eTerrain <= TERRAIN_SNOW))
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(eTerrain)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -3998,7 +3998,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -4014,7 +4014,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isHills())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_HILL)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4032,7 +4032,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -4048,7 +4048,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isMountain())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4066,7 +4066,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -4082,7 +4082,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(pNewPlot->isShallowWater() && !pNewPlot->isLake())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_COAST)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_COAST)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4100,7 +4100,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -4116,7 +4116,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		if(!pNewPlot->isShallowWater() && !pNewPlot->isLake() && pNewPlot->isWater())
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_OCEAN)->getLocationUnitFreePromotion();
+			PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_OCEAN)->getLocationUnitFreePromotion());
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4134,7 +4134,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					if(!bNoPromotion)
 					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+						PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 						// Unit has negation promotion
 						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 						{
@@ -4151,7 +4151,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		CvPlot* pAdjacentPlot = NULL;
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
+			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), static_cast<DirectionTypes>(iI));
 
 			if(pAdjacentPlot == NULL)
 				continue;
@@ -4160,7 +4160,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			FeatureTypes eFeature = pAdjacentPlot->getFeatureType();
 			if(eFeature != NO_FEATURE)
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getFeatureInfo(eFeature)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4178,7 +4178,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4196,7 +4196,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			TerrainTypes eTerrain = pAdjacentPlot->getTerrainType();
 			if(eTerrain != NO_TERRAIN && (eTerrain <= TERRAIN_SNOW))
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(eTerrain)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4214,7 +4214,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4231,7 +4231,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			// Adjacent terrain that provides free promotions?
 			if(pAdjacentPlot->isHills())
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4249,7 +4249,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4266,7 +4266,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			// Adjacent terrain that provides free promotions?
 			if(pAdjacentPlot->isMountain())
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4284,7 +4284,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4300,7 +4300,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			}
 			if(pAdjacentPlot->isShallowWater() && !pAdjacentPlot->isLake())
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_COAST)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_COAST)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4318,7 +4318,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4334,7 +4334,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 			}
 			if(!pAdjacentPlot->isShallowWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->isWater())
 			{
-				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_OCEAN)->getAdjacentUnitFreePromotion();
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_OCEAN)->getAdjacentUnitFreePromotion());
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4352,7 +4352,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 						if(!bNoPromotion)
 						{
-							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							PromotionTypes eNegatorPromotion = static_cast<PromotionTypes>(getNegatorPromotion());
 							// Unit has negation promotion
 							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
 							{
@@ -4377,7 +4377,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				{
 					if(pOldPlot->isHills() && eNeededTerrain == TERRAIN_HILL)
 					{
-						PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getLocationUnitFreePromotion();
+						PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_HILL)->getLocationUnitFreePromotion());
 						if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 						{
 							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4389,7 +4389,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					else if(pOldPlot->isMountain() && eNeededTerrain == TERRAIN_MOUNTAIN)
 					{
-						PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getLocationUnitFreePromotion();
+						PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getLocationUnitFreePromotion());
 						if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 						{
 							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4401,7 +4401,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					else if((pOldPlot->isWater() && pOldPlot->isShallowWater() && !pOldPlot->isLake()) && eNeededTerrain == TERRAIN_COAST)
 					{
-						PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_COAST)->getLocationUnitFreePromotion();
+						PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_COAST)->getLocationUnitFreePromotion());
 						if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 						{
 							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4413,7 +4413,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					else if((pOldPlot->isWater() && !pOldPlot->isShallowWater() && !pOldPlot->isLake()) && eNeededTerrain == TERRAIN_OCEAN)
 					{
-						PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_OCEAN)->getLocationUnitFreePromotion();
+						PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(TERRAIN_OCEAN)->getLocationUnitFreePromotion());
 						if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 						{
 							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4425,7 +4425,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					}
 					else if(eNeededTerrain <= TERRAIN_SNOW)
 					{
-						PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eNeededTerrain)->getLocationUnitFreePromotion();
+						PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getTerrainInfo(eNeededTerrain)->getLocationUnitFreePromotion());
 						if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 						{
 							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4442,7 +4442,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				FeatureTypes eNeededFeature = pOldPlot->getFeatureType();
 				if(eNeededFeature != NO_FEATURE)
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eNeededFeature)->getLocationUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getFeatureInfo(eNeededFeature)->getLocationUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 					{
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4458,7 +4458,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				ImprovementTypes eNeededImprovement = pOldPlot->getImprovementType();
 				if(eNeededImprovement != NO_IMPROVEMENT)
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
+					PromotionTypes ePromotion = static_cast<PromotionTypes>(GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion());
 					if(ePromotion != NO_PROMOTION && isHasPromotion(ePromotion))
 					{
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -4621,7 +4621,7 @@ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bT
 	switch(eCommand)
 	{
 	case COMMAND_PROMOTION:
-		if(canPromote((PromotionTypes)iData1, iData2))
+		if(canPromote(static_cast<PromotionTypes>(iData1), iData2))
 		{
 			return true;
 		}
@@ -4635,7 +4635,7 @@ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bT
 		break;
 
 	case COMMAND_AUTOMATE:
-		if(CanAutomate((AutomateTypes)iData1, bTestVisible))
+		if(CanAutomate(static_cast<AutomateTypes>(iData1), bTestVisible))
 		{
 			return true;
 		}
@@ -4697,7 +4697,7 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 		switch(eCommand)
 		{
 		case COMMAND_PROMOTION:
-			promote((PromotionTypes)iData1, iData2);
+			promote(static_cast<PromotionTypes>(iData1), iData2);
 			break;
 
 		case COMMAND_UPGRADE:
@@ -4706,7 +4706,7 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 			break;
 
 		case COMMAND_AUTOMATE:
-			Automate((AutomateTypes)iData1);
+			Automate(static_cast<AutomateTypes>(iData1));
 			bCycle = true;
 			break;
 
@@ -4917,7 +4917,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
 				//this promotion overrides the exception ...
-				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
+				PromotionTypes ePromotionOceanImpassable = static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE));
 				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
 				if(bOceanImpassable)
 					return false;
@@ -5215,7 +5215,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		{
 			if (getDomainType() == DOMAIN_AIR)
 				return false;
-			if (isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_ONLY_DEFENSIVE)))
+			if (isHasPromotion(static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_ONLY_DEFENSIVE))))
 				return false;	// Can't advance into an enemy city
 		}
 	}
@@ -5504,7 +5504,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
 		bool bCanDoLinkedMove = true;
 		vector<CvUnit*> LinkedUnits;
-		for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
+		for (int iI = 0; iI < static_cast<int>(LinkedUnitIDs.size()); iI++)
 		{
 			CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
 			if (!pLinkedUnit->canMoveInto(targetPlot, CvUnit::MOVEFLAG_DESTINATION)) {
@@ -5519,7 +5519,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		{
 			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 
-			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
+			for (int iI = 0; iI < static_cast<int>(LinkedUnits.size()); iI++)
 			{
 				CvUnit* pLinkedUnit = LinkedUnits[iI];
 				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), CvUnit::MOVEFLAG_DESTINATION);
@@ -6133,7 +6133,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		if (getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
 			return false;
 
-		UnitClassTypes eScoutClass = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCOUT", true);
+		UnitClassTypes eScoutClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_SCOUT", true));
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
 
@@ -6286,7 +6286,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			return false;
 
 		// No scouts
-		UnitClassTypes eScoutClass = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCOUT", true);
+		UnitClassTypes eScoutClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_SCOUT", true));
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
 
@@ -7539,7 +7539,7 @@ void CvUnit::LogWorkerEvent(BuildTypes eBuildType, bool bStartingConstruction)
 	CvString strResource = ",";
 	CvString strCanSee = ",";
 
-	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuildType)->getImprovement();
+	ImprovementTypes eImprovement = static_cast<ImprovementTypes>(GC.getBuildInfo(eBuildType)->getImprovement());
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		ResourceTypes eResource = plot()->getResourceType(getTeam());
@@ -7658,7 +7658,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 		int iNumResourceInfos = GC.getNumResourceInfos();
 		for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
 			{
@@ -7897,7 +7897,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 		if(pLoopPlot != NULL)
 		{
@@ -8164,7 +8164,7 @@ void CvUnit::DoAttrition()
 
 	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
-		if (MOD_ATTRITION && !isBarbarian() && !IsCivilianUnit() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true)))
+		if (MOD_ATTRITION && !isBarbarian() && !IsCivilianUnit() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion(static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true))))
 		{
 			strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 			changeDamage(5, NO_PLAYER, 0.0, &strAppendText);
@@ -8537,7 +8537,7 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 	// No enemy units adjacent
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		CvPlot* pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(iX, iY, static_cast<DirectionTypes>(iI));
 		if(pAdjacentPlot != NULL)
 		{
 			CvUnit* pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
@@ -8683,12 +8683,12 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 
 	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
-		if(GET_TEAM((TeamTypes)iI).isAlive())
+		if(GET_TEAM(static_cast<TeamTypes>(iI)).isAlive())
 		{
 			CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
 			if(pTargetPlot)
 			{
-				TeamTypes eTheirTeam = (TeamTypes)iI;
+				TeamTypes eTheirTeam = static_cast<TeamTypes>(iI);
 				if(isNukeVictim(pTargetPlot, eTheirTeam))
 				{
 					CvTeam& myTeam = GET_TEAM(getTeam());
@@ -9607,7 +9607,7 @@ bool CvUnit::createFreeLuxury()
 		int iBestFlavor = 0;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
@@ -9631,7 +9631,7 @@ bool CvUnit::createFreeLuxury()
 		{
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
@@ -9653,7 +9653,7 @@ bool CvUnit::createFreeLuxury()
 		{
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
@@ -9715,7 +9715,7 @@ int CvUnit::CreateFreeLuxuryCheck()
 		int iBestFlavor = 0;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
@@ -9739,7 +9739,7 @@ int CvUnit::CreateFreeLuxuryCheck()
 		{
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
@@ -9761,7 +9761,7 @@ int CvUnit::CreateFreeLuxuryCheck()
 		{
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
@@ -9811,7 +9811,7 @@ float CvUnit::calculateExoticGoodsDistanceFactor(const CvPlot* pPlot)
 	if (pPlot && pCapital)
 	{
 		int iDistanceThreshold = (GC.getMap().getGridWidth() + GC.getMap().getGridHeight()) / 2;
-		fDistanceFactor = plotDistance(pPlot->getX(), pPlot->getY(), pCapital->getX(), pCapital->getY()) / (float) iDistanceThreshold;
+		fDistanceFactor = plotDistance(pPlot->getX(), pPlot->getY(), pCapital->getX(), pCapital->getY()) / static_cast<float>(iDistanceThreshold);
 	}
 
 	return fDistanceFactor;
@@ -9835,7 +9835,7 @@ bool CvUnit::canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility) c
 		int iNumValidPlots = 0;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 			if (pLoopPlot != NULL)
 			{
 				PlayerTypes eLoopPlotOwner = pLoopPlot->getOwner();
@@ -9868,7 +9868,7 @@ int CvUnit::getExoticGoodsGoldAmount()
 		float fDistanceFactor = calculateExoticGoodsDistanceFactor(plot());
 
 		int iExtraGold = /*400*/ GD_INT_GET(EXOTIC_GOODS_GOLD_MAX) - /*100*/ GD_INT_GET(EXOTIC_GOODS_GOLD_MIN);
-		iValue = GD_INT_GET(EXOTIC_GOODS_GOLD_MIN) + (int)(iExtraGold * fDistanceFactor);
+		iValue = GD_INT_GET(EXOTIC_GOODS_GOLD_MIN) + static_cast<int>(iExtraGold * fDistanceFactor);
 		iValue = MIN(iValue, GD_INT_GET(EXOTIC_GOODS_GOLD_MAX));
 	}
 	return iValue;
@@ -9883,7 +9883,7 @@ int CvUnit::getExoticGoodsXPAmount()
 		float fDistanceFactor = calculateExoticGoodsDistanceFactor(plot());
 
 		int iExtraXP = /*30*/ GD_INT_GET(EXOTIC_GOODS_XP_MAX) - /*10*/ GD_INT_GET(EXOTIC_GOODS_XP_MIN);
-		iValue = GD_INT_GET(EXOTIC_GOODS_XP_MIN) + (int)(iExtraXP * fDistanceFactor);
+		iValue = GD_INT_GET(EXOTIC_GOODS_XP_MIN) + static_cast<int>(iExtraXP * fDistanceFactor);
 		iValue = MIN(iValue, GD_INT_GET(EXOTIC_GOODS_XP_MAX));
 	}
 	return iValue;
@@ -9905,14 +9905,14 @@ bool CvUnit::sellExoticGoods()
 		changeNumExoticGoods(-1);
 #if defined(MOD_BALANCE_CORE)
 		PlayerTypes ePlotOwner = NO_PLAYER;
-		ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+		ImprovementTypes eFeitoria = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_FEITORIA"));
 		if (eFeitoria != NO_IMPROVEMENT)
 		{
 			if (GC.getImprovementInfo(eFeitoria) != NULL && GC.getImprovementInfo(eFeitoria)->GetRequiredCivilization() == getCivilizationType())
 			{
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
-					CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+					CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), static_cast<DirectionTypes>(iI));
 					if (pLoopPlotSearch != NULL)
 					{
 						PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
@@ -10251,7 +10251,7 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 	// Do the rebase first to keep the visualization in sequence
 	if ((plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman()) && !CvPreGame::quickMovement())
 	{
-		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+		SpecialUnitTypes eSpecialUnitPlane = static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_FIGHTER"));
 		if(getSpecialUnitType() == eSpecialUnitPlane)
 		{
 			CvInterfacePtr<ICvPlot1> pDllOldPlot(new CvDllPlot(oldPlot));
@@ -10331,7 +10331,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		}
 	}
 
-	TechTypes ePillagePrereq = (TechTypes) getUnitInfo().GetPrereqPillageTech();
+	TechTypes ePillagePrereq = static_cast<TechTypes>(getUnitInfo().GetPrereqPillageTech());
 	if(ePillagePrereq != NO_TECH)
 	{
 		if(!GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePillagePrereq))
@@ -10354,7 +10354,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(eImprovementType == (ImprovementTypes)GD_INT_GET(RUINS_IMPROVEMENT))
+	if(eImprovementType == static_cast<ImprovementTypes>(GD_INT_GET(RUINS_IMPROVEMENT)))
 	{
 		return false;
 	}
@@ -10456,7 +10456,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	CvCity* pOriginCity = getOriginCity();
 	for (int iI = 0; iI < YIELD_GREAT_GENERAL_POINTS; iI++)
 	{
-		YieldTypes eYield = (YieldTypes)iI;
+		YieldTypes eYield = static_cast<YieldTypes>(iI);
 		if (GET_PLAYER(getOwner()).GetYieldFromPillage(eYield) > 0 || (pOriginCity && pOriginCity->GetYieldFromPillage(eYield) > 0))
 			return true;
 	}
@@ -10546,8 +10546,8 @@ bool CvUnit::pillage()
 						}
 					}
 
-					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+					static const ImprovementTypes eCitadel = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_CITADEL"));
+					static const ImprovementTypes eFort = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_FORT"));
 					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
 					{
 						iValueMultiplier += 100;
@@ -10574,7 +10574,7 @@ bool CvUnit::pillage()
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iTileValue);
@@ -10688,9 +10688,9 @@ bool CvUnit::pillage()
 				
 				// Find the build for this improvement
 				for (int i = 0; i < GC.getNumBuildInfos(); i++) {
-					CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					CvBuildInfo* pkBuild = GC.getBuildInfo(static_cast<BuildTypes>(i));
 					
-					if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
+					if (pkBuild && static_cast<ImprovementTypes>(pkBuild->getImprovement()) == eOldImprovement) {
 						// Found it, but did it auto-add a route?
 						if (pkBuild->getRoute() != NO_ROUTE) {
 							// Yes, so remove the route as well
@@ -11192,7 +11192,7 @@ bool CvUnit::DoFoundReligion()
 						if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetBeliefToFound, kOwner.GetID(), eReligion) == GAMEEVENTRETURN_VALUE) {
 							// Defend against modder stupidity!
 							if (iValue > NO_BELIEF && iValue < GC.getNumBeliefInfos()) {
-								eBeliefs[3] = (BeliefTypes)iValue;
+								eBeliefs[3] = static_cast<BeliefTypes>(iValue);
 							}
 						}
 					}
@@ -11881,7 +11881,7 @@ int CvUnit::GetScaleAmount(int iAmountToScale) const
 	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
 	{
 		iExtra = 0;
-		ImprovementTypes eImprovement = (ImprovementTypes)i;
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(i);
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -12415,7 +12415,7 @@ bool CvUnit::trade()
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence);
@@ -12638,7 +12638,7 @@ bool CvUnit::repairFleet()
 	// And then all adjacent
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		CvPlot *pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot *pAdjacentPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -12698,7 +12698,7 @@ bool CvUnit::CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const
 		return false;
 
 	// Can this unit actually build a part?
-	ProjectTypes eSpaceshipProject = (ProjectTypes) getUnitInfo().GetSpaceshipProject();
+	ProjectTypes eSpaceshipProject = static_cast<ProjectTypes>(getUnitInfo().GetSpaceshipProject());
 	if(eSpaceshipProject == NO_PROJECT)
 		return false;
 
@@ -12740,7 +12740,7 @@ bool CvUnit::DoBuildSpaceship()
 		return false;
 
 	// Can this unit actually build a part?
-	ProjectTypes eSpaceshipProject = (ProjectTypes)m_pUnitInfo->GetSpaceshipProject();
+	ProjectTypes eSpaceshipProject = static_cast<ProjectTypes>(m_pUnitInfo->GetSpaceshipProject());
 	if(eSpaceshipProject == NO_PROJECT)
 		return false;
 
@@ -12783,7 +12783,7 @@ bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 			CvPlot* pLoopPlot = NULL;
 			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
-				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 				if(pLoopPlot != NULL)
 				{
@@ -12976,8 +12976,8 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 						if (pkImprovement)
 						{
-							static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-							static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+							static const ImprovementTypes eCitadel = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_CITADEL"));
+							static const ImprovementTypes eFort = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_FORT"));
 
 							if (eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel)
 							{
@@ -13068,7 +13068,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Instant yield from tiles gained by culture bombing
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				YieldTypes eYield = (YieldTypes)iI;
+				YieldTypes eYield = static_cast<YieldTypes>(iI);
 
 				int iPassYield = 0;
 
@@ -13125,7 +13125,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	{
 		if (vePlayersBombed[iSlotLoop])
 		{
-			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
+			CvPlayer* pPlayer = &GET_PLAYER(static_cast<PlayerTypes>(iSlotLoop));
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 			
 			if (pPlayer->isBarbarian())
@@ -13688,7 +13688,7 @@ bool CvUnit::blastTourism()
 		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (eLoopPlayer != eOwner && eLoopPlayer != getOwner() && kUnitOwner.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 			{
@@ -13898,7 +13898,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 		if(pkBuildInfo)
 		{
-			eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+			eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 		}
 
 		if(eImprovement != NO_IMPROVEMENT)
@@ -13937,7 +13937,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 			{
-				eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+				eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 				if(pkImprovementInfo)
@@ -13957,8 +13957,8 @@ bool CvUnit::build(BuildTypes eBuild)
 #if defined(MOD_BALANCE_CORE)
 				UnitTypes eBestUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
-				UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
-				UnitTypes eTrireme = (UnitTypes)GC.getInfoTypeForString("UNIT_TRIREME");
+				UnitTypes eWarrior = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_WARRIOR"));
+				UnitTypes eTrireme = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_TRIREME"));
 				if(pkBuildInfo->IsFreeBestDomainUnit())
 				{
 					bool bWater = false;
@@ -14000,7 +14000,7 @@ bool CvUnit::build(BuildTypes eBuild)
 										ResourceTypes eResource;
 										for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 										{
-											eResource = (ResourceTypes) iResourceLoop;
+											eResource = static_cast<ResourceTypes>(iResourceLoop);
 											int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
 											if (iNumResource > 0)
 											{
@@ -14061,7 +14061,7 @@ bool CvUnit::build(BuildTypes eBuild)
 										ResourceTypes eResource;
 										for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 										{
-											eResource = (ResourceTypes) iResourceLoop;
+											eResource = static_cast<ResourceTypes>(iResourceLoop);
 											int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
 											if (iNumResource > 0)
 											{
@@ -14146,7 +14146,7 @@ bool CvUnit::build(BuildTypes eBuild)
 			else if(pkBuildInfo->getRoute() != NO_ROUTE)
 #endif
 			{
-				eRoute = (RouteTypes) pkBuildInfo->getRoute();
+				eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 			}
 
 			if(pkBuildInfo->isKill())
@@ -14158,7 +14158,7 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 
 				bool bIndiaException = false;
-				ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+				ImprovementTypes eHolySite = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE"));
 				if (eImprovement == eHolySite && GET_PLAYER(getOwner()).GetPlayerTraits()->IsProphetFervor())
 				{
 					GetReligionDataMutable()->IncrementSpreadsUsed();
@@ -14238,7 +14238,7 @@ bool CvUnit::build(BuildTypes eBuild)
 				kPlayer.changeTotalImprovementsBuilt(1);
 				kPlayer.changeTotalImprovementsBuilt(eImprovement, 1);
 			}
-			else if ((RouteTypes)pkBuildInfo->getRoute() != NO_ROUTE)
+			else if (static_cast<RouteTypes>(pkBuildInfo->getRoute()) != NO_ROUTE)
 			{
 				kPlayer.changeTotalImprovementsBuilt(1); // This is here even though routes are not technically improvements, because Firaxis put this here (don't change behaviour of existing tables!)
 			}
@@ -14271,11 +14271,11 @@ bool CvUnit::build(BuildTypes eBuild)
 
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 			{
-				eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+				eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 			}
 			else if(pkBuildInfo->getRoute() != NO_ROUTE)
 			{
-				eRoute = (RouteTypes) pkBuildInfo->getRoute();
+				eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 			}
 
 			if(iStartedYet == 0)
@@ -14482,7 +14482,7 @@ bool CvUnit::lead(int iUnitId)
 		return false;
 	}
 
-	PromotionTypes eLeaderPromotion = (PromotionTypes)m_pUnitInfo->GetLeaderPromotion();
+	PromotionTypes eLeaderPromotion = static_cast<PromotionTypes>(m_pUnitInfo->GetLeaderPromotion());
 
 	if(-1 == iUnitId)
 	{
@@ -14531,7 +14531,7 @@ int CvUnit::canLead(const CvPlot* pPlot, int iUnitId) const
 			const CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-			if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canPromote((PromotionTypes)kUnitInfo.GetLeaderPromotion(), GetID()))
+			if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canPromote(static_cast<PromotionTypes>(kUnitInfo.GetLeaderPromotion()), GetID()))
 			{
 				++iNumUnits;
 			}
@@ -14540,7 +14540,7 @@ int CvUnit::canLead(const CvPlot* pPlot, int iUnitId) const
 	else
 	{
 		const CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iUnitId);
-		if(pUnit && pUnit != this && pUnit->canPromote((PromotionTypes)kUnitInfo.GetLeaderPromotion(), GetID()))
+		if(pUnit && pUnit != this && pUnit->canPromote(static_cast<PromotionTypes>(kUnitInfo.GetLeaderPromotion()), GetID()))
 		{
 			iNumUnits = 1;
 		}
@@ -14651,13 +14651,13 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		return false;
 
 	// Tech requirement
-	TechTypes ePrereqTech = (TechTypes) pUpgradeUnitInfo->GetPrereqAndTech();
+	TechTypes ePrereqTech = static_cast<TechTypes>(pUpgradeUnitInfo->GetPrereqAndTech());
 
 	if(ePrereqTech != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 		return false;
 
 	// Project requirement
-	ProjectTypes ePrereqProject = (ProjectTypes) pUpgradeUnitInfo->GetProjectPrereq();
+	ProjectTypes ePrereqProject = static_cast<ProjectTypes>(pUpgradeUnitInfo->GetProjectPrereq());
 	if (ePrereqProject != NO_PROJECT) {
 		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(ePrereqProject);
 		if (pkProjectInfo && GET_TEAM(getTeam()).getProjectCount(ePrereqProject) == 0)
@@ -14688,7 +14688,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
-		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes)pUpgradeUnitInfo->GetUnitClassType();
+		UnitClassTypes eUpgradeUnitClassType = static_cast<UnitClassTypes>(pUpgradeUnitInfo->GetUnitClassType());
 
 		// Maxed out unit class for Game
 		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
@@ -14704,7 +14704,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{
-			SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes)GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
+			SpecialUnitTypes eSpedcialStealth = static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_STEALTH"));
 			if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() == eSpedcialStealth)
 			{
 				if (!pPlot->isCity())
@@ -14745,7 +14745,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
 
 			if (iNumResourceNeeded > 0)
@@ -14992,16 +14992,16 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
-	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
+	const TechTypes eTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 	if(pkTechInfo)
 	{
-		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
+		const EraTypes eUpgradeEra = static_cast<EraTypes>(pkTechInfo->GetEra());
 
 		double fMultiplier = 1.0f;
 		fMultiplier += (eUpgradeEra* /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
 
-		iPrice = int(iPrice * fMultiplier);
+		iPrice = static_cast<int>(iPrice * fMultiplier);
 	}
 
 	if (kPlayer.isMajorCiv())
@@ -15030,7 +15030,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice /= 100;
 
 	// Apply exponent
-	iPrice = (int) pow((double) iPrice, (double) /*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT));
+	iPrice = static_cast<int>(pow((double)iPrice, (double)/*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT)));
 
 	// Make the number not be funky
 	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
@@ -15188,13 +15188,13 @@ const char* CvUnit::getVisualCivAdjective(TeamTypes eForTeam) const
 SpecialUnitTypes CvUnit::getSpecialUnitType() const
 {
 	VALIDATE_OBJECT
-	return ((SpecialUnitTypes)(m_pUnitInfo->GetSpecialUnitType()));
+	return static_cast<SpecialUnitTypes>(m_pUnitInfo->GetSpecialUnitType());
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGreatPerson() const
 {
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+	SpecialUnitTypes eSpecialUnitGreatPerson = static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_PEOPLE"));
 
 	return (getSpecialUnitType() == eSpecialUnitGreatPerson);
 }
@@ -15214,13 +15214,13 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
-			if (iValue >= NO_UNIT && GC.getUnitInfo((UnitTypes) iValue) != NULL) {
-				return (UnitTypes) iValue;
+			if (iValue >= NO_UNIT && GC.getUnitInfo(static_cast<UnitTypes>(iValue)) != NULL) {
+				return static_cast<UnitTypes>(iValue);
 			}
 		}
 	}
 
-	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
+	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType(static_cast<UnitClassTypes>(getUnitInfo().GetUnitCaptureClassType())));
 }
 
 
@@ -15245,7 +15245,7 @@ void CvUnit::setUnitCombatType(UnitCombatTypes eCombat)
 UnitCombatTypes CvUnit::getUnitPromotionType() const
 {
 	VALIDATE_OBJECT
-	return ((UnitCombatTypes)(m_pUnitInfo->GetUnitPromotionType()));
+	return static_cast<UnitCombatTypes>(m_pUnitInfo->GetUnitPromotionType());
 }
 #endif
 
@@ -15584,7 +15584,7 @@ void CvUnit::SetIsLinkedLeader(bool bValue)
 		if (!bValue)
 		{
 			UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
-			for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
+			for (int iI = 0; iI < static_cast<int>(LinkedUnitIDs.size()); iI++)
 			{
 				CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
 				pLinkedUnit->SetIsLinked(false);
@@ -15762,7 +15762,7 @@ void CvUnit::LinkUnits()
 		SetIsLinkedLeader(true);
 	}
 
-	for (int iI = 0; iI < (int)v_unitvector.size(); iI++)
+	for (int iI = 0; iI < static_cast<int>(v_unitvector.size()); iI++)
 	{
 		CvUnit* pUnit = v_unitvector[iI];
 
@@ -15866,7 +15866,7 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 		}
 	}
 
-	for (int iI = 0; iI < (int)v_unitvector.size(); iI++) // then move the units
+	for (int iI = 0; iI < static_cast<int>(v_unitvector.size()); iI++) // then move the units
 	{
 		CvUnit* pUnit = v_unitvector[iI];
 
@@ -16263,7 +16263,7 @@ bool CvUnit::canBuildRoute() const
 	int iNumBuildInfos = GC.getNumBuildInfos();
 	for(int iI = 0; iI < iNumBuildInfos; iI++)
 	{
-		CvBuildInfo* thisBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+		CvBuildInfo* thisBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(iI));
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 		// Don't count routes that come as part of an improvement
 		if(NULL != thisBuildInfo && thisBuildInfo->getImprovement() == NO_IMPROVEMENT && thisBuildInfo->getRoute() != NO_ROUTE)
@@ -16273,12 +16273,12 @@ bool CvUnit::canBuildRoute() const
 		{
 			if(m_pUnitInfo->GetBuilds(iI))
 			{
-				if(pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechPrereq())))
+				if(pTeamTechs->HasTech(static_cast<TechTypes>(thisBuildInfo->getTechPrereq())))
 				{
 					return true;
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(thisBuildInfo->getTechObsolete() != NO_TECH && !pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechObsolete())))
+				if(thisBuildInfo->getTechObsolete() != NO_TECH && !pTeamTechs->HasTech(static_cast<TechTypes>(thisBuildInfo->getTechObsolete())))
 				{
 					return true;
 				}
@@ -16304,12 +16304,12 @@ BuildTypes CvUnit::getBuildType() const
 			{
 				for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 				{
-					BuildTypes eBuild = (BuildTypes)iI;
+					BuildTypes eBuild = static_cast<BuildTypes>(iI);
 					CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 
 					if(pkBuildInfo)
 					{
-						RouteTypes eRoute = ((RouteTypes)(pkBuildInfo->getRoute()));
+						RouteTypes eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 						if(eRoute == eBestRoute)
 						{
 							return eBuild;
@@ -16320,7 +16320,7 @@ BuildTypes CvUnit::getBuildType() const
 		}
 		else if(pkMissionNode->eMissionType == CvTypes::getMISSION_BUILD())
 		{
-			return (BuildTypes)pkMissionNode->iData1;
+			return static_cast<BuildTypes>(pkMissionNode->iData1);
 		}
 	}
 
@@ -16675,7 +16675,7 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 	int iNumResourceInfos = GC.getNumResourceInfos();
 	for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		int iAvailable = kPlayer.getNumResourceAvailable(eResource);
 #if !defined(MOD_BALANCE_CORE)
@@ -16700,8 +16700,8 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 				if (iMissing <= 0)
 					continue;
 
-				double dDeficit = (double) iMissing / (double) iUsed;
-				iPenalty += (int) floor((dDeficit) * /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY)); // round down (for larger negative penalty)
+				double dDeficit = static_cast<double>(iMissing) / static_cast<double>(iUsed);
+				iPenalty += static_cast<int>(floor((dDeficit) * /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY))); // round down (for larger negative penalty)
 			}
 		}
 	}
@@ -17039,13 +17039,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
 
 		// Unit Combat type Modifier
-		UnitCombatTypes combatType = (UnitCombatTypes)pOtherUnit->getUnitCombatType();
+		UnitCombatTypes combatType = static_cast<UnitCombatTypes>(pOtherUnit->getUnitCombatType());
 		if(combatType != NO_UNITCOMBAT)
 		{
 			int iTempModifier = unitCombatModifier(combatType);
 
 			//hack: mounted units can have secondary combat class
-			UnitCombatTypes mountedCombat = (UnitCombatTypes)2; //hardcoded
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(2); //hardcoded
 			if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
 				iTempModifier += unitCombatModifier(mountedCombat);
 
@@ -17807,13 +17807,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
 
 		// Unit combat modifier VS other unit
-		UnitCombatTypes eUnitCombat = (UnitCombatTypes) pOtherUnit->getUnitCombatType();
+		UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(pOtherUnit->getUnitCombatType());
 		if (eUnitCombat != NO_UNITCOMBAT)
 		{
 			int iTempModifier = unitCombatModifier(eUnitCombat);
 			if (pOtherUnit->getUnitInfo().IsMounted())
 			{
-				UnitCombatTypes eMountedCombat = (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true);
+				UnitCombatTypes eMountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 				if (eMountedCombat != eUnitCombat)
 					iTempModifier += unitCombatModifier(eMountedCombat);
 			}
@@ -18364,10 +18364,10 @@ int CvUnit::experienceNeeded() const
 	const int iModifier = GET_PLAYER(getOwner()).getLevelExperienceModifier();
 	if (iModifier != 0)
 	{
-		float fTemp = (float) iExperienceNeeded;
+		float fTemp = static_cast<float>(iExperienceNeeded);
 		fTemp *= (100 + iModifier);
 		fTemp /= 100;
-		iExperienceNeeded = (int) ceil(fTemp); // Round up
+		iExperienceNeeded = static_cast<int>(ceil(fTemp)); // Round up
 	}
 
 	if (MOD_BALANCE_CORE_SCALING_XP)
@@ -18818,7 +18818,7 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 const DomainTypes CvUnit::getGiveDomain() const
 {
 	VALIDATE_OBJECT
-	return (DomainTypes)(int)m_eGiveDomain;
+	return static_cast<DomainTypes>((int)m_eGiveDomain);
 }
 void CvUnit::ChangeGiveDomain(DomainTypes eDomain)
 {
@@ -18918,7 +18918,7 @@ inline bool CvUnit::isConvertUnit() const
 const DomainTypes CvUnit::getConvertDomain() const
 {
 	VALIDATE_OBJECT
-	return (DomainTypes)(int)m_eConvertDomain;
+	return static_cast<DomainTypes>((int)m_eConvertDomain);
 }
 void CvUnit::ChangeConvertDomain(DomainTypes eDomain)
 {
@@ -19128,7 +19128,7 @@ bool CvUnit::IsGainsYieldFromScouting() const
 	VALIDATE_OBJECT
 	for (int iI = 0; iI < YIELD_GREAT_ADMIRAL_POINTS; iI++)
 	{
-		if (getYieldFromScouting((YieldTypes)iI) > 0)
+		if (getYieldFromScouting(static_cast<YieldTypes>(iI)) > 0)
 		{
 			return true;
 		}
@@ -20296,7 +20296,7 @@ void CvUnit::SetFortificationYieldChange(YieldTypes eYield, int iValue)
 SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
 {
 	VALIDATE_OBJECT
-	return((SpecialUnitTypes)(m_pUnitInfo->GetSpecialUnitCargoLoad()));
+	return static_cast<SpecialUnitTypes>(m_pUnitInfo->GetSpecialUnitCargoLoad());
 }
 #endif
 
@@ -20304,7 +20304,7 @@ SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
 SpecialUnitTypes CvUnit::specialCargo() const
 {
 	VALIDATE_OBJECT
-	return ((SpecialUnitTypes)(m_pUnitInfo->GetSpecialCargo()));
+	return static_cast<SpecialUnitTypes>(m_pUnitInfo->GetSpecialCargo());
 }
 
 
@@ -20312,7 +20312,7 @@ SpecialUnitTypes CvUnit::specialCargo() const
 DomainTypes CvUnit::domainCargo() const
 {
 	VALIDATE_OBJECT
-	return ((DomainTypes)(m_pUnitInfo->GetDomainCargo()));
+	return static_cast<DomainTypes>(m_pUnitInfo->GetDomainCargo());
 }
 
 
@@ -20603,7 +20603,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 			}
 
-			int iUnitListSize = (int) oldUnitList.size();
+			int iUnitListSize = static_cast<int>(oldUnitList.size());
 			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
 			{
 				pLoopUnit = ::GetPlayerUnit(oldUnitList[iVectorLoop]);
@@ -21072,7 +21072,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		// Can someone can see the plot we moved our Unit into?
 		for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 		{
-			TeamTypes eTeamLoop = (TeamTypes) iI;
+			TeamTypes eTeamLoop = static_cast<TeamTypes>(iI);
 
 			CvTeam& kLoopTeam = GET_TEAM(eTeamLoop);
 
@@ -21133,7 +21133,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		CvPlot* pAdjacentPlot = NULL;
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
+			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), static_cast<DirectionTypes>(iI));
 
 			if(pAdjacentPlot != NULL)
 			{
@@ -21165,7 +21165,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 
 				// Is this a missionary and do we have a belief that converts barbarians here?
-				UnitClassTypes eMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY", true);
+				UnitClassTypes eMissionary = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_MISSIONARY", true));
 				if (eMissionary != NO_UNITCLASS)
 				{
 					if (getUnitClassType() == eMissionary)
@@ -21259,7 +21259,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	{
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			CvPlot* pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), static_cast<DirectionTypes>(iI));
 
 			if(pAdjacentOldPlot != NULL)
 			{
@@ -21531,12 +21531,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	{
 		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
 		{
-			UnitTypes eExplorer = (UnitTypes) GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/); 
+			UnitTypes eExplorer = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/)); 
 			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 )
 			{
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
+					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), static_cast<DirectionTypes>(iI));
 
 					if(pAdjacentPlot != NULL)
 					{
@@ -22022,7 +22022,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax < 0) ? INT_MAX : (iMax * 100LL);
-	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
+	int iMaxTimes100 = (lMaxTimes100 > static_cast<long long>(INT_MAX)) ? INT_MAX : static_cast<int>(lMaxTimes100);
 	
 	if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < iMaxTimes100))
 	{
@@ -22090,7 +22090,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax < 0) ? INT_MAX : (iMax * 100LL);
-	int iMaxTimes100 = (lMaxTimes100 > ((long long)INT_MAX)) ? INT_MAX : (int)lMaxTimes100;
+	int iMaxTimes100 = (lMaxTimes100 > static_cast<long long>(INT_MAX)) ? INT_MAX : static_cast<int>(lMaxTimes100);
 	
 	int iUnitExperienceTimes100 = iChangeTimes100;
 
@@ -23086,7 +23086,7 @@ vector<int> CvUnit::GetInflictedPlagueIDs() const
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
 		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
+			PromotionTypes eInflictedPlague = static_cast<PromotionTypes>(pkPromotionInfo->GetPlaguePromotion());
 			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
 			{
 				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
@@ -23115,7 +23115,7 @@ PromotionTypes CvUnit::GetInflictedPlague(int iPlagueID, int& iPlagueChance) con
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
 		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
+			PromotionTypes eInflictedPlague = static_cast<PromotionTypes>(pkPromotionInfo->GetPlaguePromotion());
 			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
 			{
 				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
@@ -24867,7 +24867,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 		CvPlot* pAdjacentPlot = NULL;
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+			pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 			if(pAdjacentPlot != NULL)
 			{
@@ -24992,7 +24992,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 								ResourceTypes eResource;
 								for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 								{
-									eResource = (ResourceTypes) iResourceLoop;
+									eResource = static_cast<ResourceTypes>(iResourceLoop);
 									int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
 									if (iNumResource > 0)
 									{
@@ -25052,7 +25052,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 				}
 				else
 				{
-					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+					UnitTypes eWarrior = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_WARRIOR"));
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
 					if(pkbUnitEntry)
 					{
@@ -25647,7 +25647,7 @@ void CvUnit::rotateFacingDirectionClockwise()
 {
 	VALIDATE_OBJECT
 	//change direction
-	DirectionTypes newDirection = (DirectionTypes)((m_eFacingDirection + 1) % NUM_DIRECTION_TYPES);
+	DirectionTypes newDirection = static_cast<DirectionTypes>((m_eFacingDirection + 1) % NUM_DIRECTION_TYPES);
 	setFacingDirection(newDirection);
 }
 
@@ -25656,7 +25656,7 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 {
 	VALIDATE_OBJECT
 	//change direction
-	DirectionTypes newDirection = (DirectionTypes)((m_eFacingDirection + NUM_DIRECTION_TYPES - 1) % NUM_DIRECTION_TYPES);
+	DirectionTypes newDirection = static_cast<DirectionTypes>((m_eFacingDirection + NUM_DIRECTION_TYPES - 1) % NUM_DIRECTION_TYPES);
 	setFacingDirection(newDirection);
 }
 
@@ -26047,7 +26047,7 @@ bool CvUnit::isUnitAI(UnitAITypes eType) const
 UnitClassTypes CvUnit::getUnitClassType() const
 {
 	VALIDATE_OBJECT
-	return (UnitClassTypes)getUnitInfo().GetUnitClassType();
+	return static_cast<UnitClassTypes>(getUnitInfo().GetUnitClassType());
 }
 
 //	--------------------------------------------------------------------------------
@@ -27471,7 +27471,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	}
 #if defined(MOD_BALANCE_CORE)
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+	PromotionTypes ePromotionRoughTerrain = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN"));
 	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
 	{
 		return false;
@@ -27503,7 +27503,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// AND prereq
 	if(pkPromotionInfo->GetPrereqPromotion() != NO_PROMOTION)
 	{
-		if(!isHasPromotion((PromotionTypes)(pkPromotionInfo->GetPrereqPromotion())))
+		if(!isHasPromotion(static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqPromotion())))
 		{
 			return false;
 		}
@@ -27512,7 +27512,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR prereqs
 	bool bLacksOrPrereq = false;
 
-	PromotionTypes ePromotion1 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion1();
+	PromotionTypes ePromotion1 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion1());
 	if(ePromotion1 != NO_PROMOTION)
 	{
 		if(!isHasPromotion(ePromotion1))
@@ -27522,7 +27522,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 2
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion2 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion2();
+		PromotionTypes ePromotion2 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion2());
 		if(ePromotion2 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion2))
@@ -27533,7 +27533,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 3
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion3 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion3();
+		PromotionTypes ePromotion3 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion3());
 		if(ePromotion3 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion3))
@@ -27544,7 +27544,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 4
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion4 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion4();
+		PromotionTypes ePromotion4 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion4());
 		if(ePromotion4 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion4))
@@ -27555,7 +27555,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 5
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion5 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion5();
+		PromotionTypes ePromotion5 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion5());
 		if(ePromotion5 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion5))
@@ -27566,7 +27566,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 6
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion6 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion6();
+		PromotionTypes ePromotion6 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion6());
 		if(ePromotion6 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion6))
@@ -27577,7 +27577,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 7
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion7 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion7();
+		PromotionTypes ePromotion7 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion7());
 		if(ePromotion7 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion7))
@@ -27588,7 +27588,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 8
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion8 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion8();
+		PromotionTypes ePromotion8 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion8());
 		if(ePromotion8 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion8))
@@ -27599,7 +27599,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	// OR Promotion 9
 	if(bLacksOrPrereq)
 	{
-		PromotionTypes ePromotion9 = (PromotionTypes) pkPromotionInfo->GetPrereqOrPromotion9();
+		PromotionTypes ePromotion9 = static_cast<PromotionTypes>(pkPromotionInfo->GetPrereqOrPromotion9());
 		if(ePromotion9 != NO_PROMOTION)
 		{
 			if(isHasPromotion(ePromotion9))
@@ -27614,7 +27614,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 
 	if(pkPromotionInfo->GetTechPrereq() != NO_TECH)
 	{
-		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkPromotionInfo->GetTechPrereq()))))
+		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pkPromotionInfo->GetTechPrereq()))))
 		{
 			return false;
 		}
@@ -27749,7 +27749,7 @@ bool CvUnit::canAcquirePromotionAny() const
 
 	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
-		if (canAcquirePromotion((PromotionTypes)iI))
+		if (canAcquirePromotion(static_cast<PromotionTypes>(iI)))
 		{
 			return true;
 		}
@@ -27844,11 +27844,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		// Promotions will set Invisibility once but not change it later
 		if(getInvisibleType() == NO_INVISIBLE && thisPromotion.GetInvisibleType() != NO_INVISIBLE)
 		{
-			setInvisibleType((InvisibleTypes) thisPromotion.GetInvisibleType());
+			setInvisibleType(static_cast<InvisibleTypes>(thisPromotion.GetInvisibleType()));
 		}
 		if(getSeeInvisibleType() == NO_INVISIBLE && thisPromotion.GetSeeInvisibleType() != NO_INVISIBLE)
 		{
-			setSeeInvisibleType((InvisibleTypes) thisPromotion.GetSeeInvisibleType());
+			setSeeInvisibleType(static_cast<InvisibleTypes>(thisPromotion.GetSeeInvisibleType()));
 		}
 
 		changeBlitzCount((thisPromotion.IsBlitz()) ? iChange : 0);
@@ -27913,7 +27913,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeDamageThreshold(thisPromotion.GetDamageThreshold() * iChange);
 		if (getConvertDamageOrFullHPUnit() == NO_UNIT && thisPromotion.GetConvertDamageOrFullHPUnit() != NO_UNIT)
 		{
-			ChangeConvertDamageOrFullHPUnit((UnitTypes)thisPromotion.GetConvertDamageOrFullHPUnit());
+			ChangeConvertDamageOrFullHPUnit(static_cast<UnitTypes>(thisPromotion.GetConvertDamageOrFullHPUnit()));
 		}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -28131,32 +28131,32 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 		{
-			changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
-			changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
-			changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
+			changeExtraTerrainAttackPercent(static_cast<TerrainTypes>(iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
+			changeExtraTerrainDefensePercent(static_cast<TerrainTypes>(iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
+			changeTerrainDoubleMoveCount(static_cast<TerrainTypes>(iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-			changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
-			changeTerrainExtraMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
+			changeTerrainHalfMoveCount(static_cast<TerrainTypes>(iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
+			changeTerrainExtraMoveCount(static_cast<TerrainTypes>(iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
 #endif
 #if defined(MOD_BALANCE_CORE)
-			changeTerrainDoubleHeal(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));		
+			changeTerrainDoubleHeal(static_cast<TerrainTypes>(iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));		
 #endif
-			changeTerrainImpassableCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainImpassable(iI)) ? iChange : 0));
+			changeTerrainImpassableCount(static_cast<TerrainTypes>(iI), ((thisPromotion.GetTerrainImpassable(iI)) ? iChange : 0));
 		}
 
 		for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 		{
-			changeExtraFeatureAttackPercent(((FeatureTypes)iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
-			changeExtraFeatureDefensePercent(((FeatureTypes)iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
-			changeFeatureDoubleMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
+			changeExtraFeatureAttackPercent(static_cast<FeatureTypes>(iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
+			changeExtraFeatureDefensePercent(static_cast<FeatureTypes>(iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
+			changeFeatureDoubleMoveCount(static_cast<FeatureTypes>(iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-			changeFeatureHalfMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
-			changeFeatureExtraMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureExtraMove(iI)) ? iChange : 0));
+			changeFeatureHalfMoveCount(static_cast<FeatureTypes>(iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
+			changeFeatureExtraMoveCount(static_cast<FeatureTypes>(iI), ((thisPromotion.GetFeatureExtraMove(iI)) ? iChange : 0));
 #endif
 #if defined(MOD_BALANCE_CORE)
-			changeFeatureDoubleHeal(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleHeal(iI)) ? iChange : 0));		
+			changeFeatureDoubleHeal(static_cast<FeatureTypes>(iI), ((thisPromotion.GetFeatureDoubleHeal(iI)) ? iChange : 0));		
 #endif
-			changeFeatureImpassableCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
+			changeFeatureImpassableCount(static_cast<FeatureTypes>(iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
 		}
 
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -28192,44 +28192,44 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
-			changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
+			changeExtraUnitCombatModifier(static_cast<UnitCombatTypes>(iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
 #if defined(MOD_BALANCE_CORE)
-			changeCombatModPerAdjacentUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
-			changeCombatModPerAdjacentUnitCombatAttackMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
-			changeCombatModPerAdjacentUnitCombatDefenseMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
+			changeCombatModPerAdjacentUnitCombatModifier(static_cast<UnitCombatTypes>(iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
+			changeCombatModPerAdjacentUnitCombatAttackMod(static_cast<UnitCombatTypes>(iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
+			changeCombatModPerAdjacentUnitCombatDefenseMod(static_cast<UnitCombatTypes>(iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
 #endif
 		}
 
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(iI));
 			if(!pkUnitClassInfo)
 			{
 				continue;
 			}
 
-			changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
-			changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
-			changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
+			changeUnitClassModifier(static_cast<UnitClassTypes>(iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
+			changeUnitClassAttackMod(static_cast<UnitClassTypes>(iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
+			changeUnitClassDefenseMod(static_cast<UnitClassTypes>(iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
 		}
 
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
-			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
-			changeExtraDomainAttack(((DomainTypes)iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
-			changeExtraDomainDefense(((DomainTypes)iI), (thisPromotion.GetDomainDefensePercent(iI) * iChange));
+			changeExtraDomainModifier(static_cast<DomainTypes>(iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
+			changeExtraDomainAttack(static_cast<DomainTypes>(iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
+			changeExtraDomainDefense(static_cast<DomainTypes>(iI), (thisPromotion.GetDomainDefensePercent(iI) * iChange));
 		}
 		if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
 		{
-			ChangeGiveDomain((DomainTypes)thisPromotion.GetGiveDomain());
+			ChangeGiveDomain(static_cast<DomainTypes>(thisPromotion.GetGiveDomain()));
 		}
 		if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
 		{
-			ChangeConvertDomain((DomainTypes)thisPromotion.GetConvertDomain());
+			ChangeConvertDomain(static_cast<DomainTypes>(thisPromotion.GetConvertDomain()));
 		}
 		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
 		{
-			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
+			ChangeConvertDomainUnit(static_cast<UnitTypes>(thisPromotion.GetConvertDomainUnit()));
 		}
 
 		if(IsSelected())
@@ -28242,8 +28242,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		if (MOD_API_ACHIEVEMENTS)
 		{
-			PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
-			PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
+			PromotionTypes eBuffaloChest =static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/));
+			PromotionTypes eBuffaloLoins =static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/));
 
 			const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if (getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
@@ -29160,7 +29160,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 					}
 
 					// if the attacker is an archer type unit, return false
-					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)) {
+					if (this->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))) {
 						return false;
 					}
 				}
@@ -29194,7 +29194,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 					}
 
 					// if the attacker is an archer type unit, ignore them
-					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
+					if (this->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)))
 					{
 						continue;
 					}
@@ -29973,7 +29973,7 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 		if(pkBuildInfo)
 		{
-			const RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
+			const RouteTypes eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 			if(eRoute != NO_ROUTE)
 			{
 				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
@@ -30572,12 +30572,12 @@ bool CvUnit::UnitBuild(BuildTypes eBuild)
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if (pkBuildInfo)
 	{
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 		if(eImprovement != NO_IMPROVEMENT)
 		{
 			if(IsAutomated())
 			{
-				if((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GD_INT_GET(RUINS_IMPROVEMENT))))
+				if((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != static_cast<ImprovementTypes>((GD_INT_GET(RUINS_IMPROVEMENT)))))
 				{
 					ResourceTypes eResource = (ResourceTypes)pPlot->getNonObsoleteResourceType(GET_PLAYER(getOwner()).getTeam());
 					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsConnectsResource(eResource))
@@ -30729,7 +30729,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_GIFT_UNIT:
-		if(CanDistanceGift((PlayerTypes) DLLUI->GetInterfaceModeValue()))
+		if(CanDistanceGift(static_cast<PlayerTypes>(DLLUI->GetInterfaceModeValue())))
 		{
 			return true;
 		}
@@ -30862,7 +30862,7 @@ void CvUnit::DumpDangerInNeighborhood()
 		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this)!=NULL;
 		bool bHasEnemyCity = pPlot->isEnemyCity(*this);
 
-		int iState = (((int)bHasVisibleEnemyDefender)<<3) + (((int)bHasEnemyCity)<<2) + (((int)bHasEnemyUnit)<<1);
+		int iState = (static_cast<int>(bHasVisibleEnemyDefender)<<3) + (static_cast<int>(bHasEnemyCity)<<2) + (static_cast<int>(bHasEnemyUnit)<<1);
 
 		pLog->Msg( CvString::format( "%03d,%03d,%d,%d,%d,%d\n", 
 			pPlot->getX(), pPlot->getY(), bVisible, pPlot->getTerrainType(), iState, iDanger ).c_str() );
@@ -31537,7 +31537,7 @@ int CvUnit::GetNumFallBackPlotsAvailable(const CvUnit& attacker) const
 	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iMovementDirection));
 
 		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
@@ -31632,7 +31632,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
-		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iMovementDirection));
 
 		if (pDirectionPlot && (bCaptured || (isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))))
 		{
@@ -31895,16 +31895,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
-	int iFlavorDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
-	int iFlavorCityDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
-	int iFlavorRanged = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
-	int iFlavorRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
-	int iFlavorMobile = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
-	int iFlavorNaval = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
-	int iFlavorNavalRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
-	int iFlavorAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
-	int iFlavorAntiAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
+	int iFlavorOffense = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE"))), 1, 20);
+	int iFlavorDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DEFENSE"))), 1, 20);
+	int iFlavorCityDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE"))), 1, 20);
+	int iFlavorRanged = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RANGED"))), 1, 20);
+	int iFlavorRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RECON"))), 1, 20);
+	int iFlavorMobile = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_MOBILE"))), 1, 20);
+	int iFlavorNaval = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL"))), 1, 20);
+	int iFlavorNavalRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"))), 1, 20);
+	int iFlavorAir = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_AIR"))), 1, 20);
+	int iFlavorAntiAir = range(pFlavorMgr->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_ANTIAIR"))), 1, 20);
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())
@@ -32682,7 +32682,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// M + nM + R + mR + nR + AA: +15 (antiair land) 1, +20 2 , +25 3.
 	if (iTemp != 0)
 	{
-		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR");
+		MilitaryAIStrategyTypes eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR"));
 		if(GET_PLAYER(getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
 		{
 			iTemp *= 2;		// Not mine but I assume it's useful
@@ -32973,19 +32973,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if (iTemp <= 0)
 			continue;
 
-		if (DomainTypes(iI) == DOMAIN_SEA)
+		if (static_cast<DomainTypes>(iI) == DOMAIN_SEA)
 		{
 			iExtra = iTemp * (iFlavorDefense + 2 * iFlavorNaval);
 			iExtra *= 0.5;
 			iValue += iExtra;
 		}
-		else if (DomainTypes(iI) == DOMAIN_LAND)
+		else if (static_cast<DomainTypes>(iI) == DOMAIN_LAND)
 		{
 			iExtra = iTemp * (iFlavorDefense + iFlavorOffense + iFlavorCityDefense);
 			iExtra *= 0.5;
 			iValue += iExtra;
 		}
-		else if (DomainTypes(iI) == DOMAIN_AIR)
+		else if (static_cast<DomainTypes>(iI) == DOMAIN_AIR)
 		{
 			iExtra = iTemp * (3 * iFlavorAntiAir);
 			iExtra *= 0.5;
@@ -33202,7 +33202,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	return (int)iValue;
+	return static_cast<int>(iValue);
 }
 
 
@@ -33254,7 +33254,7 @@ bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const
 	int iMyTechCost = 0;
 	int iOtherTechCost = 0;
 
-	TechTypes eMyTech = (TechTypes)getUnitInfo().GetPrereqAndTech();
+	TechTypes eMyTech = static_cast<TechTypes>(getUnitInfo().GetPrereqAndTech());
 	if(eMyTech != NO_TECH)
 	{
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eMyTech);
@@ -33267,7 +33267,7 @@ bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const
 	CvUnitEntry* pUnitEntry = GC.GetGameUnits()->GetEntry(otherUnit);
 	if(pUnitEntry)
 	{
-		TechTypes eOtherTech = (TechTypes)pUnitEntry->GetPrereqAndTech();
+		TechTypes eOtherTech = static_cast<TechTypes>(pUnitEntry->GetPrereqAndTech());
 		if(eOtherTech != NO_TECH)
 		{
 			CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eOtherTech);
@@ -33738,20 +33738,20 @@ void CvUnit::DoCargoPromotions(CvUnit& cargounit)
 	if(cargounit.IsCargoCombatUnit() && cargounit.hasCargo())
 	{
 		cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat() + ((cargounit.getUnitInfo().GetCombat() * cargounit.getUnitInfo().CargoCombat() * cargounit.getCargo()) / 100));
-		PromotionTypes ePromotionPrizeShips = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_PRIZE_SHIPS", true);
-		PromotionTypes ePromotionArmySupport = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true);
+		PromotionTypes ePromotionPrizeShips = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_PRIZE_SHIPS", true));
+		PromotionTypes ePromotionArmySupport = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true));
 		if(cargounit.isHasPromotion(ePromotionPrizeShips))
 		{
 			cargounit.setHasPromotion(ePromotionArmySupport, true);
 		}
 		if(isCargo())
 		{
-			UnitCombatTypes eUnitCombatReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
-			PromotionTypes ePromotionEmbarkAllWater = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true);
-			PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
-			PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
-			PromotionTypes ePromotionArmyOnShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true);
-			PromotionTypes ePromotionRangePenalty = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true);
+			UnitCombatTypes eUnitCombatReconType = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true));
+			PromotionTypes ePromotionEmbarkAllWater = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true));
+			PromotionTypes ePromotionPolynesiaCargo = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true));
+			PromotionTypes ePromotionScoutShip = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true));
+			PromotionTypes ePromotionArmyOnShip = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true));
+			PromotionTypes ePromotionRangePenalty = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true));
 			setHasPromotion(ePromotionArmyOnShip, true);
 			if(IsCanAttackRanged())
 			{
@@ -33785,8 +33785,8 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 	bool allembarkProm = false;
 	if(isCargo())
 	{
-		UnitCombatTypes eUnitCombatReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
-		PromotionTypes ePromotionEmbarkAllWater = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true);
+		UnitCombatTypes eUnitCombatReconType = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true));
+		PromotionTypes ePromotionEmbarkAllWater = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true));
 		if(getUnitCombatType() == eUnitCombatReconType)
 		{
 			scoutcheck = true;
@@ -33798,8 +33798,8 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 	}
 	else if(!isCargo())
 	{
-		PromotionTypes ePromotionArmyOnShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true);
-		PromotionTypes ePromotionRangePenalty = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true);
+		PromotionTypes ePromotionArmyOnShip = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true));
+		PromotionTypes ePromotionRangePenalty = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true));
 		if(isHasPromotion(ePromotionArmyOnShip))
 		{
 			setHasPromotion(ePromotionArmyOnShip, false);
@@ -33809,10 +33809,10 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 			setHasPromotion(ePromotionRangePenalty, false);
 		}
 	}
-	PromotionTypes ePromotionArmySupport = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true);
+	PromotionTypes ePromotionArmySupport = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true));
 	if(cargounit.getCargo() >= 0)
 	{
-		PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
+		PromotionTypes ePromotionScoutShip = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true));
 		if(cargounit.isHasPromotion(ePromotionScoutShip))
 		{
 			scoutPromcheck = true;
@@ -33821,7 +33821,7 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 		{
 			cargounit.setHasPromotion(ePromotionScoutShip, false);
 		}
-		PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
+		PromotionTypes ePromotionPolynesiaCargo = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true));
 		if(cargounit.isHasPromotion(ePromotionPolynesiaCargo))
 		{
 			allembarkProm = true;

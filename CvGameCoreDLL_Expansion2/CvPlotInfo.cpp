@@ -153,8 +153,8 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 
 		while (pResults->Step())
 		{
-			const FeatureTypes eFeature = (FeatureTypes)pResults->GetInt(0);
-			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const FeatureTypes eFeature = static_cast<FeatureTypes>(pResults->GetInt(0));
+			const YieldTypes eYield = static_cast<YieldTypes>(pResults->GetInt(1));
 			const int iYieldChange = pResults->GetInt(2);
 			const IgnoreNaturalWonders bIgnoreNaturalWonderPlots = pResults->GetBool(3);
 

@@ -64,7 +64,7 @@ void CvPlayerAI::initStatics()
 	s_players.init();
 	for(std::size_t i = 0; i < s_players.size(); ++i)
 	{
-		s_players[i].m_eID = PlayerTypes(i);
+		s_players[i].m_eID = static_cast<PlayerTypes>(i);
 	}
 }
 
@@ -155,7 +155,7 @@ void CvPlayerAI::AI_doTurnPost()
 
 	for(int i = 0; i < GC.getNumVictoryInfos(); ++i)
 	{
-		AI_launch((VictoryTypes)i);
+		AI_launch(static_cast<VictoryTypes>(i));
 	}
 
 	ProcessGreatPeople();
@@ -408,7 +408,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		if (bCanAnnex)
 		{
 			// If we have a unique courthouse, use it!
-			BuildingClassTypes iCourthouse = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE");
+			BuildingClassTypes iCourthouse = static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE"));
 			if (iCourthouse != -1 && getCivilizationInfo().isCivilizationBuildingOverridden(iCourthouse))
 			{
 				pCity->DoAnnex();
@@ -564,8 +564,8 @@ void CvPlayerAI::AI_chooseFreeTech()
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), true) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
-			if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) {
-				eBestTech = (TechTypes)iValue;
+			if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(iValue))) {
+				eBestTech = static_cast<TechTypes>(iValue);
 			}
 		}
 	}
@@ -598,15 +598,15 @@ void CvPlayerAI::AI_chooseResearch()
 	{
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			if(GET_PLAYER((PlayerTypes)iI).isAlive())
+			if(GET_PLAYER(static_cast<PlayerTypes>(iI)).isAlive())
 			{
-				if((iI != GetID()) && (GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam()))
+				if((iI != GetID()) && (GET_PLAYER(static_cast<PlayerTypes>(iI)).getTeam() == getTeam()))
 				{
-					if(GET_PLAYER((PlayerTypes)iI).GetPlayerTechs()->GetCurrentResearch() != NO_TECH)
+					if(GET_PLAYER(static_cast<PlayerTypes>(iI)).GetPlayerTechs()->GetCurrentResearch() != NO_TECH)
 					{
-						if(GetPlayerTechs()->CanResearch(GET_PLAYER((PlayerTypes)iI).GetPlayerTechs()->GetCurrentResearch()))
+						if(GetPlayerTechs()->CanResearch(GET_PLAYER(static_cast<PlayerTypes>(iI)).GetPlayerTechs()->GetCurrentResearch()))
 						{
-							pushResearch(GET_PLAYER((PlayerTypes)iI).GetPlayerTechs()->GetCurrentResearch());
+							pushResearch(GET_PLAYER(static_cast<PlayerTypes>(iI)).GetPlayerTechs()->GetCurrentResearch());
 						}
 					}
 				}
@@ -623,9 +623,9 @@ void CvPlayerAI::AI_chooseResearch()
 			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), false) == GAMEEVENTRETURN_VALUE) 
 			{
 				// Defend against modder stupidity!
-				if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) 
+				if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(iValue))) 
 				{
-					eBestTech = (TechTypes)iValue;
+					eBestTech = static_cast<TechTypes>(iValue);
 				}
 			}
 		}
@@ -753,7 +753,7 @@ void CvPlayerAI::AI_considerAnnex()
 		// if we don't have a religion, but we have a Holy City, let's grab it
 		if (eOurReligion == NO_RELIGION && pCity->GetCityReligions()->IsHolyCityAnyReligion())
 		{
-			int iBonus = 4 - (int)GetCurrentEra();
+			int iBonus = 4 - static_cast<int>(GetCurrentEra());
 			iWeight += (iBonus > 0) ? iBonus : 0;
 		}
 
@@ -1091,7 +1091,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
-				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
+				EventChoiceTypes eEventChoice = static_cast<EventChoiceTypes>(iLoop);
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
@@ -1103,7 +1103,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 							{
 								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
 								{
-									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(iFlavor));
 									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
 								}
@@ -1118,7 +1118,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				flavorChoices.StableSortItems();
 				
 				//And grab the top selection.
-				EventChoiceTypes eBestEventChoice = (EventChoiceTypes)flavorChoices.GetElement(0);
+				EventChoiceTypes eBestEventChoice = static_cast<EventChoiceTypes>(flavorChoices.GetElement(0));
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -1151,7 +1151,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
-				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
+				EventChoiceTypes eEventChoice = static_cast<EventChoiceTypes>(iLoop);
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
@@ -1172,7 +1172,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			randomChoices.StableSortItems();
 				
 			//And grab the top selection.
-			EventChoiceTypes eBestEventChoice = (EventChoiceTypes)randomChoices.GetElement(0);
+			EventChoiceTypes eBestEventChoice = static_cast<EventChoiceTypes>(randomChoices.GetElement(0));
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -1348,7 +1348,7 @@ int CvPlayerAI::GetNumUnitsNeededToBeBuilt()
 
 void CvPlayerAI::ProcessGreatPeople(void)
 {
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+	SpecialUnitTypes eSpecialUnitGreatPerson = static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_PEOPLE"));
 
 	CvAssert(isAlive());
 
@@ -1437,7 +1437,7 @@ bool PreparingForWar(CvPlayerAI* pPlayer)
 		return false;
 	}
 
-	MilitaryAIStrategyTypes eWarMobilizationStrategy = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+	MilitaryAIStrategyTypes eWarMobilizationStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION"));
 	return pMilitaryAI->IsUsingStrategy(eWarMobilizationStrategy);
 }
 
@@ -1611,13 +1611,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 		return eDirective;
 
 #if defined(MOD_BALANCE_CORE)
-	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
-	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	ImprovementTypes eManufactory = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY"));
+	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_PRODUCTION")));
+	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GROWTH")));
 	iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		YieldTypes eYield = (YieldTypes)iYield;
+		YieldTypes eYield = static_cast<YieldTypes>(iYield);
 		if (eYield == NO_YIELD)
 			continue;
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
@@ -1656,15 +1656,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	if(pGreatMerchant->getArmyID() != -1)
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
-	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
+	ImprovementTypes eCustomHouse = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE"));
 	// buff up customs houses up to your flavor
 	if (GreatMerchantWantsCash() && eCustomHouse != NO_IMPROVEMENT)
 	{
-		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GROWTH")));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, (YieldTypes)iYield);
+			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, static_cast<YieldTypes>(iYield));
 
 		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatMerchantsCreated(true));
 
@@ -1712,17 +1712,17 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 {
 	if (!IsAtWarAnyMajor() || GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING)
 	{
-		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
-		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		ImprovementTypes eAcademy = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_ACADEMY"));
+		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
-			YieldTypes eYield = (YieldTypes)iYield;
+			YieldTypes eYield = static_cast<YieldTypes>(iYield);
 			if (eYield == NO_YIELD)
 				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eAcademy, eYield);
 		}
-		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GROWTH")));
 		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
 		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatScientistsCreated(true));
 		// Even if not going spaceship right now, build academies up to your flavor.
@@ -1743,7 +1743,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		std::string GGNegationPromotions[4] = { "PROMOTION_NEGATE_GENERAL", "PROMOTION_NEGATE_GENERAL_S", "PROMOTION_NEGATE_GENERAL_P", "PROMOTION_NEGATE_GENERAL_SP" };
 
 		for (int i = 0; i < 4; i++)
-			if (pGreatGeneral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GGNegationPromotions[i].c_str(), true)))
+			if (pGreatGeneral->isHasPromotion(static_cast<PromotionTypes>(GC.getInfoTypeForString(GGNegationPromotions[i].c_str(), true))))
 				bHasGeneralNegation = true;
 
 		if (bHasGeneralNegation)
@@ -1791,7 +1791,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	}
 
 	//during war we want field commanders
-	int iWars = (int)GetPlayersAtWarWith().size();
+	int iWars = static_cast<int>(GetPlayersAtWarWith().size());
 	//just a rough estimation
 	int iPotentialArmies = max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
 
@@ -1801,7 +1801,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	//build one citadel at a time
 	std::vector<CvPlot*> vDummy;
-	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+	BuildTypes eCitadel = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_CITADEL"));
 	if(iCitadels==0)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
@@ -1827,8 +1827,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	// CASE 1: I have an enhanced religion. 
 	if (pMyReligion && pMyReligion->m_bEnhanced)
 	{
-		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
-		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		ImprovementTypes eHolySite = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE"));
+		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET,false);
 
 		//Let's use our prophets for improvements instead of wasting them on conversion.
@@ -1880,7 +1880,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		std::string GANegationPromotions[4] = {"PROMOTION_NEGATE_ADMIRAL", "PROMOTION_NEGATE_ADMIRAL_S", "PROMOTION_NEGATE_ADMIRAL_P", "PROMOTION_NEGATE_ADMIRAL_SP"};
 
 		for (int i = 0; i < 4; i++)
-			if (pGreatAdmiral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GANegationPromotions[i].c_str(), true)))
+			if (pGreatAdmiral->isHasPromotion(static_cast<PromotionTypes>(GC.getInfoTypeForString(GANegationPromotions[i].c_str(), true))))
 				bHasAdmiralNegation = true;
 
 		if (bHasAdmiralNegation)
@@ -1922,7 +1922,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();
 	bool bTheAustriaException = GetPlayerTraits()->IsAbleToAnnexCityStates();
 	
-	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DIPLOMACY")));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	int iEmbassies = GetImprovementLeagueVotes();
 	int iDesiredEmb = range(iFlavorDiplo*2 - 3, 1, iNumMinors);
@@ -1965,7 +1965,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 	// Loop through each city state
 	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
 			continue;
 
@@ -2020,7 +2020,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	// Loop through each city state
 	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
 			continue;
 
@@ -2091,7 +2091,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 	// Loop through each city state
 	for(int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if(kPlayer.isAlive() && kPlayer.isMinorCiv() && !GET_TEAM(kPlayer.getTeam()).isAtWar(getTeam()))
 		{
 			//Loop through each city
@@ -2196,8 +2196,8 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	int iScore = 100;
 	if (!isHuman())
 	{
-		EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-		EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+		EconomicAIStrategyTypes eNeedHappiness = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS"));
+		EconomicAIStrategyTypes eNeedHappinessCritical = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL"));
 		bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
 		bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
@@ -2399,7 +2399,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// Loop through other players to see if we can pass them in influence
 	for (int iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 	{
-		PlayerTypes eOtherMajor = (PlayerTypes)iOtherMajorLoop;
+		PlayerTypes eOtherMajor = static_cast<PlayerTypes>(iOtherMajorLoop);
 
 		if (eOtherMajor == NO_PLAYER || eOtherMajor == GetID())
 			continue;
@@ -2592,7 +2592,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		if (!pkBuildInfo)
 			return NULL;
 
-		eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (!pkImprovementInfo)
 			return NULL;
@@ -2622,7 +2622,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		//we need to include it as it may belong to us or the enemy
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES+1; ++iI)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 			if(pAdjacentPlot == NULL)
 				continue;
 			if (!pUnit->canMoveInto(*pAdjacentPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -2776,7 +2776,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// score yield
 			for(int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
 			{
-				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
+				iScore += (pAdjacentPlot->getYield(static_cast<YieldTypes>(iYield)) * iWeightFactor);
 			}
 		}
 

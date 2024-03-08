@@ -363,14 +363,14 @@ void CvCityStrategyAI::FlavorUpdate()
 	// Broadcast to our sub AI objects
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
+		int iFlavorValue = GetLatestFlavorValue(static_cast<FlavorTypes>(iFlavor));
 		//for debugging
 		//const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str();
 
-		m_pBuildingProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
-		m_pUnitProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
-		m_pProjectProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
-		m_pProcessProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
+		m_pBuildingProductionAI->AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue);
+		m_pUnitProductionAI->AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue);
+		m_pProjectProductionAI->AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue);
+		m_pProcessProductionAI->AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue);
 	}
 }
 
@@ -391,7 +391,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 	// Go through all Player strategies and for the active ones apply the Flavors
 	for(int iStrategyLoop = 0; iStrategyLoop < GC.getNumEconomicAIStrategyInfos(); iStrategyLoop++)
 	{
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) iStrategyLoop;
+		EconomicAIStrategyTypes eStrategy = static_cast<EconomicAIStrategyTypes>(iStrategyLoop);
 		CvEconomicAIStrategyXMLEntry* pStrategy = GC.getEconomicAIStrategyInfo(eStrategy);
 
 		if(pStrategy)
@@ -403,7 +403,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 				{
 					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
 					{
-						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
 						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 				}
@@ -412,7 +412,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 	}
 	for(int iStrategyLoop = 0; iStrategyLoop < GC.getNumMilitaryAIStrategyInfos(); iStrategyLoop++)
 	{
-		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategyLoop;
+		MilitaryAIStrategyTypes eStrategy = static_cast<MilitaryAIStrategyTypes>(iStrategyLoop);
 		CvMilitaryAIStrategyXMLEntry* pStrategy = GC.getMilitaryAIStrategyInfo(eStrategy);
 
 		if(pStrategy)
@@ -424,7 +424,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 				{
 					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
 					{
-						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
 						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 				}
@@ -484,12 +484,12 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 				{
 					if (bTurnOn)
 					{
-						LogFlavorChange((FlavorTypes)iFlavorLoop, pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), true);
+						LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), true);
 						m_piLatestFlavorValues[iFlavorLoop] += pSpecialization->GetFlavorValue(iFlavorLoop);
 					}
 					else
 					{
-						LogFlavorChange((FlavorTypes)iFlavorLoop, -pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), false);
+						LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), -pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), false);
 						m_piLatestFlavorValues[iFlavorLoop] -= pSpecialization->GetFlavorValue(iFlavorLoop);
 					}
 				}
@@ -518,7 +518,7 @@ bool CvCityStrategyAI::IsUsingCityStrategy(AICityStrategyTypes eStrategy)
 	if (eStrategy == NO_AICITYSTRATEGY)
 		return false;
 
-	return m_pabUsingCityStrategy[(int) eStrategy];
+	return m_pabUsingCityStrategy[static_cast<int>(eStrategy)];
 }
 
 /// Signifies that eStrategy is now being utilized by this AI Player
@@ -544,15 +544,15 @@ void CvCityStrategyAI::SetUsingCityStrategy(AICityStrategyTypes eStrategy, bool 
 /// Returns the turn on which a CityStrategy was adopted (-1 if it hasn't been)
 int CvCityStrategyAI::GetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy)
 {
-	return m_paiTurnCityStrategyAdopted[(int) eStrategy];
+	return m_paiTurnCityStrategyAdopted[static_cast<int>(eStrategy)];
 }
 
 /// Sets the turn number eStrategy was most recently adopted
 void CvCityStrategyAI::SetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnCityStrategyAdopted[(int) eStrategy] != iValue)
+	if(m_paiTurnCityStrategyAdopted[static_cast<int>(eStrategy)] != iValue)
 	{
-		m_paiTurnCityStrategyAdopted[(int) eStrategy] = iValue;
+		m_paiTurnCityStrategyAdopted[static_cast<int>(eStrategy)] = iValue;
 	}
 }
 
@@ -664,7 +664,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	vector< OptionWithScore<YieldTypes> > deviations;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eYield = (YieldTypes) iI;
+		YieldTypes eYield = static_cast<YieldTypes>(iI);
 		int iYieldTimes100 = m_pCity->getYieldRateTimes100(eYield, false);
 
 		//consider excess food only
@@ -672,7 +672,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 			iYieldTimes100 -= (m_pCity->foodConsumptionTimes100());
 		
 		int iYieldPerPop100 = iYieldTimes100 / max(1, m_pCity->getPopulation());
-		int iExpectedYield100 = iI <= YIELD_FAITH ? (int)expectedYieldPerPop100[iI] : 100;
+		int iExpectedYield100 = iI <= YIELD_FAITH ? static_cast<int>(expectedYieldPerPop100[iI]) : 100;
 
 		int iDelta = iExpectedYield100 - iYieldPerPop100;
 
@@ -699,7 +699,7 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 			case CITY_BUILDABLE_UNIT_FOR_ARMY:
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 			{
-				UnitTypes eUnitType = (UnitTypes)choices.GetElement(i).m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(choices.GetElement(i).m_iIndex);
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
 			}
@@ -744,10 +744,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	if(eUnitForOperation != NO_UNIT)
 	{
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
-		buildable.m_iIndex = (int)eUnitForOperation;
+		buildable.m_iIndex = static_cast<int>(eUnitForOperation);
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
 		int iTempWeight = /*5000*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT);
-		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
+		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE"))) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
 		iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
 		if(iTempWeight > 0)
@@ -761,10 +761,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	if(eUnitForArmy != NO_UNIT)
 	{
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
-		buildable.m_iIndex = (int)eUnitForArmy;
+		buildable.m_iIndex = static_cast<int>(eUnitForArmy);
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
 		int iTempWeight = /*750*/ GD_INT_GET(AI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT);
-		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 		iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 		if(iTempWeight > 0)
 		{
@@ -777,18 +777,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
 		// Make sure this unit can be built now
-		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
+		if (static_cast<UnitTypes>(iUnitLoop) != eIgnoreUnit && m_pCity->canTrain(static_cast<UnitTypes>(iUnitLoop), (m_pCity->isProductionUnit() && static_cast<UnitTypes>(iUnitLoop) == m_pCity->getProductionUnit())))
 		{
 			// Automated cities won't build units except workers and work boats, or any other civilian with a work rate
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(static_cast<UnitTypes>(iUnitLoop));
 			if (m_pCity->isHumanAutomated())
 				if (!MOD_BALANCE_VP || pUnitEntry->GetWorkRate() == 0 || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0)
 					continue;
 
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
-			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
-			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(static_cast<UnitTypes>(iUnitLoop), 0);
+			int iTempWeight = m_pUnitProductionAI->GetWeight(static_cast<UnitTypes>(iUnitLoop));
 
 			if(iTempWeight > 0)
 			{
@@ -821,7 +821,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			//option: disallow everything (EXCEPT defense buildings) that costs maintenance if we are running a deficit
 			if (pkBuildingInfo->GetDefenseModifier() <= 0)
 			{
-				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+				static EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true));
 				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					continue;
 			}
@@ -833,7 +833,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		{
 			if (pkBuildingInfo->GetDefenseModifier() <= 0)
 			{
-				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+				static EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true));
 				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					continue;
 			}
@@ -845,7 +845,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		}
 
 		// Make sure this building can be built now
-		if ((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && (BuildingTypes)iBldgLoop == m_pCity->getProductionBuilding())))
+		if (static_cast<BuildingTypes>(iBldgLoop) != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && static_cast<BuildingTypes>(iBldgLoop) == m_pCity->getProductionBuilding())))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 			buildable.m_iIndex = iBldgLoop;
@@ -864,16 +864,16 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	// Loop through adding the available projects
 	for(int iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		if (m_pCity->canCreate((ProjectTypes)iProjectLoop, (m_pCity->isProductionProject() && (ProjectTypes)iProjectLoop == m_pCity->getProductionProject())))
+		if (m_pCity->canCreate(static_cast<ProjectTypes>(iProjectLoop), (m_pCity->isProductionProject() && static_cast<ProjectTypes>(iProjectLoop) == m_pCity->getProductionProject())))
 		{
-			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
+			int iTempWeight = m_pProjectProductionAI->GetWeight(static_cast<ProjectTypes>(iProjectLoop));
 			if(iTempWeight > 0)
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_PROJECT;
 				buildable.m_iIndex = iProjectLoop;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((ProjectTypes)iProjectLoop, 0);
+				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(static_cast<ProjectTypes>(iProjectLoop), 0);
 				buildable.m_iValue = iTempWeight;
-				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop));
+				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight(static_cast<ProjectTypes>(iProjectLoop)));
 			}
 		}
 	}
@@ -892,11 +892,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	{
 		for (int iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
 		{
-			ProcessTypes eProcess = (ProcessTypes)iProcessLoop;
+			ProcessTypes eProcess = static_cast<ProcessTypes>(iProcessLoop);
 			
 			if (m_pCity->canMaintain(eProcess, (m_pCity->isProductionProcess() && eProcess == m_pCity->getProductionProcess())))
 			{		
-				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
+				int iTempWeight = m_pProcessProductionAI->GetWeight(static_cast<ProcessTypes>(iProcessLoop));
 				if (eProcess == GC.getInfoTypeForString("PROCESS_DEFENSE"))
 				{
 					iTempWeight = 100;
@@ -929,7 +929,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
 		case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 			{
-				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				bool bCitySameAsMuster = false;
 				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
 				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
@@ -951,7 +951,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			}
 		case CITY_BUILDABLE_UNIT: //any unit
 			{
-				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), false, false);
 				if(iNewWeight > 0)
 				{
@@ -964,7 +964,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			}
 		case CITY_BUILDABLE_BUILDING:
 			{
-				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				BuildingTypes eBuildingType = static_cast<BuildingTypes>(selection.m_iIndex);
 				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
 				if(iNewWeight > 0)
 				{
@@ -977,7 +977,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			}
 		case CITY_BUILDABLE_PROCESS:
 			{
-				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
+				ProcessTypes eProcessType = static_cast<ProcessTypes>(selection.m_iIndex);
 				int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
 				if(iNewWeight > 0)
 				{
@@ -990,7 +990,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			}
 		case CITY_BUILDABLE_PROJECT:
 			{
-				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
+				ProjectTypes eProjectType = static_cast<ProjectTypes>(selection.m_iIndex);
 				int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
 				if(iNewWeight > 0)
 				{
@@ -1036,7 +1036,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			case CITY_BUILDABLE_UNIT_FOR_ARMY:
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
-					UnitTypes eUnitType = (UnitTypes)m_Buildables.GetElement(i).m_iIndex;
+					UnitTypes eUnitType = static_cast<UnitTypes>(m_Buildables.GetElement(i).m_iIndex);
 					if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnitType)
 					{
 						selection = m_Buildables.GetElement(i);
@@ -1047,7 +1047,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 			case CITY_BUILDABLE_BUILDING:
 				{
-					BuildingTypes eBuildingType = (BuildingTypes)m_Buildables.GetElement(i).m_iIndex;
+					BuildingTypes eBuildingType = static_cast<BuildingTypes>(m_Buildables.GetElement(i).m_iIndex);
 					if (m_pCity->isProductionBuilding() && !bInterruptBuildings && m_pCity->getProductionBuilding() == eBuildingType)
 					{
 						selection = m_Buildables.GetElement(i);
@@ -1058,12 +1058,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 			case CITY_BUILDABLE_PROJECT:
 				{
-					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
+					ProjectTypes eProjectType = static_cast<ProjectTypes>(m_Buildables.GetElement(i).m_iIndex);
 					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProjectType);
 					if (pkProjectInfo)
 					{
 						//is this is a victory condition? ignore everything else and build, build, build!
-						VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
+						VictoryTypes ePrereqVictory = static_cast<VictoryTypes>(pkProjectInfo->GetVictoryPrereq());
 						if (ePrereqVictory != NO_VICTORY && GC.getGame().isVictoryValid(ePrereqVictory))
 						{
 							selection = m_Buildables.GetElement(i);
@@ -1094,7 +1094,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			bool bTopChoiceIsDefenseProcess = false;
 			if (MOD_BALANCE_VP && m_Buildables.GetElement(0).m_eBuildableType == CITY_BUILDABLE_PROCESS)
 			{
-				ProcessTypes eProcessType = (ProcessTypes)m_Buildables.GetElement(0).m_iIndex;
+				ProcessTypes eProcessType = static_cast<ProcessTypes>(m_Buildables.GetElement(0).m_iIndex);
 				CvProcessInfo* pProcess = GC.getProcessInfo(eProcessType);
 				if (pProcess->getDefenseValue() > 0)
 					bTopChoiceIsDefenseProcess = true;
@@ -1124,7 +1124,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 			{
-				UnitTypes eUnitType = (UnitTypes)selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 				if (pkUnitInfo)
 				{
@@ -1141,21 +1141,21 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 		case CITY_BUILDABLE_BUILDING:
 			{
-				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				BuildingTypes eBuildingType = static_cast<BuildingTypes>(selection.m_iIndex);
 				GetCity()->pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, true, false, bRush);
 				break;
 			}
 
 		case CITY_BUILDABLE_PROJECT:
 			{
-				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
+				ProjectTypes eProjectType = static_cast<ProjectTypes>(selection.m_iIndex);
 				GetCity()->pushOrder(ORDER_CREATE, eProjectType, -1, false, true, false, bRush);
 				break;
 			}
 
 		case CITY_BUILDABLE_PROCESS:
 			{
-				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
+				ProcessTypes eProcessType = static_cast<ProcessTypes>(selection.m_iIndex);
 				GetCity()->pushOrder(ORDER_MAINTAIN, eProcessType, -1, false, true, false, false); // ignoring rush because we can't rush a process
 				break;
 			}
@@ -1207,10 +1207,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
-					buildable.m_iIndex = (int)eUnitForOperation;
+					buildable.m_iIndex = static_cast<int>(eUnitForOperation);
 					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
 					iTempWeight = /*5000*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT);
-					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
+					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE"))) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
 					iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 					iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
 					if (iTempWeight > 0)
@@ -1234,10 +1234,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
-					buildable.m_iIndex = (int)eUnitForArmy;
+					buildable.m_iIndex = static_cast<int>(eUnitForArmy);
 					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
 					iTempWeight = /*750*/ GD_INT_GET(AI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT);
-					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 					iTempWeight += iOffenseFlavor * /*250*/ GD_INT_GET(AI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER);
 					if (iTempWeight > 0)
 					{
@@ -1252,7 +1252,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	// Loop through adding the available units
 	for (iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
-		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
+		CvUnitEntry* pUnitEntry = GC.getUnitInfo(static_cast<UnitTypes>(iUnitLoop));
 		if (bFaithPurchase)
 		{
 			if (pUnitEntry)
@@ -1271,13 +1271,13 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			if (!bOoS)
 			{
 				// Make sure this unit can be built now
-				if (m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, ePurchaseYield))
+				if (m_pCity->IsCanPurchase(true, true, static_cast<UnitTypes>(iUnitLoop), NO_BUILDING, NO_PROJECT, ePurchaseYield))
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 					buildable.m_iIndex = iUnitLoop;
-					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
+					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(static_cast<UnitTypes>(iUnitLoop), 0);
 
-					iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+					iTempWeight = m_pUnitProductionAI->GetWeight(static_cast<UnitTypes>(iUnitLoop));
 
 					if (iTempWeight > 0)
 					{
@@ -1349,7 +1349,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			UNREACHABLE(); // These items are not expected to be purchasable.
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 			{
-				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				bool bCitySameAsMuster = false;
 				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
 				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
@@ -1365,7 +1365,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
 			{
-				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
 				if(iNewWeight > 0)
 				{
@@ -1376,7 +1376,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		case CITY_BUILDABLE_UNIT:
 			{
-				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				UnitTypes eUnitType = static_cast<UnitTypes>(selection.m_iIndex);
 				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
 				if(iNewWeight > 0)
 				{
@@ -1387,7 +1387,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		case CITY_BUILDABLE_BUILDING:
 			{
-				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				BuildingTypes eBuildingType = static_cast<BuildingTypes>(selection.m_iIndex);
 				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
 				int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
 				if (AmountComplete > 0)
@@ -1437,7 +1437,7 @@ void CvCityStrategyAI::DoTurn()
 	// Loop through all CityStrategies
 	for(iCityStrategiesLoop = 0; iCityStrategiesLoop < GetAICityStrategies()->GetNumAICityStrategies(); iCityStrategiesLoop++)
 	{
-		AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) iCityStrategiesLoop;
+		AICityStrategyTypes eCityStrategy = static_cast<AICityStrategyTypes>(iCityStrategiesLoop);
 		CvAICityStrategyEntry* pCityStrategy = GetAICityStrategies()->GetEntry(iCityStrategiesLoop);
 		if(pCityStrategy == NULL)	// Can have holes in the list
 			continue;
@@ -1458,13 +1458,13 @@ void CvCityStrategyAI::DoTurn()
 		else
 		{
 			// Has the prereq Tech necessary?
-			if(pCityStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pCityStrategy->GetTechPrereq()))
+			if(pCityStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pCityStrategy->GetTechPrereq())))
 			{
 				bTestCityStrategyStart = false;
 			}
 
 			// Has the Tech which obsoletes this Strategy?
-			if(bTestCityStrategyStart && pCityStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pCityStrategy->GetTechObsolete()))
+			if(bTestCityStrategyStart && pCityStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pCityStrategy->GetTechObsolete())))
 			{
 				bTestCityStrategyStart = false;
 			}
@@ -1506,7 +1506,7 @@ void CvCityStrategyAI::DoTurn()
 			bool bStrategyShouldBeActive = false;
 
 			// Has the Tech which obsoletes this Strategy? If so, Strategy should be deactivated regardless of other factors
-			if(pCityStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pCityStrategy->GetTechObsolete()))
+			if(pCityStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetCity()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pCityStrategy->GetTechObsolete())))
 			{
 				bStrategyShouldBeActive = false;
 			}
@@ -1703,7 +1703,7 @@ void CvCityStrategyAI::DoTurn()
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
-							LogFlavorChange((FlavorTypes)iFlavorLoop, pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), true);
+							LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), true);
 							m_piLatestFlavorValues[iFlavorLoop] += pCityStrategy->GetFlavorValue(iFlavorLoop);
 						}
 					}
@@ -1720,7 +1720,7 @@ void CvCityStrategyAI::DoTurn()
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
-							LogFlavorChange((FlavorTypes)iFlavorLoop, -pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), false);
+							LogFlavorChange(static_cast<FlavorTypes>(iFlavorLoop), -pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), false);
 							m_piLatestFlavorValues[iFlavorLoop] -= pCityStrategy->GetFlavorValue(iFlavorLoop);
 						}
 					}
@@ -1909,7 +1909,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 			break;
 			case CITY_BUILDABLE_PROCESS:
 			{
-				CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+				CvProcessInfo* pProcess = GC.getProcessInfo(static_cast<ProcessTypes>(buildable.m_iIndex));
 				if (pProcess != NULL)
 				{
 					strDesc = pProcess->GetDescription();
@@ -2032,7 +2032,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 			break;
 			case CITY_BUILDABLE_PROCESS:
 			{
-				CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+				CvProcessInfo* pProcess = GC.getProcessInfo(static_cast<ProcessTypes>(buildable.m_iIndex));
 				if (pProcess != NULL)
 				{
 					strDesc = pProcess->GetDescription();
@@ -2102,7 +2102,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
 			strType = (pInfo->GetBuildingClassInfo().getMaxGlobalInstances() != -1 || pInfo->GetBuildingClassInfo().getMaxPlayerInstances() != -1) ? "Wonder" : "Building";
 
-			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			TechTypes eTech = static_cast<TechTypes>(pInfo->GetPrereqAndTech());
 			if (eTech != NO_TECH)
 			{
 				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
@@ -2120,7 +2120,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 			CvUnitEntry* pInfo = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
 			strType = (pInfo->GetRangedCombat() > 0) ? "MilitaryRanged" : (pInfo->GetCombat() > 0) ? "MilitaryMelee" : "Civilian";
 
-			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			TechTypes eTech = static_cast<TechTypes>(pInfo->GetPrereqAndTech());
 			if (eTech != NO_TECH)
 			{
 				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
@@ -2137,7 +2137,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 			iEra = GC.getGame().getCurrentEra();
 			break;
 		case CITY_BUILDABLE_PROCESS:
-			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			pEntry = GC.getProcessInfo(static_cast<ProcessTypes>(buildable.m_iIndex));
 			strType = "Process";
 			iEra = GC.getGame().getCurrentEra();
 			break;
@@ -2195,7 +2195,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 			type = "Project";
 			break;
 		case CITY_BUILDABLE_PROCESS:
-			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			pEntry = GC.getProcessInfo(static_cast<ProcessTypes>(buildable.m_iIndex));
 			type = "Process";
 			break;
 		}
@@ -2292,7 +2292,7 @@ int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int iTurnsLe
 	double fTotalCostFactor = /*0.15f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.015f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFT));
 	double fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
 
-	return int(double(iOriginalWeight) / fWeightDivisor);
+	return static_cast<int>(double(iOriginalWeight) / fWeightDivisor);
 }
 
 // Figure out what the WeightThreshold Mod should be by looking at the Flavors for this player & the Strategy
@@ -2303,7 +2303,7 @@ int CityStrategyAIHelpers::GetWeightThresholdModifier(AICityStrategyTypes eStrat
 	// Look at all Flavors for the Player & this Strategy
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes) iFlavorLoop;
+		FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavorLoop);
 		int iPersonalityFlavor = GET_PLAYER(pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
 		int iStrategyFlavorMod = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->GetPersonalityFlavorThresholdMod(eFlavor);
 
@@ -2421,7 +2421,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	if(iCurrentNumCities <= 4)
 	{
 		CvMilitaryAI* pMilitaryAI =kPlayer.GetMilitaryAI();
-		MilitaryAIStrategyTypes eStrategyKillBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
+		MilitaryAIStrategyTypes eStrategyKillBarbs = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS"));
 		if(pMilitaryAI->IsUsingStrategy(eStrategyKillBarbs))
 		{
 			//Do we have enough military units to defend our land? No? Abort.
@@ -2504,7 +2504,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	if (iNumBuilders <= 0)
 		return false;
 
-	AICityStrategyTypes eNeedImproversStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
+	AICityStrategyTypes eNeedImproversStrategy = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS"));
 	if(pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedImproversStrategy))
 		return false;
 
@@ -2625,7 +2625,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 /// "Enough Naval Tile Improvement" City Strategy: If we're not running "Need Naval Tile Improvement" then there's no need to worry about it at all
 bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity)
 {
-	AICityStrategyTypes eStrategyNeedNavalTileImprovement = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
+	AICityStrategyTypes eStrategyNeedNavalTileImprovement = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT"));
 	if(!pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyNeedNavalTileImprovement))
 	{
 		return true;
@@ -2660,12 +2660,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 			}
 			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 			{
-				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(iI));
 				if(!pkBuildInfo)
 				{
 					continue;
 				}
-				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes) iI)->getImprovement();
+				ImprovementTypes eImprovement = static_cast<ImprovementTypes>(GC.getBuildInfo((BuildTypes)iI)->getImprovement());
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
@@ -2674,7 +2674,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 				}
 
 				//Valid right now with any worker valid build?
-				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
+				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, static_cast<BuildTypes>(iI)))
 				{
 					iCanImprove++;
 					break;
@@ -2703,7 +2703,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
 	//probably redundant with canTrain()
-	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+	EconomicAIStrategyTypes eCanSettle = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY"));
 	if (EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
 		return true;
 
@@ -2955,7 +2955,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_MountainCity(CvCity* pCity)
 	CvPlot* pPlot = pCity->plot();
 	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 	{
-		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
+		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iDirectionLoop));
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isMountain())
@@ -3050,7 +3050,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 		FlavorTypes eFlavorEspionage = NO_FLAVOR;
 		for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
-			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+			FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavor);
 			if (GC.getFlavorTypes(eFlavor) == "FLAVOR_ESPIONAGE")
 			{
 				eFlavorEspionage = eFlavor;
@@ -3058,7 +3058,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 		
-		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
+		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / static_cast<float>(iTurnsOfEspionage);
 	}
 
 	return fRatio > 0.0;
@@ -3098,7 +3098,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 		FlavorTypes eFlavorEspionage = NO_FLAVOR;
 		for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
-			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+			FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavor);
 			if (GC.getFlavorTypes(eFlavor) == "FLAVOR_ESPIONAGE")
 			{
 				eFlavorEspionage = eFlavor;
@@ -3106,7 +3106,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
-		float fRatio = iNumBetterScienceCities / (float)iNumOtherCities;
+		float fRatio = iNumBetterScienceCities / static_cast<float>(iNumOtherCities);
 		float fCutOff = (0.05f * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
 
 		return fRatio < fCutOff;
@@ -3242,7 +3242,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						// Loop through all minors and get the total number we've met.
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
-							PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eMinor = static_cast<PlayerTypes>(iPlayerLoop);
 
 							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 							{
@@ -3259,12 +3259,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					}
 
 					// Trait mod to this specific class
-					if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+					if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 					{
 						iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGreatScientistRateModifier();
 						iMod += pCity->GetPlayer()->getGreatScientistRateModifier();
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+					else if(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{
 						iMod += pCity->GetPlayer()->getGreatWriterRateModifier();
 						if (pCity->GetPlayer()->isGoldenAge())
@@ -3276,7 +3276,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += 25;
 						}
 					}					
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+					else if(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
 						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
 						if (pCity->GetPlayer()->isGoldenAge())
@@ -3288,7 +3288,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += 25;
 						}
 					}					
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+					else if(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
 						if (pCity->GetPlayer()->isGoldenAge())
@@ -3300,15 +3300,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += 25;
 						}
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+					else if(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMerchantRateModifier();
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+					else if(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 					{
 						iMod += pCity->GetPlayer()->getGreatEngineerRateModifier();
 					}
-					else if(MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+					else if(MOD_BALANCE_VP && static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 					{
 						iMod += pCity->GetPlayer()->getGreatDiplomatRateModifier();
 					}
@@ -3436,7 +3436,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 {
 	PlayerTypes ePlayer = pCity->getOwner();
-	EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
+	EconomicAIStrategyTypes eStrategyNeedDiplomats = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS"));
 
 	bool bHasDiploBuilding = false;
 
@@ -3451,7 +3451,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				// Does it grant a diplomatic production bonus?
-				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_SCRIBE"))
+				if (pkBuildingInfo->GetBuildingClassType() == static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_SCRIBE")))
 				{
 					bHasDiploBuilding = true;
 				}
@@ -3486,7 +3486,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity)
 {
 	PlayerTypes ePlayer = pCity->getOwner();
-	EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
+	EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL"));
 
 	bool bHasDiploBuilding = false;
 
@@ -3501,7 +3501,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				// Does it grant a diplomatic production bonus?
-				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURT_SCRIBE"))
+				if (pkBuildingInfo->GetBuildingClassType() == static_cast<BuildingClassTypes>(GC.getInfoTypeForString("BUILDINGCLASS_COURT_SCRIBE")))
 				{
 					bHasDiploBuilding = true;
 				}
@@ -3685,7 +3685,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iNumTerrainInfos = GC.getNumTerrainInfos();
 	for (int iI = 0; iI < iNumTerrainInfos; iI++)
 	{
-		TerrainTypes eTerrain = (TerrainTypes)iI;
+		TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
 		if (eTerrain == NO_TERRAIN)
 			continue;
 
@@ -3697,7 +3697,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iNumFeatureInfos = GC.getNumFeatureInfos();
 	for (int iI = 0; iI < iNumFeatureInfos; iI++)
 	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
+		FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
 		if (eFeature == NO_FEATURE)
 			continue;
 		
@@ -3709,7 +3709,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iNumResourceInfos = GC.getNumResourceInfos();
 	for (int iI = 0; iI < iNumResourceInfos; iI++)
 	{
-		ResourceTypes eResource = (ResourceTypes)iI;
+		ResourceTypes eResource = static_cast<ResourceTypes>(iI);
 		if (eResource == NO_RESOURCE)
 			continue;
 
@@ -3777,7 +3777,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iNumImprovementInfos = GC.getNumImprovementInfos();
 	for (int iI = 0; iI < iNumImprovementInfos; iI++)
 	{
-		ImprovementTypes eImprovement = (ImprovementTypes)iI;
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(iI);
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -3797,7 +3797,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += iYieldPolicyBonus;
 	}
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+	SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 	if (eSpecialist != NO_SPECIALIST)
 	{
 		int iNumNewSpecialists = pkBuildingInfo->GetSpecialistCount();
@@ -3896,7 +3896,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 			for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 			{
-				YieldTypes yield = (YieldTypes)ui;
+				YieldTypes yield = static_cast<YieldTypes>(ui);
 
 				if (yield == NO_YIELD)
 					continue;
@@ -4222,8 +4222,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iYieldValue += iActualIncrease;
 	}
 	
-	AICityStrategyTypes eNeedCulture = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING");
-	EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+	AICityStrategyTypes eNeedCulture = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING"));
+	EconomicAIStrategyTypes eStrategyBuildingReligion = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true));
 
 	if (iYieldValue > 0)
 	{
@@ -4247,7 +4247,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
@@ -4286,7 +4286,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			break;
 		case YIELD_FAITH:
 			{
-				int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+				int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
 			
 				if (kPlayer.GetPlayerTraits()->IsReligious())
 				{
@@ -4489,9 +4489,9 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
 	for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GC.GetGameAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 	{
-		eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+		eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 		pGrandStrategy = GC.GetGameAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-		strGrandStrategyName = (CvString)pGrandStrategy->GetType();
+		strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 
 		if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 		{
@@ -4592,7 +4592,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iDiploValue += 25;
 	}
-	UnitCombatTypes eUnitCombat = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY", true);
+	UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY", true));
 	if(eUnitCombat != NO_UNITCOMBAT)
 	{
 		if(pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) > 0)
@@ -4646,12 +4646,12 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iConquestValue += pkBuildingInfo->GetFreeExperience();
 	}
-	PromotionTypes eFreePromotion = (PromotionTypes) pkBuildingInfo->GetFreePromotion();
+	PromotionTypes eFreePromotion = static_cast<PromotionTypes>(pkBuildingInfo->GetFreePromotion());
 	if(eFreePromotion != NO_PROMOTION)
 	{
 		iConquestValue += 50;
 	}
-	PromotionTypes eFreeTrainedPromotion = (PromotionTypes) pkBuildingInfo->GetTrainedFreePromotion();
+	PromotionTypes eFreeTrainedPromotion = static_cast<PromotionTypes>(pkBuildingInfo->GetTrainedFreePromotion());
 	if(eFreeTrainedPromotion != NO_PROMOTION)
 	{
 		iConquestValue += 50;
@@ -4894,7 +4894,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
-			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+			GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
 			if(eGP == NO_GREATPERSON)
 				continue;
 
@@ -4944,7 +4944,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			{
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
-					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+					GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
 					if(eGP == NO_GREATPERSON)
 						continue;
 
@@ -4956,7 +4956,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				}
 				for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 				{
-					YieldTypes yield = (YieldTypes)ui;
+					YieldTypes yield = static_cast<YieldTypes>(ui);
 					 
 					if(yield == NO_YIELD)
 						continue;
@@ -4982,14 +4982,14 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		}
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			YieldTypes yield = (YieldTypes)ui;
+			YieldTypes yield = static_cast<YieldTypes>(ui);
 					 
 			if(yield == NO_YIELD)
 				continue;
 			
 			for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 			{
-				GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+				GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
 				if(eGP == NO_GREATPERSON)
 					continue;
 				
@@ -5012,13 +5012,13 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				}
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
-					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+					GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
 					if(eGP == NO_GREATPERSON)
 						continue;
 
 					for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 					{
-						YieldTypes yield = (YieldTypes)ui;
+						YieldTypes yield = static_cast<YieldTypes>(ui);
 					 
 						if(yield == NO_YIELD)
 							continue;
@@ -5080,7 +5080,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		}
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			YieldTypes yield = (YieldTypes)ui;
+			YieldTypes yield = static_cast<YieldTypes>(ui);
 
 			if (yield == NO_YIELD)
 				continue;
@@ -5128,7 +5128,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		}
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			YieldTypes yield = (YieldTypes)ui;
+			YieldTypes yield = static_cast<YieldTypes>(ui);
 
 			if (yield == NO_YIELD)
 				continue;
@@ -5252,7 +5252,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->GetFreeBuildingThisCity() != NO_BUILDINGCLASS)
 	{
 		const CvCivilizationInfo& thisCiv = pCity->getCivilizationInfo();
-		BuildingTypes eFreeBuildingThisCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(pkBuildingInfo->GetFreeBuildingThisCity()));
+		BuildingTypes eFreeBuildingThisCity = static_cast<BuildingTypes>(thisCiv.getCivilizationBuildings(pkBuildingInfo->GetFreeBuildingThisCity()));
 
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
@@ -5307,7 +5307,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		const BuildingTypes eBuilding2 = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(eBuilding2);
 
-		if (pkBuildingInfo2 && pkBuildingInfo2->GetPrereqAndTech() != NO_TECH && kPlayer.HasTech((TechTypes)pkBuildingInfo2->GetPrereqAndTech()))
+		if (pkBuildingInfo2 && pkBuildingInfo2->GetPrereqAndTech() != NO_TECH && kPlayer.HasTech(static_cast<TechTypes>(pkBuildingInfo2->GetPrereqAndTech())))
 		{
 			if (pkBuildingInfo2->GetNeedBuildingThisCity() == eBuilding)
 			{

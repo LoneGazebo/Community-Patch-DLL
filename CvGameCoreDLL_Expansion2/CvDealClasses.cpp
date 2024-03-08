@@ -534,7 +534,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	case TRADE_ITEM_RESOURCES:
 		{
-			ResourceTypes eResource = (ResourceTypes) iData1;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iData1);
 
 			// If this is true, the function is asking if we can trade ANY resource. Usually, the answer is yes!
 			if (eResource == NO_RESOURCE)
@@ -554,7 +554,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Can't trade obsolete resources
-			TechTypes eTech = (TechTypes)pkResourceInfo->getTechObsolete();
+			TechTypes eTech = static_cast<TechTypes>(pkResourceInfo->getTechObsolete());
 			if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
 				return false;
 
@@ -862,7 +862,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromPlayer->IsAITeammateOfHuman())
 				return false;
 
-			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(iData1);
 			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
 				return false;
 			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
@@ -978,7 +978,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 
-			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(iData1);
 			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
 				return false;
 			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
@@ -1017,7 +1017,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 				if (!GET_PLAYER(eLoopPlayer).isAlive())
 					continue;
@@ -1167,7 +1167,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 
 					// AI cannot buy votes for itself if it has a different team leader
-					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					PlayerTypes eChoicePlayer = static_cast<PlayerTypes>(iVoteChoice);
 					PlayerTypes eLeader = pToTeam->getLeaderID();
 					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
@@ -1180,7 +1180,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 
 					// AI cannot buy votes for itself if it has a different team leader
-					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					PlayerTypes eChoicePlayer = static_cast<PlayerTypes>(iVoteChoice);
 					PlayerTypes eLeader = pToTeam->getLeaderID();
 					if (eLeader != NO_PLAYER && eLeader != eToPlayer && eChoicePlayer != eLeader && GET_PLAYER(eChoicePlayer).getTeam() == GET_PLAYER(eLeader).getTeam())
 						return false;
@@ -1246,7 +1246,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Can't sell invalid or repeatable techs
-			TechTypes eTech = (TechTypes)iData1;
+			TechTypes eTech = static_cast<TechTypes>(iData1);
 			if (eTech == NO_TECH)
 				return false;
 
@@ -1827,7 +1827,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			int iTotalOtherMajors = 0;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (pFromPlayer->getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
 					continue;
 				if (!GET_PLAYER(eLoopPlayer).isAlive())
@@ -2484,7 +2484,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				// Go through every major.
 				for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 				{
-					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+					TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 					if (!GET_TEAM(eLoopTeam).isAlive() || !GET_TEAM(eLoopTeam).isMajorCiv())
 						continue;
@@ -2528,7 +2528,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_THIRD_PARTY_PEACE: // Only display the most important reason
 		{
-			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(iData1);
 			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
 				return strError;
 			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
@@ -2727,7 +2727,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_THIRD_PARTY_WAR: // Only display the most important reason
 		{
-			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(iData1);
 			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
 				return strError;
 			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
@@ -2795,7 +2795,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				// Blocked by an indirect Peace Treaty?
 				for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 				{
-					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+					TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 					if (eLoopTeam != NO_TEAM && eLoopTeam != eFromTeam && eLoopTeam != eToTeam && eLoopTeam != eTargetTeam)
 					{
@@ -2937,7 +2937,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// Loop through any DPs of the target to see if something blocks a war declaration
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 				if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam))
 					continue;
@@ -3029,7 +3029,7 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 		{
 			if (it->m_eItemType == TRADE_ITEM_RESOURCES)
 			{
-				if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
+				if (eResource == NO_RESOURCE || static_cast<ResourceTypes>(it->m_iData1) == eResource)
 					return true;
 			}
 			else
@@ -3091,7 +3091,7 @@ int CvDeal::GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource)
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
+		if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && static_cast<ResourceTypes>(it->m_iData1) == eResource)
 		{
 			iNumInExistingDeal += it->m_iData2;
 		}
@@ -3260,7 +3260,7 @@ void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iA
 		item.m_iDuration = iDuration;
 		//item.m_iFinalTurn = iDuration + GC.getGame().getGameTurn();
 		item.m_iFinalTurn = -1;
-		item.m_iData1 = (int)eResource;
+		item.m_iData1 = static_cast<int>(eResource);
 		item.m_iData2 = iAmount;
 		item.m_eFromPlayer = eFrom;
 		item.m_bDoNotRemove = bDoNotRemove;
@@ -3578,7 +3578,7 @@ bool CvDeal::IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource)
 	{
 		if (it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == eFrom)
 		{
-			if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
+			if (eResource == NO_RESOURCE || static_cast<ResourceTypes>(it->m_iData1) == eResource)
 			{
 				return true;
 			}
@@ -3595,7 +3595,7 @@ int CvDeal::GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource)
 	{
 		if (it->m_eItemType == TRADE_ITEM_RESOURCES &&
 			it->m_eFromPlayer == eFrom &&
-			(ResourceTypes)it->m_iData1 == eResource)
+			static_cast<ResourceTypes>(it->m_iData1) == eResource)
 		{
 			iNum += it->m_iData2;
 		}
@@ -3610,7 +3610,7 @@ bool CvDeal::IsStrategicsTrade()
 	{
 		if (it->m_eItemType == TRADE_ITEM_RESOURCES)
 		{
-			if (GC.getResourceInfo((ResourceTypes)it->m_iData1) != NULL && GC.getResourceInfo((ResourceTypes)it->m_iData1)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			if (GC.getResourceInfo(static_cast<ResourceTypes>(it->m_iData1)) != NULL && GC.getResourceInfo(static_cast<ResourceTypes>(it->m_iData1))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				return true;
 		}
 
@@ -3626,7 +3626,7 @@ int CvDeal::GetNumStrategicsOnTheirSide(PlayerTypes eFrom)
 	{
 		if (it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == eFrom)
 		{
-			if (GC.getResourceInfo((ResourceTypes)it->m_iData1) != NULL && GC.getResourceInfo((ResourceTypes)it->m_iData1)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			if (GC.getResourceInfo(static_cast<ResourceTypes>(it->m_iData1)) != NULL && GC.getResourceInfo(static_cast<ResourceTypes>(it->m_iData1))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				iNum += it->m_iData2;
 		}
 
@@ -3645,7 +3645,7 @@ bool CvDeal::ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int
 	{
 		if(it->m_eItemType == TRADE_ITEM_RESOURCES &&
 		        it->m_eFromPlayer == eFrom &&
-		        (ResourceTypes)it->m_iData1 == eResource)
+		        static_cast<ResourceTypes>(it->m_iData1) == eResource)
 		{
 			if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RESOURCES, eResource, iAmount))
 			{
@@ -3880,7 +3880,7 @@ void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_RESOURCES &&
-		        (ResourceTypes)it->m_iData1 == eResource)
+		        static_cast<ResourceTypes>(it->m_iData1) == eResource)
 		{
 			m_TradedItems.erase(it);
 			break;
@@ -3915,7 +3915,7 @@ void CvDeal::RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE &&
-		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
+		        static_cast<TeamTypes>(it->m_iData1) == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			m_TradedItems.erase(it);
@@ -3931,7 +3931,7 @@ void CvDeal::RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
+		        static_cast<TeamTypes>(it->m_iData1) == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			m_TradedItems.erase(it);
@@ -3965,7 +3965,7 @@ void CvDeal::ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPart
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
+		        static_cast<TeamTypes>(it->m_iData1) == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			it->m_iDuration = iNewDuration;
@@ -3984,7 +3984,7 @@ void CvDeal::ChangeThirdPartyPeaceDuration(PlayerTypes eFrom, TeamTypes eThirdPa
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE &&
-		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
+		        static_cast<TeamTypes>(it->m_iData1) == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			it->m_iDuration = iNewDuration;
@@ -4040,7 +4040,7 @@ void CvDeal::AddTechTrade(PlayerTypes eFrom, TechTypes eTech, bool bDoNotRemove)
 		item.m_eItemType = TRADE_ITEM_TECHS;
 		item.m_iDuration = 0;
 		item.m_iFinalTurn = -1;
-		item.m_iData1 = (int)eTech;
+		item.m_iData1 = static_cast<int>(eTech);
 		item.m_eFromPlayer = eFrom;
 		item.m_bDoNotRemove = bDoNotRemove;
 		m_TradedItems.push_back(item);
@@ -4111,7 +4111,7 @@ bool CvDeal::IsTechTrade(PlayerTypes eFrom, TechTypes eTech)
 	{
 		if(it->m_eItemType	== TRADE_ITEM_TECHS &&
 			it->m_eFromPlayer == eFrom &&
-			(TechTypes)it->m_iData1 == eTech)
+			static_cast<TechTypes>(it->m_iData1) == eTech)
 		{
 			return true;
 		}
@@ -4153,7 +4153,7 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_TECHS &&
-		        (TechTypes)it->m_iData1 == eTech)
+		        static_cast<TechTypes>(it->m_iData1) == eTech)
 		{
 			m_TradedItems.erase(it);
 			break;
@@ -4286,7 +4286,7 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (eLoopPlayer != NO_PLAYER)
 				{
 					GET_PLAYER(eLoopPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
@@ -4424,7 +4424,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE)
 			{
 				// Ignore City-State allies.
-				TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
+				TeamTypes eTargetTeam = static_cast<TeamTypes>(it->m_iData1);
 				if (eTargetTeam == NO_TEAM)
 					continue;
 
@@ -4512,7 +4512,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 		case TRADE_ITEM_RESOURCES:
 		{
-			ResourceTypes eResource = (ResourceTypes)it->m_iData1;
+			ResourceTypes eResource = static_cast<ResourceTypes>(it->m_iData1);
 			int iResourceQuantity = it->m_iData2;
 			GET_PLAYER(eGivingPlayer).changeResourceExport(eResource, iResourceQuantity);
 			GET_PLAYER(eReceivingPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
@@ -4522,12 +4522,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			{
 				gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_RESOURCESTRADED, 100, ACHIEVEMENT_100RESOURCES);
 
-				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY && (CvString)GET_PLAYER(eGivingPlayer).getLeaderTypeKey() == "LEADER_HARUN_AL_RASHID")
+				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY && static_cast<CvString>(GET_PLAYER(eGivingPlayer).getLeaderTypeKey()) == "LEADER_HARUN_AL_RASHID")
 				{
 					for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
 					{
-						CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo((BuildingTypes)iJ);
-						if (pkBuildingEntry && (CvString)pkBuildingEntry->GetType() == "BUILDING_BAZAAR")
+						CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(static_cast<BuildingTypes>(iJ));
+						if (pkBuildingEntry && static_cast<CvString>(pkBuildingEntry->GetType()) == "BUILDING_BAZAAR")
 						{
 							if (GET_PLAYER(eGivingPlayer).getBuildingClassCount((BuildingClassTypes)pkBuildingEntry->GetBuildingClassType()) >= 1)
 							{
@@ -4594,7 +4594,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			{
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+					PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 					if (!GET_PLAYER(ePlayer).isAlive())
 						continue;
 
@@ -4636,7 +4636,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 		case TRADE_ITEM_TECHS:
 		{
-			TechTypes eTech = (TechTypes)it->m_iData1;
+			TechTypes eTech = static_cast<TechTypes>(it->m_iData1);
 			GET_TEAM(eReceivingTeam).setHasTech(eTech, true, NO_PLAYER, true, false);
 
 			// If No Tech Brokering is enabled then don't let the player trade this tech
@@ -4657,7 +4657,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 			{
-				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+				TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 				if (GET_TEAM(eLoopTeam).IsVassal(eGivingTeam))
 				{
@@ -4668,7 +4668,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eReceivingTeam, true);
@@ -4689,7 +4689,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 		case TRADE_ITEM_THIRD_PARTY_PEACE:
 		{
-			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(it->m_iData1);
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
 			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			PlayerTypes eTargetPlayer = GET_TEAM(eTargetTeam).getLeaderID();
@@ -4729,7 +4729,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			// Process global reactions
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (ePlayer == eGivingPlayer || ePlayer == eReceivingPlayer)
 					continue;
 
@@ -4860,7 +4860,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 		case TRADE_ITEM_THIRD_PARTY_WAR:
 		{
-			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
+			TeamTypes eTargetTeam = static_cast<TeamTypes>(it->m_iData1);
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
 			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			vector<PlayerTypes> vReceivingTeam = GET_TEAM(eReceivingTeam).getPlayers();
@@ -4871,7 +4871,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			vector<PlayerTypes> vDebugModePlayers;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (ePlayer == eGivingPlayer || ePlayer == eReceivingPlayer)
 					continue;
 
@@ -5226,7 +5226,7 @@ void CvGameDeals::DoTurn()
 					/*else */
 					if (itemIter->m_eItemType == TRADE_ITEM_RESOURCES)
 					{
-						ResourceTypes eResource = (ResourceTypes)itemIter->m_iData1;
+						ResourceTypes eResource = static_cast<ResourceTypes>(itemIter->m_iData1);
 						//int iResourceQuantity = itemIter->m_iData2;
 						bHaveEnoughResource = GET_PLAYER(eFromPlayer).getNumResourceTotal(eResource) >= 0;
 					}
@@ -5404,7 +5404,7 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 		// Loop through first set of players
 		for(iPlayerLoop1 = 0; iPlayerLoop1 < MAX_MAJOR_CIVS; iPlayerLoop1++)
 		{
-			eFromPlayer = (PlayerTypes) iPlayerLoop1;
+			eFromPlayer = static_cast<PlayerTypes>(iPlayerLoop1);
 
 			if(!GET_PLAYER(eFromPlayer).isEverAlive())
 			{
@@ -5418,7 +5418,7 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 			// Loop through second set of players
 			for(iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 			{
-				eToPlayer = (PlayerTypes) iPlayerLoop2;
+				eToPlayer = static_cast<PlayerTypes>(iPlayerLoop2);
 
 				if(!GET_PLAYER(eToPlayer).isEverAlive())
 				{
@@ -5504,7 +5504,7 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 	PlayerTypes ePlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if(!GET_PLAYER(ePlayer).isEverAlive())
 		{
@@ -5532,7 +5532,7 @@ void CvGameDeals::DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 		if ((eTargetPlayers == DIPLO_AI_PLAYERS && !kLoopPlayer.isHuman()) || (eTargetPlayers == DIPLO_ALL_PLAYERS) || (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
 		{
@@ -5555,7 +5555,7 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
 		{//deal from eCancelPlayer
@@ -5613,7 +5613,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	// Resource
 	else if(pItem->m_eItemType == TRADE_ITEM_RESOURCES)
 	{
-		ResourceTypes eResource = (ResourceTypes) pItem->m_iData1;
+		ResourceTypes eResource = static_cast<ResourceTypes>(pItem->m_iData1);
 
 		if (!bSkip)
 		{
@@ -5767,7 +5767,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	// Third Party Peace Treaty
 	else if(pItem->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE)
 	{
-		TeamTypes eTargetTeam = (TeamTypes) pItem->m_iData1;
+		TeamTypes eTargetTeam = static_cast<TeamTypes>(pItem->m_iData1);
 		GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, false);
 		GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, false);
 
@@ -5835,7 +5835,7 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal)
 		TradeableItems eItemType = oldDealItemIter->m_eItemType;
 		if (eItemType == TRADE_ITEM_RESOURCES)
 		{
-			ResourceTypes eResource = (ResourceTypes)oldDealItemIter->m_iData1;
+			ResourceTypes eResource = static_cast<ResourceTypes>(oldDealItemIter->m_iData1);
 
 			// quantity
 			int iOldResourceAmount = oldDealItemIter->m_iData2;
@@ -6006,7 +6006,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** GPT Trade: %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_RESOURCES:
-				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo((ResourceTypes)itemIter->m_iData1)->GetDescriptionKey());
+				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo(static_cast<ResourceTypes>(itemIter->m_iData1))->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_CITIES:
 			{
@@ -6030,10 +6030,10 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Peace Treaty Trade *****");
 				break;
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
+				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER(static_cast<PlayerTypes>(itemIter->m_iData1)).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
+				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER(static_cast<PlayerTypes>(itemIter->m_iData1)).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
@@ -6042,7 +6042,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo((TechTypes)itemIter->m_iData1)->GetDescriptionKey());
+				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo(static_cast<TechTypes>(itemIter->m_iData1))->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
@@ -6229,7 +6229,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 				strTemp.Format("***** GPT Trade: %d *****", itemIter->m_iData1);
 				break;
 			case TRADE_ITEM_RESOURCES:
-				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo((ResourceTypes)itemIter->m_iData1)->GetDescriptionKey());
+				strTemp.Format("***** Resource Trade: ID %s *****", GC.getResourceInfo(static_cast<ResourceTypes>(itemIter->m_iData1))->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_CITIES:
 			{
@@ -6253,10 +6253,10 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 				strTemp.Format("***** Peace Treaty Trade *****");
 				break;
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
+				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER(static_cast<PlayerTypes>(itemIter->m_iData1)).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
+				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER(static_cast<PlayerTypes>(itemIter->m_iData1)).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
@@ -6265,7 +6265,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 				strTemp.Format("***** Map Trade *****");
 				break;
 			case TRADE_ITEM_TECHS:
-				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo((TechTypes)itemIter->m_iData1)->GetDescriptionKey());
+				strTemp.Format("***** Tech Trade ***** ID %s",  GC.getTechInfo(static_cast<TechTypes>(itemIter->m_iData1))->GetDescriptionKey());
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
@@ -6535,7 +6535,7 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
@@ -6590,7 +6590,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			//Resources
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
@@ -6622,7 +6622,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 	}
 
 	// Modify by game speed for roughly consistent valuation across all game speeds
-	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo(static_cast<GameSpeedTypes>(GD_INT_GET(STANDARD_GAMESPEED)));
 	if (pkStdSpeedInfo)
 	{
 		iVal *= pkStdSpeedInfo->GetDealDuration();

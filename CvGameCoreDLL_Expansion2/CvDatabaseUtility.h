@@ -39,7 +39,7 @@ public:
 
 	//!Allocates an array to Count(szTableName) and zero's memory.
 	template<typename T>
-void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
+void InitializeArray(T*& pArray, const char* szTableName, T default_ = static_cast<T>(0));
 
 	bool Initialize2DArray(int**& pArray, const char* szTable1Name, const char* szTable2Name, int iDefault = 0);
 	static void SafeDelete2DArray(int**& pArray);

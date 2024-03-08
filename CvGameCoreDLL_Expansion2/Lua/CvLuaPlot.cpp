@@ -383,7 +383,7 @@ int CvLuaPlot::lCanHaveFeature(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 
 	const int featureType = lua_tointeger(L, 2);
-	const bool canHasFeature = pkPlot->canHaveFeature((FeatureTypes)featureType);
+	const bool canHasFeature = pkPlot->canHaveFeature(static_cast<FeatureTypes>(featureType));
 
 	lua_pushboolean(L, canHasFeature);
 
@@ -444,7 +444,7 @@ int CvLuaPlot::lIsWater(lua_State* L)
 int CvLuaPlot::lIsBlockaded(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	lua_pushboolean(L, pkPlot->isBlockaded(ePlayer));
 
@@ -456,7 +456,7 @@ int CvLuaPlot::lSetFeatureType(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const int featureType = lua_tointeger(L, 2);
 
-	pkPlot->setFeatureType((FeatureTypes)featureType);
+	pkPlot->setFeatureType(static_cast<FeatureTypes>(featureType));
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -468,7 +468,7 @@ int CvLuaPlot::lSetTerrainType(lua_State* L)
 	const bool bRecalculate = lua_toboolean(L, 3);
 	const bool bRebuildGraphics = lua_toboolean(L, 4);
 
-	pkPlot->setTerrainType((TerrainTypes)terrainType, bRecalculate, bRebuildGraphics);
+	pkPlot->setTerrainType(static_cast<TerrainTypes>(terrainType), bRecalculate, bRebuildGraphics);
 
 	return 0;
 }
@@ -617,7 +617,7 @@ int CvLuaPlot::lIsRiverConnection(lua_State* L)
 int CvLuaPlot::lIsRiverCrossingFlowClockwise(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const DirectionTypes eDirection = (DirectionTypes)lua_tointeger(L, 2);
+	const DirectionTypes eDirection = static_cast<DirectionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkPlot->isRiverCrossingFlowClockwise(eDirection);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -694,10 +694,10 @@ int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 
-		if (NULL != pkBuild && pkBuild->getRoute() == NO_ROUTE && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
+		if (NULL != pkBuild && pkBuild->getRoute() == NO_ROUTE && eImprovement == static_cast<ImprovementTypes>(pkBuild->getImprovement()))
 		{ 
 			lua_pushinteger(L, eBuild); 
 			return 1;
@@ -712,8 +712,8 @@ int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 int CvLuaPlot::lGetFeatureProduction(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const BuildTypes eBuild = static_cast<BuildTypes>(lua_tointeger(L, 2));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	CvCity* pCity;
 
 	const int iResult = pkPlot->getFeatureProduction(eBuild, ePlayer, &pCity);
@@ -726,8 +726,8 @@ int CvLuaPlot::lGetFeatureProduction(lua_State* L)
 int CvLuaPlot::lGetBestDefender(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const PlayerTypes eOwner = (PlayerTypes)lua_tointeger(L, 2);
-	const PlayerTypes eAttackingPlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const PlayerTypes eOwner = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eAttackingPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 4, false);
 	const bool bTestAtWar = luaL_optint(L, 5, 0);
 	const bool bIgnoreVisibility = luaL_optint(L, 6, 0);
@@ -861,7 +861,7 @@ int CvLuaPlot::lHasDig(lua_State* L)
 int CvLuaPlot::lIsVisible(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	lua_pushboolean(L, pkPlot->isVisible(eTeam, bDebug));
@@ -892,7 +892,7 @@ int CvLuaPlot::lIsVisibleToWatchingHuman(lua_State* L)
 int CvLuaPlot::lIsAdjacentVisible(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -944,7 +944,7 @@ int CvLuaPlot::lIsRevealedGoody(lua_State* L)
 int CvLuaPlot::lIsFriendlyTerritory(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const bool bResult = pkPlot->IsFriendlyTerritory(ePlayer);
 	lua_pushboolean(L, bResult);
@@ -1045,7 +1045,7 @@ int CvLuaPlot::lGetNumVisiblePotentialEnemyDefenders(lua_State* L)
 int CvLuaPlot::lIsVisibleEnemyUnit(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkPlot->isVisibleEnemyUnit(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1106,7 +1106,7 @@ int CvLuaPlot::lIsRoute(lua_State* L)
 int CvLuaPlot::lIsTradeRoute(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, -1);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 2, -1));
 	bool bResult = pkPlot->IsCityConnection(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1118,7 +1118,7 @@ int CvLuaPlot::lIsImpassable(lua_State* L)
 {
 #if defined(MOD_BALANCE_CORE)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	TeamTypes eTeam = (TeamTypes) luaL_optinteger(L, 2, NO_TEAM);
+	TeamTypes eTeam = static_cast<TeamTypes>(luaL_optinteger(L, 2, NO_TEAM));
 	const bool bResult = pkPlot->isImpassable(eTeam);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1448,7 +1448,7 @@ int CvLuaPlot::lGetResourceType(lua_State* L)
 	{
 		if(lua_gettop(L) >= 2)
 		{
-			TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+			TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 			ResourceTypes eResource = pkPlot->getResourceType(eTeam);
 			lua_pushinteger(L, eResource);
 			return 1;
@@ -1626,7 +1626,7 @@ int CvLuaPlot::lGetRiverCrossingCount(lua_State* L)
 int CvLuaPlot::lGetYield(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkPlot->getYield(eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -1642,8 +1642,8 @@ int CvLuaPlot::lChangeYield(lua_State* L)
 int CvLuaPlot::lCalculateNatureYield(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iResult = pkPlot->calculateNatureYield(eIndex, ePlayer, pkPlot->getFeatureType(), pkPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pkPlot->getPlotCity());
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -1665,14 +1665,14 @@ int CvLuaPlot::lCalculateTotalBestNatureYield(lua_State* L)
 int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L,3);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 4));
 	const bool bOptimal = luaL_optbool(L, 5, false);
 
-	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 6, NUM_ROUTE_TYPES);
+	RouteTypes eRoute = static_cast<RouteTypes>(luaL_optint(L, 6, NUM_ROUTE_TYPES));
 	if (lua_gettop(L) == 6)
-		eRoute = (RouteTypes)lua_tointeger(L, 6);
+		eRoute = static_cast<RouteTypes>(lua_tointeger(L, 6));
 
 	if (eRoute == NUM_ROUTE_TYPES)
 		eRoute = pkPlot->getRouteType();
@@ -1705,10 +1705,10 @@ int CvLuaPlot::lHasYield(lua_State* L)
 int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 3);
+	const BuildTypes eBuild = static_cast<BuildTypes>(lua_tointeger(L, 2));
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	const bool bUpgrade = luaL_optbool(L, 4, false);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 5);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 5));
 
 	const CvCity* pOwningCity = pkPlot->getEffectiveOwningCity();
 	if (pOwningCity)
@@ -1788,7 +1788,7 @@ int CvLuaPlot::lGetVisibilityCount(lua_State* L)
 int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const int iChange = lua_tointeger(L, 3);
 	const int eSeeInvisible = lua_tointeger(L, 4);
 	const bool bInformExplorationTracking = lua_toboolean(L, 5);
@@ -1811,7 +1811,7 @@ int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 int CvLuaPlot::lGetRevealedOwner(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -1826,7 +1826,7 @@ int CvLuaPlot::lGetRevealedOwner(lua_State* L)
 int CvLuaPlot::lGetRevealedTeam(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -1863,7 +1863,7 @@ int CvLuaPlot::lIsRiverCrossingToPlot(lua_State* L)
 int CvLuaPlot::lIsRevealed(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -1878,10 +1878,10 @@ int CvLuaPlot::lIsRevealed(lua_State* L)
 int CvLuaPlot::lSetRevealed(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bNewValue = lua_toboolean(L, 3);
 	const bool bTerrainOnly = luaL_optint(L, 4, 0);
-	const TeamTypes eFromTeam = (TeamTypes)luaL_optint(L, 5, NO_TEAM);
+	const TeamTypes eFromTeam = static_cast<TeamTypes>(luaL_optint(L, 5, NO_TEAM));
 	if(lua_gettop(L) >= 6)
 	{
 		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 6);
@@ -1899,7 +1899,7 @@ int CvLuaPlot::lSetRevealed(lua_State* L)
 int CvLuaPlot::lGetRevealedImprovementType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -1914,7 +1914,7 @@ int CvLuaPlot::lGetRevealedImprovementType(lua_State* L)
 int CvLuaPlot::lGetRevealedRouteType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = luaL_optbool(L, 3, false);
 
 	if (!bDebug)
@@ -2052,9 +2052,9 @@ int CvLuaPlot::lCanSeePlot(lua_State* L)
 {
 	CvPlot* pkThisPlot = GetInstance(L);
 	CvPlot* pkThatPlot = GetInstance(L, 2);
-	TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 3);
+	TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 3));
 	int iRange = lua_tointeger(L, 4);
-	DirectionTypes eFacingDirection = (DirectionTypes) lua_tointeger(L, 5);
+	DirectionTypes eFacingDirection = static_cast<DirectionTypes>(lua_tointeger(L, 5));
 
 	bool bCanSee = false;
 	if(pkThisPlot)
@@ -2090,7 +2090,7 @@ int CvLuaPlot::lSetContinentArtType(lua_State* L)
 	if(pkThisPlot)
 	{
 		const int iContinentType = lua_tointeger(L, 2);
-		pkThisPlot->SetContinentType((char) iContinentType);
+		pkThisPlot->SetContinentType(static_cast<char>(iContinentType));
 	}
 	return 0;
 }
@@ -2101,7 +2101,7 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 {
 	bool bResult = false;
 	CvPlot* kPlot = GetInstance(L);
-	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pkImprovementInfo)
 	{
@@ -2116,7 +2116,7 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 int CvLuaPlot::lIsBuildRemovesFeature(lua_State* L)
 {
 	CvPlot* kPlot = GetInstance(L);
-	const BuildTypes eBuild = (BuildTypes) lua_tointeger(L, 2);
+	const BuildTypes eBuild = static_cast<BuildTypes>(lua_tointeger(L, 2));
 	bool bFeatureRemoved = false;
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
@@ -2134,7 +2134,7 @@ int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 	GreatWorkArtifactClass eType = CvLuaArgs::toValue<GreatWorkArtifactClass>(L, 2);
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
-	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	PlayerTypes ePlayer2 = static_cast<PlayerTypes>(luaL_optinteger(L, 5, NO_PLAYER));
 	
 	pPlot->SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
 	return 0;
@@ -2146,7 +2146,7 @@ int CvLuaPlot::lAddArchaeologicalRecord(lua_State* L)
 	GreatWorkArtifactClass eType = CvLuaArgs::toValue<GreatWorkArtifactClass>(L, 2);
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
-	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	PlayerTypes ePlayer2 = static_cast<PlayerTypes>(luaL_optinteger(L, 5, NO_PLAYER));
 	
 	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
 	return 0;
@@ -2185,7 +2185,7 @@ int CvLuaPlot::lGetArchaeologyArtifactPlayer2(lua_State* L)
 	CvPlot* kPlot = GetInstance(L);
 	int iPlayer = kPlot->GetArchaeologicalRecord().m_ePlayer2;
 	if (iPlayer == -1)
-		iPlayer = (int)BARBARIAN_PLAYER;
+		iPlayer = static_cast<int>(BARBARIAN_PLAYER);
 	lua_pushinteger(L, iPlayer);
 	return 1;
 }
@@ -2272,7 +2272,7 @@ int CvLuaPlot::lAddMessage(lua_State* L)
 {
 	CvPlot* pPlot = GetInstance(L);
 	const char* szMessage = lua_tostring(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 3, GC.getGame().getActivePlayer());
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optinteger(L, 3, GC.getGame().getActivePlayer()));
 
 	SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage);
 	return 0;
@@ -2282,8 +2282,8 @@ int CvLuaPlot::lAddPopupMessage(lua_State* L)
 {
 	CvPlot* pPlot = GetInstance(L);
 	const char* szMessage = lua_tostring(L, 2);
-	const float fDelay = (float) luaL_optnumber(L, 3, 0.0);
-	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 4, GC.getGame().getActivePlayer());
+	const float fDelay = static_cast<float>(luaL_optnumber(L, 3, 0.0));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optinteger(L, 4, GC.getGame().getActivePlayer()));
 
 	SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage);
 	return 0;

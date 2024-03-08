@@ -251,7 +251,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 							iSum += random.get(1 << (8 - iSmooth + iPass), "Fractal Gen 4");
 							iSum -= 1 << (7 - iSmooth + iPass);
 							iSum = range(iSum, 0, 255);
-							m_aaiFrac[iX << iPass][iY << iPass] = (BYTE) iSum;
+							m_aaiFrac[iX << iPass][iY << iPass] = static_cast<BYTE>(iSum);
 						}
 						else
 						{

@@ -893,7 +893,7 @@ bool CvMissionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	const char* szEntityEventType = kResults.GetText("EntityEventType");
 	if(szEntityEventType)
 	{
-		m_eEntityEvent = (EntityEventTypes)GC.getInfoTypeForString(szEntityEventType, true);
+		m_eEntityEvent = static_cast<EntityEventTypes>(GC.getInfoTypeForString(szEntityEventType, true));
 	}
 	else
 	{
@@ -1045,7 +1045,7 @@ int CvActionInfo::getCommandData() const
 	}
 	else if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
-		return GC.getCommandInfo((CommandTypes)m_iOriginalIndex)->getAutomate();
+		return GC.getCommandInfo(static_cast<CommandTypes>(m_iOriginalIndex))->getAutomate();
 	}
 	else if(ACTIONSUBTYPE_AUTOMATE == m_eSubType)
 	{
@@ -1060,7 +1060,7 @@ int CvActionInfo::getAutomateType() const
 
 	if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
-		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
+		CvCommandInfo* pkCommandInfo = GC.getCommandInfo(static_cast<CommandTypes>(m_iOriginalIndex));
 		if(pkCommandInfo)
 		{
 			return pkCommandInfo->getAutomate();
@@ -1091,13 +1091,13 @@ int CvActionInfo::getMissionType() const
 {
 	if(ACTIONSUBTYPE_BUILD == m_eSubType)
 	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)m_iOriginalIndex);
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(m_iOriginalIndex));
 		if(pkBuildInfo)
 			return pkBuildInfo->getMissionType();
 	}
 	else if(ACTIONSUBTYPE_SPECIALIST == m_eSubType)
 	{
-		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)m_iOriginalIndex);
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(static_cast<SpecialistTypes>(m_iOriginalIndex));
 		if(pkSpecialistInfo)
 			return pkSpecialistInfo->getMissionType();
 	}
@@ -1117,7 +1117,7 @@ int CvActionInfo::getCommandType() const
 	}
 	else if(ACTIONSUBTYPE_PROMOTION == m_eSubType)
 	{
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)m_iOriginalIndex);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(static_cast<PromotionTypes>(m_iOriginalIndex));
 		if(pkPromotionInfo)
 		{
 			return pkPromotionInfo->GetCommandType();
@@ -1158,7 +1158,7 @@ bool CvActionInfo::isConfirmCommand() const
 {
 	if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
-		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
+		CvCommandInfo* pkCommandInfo = GC.getCommandInfo(static_cast<CommandTypes>(m_iOriginalIndex));
 		if(pkCommandInfo)
 		{
 			return pkCommandInfo->getConfirmCommand();
@@ -1184,7 +1184,7 @@ bool CvActionInfo::isVisible() const
 	}
 	else if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
-		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
+		CvCommandInfo* pkCommandInfo = GC.getCommandInfo(static_cast<CommandTypes>(m_iOriginalIndex));
 		if(pkCommandInfo)
 		{
 			return pkCommandInfo->getVisible();
@@ -1200,7 +1200,7 @@ bool CvActionInfo::isVisible() const
 	}
 	else if(ACTIONSUBTYPE_MISSION == m_eSubType)
 	{
-		CvMissionInfo* pkMissionInfo = GC.getMissionInfo((MissionTypes)m_iOriginalIndex);
+		CvMissionInfo* pkMissionInfo = GC.getMissionInfo(static_cast<MissionTypes>(m_iOriginalIndex));
 		if(pkMissionInfo)
 		{
 			return pkMissionInfo->getVisible();
@@ -1208,7 +1208,7 @@ bool CvActionInfo::isVisible() const
 	}
 	else if(ACTIONSUBTYPE_INTERFACEMODE== m_eSubType)
 	{
-		CvInterfaceModeInfo* pkInterfaceModeInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)m_iOriginalIndex);
+		CvInterfaceModeInfo* pkInterfaceModeInfo = GC.getInterfaceModeInfo(static_cast<InterfaceModeTypes>(m_iOriginalIndex));
 		if(pkInterfaceModeInfo)
 		{
 			return pkInterfaceModeInfo->getVisible();
@@ -1236,7 +1236,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 		break;
 	case ACTIONSUBTYPE_INTERFACEMODE:
 	{
-		CvInterfaceModeInfo* pkInterfaceModInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)getOriginalIndex());
+		CvInterfaceModeInfo* pkInterfaceModInfo = GC.getInterfaceModeInfo(static_cast<InterfaceModeTypes>(getOriginalIndex()));
 		if(pkInterfaceModInfo)
 		{
 			return pkInterfaceModInfo;
@@ -1245,7 +1245,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_COMMAND:
 	{
-		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)getOriginalIndex());
+		CvCommandInfo* pkCommandInfo = GC.getCommandInfo(static_cast<CommandTypes>(getOriginalIndex()));
 		if(pkCommandInfo)
 		{
 			return pkCommandInfo;
@@ -1254,7 +1254,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_BUILD:
 	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)getOriginalIndex());
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(getOriginalIndex()));
 		if(pkBuildInfo)
 		{
 			return pkBuildInfo;
@@ -1263,7 +1263,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_PROMOTION:
 	{
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)getOriginalIndex());
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(static_cast<PromotionTypes>(getOriginalIndex()));
 		if(pkPromotionInfo)
 		{
 			return pkPromotionInfo;
@@ -1272,7 +1272,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_SPECIALIST:
 	{
-		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)getOriginalIndex());
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(static_cast<SpecialistTypes>(getOriginalIndex()));
 		if(pkSpecialistInfo)
 		{
 			return pkSpecialistInfo;
@@ -1281,7 +1281,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_CONTROL:
 	{
-		CvControlInfo* pkControlInfo = GC.getControlInfo((ControlTypes)getOriginalIndex());
+		CvControlInfo* pkControlInfo = GC.getControlInfo(static_cast<ControlTypes>(getOriginalIndex()));
 		if(pkControlInfo)
 		{
 			return pkControlInfo;
@@ -1299,7 +1299,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	break;
 	case ACTIONSUBTYPE_MISSION:
 	{
-		CvMissionInfo* pkMissionInfo = GC.getMissionInfo((MissionTypes)getOriginalIndex());
+		CvMissionInfo* pkMissionInfo = GC.getMissionInfo(static_cast<MissionTypes>(getOriginalIndex()));
 		if(pkMissionInfo)
 		{
 			return pkMissionInfo;
@@ -1593,13 +1593,13 @@ bool CvMultiUnitFormationInfo::CacheResults(Database::Results& kResults, CvDatab
 				//References
 				const char* szTextVal = NULL;
 				szTextVal = kSlotEntries.GetText("MultiUnitPositionType");
-				slotEntry.m_ePositionType = (MultiunitPositionTypes)GC.getInfoTypeForString(szTextVal, true);
+				slotEntry.m_ePositionType = static_cast<MultiunitPositionTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 				szTextVal = kSlotEntries.GetText("PrimaryUnitType");
-				slotEntry.m_primaryUnitType = (UnitAITypes)GC.getInfoTypeForString(szTextVal, true);
+				slotEntry.m_primaryUnitType = static_cast<UnitAITypes>(GC.getInfoTypeForString(szTextVal, true));
 
 				szTextVal = kSlotEntries.GetText("SecondaryUnitType");
-				slotEntry.m_secondaryUnitType = (UnitAITypes)GC.getInfoTypeForString(szTextVal, true);
+				slotEntry.m_secondaryUnitType = static_cast<UnitAITypes>(GC.getInfoTypeForString(szTextVal, true));
 
 				m_vctSlotEntries.push_back(slotEntry);
 			}
@@ -2210,7 +2210,7 @@ ReligionTypes CvCivilizationInfo::GetReligion() const
 	{
 		if(m_pbReligions[iI])
 		{
-			return (ReligionTypes)iI;
+			return static_cast<ReligionTypes>(iI);
 		}
 	}
 	return NO_RELIGION;
@@ -5126,10 +5126,10 @@ bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUti
 		const char* szTextVal = NULL;
 
 		szTextVal = results.GetText("FromCivilizationType");
-		m_eFromCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+		m_eFromCiv = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 		szTextVal = results.GetText("ToCivilizationType");
-		m_eToCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+		m_eToCiv = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 		return true;
 	}
@@ -6427,7 +6427,7 @@ int CvResourceInfo::getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const
 int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
 {
 	MonopolyGreatPersonRateModifierKey sKey;
-	sKey.m_iSpecialist = (int)eSpecialist;
+	sKey.m_iSpecialist = static_cast<int>(eSpecialist);
 	int iMod = 0;
 
 	std::map<MonopolyGreatPersonRateModifierKey, int>::const_iterator it;
@@ -6482,7 +6482,7 @@ int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpeciali
 int CvResourceInfo::getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
 {
 	MonopolyGreatPersonRateModifierKey sKey;
-	sKey.m_iSpecialist = (int)eSpecialist;
+	sKey.m_iSpecialist = static_cast<int>(eSpecialist);
 	int iMod = 0;
 
 	std::map<MonopolyGreatPersonRateModifierKey, int>::const_iterator it;
@@ -6559,8 +6559,8 @@ int CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eU
 	{
 		for (std::vector<ProductionCostModifiers>::const_iterator itVector = itMap->second.begin(); itVector != itMap->second.end(); ++itVector)
 		{
-			EraTypes eRequiredEra = (EraTypes)itVector->m_iRequiredEra;
-			EraTypes eObsoleteEra = (EraTypes)itVector->m_iObsoleteEra;
+			EraTypes eRequiredEra = static_cast<EraTypes>(itVector->m_iRequiredEra);
+			EraTypes eObsoleteEra = static_cast<EraTypes>(itVector->m_iObsoleteEra);
 
 			if (eUnitEra != NO_ERA)
 			{
@@ -6615,8 +6615,8 @@ int CvResourceInfo::getBuildingProductionCostModifiersLocal(EraTypes eBuildingEr
 
 	for (std::vector<ProductionCostModifiers>::const_iterator it = m_aiiiBuildingProductionCostModifiersLocal.begin(); it != m_aiiiBuildingProductionCostModifiersLocal.end(); ++it)
 	{
-		EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
-		EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+		EraTypes eRequiredEra = static_cast<EraTypes>(it->m_iRequiredEra);
+		EraTypes eObsoleteEra = static_cast<EraTypes>(it->m_iObsoleteEra);
 
 		if (eBuildingEra != NO_ERA)
 		{
@@ -6701,7 +6701,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iWonderProductionMod = kResults.GetInt("WonderProductionMod");
 
 	const char* szEraType = kResults.GetText("WonderProductionModObsoleteEra");
-	m_eWonderProductionModObsoleteEra = (EraTypes)GC.getInfoTypeForString(szEraType, true);
+	m_eWonderProductionModObsoleteEra = static_cast<EraTypes>(GC.getInfoTypeForString(szEraType, true));
 
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMinLatitude = kResults.GetInt("MinLatitude");
@@ -6734,14 +6734,14 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bOnlyMinorCivs = kResults.GetBool("OnlyMinorCivs");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
-	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+	m_eRequiredCivilization = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szCivilizationType, true));
 
 	m_iRandAppearance1 = kResults.GetInt("RandApp1");
 	m_iRandAppearance2 = kResults.GetInt("RandApp2");
 	m_iRandAppearance3 = kResults.GetInt("RandApp3");
 	m_iRandAppearance4 = kResults.GetInt("RandApp4");
 
-	m_eResourceUsage   = (ResourceUsageTypes)kResults.GetInt("ResourceUsage");
+	m_eResourceUsage   = static_cast<ResourceUsageTypes>(kResults.GetInt("ResourceUsage"));
 
 	//Basic references
 	const char* szResourceClassType = kResults.GetText("ResourceClassType");
@@ -8833,7 +8833,7 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 #if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
-	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+	m_eRequiredCivilization = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szCivilizationType, true));
 #endif
 
 	const char* szProcessType = GetType();
@@ -8999,7 +8999,7 @@ bool CvEntityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 
 		while(pResults->Step())
 		{
-			const AnimationPathTypes eAnimationPath = (AnimationPathTypes)pResults->GetInt(0);
+			const AnimationPathTypes eAnimationPath = static_cast<AnimationPathTypes>(pResults->GetInt(0));
 			m_vctAnimationPathType.push_back(eAnimationPath);
 		}
 
@@ -9011,7 +9011,7 @@ bool CvEntityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 //------------------------------------------------------------------------------
 AnimationPathTypes CvEntityEventInfo::getAnimationPathType(int iIndex) const
 {
-	return iIndex >= (int)m_vctAnimationPathType.size() ? ANIMATIONPATH_NONE : m_vctAnimationPathType[iIndex];
+	return iIndex >= static_cast<int>(m_vctAnimationPathType.size()) ? ANIMATIONPATH_NONE : m_vctAnimationPathType[iIndex];
 }
 //------------------------------------------------------------------------------
 int CvEntityEventInfo::getAnimationPathCount() const
@@ -11858,7 +11858,7 @@ bool CvModEventCityChoiceInfo::isSecretMission() const
 
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
 {
-	return (EventChoiceTypes)m_iTriggerPlayerEventChoice;
+	return static_cast<EventChoiceTypes>(m_iTriggerPlayerEventChoice);
 }
 
 //------------------------------------------------------------------------------
@@ -12935,7 +12935,7 @@ void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)
 	{
 		uint uiHash = 0;
 		kStream >> uiHash;
-		if (uiHash != 0 && uiHash != (uint)NO_FEATURE)
+		if (uiHash != 0 && uiHash != static_cast<uint>(NO_FEATURE))
 		{
 			int iType = GC.getInfoTypeForHash(uiHash);
 			if(iType != -1 && iType < iArraySize)
@@ -12972,7 +12972,7 @@ void FeatureArrayHelpers::Write(FDataStream& kStream, int* paiFeatureArray, int 
 		}
 		else
 		{
-			kStream << (int)NO_FEATURE;
+			kStream << static_cast<int>(NO_FEATURE);
 		}
 	}
 }
@@ -13052,7 +13052,7 @@ void TerrainArrayHelpers::Read(FDataStream& kStream, int* paiTerrainArray)
 	{
 		uint uiHash = 0;
 		kStream >> uiHash;
-		if (uiHash != 0 && uiHash != (uint)NO_TERRAIN)
+		if (uiHash != 0 && uiHash != static_cast<uint>(NO_TERRAIN))
 		{
 			int iType = GC.getInfoTypeForHash(uiHash);
 			if(iType != -1 && iType < iArraySize)
@@ -13089,7 +13089,7 @@ void TerrainArrayHelpers::Write(FDataStream& kStream, int* paiTerrainArray, int 
 		}
 		else
 		{
-			kStream << (int)NO_TERRAIN;
+			kStream << static_cast<int>(NO_TERRAIN);
 		}
 	}
 }

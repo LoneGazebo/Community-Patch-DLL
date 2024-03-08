@@ -115,14 +115,14 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 	for(iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
 		// Make sure this project can be built now
-		if(m_pCity->canCreate((ProjectTypes)iProjectLoop))
+		if(m_pCity->canCreate(static_cast<ProjectTypes>(iProjectLoop)))
 		{
 			// Update weight based on turns to construct
-			iTurnsLeft = m_pCity->getProductionTurnsLeft((ProjectTypes) iProjectLoop, 0);
+			iTurnsLeft = m_pCity->getProductionTurnsLeft(static_cast<ProjectTypes>(iProjectLoop), 0);
 			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop), iTurnsLeft);
 #if defined(MOD_BALANCE_CORE)
 			iWeight += m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop);
-			iWeight = CheckProjectBuildSanity((ProjectTypes)iProjectLoop, iWeight);
+			iWeight = CheckProjectBuildSanity(static_cast<ProjectTypes>(iProjectLoop), iWeight);
 			if(iWeight <= 0)
 			{
 				continue;
@@ -137,7 +137,7 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 	{
 		m_Buildables.StableSortItems();
 		LogPossibleBuilds();
-		return (ProjectTypes)m_Buildables.GetElement(0);
+		return static_cast<ProjectTypes>(m_Buildables.GetElement(0));
 	}
 
 	// Unless we didn't find any
@@ -191,8 +191,8 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		else
 			iTempWeight *= 10;
 	}
-	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+	VictoryTypes ePrereqVictory = static_cast<VictoryTypes>(pkProjectInfo->GetVictoryPrereq());
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 	if(eVictory != NO_VICTORY && ePrereqVictory == eVictory)
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))
@@ -225,7 +225,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 				iTempWeight *= 10;
 
-			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
+			EconomicAIStrategyTypes eSpaceShipHomeStretch = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH"));
 			if (eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
 				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
 					iTempWeight *= 10;
@@ -234,7 +234,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 	}
 
-	eVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_CULTURAL", true));
 	if (eVictory != NO_VICTORY && ePrereqVictory == eVictory)
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))

@@ -32,7 +32,7 @@ public:
 	static void freeStatics();
 
 	void init(TeamTypes eID);
-	void reset(TeamTypes eID = (TeamTypes)0, bool bConstructorCall = false);
+	void reset(TeamTypes eID = static_cast<TeamTypes>(0), bool bConstructorCall = false);
 	void uninit();
 
 

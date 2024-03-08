@@ -113,7 +113,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	for(int iStrategiesLoop = 0; iStrategiesLoop < pEconomicAI->GetEconomicAIStrategies()->GetNumEconomicAIStrategies(); iStrategiesLoop++)
 	{
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) iStrategiesLoop;
+		EconomicAIStrategyTypes eStrategy = static_cast<EconomicAIStrategyTypes>(iStrategiesLoop);
 		CvEconomicAIStrategyXMLEntry* pStrategy = pEconomicAI->GetEconomicAIStrategies()->GetEntry(iStrategiesLoop);
 
 		if(pEconomicAI->IsUsingStrategy(eStrategy))
@@ -138,7 +138,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	for(int iStrategiesLoop = 0; iStrategiesLoop < pMilitaryAI->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies(); iStrategiesLoop++)
 	{
-		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategiesLoop;
+		MilitaryAIStrategyTypes eStrategy = static_cast<MilitaryAIStrategyTypes>(iStrategiesLoop);
 
 		if(pMilitaryAI->IsUsingStrategy(eStrategy))
 		{
@@ -171,7 +171,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		pCityStrategyAI = pLoopCity->GetCityStrategyAI();
 		for(int i = 0; i < pCityStrategyAI->GetAICityStrategies()->GetNumAICityStrategies(); i++)
 		{
-			AICityStrategyTypes eStrategy = (AICityStrategyTypes)i;
+			AICityStrategyTypes eStrategy = static_cast<AICityStrategyTypes>(i);
 			CvAICityStrategyEntry* pStrategy = pCityStrategyAI->GetAICityStrategies()->GetEntry(i);
 			if(pCityStrategyAI->IsUsingCityStrategy(eStrategy))
 			{
@@ -196,9 +196,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	FlavorTypes eFlavorScience = NO_FLAVOR;
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
+		if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SCIENCE")
 		{
-			eFlavorScience = (FlavorTypes)iFlavorLoop;
+			eFlavorScience = static_cast<FlavorTypes>(iFlavorLoop);
 			break;
 		}
 	}
@@ -213,7 +213,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	CvPlayerTechs* pPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 		if(pPlayerTechs->CanResearch(eTech) && pPlayerTechs->GetCurrentResearch() != eTech)
 		{
 			// go through recommended research for special units
@@ -316,7 +316,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			BuildingTypes eBuilding3 = NO_BUILDING;
 			for(int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)iI;
+				BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
 				CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
 				if(pBuilding && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut((BuildingClassTypes)pBuilding->GetBuildingClassType()))
 				{
@@ -378,13 +378,13 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int i = 0; i < GC.getNumUnitInfos(); i++)
 			{
-				UnitTypes eUnitType = (UnitTypes)i;
+				UnitTypes eUnitType = static_cast<UnitTypes>(i);
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitType);
 				if(pUnitEntry)
 				{
 					if(pUnitEntry->GetPrereqAndTech() == eTech && pUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT)
 					{
-						UnitTypes eCivUnit = ((GET_PLAYER(ePlayer).GetSpecificUnitType((UnitClassTypes)pUnitEntry->GetUnitClassType())));
+						UnitTypes eCivUnit = ((GET_PLAYER(ePlayer).GetSpecificUnitType(static_cast<UnitClassTypes>(pUnitEntry->GetUnitClassType()))));
 						if(eUnitType != eCivUnit)
 						{
 							continue;
@@ -405,7 +405,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int i = 0; i < GC.getNumBuildingInfos(); i++)
 			{
-				BuildingTypes eBuildingType = (BuildingTypes)i;
+				BuildingTypes eBuildingType = static_cast<BuildingTypes>(i);
 				CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuildingType);
 				if(!pBuildingEntry || pBuildingEntry->GetPrereqAndTech() != eTech)
 				{
@@ -533,7 +533,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		int iMessageRating = 0;
 		AdvisorTypes eAdvisor = NO_ADVISOR_TYPE;
 
-		PlayerTypes eOtherPlayer = (PlayerTypes)iPlayer;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iPlayer);
 		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 
 		// don't evaluate yourself
@@ -992,7 +992,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		int iMessageRating = 0;
 		AdvisorTypes eAdvisor = NO_ADVISOR_TYPE;
 
-		PlayerTypes eOtherPlayer = (PlayerTypes)iPlayer;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iPlayer);
 		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 
 		// don't evaluate yourself
@@ -1046,7 +1046,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
-				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
+				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER(static_cast<PlayerTypes>(iMinorCiv)).GetMinorCivAI()->GetMinorCivType());
 				if(pkMinorCivInfo != NULL)
 					strLoc << pkMinorCivInfo->GetTextKey();
 			}
@@ -1066,7 +1066,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
-				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
+				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER(static_cast<PlayerTypes>(iMinorCiv)).GetMinorCivAI()->GetMinorCivType());
 				if(pkMinorCivInfo != NULL)
 					strLoc << pkMinorCivInfo->GetTextKey();
 			}
@@ -1087,7 +1087,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
-				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
+				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER(static_cast<PlayerTypes>(iMinorCiv)).GetMinorCivAI()->GetMinorCivType());
 				if(pkMinorCivInfo != NULL)
 					strLoc << pkMinorCivInfo->GetTextKey();
 			}
@@ -1323,7 +1323,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		//MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE;
 		PlayerTypes eEnemyPlayer = NO_PLAYER;
 
-		PlayerTypes eMinorPlayer = (PlayerTypes)ui;
+		PlayerTypes eMinorPlayer = static_cast<PlayerTypes>(ui);
 
 		TeamTypes eMinorTeam = GET_PLAYER(eMinorPlayer).getTeam();
 
@@ -1355,7 +1355,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					break;
 				}
 
-				PlayerTypes eCheckPlayer = (PlayerTypes)ui2;
+				PlayerTypes eCheckPlayer = static_cast<PlayerTypes>(ui2);
 
 				int iCityIndex = 0;
 				CvCity* pCapCity = NULL;
@@ -1662,7 +1662,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			BuildingClassTypes eScienceBuildingClass = NO_BUILDINGCLASS;
 			for(int i = 0; i < GC.getNumBuildingClassInfos(); i++)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
+				BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(i);
 
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if(!pkBuildingClassInfo)
@@ -1685,7 +1685,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			BuildingTypes eRecommendedResearchBuilding = NO_BUILDING;
 			for(int i = 0; i < GC.getNumBuildingInfos(); i++)
 			{
-				BuildingTypes eBuildingType = (BuildingTypes)i;
+				BuildingTypes eBuildingType = static_cast<BuildingTypes>(i);
 				CvBuildingEntry* pkEntry = GC.getBuildingInfo(eBuildingType);
 				if(!pkEntry || pkEntry->GetBuildingClassType() != eScienceBuildingClass)
 				{
@@ -1750,14 +1750,14 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				for(int iBuild = 0; iBuild < GC.getNumBuildInfos(); iBuild++)
 				{
-					BuildTypes eBuild = (BuildTypes)iBuild;
+					BuildTypes eBuild = static_cast<BuildTypes>(iBuild);
 					CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 					if(pkBuild == NULL)
 					{
 						continue;
 					}
 
-					ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+					ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuild->getImprovement());
 					if(eImprovement == NO_IMPROVEMENT)
 					{
 						continue;
@@ -1843,7 +1843,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 	for(int i = 0; i < GC.getNumResourceInfos(); i++)
 	{
-		ResourceTypes eResource = (ResourceTypes)i;
+		ResourceTypes eResource = static_cast<ResourceTypes>(i);
 		CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 		if (pResourceInfo == NULL)
 		{
@@ -1863,7 +1863,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		for(int j = 0; j < MAX_MAJOR_CIVS; j++)
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes)j;
+			PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(j);
 			TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 			if(ePlayerTeam == eOtherTeam || !GET_PLAYER(eOtherPlayer).isAlive())
 			{
@@ -1884,7 +1884,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int k = 0; k < GC.getNumResourceInfos(); k++)
 			{
-				ResourceTypes eTradebackResource = (ResourceTypes)k;
+				ResourceTypes eTradebackResource = static_cast<ResourceTypes>(k);
 				const CvResourceInfo* pkTradeResourceInfo = GC.getResourceInfo(eTradebackResource);
 				if(pkTradeResourceInfo == NULL || (pkTradeResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY && pkTradeResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC))
 				{
@@ -1968,7 +1968,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	{
 		if(!abAdvisorUsed[ui])
 		{
-			AdvisorTypes eAdvisorTypes = (AdvisorTypes)ui;
+			AdvisorTypes eAdvisorTypes = static_cast<AdvisorTypes>(ui);
 			switch(eAdvisorTypes)
 			{
 			case NO_ADVISOR_TYPE:

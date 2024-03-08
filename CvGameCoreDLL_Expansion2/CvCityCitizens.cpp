@@ -226,10 +226,10 @@ void CvCityCitizens::DoTurn()
 	if (!thisPlayer.isHuman())
 	{
 		// Are we running at a deficit?
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true));
 		bool bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
-		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+		EconomicAIStrategyTypes eStrategyBuildingReligion = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true));
 		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
 		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
 
@@ -251,13 +251,13 @@ void CvCityCitizens::DoTurn()
 		}
 		else // no special cases? Alright, let's pick a function to follow...
 		{
-			AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+			AICityStrategyTypes eGoodGP = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY"));
 			bool bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP) || thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 
 			bool bCultureBlock = false;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
@@ -413,7 +413,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 
 	if (eFeature != NO_FEATURE)
 	{
-		if (eYield < (int)cache.bonusForXFeature.size() && eFeature < (int)cache.bonusForXFeature[eYield].size())
+		if (eYield < static_cast<int>(cache.bonusForXFeature.size()) && eFeature < static_cast<int>(cache.bonusForXFeature[eYield].size()))
 		{
 			int iEffect = cache.bonusForXFeature[eYield][eFeature];
 
@@ -442,7 +442,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
-		if (eYield < (int)cache.bonusForXTerrain.size() && eTerrain < (int)cache.bonusForXTerrain[eYield].size())
+		if (eYield < static_cast<int>(cache.bonusForXTerrain.size()) && eTerrain < static_cast<int>(cache.bonusForXTerrain[eYield].size()))
 		{
 			int iEffect = cache.bonusForXTerrain[eYield][eTerrain];
 
@@ -491,7 +491,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eYield = (YieldTypes)iI;
+		YieldTypes eYield = static_cast<YieldTypes>(iI);
 
 		//Simplification - errata yields not worth considering.
 		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
@@ -808,7 +808,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 
 	gCachedNumbers.update(m_pCity);
 
-	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST),gCachedNumbers);
+	int iBestSpecialistValue = GetSpecialistValue(static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST)),gCachedNumbers);
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	CvBuildingEntry* pBestBuildingInfo = NULL;
 
@@ -829,7 +829,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 				// Can't add more than the max
 				if (IsCanAddSpecialistToBuilding(eBuilding))
 				{
-					SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+					SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 					int iValue = 0;
 
 					std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
@@ -893,7 +893,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 		int iUnforcedSpecialist = GetNumSpecialistsInBuilding(allBuildings[i]) - GetNumForcedSpecialistsInBuilding(allBuildings[i]);
 		if (pkBuildingInfo &&  iUnforcedSpecialist > 0)
 		{
-			SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+			SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 			if (checked[eSpecialist]>0)
 				continue;
 
@@ -939,10 +939,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eYield = (YieldTypes)iI;
+		YieldTypes eYield = static_cast<YieldTypes>(iI);
 
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if (static_cast<YieldTypes>(iI) > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		int iYield100 = pPlayer->specialistYield(eSpecialist, eYield) * 100;
@@ -950,7 +950,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		if (eYield == YIELD_CULTURE)
 			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
-		if ((eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST)) && (eYield == YIELD_FOOD))
+		if ((eSpecialist != static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST))) && (eYield == YIELD_FOOD))
 			iYield100 -= (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
 
 		if (iYield100 > 0)
@@ -992,12 +992,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	}
 
 	//nothing else for laborers ...
-	if (eSpecialist == (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
+	if (eSpecialist == static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST)))
 		return iValue;
 
 	// How many GPP does the specialist generate?
 
-	UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
+	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pSpecialistInfo->getGreatPeopleUnitClass());
 	int iGPPRate = (pSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * 100;
 	int iGPPRateMod = 0;
 	iGPPRateMod += m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
@@ -1095,7 +1095,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		// Loop through all minors and get the total number we've met.
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
@@ -1541,7 +1541,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			CvString strOutBuf;
 			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d with forced work status %d. current net food %d", 
 				iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
-				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, int(bBestPlotIsForcedWork), gCachedNumbers.iExcessFoodTimes100);
+				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, static_cast<int>(bBestPlotIsForcedWork), gCachedNumbers.iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
 		}
 	}
@@ -1603,7 +1603,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 
 	//do not forget default specialists aka laborers
 	gCachedNumbers.update(m_pCity);
-	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), gCachedNumbers);
+	int iLaborerValue = GetSpecialistValue(static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST)), gCachedNumbers);
 
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation() / 2)
@@ -1978,10 +1978,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+				if (static_cast<YieldTypes>(iI) > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 					break;
 
-				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
+				GetCity()->ChangeBaseYieldRateFromTerrain(static_cast<YieldTypes>(iI), pPlot->getYield(static_cast<YieldTypes>(iI)));
 			}
 
 			if (iIndex != CITY_HOME_PLOT)
@@ -2017,10 +2017,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+				if (static_cast<YieldTypes>(iI) > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 					break;
 
-				GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
+				GetCity()->ChangeBaseYieldRateFromTerrain(static_cast<YieldTypes>(iI), -pPlot->getYield(static_cast<YieldTypes>(iI)));
 			}
 
 			if (iIndex != CITY_HOME_PLOT)
@@ -2475,11 +2475,11 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				iMod += GetCity()->GetSpecialistRateModifier(eSpecialist);
 
 				// Player and Golden Age mods to this specific class
-				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+				if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 				{
 					iMod += GetPlayer()->getGreatScientistRateModifier();
 				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+				else if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 				{
 					if (GetPlayer()->isGoldenAge())
 					{
@@ -2487,7 +2487,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 					iMod += GetPlayer()->getGreatWriterRateModifier();
 				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+				else if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 				{
 					if (GetPlayer()->isGoldenAge())
 					{
@@ -2495,7 +2495,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 					iMod += GetPlayer()->getGreatArtistRateModifier();
 				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+				else if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 				{
 					if (GetPlayer()->isGoldenAge())
 					{
@@ -2503,15 +2503,15 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 					iMod += GetPlayer()->getGreatMusicianRateModifier();
 				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+				else if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
 					iMod += GetPlayer()->getGreatMerchantRateModifier();
 				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+				else if (static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 				{
 					iMod += GetPlayer()->getGreatEngineerRateModifier();
 				}
-				else if (MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+				else if (MOD_BALANCE_VP && static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()) == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
 					iMod += GetPlayer()->getGreatDiplomatRateModifier();
 				}
@@ -2571,7 +2571,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					// Loop through all minors and get the total number we've met.
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 					{
-						PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eMinor = static_cast<PlayerTypes>(iPlayerLoop);
 
 						if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 						{
@@ -2608,7 +2608,7 @@ void CvCityCitizens::DoSpecialists()
 		if (iGPPChange != 0)
 		{
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-			int iGPThreshold = GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+			int iGPThreshold = GetSpecialistUpgradeThreshold(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()));
 			ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPPChange);
 
 #if defined(MOD_EVENTS_CITY)
@@ -2627,7 +2627,7 @@ void CvCityCitizens::DoSpecialists()
 					DoResetSpecialistGreatPersonProgressTimes100(eSpecialist, (iGPThreshold * 100));
 
 					// Now... actually create the GP!
-					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+					const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass());
 					if (eUnitClass != NO_UNITCLASS)
 					{
 						UnitTypes eUnit = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
@@ -2698,7 +2698,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		return;
 	}
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+	SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 
 	// Can't add more than the max
 	if (IsCanAddSpecialistToBuilding(eBuilding))
@@ -2768,7 +2768,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		return;
 	}
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+	SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 
@@ -2833,7 +2833,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		return;
 	}
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+	SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 	int iNumSpecialists = GetNumSpecialistsInBuilding(eBuilding);
 
 	m_aiNumForcedSpecialistsInBuilding[eBuilding] = 0;
@@ -2890,7 +2890,7 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 		}
 
 		// We might not be allowed to change this Building's Specialists
-		SpecialistTypes specType = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+		SpecialistTypes specType = static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType());
 		if (eDontChangeSpecialist == specType)
 		{
 			continue;
@@ -2906,7 +2906,7 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 		{
 			if (bForced || GetNumSpecialistsInBuilding(eBuilding) - GetNumForcedSpecialistsInBuilding(eBuilding) > 0)
 			{
-				int iValue = GetSpecialistValue((SpecialistTypes)pkBuildingInfo->GetSpecialistType(), gCachedNumbers);
+				int iValue = GetSpecialistValue(static_cast<SpecialistTypes>(pkBuildingInfo->GetSpecialistType()), gCachedNumbers);
 				checked[specType] = iValue;
 
 				if (iValue < iWorstValue)
@@ -2938,7 +2938,7 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMod
 {
 	m_iNumDefaultSpecialists += iChange;
 
-	SpecialistTypes eSpecialist = (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST);
+	SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST));
 	m_aiSpecialistCounts[eSpecialist] += iChange;
 
 	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
@@ -2995,9 +2995,9 @@ int CvCityCitizens::GetSpecialistSlotsTotal() const
 
 	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 	{
-		eSpecialist = (SpecialistTypes)iSpecialistLoop;
+		eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 
-		if (eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
+		if (eSpecialist != static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST)))
 		{
 			iNumSpecialists += GetSpecialistSlots(eSpecialist);
 		}
@@ -3015,9 +3015,9 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 
 	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 	{
-		eSpecialist = (SpecialistTypes)iSpecialistLoop;
+		eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 
-		if (eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST))
+		if (eSpecialist != static_cast<SpecialistTypes>(GD_INT_GET(DEFAULT_SPECIALIST)))
 		{
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
@@ -3078,7 +3078,7 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eIndex);
 		if (pkSpecialistInfo)
 		{
-			int iGPThreshold = GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+			int iGPThreshold = GetSpecialistUpgradeThreshold(static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass()));
 			// Enough to spawn a GP?
 			if (GetSpecialistGreatPersonProgress(eIndex) >= iGPThreshold)
 			{
@@ -3093,7 +3093,7 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 #endif
 
 					// Now... actually create the GP!
-					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+					const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkSpecialistInfo->getGreatPeopleUnitClass());
 					if (eUnitClass != NO_UNITCLASS)
 					{
 						UnitTypes eUnit = GET_PLAYER(GetOwner()).GetSpecificUnitType(eUnitClass);
@@ -3145,7 +3145,7 @@ void CvCityCitizens::DoClearForcedSpecialists()
 	BuildingTypes eBuilding;
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
-		eBuilding = (BuildingTypes)iBuildingLoop;
+		eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 
 		// Have this Building in the City?
 		if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -3724,10 +3724,14 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	}
 	else
 	{
-		iAmountForDistressReductionTimes100 = max(1, (int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false))));
-		iAmountForPovertyReductionTimes100 = max(1, (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false)));
-		iAmountForIlliteracyReductionTimes100 = max(1, (int)pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false));
-		iAmountForBoredomReductionTimes100 = max(1, (int)(pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - pCity->GetBoredomRaw(false) + 1) - pCity->getJONSCulturePerTurn(false) * 100));
+		iAmountForDistressReductionTimes100 = max(1, static_cast<int>(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1) - (
+			                                          pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->
+			                                          getYieldRateTimes100(YIELD_PRODUCTION, false, false))));
+		iAmountForPovertyReductionTimes100 = max(1, static_cast<int>(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1) - pCity->
+			                                         getYieldRateTimes100(YIELD_GOLD, false, false)));
+		iAmountForIlliteracyReductionTimes100 = max(1, static_cast<int>(pCity->GetScienceMedian(false, 0)) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false));
+		iAmountForBoredomReductionTimes100 = max(1, static_cast<int>(pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - pCity->GetBoredomRaw(false) + 1) - pCity
+			                                         ->getJONSCulturePerTurn(false) * 100));
 	}
 
 	//just reset this, we update it on demand

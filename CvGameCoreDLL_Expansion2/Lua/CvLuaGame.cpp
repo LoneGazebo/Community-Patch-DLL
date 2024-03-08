@@ -618,7 +618,7 @@ int CvLuaGame::lSelectedCitiesGameNetMessage(lua_State* L)
 int CvLuaGame::lCityPushOrder(lua_State* L)
 {
 	CvCity* pkCity			= CvLuaCity::GetInstance(L, 1);
-	const OrderTypes eOrder	= (OrderTypes)lua_tointeger(L, 2);
+	const OrderTypes eOrder	= static_cast<OrderTypes>(lua_tointeger(L, 2));
 	const int iData			= lua_tointeger(L, 3);
 	const bool bAlt			= luaL_optbool(L, 4, 0);
 	const bool bShift		= luaL_optbool(L, 5, 0);
@@ -632,8 +632,8 @@ int CvLuaGame::lCityPushOrder(lua_State* L)
 int CvLuaGame::lCityPurchaseUnit(lua_State* L)
 {
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
-	const UnitTypes eUnitType = (UnitTypes)lua_tointeger(L, 2);
-	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
+	const YieldTypes ePurchaseYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	GetInstance()->CityPurchase(pkCity, eUnitType, NO_BUILDING, NO_PROJECT, ePurchaseYield);
 	return 0;
@@ -643,8 +643,8 @@ int CvLuaGame::lCityPurchaseUnit(lua_State* L)
 int CvLuaGame::lCityPurchaseBuilding(lua_State* L)
 {
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
-	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
+	const YieldTypes ePurchaseYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	GetInstance()->CityPurchase(pkCity, NO_UNIT, eBuildingType, NO_PROJECT, ePurchaseYield);
 	return 0;
@@ -654,8 +654,8 @@ int CvLuaGame::lCityPurchaseBuilding(lua_State* L)
 int CvLuaGame::lCityPurchaseProject(lua_State* L)
 {
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
-	const ProjectTypes eProjectType = (ProjectTypes)lua_tointeger(L, 2);
-	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
+	const ProjectTypes eProjectType = static_cast<ProjectTypes>(lua_tointeger(L, 2));
+	const YieldTypes ePurchaseYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	GetInstance()->CityPurchase(pkCity, NO_UNIT, NO_BUILDING, eProjectType, ePurchaseYield);
 	return 0;
@@ -1190,7 +1190,7 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
 		// Loop through all buildings, see if they're a world wonder
@@ -1361,7 +1361,7 @@ int CvLuaGame::lSetPausePlayer(lua_State* L)
 	if(!game.isNetworkMultiPlayer())
 	{
 		int iPlayer = lua_tointeger(L, 1);
-		game.setPausePlayer((PlayerTypes)iPlayer);
+		game.setPausePlayer(static_cast<PlayerTypes>(iPlayer));
 	}
 
 	return 1;
@@ -1388,7 +1388,7 @@ int CvLuaGame::lGetBestLandUnitCombat(lua_State* L)
 //int GetFaithCost();
 int CvLuaGame::lGetFaithCost(lua_State* L)
 {
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 1);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	const int iResult = GC.getGame().GetFaithCost(pkUnitInfo);
 	lua_pushinteger(L, iResult);
@@ -1545,7 +1545,7 @@ int CvLuaGame::lIsOption(lua_State* L)
 	CvGame& kGame = GC.getGame();
 	bool bResult = false;
 	if(lua_isnumber(L, 1))
-		bResult = kGame.isOption((GameOptionTypes)lua_tointeger(L, 1));
+		bResult = kGame.isOption(static_cast<GameOptionTypes>(lua_tointeger(L, 1)));
 	else
 		bResult = kGame.isOption(lua_tostring(L, 1));
 
@@ -1559,7 +1559,7 @@ int CvLuaGame::lSetOption(lua_State* L)
 {
 	CvGame& kGame = GC.getGame();
 	if(lua_isnumber(L, 1))
-		kGame.setOption((GameOptionTypes)lua_tointeger(L, 1), lua_toboolean(L, 2));
+		kGame.setOption(static_cast<GameOptionTypes>(lua_tointeger(L, 1)), lua_toboolean(L, 2));
 	else
 		kGame.setOption(lua_tostring(L, 1), lua_toboolean(L, 2));
 
@@ -1624,7 +1624,7 @@ int CvLuaGame::lIsVictoryValid(lua_State* L)
 int CvLuaGame::lSetVictoryValid(lua_State* L)
 {
 	CvGame& game = GC.getGame();
-	VictoryTypes eVictoryType = (VictoryTypes)lua_tointeger(L, 1);
+	VictoryTypes eVictoryType = static_cast<VictoryTypes>(lua_tointeger(L, 1));
 	bool bValid = lua_toboolean(L, 2);
 	game.setVictoryValid(eVictoryType, bValid);
 
@@ -1897,7 +1897,7 @@ int CvLuaGame::lDoMinorPledgeProtection(lua_State* L)
 	const int iMajor = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
 	const bool bProtect = lua_toboolean(L, 3);
-	GC.getGame().DoMinorPledgeProtection((PlayerTypes)iMajor, (PlayerTypes)iMinor, bProtect);
+	GC.getGame().DoMinorPledgeProtection(static_cast<PlayerTypes>(iMajor), static_cast<PlayerTypes>(iMinor), bProtect);
 
 	return 1;
 }
@@ -1926,7 +1926,7 @@ int CvLuaGame::lDoMinorBullyGold(lua_State* L)
 {
 	const int iBully = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
-	GC.getGame().DoMinorBullyGold((PlayerTypes)iBully, (PlayerTypes)iMinor);
+	GC.getGame().DoMinorBullyGold(static_cast<PlayerTypes>(iBully), static_cast<PlayerTypes>(iMinor));
 
 	return 1;
 }
@@ -1936,7 +1936,7 @@ int CvLuaGame::lDoMinorBullyUnit(lua_State* L)
 {
 	const int iBully = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
-	GC.getGame().DoMinorBullyUnit((PlayerTypes)iBully, (PlayerTypes)iMinor);
+	GC.getGame().DoMinorBullyUnit(static_cast<PlayerTypes>(iBully), static_cast<PlayerTypes>(iMinor));
 
 	return 1;
 }
@@ -1945,7 +1945,7 @@ int CvLuaGame::lDoMinorBullyAnnex(lua_State* L)
 {
 	const int iBully = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
-	GC.getGame().DoMinorBullyAnnex((PlayerTypes)iBully, (PlayerTypes)iMinor);
+	GC.getGame().DoMinorBullyAnnex(static_cast<PlayerTypes>(iBully), static_cast<PlayerTypes>(iMinor));
 
 	return 1;
 }
@@ -1955,7 +1955,7 @@ int CvLuaGame::lDoMinorBuyout(lua_State* L)
 {
 	const int iMajor = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
-	GC.getGame().DoMinorBuyout((PlayerTypes)iMajor, (PlayerTypes)iMinor);
+	GC.getGame().DoMinorBuyout(static_cast<PlayerTypes>(iMajor), static_cast<PlayerTypes>(iMinor));
 
 	return 1;
 }
@@ -1964,7 +1964,7 @@ int CvLuaGame::lDoMinorMarriage(lua_State* L)
 {
 	const int iMajor = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
-	GC.getGame().DoMinorMarriage((PlayerTypes)iMajor, (PlayerTypes)iMinor);
+	GC.getGame().DoMinorMarriage(static_cast<PlayerTypes>(iMajor), static_cast<PlayerTypes>(iMinor));
 
 	return 1;
 }
@@ -1998,7 +1998,7 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 	const int iPlayer = lua_tointeger(L, 1);
 	const int eMessage = lua_tointeger(L, 2);
 	const int iData1 = lua_tointeger(L, 3);
-	gDLL->GameplayDiplomacyAILeaderMessage((PlayerTypes) iPlayer, DIPLO_UI_STATE_DEFAULT_ROOT, "TEMP", (LeaderheadAnimationTypes) eMessage, iData1);
+	gDLL->GameplayDiplomacyAILeaderMessage(static_cast<PlayerTypes>(iPlayer), DIPLO_UI_STATE_DEFAULT_ROOT, "TEMP", static_cast<LeaderheadAnimationTypes>(eMessage), iData1);
 
 	return 1;
 }
@@ -2006,7 +2006,7 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetResourceUsageType(lua_State* L)
 {
-	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 1);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 1));
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if (pkResourceInfo)
 	{
@@ -2022,8 +2022,8 @@ int CvLuaGame::lGetResourceUsageType(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceTotalRequiredForUnit(lua_State* L)
 {
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 1);
-	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if (pkUnitInfo == NULL)
@@ -2041,8 +2041,8 @@ int CvLuaGame::lGetNumResourceTotalRequiredForUnit(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForUnit(lua_State* L)
 {
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 1);
-	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if(pkUnitInfo == NULL)
@@ -2059,8 +2059,8 @@ int CvLuaGame::lGetNumResourceRequiredForUnit(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
-	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkint(L, 2));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -2079,8 +2079,8 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForImprovement(lua_State* L)
 {
-	const ImprovementTypes eImprovement = (ImprovementTypes)luaL_checkint(L, 1);
-	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(luaL_checkint(L, 1));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkint(L, 2));
 
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -2097,8 +2097,8 @@ int CvLuaGame::lGetNumResourceRequiredForImprovement(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForRoute(lua_State* L)
 {
-	const RouteTypes eRoute = (RouteTypes)luaL_checkint(L, 1);
-	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+	const RouteTypes eRoute = static_cast<RouteTypes>(luaL_checkint(L, 1));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkint(L, 2));
 
 	CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -2191,8 +2191,8 @@ int CvLuaGame::lSetAdvisorRecommenderCity(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsUnitRecommended(lua_State* L)
 {
-	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 1);
-	AdvisorTypes eAdvisor = (AdvisorTypes)lua_tointeger(L, 2);
+	UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
+	AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(lua_tointeger(L, 2));
 	bool bResult = GC.getGame().GetAdvisorRecommender()->IsUnitRecommended(eUnit, eAdvisor);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2201,8 +2201,8 @@ int CvLuaGame::lIsUnitRecommended(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsBuildingRecommended(lua_State* L)
 {
-	BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 1);
-	AdvisorTypes eAdvisor = (AdvisorTypes)lua_tointeger(L, 2);
+	BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 1));
+	AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(lua_tointeger(L, 2));
 	bool bResult = GC.getGame().GetAdvisorRecommender()->IsBuildingRecommended(eBuilding, eAdvisor);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2211,8 +2211,8 @@ int CvLuaGame::lIsBuildingRecommended(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsProjectRecommended(lua_State* L)
 {
-	ProjectTypes eProject = (ProjectTypes)lua_tointeger(L, 1);
-	AdvisorTypes eAdvisor = (AdvisorTypes)lua_tointeger(L, 2);
+	ProjectTypes eProject = static_cast<ProjectTypes>(lua_tointeger(L, 1));
+	AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(lua_tointeger(L, 2));
 	bool bResult = GC.getGame().GetAdvisorRecommender()->IsProjectRecommended(eProject, eAdvisor);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2221,7 +2221,7 @@ int CvLuaGame::lIsProjectRecommended(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSetAdvisorRecommenderTech(lua_State* L)
 {
-	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 1);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 1));
 	GC.getGame().GetAdvisorRecommender()->UpdateTechRecommendations(ePlayer);
 	return 1;
 }
@@ -2229,8 +2229,8 @@ int CvLuaGame::lSetAdvisorRecommenderTech(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsTechRecommended(lua_State* L)
 {
-	TechTypes eTech = (TechTypes)lua_tointeger(L, 1);
-	AdvisorTypes eAdvisor = (AdvisorTypes)lua_tointeger(L, 2);
+	TechTypes eTech = static_cast<TechTypes>(lua_tointeger(L, 1));
+	AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(lua_tointeger(L, 2));
 	bool bResult = GC.getGame().GetAdvisorRecommender()->IsTechRecommended(eTech, eAdvisor);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2238,7 +2238,7 @@ int CvLuaGame::lIsTechRecommended(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetVariableCitySizeFromPopulation(lua_State* L)
 {
-	unsigned int nPopulation = (unsigned int)lua_tointeger(L, 1);
+	unsigned int nPopulation = static_cast<unsigned int>(lua_tointeger(L, 1));
 	unsigned int nSize = GC.getGame().GetVariableCitySizeFromPopulation(nPopulation);
 	lua_pushinteger(L, nSize);
 
@@ -2247,8 +2247,8 @@ int CvLuaGame::lGetVariableCitySizeFromPopulation(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetResearchAgreementCost(lua_State* L)
 {
-	const PlayerTypes ePlayer1 = (PlayerTypes) lua_tointeger(L, 1);
-	const PlayerTypes ePlayer2 = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer1 = static_cast<PlayerTypes>(lua_tointeger(L, 1));
+	const PlayerTypes ePlayer2 = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	int iCost = GC.getGame().GetResearchAgreementCost(ePlayer1, ePlayer2);
 	lua_pushinteger(L, iCost);
 
@@ -2302,8 +2302,8 @@ int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingYieldChange(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
-	const YieldTypes eYield = (YieldTypes) luaL_checkint(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
+	const YieldTypes eYield = static_cast<YieldTypes>(luaL_checkint(L, 2));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
@@ -2320,8 +2320,8 @@ int CvLuaGame::lGetBuildingYieldChange(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingYieldModifier(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
-	const YieldTypes eYield = (YieldTypes) luaL_checkint(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
+	const YieldTypes eYield = static_cast<YieldTypes>(luaL_checkint(L, 2));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
@@ -2339,7 +2339,7 @@ int CvLuaGame::lGetBuildingYieldModifier(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBasicNeedsMedianModifierBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2357,7 +2357,7 @@ int CvLuaGame::lGetBasicNeedsMedianModifierBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetGoldMedianModifierBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2375,7 +2375,7 @@ int CvLuaGame::lGetGoldMedianModifierBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetScienceMedianModifierBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2393,7 +2393,7 @@ int CvLuaGame::lGetScienceMedianModifierBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetCultureMedianModifierBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2411,7 +2411,7 @@ int CvLuaGame::lGetCultureMedianModifierBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetReligiousUnrestModifierBuilding(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2429,7 +2429,7 @@ int CvLuaGame::lGetReligiousUnrestModifierBuilding(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBasicNeedsMedianModifierBuildingGlobal(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2447,7 +2447,7 @@ int CvLuaGame::lGetBasicNeedsMedianModifierBuildingGlobal(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetGoldMedianModifierBuildingGlobal(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2465,7 +2465,7 @@ int CvLuaGame::lGetGoldMedianModifierBuildingGlobal(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetScienceMedianModifierBuildingGlobal(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2483,7 +2483,7 @@ int CvLuaGame::lGetScienceMedianModifierBuildingGlobal(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetCultureMedianModifierBuildingGlobal(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2501,7 +2501,7 @@ int CvLuaGame::lGetCultureMedianModifierBuildingGlobal(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetReligiousUnrestModifierBuildingGlobal(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2523,7 +2523,7 @@ int CvLuaGame::lGetReligiousUnrestModifierBuildingGlobal(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(luaL_checkint(L, 1));
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2545,7 +2545,7 @@ int CvLuaGame::lGetPromiseDuration(lua_State* L)
 
 int CvLuaGame::lGetCorporationFounder(lua_State* L)
 {
-	const CorporationTypes eCorporation = (CorporationTypes) luaL_checkint(L, 1);
+	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 1));
 	int iReturn = (int) GC.getGame().GetCorporationFounder(eCorporation);
 	lua_pushinteger(L, iReturn);
 	return 1;
@@ -2553,7 +2553,7 @@ int CvLuaGame::lGetCorporationFounder(lua_State* L)
 
 int CvLuaGame::lGetCorporationHeadquarters(lua_State* L)
 {
-	const CorporationTypes eCorporation = (CorporationTypes)luaL_checkint(L, 1);
+	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 1));
 	
 	CvCity* pkCity = NULL;
 	CvCorporation* pCorporation = GC.getGame().GetGameCorporations()->GetCorporation(eCorporation);
@@ -2594,7 +2594,7 @@ int CvLuaGame::lGetSpyThreshold(lua_State* L)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 {
-	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkint(L, 1));
 	int iReturn = GC.getGame().GetGreatestPlayerResourceMonopoly(eResource);
 	lua_pushinteger(L, iReturn);
 	return 1;
@@ -2626,7 +2626,7 @@ int CvLuaGame::lGetPeaceDuration(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetUnitUpgradesTo(lua_State* L)
 {
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 1);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if(pkUnitInfo == NULL)
@@ -2637,7 +2637,7 @@ int CvLuaGame::lGetUnitUpgradesTo(lua_State* L)
 
 	for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 	{
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes) iUnitClassLoop);
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(iUnitClassLoop));
 		if(pkUnitClassInfo != NULL)
 		{
 			if(pkUnitInfo->GetUpgradeUnitClass(iUnitClassLoop))	// Hardcoded to look at entry 0
@@ -2689,9 +2689,9 @@ int CvLuaGame::lSetMinimumFaithNextPantheon(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsInSomeReligion(lua_State* L)
 {
-	BeliefTypes eBelief = (BeliefTypes)luaL_optint(L, 1, NO_BELIEF);
+	BeliefTypes eBelief = static_cast<BeliefTypes>(luaL_optint(L, 1, NO_BELIEF));
 #if defined(MOD_TRAITS_ANY_BELIEF)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 2, NO_PLAYER));
 #endif
 
 #if defined(MOD_TRAITS_ANY_BELIEF)
@@ -2707,7 +2707,7 @@ int CvLuaGame::lIsInSomeReligion(lua_State* L)
 int CvLuaGame::lGetAvailablePantheonBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, GC.getGame().getActivePlayer());
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, GC.getGame().getActivePlayer()));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2733,8 +2733,8 @@ int CvLuaGame::lGetAvailablePantheonBeliefs(lua_State* L)
 int CvLuaGame::lGetAvailableFounderBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
-	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, NO_PLAYER));
+	ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_optint(L, 2, NO_RELIGION));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2760,8 +2760,8 @@ int CvLuaGame::lGetAvailableFounderBeliefs(lua_State* L)
 int CvLuaGame::lGetAvailableFollowerBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
-	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, NO_PLAYER));
+	ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_optint(L, 2, NO_RELIGION));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2787,8 +2787,8 @@ int CvLuaGame::lGetAvailableFollowerBeliefs(lua_State* L)
 int CvLuaGame::lGetAvailableEnhancerBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
-	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, NO_PLAYER));
+	ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_optint(L, 2, NO_RELIGION));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2814,8 +2814,8 @@ int CvLuaGame::lGetAvailableEnhancerBeliefs(lua_State* L)
 int CvLuaGame::lGetAvailableBonusBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
-	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, NO_PLAYER));
+	ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_optint(L, 2, NO_RELIGION));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2841,8 +2841,8 @@ int CvLuaGame::lGetAvailableBonusBeliefs(lua_State* L)
 int CvLuaGame::lGetAvailableReformationBeliefs(lua_State* L)
 {
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
-	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 1, NO_PLAYER));
+	ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_optint(L, 2, NO_RELIGION));
 #endif
 
 	lua_createtable(L, 0, 0);
@@ -2869,7 +2869,7 @@ int CvLuaGame::lGetNumFollowers(lua_State* L)
 {
 	int iRtnValue;
 	ReligionTypes eReligion;
-	eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 1));
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
 	lua_pushinteger(L, iRtnValue);
 	return 1;
@@ -2879,7 +2879,7 @@ int CvLuaGame::lGetNumCitiesFollowing(lua_State* L)
 {
 	int iRtnValue;
 	ReligionTypes eReligion;
-	eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 1));
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
 	lua_pushinteger(L, iRtnValue);
 	return 1;
@@ -2887,7 +2887,7 @@ int CvLuaGame::lGetNumCitiesFollowing(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 {
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 1));
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 
 	lua_createtable(L, 0, 0);
@@ -2910,8 +2910,8 @@ int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lBeliefIsInReligion(lua_State* L)
 {
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 1);
-	BeliefTypes eBelief = (BeliefTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 1));
+	BeliefTypes eBelief = static_cast<BeliefTypes>(lua_tointeger(L, 2));
 	CvGameReligions *pGameReligions = GC.getGame().GetGameReligions();
 	const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, NO_PLAYER);
 	if(pReligion && pReligion->m_Beliefs.HasBelief(eBelief))
@@ -2928,7 +2928,7 @@ int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 	int iRtnValue;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal = luaL_optbool(L, 1, false);
-	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optint(L, 2, NO_PLAYER));
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal, ePlayer);
 #else
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound();
@@ -3146,7 +3146,7 @@ int CvLuaGame::lGetTurnsUntilMinorCivElection(lua_State* L)
 int CvLuaGame::lIsAchievementUnlocked(lua_State* L)
 {
 	int iAchievement = lua_tointeger(L, 1);
-	lua_pushboolean(L, gDLL->IsAchievementUnlocked((EAchievement) iAchievement));
+	lua_pushboolean(L, gDLL->IsAchievementUnlocked(static_cast<EAchievement>(iAchievement)));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3154,7 +3154,7 @@ int CvLuaGame::lGetSteamStat(lua_State* L)
 {
 	int iSteamStat = lua_tointeger(L, 1);
 	int32 iValue = 0;
-	gDLL->GetSteamStat((ESteamStat) iSteamStat, &iValue);
+	gDLL->GetSteamStat(static_cast<ESteamStat>(iSteamStat), &iValue);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -3173,7 +3173,7 @@ int CvLuaGame::lGetNumLeaguesEverFounded(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetLeague(lua_State* L)
 {
-	const LeagueTypes eLeague = (LeagueTypes) lua_tointeger(L, 1);
+	const LeagueTypes eLeague = static_cast<LeagueTypes>(lua_tointeger(L, 1));
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	if (pLeague != NULL)
@@ -3208,7 +3208,7 @@ int CvLuaGame::lDoEnactResolution(lua_State* L)
 	{
 		const ResolutionTypes iResolutionType = static_cast<ResolutionTypes>(luaL_checkint(L, 1));
 		const int iChoice = luaL_checkint(L, 2);
-		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 		CvEnactProposal fakeProposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), iResolutionType, pLeague->GetID(), ePlayer, iChoice);
 		
 		pLeague->DoEnactResolutionPublic(&fakeProposal);
@@ -3221,7 +3221,7 @@ int CvLuaGame::lDoRepealResolution(lua_State* L)
 	if (pLeague != NULL)
 	{
 		const ResolutionTypes iResolutionType = static_cast<ResolutionTypes>(luaL_checkint(L, 1));
-		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 		const int iValue = lua_tointeger(L, 3);
 		CvActiveResolution* pResolution = pLeague->GetActiveResolution(iResolutionType, iValue);
 		if (pResolution)
@@ -3303,9 +3303,9 @@ int CvLuaGame::lIsProcessingMessages(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lCreateGreatWork(lua_State* L)
 {
-	GreatWorkType eType = (GreatWorkType)lua_tointeger(L, 1);
-	PlayerTypes eOwner = (PlayerTypes)lua_tointeger(L, 2);
-	EraTypes eEra = (EraTypes)lua_tointeger(L, 3);
+	GreatWorkType eType = static_cast<GreatWorkType>(lua_tointeger(L, 1));
+	PlayerTypes eOwner = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	EraTypes eEra = static_cast<EraTypes>(lua_tointeger(L, 3));
 	CvString szCreator = lua_tostring(L, 4);
 	
 	int iGWindex = 	GC.getGame().GetGameCulture()->CreateGreatWork(eType, CultureHelpers::GetGreatWorkClass(eType), eOwner, eEra, szCreator);
@@ -3317,7 +3317,7 @@ int CvLuaGame::lCreateGreatWork(lua_State* L)
 int CvLuaGame::lGetGreatWorkTooltip(lua_State* L)
 {
 	const int iIndex = lua_tointeger(L, 1);
-	PlayerTypes eOwner = (PlayerTypes)lua_tointeger(L, 2);
+	PlayerTypes eOwner = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	if (iIndex < GC.getGame().GetGameCulture()->GetNumGreatWorks())
 	{
 		CvString szTooltip = GC.getGame().GetGameCulture()->GetGreatWorkTooltip(iIndex, eOwner);
@@ -3478,7 +3478,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 	int iFurthestPlotDistance = 0;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(ui);
 
 		CvCity* pFirstCity = NULL;
 		CvCity* pSecondCity = NULL;
@@ -3628,8 +3628,8 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 
 	iPlotX = lua_tointeger(L,1);
 	iPlotY = lua_tointeger(L,2);
-	type = (TradeConnectionType)lua_tointeger(L,3);
-	eDomain = (DomainTypes)lua_tointeger(L, 4);
+	type = static_cast<TradeConnectionType>(lua_tointeger(L, 3));
+	eDomain = static_cast<DomainTypes>(lua_tointeger(L, 4));
 
 	GC.getGame().GetGameTrade()->DisplayTemporaryPopupTradeRoute(iPlotX,iPlotY,type, eDomain);
 	return 0;
@@ -3642,7 +3642,7 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 	
 	iPlotX = lua_tointeger(L,1);
 	iPlotY = lua_tointeger(L,2);
-	type = (TradeConnectionType)lua_tointeger(L,3);
+	type = static_cast<TradeConnectionType>(lua_tointeger(L, 3));
 	GC.getGame().GetGameTrade()->HideTemporaryPopupTradeRoute(iPlotX,iPlotY,type);
 	return 0;
 }
@@ -3748,8 +3748,8 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 
 	watch.EndPerfTest();
 
-	int iSec = (int) watch.GetDeltaInSeconds();
-	int iMSec = (int) ((watch.GetDeltaInSeconds() - iSec)*1000);
+	int iSec = static_cast<int>(watch.GetDeltaInSeconds());
+	int iMSec = static_cast<int>((watch.GetDeltaInSeconds() - iSec) * 1000);
 
 	lua_pushinteger(L, iSec);
 	lua_pushinteger(L, iMSec);
@@ -4022,7 +4022,7 @@ int CvLuaGame::lGetNumUnavailableContracts(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsContractActive(lua_State* L)
 {
-	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
 	const bool bResult = GC.getGame().GetGameContracts()->IsContractActive(eContract);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -4030,7 +4030,7 @@ int CvLuaGame::lIsContractActive(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsContractAvailable(lua_State* L)
 {
-	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
 	const bool bResult = GC.getGame().GetGameContracts()->IsContractAvailable(eContract);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -4038,7 +4038,7 @@ int CvLuaGame::lIsContractAvailable(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetActiveContract(lua_State* L)
 {
-	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
 
 	const CvContract* pContract = GC.getGame().GetGameContracts()->GetActiveContract(eContract);
 
@@ -4048,7 +4048,7 @@ int CvLuaGame::lGetActiveContract(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetInactiveContract(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
 	const CvContract* pContract = GC.getGame().GetGameContracts()->GetInactiveContract(eContract);
 
 	lua_pushinteger(L, (int)pContract->m_eContract);
@@ -4056,16 +4056,16 @@ int CvLuaGame::lGetInactiveContract(lua_State* L)
 }
 int CvLuaGame::lSetContractUnits(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
-	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
+	UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	int iValue = lua_tointeger(L, 3);
 	GC.getGame().SetContractUnits(eContract, eUnit, iValue);
 	return 0;
 }
 int CvLuaGame::lGetContractUnits(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
-	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 1));
+	UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	int iResult = GC.getGame().GetContractUnits(eContract, eUnit);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -4078,13 +4078,13 @@ int CvLuaGame::lGetInactiveContractUnitList(lua_State* L)
 	
 	for(int i = 0; i < GC.getNumContractInfos(); i++)
 	{
-		ContractTypes eContract = (ContractTypes)i;
+		ContractTypes eContract = static_cast<ContractTypes>(i);
 		const CvContract* pContract = GC.getGame().GetGameContracts()->GetInactiveContract(eContract);
 		if(pContract)
 		{
 			for(int j = 0; j < GC.getNumUnitInfos(); j++)
 			{
-				UnitTypes eUnit = (UnitTypes)j;
+				UnitTypes eUnit = static_cast<UnitTypes>(j);
 			
 				if(eUnit == NO_UNIT)
 					continue;
@@ -4126,13 +4126,13 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 
 	for(int i = 0; i < GC.getNumContractInfos(); i++)
 	{
-		ContractTypes eContract = (ContractTypes)i;
+		ContractTypes eContract = static_cast<ContractTypes>(i);
 		const CvContract* pContract = GC.getGame().GetGameContracts()->GetActiveContract(eContract);
 		if(pContract)
 		{
 			for(int j = 0; j < GC.getNumUnitInfos(); j++)
 			{
-				UnitTypes eUnit = (UnitTypes)j;
+				UnitTypes eUnit = static_cast<UnitTypes>(j);
 			
 				if(eUnit == NO_UNIT)
 					continue;

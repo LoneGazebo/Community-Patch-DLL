@@ -941,7 +941,7 @@ public:
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
-	const int getNumPlots() const { return (int)tactPlots.size(); }
+	const int getNumPlots() const { return static_cast<int>(tactPlots.size()); }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }

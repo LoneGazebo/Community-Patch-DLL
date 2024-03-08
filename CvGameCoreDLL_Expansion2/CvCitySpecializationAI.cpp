@@ -55,7 +55,7 @@ bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvD
 	const char* szYieldType = kResults.GetText("YieldType");
 	if(szYieldType != NULL)
 	{
-		m_eYieldType = (YieldTypes)GC.getInfoTypeForString(szYieldType);
+		m_eYieldType = static_cast<YieldTypes>(GC.getInfoTypeForString(szYieldType));
 	}
 
 	//Arrays
@@ -163,11 +163,11 @@ CvCitySpecializationXMLEntry* CvCitySpecializationXMLEntries::GetEntry(int index
 CitySpecializationTypes CvCitySpecializationXMLEntries::GetFirstSpecializationForYield(YieldTypes eYield)
 {
 	m_CurrentYield = eYield;
-	for(m_CurrentIndex = 0; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
+	for(m_CurrentIndex = 0; m_CurrentIndex < static_cast<int>(m_paCitySpecializationEntries.size()); m_CurrentIndex++)
 	{
 		if(m_paCitySpecializationEntries[m_CurrentIndex]->GetYieldType() == m_CurrentYield)
 		{
-			return (CitySpecializationTypes)m_CurrentIndex;
+			return static_cast<CitySpecializationTypes>(m_CurrentIndex);
 		}
 	}
 	return NO_CITY_SPECIALIZATION;
@@ -176,11 +176,11 @@ CitySpecializationTypes CvCitySpecializationXMLEntries::GetFirstSpecializationFo
 /// Find the next specialization for a yield
 CitySpecializationTypes CvCitySpecializationXMLEntries::GetNextSpecializationForYield()
 {
-	for(m_CurrentIndex = m_CurrentIndex+1; m_CurrentIndex < (int)m_paCitySpecializationEntries.size(); m_CurrentIndex++)
+	for(m_CurrentIndex = m_CurrentIndex+1; m_CurrentIndex < static_cast<int>(m_paCitySpecializationEntries.size()); m_CurrentIndex++)
 	{
 		if(m_paCitySpecializationEntries[m_CurrentIndex]->GetYieldType() == m_CurrentYield)
 		{
-			return (CitySpecializationTypes)m_CurrentIndex;
+			return static_cast<CitySpecializationTypes>(m_CurrentIndex);
 		}
 	}
 	return NO_CITY_SPECIALIZATION;
@@ -190,7 +190,7 @@ CitySpecializationTypes CvCitySpecializationXMLEntries::GetNextSpecializationFor
 int CvCitySpecializationXMLEntries::GetNumSpecializationsForYield(YieldTypes eYield)
 {
 	int iRtnValue = 0;
-	for(int iI = 0; iI < (int)m_paCitySpecializationEntries.size(); iI++)
+	for(int iI = 0; iI < static_cast<int>(m_paCitySpecializationEntries.size()); iI++)
 	{
 		if(m_paCitySpecializationEntries[iI]->GetYieldType() == eYield)
 		{
@@ -470,22 +470,22 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 	// Must have a capital to do any specialization
 	 if (m_pPlayer->getCapitalCity() != NULL)
 	 {
-		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
 		 if (iFlavorGold < 0) iFlavorGold = 0;
 
-		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
 		 if (iFlavorScience < 0) iFlavorScience = 0;
 
-		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GROWTH")));
 		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
 
-		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 		 if (iFlavorCulture < 0) iFlavorCulture = 0;
 
-		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
 		 if (iFlavorFaith < 0) iFlavorFaith = 0;
 
-		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_PRODUCTION")));
 		 if (iFlavorProduction < 0) iFlavorProduction = 0;
 
 		 //   Add in any contribution from the current grand strategy
@@ -556,11 +556,11 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	int iWonderWeight = 0;
 	int iSpaceshipWeight = 0;
 
-	int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_WONDER")));
 	if (iFlavorWonder < 0) iFlavorWonder = 0;
-	int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
+	int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SPACESHIP")));
 	if (iFlavorSpaceship < 0) iFlavorSpaceship = 0;
-	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 	if (iFlavorOffense < 0) iFlavorOffense = 0;
 
 	int iUnitsRequested = m_pPlayer->GetNumUnitsNeededToBeBuilt();
@@ -574,7 +574,7 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	iEmergencyUnitWeight += m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) * /*150*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CIVS_AT_WAR_WITH);
 
 	// Is our capital under threat?
-	AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
+	AICityStrategyTypes eCityStrategy = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT"));
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(pCapital && eCityStrategy != NO_AICITYSTRATEGY && pCapital->GetCityStrategyAI()->IsUsingCityStrategy(eCityStrategy))
 	{
@@ -582,17 +582,17 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	}
 
 	// Add in weights depending on what the military AI is up to
-	MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+	MilitaryAIStrategyTypes eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iMilitaryTrainingWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_WAR_MOBILIZATION);
 	}
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iEmergencyUnitWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_EMPIRE_DEFENSE);
 	}
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		bCriticalDefenseOn = true;
@@ -600,24 +600,24 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	}
 
 	// Override all this if have too many units!
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_MILITARY_UNITS");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_MILITARY_UNITS"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iMilitaryTrainingWeight = 0;
 		iEmergencyUnitWeight = 0;
 	}
 
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iSeaWeight += /*50*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS);
 	}
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iSeaWeight += /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEED_NAVAL_UNITS_CRITICAL);
 	}
-	eStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_UNITS");
+	eStrategy = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_UNITS"));
 	if(eStrategy != NO_MILITARYAISTRATEGY && m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
 	{
 		iSeaWeight = 0;
@@ -625,7 +625,7 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 
 	// Wonder is MIN between weight of wonders available to build and value from flavors (but not less than zero)
 	int iWonderFlavorWeight = iFlavorWonder * /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER);
-	int iWeightOfWonders = (int)(m_iNextWonderWeight * /*0.2f*/ GD_FLOAT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER));
+	int iWeightOfWonders = static_cast<int>(m_iNextWonderWeight * /*0.2f*/ GD_FLOAT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER));
 	iWonderWeight = min(iWonderFlavorWeight, iWeightOfWonders);
 	iWonderWeight = max(iWonderWeight, 0);
 
@@ -708,9 +708,9 @@ void CvCitySpecializationAI::AssignSpecializations()
 		vector<int> cityData = CityValueForUnworkedTileYields(pLoopCity);
 		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
-			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData[iI]);
+			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, static_cast<YieldTypes>(iI), cityData[iI]);
 			if (MOD_BALANCE_VP)
-				cityData[iI] = AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData[iI]);
+				cityData[iI] = AdjustValueBasedOnHappiness(pLoopCity, static_cast<YieldTypes>(iI), cityData[iI]);
 
 			if(cityData[iI] < 0)
 				cityData[iI] = 0;
@@ -798,7 +798,7 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 		{
 			for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
 			{
-				int iPotentialYield = pLoopPlot->getYield((YieldTypes)iYield);
+				int iPotentialYield = pLoopPlot->getYield(static_cast<YieldTypes>(iYield));
 				if (iYield == YIELD_FOOD) //a plot needs to be worked by a citizen who needs food
 					iPotentialYield = max(0, iPotentialYield - /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION));
 
@@ -823,7 +823,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 	LogSpecializationWeights(prodSubtypeWeights,yieldWeights);
 
 	// LOOP we want to specialize half of our cities. the other half will use the default.
-	size_t iSpecializationsToAssign = size_t(m_pPlayer->getNumCities() - m_pPlayer->GetNumPuppetCities()) / 2;
+	size_t iSpecializationsToAssign = static_cast<size_t>(m_pPlayer->getNumCities() - m_pPlayer->GetNumPuppetCities()) / 2;
 	while(specializationsNeeded.size() < iSpecializationsToAssign)
 	{
 		// Find highest weighted specialization
@@ -876,7 +876,7 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 	CitySpecializationTypes eSpecialization = GC.GetGameCitySpecializations()->GetFirstSpecializationForYield(YIELD_PRODUCTION);
 	for (int i=0; i<10; i++) //failsafe ...
 	{
-		if ((ProductionSpecializationSubtypes)i == eSubtype)
+		if (static_cast<ProductionSpecializationSubtypes>(i) == eSubtype)
 		{
 			eSpecialization = GC.GetGameCitySpecializations()->GetNextSpecializationForYield();
 			break;
@@ -923,7 +923,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetWonderSpecialization() const
 		pEntry = GC.GetGameCitySpecializations()->GetEntry(iI);
 		if(pEntry->IsWonder())
 		{
-			return (CitySpecializationTypes)iI;
+			return static_cast<CitySpecializationTypes>(iI);
 		}
 	}
 
@@ -940,7 +940,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetEconomicDefaultSpecialization
 		pEntry = GC.GetGameCitySpecializations()->GetEntry(iI);
 		if(pEntry->IsDefault())
 		{
-			return (CitySpecializationTypes)iI;
+			return static_cast<CitySpecializationTypes>(iI);
 		}
 	}
 
@@ -1221,7 +1221,7 @@ bool CvCitySpecializationAI::CanBuildSpaceshipParts()
 			if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 			{
 				// See if this unit can be built now
-				if(pCity->canTrain((UnitTypes)iUnitLoop))
+				if(pCity->canTrain(static_cast<UnitTypes>(iUnitLoop)))
 				{
 					return true;
 				}
@@ -1362,7 +1362,7 @@ void CvCitySpecializationAI::LogCity(CvCity* pCity, const vector<int>& data)
 		// Loop through each yield type
 		for(int iI = 0; iI <= YIELD_FAITH; iI++)
 		{
-			CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iI);
+			CvYieldInfo* pYieldInfo = GC.getYieldInfo(static_cast<YieldTypes>(iI));
 			if(pYieldInfo != NULL)
 			{
 				strYieldString = pYieldInfo->GetDescription();

@@ -178,7 +178,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 	//quests
 	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		if(ShouldConnectToOtherPlayer(ePlayer))
 		{
 			CvCity* pOtherCapital = GET_PLAYER(ePlayer).getCapitalCity();
@@ -281,7 +281,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		// See if we have a harbor / lighthouse, whatever
 		bool bStartCityAllowsWater = false;
-		for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
+		for(int i = 0; i < static_cast<int>(m_aBuildingsAllowWaterRoutes.size()); i++)
 			if(pStartCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
 				bStartCityAllowsWater = true;
 		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(DOMAIN_SEA))
@@ -310,7 +310,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//a bit ugly but what can you do
 				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_ROAD);
+				lala->second = static_cast<CityConnectionTypes>(lala->second + CONNECTION_ROAD);
 			}
 		}
 
@@ -330,7 +330,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//a bit ugly but what can you do
 				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_RAILROAD);
+				lala->second = static_cast<CityConnectionTypes>(lala->second + CONNECTION_RAILROAD);
 			}
 		}
 
@@ -343,7 +343,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				// See if we have a harbor / lighthouse, whatever
 				bool bEndCityAllowsWater = false;
-				for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
+				for(int i = 0; i < static_cast<int>(m_aBuildingsAllowWaterRoutes.size()); i++)
 					if(pEndCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
 						bEndCityAllowsWater = true;
 
@@ -357,7 +357,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//a bit ugly but what can you do
 				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_HARBOR);
+				lala->second = static_cast<CityConnectionTypes>(lala->second + CONNECTION_HARBOR);
 			}
 		}
 

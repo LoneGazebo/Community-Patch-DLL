@@ -262,7 +262,7 @@ public:
 	void assign(const T& fill)
 	{
 		checkValidAccess();
-		std::fill_n(begin(), std::size_t(SizeConstant), fill);
+		std::fill_n(begin(), static_cast<std::size_t>(SizeConstant), fill);
 	}
 
 	inline static std::size_t size()

@@ -337,7 +337,7 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 		}
 	}
 
-	return (DirectionTypes)maximumIndex;
+	return static_cast<DirectionTypes>(maximumIndex);
 }
 
 //compares the vector (start,destA) with (start,destB). returns a value between 0 (perfect agreement) and 60 (polar opposite direction)
@@ -364,14 +364,14 @@ int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDe
 	int iDZA = iDestAZ - iStartZ;
 	int iDZB = iDestBZ - iStartZ;
 
-	float fRawDotProduct = (float) iDXA *iDXB + iDYA * iDYB + iDZA * iDZB;
-	float fNormA2 = (float) iDXA*iDXA + iDYA*iDYA + iDZA*iDZA;
-	float fNormB2 = (float) iDXB*iDXB + iDYB*iDYB + iDZB*iDZB;
+	float fRawDotProduct = static_cast<float>(iDXA) *iDXB + iDYA * iDYB + iDZA * iDZB;
+	float fNormA2 = static_cast<float>(iDXA)*iDXA + iDYA*iDYA + iDZA*iDZA;
+	float fNormB2 = static_cast<float>(iDXB)*iDXB + iDYB*iDYB + iDZB*iDZB;
 
 	//this should be between -1 and +1
 	float fNormDotProduct = fRawDotProduct / sqrtf( fNormA2*fNormB2 );
 	//this should be between 0 and 60
-	return (int)((fNormDotProduct-1)*(-30));
+	return static_cast<int>((fNormDotProduct - 1) * (-30));
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
@@ -551,21 +551,21 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader, 
 	// Promotion Prereqs
 	if(NO_PROMOTION != promotionInfo->GetPrereqPromotion())
 	{
-		if(!isPromotionValid((PromotionTypes)promotionInfo->GetPrereqPromotion(), eUnit, bLeader, true))
+		if(!isPromotionValid(static_cast<PromotionTypes>(promotionInfo->GetPrereqPromotion()), eUnit, bLeader, true))
 		{
 			return false;
 		}
 	}
 
-	PromotionTypes ePrereq1 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion1();
-	PromotionTypes ePrereq2 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion2();
-	PromotionTypes ePrereq3 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion3();
-	PromotionTypes ePrereq4 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion4();
-	PromotionTypes ePrereq5 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion5();
-	PromotionTypes ePrereq6 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion6();
-	PromotionTypes ePrereq7 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion7();
-	PromotionTypes ePrereq8 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion8();
-	PromotionTypes ePrereq9 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion9();
+	PromotionTypes ePrereq1 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion1());
+	PromotionTypes ePrereq2 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion2());
+	PromotionTypes ePrereq3 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion3());
+	PromotionTypes ePrereq4 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion4());
+	PromotionTypes ePrereq5 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion5());
+	PromotionTypes ePrereq6 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion6());
+	PromotionTypes ePrereq7 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion7());
+	PromotionTypes ePrereq8 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion8());
+	PromotionTypes ePrereq9 = static_cast<PromotionTypes>(promotionInfo->GetPrereqOrPromotion9());
 	if(ePrereq1 != NO_PROMOTION ||
 		ePrereq2 != NO_PROMOTION ||
 		ePrereq3 != NO_PROMOTION ||
@@ -715,7 +715,7 @@ ImprovementTypes finalImprovementUpgrade(ImprovementTypes eImprovement, int iCou
 
 	if(GC.getImprovementInfo(eImprovement)->GetImprovementUpgrade() != NO_IMPROVEMENT)
 	{
-		return finalImprovementUpgrade(((ImprovementTypes)(GC.getImprovementInfo(eImprovement)->GetImprovementUpgrade())), (iCount + 1));
+		return finalImprovementUpgrade(static_cast<ImprovementTypes>((GC.getImprovementInfo(eImprovement)->GetImprovementUpgrade())), (iCount + 1));
 	}
 	else
 	{
@@ -913,7 +913,7 @@ bool PUF_isCombatTeam(const CvUnit* pUnit, int iData1, int iData2)
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
 	CvAssertMsg(iData2 != -1, "Invalid data argument, should be >= 0");
 
-	return (GET_PLAYER(pUnit->getCombatOwner((TeamTypes)iData2, *(pUnit->plot()))).getTeam() == iData1 && !pUnit->isInvisible((TeamTypes)iData2, false, false));
+	return (GET_PLAYER(pUnit->getCombatOwner(static_cast<TeamTypes>(iData2), *(pUnit->plot()))).getTeam() == iData1 && !pUnit->isInvisible(static_cast<TeamTypes>(iData2), false, false));
 }
 
 bool PUF_isOtherPlayer(const CvUnit* pUnit, int iData1, int)
@@ -925,7 +925,7 @@ bool PUF_isOtherPlayer(const CvUnit* pUnit, int iData1, int)
 bool PUF_isOtherTeam(const CvUnit* pUnit, int iData1, int)
 {
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
-	TeamTypes eTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
+	TeamTypes eTeam = GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam();
 	if(pUnit->canCoexistWithEnemyUnit(eTeam))
 	{
 		return false;
@@ -939,7 +939,7 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
 	CvAssertMsg(iData2 != -1, "Invalid data argument, should be >= 0");
 
-	TeamTypes eOtherTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
+	TeamTypes eOtherTeam = GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam();
 	TeamTypes eOurTeam = GET_PLAYER(pUnit->getCombatOwner(eOtherTeam, *(pUnit->plot()))).getTeam();
 
 	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
@@ -953,19 +953,19 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
 bool PUF_isVisible(const CvUnit* pUnit, int iData1, int)
 {
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
-	return !(pUnit->isInvisible(GET_PLAYER((PlayerTypes)iData1).getTeam(), false));
+	return !(pUnit->isInvisible(GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam(), false));
 }
 
 bool PUF_isVisibleDebug(const CvUnit* pUnit, int iData1, int)
 {
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
-	return !(pUnit->isInvisible(GET_PLAYER((PlayerTypes)iData1).getTeam(), true));
+	return !(pUnit->isInvisible(GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam(), true));
 }
 
 bool PUF_canSiege(const CvUnit* pUnit, int iData1, int)
 {
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
-	return pUnit->canSiege(GET_PLAYER((PlayerTypes)iData1).getTeam());
+	return pUnit->canSiege(GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam());
 }
 
 bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
@@ -973,7 +973,7 @@ bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 	CvAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
 	CvAssertMsg(iData2 != -1, "Invalid data argument, should be >= 0");
 
-	TeamTypes eOtherTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
+	TeamTypes eOtherTeam = GET_PLAYER(static_cast<PlayerTypes>(iData1)).getTeam();
 	TeamTypes eOurTeam = GET_PLAYER(pUnit->getCombatOwner(eOtherTeam, *(pUnit->plot()))).getTeam();
 
 	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
@@ -981,7 +981,7 @@ bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 		return false;
 	}
 
-	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, (PlayerTypes)iData1));
+	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, static_cast<PlayerTypes>(iData1)));
 }
 
 bool PUF_canDefend(const CvUnit* pUnit, int, int)
@@ -1453,11 +1453,11 @@ static uint SkipGUIDSeparators(const char* pszGUID, uint uiStartIndex)
 static bool GetHexDigitValue(char ch, uint& uiValue)
 {
 	if(ch >= '0' && ch <= '9')
-		uiValue = (uint)(ch - '0');
+		uiValue = static_cast<uint>(ch - '0');
 	else if(ch >= 'a' && ch <= 'f')
-		uiValue = (uint)((ch - 'a') + 10);
+		uiValue = static_cast<uint>((ch - 'a') + 10);
 	else if(ch >= 'A' && ch <= 'F')
-		uiValue = (uint)((ch - 'A') + 10);
+		uiValue = static_cast<uint>((ch - 'A') + 10);
 	else
 		return false;
 

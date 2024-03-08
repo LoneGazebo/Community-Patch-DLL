@@ -94,7 +94,7 @@ void CvTreasury::DoGold()
 	//but here we have to consider a negative gold rate, so fix it after the fact
 	if (iGoldChange < 0)
 	{
-		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+		if (m_GoldChangeForTurnTimes100.size() < static_cast<size_t>(GC.getGame().getGameTurn()))
 			m_GoldChangeForTurnTimes100.push_back(iGoldChange);
 		else
 			m_GoldChangeForTurnTimes100.back() += iGoldChange;
@@ -107,7 +107,7 @@ void CvTreasury::DoGold()
 		m_iLifetimeGrossGoldIncome += iGrossGoldChange;
 	}
 
-	if(m_GoldBalanceForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
+	if(m_GoldBalanceForTurnTimes100.size() < static_cast<unsigned int>(GC.getGame().getGameTurn()))
 	{
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
@@ -188,7 +188,7 @@ void CvTreasury::ChangeGoldTimes100(int iChange)
 	//track the income for each turn (instant yields and regular)
 	if (iChange > 0)
 	{
-		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+		if (m_GoldChangeForTurnTimes100.size() < static_cast<size_t>(GC.getGame().getGameTurn()))
 			m_GoldChangeForTurnTimes100.push_back(iChange);
 		else
 			m_GoldChangeForTurnTimes100.back() += iChange;
@@ -542,11 +542,11 @@ int CvTreasury::CalculateUnitCost()
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplier = 0.0f;
-	fMultiplier += 1.0f + ((float)iGameProgressFactor * /*8 in CP, 7 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
+	fMultiplier += 1.0f + (static_cast<float>(iGameProgressFactor) * /*8 in CP, 7 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
 
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
 	double fExponent = 0.0f;
-	fExponent += 1.0f + ((float)iGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR) / 100);
+	fExponent += 1.0f + (static_cast<float>(iGameProgressFactor) / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR) / 100);
 
 	double dTempCost = 0.00f;
 	dTempCost += fMultiplier * iBaseUnitCost / 100;
@@ -600,7 +600,7 @@ int CvTreasury::CalculateUnitCost()
 		dFinalCost /= 100;
 	}
 
-	return std::max(0, int(dFinalCost));
+	return std::max(0, static_cast<int>(dFinalCost));
 }
 
 /// Calculate total maintenance costs
@@ -983,23 +983,23 @@ int CvTreasury::GetVassalGoldMaintenance() const
 	// We have a vassal
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		if(!GET_PLAYER((PlayerTypes)iI).isMinorCiv()
-			&& !GET_PLAYER((PlayerTypes)iI).isBarbarian()
-			&& GET_PLAYER((PlayerTypes)iI).isAlive())
+		if(!GET_PLAYER(static_cast<PlayerTypes>(iI)).isMinorCiv()
+			&& !GET_PLAYER(static_cast<PlayerTypes>(iI)).isBarbarian()
+			&& GET_PLAYER(static_cast<PlayerTypes>(iI)).isAlive())
 		{
 			int iLoop = 0;
 			int iCityPop = 0;
 			// This player is our vassal
-			if(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			if(GET_TEAM(GET_PLAYER(static_cast<PlayerTypes>(iI)).getTeam()).IsVassal(m_pPlayer->getTeam()))
 			{
 				// Loop through our vassal's cities
-				for(CvCity* pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+				for(CvCity* pLoopCity = GET_PLAYER(static_cast<PlayerTypes>(iI)).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(static_cast<PlayerTypes>(iI)).nextCity(&iLoop))
 				{
 					iCityPop = pLoopCity->getPopulation();
-					iRtnValue += std::max(0, (int)(pow((double)iCityPop, (double) /*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
+					iRtnValue += std::max(0, static_cast<int>(pow((double)iCityPop, (double)/*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
 				}
 
-				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100));
+				iRtnValue += std::max(0, (GET_PLAYER(static_cast<PlayerTypes>(iI)).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100));
 			}
 		}
 	}
@@ -1055,7 +1055,7 @@ int CvTreasury::GetMyShareOfVassalTaxes() const
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 		{
 			iTotalTaxes += GET_PLAYER(eLoopPlayer).GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();

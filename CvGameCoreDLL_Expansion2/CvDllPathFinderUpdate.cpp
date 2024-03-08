@@ -165,10 +165,10 @@ bool CvDllPathFinderUpdateList::MoveNext()
 			return false;	// Nope, just leave as -1 and return false
 	}
 
-	if((size_t)m_iIndex < m_updates.size())
+	if(static_cast<size_t>(m_iIndex) < m_updates.size())
 		m_iIndex++;
 
-	return (size_t)m_iIndex < m_updates.size();
+	return static_cast<size_t>(m_iIndex) < m_updates.size();
 }
 //------------------------------------------------------------------------------
 void CvDllPathFinderUpdateList::Reset()
@@ -178,7 +178,7 @@ void CvDllPathFinderUpdateList::Reset()
 //------------------------------------------------------------------------------
 ICvUnknown* CvDllPathFinderUpdateList::GetCurrent()
 {
-	if(m_iIndex > -1 && (size_t)m_iIndex < m_updates.size())
+	if(m_iIndex > -1 && static_cast<size_t>(m_iIndex) < m_updates.size())
 	{
 		const CvDllPathFinderUpdateListData& data = m_updates[m_iIndex];
 

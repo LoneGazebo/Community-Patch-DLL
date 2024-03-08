@@ -267,7 +267,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 					(*it->second) = static_cast<MissionTypes>(kResults.GetInt(1));
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-					MissionNameLookup.insert( make_pair( (MissionTypes)kResults.GetInt(1),kResults.GetText(0) ) );
+					MissionNameLookup.insert( make_pair( static_cast<MissionTypes>(kResults.GetInt(1)),kResults.GetText(0) ) );
 #endif
 				}
 			}

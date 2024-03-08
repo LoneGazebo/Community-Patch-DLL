@@ -1371,7 +1371,7 @@ public:
 	};
 	PromotionTypes GetEnemyWarSawPactPromotion() const
 	{
-		return (PromotionTypes)m_iEnemyWarSawPactPromotion;
+		return static_cast<PromotionTypes>(m_iEnemyWarSawPactPromotion);
 	};
 	int GetSharedReligionTourismModifier() const
 	{
@@ -1699,81 +1699,81 @@ public:
 
 	int GetExtraYieldThreshold(YieldTypes eYield) const
 	{
-		return m_iExtraYieldThreshold[(int)eYield];
+		return m_iExtraYieldThreshold[static_cast<int>(eYield)];
 	};
 	int GetFreeCityYield(YieldTypes eYield) const
 	{
-		return m_iFreeCityYield[(int)eYield];
+		return m_iFreeCityYield[static_cast<int>(eYield)];
 	};
 	int GetYieldChangeStrategicResources(YieldTypes eYield) const
 	{
-		return m_iYieldChangeStrategicResources[(int)eYield];
+		return m_iYieldChangeStrategicResources[static_cast<int>(eYield)];
 	};
 	int GetYieldChangeNaturalWonder(YieldTypes eYield) const
 	{
-		return m_iYieldChangeNaturalWonder[(int)eYield];
+		return m_iYieldChangeNaturalWonder[static_cast<int>(eYield)];
 	};
 	int GetYieldChangePerTradePartner(YieldTypes eYield) const
 	{
-		return m_iYieldChangePerTradePartner[(int)eYield];
+		return m_iYieldChangePerTradePartner[static_cast<int>(eYield)];
 	};
 	int GetYieldChangeIncomingTradeRoute(YieldTypes eYield) const
 	{
-		return m_iYieldChangeIncomingTradeRoute[(int)eYield];
+		return m_iYieldChangeIncomingTradeRoute[static_cast<int>(eYield)];
 	};
 	int GetYieldRateModifier(YieldTypes eYield) const
 	{
-		return m_iYieldRateModifier[(int)eYield];
+		return m_iYieldRateModifier[static_cast<int>(eYield)];
 	};
 	int GetStrategicResourceQuantityModifier(TerrainTypes eTerrain) const
 	{
-		return m_iStrategicResourceQuantityModifier[(int)eTerrain];
+		return m_iStrategicResourceQuantityModifier[static_cast<int>(eTerrain)];
 	};
 	int GetResourceQuantityModifier(ResourceTypes eResource) const
 	{
-		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
+		return (static_cast<uint>(eResource) < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[static_cast<int>(eResource)]:0;
 	};
 #if defined(MOD_BALANCE_CORE)
 	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 	{
-		return ((uint)eGreatPerson < m_aiGreatPersonCostReduction.size()) ? m_aiGreatPersonCostReduction[(int)eGreatPerson] : 0;
+		return (static_cast<uint>(eGreatPerson) < m_aiGreatPersonCostReduction.size()) ? m_aiGreatPersonCostReduction[static_cast<int>(eGreatPerson)] : 0;
 	};
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 	{
-		return ((uint)eGreatPerson < m_aiPerPuppetGreatPersonRateModifier.size()) ? m_aiPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
+		return (static_cast<uint>(eGreatPerson) < m_aiPerPuppetGreatPersonRateModifier.size()) ? m_aiPerPuppetGreatPersonRateModifier[static_cast<int>(eGreatPerson)] : 0;
 	};
 	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
 	{
-		return ((uint)eGreatPerson < m_aiGreatPersonGWAM.size()) ? m_aiGreatPersonGWAM[(int)eGreatPerson] : 0;
+		return (static_cast<uint>(eGreatPerson) < m_aiGreatPersonGWAM.size()) ? m_aiGreatPersonGWAM[static_cast<int>(eGreatPerson)] : 0;
 	};
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 	{
-		return ((uint)eGreatPerson < m_aiGoldenAgeGreatPersonRateModifier.size()) ? m_aiGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
+		return (static_cast<uint>(eGreatPerson) < m_aiGoldenAgeGreatPersonRateModifier.size()) ? m_aiGoldenAgeGreatPersonRateModifier[static_cast<int>(eGreatPerson)] : 0;
 	};
 
 	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
 	{
-		return ((uint)eGreatPerson < m_aiGoldenAgeFromGreatPersonBirth.size()) ? m_aiGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+		return (static_cast<uint>(eGreatPerson) < m_aiGoldenAgeFromGreatPersonBirth.size()) ? m_aiGoldenAgeFromGreatPersonBirth[static_cast<int>(eGreatPerson)] : 0;
 	};
 
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 	{
-		return ((uint)eDomain < m_aiNumPledgesDomainProdMod.size()) ? m_aiNumPledgesDomainProdMod[(int)eDomain] : 0;
+		return (static_cast<uint>(eDomain) < m_aiNumPledgesDomainProdMod.size()) ? m_aiNumPledgesDomainProdMod[static_cast<int>(eDomain)] : 0;
 	};
 	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const
 	{
-		return ((uint)eDomain < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[(int)eDomain] : 0;
+		return (static_cast<uint>(eDomain) < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[static_cast<int>(eDomain)] : 0;
 	};
 	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
 	{
-		return ((uint)eIndex < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
+		return (static_cast<uint>(eIndex) < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[static_cast<int>(eIndex)] : 0;
 	};
 	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
 	bool IsRandomGreatPersonProgressFromKills() const;
 	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(const CvSeeder& additionalSeed) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
-		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
+		return (static_cast<uint>(eUnitClass) < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[static_cast<int>(eUnitClass)] : 0;
 	}
 #endif
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
@@ -1809,19 +1809,19 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(YieldTypes eYield) const
 	{
-		return m_iYieldFromLevelUp[(int)eYield];
+		return m_iYieldFromLevelUp[static_cast<int>(eYield)];
 	};
 	int GetYieldFromHistoricEvent(YieldTypes eYield) const
 	{
-		return m_iYieldFromHistoricEvent[(int)eYield];
+		return m_iYieldFromHistoricEvent[static_cast<int>(eYield)];
 	};
 	int GetYieldFromXMilitaryUnits(YieldTypes eYield) const
 	{
-		return m_iYieldFromXMilitaryUnits[(int)eYield];
+		return m_iYieldFromXMilitaryUnits[static_cast<int>(eYield)];
 	};
 	int GetYieldFromOwnPantheon(YieldTypes eYield) const
 	{
-		return m_iYieldFromOwnPantheon[(int)eYield];
+		return m_iYieldFromOwnPantheon[static_cast<int>(eYield)];
 	};
 	int GetTradeRouteEndYieldDomestic(YieldTypes eYield) const
 	{
@@ -1843,39 +1843,39 @@ public:
 	}
 	int GetYieldFromRouteMovement(YieldTypes eYield) const
 	{
-		return m_iYieldFromRouteMovement[(int)eYield];
+		return m_iYieldFromRouteMovement[static_cast<int>(eYield)];
 	};
 	int GetYieldFromExport(YieldTypes eYield) const
 	{
-		return m_iYieldFromExport[(int)eYield];
+		return m_iYieldFromExport[static_cast<int>(eYield)];
 	};
 	int GetYieldFromImport(YieldTypes eYield) const
 	{
-		return m_iYieldFromImport[(int)eYield];
+		return m_iYieldFromImport[static_cast<int>(eYield)];
 	};
 	int GetYieldFromTilePurchase(YieldTypes eYield) const
 	{
-		return m_iYieldFromTilePurchase[(int)eYield];
+		return m_iYieldFromTilePurchase[static_cast<int>(eYield)];
 	};
 	int GetYieldFromTileEarn(YieldTypes eYield) const
 	{
-		return m_iYieldFromTileEarn[(int)eYield];
+		return m_iYieldFromTileEarn[static_cast<int>(eYield)];
 	};
 	int GetYieldFromCSAlly(YieldTypes eYield) const
 	{
-		return m_iYieldFromCSAlly[(int)eYield];
+		return m_iYieldFromCSAlly[static_cast<int>(eYield)];
 	};
 	int GetYieldFromCSFriend(YieldTypes eYield) const
 	{
-		return m_iYieldFromCSFriend[(int)eYield];
+		return m_iYieldFromCSFriend[static_cast<int>(eYield)];
 	};
 	int GetYieldFromSettle(YieldTypes eYield) const
 	{
-		return m_iYieldFromSettle[(int)eYield];
+		return m_iYieldFromSettle[static_cast<int>(eYield)];
 	};
 	int GetYieldFromConquest(YieldTypes eYield) const
 	{
-		return m_iYieldFromConquest[(int)eYield];
+		return m_iYieldFromConquest[static_cast<int>(eYield)];
 	};
 	int GetVotePerXCSAlliance() const
 	{
@@ -1927,11 +1927,11 @@ public:
 	};
 	int GetGAPToYield(YieldTypes eYield) const
 	{
-		return m_iGAPToYield[(int)eYield];
+		return m_iGAPToYield[static_cast<int>(eYield)];
 	};
 	int GetMountainRangeYield(YieldTypes eYield) const
 	{
-		return m_iMountainRangeYield[(int)eYield];
+		return m_iMountainRangeYield[static_cast<int>(eYield)];
 	};
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -1940,43 +1940,43 @@ public:
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
 	{
-		return m_iCapitalYieldChanges[(int)eYield];
+		return m_iCapitalYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetCityYieldChanges(YieldTypes eYield) const
 	{
-		return m_iCityYieldChanges[(int)eYield];
+		return m_iCityYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetPermanentYieldChangeWLTKD(YieldTypes eYield) const
 	{
-		return m_iPermanentYieldChangeWLTKD[(int)eYield];
+		return m_iPermanentYieldChangeWLTKD[static_cast<int>(eYield)];
 	};
 	int GetCoastalCityYieldChanges(YieldTypes eYield) const
 	{
-		return m_iCoastalCityYieldChanges[(int)eYield];
+		return m_iCoastalCityYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetGreatWorkYieldChanges(YieldTypes eYield) const
 	{
-		return m_iGreatWorkYieldChanges[(int)eYield];
+		return m_iGreatWorkYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetArtifactYieldChanges(YieldTypes eYield) const
 	{
-		return m_iArtifactYieldChanges[(int)eYield];
+		return m_iArtifactYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetArtYieldChanges(YieldTypes eYield) const
 	{
-		return m_iArtYieldChanges[(int)eYield];
+		return m_iArtYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetLitYieldChanges(YieldTypes eYield) const
 	{
-		return m_iLitYieldChanges[(int)eYield];
+		return m_iLitYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetMusicYieldChanges(YieldTypes eYield) const
 	{
-		return m_iMusicYieldChanges[(int)eYield];
+		return m_iMusicYieldChanges[static_cast<int>(eYield)];
 	};
 	int GetSeaPlotYieldChanges(YieldTypes eYield) const
 	{
-		return m_iSeaPlotYieldChanges[(int)eYield];
+		return m_iSeaPlotYieldChanges[static_cast<int>(eYield)];
 	};
 
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
@@ -1987,11 +1987,11 @@ public:
 	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const
 	{
-		return m_iYieldChangeTradeRoute[(int)eYield];
+		return m_iYieldChangeTradeRoute[static_cast<int>(eYield)];
 	};
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const
 	{
-		return m_iYieldChangeWorldWonder[(int)eYield];
+		return m_iYieldChangeWorldWonder[static_cast<int>(eYield)];
 	};
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;

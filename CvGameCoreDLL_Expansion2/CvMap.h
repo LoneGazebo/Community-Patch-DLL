@@ -276,7 +276,7 @@ public:
 	CvPlot** getNeighborsShuffled(const CvPlot* pPlot);
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
 	{
-		return m_pPlotNeighbors[plotNum(iX, iY)*(NUM_DIRECTION_TYPES + 2) + (int)eDir];
+		return m_pPlotNeighbors[plotNum(iX, iY)*(NUM_DIRECTION_TYPES + 2) + static_cast<int>(eDir)];
 	}
 
 	void PrecalcNeighbors();

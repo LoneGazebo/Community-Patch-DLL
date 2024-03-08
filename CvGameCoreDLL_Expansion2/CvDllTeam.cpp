@@ -174,9 +174,9 @@ int CvDllTeam::GetTechs(TechTypes* pkTechArray, uint uiArraySize) const
 	{
 		for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos() && uiArraySize--; iTechLoop++)
 		{
-			if (pkTeamTechs->HasTech((TechTypes) iTechLoop) || pkTeamTechs->GetTechCount((TechTypes)iTechLoop) > 0)
+			if (pkTeamTechs->HasTech(static_cast<TechTypes>(iTechLoop)) || pkTeamTechs->GetTechCount(static_cast<TechTypes>(iTechLoop)) > 0)
 			{
-				*pkTechArray++ = (TechTypes)iTechLoop;
+				*pkTechArray++ = static_cast<TechTypes>(iTechLoop);
 				++iFoundTechs;
 			}
 		}

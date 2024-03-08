@@ -155,7 +155,7 @@ int CvEventLog::GetData4(int iZeroBasedIndex) const
 bool CvEventLog::IsLogFull() const
 {
 	int iAdjustedEndIndex = m_iEventsEndIndex + 1;
-	if (iAdjustedEndIndex >= (int)m_aEvents.size())
+	if (iAdjustedEndIndex >= static_cast<int>(m_aEvents.size()))
 	{
 		iAdjustedEndIndex = 0;
 	}
@@ -172,7 +172,7 @@ void CvEventLog::RemoveOldestEvent()
 void CvEventLog::IncrementBeginIndex()
 {
 	m_iEventsBeginIndex++;
-	if (m_iEventsBeginIndex >= (int)m_aEvents.size())
+	if (m_iEventsBeginIndex >= static_cast<int>(m_aEvents.size()))
 	{
 		m_iEventsBeginIndex = 0;
 	}
@@ -181,7 +181,7 @@ void CvEventLog::IncrementBeginIndex()
 void CvEventLog::IncrementEndIndex()
 {
 	m_iEventsEndIndex++;
-	if (m_iEventsEndIndex >= (int)m_aEvents.size())
+	if (m_iEventsEndIndex >= static_cast<int>(m_aEvents.size()))
 	{
 		m_iEventsEndIndex = 0;
 	}

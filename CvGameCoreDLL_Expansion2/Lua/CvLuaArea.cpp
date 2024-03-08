@@ -218,7 +218,7 @@ int CvLuaArea::lIsWater(lua_State* L)
 int CvLuaArea::lGetUnitsPerPlayer(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eIndex = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getUnitsPerPlayer(eIndex);
 	lua_pushinteger(L, iResult);
@@ -229,7 +229,7 @@ int CvLuaArea::lGetUnitsPerPlayer(lua_State* L)
 int CvLuaArea::lGetCitiesPerPlayer(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eIndex = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getCitiesPerPlayer(eIndex);
 	lua_pushinteger(L, iResult);
@@ -240,7 +240,7 @@ int CvLuaArea::lGetCitiesPerPlayer(lua_State* L)
 int CvLuaArea::lGetPopulationPerPlayer(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eIndex = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getPopulationPerPlayer(eIndex);
 	lua_pushinteger(L, iResult);
@@ -251,7 +251,7 @@ int CvLuaArea::lGetPopulationPerPlayer(lua_State* L)
 int CvLuaArea::lGetFreeSpecialist(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eIndex = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getFreeSpecialist(eIndex);
 	lua_pushinteger(L, iResult);
@@ -262,7 +262,7 @@ int CvLuaArea::lGetFreeSpecialist(lua_State* L)
 int CvLuaArea::lGetNumRevealedTiles(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const TeamTypes eIndex = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eIndex = static_cast<TeamTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getNumRevealedTiles(eIndex);
 	lua_pushinteger(L, iResult);
@@ -273,7 +273,7 @@ int CvLuaArea::lGetNumRevealedTiles(lua_State* L)
 int CvLuaArea::lGetNumUnrevealedTiles(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const TeamTypes eIndex = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eIndex = static_cast<TeamTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getNumUnrevealedTiles(eIndex);
 	lua_pushinteger(L, iResult);
@@ -285,7 +285,7 @@ int CvLuaArea::lGetNumUnrevealedTiles(lua_State* L)
 int CvLuaArea::lGetTargetCity(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eIndex = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	CvCity* pkCity = pkArea->getTargetCity(eIndex);
 	CvLuaCity::Push(L, pkCity);
@@ -296,8 +296,8 @@ int CvLuaArea::lGetTargetCity(lua_State* L)
 int CvLuaArea::lGetYieldRateModifier(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const PlayerTypes eIndex1 = (PlayerTypes)lua_tointeger(L, 2);
-	const YieldTypes eIndex2 = (YieldTypes)lua_tointeger(L, 3);
+	const PlayerTypes eIndex1 = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const YieldTypes eIndex2 = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	const int iResult = pkArea->getYieldRateModifier(eIndex1, eIndex2);
 	lua_pushinteger(L, iResult);
@@ -308,7 +308,7 @@ int CvLuaArea::lGetYieldRateModifier(lua_State* L)
 int CvLuaArea::lGetNumResources(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getNumResources(eResource);
 	lua_pushinteger(L, iResult);
@@ -329,7 +329,7 @@ int CvLuaArea::lGetNumTotalResources(lua_State* L)
 int CvLuaArea::lGetNumImprovements(lua_State* L)
 {
 	CvArea* pkArea = GetInstance(L);
-	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkArea->getNumImprovements(eImprovement);
 	lua_pushinteger(L, iResult);

@@ -1062,24 +1062,24 @@ int CvBeliefEntry::GetGreatWorkYieldChange(int i) const
 /// Do we get one of our yields from defeating an enemy?
 int CvBeliefEntry::GetYieldFromKills(YieldTypes eYield) const
 {
-	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromKills[(int)eYield];
+	CvAssertMsg(static_cast<int>(eYield) < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg(static_cast<int>(eYield) > -1, "Index out of bounds");
+	return m_piYieldFromKills[static_cast<int>(eYield)];
 }
 
 int CvBeliefEntry::GetYieldFromRemoveHeresy(YieldTypes eYield) const
 {
-	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromRemoveHeresy[(int)eYield];
+	CvAssertMsg(static_cast<int>(eYield) < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg(static_cast<int>(eYield) > -1, "Index out of bounds");
+	return m_piYieldFromRemoveHeresy[static_cast<int>(eYield)];
 }
 
 /// Do we get one of our yields from defeating a barbarian?
 int CvBeliefEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
-	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromBarbarianKills[(int)eYield];
+	CvAssertMsg(static_cast<int>(eYield) < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg(static_cast<int>(eYield) > -1, "Index out of bounds");
+	return m_piYieldFromBarbarianKills[static_cast<int>(eYield)];
 }
 
 int CvBeliefEntry::GetGreatPersonPoints(GreatPersonTypes i) const
@@ -1313,16 +1313,16 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #endif
 #if defined(MOD_BALANCE_CORE)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
-	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+	m_eRequiredCivilization = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szCivilizationType, true));
 #endif
 	//References
 	const char* szTextVal = NULL;
 	szTextVal						  = kResults.GetText("ObsoleteEra");
-	m_eObsoleteEra					  = (EraTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_eObsoleteEra					  = static_cast<EraTypes>(GC.getInfoTypeForString(szTextVal, true));
 	szTextVal						  = kResults.GetText("ResourceRevealed");
-	m_eResourceRevealed				  = (ResourceTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_eResourceRevealed				  = static_cast<ResourceTypes>(GC.getInfoTypeForString(szTextVal, true));
 	szTextVal						  = kResults.GetText("SpreadModifierDoublingTech");
-	m_eSpreadModifierDoublingTech     = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_eSpreadModifierDoublingTech     = static_cast<TechTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	//Arrays
 	const char* szBeliefType = GetType();
@@ -2051,7 +2051,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 #endif
 
 	m_ReligionBeliefs.push_back((int)eBelief);
-	m_BeliefLookup[(int)(eBelief)] = 1;
+	m_BeliefLookup[static_cast<int>(eBelief)] = 1;
 }
 
 /// Does this religion possess a specific belief?
@@ -2061,7 +2061,7 @@ bool CvReligionBeliefs::HasBelief(BeliefTypes eBelief) const
 	if (eBelief==NO_BELIEF)
 		return m_ReligionBeliefs.empty();
 
-	return m_BeliefLookup[(int)(eBelief)]==1;
+	return m_BeliefLookup[static_cast<int>(eBelief)]==1;
 #else
 	return (find(m_ReligionBeliefs.begin(), m_ReligionBeliefs.end(), (int)eBelief) != m_ReligionBeliefs.end());
 #endif
@@ -2070,8 +2070,8 @@ bool CvReligionBeliefs::HasBelief(BeliefTypes eBelief) const
 /// Does this religion possess a specific belief?
 BeliefTypes CvReligionBeliefs::GetBelief(int iIndex) const
 {
-	if (iIndex>=0 && iIndex<(int)m_ReligionBeliefs.size())
-		return (BeliefTypes)m_ReligionBeliefs[iIndex];
+	if (iIndex>=0 && iIndex<static_cast<int>(m_ReligionBeliefs.size()))
+		return static_cast<BeliefTypes>(m_ReligionBeliefs[iIndex]);
 
 	return NO_BELIEF;
 }
@@ -2272,7 +2272,7 @@ int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, bool bHolyCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFaithFromDyingUnits();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2289,7 +2289,7 @@ int CvReligionBeliefs::GetRiverHappiness(PlayerTypes ePlayer, const CvCity* pCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetRiverHappiness();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2306,7 +2306,7 @@ int CvReligionBeliefs::GetBorderGrowthRateIncreaseGlobal(PlayerTypes ePlayer, co
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetBorderGrowthRateIncreaseGlobal();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2323,7 +2323,7 @@ int CvReligionBeliefs::GetPlotCultureCostModifier(PlayerTypes ePlayer, const CvC
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetPlotCultureCostModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2339,7 +2339,7 @@ int CvReligionBeliefs::GetCityRangeStrikeModifier(PlayerTypes ePlayer, const CvC
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCityRangeStrikeModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2356,7 +2356,7 @@ int CvReligionBeliefs::GetCombatModifierEnemyCities(PlayerTypes ePlayer, const C
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCombatModifierEnemyCities();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2373,7 +2373,7 @@ int CvReligionBeliefs::GetCombatModifierFriendlyCities(PlayerTypes ePlayer, cons
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCombatModifierFriendlyCities();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2390,7 +2390,7 @@ int CvReligionBeliefs::GetFriendlyHealChange(PlayerTypes ePlayer, const CvCity* 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFriendlyHealChange();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2407,7 +2407,7 @@ int CvReligionBeliefs::GetCityStateFriendshipModifier(PlayerTypes ePlayer, bool 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCityStateFriendshipModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2424,7 +2424,7 @@ int CvReligionBeliefs::GetLandBarbarianConversionPercent(PlayerTypes ePlayer, bo
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetLandBarbarianConversionPercent();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2441,7 +2441,7 @@ int CvReligionBeliefs::GetSpreadDistanceModifier(PlayerTypes ePlayer, const CvCi
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSpreadDistanceModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2458,7 +2458,7 @@ int CvReligionBeliefs::GetSpreadStrengthModifier(PlayerTypes ePlayer, const CvCi
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSpreadStrengthModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2475,7 +2475,7 @@ int CvReligionBeliefs::GetProphetStrengthModifier(PlayerTypes ePlayer, const CvC
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetProphetStrengthModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2492,7 +2492,7 @@ int CvReligionBeliefs::GetProphetCostModifier(PlayerTypes ePlayer, const CvCity*
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetProphetCostModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2509,7 +2509,7 @@ int CvReligionBeliefs::GetMissionaryStrengthModifier(PlayerTypes ePlayer, const 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMissionaryStrengthModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2526,7 +2526,7 @@ int CvReligionBeliefs::GetMissionaryCostModifier(PlayerTypes ePlayer, const CvCi
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMissionaryCostModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2544,7 +2544,7 @@ int CvReligionBeliefs::GetInquisitorCostModifier(PlayerTypes ePlayer, const CvCi
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetInquisitorCostModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2562,7 +2562,7 @@ int CvReligionBeliefs::GetFriendlyCityStateSpreadModifier(PlayerTypes ePlayer, b
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFriendlyCityStateSpreadModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2579,7 +2579,7 @@ int CvReligionBeliefs::GetGreatPersonExpendedFaith(PlayerTypes ePlayer, const Cv
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonExpendedFaith();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2596,7 +2596,7 @@ int CvReligionBeliefs::GetCityStateMinimumInfluence(PlayerTypes ePlayer, const C
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCityStateMinimumInfluence();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2613,7 +2613,7 @@ int CvReligionBeliefs::GetCityStateInfluenceModifier(PlayerTypes ePlayer, const 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCityStateInfluenceModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2630,7 +2630,7 @@ int CvReligionBeliefs::GetOtherReligionPressureErosion(PlayerTypes ePlayer, bool
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetOtherReligionPressureErosion();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2647,7 +2647,7 @@ int CvReligionBeliefs::GetSpyPressure(PlayerTypes ePlayer, const CvCity* pCity, 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSpyPressure();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2664,7 +2664,7 @@ int CvReligionBeliefs::GetInquisitorPressureRetention(PlayerTypes ePlayer, bool 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetInquisitorPressureRetention();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2681,7 +2681,7 @@ int CvReligionBeliefs::GetFaithBuildingTourism(PlayerTypes ePlayer, const CvCity
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFaithBuildingTourism();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2699,7 +2699,7 @@ int CvReligionBeliefs::GetFullyConvertedHappiness(PlayerTypes ePlayer, const CvC
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFullyConvertedHappiness();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2717,7 +2717,7 @@ int CvReligionBeliefs::GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer,
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCombatVersusOtherReligionOwnLands();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2734,7 +2734,7 @@ int CvReligionBeliefs::GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlaye
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCombatVersusOtherReligionTheirLands();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2751,7 +2751,7 @@ int CvReligionBeliefs::GetMissionaryInfluenceCS(PlayerTypes ePlayer, const CvCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMissionaryInfluenceCS();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2768,7 +2768,7 @@ int CvReligionBeliefs::GetHappinessPerPantheon(PlayerTypes ePlayer, const CvCity
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetHappinessPerPantheon();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2784,7 +2784,7 @@ int CvReligionBeliefs::GetExtraVotes(PlayerTypes ePlayer, const CvCity* pCity, b
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetExtraVotes();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2800,7 +2800,7 @@ int CvReligionBeliefs::GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlay
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetPolicyReductionWonderXFollowerCities();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2862,7 +2862,7 @@ EraTypes CvReligionBeliefs::GetObsoleteEra(PlayerTypes ePlayer, bool bHolyCityOn
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		EraTypes eTestEra = pBeliefs->GetEntry(*it)->GetObsoleteEra();
-		if (eTestEra != NO_ERA && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (eTestEra != NO_ERA && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			eEra = eTestEra;
 			break;
@@ -2878,7 +2878,7 @@ ResourceTypes CvReligionBeliefs::GetResourceRevealed(PlayerTypes ePlayer, bool b
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		ResourceTypes eTestResource = pBeliefs->GetEntry(*it)->GetResourceRevealed();
-		if (eTestResource != NO_RESOURCE && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (eTestResource != NO_RESOURCE && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			eResource = eTestResource;
 			break;
@@ -2895,7 +2895,7 @@ TechTypes CvReligionBeliefs::GetSpreadModifierDoublingTech(PlayerTypes ePlayer, 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		TechTypes eTestTech = pBeliefs->GetEntry(*it)->GetSpreadModifierDoublingTech();
-		if (eTestTech != NO_TECH && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (eTestTech != NO_TECH && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			eTech = eTestTech;
 			break;
@@ -2919,7 +2919,7 @@ int CvReligionBeliefs::GetFaithFromKills(int iDistance, PlayerTypes ePlayer, con
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetFaithFromKills();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2941,7 +2941,7 @@ int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer,
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetHappinessPerCity();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2958,7 +2958,7 @@ int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetHappinessPerXPeacefulForeignFollowers();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return iValue;
 		}
@@ -2976,11 +2976,11 @@ int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTy
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = 0;
-		if ((int)eWonderEra < (int)pBeliefs->GetEntry(*it)->GetObsoleteEra())
+		if (static_cast<int>(eWonderEra) < static_cast<int>(pBeliefs->GetEntry(*it)->GetObsoleteEra()))
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetWonderProductionModifier();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -2997,7 +2997,7 @@ int CvReligionBeliefs::GetUnitProductionModifier(PlayerTypes ePlayer, const CvCi
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetUnitProductionModifier();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3019,7 +3019,7 @@ int CvReligionBeliefs:: GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer, c
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetPlayerHappiness();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3041,7 +3041,7 @@ int CvReligionBeliefs:: GetPlayerCultureModifier(bool bAtPeace, PlayerTypes ePla
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetPlayerCultureModifier();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3059,7 +3059,7 @@ float CvReligionBeliefs::GetHappinessPerFollowingCity(PlayerTypes ePlayer, const
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		float fValue = pBeliefs->GetEntry(*it)->GetHappinessPerFollowingCity();
-		if (fValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (fValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += fValue;
 		}
@@ -3077,7 +3077,7 @@ int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer, const CvCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGoldPerFollowingCity();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3095,7 +3095,7 @@ int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer, const CvCity* 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGoldPerXFollowers();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3113,7 +3113,7 @@ int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer, const CvCity*
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGoldWhenCityAdopts();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3131,7 +3131,7 @@ int CvReligionBeliefs:: GetSciencePerOtherReligionFollower(PlayerTypes ePlayer, 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSciencePerOtherReligionFollower();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3153,7 +3153,7 @@ int CvReligionBeliefs::GetCityGrowthModifier(bool bAtPeace, PlayerTypes ePlayer,
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetCityGrowthModifier();
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3175,7 +3175,7 @@ int CvReligionBeliefs::GetCityYieldChange(int iPopulation, YieldTypes eYield, Pl
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetCityYieldChange(eYield);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3193,7 +3193,7 @@ int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes eP
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetHolyCityYieldChange(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3211,7 +3211,7 @@ int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTyp
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangePerForeignCity(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3229,7 +3229,7 @@ int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, Pla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangePerXForeignFollowers(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3246,7 +3246,7 @@ int CvReligionBeliefs::GetYieldChangePerXCityStateFollowers(YieldTypes eYield, P
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangePerXCityStateFollowers(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3263,7 +3263,7 @@ int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes e
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerFollowingCity(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3279,7 +3279,7 @@ int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield, PlayerTypes ePl
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetLakePlotYieldChange(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3295,7 +3295,7 @@ int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerXFollowers(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3312,7 +3312,7 @@ int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, Playe
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerOtherReligionFollower(eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3330,7 +3330,7 @@ int CvReligionBeliefs::GetResourceQuantityModifier(ResourceTypes eResource, Play
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetResourceQuantityModifier(eResource);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3348,7 +3348,7 @@ int CvReligionBeliefs::GetImprovementYieldChange(ImprovementTypes eImprovement, 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetImprovementYieldChange(eImprovement, eYield);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3368,7 +3368,7 @@ int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingC
 		int temprtnValue = pBeliefs->GetEntry(*it)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
 		if (temprtnValue != 0 && iFollowers >= pBeliefs->GetEntry(*it)->GetMinFollowers())
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 			{
 				rtnValue += temprtnValue;
 			}
@@ -3391,7 +3391,7 @@ int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingCla
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetBuildingClassHappiness(eBuildingClass);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3409,7 +3409,7 @@ int CvReligionBeliefs::GetBuildingClassTourism(BuildingClassTypes eBuildingClass
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetBuildingClassTourism(eBuildingClass);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3427,7 +3427,7 @@ int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes e
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFeatureYieldChange(eFeature, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3444,7 +3444,7 @@ int CvReligionBeliefs::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldT
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerXTerrainTimes100(eTerrain, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3460,7 +3460,7 @@ int CvReligionBeliefs::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldT
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerXFeatureTimes100(eFeature, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3476,7 +3476,7 @@ int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCityYieldFromUnimprovedFeature(eFeature, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3493,7 +3493,7 @@ int CvReligionBeliefs::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yi
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetUnimprovedFeatureYieldChange(eFeature, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3511,7 +3511,7 @@ int CvReligionBeliefs::GetResourceYieldChange(ResourceTypes eResource, YieldType
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetResourceYieldChange(eResource, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3529,7 +3529,7 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetTerrainYieldChange(eTerrain, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3546,7 +3546,7 @@ int CvReligionBeliefs::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetTradeRouteYieldChange(eDomain, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3563,7 +3563,7 @@ int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, Yie
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSpecialistYieldChange(eSpecialist, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3580,7 +3580,7 @@ int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonExpendedYield(eGreatPerson, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3597,7 +3597,7 @@ int CvReligionBeliefs::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGre
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3618,7 +3618,7 @@ int CvReligionBeliefs::GetCapitalYieldChange(int iPopulation, YieldTypes eYield,
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetCapitalYieldChange(eYield);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{	
 			rtnValue += iValue;
 		}
@@ -3639,7 +3639,7 @@ int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYi
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetCoastalCityYieldChange(eYield);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3660,7 +3660,7 @@ int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYiel
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetGreatWorkYieldChange(eYield);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3678,7 +3678,7 @@ int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType, PlayerTypes ePla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromKills(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3695,7 +3695,7 @@ int CvReligionBeliefs::GetYieldFromRemoveHeresy(YieldTypes eYieldType, PlayerTyp
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromRemoveHeresy(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3712,7 +3712,7 @@ int CvReligionBeliefs::GetGreatPersonPoints(GreatPersonTypes eGreatPerson, Playe
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonPoints(eGreatPerson);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3730,7 +3730,7 @@ int CvReligionBeliefs::GetYieldFromBarbarianKills(YieldTypes eYieldType, PlayerT
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromBarbarianKills(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3748,7 +3748,7 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3770,7 +3770,7 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 		for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 		{
 			std::vector<int> aPromotions = pBeliefs->GetEntry(*it)->GetFreePromotions();
-			if (!aPromotions.empty() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (!aPromotions.empty() && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 			{
 				for (std::vector<int>::iterator itPromotions = aPromotions.begin(); itPromotions != aPromotions.end(); ++itPromotions)
 				{
@@ -3800,7 +3800,7 @@ int CvReligionBeliefs::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEra
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromImprovementBuild(eYield, bEraScaling);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3818,7 +3818,7 @@ int CvReligionBeliefs::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraSca
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromPillageGlobal(eYield, bEraScaling);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3837,7 +3837,7 @@ int CvReligionBeliefs::GetResourceHappiness(ResourceTypes eResource, PlayerTypes
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetResourceHappiness(eResource);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3855,7 +3855,7 @@ int CvReligionBeliefs::GetYieldChangeAnySpecialist(YieldTypes eYieldType, Player
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangeAnySpecialist(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3873,7 +3873,7 @@ int CvReligionBeliefs::GetYieldChangeTradeRoute(YieldTypes eYieldType, PlayerTyp
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangeTradeRoute(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3891,7 +3891,7 @@ int CvReligionBeliefs::GetYieldChangeNaturalWonder(YieldTypes eYieldType, Player
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangeNaturalWonder(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3909,7 +3909,7 @@ int CvReligionBeliefs::GetYieldChangeWorldWonder(YieldTypes eYieldType, PlayerTy
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangeWorldWonder(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3927,7 +3927,7 @@ int CvReligionBeliefs::GetYieldModifierNaturalWonder(YieldTypes eYieldType, Play
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldModifierNaturalWonder(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3945,7 +3945,7 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3962,7 +3962,7 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, Yield
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerPercent(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 			iMaxVal = max(iMaxVal, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
@@ -3983,7 +3983,7 @@ bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerT
 	{
 		if (pBeliefs->GetEntry(*it)->IsBuildingClassEnabled((int)eType))
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4002,7 +4002,7 @@ bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer,
 	{
 		if (pBeliefs->GetEntry(*it)->IsFaithUnitPurchaseEra((int)eEra))
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4021,7 +4021,7 @@ bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerType
 	{
 		if (pBeliefs->GetEntry(*it)->IsFaithUnitPurchaseSpecific((int)eUnit))
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4044,7 +4044,7 @@ BeliefTypes CvReligionBeliefs::GetSpecificFaithBuyingEnabledBelief(UnitTypes eUn
 			continue;
 
 		if (pBelief->IsFaithUnitPurchaseSpecific((int)eUnit))
-			return (BeliefTypes)(*it);
+			return static_cast<BeliefTypes>(*it);
 	}
 
 	return NO_BELIEF;
@@ -4057,7 +4057,7 @@ bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, const CvCity* 
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(*it)->ConvertsBarbarians() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->ConvertsBarbarians() && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}
@@ -4073,7 +4073,7 @@ bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(*it)->FaithPurchaseAllGreatPeople() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->FaithPurchaseAllGreatPeople() && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}
@@ -4092,7 +4092,7 @@ bool CvReligionBeliefs::RequiresImprovement(PlayerTypes ePlayer, bool bHolyCityO
 	{
 		if (pBeliefs->GetEntry(*it)->RequiresImprovement())
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4109,7 +4109,7 @@ bool CvReligionBeliefs::RequiresNoImprovement(PlayerTypes ePlayer, bool bHolyCit
 	{
 		if (pBeliefs->GetEntry(*it)->RequiresNoImprovement())
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4127,7 +4127,7 @@ bool CvReligionBeliefs::RequiresNoFeature(PlayerTypes ePlayer, bool bHolyCityOnl
 	{
 		if (pBeliefs->GetEntry(*it)->RequiresNoFeature())
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 			
 				return true;
@@ -4146,7 +4146,7 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer, bool bHolyCityOnly
 	{
 		if (pBeliefs->GetEntry(*it)->RequiresResource())
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+			if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -4168,7 +4168,7 @@ int CvReligionBeliefs::GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes eP
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerActiveTR(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			iValue *= iNumTRs;
 			rtnValue += iValue;
@@ -4186,7 +4186,7 @@ int CvReligionBeliefs::GetYieldPerConstruction(YieldTypes eYieldType, PlayerType
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerConstruction(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4203,7 +4203,7 @@ int CvReligionBeliefs::GetYieldPerWorldWonderConstruction(YieldTypes eYieldType,
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerWorldWonderConstruction(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4224,7 +4224,7 @@ int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerPop(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4241,7 +4241,7 @@ int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, const Cv
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetPressureChangeTradeRoute();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4258,7 +4258,7 @@ int CvReligionBeliefs::GetHappinessFromForeignSpies(PlayerTypes ePlayer, const C
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetHappinessFromForeignSpies();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4276,7 +4276,7 @@ int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerGPT(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4293,7 +4293,7 @@ int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerLux(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4310,7 +4310,7 @@ int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraS
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerBorderGrowth(eYieldType, bEraScaling);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4327,7 +4327,7 @@ int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlaye
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHeal(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4349,7 +4349,7 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 			//Does double duty for pantheons and followers, so needs two checks
 			if (pBeliefs->GetEntry(*it)->IsFollowerBelief())
 			{
-				if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+				if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 				{
 					rtnValue += iValue;
 				}
@@ -4357,7 +4357,7 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 			else
 			{
 				//No city here, because it is universal.
-				if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+				if (IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 				{
 					rtnValue += iValue;
 				}
@@ -4376,7 +4376,7 @@ int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTyp
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHolyCityBirth(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4394,7 +4394,7 @@ int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePl
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerScience(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4411,7 +4411,7 @@ int CvReligionBeliefs::GetYieldFromGPUse(YieldTypes eYieldType, PlayerTypes ePla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromGPUse(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4428,7 +4428,7 @@ int CvReligionBeliefs::GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldBonusGoldenAge(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4445,7 +4445,7 @@ int CvReligionBeliefs::GetYieldFromSpread(YieldTypes eYieldType, PlayerTypes ePl
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromSpread(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4462,7 +4462,7 @@ int CvReligionBeliefs::GetYieldFromForeignSpread(YieldTypes eYieldType, PlayerTy
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromForeignSpread(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4479,7 +4479,7 @@ int CvReligionBeliefs::GetYieldFromConquest(YieldTypes eYieldType, PlayerTypes e
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromConquest(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4496,7 +4496,7 @@ int CvReligionBeliefs::GetYieldFromPolicyUnlock(YieldTypes eYieldType, PlayerTyp
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromPolicyUnlock(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4513,7 +4513,7 @@ int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromEraUnlock(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4530,7 +4530,7 @@ int CvReligionBeliefs::GetYieldFromTechUnlock(YieldTypes eYieldType, bool bEraSc
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromTechUnlock(eYieldType, bEraScaling);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4547,7 +4547,7 @@ int CvReligionBeliefs::GetYieldFromConversion(YieldTypes eYieldType, PlayerTypes
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromConversion(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4565,7 +4565,7 @@ int CvReligionBeliefs::GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerT
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromConversionExpo(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4582,7 +4582,7 @@ int CvReligionBeliefs::GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePla
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromWLTKD(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4599,7 +4599,7 @@ int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType, PlayerTypes e
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromProposal(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4616,7 +4616,7 @@ int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlay
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromHost(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4634,7 +4634,7 @@ int CvReligionBeliefs::GetYieldFromFaithPurchase(YieldTypes eYieldType, PlayerTy
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromFaithPurchase(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4653,7 +4653,7 @@ int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerT
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromKnownPantheons(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4671,7 +4671,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollower(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4688,7 +4688,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, Play
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerPercent(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4708,7 +4708,7 @@ int CvReligionBeliefs::GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTy
 		if (iEra <= 0)
 			iEra = GC.getNumEraInfos()+1;
 
-		if (pBeliefs->GetEntry(*it)->GetIgnorePolicyRequirementsAmount() && ((int)eEra < iEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->GetIgnorePolicyRequirementsAmount() && (static_cast<int>(eEra) < iEra) && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}
@@ -4726,7 +4726,7 @@ int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity,
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCSYieldBonus();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -4747,7 +4747,7 @@ std::pair<int, int> CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTy
 	{
 		/// GetImprovementVoteChange() returns the number of improvements required for each vote
 		int iValue = pBeliefs->GetEntry(*it)->GetImprovementVoteChange(eImprovement);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			AddFractionToReference(fVotes, std::make_pair(1, iValue));
    		}
@@ -4765,7 +4765,7 @@ CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer, bool bHol
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if ((pBeliefs->GetEntry(*it)->GetRequiredCivilization() != NO_CIVILIZATION) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if ((pBeliefs->GetEntry(*it)->GetRequiredCivilization() != NO_CIVILIZATION) && IsBeliefValid(static_cast<BeliefTypes>(*it), GetReligion(), ePlayer, NULL, bHolyCityOnly))
 		{
 			return pBeliefs->GetEntry(*it)->GetRequiredCivilization();
 		}

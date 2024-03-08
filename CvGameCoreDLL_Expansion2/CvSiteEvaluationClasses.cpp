@@ -271,7 +271,7 @@ void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
 		fSum += m_iFlavorMultiplier[i];
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
-		m_iFlavorMultiplier[i] = int(0.5f + m_iFlavorMultiplier[i]/fSum * 100);
+		m_iFlavorMultiplier[i] = static_cast<int>(0.5f + m_iFlavorMultiplier[i] / fSum * 100);
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
@@ -307,8 +307,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 	// AI does not settle on Antiquity Sites
 	ResourceTypes ePlotResource = pPlot->getResourceType(eTeam);
-	if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) ||
-		ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
+	if (ePlotResource == static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE)) ||
+		ePlotResource == static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
 	{
 		return -1;
 	}
@@ -579,7 +579,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Brazil
-		static ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
+		static ImprovementTypes eBrazilImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true));  
 		if(eBrazilImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
@@ -599,7 +599,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Morocco
-		static ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);
+		static ImprovementTypes eMoroccoImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true));
 		if(eMoroccoImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
@@ -615,7 +615,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for France
-		static ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);
+		static ImprovementTypes eFranceImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true));
 		if(eFranceImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eFranceImprovement);
@@ -631,7 +631,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		//Custom code for Netherlands
-		static ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);
+		static ImprovementTypes ePolderImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_POLDER", true));
 		if(ePolderImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
@@ -656,7 +656,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Inca
-		static ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);
+		static ImprovementTypes eIncaImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true));
 		if(eIncaImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
@@ -716,7 +716,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		if (pPlayer)
 		{
-			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(m_iNavalIndex));
 			// we really like the coast (England, Norway, Polynesia, Carthage, etc.)
 			if (iNavalFlavor > 7 || pPlayer->getCivilizationInfo().isCoastalCiv())
 			{
@@ -836,7 +836,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		int iSweetMax = iSweetMin+1;
 
 		//check our preferred balance between tall and wide
-		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
+		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(m_iGrowthIndex));
 		if (iGrowthFlavor > 5)
 		{
 			iSweetMax++;
@@ -848,7 +848,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			iSweetMin--;
 		}
 
-		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
+		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(m_iExpansionIndex));
 		if (iExpansionFlavor > 5)
 		{
 			iSweetMax++;

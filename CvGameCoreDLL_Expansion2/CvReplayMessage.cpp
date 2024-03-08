@@ -72,8 +72,8 @@ const CvString& CvReplayMessage::getText() const
 //------------------------------------------------------------------------------
 void CvReplayMessage::addPlot(int iPlotX, int iPlotY)
 {
-	short sPlotX = (short)iPlotX;
-	short sPlotY = (short)iPlotY;
+	short sPlotX = static_cast<short>(iPlotX);
+	short sPlotY = static_cast<short>(iPlotY);
 
 	for(PlotPositionList::iterator it = m_Plots.begin(); it != m_Plots.end(); ++it)
 	{
@@ -90,8 +90,8 @@ bool CvReplayMessage::getPlot(unsigned int idx, int& iPlotX, int& iPlotY) const
 	if(idx < m_Plots.size())
 	{
 		const PlotPosition& position = m_Plots[idx];
-		iPlotX = (int)position.first;
-		iPlotY = (int)position.second;
+		iPlotX = static_cast<int>(position.first);
+		iPlotY = static_cast<int>(position.second);
 		return true;
 	}
 

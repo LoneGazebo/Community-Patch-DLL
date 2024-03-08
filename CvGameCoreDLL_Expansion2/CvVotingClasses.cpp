@@ -51,7 +51,7 @@ CvString LeagueHelpers::GetTextForChoice(ResolutionDecisionTypes eDecision, int 
 			if (iChoice >= 0 && iChoice < MAX_CIV_PLAYERS)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_RESOLUTION_CHOICE_PLAYER");
-				sTemp << GET_PLAYER((PlayerTypes)iChoice).getCivilizationShortDescriptionKey();
+				sTemp << GET_PLAYER(static_cast<PlayerTypes>(iChoice)).getCivilizationShortDescriptionKey();
 				s = sTemp.toUTF8();
 			}
 			break;
@@ -63,7 +63,7 @@ CvString LeagueHelpers::GetTextForChoice(ResolutionDecisionTypes eDecision, int 
 		}
 	case RESOLUTION_DECISION_ANY_LUXURY_RESOURCE:
 		{		
-			CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes)iChoice);
+			CvResourceInfo* pInfo = GC.getResourceInfo(static_cast<ResourceTypes>(iChoice));
 			CvAssertMsg(pInfo != NULL, "Unexpected choice when handling a decision on a resource. Please send Anton your save file and version.");
 			if (pInfo != NULL)
 			{
@@ -75,9 +75,9 @@ CvString LeagueHelpers::GetTextForChoice(ResolutionDecisionTypes eDecision, int 
 		}
 	case RESOLUTION_DECISION_RELIGION:
 		{
-			CvReligionEntry* pInfo = GC.getReligionInfo((ReligionTypes)iChoice);
+			CvReligionEntry* pInfo = GC.getReligionInfo(static_cast<ReligionTypes>(iChoice));
 			CvAssertMsg(pInfo != NULL, "Unexpected choice when handling a decision on a religion. Please send Anton your save file and version.");
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion((ReligionTypes)iChoice, NO_PLAYER);
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(static_cast<ReligionTypes>(iChoice), NO_PLAYER);
 			CvAssert(pReligion != NULL);
 			if (pInfo != NULL && pReligion != NULL)
 			{
@@ -89,7 +89,7 @@ CvString LeagueHelpers::GetTextForChoice(ResolutionDecisionTypes eDecision, int 
 		}
 	case RESOLUTION_DECISION_IDEOLOGY:
 		{
-			CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo((PolicyBranchTypes)iChoice);
+			CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo(static_cast<PolicyBranchTypes>(iChoice));
 			CvAssertMsg(pInfo != NULL, "Unexpected choice when handling a decision on an ideology. Please send Anton your save file and version.");
 			if (pInfo != NULL)
 			{
@@ -104,7 +104,7 @@ CvString LeagueHelpers::GetTextForChoice(ResolutionDecisionTypes eDecision, int 
 			if (iChoice >= 0 && iChoice < MAX_CIV_PLAYERS)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_RESOLUTION_CHOICE_CITY_CSD");
-				sTemp << GET_PLAYER((PlayerTypes)iChoice).getCivilizationShortDescriptionKey();
+				sTemp << GET_PLAYER(static_cast<PlayerTypes>(iChoice)).getCivilizationShortDescriptionKey();
 				s = sTemp.toUTF8();
 			}
 			break;
@@ -125,10 +125,10 @@ EraTypes LeagueHelpers::GetGameEraForTrigger()
 	EraTypes eMostAdvancedEra = NO_ERA;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		if (GET_PLAYER((PlayerTypes)i).isAlive())
+		if (GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive())
 		{
-			EraTypes e = GET_PLAYER((PlayerTypes)i).GetCurrentEra();
-			if (GET_PLAYER((PlayerTypes)i).GetCurrentEra() > eMostAdvancedEra)
+			EraTypes e = GET_PLAYER(static_cast<PlayerTypes>(i)).GetCurrentEra();
+			if (GET_PLAYER(static_cast<PlayerTypes>(i)).GetCurrentEra() > eMostAdvancedEra)
 			{
 				eMostAdvancedEra = e;
 			}
@@ -136,16 +136,16 @@ EraTypes LeagueHelpers::GetGameEraForTrigger()
 	}
 	if (eMostAdvancedEra - 1 > NO_ERA)
 	{
-		eGameEra = (EraTypes) ((int)eMostAdvancedEra - 1);
+		eGameEra = static_cast<EraTypes>((int)eMostAdvancedEra - 1);
 	}
 
 	// Unless half or more civs are in this era too, then it is this era
 	int iInMostAdvancedEra = 0;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		if (GET_PLAYER((PlayerTypes)i).isAlive())
+		if (GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive())
 		{
-			EraTypes e = GET_PLAYER((PlayerTypes)i).GetCurrentEra();
+			EraTypes e = GET_PLAYER(static_cast<PlayerTypes>(i)).GetCurrentEra();
 			CvAssert(e <= eMostAdvancedEra);
 			if (e == eMostAdvancedEra)
 			{
@@ -168,7 +168,7 @@ EraTypes LeagueHelpers::GetNextGameEraForTrigger()
 
 EraTypes LeagueHelpers::GetNextGameEraForTrigger(EraTypes eThisEra)
 {
-	EraTypes eNextEra = (EraTypes) ((int)eThisEra + 1);
+	EraTypes eNextEra = static_cast<EraTypes>((int)eThisEra + 1);
 
 	if (eNextEra >= GC.getNumEraInfos())
 	{
@@ -184,9 +184,9 @@ BuildingTypes LeagueHelpers::GetBuildingForTrigger(BuildingTypes eBuilding)
 	{
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
-			if (GET_PLAYER((PlayerTypes)i).isAlive())
+			if (GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive())
 			{
-				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)i);
+				CvPlayer &kPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
 				
 				CvCity* pLoopCity = NULL;
 				int iLoop = 0;
@@ -709,7 +709,7 @@ int CvVoterDecision::GetDecision()
 									break;
 								}
 
-								if ((PlayerTypes)vChoices.GetElement(i) == eHost)
+								if (static_cast<PlayerTypes>(vChoices.GetElement(i)) == eHost)
 								{
 									return eHost;
 								}
@@ -769,7 +769,7 @@ std::vector<int> CvVoterDecision::GetTopVotedChoices(int iNumTopChoices)
 		int iCurrentWeight = 0;
 		for (int i = 0; i < vChoices.size(); i++)
 		{
-			if ((int)vTopChoices.size() < iNumTopChoices)
+			if (static_cast<int>(vTopChoices.size()) < iNumTopChoices)
 			{
 				vTopChoices.push_back(vChoices.GetElement(i));
 				iCurrentWeight = vChoices.GetWeight(i);
@@ -1217,7 +1217,7 @@ bool CvEnactProposal::IsPassed(int iTotalSessionVotes)
 	}
 
 	int iQuorumPercent = pInfo->GetQuorumPercent();
-	bool bQuorum = ((float)GetVoterDecision()->GetVotesCast() / (float)iTotalSessionVotes) >= ((float)iQuorumPercent / 100.0f);
+	bool bQuorum = (static_cast<float>(GetVoterDecision()->GetVotesCast()) / static_cast<float>(iTotalSessionVotes)) >= (static_cast<float>(iQuorumPercent) / 100.0f);
 	if (!bQuorum)
 	{
 		return false;
@@ -1334,31 +1334,31 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 		eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 	{
-		eTargetPlayer = (PlayerTypes) GetProposerDecision()->GetDecision();
+		eTargetPlayer = static_cast<PlayerTypes>(GetProposerDecision()->GetDecision());
 	}
 	ResourceTypes eTargetLuxury = NO_RESOURCE;
 	if (eProposerDecision == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE)
 	{
-		CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes) GetProposerDecision()->GetDecision());
+		CvResourceInfo* pInfo = GC.getResourceInfo(static_cast<ResourceTypes>(GetProposerDecision()->GetDecision()));
 		if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
-			eTargetLuxury = (ResourceTypes) GetProposerDecision()->GetDecision();
+			eTargetLuxury = static_cast<ResourceTypes>(GetProposerDecision()->GetDecision());
 		}
 	}
 	ReligionTypes eTargetReligion = NO_RELIGION;
 	if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
 	{
-		eTargetReligion = (ReligionTypes) GetProposerDecision()->GetDecision();
+		eTargetReligion = static_cast<ReligionTypes>(GetProposerDecision()->GetDecision());
 	}
 	PolicyBranchTypes eTargetIdeology = NO_POLICY_BRANCH_TYPE;
 	if (eProposerDecision == RESOLUTION_DECISION_IDEOLOGY)
 	{
-		eTargetIdeology = (PolicyBranchTypes) GetProposerDecision()->GetDecision();
+		eTargetIdeology = static_cast<PolicyBranchTypes>(GetProposerDecision()->GetDecision());
 	}
 	PlayerTypes eTargetCityState = NO_PLAYER;
 	if (eProposerDecision == RESOLUTION_DECISION_CITY_CSD)
 	{
-		eTargetCityState = (PlayerTypes) GetProposerDecision()->GetDecision();
+		eTargetCityState = static_cast<PlayerTypes>(GetProposerDecision()->GetDecision());
 	}
 
 	// == Voter Choices ==
@@ -1369,7 +1369,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		eVoterDecision == RESOLUTION_DECISION_CITY_CSD ||
 		eVoterDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 	{
-		eVotedPlayer = (PlayerTypes) GetVoterDecision()->GetDecision();
+		eVotedPlayer = static_cast<PlayerTypes>(GetVoterDecision()->GetDecision());
 	}
 
 	// == One Time Effects ==
@@ -1408,7 +1408,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			int iNeutral = /*0*/ GD_INT_GET(MINOR_FRIENDSHIP_ANCHOR_DEFAULT);
 			for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 			{
-				PlayerTypes eMinor = (PlayerTypes) iMinor;
+				PlayerTypes eMinor = static_cast<PlayerTypes>(iMinor);
 				if(eMinor == NO_PLAYER)
 				{
 					continue;
@@ -1463,12 +1463,12 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		PlayerTypes eLoopMinor;
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			eLoopMajor = (PlayerTypes)iMajorLoop;
+			eLoopMajor = static_cast<PlayerTypes>(iMajorLoop);
 			if (GET_PLAYER(eLoopMajor).isAlive() && GET_PLAYER(eLoopMajor).isMajorCiv())
 			{
 				for (int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
-					eLoopMinor = (PlayerTypes)iMinorLoop;
+					eLoopMinor = static_cast<PlayerTypes>(iMinorLoop);
 					if (GET_PLAYER(eLoopMinor).isAlive() && GET_PLAYER(eLoopMinor).isMinorCiv())
 					{
 						if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetPermanentAlly() != eLoopMajor)
@@ -1493,7 +1493,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			bool bImmunity = false;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam && GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
 				{
 					bImmunity = true;
@@ -1504,7 +1504,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			{
 				for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 				{
-					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+					TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 					if (GET_TEAM(eLoopTeam).isAlive() && GET_TEAM(eLoopTeam).IsVassal(eTeam))
 					{
@@ -1515,7 +1515,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 						{
 							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 							{
-								PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+								PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 								if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 								{
@@ -1549,7 +1549,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
@@ -1566,7 +1566,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
@@ -1591,7 +1591,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		{
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 				if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
 					pPlayer->CheckForMonopoly(eResourceLoop);
@@ -1675,32 +1675,32 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		// Loop through all Great Person tile improvements
 		for (int i = 0; i < GC.getNumImprovementInfos(); i++)
 		{
-			CvImprovementEntry* pInfo = GC.getImprovementInfo((ImprovementTypes)i);
+			CvImprovementEntry* pInfo = GC.getImprovementInfo(static_cast<ImprovementTypes>(i));
 			if (pInfo != NULL && pInfo->IsCreatedByGreatPerson())
 			{
 				if (MOD_BALANCE_VP) 
 				{
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_FOOD, GetEffects()->iGreatPersonTileImprovementCulture);
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_GOLD, GetEffects()->iGreatPersonTileImprovementCulture);
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_PRODUCTION, GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_FOOD, GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_GOLD, GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_PRODUCTION, GetEffects()->iGreatPersonTileImprovementCulture);
 				}
 				else
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_CULTURE, GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_CULTURE, GetEffects()->iGreatPersonTileImprovementCulture);
 			}
 		}
 		// Refresh yield
 	}
 	if (GetEffects()->iLandmarkCulture != 0)
 	{
-		CvImprovementEntry* pLandmarkInfo = GC.getImprovementInfo((ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
+		CvImprovementEntry* pLandmarkInfo = GC.getImprovementInfo(static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK")));
 		if (pLandmarkInfo != NULL)
 		{
-			GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_CULTURE, GetEffects()->iLandmarkCulture);
+			GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_CULTURE, GetEffects()->iLandmarkCulture);
 
 			if (MOD_BALANCE_VP) 
 			{
-				GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_SCIENCE, GetEffects()->iLandmarkCulture);
-				GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_FAITH, GetEffects()->iLandmarkCulture);
+				GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_SCIENCE, GetEffects()->iLandmarkCulture);
+				GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_FAITH, GetEffects()->iLandmarkCulture);
 			}
 		}
 		// Refresh yield
@@ -1725,7 +1725,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				PolicyBranchTypes eOurIdeology = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -1761,31 +1761,31 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 		eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 	{
-		eTargetPlayer = (PlayerTypes) GetProposerDecision()->GetDecision();
+		eTargetPlayer = static_cast<PlayerTypes>(GetProposerDecision()->GetDecision());
 	}
 	ResourceTypes eTargetLuxury = NO_RESOURCE;
 	if (eProposerDecision == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE)
 	{
-		CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes) GetProposerDecision()->GetDecision());
+		CvResourceInfo* pInfo = GC.getResourceInfo(static_cast<ResourceTypes>(GetProposerDecision()->GetDecision()));
 		if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
-			eTargetLuxury = (ResourceTypes) GetProposerDecision()->GetDecision();
+			eTargetLuxury = static_cast<ResourceTypes>(GetProposerDecision()->GetDecision());
 		}
 	}
 	ReligionTypes eTargetReligion = NO_RELIGION;
 	if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
 	{
-		eTargetReligion = (ReligionTypes) GetProposerDecision()->GetDecision();
+		eTargetReligion = static_cast<ReligionTypes>(GetProposerDecision()->GetDecision());
 	}
 	PolicyBranchTypes eTargetIdeology = NO_POLICY_BRANCH_TYPE;
 	if (eProposerDecision == RESOLUTION_DECISION_IDEOLOGY)
 	{
-		eTargetIdeology = (PolicyBranchTypes) GetProposerDecision()->GetDecision();
+		eTargetIdeology = static_cast<PolicyBranchTypes>(GetProposerDecision()->GetDecision());
 	}
 	PlayerTypes eTargetCityState = NO_PLAYER;
 	if (eProposerDecision == RESOLUTION_DECISION_CITY_CSD)
 	{
-		eTargetCityState = (PlayerTypes) GetProposerDecision()->GetDecision();
+		eTargetCityState = static_cast<PlayerTypes>(GetProposerDecision()->GetDecision());
 	}
 
 	// == One Time Effects are not removed ==
@@ -1817,7 +1817,7 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		{
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 				if(!GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
 					pPlayer->CheckForMonopoly(eResourceLoop);
@@ -1892,32 +1892,32 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		// Loop through all Great Person tile improvements
 		for (int i = 0; i < GC.getNumImprovementInfos(); i++)
 		{
-			CvImprovementEntry* pInfo = GC.getImprovementInfo((ImprovementTypes)i);
+			CvImprovementEntry* pInfo = GC.getImprovementInfo(static_cast<ImprovementTypes>(i));
 			if (pInfo != NULL && pInfo->IsCreatedByGreatPerson())
 			{
 				if (MOD_BALANCE_VP) 
 				{
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_FOOD, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_GOLD, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_PRODUCTION, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_FOOD, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_GOLD, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_PRODUCTION, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
 				}
 				else
-					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_CULTURE, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
+					GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pInfo->GetID()), YIELD_CULTURE, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
 			}
 		}
 		// Refresh yield
 	}
 	if (GetEffects()->iLandmarkCulture != 0)
 	{
-		CvImprovementEntry* pLandmarkInfo = GC.getImprovementInfo((ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
+		CvImprovementEntry* pLandmarkInfo = GC.getImprovementInfo(static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK")));
 		if (pLandmarkInfo != NULL)
 		{
-			GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_CULTURE, -1 * GetEffects()->iLandmarkCulture);
+			GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_CULTURE, -1 * GetEffects()->iLandmarkCulture);
 
 			if (MOD_BALANCE_VP) 
 			{
-				GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_SCIENCE, -1 * GetEffects()->iLandmarkCulture);
-				GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pLandmarkInfo->GetID(), YIELD_FAITH, -1 * GetEffects()->iLandmarkCulture);
+				GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_SCIENCE, -1 * GetEffects()->iLandmarkCulture);
+				GET_PLAYER(ePlayer).changeImprovementYieldChange(static_cast<ImprovementTypes>(pLandmarkInfo->GetID()), YIELD_FAITH, -1 * GetEffects()->iLandmarkCulture);
 			}
 		}
 		// Refresh yield
@@ -2027,7 +2027,7 @@ bool CvRepealProposal::IsPassed(int iTotalSessionVotes)
 	}
 
 	int iQuorumPercent = pInfo->GetQuorumPercent();
-	bool bQuorum = ((float)GetRepealDecision()->GetVotesCast() / (float)iTotalSessionVotes) >= ((float)iQuorumPercent / 100.0f);
+	bool bQuorum = (static_cast<float>(GetRepealDecision()->GetVotesCast()) / static_cast<float>(iTotalSessionVotes)) >= (static_cast<float>(iQuorumPercent) / 100.0f);
 	if (!bQuorum)
 	{
 		return false;
@@ -2414,7 +2414,7 @@ void CvLeague::ResetTurnsUntilSession()
 
 int CvLeague::GetTurnsUntilVictorySession()
 {
-	VictoryTypes eDiploVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+	VictoryTypes eDiploVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	if (eDiploVictory == NO_VICTORY)
 	{
 		return 999;
@@ -3029,7 +3029,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 	{
 		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 		{
-			if (it->GetEffects()->bSphereOfInfluence && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			if (it->GetEffects()->bSphereOfInfluence && (static_cast<PlayerTypes>(iChoice) == static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision())))
 			{
 				if (sTooltipSink != NULL)
 				{
@@ -3042,7 +3042,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 		{
-			if (it->GetEffects()->bSphereOfInfluence && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			if (it->GetEffects()->bSphereOfInfluence && (static_cast<PlayerTypes>(iChoice) == static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision())))
 			{
 				if (sTooltipSink != NULL)
 				{
@@ -3056,7 +3056,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 	}
 	if (pInfo->IsSphereOfInfluence())
 	{
-		PlayerTypes eMinor = (PlayerTypes)iChoice;
+		PlayerTypes eMinor = static_cast<PlayerTypes>(iChoice);
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != eProposer)
 		{
 			if (sTooltipSink != NULL)
@@ -3069,7 +3069,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 		{
-			if (it->GetEffects()->bOpenDoor && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			if (it->GetEffects()->bOpenDoor && (static_cast<PlayerTypes>(iChoice) == static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision())))
 			{
 				if (sTooltipSink != NULL)
 				{
@@ -3082,7 +3082,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 		{
-			if (it->GetEffects()->bOpenDoor && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			if (it->GetEffects()->bOpenDoor && (static_cast<PlayerTypes>(iChoice) == static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision())))
 			{
 				if (sTooltipSink != NULL)
 				{
@@ -3242,7 +3242,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 
 	if (pInfo->IsDiplomaticVictory())
 	{
-		VictoryTypes eDiploVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+		VictoryTypes eDiploVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 		if (eDiploVictory == NO_VICTORY)
 		{
 			if (sTooltipSink != NULL)
@@ -3270,7 +3270,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 		{
 			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 			{
-				LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+				LeagueSpecialSessionTypes e = static_cast<LeagueSpecialSessionTypes>(i);
 				CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
 				if(pSessionInfo->IsUnitedNations())
 				{
@@ -3304,7 +3304,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 	}
 	if (pInfo->IsEmbargoPlayer())
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes) iProposerChoice;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(iProposerChoice);
 		CvAssert(eTargetPlayer >= 0 && eTargetPlayer < MAX_MAJOR_CIVS);
 		if (eTargetPlayer >= 0 && eTargetPlayer < MAX_MAJOR_CIVS)
 		{
@@ -3389,7 +3389,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 			}
 			return false;
 		}
-		PlayerTypes eTargetPlayer = (PlayerTypes) iProposerChoice;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(iProposerChoice);
 		if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
 		{
 			return false;
@@ -3439,7 +3439,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 		bool bValid = false;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if ((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetNumVassals() > 0)
@@ -3618,10 +3618,10 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 	case RESOLUTION_DECISION_ANY_LUXURY_RESOURCE:
 		for (int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
-			CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes)i);
+			CvResourceInfo* pInfo = GC.getResourceInfo(static_cast<ResourceTypes>(i));
 			if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
-				if (GC.getMap().getNumResources((ResourceTypes)i) > 0)
+				if (GC.getMap().getNumResources(static_cast<ResourceTypes>(i)) > 0)
 				{
 					vChoices.push_back(i);
 				}
@@ -3652,7 +3652,7 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 	case RESOLUTION_DECISION_RELIGION:
 		for (uint i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
-			PlayerTypes e = (PlayerTypes) i;
+			PlayerTypes e = static_cast<PlayerTypes>(i);
 
 			if (GET_PLAYER(e).isAlive() && GET_PLAYER(e).GetReligions()->HasCreatedReligion(true))
 			{
@@ -3663,7 +3663,7 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 	case RESOLUTION_DECISION_IDEOLOGY:
 		for (int i = 0; i < GC.getNumPolicyBranchInfos(); i++)
 		{
-			CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo((PolicyBranchTypes)i);
+			CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo(static_cast<PolicyBranchTypes>(i));
 			if (pInfo != NULL)
 			{
 				if (pInfo->IsPurchaseByLevel())
@@ -3699,7 +3699,7 @@ std::vector<ResolutionTypes> CvLeague::GetInactiveResolutions() const
 	std::vector<ResolutionTypes> v;
 	for (int i = 0; i < GC.getNumResolutionInfos(); i++)
 	{
-		ResolutionTypes e = (ResolutionTypes)i;
+		ResolutionTypes e = static_cast<ResolutionTypes>(i);
 		CvResolutionEntry* pInfo = GC.getResolutionInfo(e);
 		if (pInfo)
 		{
@@ -3970,7 +3970,7 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 						PlayerTypes eLoopPlayer;
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != eFromPlayer))
 							{
 								iNumVotes += GET_PLAYER(eFromPlayer).GetLeagueAI()->GetVoteCommitment(eLoopPlayer, it->GetID(), vChoices[i], /*bEnact*/ true);
@@ -4103,7 +4103,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	{
 		for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 		{
-			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+			LeagueSpecialSessionTypes e = static_cast<LeagueSpecialSessionTypes>(i);
 			CvLeagueSpecialSessionEntry* pLoopInfo = GC.getLeagueSpecialSessionInfo(e);
 
 			if (pLoopInfo && pLoopInfo->IsUnitedNations())
@@ -4126,7 +4126,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iNumMinorsFollowingReligion = 0;
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 		if (!GET_PLAYER(eMinor).isAlive())
 			continue;
 
@@ -4163,7 +4163,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iDiplomatVotes = 0;
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
+		PlayerTypes eMajor = static_cast<PlayerTypes>(iMajorLoop);
 		if (GET_PLAYER(eMajor).isAlive())
 		{
 			if (GET_PLAYER(ePlayer).GetEspionage()->IsMyDiplomatVisitingThem(eMajor))
@@ -4768,7 +4768,7 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
 			if (pkProcessInfo)
 			{
-				TechTypes eTech = ((TechTypes)pkProcessInfo->getTechPrereq());
+				TechTypes eTech = static_cast<TechTypes>(pkProcessInfo->getTechPrereq());
 				if(eTech != NO_TECH)
 				{
 					const CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
@@ -4802,7 +4802,7 @@ int CvLeague::GetProjectBuildingCostPerPlayer(BuildingTypes eRewardBuilding) con
 	// Is it part of an international project?
 	for (int i = 0; i < GC.getNumLeagueProjectInfos(); i++)
 	{
-		LeagueProjectTypes eProject = (LeagueProjectTypes)i;
+		LeagueProjectTypes eProject = static_cast<LeagueProjectTypes>(i);
 		CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eProject);
 		if (pProjectInfo != NULL && pProjectInfo->GetRewardTier3() != NO_LEAGUE_PROJECT_REWARD) // Only check top reward tier
 		{
@@ -4845,7 +4845,7 @@ int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
 			{
 				for (uint i = 0; i < pProject->vProductionList.size(); i++)
 				{
-					PlayerTypes ePlayer = (PlayerTypes)i;
+					PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 					int iCivProgress = pProject->vProductionList[i];
 
 					if (GET_PLAYER(ePlayer).isMajorCiv())
@@ -4985,7 +4985,7 @@ void CvLeague::ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes 
 
 CvLeague::ContributionTier CvLeague::GetMemberContributionTier(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject)
 {
-	float fContribution = (float) GetMemberContribution(ePlayer, eLeagueProject, true);
+	float fContribution = static_cast<float>(GetMemberContribution(ePlayer, eLeagueProject, true));
 	ContributionTier eTier = CONTRIBUTION_TIER_0;
 	if (fContribution >= GetContributionTierThreshold(CONTRIBUTION_TIER_3, eLeagueProject))
 	{
@@ -5028,12 +5028,12 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 			for (uint i = 0; i < pProject->vProductionList.size(); i++)
 			{
 				int iContribution = pProject->vProductionList[i];
-				if (iContribution > iBestContribution && GET_PLAYER((PlayerTypes)i).isAlive() && IsMember((PlayerTypes)i))
+				if (iContribution > iBestContribution && GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive() && IsMember(static_cast<PlayerTypes>(i)))
 				{
 					iBestContribution = iContribution;
 				}
 			}
-			fThreshold = MAX((float)iBestContribution, GetProjectCostPerPlayer(eLeagueProject) * /*1.0f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD));
+			fThreshold = MAX(static_cast<float>(iBestContribution), GetProjectCostPerPlayer(eLeagueProject) * /*1.0f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD));
 			break;
 		}
 	default:
@@ -5063,7 +5063,7 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 		{			
 			if (it->GetEffects()->bEmbargoPlayer)
 			{
-				PlayerTypes eEmbargoedMajor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+				PlayerTypes eEmbargoedMajor = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 				CvAssert(eEmbargoedMajor != NO_PLAYER);
 				if (eEmbargoedMajor == eTrader || eEmbargoedMajor == eRecipient)
 				{
@@ -5094,7 +5094,7 @@ bool CvLeague::IsPlayerEmbargoed(PlayerTypes ePlayer)
 				return true;
 			}
 		} else {			
-			if (it->GetEffects()->bEmbargoPlayer && ePlayer == (PlayerTypes) it->GetProposerDecision()->GetDecision()) {
+			if (it->GetEffects()->bEmbargoPlayer && ePlayer == static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision())) {
 				return true;
 			}
 		}
@@ -5265,7 +5265,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 	{
 		if (it->GetEffects()->iVotesForFollowingReligion != 0)
 		{
-			ReligionTypes eReligion = (ReligionTypes) it->GetProposerDecision()->GetDecision();
+			ReligionTypes eReligion = static_cast<ReligionTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eReligion != NO_RELIGION);
 
 			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion() == eReligion))
@@ -5281,7 +5281,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						PlayerTypes eLoopPlayer;
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
 								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
@@ -5323,7 +5323,7 @@ int CvLeague::GetCityTourismModifier(const CvCity* pCity)
 		// Holy City tourism
 		if (it->GetEffects()->iHolyCityTourism != 0)
 		{
-			ReligionTypes eReligion = (ReligionTypes) it->GetProposerDecision()->GetDecision();
+			ReligionTypes eReligion = static_cast<ReligionTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eReligion != NO_RELIGION);
 			if (pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
@@ -5341,7 +5341,7 @@ int CvLeague::GetReligionSpreadStrengthModifier(ReligionTypes eReligion)
 	{
 		if (it->GetEffects()->iReligionSpreadStrengthMod != 0)
 		{
-			ReligionTypes e = (ReligionTypes) it->GetProposerDecision()->GetDecision();
+			ReligionTypes e = static_cast<ReligionTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(e != NO_RELIGION);
 			if (e != NO_RELIGION && e == eReligion)
 			{
@@ -5359,7 +5359,7 @@ int CvLeague::GetExtraVotesForFollowingIdeology(PlayerTypes ePlayer)
 	{
 		if (it->GetEffects()->iVotesForFollowingIdeology != 0)
 		{
-			PolicyBranchTypes eIdeology = (PolicyBranchTypes) it->GetProposerDecision()->GetDecision();
+			PolicyBranchTypes eIdeology = static_cast<PolicyBranchTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eIdeology != NO_POLICY_BRANCH_TYPE);
 			PolicyBranchTypes ePlayerIdeology = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 			if (ePlayerIdeology != NO_POLICY_BRANCH_TYPE && eIdeology != NO_POLICY_BRANCH_TYPE && ePlayerIdeology == eIdeology)
@@ -5370,7 +5370,7 @@ int CvLeague::GetExtraVotesForFollowingIdeology(PlayerTypes ePlayer)
 					int iIdeologyAlly = 0;
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 						if (GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == eIdeology && (eLoopPlayer != ePlayer))
 						{
 							iIdeologyAlly++;
@@ -5394,7 +5394,7 @@ int CvLeague::GetPressureForIdeology(PolicyBranchTypes eIdeology)
 	{
 		if (it->GetEffects()->iOtherIdeologyRebellionMod != 0)
 		{
-			PolicyBranchTypes e = (PolicyBranchTypes) it->GetProposerDecision()->GetDecision();
+			PolicyBranchTypes e = static_cast<PolicyBranchTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(e != NO_POLICY_BRANCH_TYPE);
 			if (e != NO_POLICY_BRANCH_TYPE && eIdeology != NO_POLICY_BRANCH_TYPE && e == eIdeology)
 			{
@@ -5546,7 +5546,7 @@ bool CvLeague::IsSphereOfInfluenceActive(PlayerTypes eTargetMinor, PlayerTypes e
 	{
 		if (it->GetEffects()->bSphereOfInfluence)
 		{
-			PlayerTypes eSphereMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			PlayerTypes eSphereMinor = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 			if (eSphereMinor == eTargetMinor)
 			{
 				PlayerTypes eAlly = GET_PLAYER(eTargetMinor).GetMinorCivAI()->GetPermanentAlly();
@@ -5571,7 +5571,7 @@ bool CvLeague::IsOpenDoorActive(PlayerTypes eTargetMinor)
 	{
 		if (it->GetEffects()->bOpenDoor)
 		{
-			PlayerTypes eOpenMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			PlayerTypes eOpenMinor = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 			if (eOpenMinor == eTargetMinor)
 				return true;
 		}
@@ -6396,7 +6396,7 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							iNumVotes += GET_PLAYER(eMember).GetLeagueAI()->GetVoteCommitment((PlayerTypes)iPlayerLoop, it->GetID(), vChoices[i], /*bEnact*/ true);
+							iNumVotes += GET_PLAYER(eMember).GetLeagueAI()->GetVoteCommitment(static_cast<PlayerTypes>(iPlayerLoop), it->GetID(), vChoices[i], /*bEnact*/ true);
 						}
 					}
 					if (iNumVotes > 0)
@@ -6421,7 +6421,7 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							iNumVotes += GET_PLAYER(eMember).GetLeagueAI()->GetVoteCommitment((PlayerTypes)iPlayerLoop, it->GetID(), vChoices[i], /*bEnact*/ false);
+							iNumVotes += GET_PLAYER(eMember).GetLeagueAI()->GetVoteCommitment(static_cast<PlayerTypes>(iPlayerLoop), it->GetID(), vChoices[i], /*bEnact*/ false);
 						}
 					}
 					if (iNumVotes > 0)
@@ -6472,7 +6472,7 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 	// Total cost
 	if (eObserver != NO_PLAYER && IsProjectActive(eProject) && GetProjectCost(eProject)>0)
 	{
-		int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
+		int iPercentCompleted = static_cast<int>(((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
 		iPercentCompleted = MIN(100, iPercentCompleted);
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_PROGRESS_COST");
 		sTemp << iPercentCompleted;
@@ -6624,21 +6624,21 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 
 		if (it->GetEffects()->bEmbargoPlayer)
 		{
-			PlayerTypes eEmbargoedPlayer = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			PlayerTypes eEmbargoedPlayer = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eEmbargoedPlayer != NO_PLAYER);
 			veEmbargoedPlayers.push_back(eEmbargoedPlayer);
 		}
 
 		if (it->GetEffects()->bNoResourceHappiness)
 		{
-			ResourceTypes eBannedResource = (ResourceTypes) it->GetProposerDecision()->GetDecision();
+			ResourceTypes eBannedResource = static_cast<ResourceTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eBannedResource != NO_RESOURCE);
 			veBannedResources.push_back(eBannedResource);
 		}
 
 		if (it->GetEffects()->iVotesForFollowingReligion != 0)
 		{
-			ReligionTypes eReligion = (ReligionTypes) it->GetProposerDecision()->GetDecision();
+			ReligionTypes eReligion = static_cast<ReligionTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eReligion != NO_RELIGION);
 			CvAssert(eWorldReligion == NO_RELIGION);
 			eWorldReligion = eReligion;
@@ -6646,20 +6646,20 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 
 		if (it->GetEffects()->iVotesForFollowingIdeology != 0)
 		{
-			PolicyBranchTypes eIdeology = (PolicyBranchTypes) it->GetProposerDecision()->GetDecision();
+			PolicyBranchTypes eIdeology = static_cast<PolicyBranchTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eIdeology != NO_POLICY_BRANCH_TYPE);
 			CvAssert(eWorldIdeology == NO_POLICY_BRANCH_TYPE);
 			eWorldIdeology = eIdeology;
 		}
 		if (it->GetEffects()->bOpenDoor)
 		{
-			PlayerTypes eOpenMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			PlayerTypes eOpenMinor = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eOpenMinor != NO_PLAYER);
 			veOpenMinors.push_back(eOpenMinor);
 		}
 		if (it->GetEffects()->bSphereOfInfluence)
 		{
-			PlayerTypes eSphereMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			PlayerTypes eSphereMinor = static_cast<PlayerTypes>(it->GetProposerDecision()->GetDecision());
 			CvAssert(eSphereMinor != NO_PLAYER);
 			vePermanentMinors.push_back(eSphereMinor);
 		}
@@ -6872,7 +6872,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << iMod;
 		
 		CvString sList = "";
-		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"));
+		CvUnitClassInfo* pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_WRITER")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -6881,7 +6881,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
 		}
-		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"));
+		pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ARTIST")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -6890,7 +6890,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
 		}
-		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"));
+		pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_MUSICIAN")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -6910,7 +6910,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << iMod;
 
 		CvString sList = "";
-		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
+		CvUnitClassInfo* pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_SCIENTIST")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -6919,7 +6919,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
 		}
-		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
+		pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ENGINEER")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -6928,7 +6928,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
 		}
-		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
+		pInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_MERCHANT")));
 		if (pInfo != NULL)
 		{
 			if (!sList.empty())
@@ -7045,7 +7045,7 @@ CvString CvLeague::GetLeagueSplashThisEraDetails(LeagueSpecialSessionTypes eGove
 
 		if (pInfo->IsUnitedNations())
 		{
-			VictoryTypes eDiploVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+			VictoryTypes eDiploVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 			if (eDiploVictory != NO_VICTORY)
 			{
 				if (GC.getGame().isVictoryValid(eDiploVictory))
@@ -7076,7 +7076,7 @@ CvString CvLeague::GetLeagueSplashNextEraDetails(LeagueSpecialSessionTypes eGove
 		EraTypes eNextEra = LeagueHelpers::GetNextGameEraForTrigger(pThisSessionInfo->GetEraTrigger());
 		for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 		{
-			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+			LeagueSpecialSessionTypes e = static_cast<LeagueSpecialSessionTypes>(i);
 			CvLeagueSpecialSessionEntry* p = GC.getLeagueSpecialSessionInfo(e);
 			if (p != NULL && p->GetEraTrigger() == eNextEra)
 			{
@@ -7107,7 +7107,7 @@ CvString CvLeague::GetLeagueSplashNextEraDetails(LeagueSpecialSessionTypes eGove
 
 		if (pInfo->IsUnitedNations())
 		{
-			VictoryTypes eDiploVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+			VictoryTypes eDiploVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 			if (eDiploVictory != NO_VICTORY)
 			{
 				if (GC.getGame().isVictoryValid(eDiploVictory))
@@ -7225,7 +7225,7 @@ void CvLeague::StartSession()
 	AssignStartingVotes();
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = PlayerTypes(iPlayerLoop);
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
 		{
 			int iDelegates = CalculateStartingVotesForMember(ePlayer);
@@ -7378,7 +7378,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7469,7 +7469,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7552,7 +7552,7 @@ void CvLeague::FinishSession()
 					// AI players update their voting history scores for each other player
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 							continue;
 						if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7631,7 +7631,7 @@ void CvLeague::FinishSession()
 					// AI players update their voting history scores for each other player
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 							continue;
 						if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7723,7 +7723,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7814,7 +7814,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -7924,7 +7924,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -8008,7 +8008,7 @@ void CvLeague::FinishSession()
 						// AI players update their voting history scores for each other player
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (GET_PLAYER(eLoopPlayer).GetID() == GET_PLAYER(*playerIt).GetID())
@@ -8083,7 +8083,7 @@ void CvLeague::FinishSession()
 						std::vector<int> vBonusVotePlayers = it->GetVoterDecision()->GetTopVotedChoices(/*2 in CP, 1 in CSD*/ GD_INT_GET(LEAGUE_NUM_LEADERS_FOR_EXTRA_VOTES));
 						for (uint i = 0; i < vBonusVotePlayers.size(); i++)
 						{
-							Member* pMember = GetMember((PlayerTypes)vBonusVotePlayers[i]);
+							Member* pMember = GetMember(static_cast<PlayerTypes>(vBonusVotePlayers[i]));
 							CvAssert(pMember != NULL);
 							if (pMember != NULL)
 							{
@@ -8141,7 +8141,7 @@ void CvLeague::FinishSession()
 	// AI should reevaluate its approaches after a World Congress vote
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 			continue;
@@ -8431,7 +8431,7 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 		// World Leader results are handled a little differently
 		if (pProposal->IsPassed(GetVotesSpentThisSession()))
 		{
-			PlayerTypes eWinner = (PlayerTypes) pProposal->GetVoterDecision()->GetDecision();
+			PlayerTypes eWinner = static_cast<PlayerTypes>(pProposal->GetVoterDecision()->GetDecision());
 			CvAssert(eWinner != NO_PLAYER);
 			if (eWinner != NO_PLAYER)
 			{
@@ -8466,7 +8466,7 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 		CvAssert(pProposal->IsPassed(GetVotesSpentThisSession()));
 		if (pProposal->IsPassed(GetVotesSpentThisSession()))
 		{
-			eNewHost = (PlayerTypes) pProposal->GetVoterDecision()->GetDecision();
+			eNewHost = static_cast<PlayerTypes>(pProposal->GetVoterDecision()->GetDecision());
 		}
 
 		CvString sHostKey = "Nobody";
@@ -8527,7 +8527,7 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
@@ -8568,7 +8568,7 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
@@ -8622,7 +8622,7 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
@@ -8635,7 +8635,7 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 					Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE_TT");
 					sMessage << pInfo->GetDescriptionKey();
 
-					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
+					pNotifications->Add(static_cast<NotificationTypes>(FString::Hash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE")), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
 				}
 			}
 		}
@@ -8659,7 +8659,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
-						int iPercentCompleted = (int) ((float)GetProjectProgress(eProject) / max(1,GetProjectCost(eProject)) * 100);
+						int iPercentCompleted = static_cast<int>((float)GetProjectProgress(eProject) / max(1, GetProjectCost(eProject)) * 100);
 						iPercentCompleted = MIN(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
@@ -8668,7 +8668,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 						Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS_TT");
 						sMessage << pInfo->GetDescriptionKey() << iPercentCompleted;
 
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_PROGRESS"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
+						pNotifications->Add(static_cast<NotificationTypes>(FString::Hash("NOTIFICATION_LEAGUE_PROJECT_PROGRESS")), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
 					}
 				}
 			}
@@ -8699,7 +8699,7 @@ void CvLeague::CheckProjectsProgress()
 				//We do the process production here, as otherwise some players might be skipped!
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+					PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 					if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
 						continue;
 
@@ -8749,7 +8749,7 @@ void CvLeague::CheckProjectsProgress()
 				// How close is it?
 				else
 				{
-					int iPercentCompleted = (int) (((float)iTotal / max(1,iNeeded)) * 100);
+					int iPercentCompleted = static_cast<int>(((float)iTotal / max(1, iNeeded)) * 100);
 					iPercentCompleted = MIN(100, iPercentCompleted);
 
 					if (!it->bProgressWarningSent && iPercentCompleted >= /*33 in CP, 25 in CSD*/ GD_INT_GET(LEAGUE_PROJECT_PROGRESS_PERCENT_WARNING))
@@ -8883,7 +8883,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		{
 			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
+				PlayerTypes eMinorCivLoop = static_cast<PlayerTypes>(iMinorCivLoop);
 				if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
 				{
 					GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor(ePlayer, pRewardInfo->GetCityStateInfluenceBoost());
@@ -8957,10 +8957,10 @@ void CvLeague::UpdateName()
 {
 	// Roll for a new name type
 	int iRoll = GC.getGame().randRangeExclusive(0, GC.getNumLeagueNameInfos(), CvSeeder::fromRaw(0xe4003ea2).mix(GET_PLAYER(m_eHost).GetID()));
-	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo((LeagueNameTypes)iRoll);
+	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo(static_cast<LeagueNameTypes>(iRoll));
 	if (pInfo)
 	{
-		m_eAssignedName = (LeagueNameTypes) GC.getInfoTypeForString(pInfo->GetType());
+		m_eAssignedName = static_cast<LeagueNameTypes>(GC.getInfoTypeForString(pInfo->GetType()));
 	}
 }
 
@@ -9198,7 +9198,7 @@ void CvGameLeagues::DoTurn()
 			// Has any living major civ met every other living major civ?
 			for (int iCiv = 0; iCiv < MAX_MAJOR_CIVS; iCiv++)
 			{
-				PlayerTypes eCiv = (PlayerTypes) iCiv;
+				PlayerTypes eCiv = static_cast<PlayerTypes>(iCiv);
 				if (GET_PLAYER(eCiv).isAlive())
 				{
 					// Has the unlock from tech?
@@ -9208,7 +9208,7 @@ void CvGameLeagues::DoTurn()
 						bool bMetEveryone = true;
 						for (int iOtherCiv = 0; iOtherCiv < MAX_MAJOR_CIVS; iOtherCiv++)
 						{
-							PlayerTypes eOtherCiv = (PlayerTypes) iOtherCiv;
+							PlayerTypes eOtherCiv = static_cast<PlayerTypes>(iOtherCiv);
 							if (eCiv != eOtherCiv && GET_PLAYER(eOtherCiv).isAlive())
 							{
 								if (!GET_TEAM(GET_PLAYER(eCiv).getTeam()).isHasMet(GET_PLAYER(eOtherCiv).getTeam()))
@@ -9237,7 +9237,7 @@ void CvGameLeagues::DoTurn()
 			{
 				for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 				{
-					CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo((LeagueSpecialSessionTypes)i);
+					CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(static_cast<LeagueSpecialSessionTypes>(i));
 					if (pInfo != NULL)
 					{
 						EraTypes eSessionTrigger = pInfo->GetEraTrigger();
@@ -9249,11 +9249,11 @@ void CvGameLeagues::DoTurn()
 								BuildingTypes eBuilding = LeagueHelpers::GetBuildingForTrigger(pInfo->GetBuildingTrigger());
 								if (eBuilding != NO_BUILDING)
 								{
-									eSpecialSession = (LeagueSpecialSessionTypes)i;
+									eSpecialSession = static_cast<LeagueSpecialSessionTypes>(i);
 								}
 							}
 							else
-								eSpecialSession = (LeagueSpecialSessionTypes)i;
+								eSpecialSession = static_cast<LeagueSpecialSessionTypes>(i);
 						}
 					}
 				}
@@ -9297,7 +9297,7 @@ void CvGameLeagues::DoTurn()
 	}
 	else
 	{
-		VictoryTypes eDiploVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+		VictoryTypes eDiploVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 		if (eDiploVictory != NO_VICTORY)
 		{
 			CvAssertMsg(!GC.getGame().isVictoryValid(eDiploVictory), "Diplomacy victory is valid, but leagues are disabled.  Please send Anton your save file and version.");
@@ -9418,12 +9418,12 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 		CvAssertMsg(GetNumActiveLeagues() == 0, "Trying to found a second league when one is already active. Please send Anton your save file and version.");
 		if (GetNumActiveLeagues() == 0)
 		{
-			CvLeague league((LeagueTypes)m_iNumLeaguesEverFounded++);
+			CvLeague league(static_cast<LeagueTypes>(m_iNumLeaguesEverFounded++));
 			
 			// Add all living players as members
 			for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes) i;
+				PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 				if (GET_PLAYER(ePlayer).isAlive())
 				{
 					league.AddMember(ePlayer);
@@ -9441,7 +9441,7 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 			EraTypes eLatestEraTrigger = NO_ERA;
 			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 			{
-				CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo((LeagueSpecialSessionTypes)i);
+				CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(static_cast<LeagueSpecialSessionTypes>(i));
 				if (pInfo != NULL)
 				{
 					if (MOD_BALANCE_VP) 
@@ -9454,26 +9454,26 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 						}
 					}
 
-					if (eEarliestEraTrigger == NO_ERA || (int)pInfo->GetEraTrigger() < (int)eEarliestEraTrigger)
+					if (eEarliestEraTrigger == NO_ERA || static_cast<int>(pInfo->GetEraTrigger()) < static_cast<int>(eEarliestEraTrigger))
 					{
 						eEarliestEraTrigger = pInfo->GetEraTrigger();
 					}
-					if ((int)pInfo->GetEraTrigger() > (int)eLatestEraTrigger)
+					if (static_cast<int>(pInfo->GetEraTrigger()) > static_cast<int>(eLatestEraTrigger))
 					{
 						eLatestEraTrigger = pInfo->GetEraTrigger();
 					}
 				}
 			}
 			// In case the game era is actually before or after the triggers in the database
-			EraTypes eGoverningEraTrigger = (EraTypes) MAX((int)LeagueHelpers::GetGameEraForTrigger(), (int)eEarliestEraTrigger);
-			eGoverningEraTrigger = (EraTypes) MIN((int)eGoverningEraTrigger, (int)eLatestEraTrigger);
+			EraTypes eGoverningEraTrigger = static_cast<EraTypes>(MAX((int)LeagueHelpers::GetGameEraForTrigger(), (int)eEarliestEraTrigger));
+			eGoverningEraTrigger = static_cast<EraTypes>(MIN((int)eGoverningEraTrigger, (int)eLatestEraTrigger));
 
 			// Find which special session info this league begins at
 			LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 			bool bBeginAsUnitedNations = false;
 			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 			{
-				LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+				LeagueSpecialSessionTypes e = static_cast<LeagueSpecialSessionTypes>(i);
 				CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(e);
 				if (pInfo != NULL)
 				{
@@ -10968,7 +10968,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
 	}
 
-	int iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(ePlayer), (int)pDiplo->GetVictoryBlockLevel(ePlayer));
+	int iDisputeLevel = max(static_cast<int>(pDiplo->GetVictoryDisputeLevel(ePlayer)), static_cast<int>(pDiplo->GetVictoryBlockLevel(ePlayer)));
 	if (iDisputeLevel > 0)
 	{
 		iAlignment -= iDisputeLevel;
@@ -11498,7 +11498,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 	int iVotesAllOthersCombined = 0;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer))
 			continue;
 
@@ -11831,37 +11831,37 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 		eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 	{
-		eTargetPlayer = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
+		eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 	}
 	ResourceTypes eTargetLuxury = NO_RESOURCE;
 	if (eProposerDecision == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE)
 	{
-		CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes) pProposal->GetProposerDecision()->GetDecision());
+		CvResourceInfo* pInfo = GC.getResourceInfo(static_cast<ResourceTypes>(pProposal->GetProposerDecision()->GetDecision()));
 		if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
-			eTargetLuxury = (ResourceTypes) pProposal->GetProposerDecision()->GetDecision();
+			eTargetLuxury = static_cast<ResourceTypes>(pProposal->GetProposerDecision()->GetDecision());
 		}
 	}
 	ReligionTypes eTargetReligion = NO_RELIGION;
 	if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
 	{
-		eTargetReligion = (ReligionTypes) pProposal->GetProposerDecision()->GetDecision();
+		eTargetReligion = static_cast<ReligionTypes>(pProposal->GetProposerDecision()->GetDecision());
 	}
 	PolicyBranchTypes eTargetIdeology = NO_POLICY_BRANCH_TYPE;
 	if (eProposerDecision == RESOLUTION_DECISION_IDEOLOGY)
 	{
-		eTargetIdeology = (PolicyBranchTypes) pProposal->GetProposerDecision()->GetDecision();
+		eTargetIdeology = static_cast<PolicyBranchTypes>(pProposal->GetProposerDecision()->GetDecision());
 	}
 	PlayerTypes eTargetCityState = NO_PLAYER;
 	if (eProposerDecision == RESOLUTION_DECISION_CITY_CSD)
 	{
-		eTargetCityState = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
+		eTargetCityState = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 	}
 
 	PlayerTypes eProposer = pProposal->GetProposalPlayer();
-	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
-	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
-	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true));
+	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid(static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)));
+	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid(static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)));
+	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid(static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_CULTURAL", true)));
 	int iExtra = 0;
 	int iGameEra = GC.getGame().getCurrentEra();
 
@@ -11870,12 +11870,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	LeagueProjectTypes eProject = pProposal->GetEffects()->eLeagueProjectEnabled;
 	if (eProject != NO_LEAGUE_PROJECT)
 	{
-		LeagueProjectTypes eWorldsFair = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_WORLD_FAIR", true);
-		LeagueProjectTypes eInternationalGames = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_WORLD_GAMES", true);
-		LeagueProjectTypes eInternationalSpaceStation = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION", true);
-		LeagueProjectTypes eTreasureFleet = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_TREASURE_FLEET", true);
-		LeagueProjectTypes eWargames = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_WARGAMES", true);
-		LeagueProjectTypes eUN = (LeagueProjectTypes)GC.getInfoTypeForString("LEAGUE_PROJECT_UNITED_NATIONS", true);
+		LeagueProjectTypes eWorldsFair = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_WORLD_FAIR", true));
+		LeagueProjectTypes eInternationalGames = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_WORLD_GAMES", true));
+		LeagueProjectTypes eInternationalSpaceStation = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION", true));
+		LeagueProjectTypes eTreasureFleet = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_TREASURE_FLEET", true));
+		LeagueProjectTypes eWargames = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_WARGAMES", true));
+		LeagueProjectTypes eUN = static_cast<LeagueProjectTypes>(GC.getInfoTypeForString("LEAGUE_PROJECT_UNITED_NATIONS", true));
 
 		iExtra = 0;
 		// Production might
@@ -11887,7 +11887,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iPercentofWinning = 0;
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
-			PlayerTypes e = (PlayerTypes) i;
+			PlayerTypes e = static_cast<PlayerTypes>(i);
 			if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 			{
 				iAliveCivs++;
@@ -11985,7 +11985,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iOurTechs = 0;
 			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 			{
-				TeamTypes eTeam = (TeamTypes)iTeamLoop;
+				TeamTypes eTeam = static_cast<TeamTypes>(iTeamLoop);
 
 				if (GET_TEAM(eTeam).isAlive())
 				{
@@ -12033,7 +12033,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				int iHighestSeaMight = 0;
 				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 				{
-					PlayerTypes e = (PlayerTypes)i;
+					PlayerTypes e = static_cast<PlayerTypes>(i);
 					if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 					{
 						int iSeaMight = GET_PLAYER(e).GetMilitaryMight();
@@ -12065,9 +12065,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if (bCanGold)
 			{
 				int iImprovements = 0;
-				ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+				ImprovementTypes eLandmark = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
+				ImprovementTypes eFort = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_FORT"));
+				ImprovementTypes eCitadel = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_CITADEL"));
 				if (eLandmark != NO_IMPROVEMENT)
 				{
 					iImprovements += GetPlayer()->getImprovementCount(eLandmark);
@@ -12090,7 +12090,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				int iHighestMilitaryMight = 0;
 				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 				{
-					PlayerTypes e = (PlayerTypes)i;
+					PlayerTypes e = static_cast<PlayerTypes>(i);
 					if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 					{
 						int iMilitaryMight = GET_PLAYER(e).GetMilitaryMight();
@@ -12205,7 +12205,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iCivDestinations = 0;
 		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 		{
-			PlayerTypes e = (PlayerTypes) i;
+			PlayerTypes e = static_cast<PlayerTypes>(i);
 			if (e != GetPlayer()->GetID() && GET_PLAYER(e).isAlive())
 			{
 				if (GET_PLAYER(e).isMinorCiv())
@@ -12240,7 +12240,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		// Based on estimates, would we still have enough valid trade routes if this passed?	
 		int iPossibleRoutesAfter = iCivDestinations + GetPlayer()->getNumCities();
-		int iTradeRouteDeficit = ((int)GetPlayer()->GetTrade()->GetNumTradeRoutesPossible()) - iPossibleRoutesAfter;
+		int iTradeRouteDeficit = static_cast<int>(GetPlayer()->GetTrade()->GetNumTradeRoutesPossible()) - iPossibleRoutesAfter;
 		if (iTradeRouteDeficit > 0)
 		{
 			iExtra -= min(100 * iTradeRouteDeficit, 1000);
@@ -12267,7 +12267,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (eLoopPlayer != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster() != GetPlayer()->getTeam())
 				{
 					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eLoopPlayer, true))
@@ -12370,7 +12370,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				int iWarTargets = 0;
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+					PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GetPlayer()->getTeam() != GET_PLAYER(eLoopPlayer).getTeam())
 					{
@@ -12381,7 +12381,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							WarStateTypes eWarState = pDiploAI->GetWarState(eLoopPlayer);
 							if (eWarState != NO_WAR_STATE_TYPE)
 							{
-								iWarStates += 2 * ((int)eWarState - WAR_STATE_STALEMATE) - 1;
+								iWarStates += 2 * (static_cast<int>(eWarState) - WAR_STATE_STALEMATE) - 1;
 							}
 						}
 						else
@@ -12404,7 +12404,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iOurMight = 0;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)	// Looping over all MAJOR teams
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
@@ -12437,7 +12437,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iWarTargets = 0;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
@@ -12448,7 +12448,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					WarStateTypes eWarState = pDiploAI->GetWarState(eLoopPlayer);
 					if (eWarState != NO_WAR_STATE_TYPE)
 					{
-						iWarStates += 2 * ((int)eWarState - WAR_STATE_STALEMATE) - 1;
+						iWarStates += 2 * (static_cast<int>(eWarState) - WAR_STATE_STALEMATE) - 1;
 					}
 				}
 				else
@@ -12493,7 +12493,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 						if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam && GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
 						{
 							bImmunity = true;
@@ -12578,7 +12578,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//Let's see how we feel about other vassals out there...
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
 				{
 					CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer);
@@ -12606,7 +12606,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iOurTechs = 0;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 		{
-			TeamTypes eTeam = (TeamTypes)iTeamLoop;
+			TeamTypes eTeam = static_cast<TeamTypes>(iTeamLoop);
 
 			if (GET_TEAM(eTeam).isAlive())
 			{
@@ -12635,7 +12635,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iMinorAllies = 0;
 			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+				PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()))
 				{
 					iMinorAllies++;
@@ -12686,7 +12686,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iDislikedNeighbours = 0;
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			PlayerTypes eMajor = static_cast<PlayerTypes>(iMajorLoop);
 			if (GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
 			{
 				if (GetPlayer()->GetDiplomacyAI()->GetLandDisputeLevel(eMajor) >= DISPUTE_LEVEL_STRONG)
@@ -12702,9 +12702,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iNukeFlavor = 8;
 		for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 		{
-			if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NUKE")
+			if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NUKE")
 			{
-				iNukeFlavor = range(GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop), 0, 20);
+				iNukeFlavor = range(GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(iFlavorLoop)), 0, 20);
 				break;
 			}
 		}
@@ -12735,7 +12735,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iPossibleExtraVotes = 0;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID())
 				{
 					if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eFoundedReligion))
@@ -12861,7 +12861,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			// Look at each civ
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 			{
-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+				CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iLoopPlayer));
 				if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
 				{
 					PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -12873,7 +12873,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 						else
 						{
-							iInfluenceDifference = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer) - kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
+							iInfluenceDifference = m_pPlayer->GetCulture()->GetInfluenceLevel(static_cast<PlayerTypes>(iLoopPlayer)) - kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
 							if (iInfluenceDifference > 0)
 							{
 								iIdeologyPressure += iInfluenceDifference;
@@ -12911,20 +12911,20 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		// Do we have a sciencey Great Person unique unit? (ie. Merchant of Venice)
 		bool bScienceyUniqueUnit = false;
-		UnitClassTypes eScienceyUnitClass1 = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true);
-		UnitClassTypes eScienceyUnitClass2 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER", true);
-		UnitClassTypes eScienceyUnitClass3 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT", true);
+		UnitClassTypes eScienceyUnitClass1 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true));
+		UnitClassTypes eScienceyUnitClass2 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ENGINEER", true));
+		UnitClassTypes eScienceyUnitClass3 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_MERCHANT", true));
 
 		CvUnitClassInfo* pScienceyUnitClassInfo1 = GC.getUnitClassInfo(eScienceyUnitClass1);
 		CvUnitClassInfo* pScienceyUnitClassInfo2 = GC.getUnitClassInfo(eScienceyUnitClass2);
 		CvUnitClassInfo* pScienceyUnitClassInfo3 = GC.getUnitClassInfo(eScienceyUnitClass3);
 
-		UnitTypes eScienceyUnit1 = (UnitTypes) GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass1);
-		UnitTypes eDefault1 = (UnitTypes) pScienceyUnitClassInfo1->getDefaultUnitIndex();
-		UnitTypes eScienceyUnit2 = (UnitTypes)GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass2);
-		UnitTypes eDefault2 = (UnitTypes)pScienceyUnitClassInfo2->getDefaultUnitIndex();
-		UnitTypes eScienceyUnit3 = (UnitTypes)GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass3);
-		UnitTypes eDefault3 = (UnitTypes)pScienceyUnitClassInfo3->getDefaultUnitIndex();
+		UnitTypes eScienceyUnit1 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass1));
+		UnitTypes eDefault1 = static_cast<UnitTypes>(pScienceyUnitClassInfo1->getDefaultUnitIndex());
+		UnitTypes eScienceyUnit2 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass2));
+		UnitTypes eDefault2 = static_cast<UnitTypes>(pScienceyUnitClassInfo2->getDefaultUnitIndex());
+		UnitTypes eScienceyUnit3 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eScienceyUnitClass3));
+		UnitTypes eDefault3 = static_cast<UnitTypes>(pScienceyUnitClassInfo3->getDefaultUnitIndex());
 
 		if (eScienceyUnit1 != eDefault1 || eScienceyUnit2 != eDefault2 || eScienceyUnit3 != eDefault3)
 		{
@@ -12937,20 +12937,20 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		// Do we have a artsy Great Person unique unit?
 		bool bArtsyUniqueUnit = false;
-		UnitClassTypes eArtsyUnitClass1 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER", true);
-		UnitClassTypes eArtsyUnitClass2 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST", true);
-		UnitClassTypes eArtsyUnitClass3 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true);
+		UnitClassTypes eArtsyUnitClass1 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_WRITER", true));
+		UnitClassTypes eArtsyUnitClass2 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ARTIST", true));
+		UnitClassTypes eArtsyUnitClass3 = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true));
 
 		CvUnitClassInfo* pArtsyUnitClassInfo1 = GC.getUnitClassInfo(eArtsyUnitClass1);
 		CvUnitClassInfo* pArtsyUnitClassInfo2 = GC.getUnitClassInfo(eArtsyUnitClass2);
 		CvUnitClassInfo* pArtsyUnitClassInfo3 = GC.getUnitClassInfo(eArtsyUnitClass3);
 
-		UnitTypes eArtsyUnit1 = (UnitTypes)GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass1);
-		eDefault1 = (UnitTypes)pArtsyUnitClassInfo1->getDefaultUnitIndex();
-		UnitTypes eArtsyUnit2 = (UnitTypes)GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass2);
-		eDefault2 = (UnitTypes)pArtsyUnitClassInfo2->getDefaultUnitIndex();
-		UnitTypes eArtsyUnit3 = (UnitTypes)GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass3);
-		eDefault3 = (UnitTypes)pArtsyUnitClassInfo3->getDefaultUnitIndex();
+		UnitTypes eArtsyUnit1 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass1));
+		eDefault1 = static_cast<UnitTypes>(pArtsyUnitClassInfo1->getDefaultUnitIndex());
+		UnitTypes eArtsyUnit2 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass2));
+		eDefault2 = static_cast<UnitTypes>(pArtsyUnitClassInfo2->getDefaultUnitIndex());
+		UnitTypes eArtsyUnit3 = static_cast<UnitTypes>(GetPlayer()->getCivilizationInfo().getCivilizationUnits(eArtsyUnitClass3));
+		eDefault3 = static_cast<UnitTypes>(pArtsyUnitClassInfo3->getDefaultUnitIndex());
 
 		if (eArtsyUnit1 != eDefault1 || eArtsyUnit2 != eDefault2 || eArtsyUnit3 != eDefault3)
 		{
@@ -13014,7 +13014,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		iExtra = 0;
 		int iNumGPImprovements = GetPlayer()->getGreatPersonImprovementCount();
 		int iNumLandmarks = 0;
-		ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+		ImprovementTypes eLandmark = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
 		if (eLandmark != NO_IMPROVEMENT)
 		{
 			iNumLandmarks += GetPlayer()->getImprovementCount(eLandmark);
@@ -13114,7 +13114,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 			for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
 			{
-				PlayerTypes eMajor = (PlayerTypes)iMajor;
+				PlayerTypes eMajor = static_cast<PlayerTypes>(iMajor);
 				if (GET_PLAYER(eMajor).isAlive())
 				{
 					int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(eMajor, true);
@@ -13143,7 +13143,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// go though all city-states and check their alliance status
 		for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iMinor;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinor);
 			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
 				PlayerTypes eAlliedPlayer = NO_PLAYER;
@@ -13157,7 +13157,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						int iContenderInfluence = 0;
 						for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
 						{
-							PlayerTypes eMajor = (PlayerTypes)iMajor;
+							PlayerTypes eMajor = static_cast<PlayerTypes>(iMajor);
 							if (eAlliedPlayer != eMajor)
 							{
 								iContenderInfluence = max(iContenderInfluence, GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor));
@@ -13215,7 +13215,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iOurTechs = 0;
 			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 			{
-				TeamTypes eTeam = (TeamTypes)iTeamLoop;
+				TeamTypes eTeam = static_cast<TeamTypes>(iTeamLoop);
 
 				if (GET_TEAM(eTeam).isAlive())
 				{
@@ -13258,7 +13258,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != GetPlayer()->GetID())
 			{
 				PolicyBranchTypes eOtherIdeology = GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -13300,7 +13300,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 		{
-			PlayerTypes eMinor = (PlayerTypes) iMinor;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinor);
 			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
 				// do we have trade routes with non-alled CS?
@@ -13376,7 +13376,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					int iContenderInfluence = 0;
 					for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
 					{
-						PlayerTypes eMajor = (PlayerTypes)iMajor;
+						PlayerTypes eMajor = static_cast<PlayerTypes>(iMajor);
 						if (eMajor != ePlayer)
 						{
 							iContenderInfluence = max(iContenderInfluence, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor));
@@ -13515,7 +13515,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iNumCivs = 1;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 				{
 					iDiploScore = 0;
@@ -13539,7 +13539,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iDiploScore -= 6;
 					}
-					iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(eLoopPlayer), (int)pDiplo->GetVictoryBlockLevel(eLoopPlayer));
+					iDisputeLevel = max(static_cast<int>(pDiplo->GetVictoryDisputeLevel(eLoopPlayer)), static_cast<int>(pDiplo->GetVictoryBlockLevel(eLoopPlayer)));
 					if (iDisputeLevel > 0)
 					{
 						iDiploScore -= iDisputeLevel * 6;
@@ -13597,7 +13597,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	if (!(pProposal != NULL)) return 0;
 	CvAssertMsg(bEnact, "Unexpected case when evaluating vote choices for AI. Please send Anton your save file and version.");
 	if (!bEnact) return 0;
-	PlayerTypes eChoicePlayer = (PlayerTypes) iChoice;
+	PlayerTypes eChoicePlayer = static_cast<PlayerTypes>(iChoice);
 	CvAssert(eChoicePlayer != NO_PLAYER);
 	if (!(eChoicePlayer != NO_PLAYER)) return 0;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -13968,7 +13968,7 @@ bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequired
 		eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 		eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 	{
-		eTargetPlayer = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
+		eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 	}
 	else
 	{
@@ -14185,11 +14185,11 @@ bool CvLeagueSpecialSessionEntry::CacheResults(Database::Results& kResults, CvDa
 		return false;
 	}
 
-	m_eEraTrigger						= (EraTypes) GC.getInfoTypeForString(kResults.GetText("EraTrigger"), true);
-	m_eBuildingTrigger					= (BuildingTypes) GC.getInfoTypeForString(kResults.GetText("BuildingTrigger"), true);
-	m_eResolutionTrigger				= (ResolutionTypes) GC.getInfoTypeForString(kResults.GetText("TriggerResolution"), true);
-	m_eImmediateProposal				= (ResolutionTypes) GC.getInfoTypeForString(kResults.GetText("ImmediateProposal"), true);
-	m_eRecurringProposal				= (ResolutionTypes) GC.getInfoTypeForString(kResults.GetText("RecurringProposal"), true);
+	m_eEraTrigger						= static_cast<EraTypes>(GC.getInfoTypeForString(kResults.GetText("EraTrigger"), true));
+	m_eBuildingTrigger					= static_cast<BuildingTypes>(GC.getInfoTypeForString(kResults.GetText("BuildingTrigger"), true));
+	m_eResolutionTrigger				= static_cast<ResolutionTypes>(GC.getInfoTypeForString(kResults.GetText("TriggerResolution"), true));
+	m_eImmediateProposal				= static_cast<ResolutionTypes>(GC.getInfoTypeForString(kResults.GetText("ImmediateProposal"), true));
+	m_eRecurringProposal				= static_cast<ResolutionTypes>(GC.getInfoTypeForString(kResults.GetText("RecurringProposal"), true));
 	m_iTurnsBetweenSessions				= kResults.GetInt("TurnsBetweenSessions");
 	m_iCivDelegates						= kResults.GetInt("CivDelegates");
 	m_iHostDelegates					= kResults.GetInt("HostDelegates");
@@ -14385,7 +14385,7 @@ bool CvLeagueProjectRewardEntry::CacheResults(Database::Results& kResults, CvDat
 		return false;
 	}
 
-	m_eBuilding							= (BuildingTypes) GC.getInfoTypeForString(kResults.GetText("Building"), true);
+	m_eBuilding							= static_cast<BuildingTypes>(GC.getInfoTypeForString(kResults.GetText("Building"), true));
 	m_iHappiness						= kResults.GetInt("Happiness");
 	m_iFreeSocialPolicies				= kResults.GetInt("FreeSocialPolicies");
 	m_iCultureBonusTurns				= kResults.GetInt("CultureBonusTurns");
@@ -14396,7 +14396,7 @@ bool CvLeagueProjectRewardEntry::CacheResults(Database::Results& kResults, CvDat
 	m_iGetAttackBonusTurns				= kResults.GetInt("AttackBonusTurns");
 	m_iGetBaseFreeUnits					= kResults.GetInt("BaseFreeUnits");
 	m_iGetNumFreeGreatPeople			= kResults.GetInt("GetNumFreeGreatPeople");
-	m_eFreeUnitClass					= (UnitClassTypes) GC.getInfoTypeForString(kResults.GetText("FreeUnitClass"), true);
+	m_eFreeUnitClass					= static_cast<UnitClassTypes>(GC.getInfoTypeForString(kResults.GetText("FreeUnitClass"), true));
 
 	return true;
 }
@@ -14527,11 +14527,11 @@ bool CvLeagueProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseU
 		return false;
 	}
 
-	m_eProcess							= (ProcessTypes) GC.getInfoTypeForString(kResults.GetText("Process"), true);
+	m_eProcess							= static_cast<ProcessTypes>(GC.getInfoTypeForString(kResults.GetText("Process"), true));
 	m_iCostPerPlayer					= kResults.GetInt("CostPerPlayer");
-	m_eRewardTier1						= (LeagueProjectRewardTypes) GC.getInfoTypeForString(kResults.GetText("RewardTier1"), true);
-	m_eRewardTier2						= (LeagueProjectRewardTypes) GC.getInfoTypeForString(kResults.GetText("RewardTier2"), true);
-	m_eRewardTier3						= (LeagueProjectRewardTypes) GC.getInfoTypeForString(kResults.GetText("RewardTier3"), true);
+	m_eRewardTier1						= static_cast<LeagueProjectRewardTypes>(GC.getInfoTypeForString(kResults.GetText("RewardTier1"), true));
+	m_eRewardTier2						= static_cast<LeagueProjectRewardTypes>(GC.getInfoTypeForString(kResults.GetText("RewardTier2"), true));
+	m_eRewardTier3						= static_cast<LeagueProjectRewardTypes>(GC.getInfoTypeForString(kResults.GetText("RewardTier3"), true));
 
 	return true;
 }
@@ -14667,9 +14667,9 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 		return false;
 	}
 
-	m_eVoterDecision					= (ResolutionDecisionTypes) GC.getInfoTypeForString(kResults.GetText("VoterDecision"), true);
-	m_eProposerDecision					= (ResolutionDecisionTypes) GC.getInfoTypeForString(kResults.GetText("ProposerDecision"), true);
-	m_eTechPrereqAnyMember				= (TechTypes) GC.getInfoTypeForString(kResults.GetText("TechPrereqAnyMember"), true);
+	m_eVoterDecision					= static_cast<ResolutionDecisionTypes>(GC.getInfoTypeForString(kResults.GetText("VoterDecision"), true));
+	m_eProposerDecision					= static_cast<ResolutionDecisionTypes>(GC.getInfoTypeForString(kResults.GetText("ProposerDecision"), true));
+	m_eTechPrereqAnyMember				= static_cast<TechTypes>(GC.getInfoTypeForString(kResults.GetText("TechPrereqAnyMember"), true));
 	m_bAutomaticProposal				= kResults.GetBool("AutomaticProposal");
 	m_bUniqueType						= kResults.GetBool("UniqueType");
 	m_bNoProposalByPlayer				= kResults.GetBool("NoProposalByPlayer");
@@ -14680,7 +14680,7 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_iOneTimeGold						= kResults.GetInt("OneTimeGold");
 	m_iOneTimeGoldPercent				= kResults.GetInt("OneTimeGoldPercent");
 	m_bRaiseCityStateInfluenceToNeutral	= kResults.GetBool("RaiseCityStateInfluenceToNeutral");
-	m_eLeagueProjectEnabled				= (LeagueProjectTypes) GC.getInfoTypeForString(kResults.GetText("LeagueProjectEnabled"), true);
+	m_eLeagueProjectEnabled				= static_cast<LeagueProjectTypes>(GC.getInfoTypeForString(kResults.GetText("LeagueProjectEnabled"), true));
 	m_iGoldPerTurn						= kResults.GetInt("GoldPerTurn");
 	m_iResourceQuantity					= kResults.GetInt("ResourceQuantity");
 	m_bEmbargoCityStates				= kResults.GetBool("EmbargoCityStates");

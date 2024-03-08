@@ -164,7 +164,7 @@ int CvArea::countNumUniqueResourceTypes() const
 
 	for(int iI = 0; iI < numRIs; iI++)
 	{
-		CvResourceInfo* resource = GC.getResourceInfo((ResourceTypes)iI);
+		CvResourceInfo* resource = GC.getResourceInfo(static_cast<ResourceTypes>(iI));
 		if(NULL != resource && resource->isOneArea())
 		{
 			iCount++;
@@ -293,7 +293,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 
 	if (GC.getMap().isWrapX())
 	{
-		for (int i = 0; i < (int)occupiedCols.size(); i++)
+		for (int i = 0; i < static_cast<int>(occupiedCols.size()); i++)
 		{
 			//neighbor with wrapping
 			int j = (i + 1) % occupiedCols.size();
@@ -308,7 +308,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 	{
 		if (occupiedCols[0])
 			colRise = 0;
-		for (int i = 0; i < (int)occupiedCols.size()-1; i++)
+		for (int i = 0; i < static_cast<int>(occupiedCols.size())-1; i++)
 		{
 			//neighbor w/o wrapping
 			int j = (i + 1);
@@ -324,7 +324,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 
 	if (GC.getMap().isWrapY())
 	{
-		for (int i = 0; i < (int)occupiedRows.size(); i++)
+		for (int i = 0; i < static_cast<int>(occupiedRows.size()); i++)
 		{
 			//neighbor with wrapping
 			int j = (i + 1) % occupiedRows.size();
@@ -339,7 +339,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 	{
 		if (occupiedRows[0])
 			rowRise = 0;
-		for (int i = 0; i < (int)occupiedRows.size()-1; i++)
+		for (int i = 0; i < static_cast<int>(occupiedRows.size())-1; i++)
 		{
 			//neighbor w/o wrapping
 			int j = (i + 1);
@@ -361,7 +361,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 		{
 			//this definition works with or without wrapping
 			colRise = 0;
-			colFall = (int)occupiedCols.size() - 1;
+			colFall = static_cast<int>(occupiedCols.size()) - 1;
 		}
 		else
 			//invalid
@@ -374,7 +374,7 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 		{
 			//this definition works with or without wrapping
 			rowRise = 0;
-			rowFall = (int)occupiedRows.size() - 1;
+			rowFall = static_cast<int>(occupiedRows.size()) - 1;
 		}
 		else
 			//invalid

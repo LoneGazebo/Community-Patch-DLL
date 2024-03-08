@@ -1019,7 +1019,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if(thisPlayer.isAlive())
 		{
 			if((eOwner == NO_PLAYER) || (iI == eOwner))
@@ -1069,7 +1069,7 @@ CvUnit* CvMap::findUnit(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect,
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if(thisPlayer.isAlive())
 		{
 			if((eOwner == NO_PLAYER) || (iI == eOwner))
@@ -1108,7 +1108,7 @@ CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if(thisPlayer.isEverAlive())
 		{
 			CvPlot* pStartPlot = thisPlayer.getStartingPlot();
@@ -1182,13 +1182,13 @@ int CvMap::getMapFractalFlags()
 	int wrapX = 0;
 	if(isWrapX())
 	{
-		wrapX = (int)CvFractal::FRAC_WRAP_X;
+		wrapX = static_cast<int>(CvFractal::FRAC_WRAP_X);
 	}
 
 	int wrapY = 0;
 	if(isWrapY())
 	{
-		wrapY = (int)CvFractal::FRAC_WRAP_Y;
+		wrapY = static_cast<int>(CvFractal::FRAC_WRAP_Y);
 	}
 
 	return (wrapX | wrapY);
@@ -1811,7 +1811,7 @@ void CvMap::DoPlaceNaturalWonders()
 	int nwCount = 0;
 	for(int iFeatureLoop = 0; iFeatureLoop < iNumFeatureInfos; iFeatureLoop++)
 	{
-		eFeature = (FeatureTypes) iFeatureLoop;
+		eFeature = static_cast<FeatureTypes>(iFeatureLoop);
 		CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 		if(feature && feature->IsNaturalWonder(true))
@@ -2057,7 +2057,7 @@ void CvMap::DoPlaceNaturalWonders()
 					pRandPlot->setFeatureType(featureReef);
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
+						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), static_cast<DirectionTypes>(iI));
 						if(pAdjacentPlot != NULL)
 						{
 							if(!(pAdjacentPlot->isWater()))
@@ -2084,7 +2084,7 @@ void CvMap::DoPlaceNaturalWonders()
 				// if we have a couple of hills nearby already
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
+					CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), static_cast<DirectionTypes>(iI));
 					if(pAdjacentPlot != NULL)
 					{
 						if((pAdjacentPlot->isHills()))
@@ -2098,11 +2098,11 @@ void CvMap::DoPlaceNaturalWonders()
 					// we are stamping the terrain
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
+						CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), static_cast<DirectionTypes>(iI));
 						if(pAdjacentPlot != NULL)
 						{
 							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GD_INT_GET(LAND_TERRAIN)));
+							pAdjacentPlot->setTerrainType(static_cast<TerrainTypes>((GD_INT_GET(LAND_TERRAIN))));
 						}
 					}
 					pRandPlot->setPlotType(PLOT_MOUNTAIN);
@@ -2122,7 +2122,7 @@ void CvMap::DoPlaceNaturalWonders()
 				// we are stamping the terrain
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
+					CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), static_cast<DirectionTypes>(iI));
 					if(pAdjacentPlot != NULL)
 					{
 						if(iI & 1)
@@ -2132,7 +2132,7 @@ void CvMap::DoPlaceNaturalWonders()
 						else
 						{
 							pAdjacentPlot->setPlotType(PLOT_HILLS);
-							pAdjacentPlot->setTerrainType((TerrainTypes)(GD_INT_GET(LAND_TERRAIN)));
+							pAdjacentPlot->setTerrainType(static_cast<TerrainTypes>((GD_INT_GET(LAND_TERRAIN))));
 						}
 					}
 				}

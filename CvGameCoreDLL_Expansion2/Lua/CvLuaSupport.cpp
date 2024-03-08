@@ -37,7 +37,7 @@ bool luaL_optbool(lua_State* L, int idx, bool bdefault)
 	}
 	else
 	{
-		return (bool)lua_toboolean(L, idx);
+		return static_cast<bool>(lua_toboolean(L, idx));
 	}
 }
 

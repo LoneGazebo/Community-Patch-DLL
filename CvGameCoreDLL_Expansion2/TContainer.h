@@ -106,7 +106,7 @@ T* TContainer<T>::Get(int iID) const
 template <class T>
 T* TContainer<T>::GetAt(int iIndex) const
 {
-	if (iIndex >= 0 && iIndex < (int)m_order.size())
+	if (iIndex >= 0 && iIndex < static_cast<int>(m_order.size()))
 		return m_order[iIndex];
 
 	return NULL;
@@ -131,7 +131,7 @@ bool TContainer<T>::Remove(int iID)
 template <class T>
 bool TContainer<T>::RemoveAt(int iIndex)
 {
-	if (iIndex>=0 && iIndex < (int)m_order.size())
+	if (iIndex>=0 && iIndex < static_cast<int>(m_order.size()))
 	{
 		std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( m_order[iIndex]->GetID() );
 		delete m_items[ it->first ];
@@ -163,7 +163,7 @@ int TContainer<T>::GetIndexForID(const int iID) const
 	{
 		typename std::vector<T*>::const_iterator it2 = std::find(m_order.begin(), m_order.end(), it->second);
 		if (it2 != m_order.end())
-			return (int)(it2 - m_order.begin());
+			return static_cast<int>(it2 - m_order.begin());
 	}
 
 	return -1;
@@ -194,14 +194,14 @@ void TContainer<T>::Load(T* pExistingItem)
 template <class T>
 int TContainer<T>::GetCount() const
 {
-	return (int)m_order.size();
+	return static_cast<int>(m_order.size());
 }
 
 template <class T>
 int TContainer<T>::GetIndexAfterLast() const
 {
 	//last index is size-1, so next one is simply size
-	return (int)m_order.size();
+	return static_cast<int>(m_order.size());
 }
 
 template <class T>

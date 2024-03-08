@@ -112,7 +112,7 @@ void CvStartPositioner::ComputeFoundValues()
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		int iValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, NULL, vector<int>());
-		pLoopPlot->setFoundValue((PlayerTypes)1, iValue);
+		pLoopPlot->setFoundValue(static_cast<PlayerTypes>(1), iValue);
 
 		if(iValue > m_iBestFoundValueOnMap)
 		{
@@ -139,7 +139,7 @@ vector<CvPlayerStartRank> GetPlayerStartOrder()
 	// Add each player
 	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayerAI& player = GET_PLAYER((PlayerTypes)iI);
+		CvPlayerAI& player = GET_PLAYER(static_cast<PlayerTypes>(iI));
 
 		if(player.isAlive())
 		{
@@ -180,7 +180,7 @@ void CvStartPositioner::AssignStartingLocations()
 	vector<CvPlayerStartRank> playerOrder = GetPlayerStartOrder();
 	for(size_t i = 0; i < playerOrder.size(); ++i)
 	{
-		if(!GET_PLAYER((PlayerTypes)playerOrder[i].m_iPlayerID).isMinorCiv())
+		if(!GET_PLAYER(static_cast<PlayerTypes>(playerOrder[i].m_iPlayerID)).isMinorCiv())
 			iMajorCivs++;
 	}
 
@@ -245,7 +245,7 @@ void CvStartPositioner::AssignStartingLocations()
 
 	// Resort by fertility (based on the fact that some of these regions are filling up)
 	std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
-	while(iPlayersPlaced < (int)playerOrder.size() && iNextRegion < m_StartRegionVector.size())
+	while(iPlayersPlaced < static_cast<int>(playerOrder.size()) && iNextRegion < m_StartRegionVector.size())
 	{
 		strString.Format("Trying to place minor civ with full separation of %d", m_iRequiredSeparation);
 		LogStartPositionMessage(strString);
@@ -268,7 +268,7 @@ void CvStartPositioner::AssignStartingLocations()
 	}
 
 	// MINOR CIVS AGAIN (those that couldn't be placed normal start distance apart)
-	while(iPlayersPlaced < (int)playerOrder.size() && m_iRequiredSeparation >= 0)
+	while(iPlayersPlaced < static_cast<int>(playerOrder.size()) && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
 		std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
@@ -277,7 +277,7 @@ void CvStartPositioner::AssignStartingLocations()
 		m_iRequiredSeparation--;
 		iNextRegion = 0;
 
-		while(iPlayersPlaced < (int)playerOrder.size() && iNextRegion < m_StartRegionVector.size())
+		while(iPlayersPlaced < static_cast<int>(playerOrder.size()) && iNextRegion < m_StartRegionVector.size())
 		{
 			strString.Format("Trying to place minor civ with reduced separation of %d", m_iRequiredSeparation);
 			LogStartPositionMessage(strString);
@@ -306,7 +306,7 @@ int CvStartPositioner::GetRegion(int iX, int iY)
 {
 	int iRegion = 0;
 
-	while(iRegion < (int)m_StartRegionVector.size())
+	while(iRegion < static_cast<int>(m_StartRegionVector.size()))
 	{
 		if(m_StartRegionVector[iRegion].Contains(iX, iY))
 		{
@@ -363,7 +363,7 @@ void CvStartPositioner::ComputeTileFertilityValues()
 		//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 		int iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot, NULL);
-		pLoopPlot->setFoundValue((PlayerTypes)0, iFertility);
+		pLoopPlot->setFoundValue(static_cast<PlayerTypes>(0), iFertility);
 
 		if(iFertility > 0)
 		{
@@ -619,7 +619,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 				// Retrieve fertility from player 0's found value slot
 				//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 				//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-				int iValue = pPlot->getFoundValue((PlayerTypes)0);
+				int iValue = pPlot->getFoundValue(static_cast<PlayerTypes>(0));
 				if (iValue>0)
 					rtnValue += iValue;
 			}
@@ -639,14 +639,14 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 	CvPlot* pLoopPlot = NULL;
 	int iMinorFoodReq = /*2*/ GD_INT_GET(MINOR_CIV_FOOD_REQUIREMENT);
 	int iMajorFoodReq = /*2*/ GD_INT_GET(MAJOR_CIV_FOOD_REQUIREMENT);
-	bool bIsMinorCiv = GET_PLAYER((PlayerTypes)iPlayerIndex).isMinorCiv();
-	PlayerTypes ePlayer = (PlayerTypes)iPlayerIndex;
+	bool bIsMinorCiv = GET_PLAYER(static_cast<PlayerTypes>(iPlayerIndex)).isMinorCiv();
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerIndex);
 	int iPercentOfBest = /*50*/ GD_INT_GET(MIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST);
 
 	MinorCivTypes eMinorCivType = NO_MINORCIV;
 	if(bIsMinorCiv)
 	{
-		eMinorCivType =GET_PLAYER((PlayerTypes) iPlayerIndex).GetMinorCivAI()->GetMinorCivType();
+		eMinorCivType =GET_PLAYER(static_cast<PlayerTypes>(iPlayerIndex)).GetMinorCivAI()->GetMinorCivType();
 	}
 
 	bool bDebugMap = GC.getMap().getWorldSize() == WORLDSIZE_DEBUG;
@@ -676,12 +676,12 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 					// Retrieve found value from player 1's found value slot
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 					//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-					uiPlotFoundValue = pLoopPlot->getFoundValue((PlayerTypes)1);
+					uiPlotFoundValue = pLoopPlot->getFoundValue(static_cast<PlayerTypes>(1));
 					if (uiPlotFoundValue<1)
 						continue;
 
 					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
-						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
+						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER(static_cast<PlayerTypes>(iPlayerIndex)).getCivilizationType())->isCoastalCiv()))
 					{
 						{
 							if(!pLoopPlot->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
@@ -712,7 +712,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 
 	if(pBestPlot != NULL)
 	{
-		GET_PLAYER((PlayerTypes)iPlayerIndex).setStartingPlot(pBestPlot);
+		GET_PLAYER(static_cast<PlayerTypes>(iPlayerIndex)).setStartingPlot(pBestPlot);
 		strString.Format("Adding player, id = %d, plot x = %d, y = %d, fertility = %u",
 		                 iPlayerIndex, pBestPlot->getX(), pBestPlot->getY(), uiBestFoundValue);
 		LogStartPositionMessage(strString);
@@ -735,9 +735,9 @@ bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if(GET_PLAYER((PlayerTypes)iI).isAlive())
+		if(GET_PLAYER(static_cast<PlayerTypes>(iI)).isAlive())
 		{
-			CvPlot* pStartPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+			CvPlot* pStartPlot = GET_PLAYER(static_cast<PlayerTypes>(iI)).getStartingPlot();
 			if(pStartPlot != NULL)
 			{
 				// If in same area, use full distance
@@ -778,7 +778,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+		CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 		if(pLoopPlot == NULL)
 		{
 			return false;   // Right at map edge
@@ -904,7 +904,7 @@ int getRegionDistanceMeasure(const SStartRegion& a, const SStartRegion& b)
 	bx = (bx * 100) / b.vPlots.size();
 	by = (by * 100) / b.vPlots.size();
 
-	return (int)sqrtf(float(ax - bx)*(ax - bx) + float(ay - by)*(ay - by));
+	return static_cast<int>(sqrtf(float(ax - bx) * (ax - bx) + float(ay - by) * (ay - by)));
 }
 
 int findNeighborIdToMerge(map<int, SStartRegion>::iterator self, const map<int,SStartRegion>& regions)
@@ -974,7 +974,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	vector<SStartRegion> regionsWeCantMerge;
 	vector<SStartRegion> regionsLargeEnough;
 
-	while ( regions.size() > (size_t)iNumRegionsRequired )
+	while ( regions.size() > static_cast<size_t>(iNumRegionsRequired) )
 	{
 		//find the worst region we can merge
 		map<int, SStartRegion>::iterator worstRegion = regions.end();

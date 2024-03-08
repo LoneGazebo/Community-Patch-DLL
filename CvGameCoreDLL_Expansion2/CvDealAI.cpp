@@ -137,7 +137,7 @@ int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) c
 	}
 
 	//want better deals if we're having economic problems
-	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY")))
+	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy(static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"))))
 		iPercent /= 2;
 
 	return iPercent;
@@ -578,8 +578,8 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	iValueWillingToGiveUp /= 100;
 
 	// a fraction of the maximum value is given based on military strength, aggressive posture and boldness
-	iValueWillingToGiveUp *= (int)eMilitaryStrength * (int)eMilitaryPosture * (10 - pDiploAI->GetBoldness() + 1);
-	iValueWillingToGiveUp /= ((int)NUM_STRENGTH_VALUES - 1) * ((int)NUM_AGGRESSIVE_POSTURE_TYPES - 1) * 10;
+	iValueWillingToGiveUp *= static_cast<int>(eMilitaryStrength) * static_cast<int>(eMilitaryPosture) * (10 - pDiploAI->GetBoldness() + 1);
+	iValueWillingToGiveUp /= (static_cast<int>(NUM_STRENGTH_VALUES) - 1) * (static_cast<int>(NUM_AGGRESSIVE_POSTURE_TYPES) - 1) * 10;
 
 	// If we're their vassal or afraid of them, we give away more
 	TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
@@ -974,7 +974,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		// not for sale modmod
 		if (MOD_NOT_FOR_SALE && GetPlayer()->isHuman() && bFromMe)
 		{
-			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale((ResourceTypes)iData1)) ||
+			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale(static_cast<ResourceTypes>(iData1))) ||
 				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
 				(eItem == TRADE_ITEM_OPEN_BORDERS && GetPlayer()->IsRefuseOpenBordersTrade()) ||
 				(eItem == TRADE_ITEM_RESEARCH_AGREEMENT && GetPlayer()->IsRefuseResearchAgreementTrade()) ||
@@ -997,7 +997,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			{
 				// precalculate, it's expensive
 				int iCurrentNetGoldOfReceivingPlayer = bFromMe ? GET_PLAYER(eOtherPlayer).GetTreasury()->CalculateBaseNetGold() : m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-				iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes)iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
+				iItemValue = GetResourceValue(/*ResourceType*/ static_cast<ResourceTypes>(iData1), /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 			}
 			else if (eItem == TRADE_ITEM_CITIES)
 			{
@@ -1016,15 +1016,15 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			else if (eItem == TRADE_ITEM_PEACE_TREATY)
 				iItemValue = GetPeaceTreatyValue(eOtherPlayer);
 			else if (eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
-				iItemValue = GetThirdPartyPeaceValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes)iData1);
+				iItemValue = GetThirdPartyPeaceValue(bFromMe, eOtherPlayer, /*eWithTeam*/ static_cast<TeamTypes>(iData1));
 			else if (eItem == TRADE_ITEM_THIRD_PARTY_WAR)
-				iItemValue = GetThirdPartyWarValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes)iData1);
+				iItemValue = GetThirdPartyWarValue(bFromMe, eOtherPlayer, /*eWithTeam*/ static_cast<TeamTypes>(iData1));
 			else if (eItem == TRADE_ITEM_VOTE_COMMITMENT)
 				iItemValue = GetVoteCommitmentValue(bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1);
 			else if (eItem == TRADE_ITEM_MAPS)
 				iItemValue = GetMapValue(bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_TECHS)
-				iItemValue = GetTechValue(/*TechType*/ (TechTypes)iData1, bFromMe, eOtherPlayer);
+				iItemValue = GetTechValue(/*TechType*/ static_cast<TechTypes>(iData1), bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_VASSALAGE)
 				iItemValue = GetVassalageValue(bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_VASSALAGE_REVOKE)
@@ -1415,7 +1415,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				int iYieldBonusFromExport = 0;
 				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 				{
-					YieldTypes eYield = (YieldTypes)iYieldLoop;
+					YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 					//Simplification - errata yields not worth considering.
 					if (eYield > YIELD_GOLDEN_AGE_POINTS)
@@ -1448,7 +1448,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					int iYieldBonuses = 0;
 					for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
-						YieldTypes eYield = (YieldTypes)iYieldLoop;
+						YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 						//Simplification - errata yields not worth considering.
 						if (eYield > YIELD_GOLDEN_AGE_POINTS)
@@ -1480,7 +1480,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 						if (GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 						{
 							iItemValue += OneGPTScaled * 3;
@@ -1505,7 +1505,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				// Tally up the total modifiers this city gets.
 				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 				{
-					YieldTypes eYield = (YieldTypes)iYieldLoop;
+					YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 					//Simplification - errata yields not worth considering.
 					if (eYield > YIELD_GOLDEN_AGE_POINTS)
@@ -1548,7 +1548,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				int iYieldBonusFromImport = 0;
 				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 				{
-					YieldTypes eYield = (YieldTypes)iYieldLoop;
+					YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 					//Simplification - errata yields not worth considering.
 					if (eYield > YIELD_GOLDEN_AGE_POINTS)
@@ -1575,7 +1575,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				int iNumYieldChangeBonuses = 0;
 				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 				{
-					YieldTypes eYield = (YieldTypes)iYieldLoop;
+					YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 					//Simplification - errata yields not worth considering.
 					if (eYield > YIELD_GOLDEN_AGE_POINTS)
@@ -1618,7 +1618,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			// Is there a City-State quest the AI wants to fulfill by obtaining this resource?
 			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+				PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 				if (GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !GetPlayer()->GetDiplomacyAI()->IsAtWar(eMinor) && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
 				{
 					CvMinorCivAI* pMinorAI = GET_PLAYER(eMinor).GetMinorCivAI();
@@ -1627,7 +1627,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 					for (QuestListForPlayer::iterator itr_quest = pMinorAI->m_QuestsGiven[GetPlayer()->GetID()].begin(); itr_quest != pMinorAI->m_QuestsGiven[GetPlayer()->GetID()].end(); itr_quest++)
 					{
-						if (itr_quest->GetType() == MINOR_CIV_QUEST_CONNECT_RESOURCE && (ResourceTypes)itr_quest->GetPrimaryData() == eResource)
+						if (itr_quest->GetType() == MINOR_CIV_QUEST_CONNECT_RESOURCE && static_cast<ResourceTypes>(itr_quest->GetPrimaryData()) == eResource)
 						{
 							iItemValue += itr_quest->GetGold();
 							iItemValue += (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory()) ? itr_quest->GetInfluence() * 4 : itr_quest->GetInfluence() * 2;
@@ -1639,7 +1639,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
 			if (iCurrentNetGoldOfReceivingPlayer > 0)
 			{
-				int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
+				int iGPTSurcharge = static_cast<int>(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
 				iItemValue += min(iGPTSurcharge, iItemValue / 5);
 			}
 		}
@@ -1656,7 +1656,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	{
 		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
 		if (iCurrentNetGoldOfReceivingPlayer > 0) {
-			int iGPT = int(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 3.));
+			int iGPT = static_cast<int>(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 3.));
 			iItemValue += min(iGPT, iItemValue);
 		}
 	}
@@ -1664,7 +1664,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	{
 		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
 		if (iCurrentNetGoldOfReceivingPlayer > 0) {
-			int iGPT = int(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 4.));
+			int iGPT = static_cast<int>(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 4.));
 			iItemValue += min(iGPT, iItemValue);
 		}
 	}
@@ -1683,7 +1683,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			{
 				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 				{
-					if (pReligion->m_Beliefs.GetYieldPerLux((YieldTypes)iJ, GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) > 0)
+					if (pReligion->m_Beliefs.GetYieldPerLux(static_cast<YieldTypes>(iJ), GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) > 0)
 					{
 						iFactor += 1;
 					}
@@ -1730,7 +1730,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
-				if (pReligion->m_Beliefs.GetYieldPerLux((YieldTypes)iJ, GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) > 0)
+				if (pReligion->m_Beliefs.GetYieldPerLux(static_cast<YieldTypes>(iJ), GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) > 0)
 				{
 					iFactor += 1;
 				}
@@ -1767,7 +1767,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			continue;
 
 		const CvCivilizationInfo& playerCivilizationInfo = GetPlayer()->getCivilizationInfo();
-		const BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(eBuildingClass));
 
 		if (eBuilding == NO_BUILDING)
 			continue;
@@ -1781,12 +1781,12 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 
 		// don't have prereq tech?
 		// if we're selling, consider also buildings we'll soon be able to build
-		TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
+		TechTypes ePrereqTech = static_cast<TechTypes>(pkBuildingInfo->GetPrereqAndTech());
 		if (ePrereqTech != NO_TECH && !GetPlayer()->HasTech(ePrereqTech) && (!bFromMe || GetPlayer()->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the building obsolete?
-		if (pkBuildingInfo->GetObsoleteTech() != NO_TECH && GetPlayer()->HasTech((TechTypes)pkBuildingInfo->GetObsoleteTech()))
+		if (pkBuildingInfo->GetObsoleteTech() != NO_TECH && GetPlayer()->HasTech(static_cast<TechTypes>(pkBuildingInfo->GetObsoleteTech())))
 			continue;
 
 		vBuildingsWithResourceRequirement.push_back(eBuilding);
@@ -1883,7 +1883,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 					vTotalWeightList.push_back(aCityBuildingWeights.GetWeight(i));
 				}
 				// if we're selling and we know at this point already that we need all the resource items we have, we can stop here
-				if (bFromMe && (int)vTotalWeightList.size() >= iNumAvailable)
+				if (bFromMe && static_cast<int>(vTotalWeightList.size()) >= iNumAvailable)
 				{
 					return vTotalWeightList;
 				}
@@ -1905,7 +1905,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (ePlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && ePlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 			{
 				bWar = true;
@@ -1948,12 +1948,12 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 
 		// don't have prereq tech?
 		// if we're selling, consider also units we'll soon be able to build
-		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+		TechTypes ePrereqTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
 		if (ePrereqTech != NO_TECH && !ePlayer->HasTech(ePrereqTech) && (!bFromMe || ePlayer->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the unit obsolete?
-		if (pkUnitInfo->GetObsoleteTech() != NO_TECH && ePlayer->HasTech((TechTypes)pkUnitInfo->GetObsoleteTech()))
+		if (pkUnitInfo->GetObsoleteTech() != NO_TECH && ePlayer->HasTech(static_cast<TechTypes>(pkUnitInfo->GetObsoleteTech())))
 			continue;
 
 		// don't count spaceship parts here, they'll be checked later
@@ -1994,7 +1994,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// select the units with the highest value for which we have space
 		if (iNumFreeAirSlots > 0)
 		{
-			iNumFreeAirSlots = min(iNumFreeAirSlots, (int)vAirUnitsList.size());
+			iNumFreeAirSlots = min(iNumFreeAirSlots, static_cast<int>(vAirUnitsList.size()));
 			std::stable_sort(vAirUnitsList.rbegin(), vAirUnitsList.rend());
 			vTotalWeightList.insert(vTotalWeightList.end(), vAirUnitsList.begin(), vAirUnitsList.begin() + iNumFreeAirSlots);
 		}
@@ -2007,17 +2007,17 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			iNonAirUnitsToBuild *= 2;
 			iNonAirUnitsToBuild /= 3;
 		}
-		iNonAirUnitsToBuild = min(max(iNonAirUnitsToBuild, 1), (int)vNonAirUnitsList.size());
+		iNonAirUnitsToBuild = min(max(iNonAirUnitsToBuild, 1), static_cast<int>(vNonAirUnitsList.size()));
 		std::stable_sort(vNonAirUnitsList.rbegin(), vNonAirUnitsList.rend());
 		vTotalWeightList.insert(vTotalWeightList.end(), vNonAirUnitsList.begin(), vNonAirUnitsList.begin() + iNonAirUnitsToBuild);
 	}
 
 	// spaceship parts
 	int iNumSpaceshipPartsNeeded = 0;
-	ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	ProjectTypes eApolloProgram = static_cast<ProjectTypes>(GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true));
 	if (eApolloProgram != NO_PROJECT && GET_TEAM(ePlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
 	{
-		ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+		ResourceTypes eAluminum = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_ALUMINUM", true));
 		if (eResource == eAluminum)
 		{
 			// how many do we still need?
@@ -2093,7 +2093,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		return INT_MAX;
 
 	// Don't sell Uranium to Nuclear Gandhi!
-	ResourceTypes eUranium = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_URANIUM", true);
+	ResourceTypes eUranium = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_URANIUM", true));
 	if (eResource == eUranium)
 	{
 		if (bFromMe && GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsNuclearGandhi(true))
@@ -2116,7 +2116,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	{
 		// we're selling
 		// how many items are we willing to give away?
-		int iNumberWeCanSell = iNumberAvailableToUs - (int)vTotalWeightList.size();
+		int iNumberWeCanSell = iNumberAvailableToUs - static_cast<int>(vTotalWeightList.size());
 		if (iNumberWeCanSell <= 0)
 			return INT_MAX;
 
@@ -2152,14 +2152,14 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			// don't buy more than 5 at a time
 			for (int iLoop = iNumberAvailableToUs; iLoop < iNumberAvailableToUs + min(5, iResourceQuantity); iLoop++)
 			{
-				if (iLoop < (int)vTotalWeightList.size())
+				if (iLoop < static_cast<int>(vTotalWeightList.size()))
 				{
 					// if we're lacking resources (iLoop < 0), pay for them as much as the highest value in the list
 					int iValueToAdd = vTotalWeightList[max(0,iLoop)];
 					// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
 					if (iCurrentNetGoldOfReceivingPlayer > 0)
 					{
-						int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
+						int iGPTSurcharge = static_cast<int>(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
 						iValueToAdd += min(iGPTSurcharge, iValueToAdd / 5);
 					}
 					iValue += min(max(iBaseValue, iValueToAdd), 10 * iBaseValue);
@@ -2359,7 +2359,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	int iItemValue = 50;
 
 	// Scale up or down by deal duration at this game speed
-	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo(static_cast<GameSpeedTypes>(GD_INT_GET(STANDARD_GAMESPEED)));
 	if (pkStdSpeedInfo)
 	{
 		iItemValue *= GC.getGame().getGameSpeedInfo().GetDealDuration();
@@ -2529,8 +2529,8 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue /= 100;
 		}
 		//We need to explore?
-		EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
+		EconomicAIStrategyTypes eNeedRecon = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
+		EconomicAIStrategyTypes eNavalRecon = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
 		if (eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 		{
 			iItemValue *= 115;
@@ -2582,7 +2582,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
+		iDefensivePactValue *= max(1, static_cast<int>(GetPlayer()->GetCurrentEra()));
 
 	int iItemValue = 0;
 	bool bMostValuableAlly = GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer;
@@ -3213,7 +3213,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
-					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+					eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 					// They shouldn't ask us to vote on things that have to do with us personally.
 					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
 					{
@@ -3250,7 +3250,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 					{
-						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+						eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 						// They shouldn't ask us to vote on things that have to do with us personally.
 						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
 						{
@@ -3336,7 +3336,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
-					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+					eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 					//we don't ask them about things that involve themselves!
 					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 					{
@@ -3358,7 +3358,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 
 					int iOurVotes = pLeague->CalculateStartingVotesForMember(eLeader);
 					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					PlayerTypes eChoicePlayer = static_cast<PlayerTypes>(iVoteChoice);
 
 					if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != eLeader)
 					{
@@ -3377,7 +3377,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 					{
-						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+						eTargetPlayer = static_cast<PlayerTypes>(pProposal->GetProposerDecision()->GetDecision());
 						//we don't ask them about things that involve themselves!
 						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 						{
@@ -3583,7 +3583,7 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& i
 
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -3621,7 +3621,7 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& i
 				int iWeight = viTradeValues.GetWeight(iRanking);
 				if(iWeight != 0)
 				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)viTradeValues.GetElement(iRanking);
+					PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(viTradeValues.GetElement(iRanking));
 
 					if(eLoopPlayer == NO_PLAYER)
 						continue;
@@ -3655,7 +3655,7 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTo
 
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if(eLoopPlayer != NO_PLAYER && eLoopPlayer != eThem && eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -3705,7 +3705,7 @@ void CvDealAI::DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -3739,7 +3739,7 @@ void CvDealAI::DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 				int iWeight = viTradeValues.GetWeight(iRanking);
 				if(iWeight != 0)
 				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)viTradeValues.GetElement(iRanking);
+					PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(viTradeValues.GetElement(iRanking));
 
 					if (eLoopPlayer == NO_PLAYER)
 						continue;
@@ -3772,7 +3772,7 @@ void CvDealAI::DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -3817,7 +3817,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -3891,7 +3891,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 				int iWeight = viTradeValues.GetWeight(iRanking);
 				if (iWeight != 0)
 				{
-					ResourceTypes eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
+					ResourceTypes eResource = static_cast<ResourceTypes>(viTradeValues.GetElement(iRanking));
 					int iResourceQuantity = 1;
 
 					if (pDeal->GetDemandingPlayer() != NO_PLAYER || !TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iWeight, false))
@@ -3931,7 +3931,7 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -3981,7 +3981,7 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 				int iWeight = viTradeValues.GetWeight(iRanking);
 				if (iWeight != 0)
 				{
-					eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
+					eResource = static_cast<ResourceTypes>(viTradeValues.GetElement(iRanking));
 					if (eResource == NO_RESOURCE)
 						continue;
 
@@ -4022,7 +4022,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 		// Now look at Strategic Resources
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
@@ -4119,7 +4119,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
@@ -5035,18 +5035,18 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 		{
 			int iAmountToReduce = min(ePeaceTreatyImWillingToOffer, ePeaceTreatyTheyreWillingToOffer);
 
-			ePeaceTreatyImWillingToOffer = PeaceTreatyTypes(ePeaceTreatyImWillingToOffer - iAmountToReduce);
-			ePeaceTreatyTheyreWillingToOffer = PeaceTreatyTypes(ePeaceTreatyTheyreWillingToOffer - iAmountToReduce);
+			ePeaceTreatyImWillingToOffer = static_cast<PeaceTreatyTypes>(ePeaceTreatyImWillingToOffer - iAmountToReduce);
+			ePeaceTreatyTheyreWillingToOffer = static_cast<PeaceTreatyTypes>(ePeaceTreatyTheyreWillingToOffer - iAmountToReduce);
 		}
 
 		// Get the Peace in between if there's a gap
 		if(ePeaceTreatyImWillingToOffer > ePeaceTreatyTheyreWillingToAccept)
 		{
-			ePeaceTreatyImWillingToOffer = PeaceTreatyTypes((ePeaceTreatyImWillingToOffer + ePeaceTreatyTheyreWillingToAccept) / 2);
+			ePeaceTreatyImWillingToOffer = static_cast<PeaceTreatyTypes>((ePeaceTreatyImWillingToOffer + ePeaceTreatyTheyreWillingToAccept) / 2);
 		}
 		if(ePeaceTreatyTheyreWillingToOffer > ePeaceTreatyImWillingToAccept)
 		{
-			ePeaceTreatyTheyreWillingToOffer = PeaceTreatyTypes((ePeaceTreatyTheyreWillingToOffer + ePeaceTreatyImWillingToAccept) / 2);
+			ePeaceTreatyTheyreWillingToOffer = static_cast<PeaceTreatyTypes>((ePeaceTreatyTheyreWillingToOffer + ePeaceTreatyImWillingToAccept) / 2);
 		}
 
 		CvAssertMsg(ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE, "DEAL_AI: I'm offering a peace treaty with negative ID.  Please show Jon");
@@ -5309,7 +5309,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		CvWeightedVector<int> viResourceValue;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo == NULL)
@@ -5346,7 +5346,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		{
 			for(int iSortedResourceIndex =  0; iSortedResourceIndex < viResourceValue.size(); iSortedResourceIndex++)
 			{
-				ResourceTypes eResourceList = (ResourceTypes)viResourceValue.GetElement(iSortedResourceIndex);
+				ResourceTypes eResourceList = static_cast<ResourceTypes>(viResourceValue.GetElement(iSortedResourceIndex));
 
 				int iCurrentResourceValue = viResourceValue.GetWeight(iSortedResourceIndex);
 
@@ -5368,7 +5368,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		CvWeightedVector<int> viResourceValue;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo == NULL)
@@ -5414,7 +5414,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		{
 			for(int iSortedResourceIndex =  0; iSortedResourceIndex < viResourceValue.size(); iSortedResourceIndex++)
 			{
-				ResourceTypes eResourceList = (ResourceTypes)viResourceValue.GetElement(iSortedResourceIndex);				
+				ResourceTypes eResourceList = static_cast<ResourceTypes>(viResourceValue.GetElement(iSortedResourceIndex));				
 				iResourceQuantity = pLosingPlayer->getNumResourceAvailable(eResourceList, false);
 				if (iResourceQuantity > 3)
 				{
@@ -5460,7 +5460,7 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 	CvPlayer* pMinor = NULL;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		eMinor = (PlayerTypes) iMinorLoop;
+		eMinor = static_cast<PlayerTypes>(iMinorLoop);
 
 		if(eMinor == NO_PLAYER)
 		{
@@ -5560,8 +5560,8 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	iIdealValue /= 100;
 
 	// a fraction of the maximum value is demanded based on military strength and meanness
-	iIdealValue *= (NUM_STRENGTH_VALUES - 1 - (int)GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer)) * GetPlayer()->GetDiplomacyAI()->GetMeanness();
-	iIdealValue /= (((int)NUM_STRENGTH_VALUES - 1)  * 10);
+	iIdealValue *= (NUM_STRENGTH_VALUES - 1 - static_cast<int>(GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer))) * GetPlayer()->GetDiplomacyAI()->GetMeanness();
+	iIdealValue /= ((static_cast<int>(NUM_STRENGTH_VALUES) - 1)  * 10);
 
 	int iTotalValue = 0;
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
@@ -5591,7 +5591,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 	int iDuration = GC.getGame().GetDealDuration();
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		// Only look at Luxuries
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -5666,7 +5666,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	// See if the other player has a Resource to trade
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		// Only look at strategic resources here
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -6074,7 +6074,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	// find the first player associated with the team
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
+		PlayerTypes eAgainstPlayer = static_cast<PlayerTypes>(iI);
 		if (eAgainstPlayer == NO_PLAYER)
 		{
 			continue;
@@ -6157,7 +6157,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 	// find the first player associated with the team
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
+		PlayerTypes eAgainstPlayer = static_cast<PlayerTypes>(iI);
 		if (eAgainstPlayer == NO_PLAYER)
 		{
 			continue;
@@ -6548,7 +6548,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 					}
 					case TRADE_ITEM_RESOURCES:
 					{
-						ResourceTypes eResource = (ResourceTypes) it->m_iData1;
+						ResourceTypes eResource = static_cast<ResourceTypes>(it->m_iData1);
 						ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 
 						if(eUsage == RESOURCEUSAGE_LUXURY)
@@ -6766,7 +6766,7 @@ void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
 		m_vResearchRates[m_pPlayer->GetID()] = std::make_pair(GC.getGame().getGameTurn(),0);
 		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 			if(kPlayer.isAlive() && kPlayer.getTeam() == ourTeam)
 				m_vResearchRates[m_pPlayer->GetID()].second += kPlayer.GetScienceTimes100();
 		}
@@ -6777,7 +6777,7 @@ void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
 		m_vResearchRates[eOther] = std::make_pair(GC.getGame().getGameTurn(),0);
 		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 			if(kPlayer.isAlive() && kPlayer.getTeam() == theirTeam)
 				m_vResearchRates[eOther].second += kPlayer.GetScienceTimes100();
 		}
@@ -6813,7 +6813,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
-		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes) iI);
+		CvUnitEntry* pUnitEntry = GC.getUnitInfo(static_cast<UnitTypes>(iI));
 		if(pUnitEntry)
 		{
 			if(pUnitEntry->GetPrereqAndTech() == eTech)
@@ -6830,7 +6830,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
-		CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo((BuildingTypes) iI);
+		CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(static_cast<BuildingTypes>(iI));
 		if(pBuildingEntry)
 		{
 			if(pBuildingEntry->GetPrereqAndTech() == eTech)
@@ -6842,7 +6842,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
-		CvProjectEntry* pProjectEntry = GC.getProjectInfo((ProjectTypes) iI);
+		CvProjectEntry* pProjectEntry = GC.getProjectInfo(static_cast<ProjectTypes>(iI));
 		if(pProjectEntry)
 		{
 			if(pProjectEntry->GetTechPrereq() == eTech)
@@ -6854,7 +6854,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	for(iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
-		CvBuildInfo* pBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+		CvBuildInfo* pBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(iI));
 		if(pBuildInfo)
 		{
 			if(pBuildInfo->getTechPrereq() == eTech)
@@ -6866,13 +6866,13 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	for(iI = 0; iI < GC.getNumResourceInfos(); iI++)
 	{
-		CvResourceInfo* pResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
+		CvResourceInfo* pResourceInfo = GC.getResourceInfo(static_cast<ResourceTypes>(iI));
 		if(pResourceInfo)
 		{
-			TechTypes eRevealTech = (TechTypes)pResourceInfo->getTechReveal();
+			TechTypes eRevealTech = static_cast<TechTypes>(pResourceInfo->getTechReveal());
 			if (GetPlayer()->GetPlayerTraits()->IsAlternateResourceTechs())
 			{
-				TechTypes eAltRevealTech = GetPlayer()->GetPlayerTraits()->GetAlternateResourceTechs((ResourceTypes)iI).m_eTechReveal;
+				TechTypes eAltRevealTech = GetPlayer()->GetPlayerTraits()->GetAlternateResourceTechs(static_cast<ResourceTypes>(iI)).m_eTechReveal;
 				if (eAltRevealTech != NO_TECH)
 				{
 					eRevealTech = eAltRevealTech;
@@ -6911,8 +6911,8 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
 	iItemValue = max(10, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
-	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra)), (double) /*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT) ) );
-	iItemValue = (int)(iItemValue * fItemMultiplier);
+	float fItemMultiplier = static_cast<float>(pow((double)std::max(1, (iTechEra)), (double)/*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT)));
+	iItemValue = static_cast<int>(iItemValue * fItemMultiplier);
 
 	// Apply the Modifier
 	iItemValue *= (100 + iTechMod);
@@ -6928,9 +6928,9 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
 	{
 		// Do this player have this policy && is it not blocked (e.g. Piety/Rationalism)
-		if(GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)iPoliciesLoop) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBlocked((PolicyTypes)iPoliciesLoop))
+		if(GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(static_cast<PolicyTypes>(iPoliciesLoop)) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBlocked(static_cast<PolicyTypes>(iPoliciesLoop)))
 		{
-			int iTechValueChangePercent = GC.getPolicyInfo((PolicyTypes)iPoliciesLoop)->GetMedianTechPercentChange();
+			int iTechValueChangePercent = GC.getPolicyInfo(static_cast<PolicyTypes>(iPoliciesLoop))->GetMedianTechPercentChange();
 			// Does this policy modify median research agreement percent?
 			if(iTechValueChangePercent != 0)
 			{
@@ -7280,7 +7280,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		int iVassalsControlled = 0;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GetPlayer()->GetDiplomacyAI()->IsMaster(eLoopPlayer))
 			{
 				iItemValue += GET_PLAYER(eLoopPlayer).GetMilitaryMight() + GET_PLAYER(eLoopPlayer).GetEconomicMight();
@@ -7400,7 +7400,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		// Increase deal value based on number of vassals they have
 		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 		{
-			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+			TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 			// Ignore minors.
 			if(!GET_TEAM(eLoopTeam).isMinorCiv())
@@ -7412,7 +7412,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
-							PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
+							PlayerTypes eVassalPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 							if(eVassalPlayer != NO_PLAYER && GET_PLAYER(eVassalPlayer).getTeam() != eLoopTeam)
 								continue;
@@ -7531,7 +7531,7 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// See if the other player has a technology to trade
 	for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 	{
-		eTech = (TechTypes) iTechLoop;
+		eTech = static_cast<TechTypes>(iTechLoop);
 
 		int iValue = 0;
 		// Let's not ask for the tech we're currently researching
@@ -7688,7 +7688,7 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 	bool bWorthIt = false;
 	for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
-		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+		TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 		// Ignore minors.
 		if(!GET_TEAM(eLoopTeam).isMinorCiv())
@@ -7840,7 +7840,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			// Loop through each Tech
 			for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 			{
-				eTech = (TechTypes) iTechLoop;
+				eTech = static_cast<TechTypes>(iTechLoop);
 
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_TECHS, eTech))
@@ -7867,7 +7867,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 					int iWeight = viTradeValues.GetWeight(iRanking);
 					if(iWeight != 0)
 					{
-						TechTypes eTech = (TechTypes)viTradeValues.GetElement(iRanking);
+						TechTypes eTech = static_cast<TechTypes>(viTradeValues.GetElement(iRanking));
 						if (eTech == NO_TECH)
 							continue;
 	
@@ -7905,7 +7905,7 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 			// Loop through each Tech
 			for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 			{
-				eTech = (TechTypes) iTechLoop;
+				eTech = static_cast<TechTypes>(iTechLoop);
 
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_TECHS, eTech))

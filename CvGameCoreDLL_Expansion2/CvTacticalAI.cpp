@@ -1564,7 +1564,7 @@ void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 				if (!pUnit || !pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))
 					continue;
 				//don't allow humans to use civilians as bait to lure units out of camps
-				if (pUnit->GetDanger() == 0 || pUnit->plot()->getImprovementType()!=(ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+				if (pUnit->GetDanger() == 0 || pUnit->plot()->getImprovementType()!=static_cast<ImprovementTypes>(GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT)))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_NO_EMBARK);
 
@@ -1976,7 +1976,7 @@ void CvTacticalAI::PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone)
 				// If there a hex adjacent to city they can airlift to?
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
-					CvPlot *pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+					CvPlot *pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), static_cast<DirectionTypes>(iI));
 					if (pLoopPlot != NULL && pUnit->canAirliftAt(pUnit->plot(), pLoopPlot->getX(), pLoopPlot->getY()))
 					{
 						CvTacticalUnit unit(pUnit->GetID());
@@ -3276,7 +3276,7 @@ CvTacticalTarget* CvTacticalAI::GetFirstZoneTarget(AITacticalTargetType eType, e
 	m_eCurrentTargetType = eType;
 	m_iCurrentTargetIndex = 0;
 
-	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
+	while(m_iCurrentTargetIndex < static_cast<int>(m_ZoneTargets.size()))
 	{
 		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
 		{
@@ -3296,7 +3296,7 @@ CvTacticalTarget* CvTacticalAI::GetNextZoneTarget(eAggressionLevel eMaxLvl)
 {
 	m_iCurrentTargetIndex++;
 
-	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
+	while(m_iCurrentTargetIndex < static_cast<int>(m_ZoneTargets.size()))
 	{
 		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
 		{
@@ -3316,7 +3316,7 @@ CvTacticalTarget* CvTacticalAI::GetFirstUnitTarget()
 {
 	m_iCurrentUnitTargetIndex = 0;
 
-	while(m_iCurrentUnitTargetIndex < (int)m_AllTargets.size())
+	while(m_iCurrentUnitTargetIndex < static_cast<int>(m_AllTargets.size()))
 	{
 		if(m_AllTargets[m_iCurrentUnitTargetIndex].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[m_iCurrentUnitTargetIndex].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
@@ -3335,7 +3335,7 @@ CvTacticalTarget* CvTacticalAI::GetNextUnitTarget()
 {
 	m_iCurrentUnitTargetIndex++;
 
-	while(m_iCurrentUnitTargetIndex < (int)m_AllTargets.size())
+	while(m_iCurrentUnitTargetIndex < static_cast<int>(m_AllTargets.size()))
 	{
 		if(m_AllTargets[m_iCurrentUnitTargetIndex].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[m_iCurrentUnitTargetIndex].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
@@ -4523,7 +4523,7 @@ bool CvTacticalAI::ExecuteMoveOfBlockingUnit(CvUnit* pBlockingUnit, CvPlot* pPre
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		CvPlot* pPlot = plotDirection(pBlockingUnit->getX(), pBlockingUnit->getY(), ((DirectionTypes)iI));
+		CvPlot* pPlot = plotDirection(pBlockingUnit->getX(), pBlockingUnit->getY(), static_cast<DirectionTypes>(iI));
 		if(pPlot != NULL)
 		{
 			if (pPreferredDirection)
@@ -4901,7 +4901,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, i
 	for (std::vector<SPlotWithTwoScoresL2>::iterator it=vStats.begin(); it!=vStats.end(); ++it)
 	{
 		//be conservative: danger counts twice as much as attack strength
-		float fScore = it->score1 / float(iHighestAttack) + 2 * float(iLowestDanger) / it->score2;
+		float fScore = it->score1 / static_cast<float>(iHighestAttack) + 2 * static_cast<float>(iLowestDanger) / it->score2;
 
 		if (fScore > fBestScore)
 		{
@@ -4966,7 +4966,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			// Economic AI still places a high value on goody huts for AI explorers, so they'll still be prioritized; see EconomicAIHelpers::ScoreExplorePlot()
 			if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && eMove == AI_TACTICAL_GOODY && pTarget->isGoody())
 			{
-				if (pLoopUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pLoopUnit->IsGainsXPFromScouting())
+				if (pLoopUnit->getUnitCombatType() != static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) && !pLoopUnit->IsGainsXPFromScouting())
 					continue;
 			}
 
@@ -5970,7 +5970,7 @@ bool CvTacticalAI::IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 					//Is he trying to lure us to come out of a garrison?
 					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+						CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), static_cast<DirectionTypes>(iI));
 						if (pLoopPlot != NULL)
 						{
 							if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) > 10) && pLoopPlot->getNumUnits() > 0)
@@ -6030,7 +6030,7 @@ bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 				//Is he trying to lure us to come out of a garrison?
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
-					CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+					CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), static_cast<DirectionTypes>(iI));
 					if (pLoopPlot != NULL)
 					{
 						if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) > 15) && pLoopPlot->getNumUnits() > 0)
@@ -6603,7 +6603,7 @@ bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandida
 	int iPassableNeighbors = 0;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		CvPlot* pNeighbor = plotDirection(pCandidate->getX(), pCandidate->getY(), ((DirectionTypes)iI));
+		CvPlot* pNeighbor = plotDirection(pCandidate->getX(), pCandidate->getY(), static_cast<DirectionTypes>(iI));
 		if (!pNeighbor)
 			continue;
 
@@ -7468,7 +7468,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 
 		//bias depends on the ratio of friendly to enemy units
-		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
+		int iScaledDamage = static_cast<int>(iDamageDealt * fAggBias * fAggFactor + 0.5f);
 		int iDamageDelta = iScaledDamage - iDamageReceived;
 		bool bVoluntaryCancel = (bBelowHpLimitAfterMeleeAttack && iDamageDelta < 0 && result.eAssignmentType != A_MELEEKILL && result.eAssignmentType != A_MELEEKILL_NO_ADVANCE);
 		bool bSuicideCancel = (pUnit->GetCurrHitPoints() - iDamageReceived < 1) && eAggLvl != AL_BRAVEHEART;
@@ -8886,15 +8886,15 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 	//we don't want the blocked moves for all units to have the same score
 	//so use the number of alternatives as an indicator how urgent this is
-	int iBlockedScore = max(0, 3 - (int)gPossibleMoves.size() / 3);
+	int iBlockedScore = max(0, 3 - static_cast<int>(gPossibleMoves.size()) / 3);
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
 	//don't return more than requested unless there is a tie
-	if (gPossibleMoves.size() > (size_t)nMaxCount)
+	if (gPossibleMoves.size() > static_cast<size_t>(nMaxCount))
 	{
-		while (gPossibleMoves[nMaxCount].iScore == gPossibleMoves[nMaxCount-1].iScore && (size_t)nMaxCount<gPossibleMoves.size())
+		while (gPossibleMoves[nMaxCount].iScore == gPossibleMoves[nMaxCount-1].iScore && static_cast<size_t>(nMaxCount)<gPossibleMoves.size())
 			nMaxCount++;
 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
@@ -8909,8 +8909,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 {
 	//if we have weak units without a clear purpose we drop them
-	if (iMaxUnitsToKeep > (int)availableUnits.size())
-		iMaxUnitsToKeep = (int)availableUnits.size();
+	if (iMaxUnitsToKeep > static_cast<int>(availableUnits.size()))
+		iMaxUnitsToKeep = static_cast<int>(availableUnits.size());
 
 	//temporarily raise aggression level to make sure we consider all possible melee attacks (even those which only make sense after other attacks)
 	eAggressionLevel actualLevel = getAggressionLevel();
@@ -9136,7 +9136,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				removeChild(pNewChild);
 		}
 
-		if (childPositions.size() >= (size_t)iMaxBranches)
+		if (childPositions.size() >= static_cast<size_t>(iMaxBranches))
 			break;
 	}
 
@@ -9750,7 +9750,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 	if (nNewEnemies>0)
 		refreshVolatilePlotProperties();
 
-	return make_pair( (int)gNewlyVisiblePlots.size(), nNewEnemies);
+	return make_pair( static_cast<int>(gNewlyVisiblePlots.size()), nNewEnemies);
 }
 
 bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID) const
@@ -10189,7 +10189,7 @@ bool CvTacticalPosition::isUnique(int levels) const
 
 void CvTacticalPosition::setFirstInterestingAssignment(size_t i)
 {
-	nFirstInterestingAssignment = (unsigned char)i;
+	nFirstInterestingAssignment = static_cast<unsigned char>(i);
 }
 
 size_t CvTacticalPosition::getFirstInterestingAssignment() const
@@ -10392,7 +10392,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 
 int CvTacticalPosition::countChildren() const
 {
-	int iCount = (int)childPositions.size();
+	int iCount = static_cast<int>(childPositions.size());
 	for (size_t i = 0; i < childPositions.size(); i++)
 		iCount += childPositions[i]->countChildren();
 
@@ -10402,9 +10402,9 @@ int CvTacticalPosition::countChildren() const
 float CvTacticalPosition::getAggressionBias() const
 {
 	//avoid extreme ratios, use the sqrt
-	float fUnitNumberRatio = sqrtf(nOurUnits / float(max(1,(int)nEnemies)));
+	float fUnitNumberRatio = sqrtf(nOurUnits / static_cast<float>(max(1, (int)nEnemies)));
 
-	int iFlavorOffense = GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iFlavorOffense = GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 	if (iFlavorOffense > 6)
 		fUnitNumberRatio += 0.1f;
 
@@ -10501,7 +10501,7 @@ void CvTacticalPosition::dumpPlotStatus(const char* fname) const
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked( it->getPlotIndex() );
 			out << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getOwner() << "," << (it->isEnemy() ? 1 : 0) << "," << (it->hasFriendlyCombatUnit() ? 1 : 0) << "," 
 				<< it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) << "," << it->getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH,-1) << "," << it->getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH) << "," 
-				<< (it->isEdgePlot() ? 1 : 0) << ","<< (it->hasSupportBonus(-1) ? 1 : 0) << "," << (int)(it->getEnemyDistance()) << "\n";
+				<< (it->isEdgePlot() ? 1 : 0) << ","<< (it->hasSupportBonus(-1) ? 1 : 0) << "," << static_cast<int>(it->getEnemyDistance()) << "\n";
 		}
 	}
 	out.close();
@@ -10744,7 +10744,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		iUsedPositions++;
 
 		//at some point we have seen enough good positions to pick one
-		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
+		if (completedPositions.size() > static_cast<size_t>(iMaxCompletedPositions))
 			break;
 
 		//switch our strategy?

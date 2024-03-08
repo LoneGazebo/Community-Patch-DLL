@@ -138,9 +138,9 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// Loop through adding the adoptable policies
 	for(iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 	{
-		if(m_pCurrentPolicies->CanAdoptPolicy((PolicyTypes) iPolicyLoop) && (!bMustChooseTenet || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0))
+		if(m_pCurrentPolicies->CanAdoptPolicy(static_cast<PolicyTypes>(iPolicyLoop)) && (!bMustChooseTenet || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0))
 		{
-			int iWeight = WeighPolicy(pPlayer, (PolicyTypes)iPolicyLoop);
+			int iWeight = WeighPolicy(pPlayer, static_cast<PolicyTypes>(iPolicyLoop));
 
 			m_AdoptablePolicies.push_back(iPolicyLoop + GC.getNumPolicyBranchInfos(), iWeight);
 
@@ -178,7 +178,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 		{
 			// Have we not finished it yet? If we can finish it, let's not open a new one.
-			if (!m_pCurrentPolicies->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()) && CanContinuePolicyBranch(ePolicyBranch2))
+			if (!m_pCurrentPolicies->HasPolicy(static_cast<PolicyTypes>(pkPolicyBranchInfo2->GetFreeFinishingPolicy())) && CanContinuePolicyBranch(ePolicyBranch2))
 			{
 				bNeedToFinish = true;
 				break;
@@ -236,15 +236,15 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), CvSeeder::fromRaw(0x5fef0474).mix(pPlayer->GetID()).mix(pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, false, true)));
 
 		// Log our choice
-		if (iRtnValue != (int)NO_POLICY)
+		if (iRtnValue != static_cast<int>(NO_POLICY))
 		{
 			if (iRtnValue >= GC.getNumPolicyBranchInfos())
 			{
-				LogPolicyChoice((PolicyTypes)(iRtnValue - GC.getNumPolicyBranchInfos()));
+				LogPolicyChoice(static_cast<PolicyTypes>(iRtnValue - GC.getNumPolicyBranchInfos()));
 			}
 			else
 			{
-				LogBranchChoice((PolicyBranchTypes)iRtnValue);
+				LogBranchChoice(static_cast<PolicyBranchTypes>(iRtnValue));
 			}
 		}
 	}
@@ -256,12 +256,12 @@ bool CvPolicyAI::CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch)
 {
 	for (int iAdoptableIndex = 0; iAdoptableIndex < m_AdoptablePolicies.size(); ++iAdoptableIndex)
 	{
-		const PolicyTypes ePolicyIndex = PolicyTypes(m_AdoptablePolicies.GetElement(iAdoptableIndex) - GC.getNumPolicyBranchInfos());
+		const PolicyTypes ePolicyIndex = static_cast<PolicyTypes>(m_AdoptablePolicies.GetElement(iAdoptableIndex) - GC.getNumPolicyBranchInfos());
 		const CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicyIndex);
 		if (pkPolicyEntry == NULL)
 			continue;
 
-		const PolicyBranchTypes ePolicyBranchIndex = PolicyBranchTypes(pkPolicyEntry->GetPolicyBranchType());
+		const PolicyBranchTypes ePolicyBranchIndex = static_cast<PolicyBranchTypes>(pkPolicyEntry->GetPolicyBranchType());
 		if (ePolicyBranchIndex == ePolicyBranch)
 		{
 			return true;
@@ -279,11 +279,11 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iFreedomMultiplier = 1;
 	int iAutocracyMultiplier = 1;
 	int iOrderMultiplier = 1;
-	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
-	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
-	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
+	PolicyBranchTypes eFreedomBranch = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM));
+	PolicyBranchTypes eAutocracyBranch = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_AUTOCRACY));
+	PolicyBranchTypes eOrderBranch = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_ORDER));
 #if defined(MOD_ISKA_HERITAGE)
-	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE);
+	PolicyBranchTypes eHeritageBranch = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_HERITAGE));
 #endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
@@ -298,7 +298,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			// Loop through all players to see if they're on our team
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eMaster = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eMaster = static_cast<PlayerTypes>(iPlayerLoop);
 
 				// Assumes one player per team for master
 				if (GET_PLAYER(eMaster).getTeam() == GET_TEAM(eMasterTeam).GetID())
@@ -330,9 +330,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
 	for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GC.GetGameAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 	{
-		eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+		eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 		pGrandStrategy = GC.GetGameAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-		strGrandStrategyName = (CvString)pGrandStrategy->GetType();
+		strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 
 		if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 		{
@@ -429,7 +429,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	// Finally see what our friends (and enemies) have already chosen
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
@@ -553,15 +553,15 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	// Loop through adding the adoptable policies
 	for (int iPolicyBranchLoop = 0; iPolicyBranchLoop < GC.getNumPolicyBranchInfos(); iPolicyBranchLoop++)
 	{
-		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranchLoop);
+		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(static_cast<PolicyBranchTypes>(iPolicyBranchLoop));
 		if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
 		{
-			int iWeight = WeighBranch(pPlayer, (PolicyBranchTypes)iPolicyBranchLoop) / 25;
-			if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+			int iWeight = WeighBranch(pPlayer, static_cast<PolicyBranchTypes>(iPolicyBranchLoop)) / 25;
+			if (static_cast<PolicyBranchTypes>(iPolicyBranchLoop) == eFreedomBranch)
 				iFreedomPriority += iWeight;
-			else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+			else if (static_cast<PolicyBranchTypes>(iPolicyBranchLoop) == eAutocracyBranch)
 				iAutocracyPriority += iWeight;
-			else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
+			else if (static_cast<PolicyBranchTypes>(iPolicyBranchLoop) == eOrderBranch)
 				iOrderPriority += iWeight;
 		}
 	}
@@ -596,7 +596,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	bool bFirstIdeology = true;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
@@ -709,7 +709,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		// Loop through all players to see if they're on our team
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eMaster = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eMaster = static_cast<PlayerTypes>(iPlayerLoop);
 
 			// Assumes one player per team for master
 			if (GET_PLAYER(eMaster).getTeam() == GET_TEAM(eMasterTeam).GetID())
@@ -795,7 +795,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			// Finally see what our friends (and enemies) have already chosen
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 				{
 					CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
@@ -856,7 +856,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
-		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
+		PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
 		if(pkPolicyInfo)
 		{
@@ -864,7 +864,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 			{
 				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 				{
-					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+					eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 					if (!pkBuildingClassInfo)
@@ -878,7 +878,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 
 						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 						{
-							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 						}
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
 						{
@@ -915,7 +915,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
-		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
+		PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
 		if(pkPolicyInfo)
 		{
@@ -923,7 +923,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 			{
 				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 				{
-					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+					eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 					if (!pkBuildingClassInfo)
@@ -931,7 +931,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 						continue;
 					}
 
-					BuildingTypes eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+					BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 					if (eBuilding != NO_BUILDING)
 					{
 						// Don't count a building that can only be built in conquered cities
@@ -1049,7 +1049,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 	}
 
-	int iPopulation = (int)(pPlayer->getAveragePopulation() + 0.5f) * max(1, (iNumCities / 2));
+	int iPopulation = static_cast<int>(pPlayer->getAveragePopulation() + 0.5f) * max(1, (iNumCities / 2));
 	iPopulation *= 100;
 	iPopulation /= max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 
@@ -2373,7 +2373,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(PolicyInfo->GetNewCityFreeBuilding());
 		if (pkBuildingClassInfo)
 		{
-			const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetNewCityFreeBuilding())));
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().
+				getCivilizationBuildings(PolicyInfo->GetNewCityFreeBuilding()));
 			if (NO_BUILDING != eBuilding)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -3490,7 +3491,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	UnitCombatTypes eUnitCombat;
 	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
-		eUnitCombat = (UnitCombatTypes)iI;
+		eUnitCombat = static_cast<UnitCombatTypes>(iI);
 		if (PolicyInfo->GetUnitCombatProductionModifiers(eUnitCombat) != 0)
 		{
 			if (pPlayerTraits->IsWarmonger())
@@ -3518,12 +3519,12 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	BuildingClassTypes eBuildingClass;
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		eBuildingClass = (BuildingClassTypes)iI;
+		eBuildingClass = static_cast<BuildingClassTypes>(iI);
 
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 		if (pkBuildingClassInfo)
 		{
-			const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 			if (NO_BUILDING != eBuilding)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -3616,7 +3617,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pkBuildingClassInfo)
 			{
-				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 				if (NO_BUILDING != eBuilding)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -3646,7 +3647,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pkBuildingClassInfo)
 			{
-				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetAllCityFreeBuilding())));
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().
+					getCivilizationBuildings(PolicyInfo->GetAllCityFreeBuilding()));
 				if (NO_BUILDING != eBuilding)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -3674,7 +3676,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 
 			if (PolicyInfo->GetBuildingClassYieldModifiers(eBuildingClass, eYield) != 0)
 			{
@@ -3721,7 +3723,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	UnitClassTypes eUnitClass;
 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
-		eUnitClass = (UnitClassTypes)iI;
+		eUnitClass = static_cast<UnitClassTypes>(iI);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if (!pkUnitClassInfo)
 			continue;
@@ -3819,7 +3821,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	ImprovementTypes eImprovement;
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
-		eImprovement = (ImprovementTypes)iI;
+		eImprovement = static_cast<ImprovementTypes>(iI);
 
 		int NumImprovements = pPlayer->CountAllImprovement(eImprovement);
 
@@ -3840,7 +3842,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 
 			if (PolicyInfo->GetImprovementYieldChanges(eImprovement, eYield) != 0)
 			{
@@ -3859,7 +3861,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	HurryTypes eHurry;
 	for (int iI = 0; iI < GC.getNumHurryInfos(); iI++)
 	{
-		eHurry = (HurryTypes)iI;
+		eHurry = static_cast<HurryTypes>(iI);
 		if (PolicyInfo->GetHurryModifier(eHurry) != 0)
 		{
 			if (pPlayerTraits->IsDiplomat())
@@ -3876,7 +3878,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	ResourceTypes eResource;
 	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 	{
-		eResource = (ResourceTypes)iI;
+		eResource = static_cast<ResourceTypes>(iI);
 		if (PolicyInfo->GetResourceFromCSAlly(eResource) != 0)
 		{
 			if (pPlayerTraits->IsDiplomat())
@@ -3902,7 +3904,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetResourceYieldChanges(eResource, eYield) != 0)
 			{
 				if (pPlayerTraits->IsExpansionist())
@@ -3920,7 +3922,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	PlotTypes ePlot;
 	for (int iI = 0; iI < GC.getNumPlotInfos(); iI++)
 	{
-		ePlot = (PlotTypes)iI;
+		ePlot = static_cast<PlotTypes>(iI);
 
 		int NumPlot = pPlayer->CountAllPlotType(ePlot);
 
@@ -3929,7 +3931,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetPlotYieldChanges(ePlot, eYield) != 0)
 			{
 				if (pPlayerTraits->IsExpansionist())
@@ -3947,7 +3949,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	FeatureTypes eFeature;
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
-		eFeature = (FeatureTypes)iI;
+		eFeature = static_cast<FeatureTypes>(iI);
 
 		int NumFeature = pPlayer->CountAllFeature(eFeature);
 
@@ -3956,7 +3958,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetFeatureYieldChanges(eFeature, eYield) != 0)
 			{
 				if (pPlayerTraits->IsExpansionist())
@@ -3996,7 +3998,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	TerrainTypes eTerrain;
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
-		eTerrain = (TerrainTypes)iI;
+		eTerrain = static_cast<TerrainTypes>(iI);
 
 		int NumTerrain = pPlayer->CountAllTerrain(eTerrain);
 
@@ -4005,7 +4007,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetTerrainYieldChanges(eTerrain, eYield) != 0)
 			{
 				if (pPlayerTraits->IsExpansionist())
@@ -4023,11 +4025,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	DomainTypes eDomain;
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		eDomain = (DomainTypes)iI;
+		eDomain = static_cast<DomainTypes>(iI);
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetTradeRouteYieldChange(eDomain, eYield) != 0)
 			{
 				if (pPlayerTraits->IsExpansionist())
@@ -4045,7 +4047,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	SpecialistTypes eSpecialist;
 	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 	{
-		eSpecialist = (SpecialistTypes)iI;
+		eSpecialist = static_cast<SpecialistTypes>(iI);
 
 		int NumSpecialists = 0;
 
@@ -4057,7 +4059,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetSpecialistYieldChanges(eSpecialist, eYield) != 0)
 			{
 				if (pPlayerTraits->IsSmaller())
@@ -4075,7 +4077,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	GreatPersonTypes eGreatPerson;
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
 	{
-		eGreatPerson = (GreatPersonTypes)iI;
+		eGreatPerson = static_cast<GreatPersonTypes>(iI);
 
 		if (PolicyInfo->GetGoldenAgeGreatPersonRateModifier(eGreatPerson) != 0)
 		{
@@ -4091,7 +4093,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			YieldTypes eYield = (YieldTypes)i;
+			YieldTypes eYield = static_cast<YieldTypes>(i);
 			if (PolicyInfo->GetGreatPersonExpendedYield(eGreatPerson, eYield) != 0)
 			{
 				if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
@@ -4109,7 +4111,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	PromotionTypes ePromotion;
 	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
-		ePromotion = (PromotionTypes)iI;
+		ePromotion = static_cast<PromotionTypes>(iI);
 
 		if (PolicyInfo->IsFreePromotion(ePromotion))
 		{
@@ -4125,7 +4127,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		for (int iJ = 0; iJ < GC.getNumUnitCombatClassInfos(); iJ++)
 		{
-			eUnitCombat = (UnitCombatTypes)iJ;
+			eUnitCombat = static_cast<UnitCombatTypes>(iJ);
 
 			if (PolicyInfo->IsFreePromotionUnitCombat(ePromotion, eUnitCombat))
 			{
@@ -4151,7 +4153,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
 	{
-		YieldTypes eYield = (YieldTypes)i;
+		YieldTypes eYield = static_cast<YieldTypes>(i);
 
 		if (PolicyInfo->GetCityYieldChange(eYield) != 0)
 		{
@@ -4625,9 +4627,9 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
 	for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GC.GetGameAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 	{
-		eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+		eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 		pGrandStrategy = GC.GetGameAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-		strGrandStrategyName = (CvString)pGrandStrategy->GetType();
+		strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 
 		if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 		{
@@ -4687,22 +4689,22 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	{
 		for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
-			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+			FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavor);
 			if (eFlavor == NO_FLAVOR)
 				continue;
 
 			int iFlavorValue = pkPolicyInfo->GetFlavorValue(eFlavor);
 			if (iFlavorValue > 0)
 			{
-				iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+				iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(iFlavor));
 
-				if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY")
+				if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_DIPLOMACY")
 				{
 					iDiploValue += iFlavorValue;
 
 					for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 					{
-						PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+						PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorCivLoop);
 						if (eMinor == NO_PLAYER)
 							continue;
 
@@ -4718,87 +4720,87 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 					}
 				}
 				//War
-				if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CITY_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SIEGE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SKIRMISHER")
+				if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_OFFENSE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_DEFENSE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_CITY_DEFENSE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_MILITARY_TRAINING" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_MOBILE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_RANGED" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ARCHER" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SIEGE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SKIRMISHER")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIRLIFT" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_BOMBER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_FIGHTER")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_AIR" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_AIRLIFT" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_BOMBER" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_FIGHTER")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_MELEE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RANGED" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SUBMARINE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_RECON" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_RECON" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_MELEE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_RANGED" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SUBMARINE")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_EXPANSION" )
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_EXPANSION" )
 				{
 						iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_PRODUCTION")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_PRODUCTION")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GOLD")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GOLD")
 				{
 					iDiploValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GREAT_PEOPLE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GREAT_PEOPLE")
 				{
 					iCultureValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GROWTH")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GROWTH")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_HAPPINESS")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_HAPPINESS")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_INFRASTRUCTURE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_INFRASTRUCTURE")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_I_LAND_TRADE_ROUTE")
 				{
 					iDiploValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_I_SEA_TRADE_ROUTE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_I_SEA_TRADE_ROUTE")
 				{
 					iDiploValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RELIGION")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_RELIGION")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SCIENCE")
 				{
 					iScienceValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SPACESHIP")
 				{
 					iScienceValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_TILE_IMPROVEMENT")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_TILE_IMPROVEMENT")
 				{
 					iWeight += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_WONDER")
 				{
 					iCultureValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WATER_CONNECTION" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_TRADE_DESTINATION")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_WATER_CONNECTION" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_I_TRADE_DESTINATION")
 				{
 					iDiploValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_USE_NUKE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NUKE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_USE_NUKE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NUKE")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ESPIONAGE")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ESPIONAGE")
 				{
 					iDiploValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHAEOLOGY")
+				else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ARCHAEOLOGY")
 				{
 					iCultureValue += iFlavorValue;
 				}
@@ -4867,7 +4869,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 		}
 	}
 	//Older branches should be slowly phased out.
-	PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetPolicyBranchType();
+	PolicyBranchTypes ePolicyBranch = static_cast<PolicyBranchTypes>(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetPolicyBranchType());
 	if (ePolicyBranch != NO_POLICY_BRANCH_TYPE)
 	{
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
@@ -4888,7 +4890,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 				}
 			}
 		}
-		if (ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true))
+		if (ePolicyBranch == static_cast<PolicyBranchTypes>(GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true)))
 		{
 			if (GC.getGame().GetNumMinorCivsAlive() <= 0)
 			{
@@ -4946,20 +4948,20 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 			}
 		}
 		//Free Policy
-		iWeight += WeighPolicy(pPlayer, (PolicyTypes)pkPolicyBranchInfo->GetFreePolicy());
-		iWeight += WeighPolicy(pPlayer, (PolicyTypes)pkPolicyBranchInfo->GetFreeFinishingPolicy());
+		iWeight += WeighPolicy(pPlayer, static_cast<PolicyTypes>(pkPolicyBranchInfo->GetFreePolicy()));
+		iWeight += WeighPolicy(pPlayer, static_cast<PolicyTypes>(pkPolicyBranchInfo->GetFreeFinishingPolicy()));
 
 		BuildingClassTypes eBuildingClass;
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			eBuildingClass = (BuildingClassTypes)iI;
+			eBuildingClass = static_cast<BuildingClassTypes>(iI);
 
 			if (pPlayer->getCapitalCity() != NULL)
 			{
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if (pkBuildingClassInfo)
 				{
-					const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+					const BuildingTypes eBuilding = static_cast<BuildingTypes>(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 					if (NO_BUILDING != eBuilding)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -5073,7 +5075,7 @@ void CvPolicyAI::LogPolicyAttributeYields(CvPlayer* pPlayer, PolicyTypes ePolicy
 		int iTotal = 0;
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
-			if (GC.getYieldInfo((YieldTypes)i) == NULL)
+			if (GC.getYieldInfo(static_cast<YieldTypes>(i)) == NULL)
 				continue;
 
 			int value = yields[i];
@@ -5083,7 +5085,7 @@ void CvPolicyAI::LogPolicyAttributeYields(CvPlayer* pPlayer, PolicyTypes ePolicy
 
 			iTotal += value;
 
-			strTemp.Format("%s, %s, %d", szPolicyType, GC.getYieldInfo((YieldTypes)i)->GetDescription(), value);
+			strTemp.Format("%s, %s, %d", szPolicyType, GC.getYieldInfo(static_cast<YieldTypes>(i))->GetDescription(), value);
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 
@@ -5129,7 +5131,7 @@ void CvPolicyAI::LogPossiblePolicies()
 			else
 			{
 
-				PolicyTypes ePolicy = (PolicyTypes)(m_AdoptablePolicies.GetElement(iI) - iNumBranches);
+				PolicyTypes ePolicy = static_cast<PolicyTypes>(m_AdoptablePolicies.GetElement(iI) - iNumBranches);
 				CvPolicyEntry* pPolicyEntry = GC.getPolicyInfo(ePolicy);
 				const char* szPolicyType = (pPolicyEntry != NULL)? pPolicyEntry->GetDescription() : "Unknown";
 				strTemp.Format("%s, %d", szPolicyType, iWeight);

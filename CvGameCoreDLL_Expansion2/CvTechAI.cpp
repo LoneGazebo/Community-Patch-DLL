@@ -112,7 +112,7 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 
 			if(entry->IsAllowsEmbarking())
 			{
-				EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
+				EconomicAIStrategyTypes eStrategyIslandStart = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START"));
 				if(m_pCurrentTechs->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
 				{
 					iTechWeight += 10;
@@ -140,12 +140,12 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Loop through adding the researchable techs
 	for (int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		if (m_pCurrentTechs->CanResearch((TechTypes)iTechLoop))
+		if (m_pCurrentTechs->CanResearch(static_cast<TechTypes>(iTechLoop)))
 		{
 			// For free techs, need an additional check
 			if (bFreeTech)
 			{
-				if (m_pCurrentTechs->CanResearchForFree((TechTypes)iTechLoop))
+				if (m_pCurrentTechs->CanResearchForFree(static_cast<TechTypes>(iTechLoop)))
 				{
 					m_ResearchableTechs.push_back(iTechLoop, m_TechAIWeights.GetWeight(iTechLoop));
 				}
@@ -166,7 +166,10 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Make and log our tech choice
 	if (m_ResearchableTechs.size() > 0)
 	{
-		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(), CvSeeder::fromRaw(0xd0b45b02).mix(pPlayer->GetID()).mix(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown()));
+		rtnValue = static_cast<TechTypes>(m_ResearchableTechs.ChooseAbovePercentThreshold(
+			GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(),
+			CvSeeder::fromRaw(0xd0b45b02).mix(pPlayer->GetID()).mix(
+				GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown())));
 		LogResearchChoice(rtnValue);
 	}
 
@@ -184,7 +187,7 @@ TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		if(m_pCurrentTechs->CanResearch((TechTypes) iTechLoop) && iTechLoop != eIgnoreTech)
+		if(m_pCurrentTechs->CanResearch(static_cast<TechTypes>(iTechLoop)) && iTechLoop != eIgnoreTech)
 		{
 			m_ResearchableTechs.push_back(iTechLoop, m_TechAIWeights.GetWeight(iTechLoop));
 		}
@@ -198,7 +201,7 @@ TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /
 	if(m_ResearchableTechs.GetTotalWeight() > 0)
 	{
 
-		rtnValue = (TechTypes) m_ResearchableTechs.GetElement(0);
+		rtnValue = static_cast<TechTypes>(m_ResearchableTechs.GetElement(0));
 		LogResearchChoice(rtnValue);
 	}
 
@@ -231,7 +234,7 @@ float CvTechAI::GetTechRatio()
 	std::vector<LeaderWithNumTechs> aLeaderWithNumTechs;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(ui);
 		if(!GET_PLAYER(ePlayer).isAlive())
 		{
 			continue;
@@ -262,7 +265,7 @@ float CvTechAI::GetTechRatio()
 	{
 		int iNumerator = iPlayerIndexInList;
 		int iDenominator = aLeaderWithNumTechs.size() - 1;
-		fTechPositionRatio = iNumerator / (float)iDenominator;
+		fTechPositionRatio = iNumerator / static_cast<float>(iDenominator);
 	}
 
 	return fTechPositionRatio;
@@ -338,7 +341,7 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 
 	for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{
-		eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
+		eTech = static_cast<TechTypes>(m_ResearchableTechs.GetElement(iI));
 		int iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
 
 		//reweight by turns left
@@ -348,11 +351,11 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 		int iNewWeight = 0;
 		if (bNeedExpensiveTechs)
 		{
-			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
+			iNewWeight = static_cast<int>(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
 		}
 		else
 		{
-			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+			iNewWeight = static_cast<int>(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
 		}
 
 		if (pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
@@ -397,7 +400,7 @@ void CvTechAI::LogPossibleResearch()
 		// Dump out the weight of each Researchable Tech
 		for(int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 		{
-			TechTypes eTech = (TechTypes) m_ResearchableTechs.GetElement(iI);
+			TechTypes eTech = static_cast<TechTypes>(m_ResearchableTechs.GetElement(iI));
 			int iWeight = m_ResearchableTechs.GetWeight(iI);
 
 			CvTechEntry* pTechEntry = GC.getTechInfo(eTech);

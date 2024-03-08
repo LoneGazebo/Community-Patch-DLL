@@ -897,7 +897,7 @@ void CvPlayerTechs::Reset()
 							if(iTech != NO_TECH)
 							{
 								m_piCivTechPriority[iTech] += /*25*/ GD_INT_GET(TECH_PRIORITY_UNIQUE_ITEM);
-								m_peCivTechUniqueUnits[iTech] = (UnitTypes)pkInfo->getCivilizationUnits(iI);
+								m_peCivTechUniqueUnits[iTech] = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(iI));
 							}
 						}
 					}
@@ -907,7 +907,7 @@ void CvPlayerTechs::Reset()
 			// Loop through all improvements
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
-				CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo((ImprovementTypes)iI);
+				CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo(static_cast<ImprovementTypes>(iI));
 				if(pkImprovementEntry)
 				{
 					if(pkImprovementEntry->IsSpecificCivRequired() && pkImprovementEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
@@ -915,7 +915,7 @@ void CvPlayerTechs::Reset()
 						// Find corresponding build
 						for(int jJ = 0; jJ < GC.getNumBuildInfos(); jJ++)
 						{
-							CvBuildInfo* pkBuildEntry = GC.getBuildInfo((BuildTypes)jJ);
+							CvBuildInfo* pkBuildEntry = GC.getBuildInfo(static_cast<BuildTypes>(jJ));
 							if(pkBuildEntry && pkBuildEntry->getImprovement() == iI)
 							{
 								int iTech = pkBuildEntry->getTechPrereq();
@@ -935,7 +935,7 @@ void CvPlayerTechs::Reset()
 		int iNumTraits = GC.getNumTraitInfos();
 		for(int iTraitLoop = 0; iTraitLoop < iNumTraits; iTraitLoop++)
 		{
-			TraitTypes eTraitLoop = (TraitTypes) iTraitLoop;
+			TraitTypes eTraitLoop = static_cast<TraitTypes>(iTraitLoop);
 			// Do we have this trait?
 			const CvLeaderHeadInfo* pkLeaderInfo = &m_pPlayer->getLeaderInfo();
 			if(pkLeaderInfo)
@@ -1220,7 +1220,7 @@ void CvPlayerTechs::SetLocalePriorities()
 						if(pkBuildInfo)
 						{
 							// If this is the improvement we're looking for
-							const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+							const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 							if(eImprovement != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -1276,11 +1276,11 @@ void CvPlayerTechs::SetGSPriorities()
 	map<TechTypes, vector<UnitTypes>> unitPrereqTechs;
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 	{
-		UnitTypes eUnit = (UnitTypes)iUnitLoop;
+		UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 		if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() != NO_TECH)
-			unitPrereqTechs[(TechTypes)pkUnitInfo->GetPrereqAndTech()].push_back(eUnit);
+			unitPrereqTechs[static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech())].push_back(eUnit);
 	}
 
 	//preparation pt2
@@ -1291,7 +1291,7 @@ void CvPlayerTechs::SetGSPriorities()
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 		if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
-			buildingPrereqTechs[(TechTypes)pkBuildingInfo->GetPrereqAndTech()].push_back(eBuilding);
+			buildingPrereqTechs[static_cast<TechTypes>(pkBuildingInfo->GetPrereqAndTech())].push_back(eBuilding);
 	}
 
 	// == Grand Strategy ==
@@ -1302,7 +1302,7 @@ void CvPlayerTechs::SetGSPriorities()
 	bool bCultureFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || m_pPlayer->GetPlayerTraits()->IsTourism() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 		if(eTech == NO_TECH)
 			continue;
 
@@ -1312,63 +1312,63 @@ void CvPlayerTechs::SetGSPriorities()
 
 		for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
-			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
+			FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavor);
 			if(eFlavor == NO_FLAVOR)
 				continue;
 
 			if(pkTechInfo->GetFlavorValue(eFlavor) > 0)
 			{
-				if (bDiploFocus && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"
-					|| GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GOLD"
-					|| GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ESPIONAGE"))
+				if (bDiploFocus && (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_DIPLOMACY"
+					|| GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GOLD"
+					|| GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ESPIONAGE"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
 				if(bConquestFocus && (
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || 
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_OFFENSE" || 
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_MILITARY_TRAINING" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_MOBILE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_RANGED" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_DEFENSE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_AIR" ||
 					// AI_UNIT_PRODUCTION : New flavors
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHER" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SIEGE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SKIRMISHER" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_MELEE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RANGED" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SUBMARINE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_BOMBER" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_FIGHTER"))
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_ARCHER" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SIEGE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SKIRMISHER" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_MELEE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_RANGED" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SUBMARINE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_BOMBER" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_FIGHTER"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
 				if(bCultureFocus && (
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || 
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GREAT_PEOPLE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_CULTURE" || 
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GREAT_PEOPLE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_WONDER"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if(bScienceFocus && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+				if(bScienceFocus && (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SCIENCE" || GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_SPACESHIP"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (m_pPlayer->GetPlayerTraits()->IsSmaller() && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GROWTH" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_GROWTH"
-					|| GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CITY_DEFENSE"
+				if (m_pPlayer->GetPlayerTraits()->IsSmaller() && (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GROWTH" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_NAVAL_GROWTH"
+					|| GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_CITY_DEFENSE"
 					))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (m_pPlayer->GetPlayerTraits()->IsReligious() && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RELIGION" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GREAT_PEOPLE"))
+				if (m_pPlayer->GetPlayerTraits()->IsReligious() && (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_RELIGION" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_GREAT_PEOPLE"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (m_pPlayer->GetPlayerTraits()->IsExpansionist() && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_INFRASTRUCTURE" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_EXPANSION"))
+				if (m_pPlayer->GetPlayerTraits()->IsExpansionist() && (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_INFRASTRUCTURE" ||
+					GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavor)) == "FLAVOR_EXPANSION"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
@@ -1513,7 +1513,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	// See if it is possible based on OR prereqs
 	for(iI = 0; iI < /*3*/ GD_INT_GET(NUM_OR_TECH_PREREQS); iI++)
 	{
-		TechTypes ePrereq = (TechTypes)pkTechEntry->GetPrereqOrTechs(iI);
+		TechTypes ePrereq = static_cast<TechTypes>(pkTechEntry->GetPrereqOrTechs(iI));
 		if(ePrereq != NO_TECH)
 		{
 			bFoundPossible = true;
@@ -1537,7 +1537,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	// See if it is possible based on AND prereqs
 	for(iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
-		TechTypes ePrereq = (TechTypes)pkTechEntry->GetPrereqAndTechs(iI);
+		TechTypes ePrereq = static_cast<TechTypes>(pkTechEntry->GetPrereqAndTechs(iI));
 		if(ePrereq != NO_TECH)
 		{
 			if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereq))
@@ -1639,7 +1639,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 
 	for(iI = 0; iI < GC.getNumTechInfos(); iI++)
 	{
-		if(CanResearch((TechTypes)iI))
+		if(CanResearch(static_cast<TechTypes>(iI)))
 		{
 			return false;
 		}
@@ -1655,7 +1655,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 		return;
 
 	//Check for Catherine Achievement
-	if((CvString)m_pPlayer->getLeaderTypeKey() == "LEADER_CATHERINE")
+	if(static_cast<CvString>(m_pPlayer->getLeaderTypeKey()) == "LEADER_CATHERINE")
 	{
 		for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
@@ -1672,9 +1672,9 @@ void CvPlayerTechs::CheckForTechAchievement() const
 						int iNumPlayersWith = 0;
 						for(iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 						{
-							if(!GET_PLAYER((PlayerTypes)iJ).isBarbarian() && !GET_PLAYER((PlayerTypes)iJ).isMinorCiv())
+							if(!GET_PLAYER(static_cast<PlayerTypes>(iJ)).isBarbarian() && !GET_PLAYER(static_cast<PlayerTypes>(iJ)).isMinorCiv())
 							{
-								if(GET_TEAM(GET_PLAYER((PlayerTypes)iJ).getTeam()).GetTeamTechs()->HasTech(eTech))
+								if(GET_TEAM(GET_PLAYER(static_cast<PlayerTypes>(iJ)).getTeam()).GetTeamTechs()->HasTech(eTech))
 								{
 									iNumPlayersWith++;
 								}
@@ -1746,7 +1746,7 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow,
 	{
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 			if(kPlayer.isAlive())
 			{
 				// Find everyone on our team
@@ -1799,7 +1799,7 @@ int CvPlayerTechs::GetNumTechsCanBeResearched() const
 
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		if(CanResearch((TechTypes)iTechLoop))
+		if(CanResearch(static_cast<TechTypes>(iTechLoop)))
 		{
 			rtnValue++;
 		}
@@ -1871,7 +1871,7 @@ int CvPlayerTechs::GetMedianTechResearch() const
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 
 		if(CanResearch(eTech))
 		{
@@ -1935,7 +1935,7 @@ void CvPlayerTechs::CheckHasUUTech()
 						{
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							int iObsoleteTech = pkUnitEntry->GetObsoleteTech();
-							if (iTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iTech))
+							if (iTech != NO_TECH && m_pPlayer->HasTech(static_cast<TechTypes>(iTech)))
 							{
 								bHas = true;
 							}
@@ -1943,7 +1943,7 @@ void CvPlayerTechs::CheckHasUUTech()
 							{
 								bHas = true;
 							}
-							if (iObsoleteTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iObsoleteTech))
+							if (iObsoleteTech != NO_TECH && m_pPlayer->HasTech(static_cast<TechTypes>(iObsoleteTech)))
 							{
 								bHas = false;
 							}
@@ -2004,12 +2004,12 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
 						{
 							int iTech = pkUnitEntry->GetPrereqAndTech();
-							if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
+							if (iTech != NO_TECH && !m_pPlayer->HasTech(static_cast<TechTypes>(iTech)))
 							{
-								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)iTech);
+								CvTechEntry* pkTechInfo = GC.getTechInfo(static_cast<TechTypes>(iTech));
 								if (pkTechInfo)
 								{
-									if (IsResearchingTech((TechTypes)iTech))
+									if (IsResearchingTech(static_cast<TechTypes>(iTech)))
 									{
 										bWillHaveSoon = true;
 										break;
@@ -2019,7 +2019,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 										// See if it is possible based on AND prereqs
 										for (int iJ = 0; iJ < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iJ++)
 										{
-											TechTypes ePrereq = (TechTypes)pkTechInfo->GetPrereqAndTechs(iJ);
+											TechTypes ePrereq = static_cast<TechTypes>(pkTechInfo->GetPrereqAndTechs(iJ));
 											if (ePrereq != NO_TECH && IsResearchingTech(ePrereq))
 											{
 												bWillHaveSoon = true;
@@ -2063,7 +2063,7 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	int iBiggestFlavor = -1000;
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
+		int iFlavorValue = GetLatestFlavorValue(static_cast<FlavorTypes>(iFlavor));
 		if(iFlavorValue > iBiggestFlavor)
 		{
 			iBiggestFlavor = iFlavorValue;
@@ -2077,12 +2077,12 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	iGameProgressFactor = min(900,max(100,iGameProgressFactor));
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iCurrentFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
+		int iCurrentFlavorValue = GetLatestFlavorValue(static_cast<FlavorTypes>(iFlavor));
 
 		// Scale the current to the same scale as the personality
 		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / max(1,iBiggestFlavor);
 
-		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, true /*bBoostGSMainFlavor*/);
+		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(iFlavor), true /*bBoostGSMainFlavor*/);
 
 		// this should give a more even blend between the personality and long term strategy and the more fickle current needs
 		// in the beginning of the game it will be responsive to current events, but later it should try to go for the goal more strongly
@@ -2098,7 +2098,7 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 
 		if(iFlavorValue > 0)
 		{
-			m_pTechAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue, iPropagatePercent);
+			m_pTechAI->AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue, iPropagatePercent);
 		}
 	}
 
@@ -2195,7 +2195,7 @@ void CvPlayerTechs::LogFlavorChange(FlavorTypes eFlavor, int change, const char*
 		{
 			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 			{
-				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI], change, reason?reason:"unknown", start?"start":"end");
+				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes(static_cast<FlavorTypes>(iI)).GetCString(), m_piLatestFlavorValues[iI], change, reason?reason:"unknown", start?"start":"end");
 				strOutBuf = strBaseString + strTemp;
 				pLog->Msg(strOutBuf);
 			}
@@ -2307,7 +2307,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 
 		// Next is an array of the tech IDs that were available when the save was made.
 		CvAssert(m_pTechs == GC.GetGameTechs());	// The hash to indices conversion will convert the hash to the index in the main game techs array, so these better be the same.
-		int* paTechIDs = (int*)_malloca(iNumSavedTechs * sizeof(int));
+		int* paTechIDs = static_cast<int*>((0));
 		CvInfosSerializationHelper::ReadHashedTypeArray(kStream, iNumSavedTechs, paTechIDs, iNumSavedTechs);
 
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
@@ -2508,7 +2508,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
 		long long iResearchProgress = (long long)GetResearchProgressTimes100(eIndex);
-		long long iResearchCost = (long long)GetResearchCost(eIndex) * 100;
+		long long iResearchCost = static_cast<long long>(GetResearchCost(eIndex)) * 100;
 
 		// Player modifiers to cost
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
@@ -2545,7 +2545,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			if (iOverflow >= INT_MAX)
 				iOverflow = INT_MAX;
 
-			GET_PLAYER(ePlayer).changeOverflowResearchTimes100((int)iOverflow);
+			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(static_cast<int>(iOverflow));
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
 			SetNoTradeTech(eIndex, true);
 
@@ -2558,7 +2558,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			TeamTypes eTeamID = m_pTeam->GetID();
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
 				if(kLoopPlayer.getTeam() == eTeamID)

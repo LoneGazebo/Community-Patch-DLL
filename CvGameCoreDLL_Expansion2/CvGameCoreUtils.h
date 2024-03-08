@@ -17,7 +17,7 @@
 
 inline int sqrti(int input)
 {
-	return int(sqrt((float)abs(input)));
+	return static_cast<int>(sqrt((float)abs(input)));
 }
 
 inline int range(int iNum, int iLow, int iHigh)
@@ -60,13 +60,13 @@ inline int wrapCoordDifference(int iDiff, uint uiRange, bool bWrap)
 {
 	if(bWrap)
 	{
-		if(iDiff > (int)(uiRange >> 1))		// Using an unsigned int so we can safely assume that value >> 1 == value / 2
+		if(iDiff > static_cast<int>(uiRange >> 1))		// Using an unsigned int so we can safely assume that value >> 1 == value / 2
 		{
-			return (iDiff - (int)uiRange);
+			return (iDiff - static_cast<int>(uiRange));
 		}
-		else if(iDiff < -(int)(uiRange >> 1))
+		else if(iDiff < -static_cast<int>(uiRange >> 1))
 		{
-			return (iDiff + (int)uiRange);
+			return (iDiff + static_cast<int>(uiRange));
 		}
 	}
 
@@ -138,7 +138,7 @@ inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 		break;
 	}
 
-	return (DirectionTypes)(( initialDir+iOffset ) % 6);
+	return static_cast<DirectionTypes>((initialDir + iOffset) % 6);
 }
 
 // -----------------------------------------------------------------------------
@@ -440,7 +440,7 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	if (candidates.size() == 1 || maxCandidatesToConsider == 1)
 		return candidates[0].option;
 
-	size_t maxCandidates = min(candidates.size(), (size_t)maxCandidatesToConsider);
+	size_t maxCandidates = min(candidates.size(), static_cast<size_t>(maxCandidatesToConsider));
 	std::stable_sort(candidates.begin(), candidates.end());
 
 	int totalWeight = 0;

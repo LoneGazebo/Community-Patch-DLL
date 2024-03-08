@@ -75,12 +75,12 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
 	{
-		m_eFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szFreeBuilding, true);
+		m_eFreeBuilding = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(szFreeBuilding, true));
 	}
 	const char* szFreePolicy = kResults.GetText("FreePolicyIfFirst");
 	if(szFreePolicy)
 	{
-		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
+		m_eFreePolicy = static_cast<PolicyTypes>(GC.getInfoTypeForString(szFreePolicy, true));
 	}
 #endif
 

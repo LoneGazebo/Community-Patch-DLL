@@ -404,7 +404,7 @@ void writeCivilizations(FDataStream& saveTo)
 		int i = 0;
 		std::vector<CivilizationTypes> civsTemp = s_civilizations;
 		for(std::vector<CivilizationTypes>::iterator civIter = civsTemp.begin(); civIter != civsTemp.end(); ++civIter, ++i){
-			if(slotStatus((PlayerTypes)i) != SS_COMPUTER){
+			if(slotStatus(static_cast<PlayerTypes>(i)) != SS_COMPUTER){
 				*civIter = NO_CIVILIZATION;
 			}
 		}
@@ -483,7 +483,7 @@ void ReseatConnectedPlayers()
 		int i = 0;
 		for(i = 0; i < MAX_PLAYERS; ++i){
 			// reseat the network connected player in this slot.
-			if(gDLL->ReseatConnectedPlayer((PlayerTypes)i)){
+			if(gDLL->ReseatConnectedPlayer(static_cast<PlayerTypes>(i))){
 				//a player needs to be reseated.  We need to wait for the net message to come from the host.  We will rerun ReseatConnectedPlayers then.
 				return;
 			}
@@ -618,7 +618,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 		if (civilizationKeys.size() > 0)
 		{
 			for (uint i = 0; i < civilizationKeys.size(); ++i)	
-				setCivilizationKey((PlayerTypes)i, civilizationKeys[i]);
+				setCivilizationKey(static_cast<PlayerTypes>(i), civilizationKeys[i]);
 		}
 		else
 			// Fall back to using the indices.  This shouldn't happen.
@@ -627,7 +627,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 		if (leaderKeys.size() > 0)
 		{
 			for (uint i = 0; i < leaderKeys.size(); ++i)	
-				setLeaderKey((PlayerTypes)i, leaderKeys[i]);
+				setLeaderKey(static_cast<PlayerTypes>(i), leaderKeys[i]);
 		}
 	}
 	else
@@ -819,7 +819,7 @@ void closeAllSlots()
 {
 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
-		PlayerTypes eID = (PlayerTypes)i;
+		PlayerTypes eID = static_cast<PlayerTypes>(i);
 		setSlotStatus(eID, SS_CLOSED);
 		setSlotClaim(eID, SLOTCLAIM_UNASSIGNED);
 	}
@@ -834,7 +834,7 @@ void closeInactiveSlots()
 	gDLL->BeginSendBundle();
 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
-		PlayerTypes eID = (PlayerTypes)i;
+		PlayerTypes eID = static_cast<PlayerTypes>(i);
 		if (slotStatus(eID) == SS_OPEN)
 		{
 			if (gameType() == GAME_NETWORK_MULTIPLAYER && gameMapType() == GAME_SCENARIO)
@@ -920,7 +920,7 @@ void SyncGameOptionsWithEnumList()
 	for(int i = 0; i < NUM_GAMEOPTION_TYPES; i++)
 	{
 		int value = 0;
-		str = ConvertGameOptionTypeToString((GameOptionTypes)i);
+		str = ConvertGameOptionTypeToString(static_cast<GameOptionTypes>(i));
 		if(str)
 		{
 			GetGameOption(str, value);
@@ -976,15 +976,15 @@ bool GetGameOption(const char* szOptionName, int& iValue)
 
 bool GetGameOption(GameOptionTypes eOption, int& iValue)
 {
-	if((uint)eOption >= 0 && (uint)eOption < (uint)NUM_GAMEOPTION_TYPES)
+	if(static_cast<uint>(eOption) >= 0 && static_cast<uint>(eOption) < static_cast<uint>(NUM_GAMEOPTION_TYPES))
 	{
-		iValue = s_EnumBasedGameOptions[(size_t)eOption];
+		iValue = s_EnumBasedGameOptions[static_cast<size_t>(eOption)];
 		return true;
 	}
 	else
 	{
 		// Hash lookup
-		HashToOptionMap::const_iterator itr = s_GameOptionsHash.find((uint)eOption);
+		HashToOptionMap::const_iterator itr = s_GameOptionsHash.find(static_cast<uint>(eOption));
 		if(itr != s_GameOptionsHash.end())
 		{
 			if(itr->second <= s_GameOptions.size())
@@ -995,7 +995,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 		}
 
 		// Must get the string from the hash
-		GameOptionTypes eOptionIndex = (GameOptionTypes)GC.getInfoTypeForHash((uint)eOption);
+		GameOptionTypes eOptionIndex = static_cast<GameOptionTypes>(GC.getInfoTypeForHash((uint)eOption));
 		if(eOptionIndex >= 0)
 		{
 			CvGameOptionInfo* pkInfo = GC.getGameOptionInfo(eOptionIndex);
@@ -1454,7 +1454,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 			int i = 0;
 			for (i = 0; i < iNumBools; i++)
 			{
-				SetGameOption(((GameOptionTypes)i), pbBools[i]);
+				SetGameOption(static_cast<GameOptionTypes>(i), pbBools[i]);
 			}
 			SAFE_DELETE_ARRAY(pbBools);
 		}
@@ -1661,7 +1661,7 @@ int numDefinedPlayers()
 	int iCount = 0;
 	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		if((civilization((PlayerTypes)i) != NO_CIVILIZATION) && (leaderHead((PlayerTypes)i) != NO_LEADER))
+		if((civilization(static_cast<PlayerTypes>(i)) != NO_CIVILIZATION) && (leaderHead(static_cast<PlayerTypes>(i)) != NO_LEADER))
 		{
 			iCount++;
 		}
@@ -1674,7 +1674,7 @@ int numHumans()
 	int iNumHumans = 0;
 	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		if(isHuman((PlayerTypes)i))
+		if(isHuman(static_cast<PlayerTypes>(i)))
 		{
 			++iNumHumans;
 		}
@@ -1938,8 +1938,8 @@ void read(FDataStream& loadFrom, bool bReadVersion)
 	SyncGameOptionsWithEnumList();
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
-		bindLeaderKeys((PlayerTypes)i);
-		bindCivilizationKeys((PlayerTypes)i);
+		bindLeaderKeys(static_cast<PlayerTypes>(i));
+		bindCivilizationKeys(static_cast<PlayerTypes>(i));
 	}
 	ReseatConnectedPlayers();
 }
@@ -1959,12 +1959,12 @@ void resetGame()
 	s_mapNoPlayers = false;
 
 	// Standard game parameters
-	s_climate = ClimateTypes(0); // NO_ option?
-	s_seaLevel = SeaLevelTypes(1); // NO_ option?
-	s_era = EraTypes(GD_INT_GET(STANDARD_ERA)); // NO_ option?
-	s_gameSpeed = GameSpeedTypes(GD_INT_GET(STANDARD_GAMESPEED)); // NO_ option?
-	s_turnTimerType = TurnTimerTypes(4); // NO_ option?
-	s_calendar = CalendarTypes(0); // NO_ option?
+	s_climate = static_cast<ClimateTypes>(0); // NO_ option?
+	s_seaLevel = static_cast<SeaLevelTypes>(1); // NO_ option?
+	s_era = static_cast<EraTypes>(GD_INT_GET(STANDARD_ERA)); // NO_ option?
+	s_gameSpeed = static_cast<GameSpeedTypes>(GD_INT_GET(STANDARD_GAMESPEED)); // NO_ option?
+	s_turnTimerType = static_cast<TurnTimerTypes>(4); // NO_ option?
+	s_calendar = static_cast<CalendarTypes>(0); // NO_ option?
 
 	// Data-defined victory conditions 
 	s_numVictoryInfos = DB.Count("Victories");
@@ -2056,12 +2056,12 @@ void resetPlayer(PlayerTypes p)
 		setCivilization(p, NO_CIVILIZATION);
 		setLeaderHead(p, NO_LEADER);
 		setMinorCivType(p, NO_MINORCIV);
-		setTeamType(p, (TeamTypes)p); // JAR : Whisky Tango Foxtrot?
+		setTeamType(p, static_cast<TeamTypes>(p)); // JAR : Whisky Tango Foxtrot?
 
 		if(isNetworkMultiplayerGame())
-			setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
+			setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(MULTIPLAYER_HANDICAP)));
 		else
-			setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
+			setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(STANDARD_HANDICAP)));
 
 		setLastHumanHandicap(p, NO_HANDICAP);
 		setPlayerColor(p, NO_PLAYERCOLOR);
@@ -2089,7 +2089,7 @@ void resetPlayers()
 {
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
-		resetPlayer((PlayerTypes)i);
+		resetPlayer(static_cast<PlayerTypes>(i));
 	}
 }
 
@@ -2124,11 +2124,11 @@ void resetSlots()
 
 				//S.S:  In single player games, slot 1 *should* be marked as taken but it currently is not.
 				if(slotStatus(p) == SS_COMPUTER && i != 0)
-					setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
+					setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(AI_HANDICAP)));
 				else
 				{
 					if(isHotSeatGame())
-						setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
+						setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(MULTIPLAYER_HANDICAP)));
 				}
 				++slotsAssigned;
 			}
@@ -2166,9 +2166,9 @@ void resetSlots()
 					}
 				}
 				if(slotStatus(p) == SS_COMPUTER)
-					setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
+					setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(AI_HANDICAP)));
 				else
-					setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
+					setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(MULTIPLAYER_HANDICAP)));
 
 				++slotsAssigned;
 			}
@@ -2339,7 +2339,7 @@ void setCalendar(const CvString& c)
 	}
 	s_calendarInfo.CacheResult(kResult);
 
-	s_calendar = (CalendarTypes)s_calendarInfo.GetID();
+	s_calendar = static_cast<CalendarTypes>(s_calendarInfo.GetID());
 }
 
 void setCivilization(PlayerTypes p, CivilizationTypes c)
@@ -2397,7 +2397,7 @@ void setClimate(const CvString& c)
 	DB.SelectAt(kResult, "Climates", "Type", c);
 	s_climateInfo.CacheResult(kResult);
 
-	s_climate = (ClimateTypes)s_climateInfo.GetID();
+	s_climate = static_cast<ClimateTypes>(s_climateInfo.GetID());
 }
 
 void setCustomWorldSize(int iWidth, int iHeight, int iPlayers, int iMinorCivs)
@@ -2425,7 +2425,7 @@ void setCustomWorldSize(int iWidth, int iHeight, int iPlayers, int iMinorCivs)
 		}
 	}
 
-	s_worldSize = (WorldSizeTypes)kClosestSizeType.GetID();
+	s_worldSize = static_cast<WorldSizeTypes>(kClosestSizeType.GetID());
 	if(iPlayers > 0 || !CvPreGame::mapNoPlayers())
 		s_worldInfo = CvWorldInfo::CreateCustomWorldSize(kClosestSizeType, iWidth, iHeight, iPlayers, iMinorCivs);
 	else
@@ -2519,7 +2519,7 @@ void setGameSpeed(const CvString& g)
 		{
 			if(_stricmp(g.GetCString(), pkGameSpeedInfo->GetType()) == 0)
 			{
-				setGameSpeed((GameSpeedTypes)i);
+				setGameSpeed(static_cast<GameSpeedTypes>(i));
 			}
 		}
 	}
@@ -2666,7 +2666,7 @@ void onGameStarted()
 		else if (MOD_BALANCE_CITY_STATE_TRAITS)
 		{
 			CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(eMinorCiv);
-			MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+			MinorCivTraitTypes eTrait = static_cast<MinorCivTraitTypes>(pkCityState->GetMinorCivTrait());
 			switch (eTrait)
 			{
 			case MINOR_CIV_TRAIT_CULTURED:
@@ -2912,7 +2912,7 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 		if (pkCityState == NULL)
 			continue;
 
-		MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+		MinorCivTraitTypes eTrait = static_cast<MinorCivTraitTypes>(pkCityState->GetMinorCivTrait());
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS && bNoReligion)
 			continue;
 		if (eTrait == MINOR_CIV_TRAIT_CULTURED && bNoPolicies)
@@ -3093,7 +3093,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 					kResults.Bind(1, szKey.c_str());
 					if(kResults.Step())
 					{
-						s_leaderHeads[p] = (LeaderHeadTypes)kResults.GetInt(0);
+						s_leaderHeads[p] = static_cast<LeaderHeadTypes>(kResults.GetInt(0));
 						if(!ExtractGUID(kResults.GetText(1), s_leaderPackageID[p]))
 							ClearGUID(s_leaderPackageID[p]);
 						s_leaderKeysAvailable[p] = true;
@@ -3249,7 +3249,7 @@ void setNickname(PlayerTypes p, const CvString& n)
 				_szName.erase(_pos, _cNum);
 			}
 		}
-		s_displayNicknames[p] = (CvString)_szName;
+		s_displayNicknames[p] = static_cast<CvString>(_szName);
 		s_nicknames[p] = n;
 	}
 }
@@ -3355,7 +3355,7 @@ void setSeaLevel(const CvString& s)
 	DB.SelectAt(kResult, "SeaLevels", "Type", s.c_str());
 	s_seaLevelInfo.CacheResult(kResult);
 
-	s_seaLevel = (SeaLevelTypes)s_seaLevelInfo.GetID();
+	s_seaLevel = static_cast<SeaLevelTypes>(s_seaLevelInfo.GetID());
 }
 
 void setSlotClaim(PlayerTypes p, SlotClaim s)
@@ -3416,7 +3416,7 @@ void setTurnTimer(const CvString& t)
 	}
 	s_turnTimer.CacheResult(kResult);
 
-	s_turnTimerType = (TurnTimerTypes)s_turnTimer.GetID();
+	s_turnTimerType = static_cast<TurnTimerTypes>(s_turnTimer.GetID());
 }
 
 void SetCityScreenBlocked(bool bCityScreenBlocked)
@@ -3437,7 +3437,7 @@ void setVictory(VictoryTypes v, bool isValid)
 
 void setVictories(const std::vector<bool>& v)
 {
-	CvAssert(v.size() <= std::size_t(s_numVictoryInfos));
+	CvAssert(v.size() <= static_cast<std::size_t>(s_numVictoryInfos));
 	for (std::size_t i = 0; i < v.size(); i++)
 		s_victories[i] = v[i];
 }
@@ -3470,17 +3470,17 @@ void VerifyHandicap(PlayerTypes p)
 {//Verifies that the current handicap is valid for the current player.
 	//non-ai players can't use the default ai handicap and ai players MUST use it.
 	if(slotStatus(p) == SS_COMPUTER){
-		setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
+		setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(AI_HANDICAP)));
 	}
 	else if(handicap(p) == GD_INT_GET(AI_HANDICAP)){
 		if(lastHumanHandicap(p) != NO_HANDICAP){
 			setHandicap(p, lastHumanHandicap(p));
 		}
 		else if(GC.getGame().isNetworkMultiPlayer()){
-			setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
+			setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(MULTIPLAYER_HANDICAP)));
 		}
 		else{
-			setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
+			setHandicap(p, static_cast<HandicapTypes>(GD_INT_GET(STANDARD_HANDICAP)));
 		}
 	}
 }
@@ -3519,7 +3519,7 @@ void setWorldSize(const CvString& w)
 	if(kQuery.Step())
 	{
 		s_worldInfo.CacheResult(kQuery);
-		s_worldSize = (WorldSizeTypes)s_worldInfo.GetID();
+		s_worldSize = static_cast<WorldSizeTypes>(s_worldInfo.GetID());
 		resetSlots();
 	}
 	else
@@ -3836,7 +3836,7 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 				kResults.Bind(1, szKey.c_str());
 				if(kResults.Step())
 				{
-					s_civilizations[p] = (CivilizationTypes)kResults.GetInt(0);
+					s_civilizations[p] = static_cast<CivilizationTypes>(kResults.GetInt(0));
 					if(!ExtractGUID(kResults.GetText(1), s_civilizationPackageID[p]))
 						ClearGUID(s_civilizationPackageID[p]);
 					s_civilizationKeysAvailable[p] = true;
@@ -3906,7 +3906,7 @@ bool canReadyLocalPlayer()
 {
 	for(int itr = 0; itr < MAX_PLAYERS; ++itr)
 	{
-		if(slotStatus((PlayerTypes)itr) != SS_CLOSED && !CvPreGame::civilizationKeyAvailable((PlayerTypes)itr))
+		if(slotStatus(static_cast<PlayerTypes>(itr)) != SS_CLOSED && !CvPreGame::civilizationKeyAvailable(static_cast<PlayerTypes>(itr)))
 			return false;
 	}
 
@@ -3935,12 +3935,12 @@ void updateKnownPlayersTable()
 	s_knownPlayersTable.resize(MAX_MAJOR_CIVS);
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
 		KnownPlayersBitArray bitarray = 0;
-		const CvTeam& kTeam = GET_TEAM((TeamTypes)i);
+		const CvTeam& kTeam = GET_TEAM(static_cast<TeamTypes>(i));
 
 		for (int j = 0; j < MAX_MAJOR_CIVS; j++) {
-			if (i == j || kTeam.isHasMet((TeamTypes)j))
+			if (i == j || kTeam.isHasMet(static_cast<TeamTypes>(j)))
 
-				bitarray |= KnownPlayersBitArray(1) << j;
+				bitarray |= static_cast<KnownPlayersBitArray>(1) << j;
 		}
 		s_knownPlayersTable[i] = bitarray;
 	}
@@ -3967,9 +3967,9 @@ bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB) {
 	// table will be empty if GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN, i.e. not keeping track of unmet players and consider all to be met for the purposes of PreGame UI.
 	if (s_knownPlayersTable.empty()) return true;
 	if (eA < 0 || eB < 0) return true; // erring on the side of caution
-	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size()) return true; // erring on the side of caution
+	if (static_cast<size_t>(eA) >= s_knownPlayersTable.size() || static_cast<size_t>(eB) >= s_knownPlayersTable.size()) return true; // erring on the side of caution
 
-	return (s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB)) != 0;
+	return (s_knownPlayersTable[eA] & (static_cast<KnownPlayersBitArray>(1) << eB)) != 0;
 }
 #endif
 }

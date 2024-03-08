@@ -212,7 +212,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	// for each opposing civ
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayer);
 		CvPlayer& loopPlayer = GET_PLAYER(ePlayer);
 		TeamTypes eLoopTeam = loopPlayer.getTeam();
 
@@ -312,7 +312,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 						//only affected BY adjacent plots
 						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 						{
-							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 							if (pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->getEffectiveOwningCity() == pOwner && pAdjacentPlot->isBeingWorked())
 							{
@@ -336,7 +336,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 					//citadel only affects adjacent plots, not this plot
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 						if(pAdjacentPlot != NULL)
 							//unlike the rest, citadel damage applies with 100% certainty, so add twice the amount to drive the point home
@@ -345,7 +345,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 
 				//if we know there's a camp with units there but we can't see it, assume some danger
-				ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+				ImprovementTypes eCamp = static_cast<ImprovementTypes>(GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
 				if (eImprovement == eCamp && !pPlot->isVisible(thisTeam))
 					AddFogDanger(pPlot, BARBARIAN_TEAM, 3, false);
 			}

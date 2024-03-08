@@ -204,7 +204,7 @@ void CvDiplomacyRequests::BeginTurn(void)
 	}
 	else
 	{
-		m_eNextAIPlayer = (PlayerTypes)0;
+		m_eNextAIPlayer = static_cast<PlayerTypes>(0);
 	}
 #else
 	m_eNextAIPlayer = (PlayerTypes)0;
@@ -507,7 +507,7 @@ void CvDiplomacyRequests::DoAIMPDiplomacyWithHumans()
 	// just loop through all ai players and to diplomacy with active humans
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+		CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
 		if (kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		{
 			kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_HUMAN_PLAYERS);
@@ -661,7 +661,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 					if(ePlayerLoop != NO_PLAYER)
 					{
 						int iMaxCivPlayers = MAX_CIV_PLAYERS;
-						while((int)ePlayerLoop < iMaxCivPlayers)
+						while(static_cast<int>(ePlayerLoop) < iMaxCivPlayers)
 						{
 							CvPlayer& kPlayer = GET_PLAYER(ePlayerLoop);
 
@@ -670,15 +670,15 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 								kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_SPECIFIC_PLAYER,eTargetPlayer);
 								if(pkTargetRequests->HasPendingRequests())
 								{
-									ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);
+									ePlayerLoop = static_cast<PlayerTypes>((int)ePlayerLoop + 1);
 									break;
 								}
 							}
 
-							ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);
+							ePlayerLoop = static_cast<PlayerTypes>((int)ePlayerLoop + 1);
 						}
 
-						pkTargetRequests->SetNextAIPlayer((((int)ePlayerLoop >= iMaxCivPlayers)?NO_PLAYER:ePlayerLoop));
+						pkTargetRequests->SetNextAIPlayer(((static_cast<int>(ePlayerLoop) >= iMaxCivPlayers)?NO_PLAYER:ePlayerLoop));
 					}
 				}
 			}
@@ -704,8 +704,8 @@ bool CvDiplomacyRequests::HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlay
 {
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes)i);
-		if (kTargetPlayer.isHuman() && kTargetPlayer.isAlive() && (PlayerTypes)i != eSourcePlayer)
+		CvPlayer& kTargetPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
+		if (kTargetPlayer.isHuman() && kTargetPlayer.isAlive() && static_cast<PlayerTypes>(i) != eSourcePlayer)
 		{
 			if (kTargetPlayer.GetDiplomacyRequests()->HasActiveRequestFrom(eSourcePlayer))
 				return true;

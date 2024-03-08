@@ -202,7 +202,7 @@ ICvNetworkSyncronization1* CvDllGameContext::GetNetworkSyncronizer()
 //------------------------------------------------------------------------------
 ICvNetMessageHandler1* CvDllGameContext::GetNetMessageHandler()
 {
-	return (ICvNetMessageHandler1*)m_pNetMessageHandler->QueryInterface(ICvNetMessageHandler1::GetInterfaceId());
+	return static_cast<ICvNetMessageHandler1*>(m_pNetMessageHandler->QueryInterface(ICvNetMessageHandler1::GetInterfaceId()));
 }
 //------------------------------------------------------------------------------
 ICvWorldBuilderMapLoader1* CvDllGameContext::GetWorldBuilderMapLoader()

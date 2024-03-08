@@ -104,7 +104,7 @@ bool CvMapGenerator::GetGameInitialItemsOverrides(CvGameInitialItemsOverrides& k
 int CvMapGenerator::pGetMapInitData(lua_State* L)
 {
 	cvStopWatch stopWatch("CvMapGenerator - GetMapInitData()");
-	GetMapInitDataArgs* pArgs = (GetMapInitDataArgs*)lua_touserdata(L, 1);
+	GetMapInitDataArgs* pArgs = static_cast<GetMapInitDataArgs*>(lua_touserdata(L, 1));
 
 	pArgs->bSuccess = false;
 	lua_getglobal(L, "GetMapInitData");
@@ -152,7 +152,7 @@ int CvMapGenerator::pGetMapInitData(lua_State* L)
 int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 {
 	cvStopWatch stopWatch("CvMapGenerator - GetGameInitialItemsOverrides()");
-	GetGameInitialItemsOverridesArgs* pArgs = (GetGameInitialItemsOverridesArgs*)lua_touserdata(L, 1);
+	GetGameInitialItemsOverridesArgs* pArgs = static_cast<GetGameInitialItemsOverridesArgs*>(lua_touserdata(L, 1));
 
 	pArgs->bSuccess = false;
 	lua_getglobal(L, "GetGameInitialItemsOverrides");
@@ -277,7 +277,7 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 int CvMapGenerator::pGenerateRandomMap(lua_State* L)
 {
 	cvStopWatch stopWatch("CvMapGenerator - GenerateRandomMap()");
-	ICvEngineScriptSystem1* pkScriptSystem = (ICvEngineScriptSystem1*)lua_touserdata(L, 1);
+	ICvEngineScriptSystem1* pkScriptSystem = static_cast<ICvEngineScriptSystem1*>(lua_touserdata(L, 1));
 
 	lua_getglobal(L, "GenerateMap");
 	if(lua_isnil(L, -1))

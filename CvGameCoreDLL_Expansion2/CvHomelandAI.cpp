@@ -368,7 +368,7 @@ void CvHomelandAI::FindHomelandTargets()
 						// Find proper improvement
 						for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
-							BuildTypes eBuild = ((BuildTypes)iJ);
+							BuildTypes eBuild = static_cast<BuildTypes>(iJ);
 							if (eBuild == NO_BUILD)
 								continue;
 
@@ -376,7 +376,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if (!pkBuildInfo)
 								continue;
 
-							ImprovementTypes eNavalImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+							ImprovementTypes eNavalImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 							if (eNavalImprovement == NO_IMPROVEMENT)
 								continue;
 
@@ -978,9 +978,9 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
-						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+						CvBuildInfo* pkBuild = GC.getBuildInfo(static_cast<BuildTypes>(i));
 
-						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild(static_cast<BuildTypes>(i)) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -1028,9 +1028,9 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
-						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+						CvBuildInfo* pkBuild = GC.getBuildInfo(static_cast<BuildTypes>(i));
 					
-						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild(static_cast<BuildTypes>(i)) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -1071,19 +1071,19 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 			{
 				if (pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
 				{
-					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+					if (!pUnit->canBuild(pTarget, static_cast<BuildTypes>(m_TargetedNavalResources[iI].GetAuxIntData())))
 						continue;
 				}
-				else if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+				else if (!pUnit->canBuild(pTarget, static_cast<BuildTypes>(m_TargetedNavalResources[iI].GetAuxIntData())))
 				{
-					BuildTypes eBuildCheck1 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS");
-					if (eBuildCheck1 == (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData())
+					BuildTypes eBuildCheck1 = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_FISHING_BOATS"));
+					if (eBuildCheck1 == static_cast<BuildTypes>(m_TargetedNavalResources[iI].GetAuxIntData()))
 					{
-						BuildTypes eBuildCheck2 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS_NO_KILL");
+						BuildTypes eBuildCheck2 = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_FISHING_BOATS_NO_KILL"));
 						if (eBuildCheck2 != NO_BUILD)
 						{
 							m_TargetedNavalResources[iI].SetAuxIntData(eBuildCheck2);
-							if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+							if (!pUnit->canBuild(pTarget, static_cast<BuildTypes>(m_TargetedNavalResources[iI].GetAuxIntData())))
 								continue;
 						}
 						else
@@ -1099,7 +1099,7 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 			}
 			else
 			{
-				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+				if (!pUnit->canBuild(pTarget, static_cast<BuildTypes>(m_TargetedNavalResources[iI].GetAuxIntData())))
 					continue;
 			}
 
@@ -1179,7 +1179,7 @@ void CvHomelandAI::ExecuteUnitGift()
 	// First fulfill any City-State quests
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+		PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 		if (eMinor != NO_PLAYER)
 		{
 			pMinor = &GET_PLAYER(eMinor);
@@ -1191,7 +1191,7 @@ void CvHomelandAI::ExecuteUnitGift()
 				{
 					if (pMinorCivAI->getIncomingUnitGift(ePlayer).getArrivalCountdown() == -1)
 					{
-						eUnitType = (UnitTypes)pMinorCivAI->GetQuestData1(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
+						eUnitType = static_cast<UnitTypes>(pMinorCivAI->GetQuestData1(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT));
 						iMinExperienceRequired = pMinorCivAI->GetQuestData2(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
 						break;
 					}
@@ -1324,7 +1324,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 						CvUnitEntry* pUpgradeUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
 						if (pUpgradeUnitInfo)
 						{
-							TechTypes ePrereqTech = (TechTypes) pUpgradeUnitInfo->GetPrereqAndTech();
+							TechTypes ePrereqTech = static_cast<TechTypes>(pUpgradeUnitInfo->GetPrereqAndTech());
 							if (ePrereqTech != NO_TECH)
 							{
 								if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
@@ -1350,7 +1350,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType()));
 
 				// Don't send weak units, we don't want them to be disbanded
 				if ((pkUnitInfo->GetPower() * 100) < iStrongestUnitComparison)
@@ -1582,7 +1582,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 			if(eUpgradeUnitType != NO_UNIT)
 			{
 				// Tech requirement
-				TechTypes ePrereqTech = (TechTypes) GC.getUnitInfo(eUpgradeUnitType)->GetPrereqAndTech();
+				TechTypes ePrereqTech = static_cast<TechTypes>(GC.getUnitInfo(eUpgradeUnitType)->GetPrereqAndTech());
 				if(ePrereqTech == NO_TECH || GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 				{
 					// Resource requirement
@@ -1591,12 +1591,12 @@ void CvHomelandAI::PlotUpgradeMoves()
 					{
 						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
 						{
-							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+							ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 							int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
 							if (iNumResource > 0)
 							{
 								//Don't use all of our Aluminum, keep some for spaceship parts
-								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+								ResourceTypes eAluminumResource = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_ALUMINUM", true));
 								if (eResource == eAluminumResource)
 								{
 									iNumResource += 5;
@@ -1722,9 +1722,9 @@ void CvHomelandAI::PlotUpgradeMoves()
 		int iCurrentFlavorMilitaryTraining = 0;
 		for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && iCurrentFlavorMilitaryTraining == 0; iFlavorLoop++)
 		{
-			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
+			if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_MILITARY_TRAINING")
 			{
-				iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop);
+				iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop));
 			}
 			if(m_pPlayer->IsAtWar())
 			{
@@ -2579,7 +2579,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		PlayerTypes ePlotOwner = NO_PLAYER;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			CvPlot* pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+			CvPlot* pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), static_cast<DirectionTypes>(iI));
 			if (pLoopPlotSearch != NULL)
 			{
 				PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
@@ -2858,8 +2858,8 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 		if (!pkOtherBuildInfo)
 			continue;
 
-		RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
-		RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+		RouteTypes eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
+		RouteTypes eOtherRoute = static_cast<RouteTypes>(pkOtherBuildInfo->getRoute());
 
 		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
@@ -3160,7 +3160,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		{
 			// We may want to recalculate some of the other directive scores
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+			ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 			if (eImprovement == NO_IMPROVEMENT && pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged())
 				eImprovement = pDirectivePlot->getImprovementType();
@@ -3169,7 +3169,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			vector<BuilderDirective> aNewBuilderDirectives;
 
 			// Resource considerations
-			ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+			ResourceTypes eResourceFromImprovement = pkImprovementInfo ? static_cast<ResourceTypes>(pkImprovementInfo->GetResourceFromImprovement()) : NO_RESOURCE;
 			ResourceTypes eResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : pDirectivePlot->getResourceType(m_pPlayer->getTeam());
 			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
 			bool bResourceStateChanged = false;
@@ -3260,7 +3260,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
 				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
-				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
+				ImprovementTypes eOtherImprovement = static_cast<ImprovementTypes>(pkOtherBuildInfo->getImprovement());
 
 				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair() && pOtherPlot->IsImprovementPillaged())
 					eOtherImprovement = pOtherPlot->getImprovementType();
@@ -3367,7 +3367,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// If we are building a road, make sure all neighboring road builds get their value set to their full value.
 					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
-						RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+						RouteTypes eOtherRoute = static_cast<RouteTypes>(pkOtherBuildInfo->getRoute());
 						if (eOtherRoute != NO_ROUTE)
 						{
 							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteTypeAndValue(pOtherPlot).second;
@@ -4140,7 +4140,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 
 				if (pUnit->plot() == pTarget && pUnit->canMove())
 				{
-					BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
+					BuildTypes eBuild = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_EMBASSY"));
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, false, false, MISSIONAI_BUILD, pTarget);
 
 					if (GC.getLogging() && GC.getAILogging())
@@ -4287,7 +4287,7 @@ void CvHomelandAI::ExecuteMerchantMoves()
 		{
 			std::vector<CvPlot*> vDummy;
 			bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
-			BuildTypes eColonia = (BuildTypes)GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE");
+			BuildTypes eColonia = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE"));
 			//stupid distinction between Player and PlayerAI classes
 			CvPlot* pTargetPlot = bIsVenice ? GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true) : NULL;
 			if (pTargetPlot) //venetian merchant
@@ -4450,7 +4450,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+	BuildTypes eCitadel = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_CITADEL"));
 	vector<CvPlot*> vPlotsToAvoid;
 	vector<CvCity*> vTargets = m_pPlayer->GetThreatenedCities(false);
 
@@ -4512,7 +4512,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						int iBuildIndex;
 						for (iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 						{
-							eBuild = (BuildTypes)iBuildIndex;
+							eBuild = static_cast<BuildTypes>(iBuildIndex);
 							CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 							if (pkBuild == NULL)
 								continue;
@@ -5464,7 +5464,7 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 
 			if(pUnit->plot() == pTarget)
 			{
-				BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+				BuildTypes eBuild = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG"));
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, false, false, MISSIONAI_BUILD, pTarget);
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -5760,7 +5760,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	CvPlot *pBestTarget = NULL;
 	int iBestTurns = MAX_INT;
 
-	BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+	BuildTypes eBuild = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG"));
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
 	for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
@@ -5982,7 +5982,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	//don't target goody huts if we can't claim them with this unit
 	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pPlot->isGoody())
 	{
-		if (pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+		if (pUnit->getUnitCombatType() != static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) && !pUnit->IsGainsXPFromScouting())
 			return false;
 	}
 
@@ -6341,7 +6341,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		return NULL;
 
 	// Does somebody already have an embassy here?
-	ImprovementTypes eEmbassyImprovement = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
+	ImprovementTypes eEmbassyImprovement = static_cast<ImprovementTypes>(GD_INT_GET(EMBASSY_IMPROVEMENT));
 	if (kCityPlayer.getImprovementCount(eEmbassyImprovement, false) > 0)
 		return NULL;
 
@@ -6356,7 +6356,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		return NULL;
 
 	// Is there an available spot for us to build on?
-	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
+	BuildTypes eEmbassyBuild = static_cast<BuildTypes>(GC.getInfoTypeForString("BUILD_EMBASSY"));
 	CvPlot* pEmbassyPlot = NULL;
 
 	for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
@@ -6414,7 +6414,7 @@ vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, b
 	std::stable_sort( vTargets.begin(), vTargets.end() );
 
 	vector<SPatrolTarget> vResult;
-	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
+	for (size_t i=0; i<MIN(vTargets.size(),static_cast<size_t>(nMaxTargets)); i++)
 		//copy the top N results, take care not to have duplicate cities in there
 		if (std::find(vResult.begin(),vResult.end(),vTargets[i])==vResult.end())
 			vResult.push_back( vTargets[i] );

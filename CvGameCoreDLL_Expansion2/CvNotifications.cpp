@@ -189,7 +189,7 @@ void CvNotifications::Update(void)
 
 		iIndex++;
 
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -215,7 +215,7 @@ void CvNotifications::EndOfTurnCleanup(void)
 
 		iIndex++;
 
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -227,7 +227,7 @@ int CvNotifications::AddByName(const char* pszNotificationName, const char* strM
 {
 	if (pszNotificationName && pszNotificationName[0] != 0)
 	{
-		return Add((NotificationTypes) FString::Hash(pszNotificationName), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
+		return Add(static_cast<NotificationTypes>(FString::Hash(pszNotificationName)), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 	}
 	return -1;
 }
@@ -350,7 +350,7 @@ void CvNotifications::Activate(int iLookupIndex)
 			break;
 		}
 		iIndex++;
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -385,7 +385,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 		}
 
 		iIndex++;
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -460,7 +460,7 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 		}
 
 		iIndex++;
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -481,7 +481,7 @@ void CvNotifications::Rebroadcast(void)
 		}
 
 		iIndex++;
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -660,7 +660,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 		}
 
 		iIndex++;
-		if(iIndex >= int(MaxNotifications))
+		if(iIndex >= static_cast<int>(MaxNotifications))
 		{
 			iIndex = 0;
 		}
@@ -678,38 +678,38 @@ int CvNotifications::GetNumNotifications(void) const
 		return iValue;
 	}
 
-	int iValue = (int(MaxNotifications) - m_iNotificationsBeginIndex) + m_iNotificationsEndIndex;
+	int iValue = (static_cast<int>(MaxNotifications) - m_iNotificationsBeginIndex) + m_iNotificationsEndIndex;
 	return iValue;
 }
 
 CvString CvNotifications::GetNotificationStr(int iZeroBasedIndex)  // ignores the begin/end values
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % static_cast<int>(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strMessage;
 }
 
 CvString CvNotifications::GetNotificationSummary(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % static_cast<int>(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strSummary;
 }
 
 
 int CvNotifications::GetNotificationID(int iZeroBasedIndex)  // ignores begin/end values
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % static_cast<int>(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iLookupIndex;
 }
 
 int CvNotifications::GetNotificationTurn(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % static_cast<int>(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iTurn;
 }
 
 bool CvNotifications::IsNotificationDismissed(int iZeroBasedIndex)
 {
-	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
+	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % static_cast<int>(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_bDismissed;
 }
 
@@ -787,7 +787,7 @@ void CvNotifications::Activate(Notification& notification)
 			gDLL->GameplayDoFX(pDllPlot.get());
 		}
 
-		PlayerTypes ePlayer = (PlayerTypes)notification.m_iGameDataIndex;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(notification.m_iGameDataIndex);
 		if (GET_PLAYER(ePlayer).isAlive())
 		{
 			GC.GetEngineUserInterface()->SetTempString(notification.m_strMessage);
@@ -813,7 +813,7 @@ void CvNotifications::Activate(Notification& notification)
 		// slewis - do we need the stuff below?
 		//kPopupInfo.setOption1(false);
 
-		OrderTypes eOrder = (OrderTypes) notification.m_iGameDataIndex;
+		OrderTypes eOrder = static_cast<OrderTypes>(notification.m_iGameDataIndex);
 		int iItemID = notification.m_iExtraGameData;
 		kPopupInfo.iData2 = eOrder;
 		kPopupInfo.iData3 = iItemID;
@@ -842,7 +842,7 @@ void CvNotifications::Activate(Notification& notification)
 		
 			// As the City View screen isn't a pop-up, we'll have to call a pop-up to open that screen and then immediately dismiss itself
 			int iModderOffset = gCustomMods.getOption("UI_CITY_EXPANSION_BUTTONPOPUP_MODDER_OFFSET", 0);
-			CvPopupInfo kPopupInfoOpen((ButtonPopupTypes) (BUTTONPOPUP_MODDER_0 + iModderOffset));
+			CvPopupInfo kPopupInfoOpen(static_cast<ButtonPopupTypes>(BUTTONPOPUP_MODDER_0 + iModderOffset));
 			kPopupInfoOpen.iData1 = pCity->GetID();
 			kPopupInfoOpen.iData2 = notification.m_iLookupIndex;
 			GC.GetEngineUserInterface()->AddPopup(kPopupInfoOpen);
@@ -879,7 +879,7 @@ void CvNotifications::Activate(Notification& notification)
 	break;
 	case NOTIFICATION_PLAYER_DEAL:
 	{
-		GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
+		GC.GetEngineUserInterface()->OpenPlayerDealScreen(static_cast<PlayerTypes>(notification.m_iX));
 	}
 	break;
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
@@ -906,7 +906,7 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		else
 		{
-			GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
+			GC.GetEngineUserInterface()->OpenPlayerDealScreen(static_cast<PlayerTypes>(notification.m_iX));
 		}
 #else
 		GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
@@ -991,10 +991,10 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0 && notification.m_iExtraGameData == -1)
 		{
-			PlayerTypes eTargetPlayer = (PlayerTypes)notification.m_iGameDataIndex;
+			PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(notification.m_iGameDataIndex);
 			if (!GET_PLAYER(eTargetPlayer).isHuman())
 			{
-				GET_PLAYER((PlayerTypes)notification.m_iGameDataIndex).GetDiplomacyAI()->DoBeginDiploWithHumanEspionageResult();
+				GET_PLAYER(static_cast<PlayerTypes>(notification.m_iGameDataIndex)).GetDiplomacyAI()->DoBeginDiploWithHumanEspionageResult();
 			}
 
 			GC.GetEngineUserInterface()->RemoveNotification(notification.m_iLookupIndex, m_ePlayer);
@@ -1011,7 +1011,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0)
 		{
-			PlayerTypes ePlayerToContact = (PlayerTypes)notification.m_iGameDataIndex;
+			PlayerTypes ePlayerToContact = static_cast<PlayerTypes>(notification.m_iGameDataIndex);
 			if (!GET_PLAYER(ePlayerToContact).isHuman() && ePlayerToContact != m_ePlayer && GET_PLAYER(m_ePlayer).GetEspionage()->HasRecentIntrigueAbout(ePlayerToContact) && !GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayerToContact).getTeam()))
 			{
 				GET_PLAYER(ePlayerToContact).GetDiplomacyAI()->DoBeginDiploWithHumanInDiscuss();
@@ -1026,7 +1026,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
-			LeagueTypes eLeague = (LeagueTypes) notification.m_iGameDataIndex;
+			LeagueTypes eLeague = static_cast<LeagueTypes>(notification.m_iGameDataIndex);
 			CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_OVERVIEW, eLeague);
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
@@ -1072,8 +1072,8 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
-			LeagueTypes eLeague = (LeagueTypes) notification.m_iGameDataIndex;
-			LeagueProjectTypes eProject = (LeagueProjectTypes) notification.m_iExtraGameData;
+			LeagueTypes eLeague = static_cast<LeagueTypes>(notification.m_iGameDataIndex);
+			LeagueProjectTypes eProject = static_cast<LeagueProjectTypes>(notification.m_iExtraGameData);
 			CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_PROJECT_COMPLETED, eLeague, eProject);
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
@@ -1083,7 +1083,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
-			EventTypes eEvent = (EventTypes)notification.m_iGameDataIndex;
+			EventTypes eEvent = static_cast<EventTypes>(notification.m_iGameDataIndex);
 			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_10, m_ePlayer, eEvent);
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
@@ -1092,7 +1092,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
-			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
+			CityEventTypes eEvent = static_cast<CityEventTypes>(notification.m_iGameDataIndex);
 			int iCityID = notification.m_iExtraGameData;
 			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_8, m_ePlayer, eEvent, iCityID);
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -1102,7 +1102,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
-			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
+			CityEventTypes eEvent = static_cast<CityEventTypes>(notification.m_iGameDataIndex);
 			int iSpyID = notification.m_iExtraGameData;
 			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
 			if (pPlot)
@@ -1173,7 +1173,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1199,7 +1199,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1225,7 +1225,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1251,7 +1251,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1278,7 +1278,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1306,7 +1306,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 				}
 
 				iIndex++;
-				if(iIndex >= int(MaxNotifications))
+				if(iIndex >= static_cast<int>(MaxNotifications))
 				{
 					iIndex = 0;
 				}
@@ -1333,7 +1333,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1361,7 +1361,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1373,8 +1373,8 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 	case NOTIFICATION_DIPLOMACY_DECLARATION:
 	{
-		PlayerTypes eOurPlayer1 = (PlayerTypes) notification.m_iGameDataIndex;
-		PlayerTypes eOurPlayer2 = (PlayerTypes) notification.m_iExtraGameData;
+		PlayerTypes eOurPlayer1 = static_cast<PlayerTypes>(notification.m_iGameDataIndex);
+		PlayerTypes eOurPlayer2 = static_cast<PlayerTypes>(notification.m_iExtraGameData);
 
 		// Notification is NOT being used to inform of a DoF or Denouncement (otherwise there would be valid players in these slots)
 		if(eOurPlayer1 == -1 || eOurPlayer2 == -1)
@@ -1388,8 +1388,8 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 		{
 			if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
 			{
-				eCheckingPlayer1 = (PlayerTypes) m_aNotifications[iIndex].m_iGameDataIndex;
-				eCheckingPlayer2 = (PlayerTypes) m_aNotifications[iIndex].m_iExtraGameData;
+				eCheckingPlayer1 = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
+				eCheckingPlayer2 = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iExtraGameData);
 
 				// Players match - we already have a notification with this player combo
 				if((eOurPlayer1 == eCheckingPlayer1 && eOurPlayer2 == eCheckingPlayer2) ||
@@ -1400,7 +1400,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 				iIndex = 0;
 		}
 
@@ -1429,7 +1429,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1457,7 +1457,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= static_cast<int>(MaxNotifications))
 			{
 				iIndex = 0;
 			}
@@ -1490,7 +1490,7 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 
 
 				iIndex++;
-				if(iIndex >= int(MaxNotifications))
+				if(iIndex >= static_cast<int>(MaxNotifications))
 				{
 					iIndex = 0;
 				}
@@ -1572,7 +1572,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			}
 
 			iNotificationIndex++;
-			if(iNotificationIndex >= int(MaxNotifications))
+			if(iNotificationIndex >= static_cast<int>(MaxNotifications))
 			{
 				iNotificationIndex = 0;
 			}
@@ -1792,7 +1792,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		// I did this so not to break the save format
 		if(m_aNotifications[iIndex].m_iX == -1 && m_aNotifications[iIndex].m_iY == -1)
 		{
-			if(GET_PLAYER(m_ePlayer).getNumResourceAvailable((ResourceTypes)m_aNotifications[iIndex].m_iGameDataIndex, true) >= 0)
+			if(GET_PLAYER(m_ePlayer).getNumResourceAvailable(static_cast<ResourceTypes>(m_aNotifications[iIndex].m_iGameDataIndex), true) >= 0)
 			{
 				return true;
 			}
@@ -1851,7 +1851,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 	case NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS:
 	{
-		LeagueTypes eLeague = (LeagueTypes) m_aNotifications[iIndex].m_iGameDataIndex;
+		LeagueTypes eLeague = static_cast<LeagueTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 		return !pLeague->CanPropose(m_ePlayer);
 	}
@@ -1877,7 +1877,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 	case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 	{
-		LeagueTypes eLeague = (LeagueTypes) m_aNotifications[iIndex].m_iGameDataIndex;
+		LeagueTypes eLeague = static_cast<LeagueTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 		return !pLeague->CanVote(m_ePlayer);
 	}
@@ -1894,7 +1894,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 #if defined(MOD_BALANCE_CORE)
 	case 826076831: // City Event Notification
 	{
-		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		CityEventTypes eCityEvent = static_cast<CityEventTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
 		if(eCityEvent != NO_EVENT_CITY)
 		{
 			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
@@ -1911,7 +1911,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 				CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY;
 				for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 				{
-					eEventChoice = (CityEventChoiceTypes)iLoop;
+					eEventChoice = static_cast<CityEventChoiceTypes>(iLoop);
 					if(eEventChoice != NO_EVENT_CHOICE_CITY)
 					{
 						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -1946,7 +1946,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	break;
 	case -1608954742:
 	{
-		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		CityEventTypes eCityEvent = static_cast<CityEventTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
 		if (eCityEvent != NO_EVENT_CITY)
 		{
 			CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
@@ -1961,7 +1961,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	break;
 	case 419811917: // Player Event Notification
 	{
-		EventTypes eEvent = (EventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		EventTypes eEvent = static_cast<EventTypes>(m_aNotifications[iIndex].m_iGameDataIndex);
 		if(eEvent != NO_EVENT)
 		{
 			if (GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
@@ -1970,7 +1970,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 				EventChoiceTypes eEventChoice = NO_EVENT_CHOICE;
 				for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 				{
-					eEventChoice = (EventChoiceTypes)iLoop;
+					eEventChoice = static_cast<EventChoiceTypes>(iLoop);
 					if(eEventChoice != NO_EVENT_CHOICE)
 					{
 						CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
@@ -2130,7 +2130,7 @@ bool CvNotifications::IsNotificationEndOfTurnExpired(int iIndex)
 bool CvNotifications::IsArrayFull() const
 {
 	int iAdjustedEndIndex = m_iNotificationsEndIndex + 1;
-	if(iAdjustedEndIndex >= int(MaxNotifications))
+	if(iAdjustedEndIndex >= static_cast<int>(MaxNotifications))
 	{
 		iAdjustedEndIndex = 0;
 	}
@@ -2153,7 +2153,7 @@ void CvNotifications::RemoveOldestNotification()
 void CvNotifications::IncrementBeginIndex()
 {
 	m_iNotificationsBeginIndex++;
-	if(m_iNotificationsBeginIndex >= int(MaxNotifications))
+	if(m_iNotificationsBeginIndex >= static_cast<int>(MaxNotifications))
 	{
 		m_iNotificationsBeginIndex = 0;
 	}
@@ -2162,7 +2162,7 @@ void CvNotifications::IncrementBeginIndex()
 void CvNotifications::IncrementEndIndex()
 {
 	m_iNotificationsEndIndex++;
-	if(m_iNotificationsEndIndex >= int(MaxNotifications))
+	if(m_iNotificationsEndIndex >= static_cast<int>(MaxNotifications))
 	{
 		m_iNotificationsEndIndex = 0;
 	}

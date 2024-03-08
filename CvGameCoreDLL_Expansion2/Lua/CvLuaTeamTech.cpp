@@ -144,9 +144,9 @@ int CvLuaTeamTech::lSetResearchProgress(lua_State* L)
 int CvLuaTeamTech::lSetResearchProgressTimes100(lua_State* L)
 {
 	CvTeamTechs* pkTeamTech = GetInstance(L);
-	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
-	const int iNewValue = (TechTypes)lua_tointeger(L, 3);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+	const TechTypes eTech = static_cast<TechTypes>(lua_tointeger(L, 2));
+	const int iNewValue = static_cast<TechTypes>(lua_tointeger(L, 3));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 4));
 
 	pkTeamTech->SetResearchProgressTimes100(eTech, iNewValue, ePlayer);
 	return 0;
@@ -178,9 +178,9 @@ int CvLuaTeamTech::lChangeResearchProgress(lua_State* L)
 int CvLuaTeamTech::lChangeResearchProgressTimes100(lua_State* L)
 {
 	CvTeamTechs* pkTeamTech = GetInstance(L);
-	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
-	const int iNewValue = (TechTypes)lua_tointeger(L, 3);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+	const TechTypes eTech = static_cast<TechTypes>(lua_tointeger(L, 2));
+	const int iNewValue = static_cast<TechTypes>(lua_tointeger(L, 3));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 4));
 
 	pkTeamTech->ChangeResearchProgressTimes100(eTech, iNewValue, ePlayer);
 	return 0;

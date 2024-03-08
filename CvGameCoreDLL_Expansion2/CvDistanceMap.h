@@ -36,7 +36,7 @@ protected:
 		enum { INVALID = 0xFFFF };
 
 		SContent(unsigned short _distance) : distance(_distance), owner(INVALID), feature(-1) {}
-		SContent(int _distance, int _owner, int _feature) : distance((unsigned short)_distance), owner((unsigned short)_owner), feature(_feature) {}
+		SContent(int _distance, int _owner, int _feature) : distance(static_cast<unsigned short>(_distance)), owner(static_cast<unsigned short>(_owner)), feature(_feature) {}
 
 		//try and save some memory here
 		unsigned short distance;

@@ -58,7 +58,7 @@ void CvReplayInfo::createInfo()
 	m_listGameOptions.clear();
 	for(int i = 0; i < NUM_GAMEOPTION_TYPES; i++)
 	{
-		GameOptionTypes eOption = (GameOptionTypes)i;
+		GameOptionTypes eOption = static_cast<GameOptionTypes>(i);
 		if(game.isOption(eOption))
 		{
 			m_listGameOptions.push_back(eOption);
@@ -68,7 +68,7 @@ void CvReplayInfo::createInfo()
 	m_listVictoryTypes.clear();
 	for(int i = 0; i < GC.getNumVictoryInfos(); i++)
 	{
-		VictoryTypes eVictory = (VictoryTypes)i;
+		VictoryTypes eVictory = static_cast<VictoryTypes>(i);
 		if(game.isVictoryValid(eVictory))
 		{
 			m_listVictoryTypes.push_back(eVictory);
@@ -109,7 +109,7 @@ void CvReplayInfo::createInfo()
 	int iPlayerIndex = 0;
 	for(int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
 	{
-		CvPlayer& player = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayer& player = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		if(player.isEverAlive())
 		{
 			//Ensure that final turn is stored.
@@ -183,7 +183,7 @@ void CvReplayInfo::createInfo()
 		if(pMessage)
 		{
 			CvReplayMessage modifiedMessage = (*pMessage);
-			modifiedMessage.setPlayer((PlayerTypes)mapPlayers[modifiedMessage.getPlayer()]);
+			modifiedMessage.setPlayer(static_cast<PlayerTypes>(mapPlayers[modifiedMessage.getPlayer()]));
 
 			m_listReplayMessages.push_back(modifiedMessage);
 		}
@@ -219,13 +219,13 @@ void CvReplayInfo::createInfo()
 
 int CvReplayInfo::getNumPlayers() const
 {
-	return (int)m_listPlayerInfo.size();
+	return static_cast<int>(m_listPlayerInfo.size());
 }
 
 
 bool CvReplayInfo::isValidPlayer(int i) const
 {
-	return (i >= 0 && i < (int)m_listPlayerInfo.size());
+	return (i >= 0 && i < static_cast<int>(m_listPlayerInfo.size()));
 }
 
 bool CvReplayInfo::isValidTurn(int i) const
@@ -240,7 +240,7 @@ int CvReplayInfo::getActivePlayer() const
 
 CivilizationTypes CvReplayInfo::getPlayerCivilization(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_eCivilization;
 	}
@@ -250,7 +250,7 @@ CivilizationTypes CvReplayInfo::getPlayerCivilization(int iPlayer) const
 
 LeaderHeadTypes CvReplayInfo::getPlayerLeader(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_eLeader;
 	}
@@ -260,7 +260,7 @@ LeaderHeadTypes CvReplayInfo::getPlayerLeader(int iPlayer) const
 
 PlayerColorTypes CvReplayInfo::getPlayerColor(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_ePlayerColor;
 	}
@@ -270,7 +270,7 @@ PlayerColorTypes CvReplayInfo::getPlayerColor(int iPlayer) const
 
 HandicapTypes CvReplayInfo::getPlayerDifficulty(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_eDifficulty;
 	}
@@ -280,7 +280,7 @@ HandicapTypes CvReplayInfo::getPlayerDifficulty(int iPlayer) const
 
 const char* CvReplayInfo::getPlayerLeaderName(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_strCustomLeaderName;
 	}
@@ -290,7 +290,7 @@ const char* CvReplayInfo::getPlayerLeaderName(int iPlayer) const
 
 const char* CvReplayInfo::getPlayerCivDescription(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_strCustomCivilizationName;
 	}
@@ -300,7 +300,7 @@ const char* CvReplayInfo::getPlayerCivDescription(int iPlayer) const
 
 const char* CvReplayInfo::getPlayerShortCivDescription(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_strCustomCivilizationShortName;
 	}
@@ -310,7 +310,7 @@ const char* CvReplayInfo::getPlayerShortCivDescription(int iPlayer) const
 
 const char* CvReplayInfo::getPlayerCivAdjective(int iPlayer) const
 {
-	if(iPlayer >= 0 && iPlayer < (int)m_listPlayerInfo.size())
+	if(iPlayer >= 0 && iPlayer < static_cast<int>(m_listPlayerInfo.size()))
 	{
 		return m_listPlayerInfo[iPlayer].m_strCustomCivilizationAdjective;
 	}
@@ -571,8 +571,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlayerInfo& writeTo
 
 FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::OldPlotState& readFrom)
 {
-	saveTo << (unsigned char)readFrom.m_eTerrain;
-	saveTo << (unsigned char)readFrom.m_eFeature;
+	saveTo << static_cast<unsigned char>(readFrom.m_eTerrain);
+	saveTo << static_cast<unsigned char>(readFrom.m_eFeature);
 
 	unsigned char uiRiverData = 0;
 	uiRiverData |= (readFrom.m_bNWOfRiver) << 1;
@@ -588,10 +588,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::OldPlotState& write
 {
 	unsigned char ucTempVal = 0;
 	loadFrom >> ucTempVal;
-	writeTo.m_eTerrain = (TerrainTypes)ucTempVal;
+	writeTo.m_eTerrain = static_cast<TerrainTypes>(ucTempVal);
 
 	loadFrom >> ucTempVal;
-	writeTo.m_eFeature = (FeatureTypes)ucTempVal;
+	writeTo.m_eFeature = static_cast<FeatureTypes>(ucTempVal);
 
 	loadFrom >> ucTempVal;
 	writeTo.m_bNWOfRiver = (ucTempVal & (1 << 1)) != 0;
@@ -603,9 +603,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::OldPlotState& write
 
 FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlotState& readFrom)
 {
-	saveTo << (unsigned char)readFrom.m_ePlotType;
-	saveTo << (unsigned char)readFrom.m_eTerrain;
-	saveTo << (unsigned char)readFrom.m_eFeature;
+	saveTo << static_cast<unsigned char>(readFrom.m_ePlotType);
+	saveTo << static_cast<unsigned char>(readFrom.m_eTerrain);
+	saveTo << static_cast<unsigned char>(readFrom.m_eFeature);
 
 	unsigned char uiRiverData = 0;
 	uiRiverData |= (readFrom.m_bNWOfRiver) << 1;
@@ -622,13 +622,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlotState& writeTo)
 	unsigned char ucTempVal = 0;
 
 	loadFrom >> ucTempVal;
-	writeTo.m_ePlotType = (PlotTypes)ucTempVal;
+	writeTo.m_ePlotType = static_cast<PlotTypes>(ucTempVal);
 
 	loadFrom >> ucTempVal;
-	writeTo.m_eTerrain = (TerrainTypes)ucTempVal;
+	writeTo.m_eTerrain = static_cast<TerrainTypes>(ucTempVal);
 
 	loadFrom >> ucTempVal;
-	writeTo.m_eFeature = (FeatureTypes)ucTempVal;
+	writeTo.m_eFeature = static_cast<FeatureTypes>(ucTempVal);
 
 	loadFrom >> ucTempVal;
 	writeTo.m_bNWOfRiver = (ucTempVal & (1 << 1)) != 0;

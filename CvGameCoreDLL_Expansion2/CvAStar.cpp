@@ -420,7 +420,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	timer.EndPerfTest();
 
 	//statistics
-	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
+	int iBin = min(99,static_cast<int>(timer.GetDeltaInSeconds() * 1000));
 	saiRuntimeHistogram[iBin]++;
 
 	CvUnit* pUnit = m_sData.iUnitID > 0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
@@ -686,7 +686,7 @@ int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& ou
 	if (udGetExtraChildrenFunc)
 	{
 		udGetExtraChildrenFunc(node, this, out);
-		return (int)out.size();
+		return static_cast<int>(out.size());
 	}
 
 	return 0;
@@ -788,7 +788,7 @@ SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 			ret.vPlots.back().turns++;
 		//overwrite the turns with the costs
 		else if (eMode==TC_DEBUG)
-			ret.vPlots.back().turns = (short)pNode->m_iKnownCost;
+			ret.vPlots.back().turns = static_cast<short>(pNode->m_iKnownCost);
 
 		pNode = pNode->m_pParent;
 	}
@@ -1223,7 +1223,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
 	}
 
-	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	if (pUnit->isHasPromotion(static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST))))
 	{
 		// Avoid being in a territory that we are not welcome in
 		PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -1426,7 +1426,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		else
 		{
 			//apply this part even if it's the explicit target
-			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion(static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST))))
 			{
 				// Avoid being in a territory that we are not welcome in
 				PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -1866,8 +1866,8 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		//direction looking backward!
 		DirectionTypes eRear = directionXY(pToPlot,pFromPlot);
 
-		int eRearLeft = (int(eRear) + 5) % 6; 
-		int eRearRight = (int(eRear) + 1) % 6;
+		int eRearLeft = (static_cast<int>(eRear) + 5) % 6; 
+		int eRearRight = (static_cast<int>(eRear) + 1) % 6;
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
@@ -2079,13 +2079,13 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		//we only care about water connections here because they are not normal routes
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
-			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
+			CvCity* pSecondCity = GET_PLAYER(static_cast<PlayerTypes>(it->first.first)).getCity(it->first.second);
 			if (pSecondCity && !pSecondCity->IsRazing())
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
 
-	return (int)out.size();
+	return static_cast<int>(out.size());
 }
 
 //	---------------------------------------------------------------------------
@@ -2200,7 +2200,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 			int iYieldChangeTotal = 0;
 			for (int iI = 0; iI <= YIELD_FAITH; iI++)
 			{
-				YieldTypes eYield = (YieldTypes)iI;
+				YieldTypes eYield = static_cast<YieldTypes>(iI);
 				int iYieldChanges = pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
 				if (iYieldChanges > 0)
 				{
@@ -2404,8 +2404,8 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 
 		//but we want compact areas not long and snaky ones, so check neighbors as well
 		DirectionTypes eRear = directionXY(pToPlot, pFromPlot);
-		int eRearLeft = (int(eRear) + 5) % 6;
-		int eRearRight = (int(eRear) + 1) % 6;
+		int eRearLeft = (static_cast<int>(eRear) + 5) % 6;
+		int eRearRight = (static_cast<int>(eRear) + 1) % 6;
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
@@ -2594,7 +2594,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;
 
 	bool bAttrition = false;
-	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion(static_cast<PromotionTypes>(GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST))))
 	{
 		CvPlot* pCurrentPlot = GC.getMap().plotUnchecked(current->m_iX, current->m_iY);
 		CvPlot* pNextPlot = GC.getMap().plotUnchecked(next->m_iX, next->m_iY);
@@ -3159,7 +3159,7 @@ int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vecto
 			out.push_back(make_pair(pCarrier->getX(), pCarrier->getY()));
 	}
 
-	return (int)out.size();
+	return static_cast<int>(out.size());
 }
 
 // A structure holding some unit values that are invariant during a path plan operation
@@ -3310,7 +3310,7 @@ int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const
 		return FALSE;
 	}
 
-	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==static_cast<ImprovementTypes>(GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT)))
 	{
 		return FALSE;
 	}
@@ -3623,7 +3623,7 @@ CvPlot* CvPathNodeArray::GetFirstPlot() const
 
 CvPlot * CvPathNodeArray::GetPlotByIndex(int iIndex) const
 {
-	if (iIndex >= 0 && iIndex < (int)size())
+	if (iIndex >= 0 && iIndex < static_cast<int>(size()))
 		return GC.getMap().plotUnchecked( at(iIndex).m_iX, at(iIndex).m_iY );
 
 	return NULL;
@@ -3766,7 +3766,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 
 CvPlot * SPath::get(int i) const
 {
-	if (i >= (int)vPlots.size())
+	if (i >= static_cast<int>(vPlots.size()))
 		return NULL;
 
 	//allow negative indices

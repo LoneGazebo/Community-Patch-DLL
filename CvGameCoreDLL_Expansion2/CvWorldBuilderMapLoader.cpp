@@ -35,7 +35,7 @@ void InitTypeDesc()
 		const int iTerrainTypeCount = GC.getNumTerrainInfos();
 		for(int i = 0; i < iTerrainTypeCount; ++i)
 		{
-			const CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo((TerrainTypes)i);
+			const CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(static_cast<TerrainTypes>(i));
 			if(pkTerrainInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kTerrainTypes.Add( pkTerrainInfo->GetType() );
@@ -50,7 +50,7 @@ void InitTypeDesc()
 		const int iFeatureCount = GC.getNumFeatureInfos();
 		for(int i = 0; i < iFeatureCount; ++i)
 		{
-			const CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo((FeatureTypes)i);
+			const CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(static_cast<FeatureTypes>(i));
 			if(pkFeatureInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kFeatures.Add( pkFeatureInfo->GetType() );
@@ -67,7 +67,7 @@ void InitTypeDesc()
 		const int iResourceCount = GC.getNumResourceInfos();
 		for(int i = 0; i < iResourceCount; ++i)
 		{
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo((ResourceTypes)i);
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(static_cast<ResourceTypes>(i));
 			if(pkResourceInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kResources.Add( pkResourceInfo->GetType() );
@@ -82,7 +82,7 @@ void InitTypeDesc()
 		const int iImprovementCount = GC.getNumImprovementInfos();
 		for(int i = 0; i < iImprovementCount; ++i)
 		{
-			const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)i);
+			const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(static_cast<ImprovementTypes>(i));
 			if(pkImprovementInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kImprovements.Add( pkImprovementInfo->GetType() );
@@ -97,7 +97,7 @@ void InitTypeDesc()
 		const int iUnitCount = GC.getNumUnitInfos();
 		for(int i = 0; i < iUnitCount; ++i)
 		{
-			const CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)i);
+			const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(static_cast<UnitTypes>(i));
 			if(pkUnitInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kUnits.Add( pkUnitInfo->GetType() );
@@ -112,7 +112,7 @@ void InitTypeDesc()
 		const int iTechCount = GC.getNumTechInfos();
 		for(int i = 0; i < iTechCount; ++i)
 		{
-			const CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)i);
+			const CvTechEntry* pkTechInfo = GC.getTechInfo(static_cast<TechTypes>(i));
 			if(pkTechInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kTechs.Add( pkTechInfo->GetType() );
@@ -127,7 +127,7 @@ void InitTypeDesc()
 		const int iPolicyCount = GC.getNumPolicyInfos();
 		for(int i = 0; i < iPolicyCount; ++i)
 		{
-			const CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo((PolicyTypes)i);
+			const CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(static_cast<PolicyTypes>(i));
 			if(pkPolicyInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kPolicies.Add( pkPolicyInfo->GetType() );
@@ -142,7 +142,7 @@ void InitTypeDesc()
 		const int iBuildingCount = GC.getNumBuildingInfos();
 		for(int i = 0; i < iBuildingCount; ++i)
 		{
-			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)i);
+			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(static_cast<BuildingTypes>(i));
 			if(pkBuildingInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kBuildingTypes.Add( pkBuildingInfo->GetType() );
@@ -157,7 +157,7 @@ void InitTypeDesc()
 		const int iPromotionCount = GC.getNumPromotionInfos();
 		for(int i = 0; i < iPromotionCount; ++i)
 		{
-			const CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)i);
+			const CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(static_cast<PromotionTypes>(i));
 			if(pkPromotionInfo != NULL)
 			{
 				sg_kMapTypeDesc.m_kUnitPromotions.Add( pkPromotionInfo->GetType() );
@@ -199,7 +199,7 @@ bool CvWorldBuilderMapLoader::Preload(const wchar_t* wszFilename, bool bScenario
 				CvWorldBuilderMap::PlotScenarioData& kPlot = sg_kSave.GetPlotScenarioData(i);
 				if(kPlot.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 				{
-					ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
+					ImprovementTypes eType = static_cast<ImprovementTypes>(kPlot.m_byImprovement);
 					const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
 					if(pkImprovement == NULL || !pkImprovement->IsGoody())
 						kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
@@ -268,7 +268,7 @@ void CvWorldBuilderMapLoader::SetupGameOptions()
 	const int iGameOptionCount = GC.getNumGameOptionInfos();
 	for(int i = 0; i < iGameOptionCount; ++i)
 	{
-		const GameOptionTypes eOption = (GameOptionTypes)i;
+		const GameOptionTypes eOption = static_cast<GameOptionTypes>(i);
 		const CvGameOptionInfo* pkOption = GC.getGameOptionInfo(eOption);
 		if(pkOption != NULL)
 		{
@@ -281,7 +281,7 @@ void CvWorldBuilderMapLoader::SetupGameOptions()
 	const int iVictoryTypeCount = GC.getNumVictoryInfos();
 	for(int i = 0; i < iVictoryTypeCount; ++i)
 	{
-		const VictoryTypes eVictoryType = (VictoryTypes)i;
+		const VictoryTypes eVictoryType = static_cast<VictoryTypes>(i);
 		const CvVictoryInfo* pkVictoryType = GC.getVictoryInfo(eVictoryType);
 		if(pkVictoryType != NULL)
 		{
@@ -299,10 +299,10 @@ void CvWorldBuilderMapLoader::SetupGameOptions()
 
 void CvWorldBuilderMapLoader::SetupPlayers()
 {
-	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), (byte)MAX_CIV_PLAYERS);
+	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), static_cast<byte>(MAX_CIV_PLAYERS));
 	for(uint i = 0; i < uiPlayerCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)i;
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		const SlotStatus eStatus = CvPreGame::slotStatus(ePlayer);
 		if(eStatus != SS_TAKEN && eStatus != SS_COMPUTER)
 			CvPreGame::setSlotStatus(ePlayer, SS_COMPUTER);
@@ -312,10 +312,10 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		CivilizationTypes eCivType = NO_CIVILIZATION;
 		for(int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); ++iCiv)
 		{
-			CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes)iCiv);
+			CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo(static_cast<CivilizationTypes>(iCiv));
 			if(pkCivilization != NULL && strcmp(kPlayer.m_szCivType, pkCivilization->GetType()) == 0)
 			{
-				eCivType = (CivilizationTypes)iCiv;
+				eCivType = static_cast<CivilizationTypes>(iCiv);
 				break;
 			}
 		}
@@ -325,10 +325,10 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		PlayerColorTypes eColorType = NO_PLAYERCOLOR;
 		for(int iColor = 0; iColor < GC.GetNumPlayerColorInfos(); ++iColor)
 		{
-			CvPlayerColorInfo* pkColor = GC.GetPlayerColorInfo((PlayerColorTypes)iColor);
+			CvPlayerColorInfo* pkColor = GC.GetPlayerColorInfo(static_cast<PlayerColorTypes>(iColor));
 			if(pkColor != NULL && strcmp(kPlayer.m_szTeamColor, pkColor->GetType()) == 0)
 			{
-				eColorType = (PlayerColorTypes)iColor;
+				eColorType = static_cast<PlayerColorTypes>(iColor);
 				break;
 			}
 		}
@@ -340,10 +340,10 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 			HandicapTypes eHandicap = NO_HANDICAP;
 			for(int iHandicap = 0; iHandicap < GC.getNumHandicapInfos(); ++iHandicap)
 			{
-				CvHandicapInfo* pkHandicap = GC.getHandicapInfo((HandicapTypes)iHandicap);
+				CvHandicapInfo* pkHandicap = GC.getHandicapInfo(static_cast<HandicapTypes>(iHandicap));
 				if(pkHandicap != NULL && strcmp(kPlayer.m_szHandicap, pkHandicap->GetType()) == 0)
 				{
-					eHandicap = (HandicapTypes)iHandicap;
+					eHandicap = static_cast<HandicapTypes>(iHandicap);
 					break;
 				}
 			}
@@ -351,7 +351,7 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 			CvPreGame::setHandicap(ePlayer, eHandicap);
 		}
 
-		CvPreGame::setTeamType(ePlayer, (TeamTypes)kPlayer.m_byTeam);
+		CvPreGame::setTeamType(ePlayer, static_cast<TeamTypes>(kPlayer.m_byTeam));
 		CvPreGame::setMinorCiv(ePlayer, false);
 
 		if(strlen(kPlayer.m_szLeaderName) > 0)
@@ -371,14 +371,14 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 	{
 		for(uint i = uiPlayerSlotCount; i < MAX_MAJOR_CIVS; ++i)
 		{
-			const PlayerTypes ePlayer = (PlayerTypes)i;
+			const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 			const SlotStatus eStatus = CvPreGame::slotStatus(ePlayer);
 			if(eStatus == SS_COMPUTER)
 				CvPreGame::resetPlayer(ePlayer);	// Do a full reset, which will also close the slot.  A reset is better so that the player data does not get initialized later.
 		}
 	}
 
-	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), (byte)MAX_MINOR_CIVS);
+	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), static_cast<byte>(MAX_MINOR_CIVS));
 
 	if(uiCityStateCount > 0)
 		CvPreGame::setNumMinorCivs(uiCityStateCount);
@@ -389,16 +389,16 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 
 	for(uint i = 0; i < uiCityStateCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)(i + MAX_MAJOR_CIVS);
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i + MAX_MAJOR_CIVS);
 		const CvWorldBuilderMap::Player& kPlayer = sg_kSave.GetCityState(i);
 
 		MinorCivTypes eCivType = NO_MINORCIV;
 		for(int iCiv = 0; iCiv < GC.getNumMinorCivInfos(); ++iCiv)
 		{
-			CvMinorCivInfo* pkCivilization = GC.getMinorCivInfo((MinorCivTypes)iCiv);
+			CvMinorCivInfo* pkCivilization = GC.getMinorCivInfo(static_cast<MinorCivTypes>(iCiv));
 			if(pkCivilization != NULL && strcmp(kPlayer.m_szCivType, pkCivilization->GetType()) == 0)
 			{
-				eCivType = (MinorCivTypes)iCiv;
+				eCivType = static_cast<MinorCivTypes>(iCiv);
 				break;
 			}
 		}
@@ -408,10 +408,10 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		PlayerColorTypes eColorType = NO_PLAYERCOLOR;
 		for(int iColor = 0; iColor < GC.GetNumPlayerColorInfos(); ++iColor)
 		{
-			CvPlayerColorInfo* pkColor = GC.GetPlayerColorInfo((PlayerColorTypes)iColor);
+			CvPlayerColorInfo* pkColor = GC.GetPlayerColorInfo(static_cast<PlayerColorTypes>(iColor));
 			if(pkColor != NULL && strcmp(kPlayer.m_szTeamColor, pkColor->GetType()) == 0)
 			{
-				eColorType = (PlayerColorTypes)iColor;
+				eColorType = static_cast<PlayerColorTypes>(iColor);
 				break;
 			}
 		}
@@ -421,15 +421,15 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		HandicapTypes eHandicap = NO_HANDICAP;
 		for(int iHandicap = 0; iHandicap < GC.getNumHandicapInfos(); ++iHandicap)
 		{
-			CvHandicapInfo* pkHandicap = GC.getHandicapInfo((HandicapTypes)iHandicap);
+			CvHandicapInfo* pkHandicap = GC.getHandicapInfo(static_cast<HandicapTypes>(iHandicap));
 			if(pkHandicap != NULL && strcmp(kPlayer.m_szHandicap, pkHandicap->GetType()) == 0)
 			{
-				eHandicap = (HandicapTypes)iHandicap;
+				eHandicap = static_cast<HandicapTypes>(iHandicap);
 				break;
 			}
 		}
  
-		const TeamTypes eTeam = (TeamTypes)((kPlayer.m_byTeam - uiPlayerCount) + MAX_MAJOR_CIVS);
+		const TeamTypes eTeam = static_cast<TeamTypes>((kPlayer.m_byTeam - uiPlayerCount) + MAX_MAJOR_CIVS);
 
 		CvPreGame::setHandicap(ePlayer, eHandicap);
 
@@ -451,7 +451,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 	const int iPolicyCount = GC.getNumPolicyInfos();
 	for(int iPolicy = 0; iPolicy < iPolicyCount; ++iPolicy)
 	{
-		const PolicyTypes ePolicy = (PolicyTypes)iPolicy;
+		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicy);
 		if(kSavedPlayer.m_kPolicies[iPolicy])
 		{
 			// Check the policy branch
@@ -459,7 +459,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 			const CvPolicyEntry* pkPolicy = GC.getPolicyInfo(ePolicy);
 			if(pkPolicy != NULL && pkPlayerPolicies != NULL)
 			{
-				PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)pkPolicy->GetPolicyBranchType();
+				PolicyBranchTypes ePolicyBranch = static_cast<PolicyBranchTypes>(pkPolicy->GetPolicyBranchType());
 
 				// NO_POLICY_BRANCH_TYPE means that this is probably a free policy.
 				// We'll have to look through the policy branches to find a matching one.
@@ -468,7 +468,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 					const int iPolicyBranchCount = GC.getNumPolicyBranchInfos();
 					for(int iPolicyBranch = 0; iPolicyBranch < iPolicyBranchCount; ++iPolicyBranch)
 					{
-						const PolicyBranchTypes eCurrentBranch = (PolicyBranchTypes)iPolicyBranch;
+						const PolicyBranchTypes eCurrentBranch = static_cast<PolicyBranchTypes>(iPolicyBranch);
 						const CvPolicyBranchEntry* pkBranch = GC.getPolicyBranchInfo(eCurrentBranch);
 						if(pkBranch != NULL && pkBranch->GetFreePolicy() == ePolicy)
 						{
@@ -488,7 +488,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 					const CvPolicyBranchEntry* pkBranch = GC.getPolicyBranchInfo(ePolicyBranch);
 					if(pkBranch != NULL)
 					{
-						PolicyTypes eFreePolicy = (PolicyTypes)pkBranch->GetFreePolicy();
+						PolicyTypes eFreePolicy = static_cast<PolicyTypes>(pkBranch->GetFreePolicy());
 						if(eFreePolicy != NO_POLICY)
 							kGameplayPlayer.setHasPolicy(eFreePolicy, true);
 					}
@@ -509,7 +509,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 		const int iEraCount = GC.getNumEraInfos();
 		for(int iEra = 0; iEra < iEraCount; ++iEra)
 		{
-			const EraTypes eEra = (EraTypes)iEra;
+			const EraTypes eEra = static_cast<EraTypes>(iEra);
 			const CvEraInfo* pkEra = GC.getEraInfo(eEra);
 			if(pkEra != NULL && strcmp(pkEra->GetType(), kSavedPlayer.m_szEra) == 0)
 			{
@@ -523,7 +523,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 			const int iTechCount = GC.getNumTechInfos();
 			for(int iTech = 0; iTech < iTechCount; ++iTech)
 			{
-				const TechTypes eTech = (TechTypes)iTech;
+				const TechTypes eTech = static_cast<TechTypes>(iTech);
 				const CvTechEntry* pkTech = GC.getTechInfo(eTech);
 				if(pkTech != NULL && pkTech->GetEra() < iStartingEra)
 					kTeam.setHasTech(eTech, true, kGameplayPlayer.GetID(), false, false);
@@ -537,7 +537,7 @@ void SetTeamInitialItems(CvTeam& kGameplayTeam, const CvWorldBuilderMap::Team& k
 	const int iTechCount = GC.getNumTechInfos();
 	for(int iTech = 0; iTech < iTechCount; ++iTech)
 	{
-		const TechTypes eTech = (TechTypes)iTech;
+		const TechTypes eTech = static_cast<TechTypes>(iTech);
 		if(kSavedTeam.m_kTechs[iTech])
 			kGameplayTeam.setHasTech(eTech, true, NO_PLAYER, false, false);
 	}
@@ -545,17 +545,17 @@ void SetTeamInitialItems(CvTeam& kGameplayTeam, const CvWorldBuilderMap::Team& k
 
 void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 {
-	const uint uiTeamCount = std::min(sg_kSave.GetTeamCount(), (byte)MAX_TEAMS);
+	const uint uiTeamCount = std::min(sg_kSave.GetTeamCount(), static_cast<byte>(MAX_TEAMS));
 	for(uint i = 0; i < uiTeamCount; ++i)
 	{
-		const TeamTypes eTeam = (TeamTypes)i;
+		const TeamTypes eTeam = static_cast<TeamTypes>(i);
 		SetTeamInitialItems(GET_TEAM(eTeam), sg_kSave.GetTeam(i));
 	}
 
-	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), (byte)MAX_CIV_PLAYERS);
+	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), static_cast<byte>(MAX_CIV_PLAYERS));
 	for(uint i = 0; i < uiPlayerCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)i;
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		SetPlayerInitialItems(kPlayer, sg_kSave.GetPlayer(i));
 
@@ -577,10 +577,10 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 		}
 	}
 
-	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), (byte)MAX_MINOR_CIVS);
+	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), static_cast<byte>(MAX_MINOR_CIVS));
 	for(uint i = 0; i < uiCityStateCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)(i + MAX_MAJOR_CIVS);
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i + MAX_MAJOR_CIVS);
 		SetPlayerInitialItems(GET_PLAYER(ePlayer), sg_kSave.GetCityState(i));
 	}
 }
@@ -590,7 +590,7 @@ PlayerTypes GetPlayerType(byte byCulture)
 	if(byCulture < CvWorldBuilderMap::MaxPlayers)
 	{
 		if(byCulture < MAX_MAJOR_CIVS)
-			return (PlayerTypes)byCulture;
+			return static_cast<PlayerTypes>(byCulture);
 		else
 			return NO_PLAYER; // Player out of range
 	}
@@ -598,7 +598,7 @@ PlayerTypes GetPlayerType(byte byCulture)
 	{
 		const uint uiCityState = byCulture - CvWorldBuilderMap::MaxPlayers;
 		if(uiCityState < MAX_MINOR_CIVS)
-			return (PlayerTypes)(uiCityState + MAX_MAJOR_CIVS);
+			return static_cast<PlayerTypes>(uiCityState + MAX_MAJOR_CIVS);
 		else
 			return NO_PLAYER; // City State out of range
 	}
@@ -639,10 +639,10 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 				const int iMaxHitPoints = pkGameplayCity->GetMaxHitPoints();
 
 				// TODO: Oh no!  It's floating point math!  This may be an issue for multi-player.
-				const float fHitPoints = kSavedCity.GetHealthAsFloat() * (float)iMaxHitPoints;
+				const float fHitPoints = kSavedCity.GetHealthAsFloat() * static_cast<float>(iMaxHitPoints);
 
 				// Don't allow the city to be killed by a precision error
-				int iHitPoints = (int)fHitPoints;
+				int iHitPoints = static_cast<int>(fHitPoints);
 				if(iHitPoints == 0 && kSavedCity.m_uiHealth != 0)
 					iHitPoints = 1;
 
@@ -655,7 +655,7 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 				const int iBuildingTypeCount = GC.getNumBuildingInfos();
 				for(int iBuilding = 0; iBuilding < iBuildingTypeCount; ++iBuilding)
 				{
-					const BuildingTypes eBuildingType = (BuildingTypes)iBuilding;
+					const BuildingTypes eBuildingType = static_cast<BuildingTypes>(iBuilding);
 					if(kSavedCity.m_kBuildings[iBuilding])
 						pkCityBuildings->SetNumRealBuilding(eBuildingType, 1);
 				}
@@ -668,7 +668,7 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY)
 {
 	const PlayerTypes ePlayer = GetPlayerType(kSavedUnit.m_byOwner);
-	UnitTypes eUnitType = (UnitTypes)kSavedUnit.m_byUnitType;
+	UnitTypes eUnitType = static_cast<UnitTypes>(kSavedUnit.m_byUnitType);
 	// Test to see if m_byUnitType is still a byte, if so, if it is 255, then it is really -1 and we must reflect this in the eUnitType
 	// The World Builder map format should be changed so the serialization of the unit type is an int.  We are already close to
 	// maxing out the byte range as it stands now.
@@ -713,7 +713,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 		break;
 
 	default:
-		eFacing = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction");
+		eFacing = static_cast<DirectionTypes>(GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction"));
 	}
 
 	if(ePlayer != NO_PLAYER)
@@ -745,22 +745,22 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 				const int iMaxHitPoints = pkGameplayUnit->GetMaxHitPoints();
 
 				// TODO: Oh no!  It's floating point math!  This may be an issue for multi-player.
-				const float fHitPoints = kSavedUnit.GetHealthAsFloat() * (float)iMaxHitPoints;
+				const float fHitPoints = kSavedUnit.GetHealthAsFloat() * static_cast<float>(iMaxHitPoints);
 
 				// Don't allow the unit to be killed by a precision error
-				int iHitPoints = (int)fHitPoints;
+				int iHitPoints = static_cast<int>(fHitPoints);
 				if(iHitPoints == 0 && kSavedUnit.m_uiHealth != 0)
 					iHitPoints = 1;
 
 				pkGameplayUnit->setDamage(iMaxHitPoints - iHitPoints);
 			}
 
-			pkGameplayUnit->setExperienceTimes100(((int)kSavedUnit.m_uiExperience) * 100);
+			pkGameplayUnit->setExperienceTimes100(static_cast<int>(kSavedUnit.m_uiExperience) * 100);
 
 			const int iPromotionTypeCount = GC.getNumPromotionInfos();
 			for(int iPromotion = 0; iPromotion < iPromotionTypeCount; ++iPromotion)
 			{
-				const PromotionTypes ePromotionType = (PromotionTypes)iPromotion;
+				const PromotionTypes ePromotionType = static_cast<PromotionTypes>(iPromotion);
 				if(kSavedUnit.m_kPromotions[iPromotion])
 					pkGameplayUnit->setHasPromotion(ePromotionType, true);
 			}
@@ -978,10 +978,10 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 	OutputDebugStringA("Setting up players...\n");
 
-	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), (byte)MAX_CIV_PLAYERS);
+	const uint uiPlayerCount = std::min(sg_kSave.GetPlayerCount(), static_cast<byte>(MAX_CIV_PLAYERS));
 	for(uint i = 0; i < uiPlayerCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)i;
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		CvPlayer& kGameplayPlayer = GET_PLAYER(ePlayer);
 		const CvWorldBuilderMap::Player& kSavedPlayer = sg_kSave.GetPlayer(i);
 
@@ -993,10 +993,10 @@ bool CvWorldBuilderMapLoader::InitMap()
 		}
 	}
 
-	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), (byte)MAX_MINOR_CIVS);
+	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), static_cast<byte>(MAX_MINOR_CIVS));
 	for(uint i = 0; i < uiCityStateCount; ++i)
 	{
-		const PlayerTypes ePlayer = (PlayerTypes)(i + MAX_MAJOR_CIVS);
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i + MAX_MAJOR_CIVS);
 		CvPlayer& kGameplayPlayer = GET_PLAYER(ePlayer);
 		const CvWorldBuilderMap::Player& kSavedPlayer = sg_kSave.GetCityState(i);
 
@@ -1008,7 +1008,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 		}
 	}
 
-	const uint uiTeamCount = std::min(sg_kSave.GetTeamCount(), (byte)MAX_TEAMS);
+	const uint uiTeamCount = std::min(sg_kSave.GetTeamCount(), static_cast<byte>(MAX_TEAMS));
 
 	// HACK: Call SetInitialItems early.  It has to be called later too :_(
 	// This is because of what is essentially a circular dependency.  Techs
@@ -1026,7 +1026,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	vector<CvPlayer*> kMinorCivs;
 	for(uint i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		PlayerTypes ePlayer = PlayerTypes(i);
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		if(kPlayer.isAlive() && kPlayer.getStartingPlot() == NULL)
 		{
@@ -1049,7 +1049,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
-		pkPlot->setTerrainType((TerrainTypes)kPlotData.GetTerrainType(), false, false);
+		pkPlot->setTerrainType(static_cast<TerrainTypes>(kPlotData.GetTerrainType()), false, false);
 
 		CvWorldBuilderMap::PlotMapData::PlotHeight ePlotHeight = kPlotData.GetPlotHeight();
 		if(ePlotHeight != CvWorldBuilderMap::PlotMapData::FLAT_TERRAIN)
@@ -1066,11 +1066,11 @@ bool CvWorldBuilderMapLoader::InitMap()
 			if(iResourceAmount <= 0)
 				iResourceAmount = 1;
 
-			pkPlot->setResourceType((ResourceTypes)kPlotData.GetResourceType(), iResourceAmount);
+			pkPlot->setResourceType(static_cast<ResourceTypes>(kPlotData.GetResourceType()), iResourceAmount);
 		}
 
 		if(kPlotData.GetFeatureType() != CvWorldBuilderMap::PlotMapData::InvalidFeature)
-			pkPlot->setFeatureType((FeatureTypes)kPlotData.GetFeatureType());
+			pkPlot->setFeatureType(static_cast<FeatureTypes>(kPlotData.GetFeatureType()));
 
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::W_OF_RIVER))
 		{
@@ -1127,8 +1127,8 @@ bool CvWorldBuilderMapLoader::InitMap()
 	{
 		for(uint uiTeam2 = uiTeam1 + 1; uiTeam2 < uiTeamCount; ++uiTeam2)
 		{
-			const TeamTypes eTeam1 = (TeamTypes)uiTeam1;
-			const TeamTypes eTeam2 = (TeamTypes)uiTeam2;
+			const TeamTypes eTeam1 = static_cast<TeamTypes>(uiTeam1);
+			const TeamTypes eTeam2 = static_cast<TeamTypes>(uiTeam2);
 			CvTeam& kTeam1 = GET_TEAM(eTeam1);
 			CvTeam& kTeam2 = GET_TEAM(eTeam2);
 
@@ -1164,7 +1164,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	// Init City State Relationships
 	for(uint uiCityState = 0; uiCityState < uiCityStateCount; ++uiCityState)
 	{
-		const PlayerTypes eCityStatePlayer = GetPlayerType((byte)(uiCityState + CvWorldBuilderMap::MaxPlayers));
+		const PlayerTypes eCityStatePlayer = GetPlayerType(static_cast<byte>(uiCityState + CvWorldBuilderMap::MaxPlayers));
 		if(eCityStatePlayer != NO_PLAYER)
 		{
 			CvPlayer& kCityState = GET_PLAYER(eCityStatePlayer);
@@ -1174,7 +1174,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 			{
 				for(uint uiMajorCiv = 0; uiMajorCiv < uiPlayerCount; ++uiMajorCiv)
 				{
-					const PlayerTypes eMajorCivPlayer = GetPlayerType((byte)uiMajorCiv);
+					const PlayerTypes eMajorCivPlayer = GetPlayerType(static_cast<byte>(uiMajorCiv));
 					if(eMajorCivPlayer != NO_PLAYER)
 					{
 						pkAI->SetFriendshipWithMajor(eMajorCivPlayer, sg_kSave.m_aiCityStateInfluence[uiMajorCiv][uiCityState]);
@@ -1197,10 +1197,10 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 		const byte byNaturalWonder = sg_kSave.GetPlotData(i).GetNaturalWonderType();
 		if(byNaturalWonder != CvWorldBuilderMap::PlotMapData::InvalidNaturalWonder)
-			pkPlot->setFeatureType((FeatureTypes)byNaturalWonder);
+			pkPlot->setFeatureType(static_cast<FeatureTypes>(byNaturalWonder));
 
 		if(kPlotData.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
-			pkPlot->setImprovementType((ImprovementTypes)kPlotData.m_byImprovement);
+			pkPlot->setImprovementType(static_cast<ImprovementTypes>(kPlotData.m_byImprovement));
 
 		if(kPlotData.m_byRoute != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 		{
@@ -1231,7 +1231,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 		for(uint uiTeam = 0; uiTeam < uiTeamCount; ++uiTeam)
 		{
 			if(sg_kSave.GetVisibility(iPlotX, iPlotY, uiTeam))
-				pkPlot->setRevealed((TeamTypes)uiTeam, true);
+				pkPlot->setRevealed(static_cast<TeamTypes>(uiTeam), true);
 		}
 	}
 
@@ -1308,7 +1308,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
-		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
+		kPlotData.SetTerrainType(static_cast<byte>(pkPlot->getTerrainType()));
 
 		PlotTypes ePlotType = pkPlot->getPlotType();
 		if(ePlotType == PLOT_HILLS)
@@ -1326,8 +1326,8 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		}
 		else
 		{
-			kPlotData.SetResourceType((byte)eResourceType);
-			kPlotData.SetResourceAmount((byte)pkPlot->getNumResource());
+			kPlotData.SetResourceType(static_cast<byte>(eResourceType));
+			kPlotData.SetResourceAmount(static_cast<byte>(pkPlot->getNumResource()));
 		}
 
 		FeatureTypes eFeatureType = pkPlot->getFeatureType();
@@ -1346,11 +1346,11 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 #endif
 			{
 				kPlotData.SetFeatureType(CvWorldBuilderMap::PlotMapData::InvalidFeature);
-				kPlotData.SetNaturalWonderType((byte)eFeatureType);
+				kPlotData.SetNaturalWonderType(static_cast<byte>(eFeatureType));
 			}
 			else
 			{
-				kPlotData.SetFeatureType((byte)eFeatureType);
+				kPlotData.SetFeatureType(static_cast<byte>(eFeatureType));
 				kPlotData.SetNaturalWonderType(CvWorldBuilderMap::PlotMapData::InvalidNaturalWonder);
 			}
 		}
@@ -1464,7 +1464,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				if(pkEnum != NULL)
 				{
 					int iValue = kEntry.GetFieldAsInt(uiField);
-					const char* szMember = pkEnum->GetMember((uint)iValue);
+					const char* szMember = pkEnum->GetMember(static_cast<uint>(iValue));
 					if(szMember == NULL) szMember = "";
 					lua_pushstring(L, szMember);
 				}
@@ -1528,7 +1528,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				const ModEnum* pkEnum = sg_kSave.m_kModData.m_kPlotModData.GetFieldEnumType(uiField);
 				if(pkEnum != NULL)
 				{
-					const char* szMember = pkEnum->GetMember((uint)iValue);
+					const char* szMember = pkEnum->GetMember(static_cast<uint>(iValue));
 					if(szMember == NULL) szMember = "";
 					lua_pushstring(L, szMember);
 				}
@@ -1599,7 +1599,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 							const ModEnum* pkEnum = kPlotDataType.GetFieldEnumType(uiField);
 							if(pkEnum != NULL)
 							{
-								const char* szMember = pkEnum->GetMember((uint)iValue);
+								const char* szMember = pkEnum->GetMember(static_cast<uint>(iValue));
 								if(szMember != NULL)
 								{
 									lua_pushvalue(L, iFieldStart + 2 * uiField);
@@ -1705,7 +1705,7 @@ void CvWorldBuilderMapLoader::ValidateTerrain()
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
 	for(int i = 0; i < iNumTerrainTypes; ++i)
 	{
-		const TerrainTypes eTerrain = (TerrainTypes)i;
+		const TerrainTypes eTerrain = static_cast<TerrainTypes>(i);
 		const CvTerrainInfo* pkTerrain = GC.getTerrainInfo(eTerrain);
 		if(pkTerrain != NULL)
 		{
@@ -1746,7 +1746,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 	const int iMapWidth = kMap.getGridWidth();
 	const int iMapHeight = kMap.getGridHeight();
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
-	const TerrainTypes eCoast = (TerrainTypes)GD_INT_GET(SHALLOW_WATER_TERRAIN);
+	const TerrainTypes eCoast = static_cast<TerrainTypes>(GD_INT_GET(SHALLOW_WATER_TERRAIN));
 
 	for(int y = 0; y < iMapHeight; ++y)
 		for(int x = 0; x < iMapWidth; ++x)
@@ -1790,7 +1790,7 @@ void CvWorldBuilderMapLoader::ClearGoodies()
 		CvWorldBuilderMap::PlotScenarioData& kPlot = sg_kSave.GetPlotScenarioData(i);
 		if(kPlot.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 		{
-			ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
+			ImprovementTypes eType = static_cast<ImprovementTypes>(kPlot.m_byImprovement);
 			const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
 			if(pkImprovement == NULL || pkImprovement->IsGoody())
 				kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
@@ -1815,13 +1815,13 @@ WorldSizeTypes CvWorldBuilderMapLoader::GetWorldSizeType(const CvWorldBuilderMap
 		kWorldSize.Bind(1, szWorldType);
 		if(kWorldSize.Step())
 		{
-			eWorldSize = (WorldSizeTypes)kWorldSize.GetInt(0);
+			eWorldSize = static_cast<WorldSizeTypes>(kWorldSize.GetInt(0));
 		}
 	}
 
 	if(eWorldSize == NO_WORLDSIZE)
 	{
-		const int iArea = (int)(kMap.GetWidth() * kMap.GetHeight());
+		const int iArea = static_cast<int>(kMap.GetWidth() * kMap.GetHeight());
 		int iSmallestAreaDifference = 64000; // Arbitrarily large at start
 
 		Database::Results kWorldSizes;
@@ -1836,7 +1836,7 @@ WorldSizeTypes CvWorldBuilderMapLoader::GetWorldSizeType(const CvWorldBuilderMap
 			if(iAreaDifference < iSmallestAreaDifference)
 			{
 				iSmallestAreaDifference = iAreaDifference;
-				eWorldSize = (WorldSizeTypes)kInfo.GetID();
+				eWorldSize = static_cast<WorldSizeTypes>(kInfo.GetID());
 			}
 		}
 	}
@@ -1862,7 +1862,7 @@ void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayer
 			{
 				if(sg_auiPlayerSlots[i] == uiPlayer)
 				{
-					eOldSlot = (PlayerTypes)i;
+					eOldSlot = static_cast<PlayerTypes>(i);
 					break;
 				}
 			}
@@ -1937,11 +1937,11 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 		WorldSizeTypes eWorldSize = GetWorldSizeType(sg_kTempMap);
 
 		const char* szDefaultSpeed = sg_kTempMap.GetDefaultGameSpeed();
-		GameSpeedTypes eDefaultSpeed = (GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED);
+		GameSpeedTypes eDefaultSpeed = static_cast<GameSpeedTypes>(GD_INT_GET(STANDARD_GAMESPEED));
 		const int iSpeedCount = GC.getNumGameSpeedInfos();
 		for(int i = 0; i < iSpeedCount; ++i)
 		{
-			const GameSpeedTypes eSpeed = (GameSpeedTypes)i;
+			const GameSpeedTypes eSpeed = static_cast<GameSpeedTypes>(i);
 			const CvGameSpeedInfo* pkSpeed = GC.getGameSpeedInfo(eSpeed);
 			if(pkSpeed != NULL && strcmp(pkSpeed->GetType(), szDefaultSpeed) == 0)
 			{
@@ -1959,7 +1959,7 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 				bool bFound = false;
 				for(int iEra = 0; iEra < GC.getNumEraInfos(); ++iEra)
 				{
-					CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iEra);
+					CvEraInfo* pkEraInfo = GC.getEraInfo(static_cast<EraTypes>(iEra));
 					if(pkEraInfo != NULL && strcmp(pkEraInfo->GetType(), kPlayer.m_szEra) == 0)
 					{
 						szStartEra = pkEraInfo->GetText();
@@ -2013,7 +2013,7 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 		for(int i = 0; i < iVictoryTypes; ++i)
 		{
 			const char* szVictoryType = "";
-			const CvVictoryInfo* pkInfo = GC.getVictoryInfo((VictoryTypes)i);
+			const CvVictoryInfo* pkInfo = GC.getVictoryInfo(static_cast<VictoryTypes>(i));
 			if(pkInfo != NULL)
 				szVictoryType = pkInfo->GetType();
 
@@ -2059,7 +2059,7 @@ int CvWorldBuilderMapLoader::GetMapPlayers(lua_State* L)
 			CivilizationTypes eCivType = NO_CIVILIZATION;
 			for(int iCiv = 0; iCiv < iCivCount; ++iCiv)
 			{
-				const CivilizationTypes eCurrentCiv = (CivilizationTypes)iCiv;
+				const CivilizationTypes eCurrentCiv = static_cast<CivilizationTypes>(iCiv);
 				const CvCivilizationInfo* pkCiv = GC.getCivilizationInfo(eCurrentCiv);
 				if(pkCiv != NULL && strcmp(pkCiv->GetType(), kPlayer.m_szCivType) == 0)
 				{
@@ -2068,10 +2068,10 @@ int CvWorldBuilderMapLoader::GetMapPlayers(lua_State* L)
 				}
 			}
 
-			HandicapTypes eHandicapType = (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP);
+			HandicapTypes eHandicapType = static_cast<HandicapTypes>(GD_INT_GET(STANDARD_HANDICAP));
 			for(int iHandicap = 0; iHandicap < iHandicapCount; ++iHandicap)
 			{
-				const HandicapTypes eCurrentHandicap = (HandicapTypes)iHandicap;
+				const HandicapTypes eCurrentHandicap = static_cast<HandicapTypes>(iHandicap);
 				const CvHandicapInfo* pkHandicap = GC.getHandicapInfo(eCurrentHandicap);
 				if(pkHandicap != NULL && strcmp(pkHandicap->GetType(), kPlayer.m_szHandicap) == 0)
 				{

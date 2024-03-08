@@ -399,7 +399,7 @@ void DoTestBarbarianThreatToMinorsWithThisUnitsDeath(CvUnit* pUnit, PlayerTypes 
 
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 
 		if(GET_PLAYER(eMinor).isAlive())
 		{
@@ -2586,7 +2586,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	bool abTeamsAffected[MAX_TEAMS];
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
-		abTeamsAffected[iI] = kAttacker.isNukeVictim(&plot, ((TeamTypes)iI));
+		abTeamsAffected[iI] = kAttacker.isNukeVictim(&plot, static_cast<TeamTypes>(iI));
 	}
 
 	int iPlotTeam = plot.getTeam();
@@ -2597,15 +2597,15 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	{
 		if (abTeamsAffected[iI])
 		{
-			if (!kAttacker.isEnemy((TeamTypes)iI))
+			if (!kAttacker.isEnemy(static_cast<TeamTypes>(iI)))
 			{
-				if (GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
+				if (GET_TEAM(static_cast<TeamTypes>(iI)).IsVassalOfSomeone())
 				{
-					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
+					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM(static_cast<TeamTypes>(iI)).GetMaster());
 				}
 				else
 				{
-					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
+					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(static_cast<TeamTypes>(iI));
 				}
 
 				if (iPlotTeam == iI) 
@@ -2668,7 +2668,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		// Send out notifications to the world
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
@@ -2843,7 +2843,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 									{
 										pLoopPlot->SetImprovementPillaged(true);
 									}
-									pLoopPlot->setFeatureType((FeatureTypes)(GD_INT_GET(NUKE_FEATURE)));
+									pLoopPlot->setFeatureType(static_cast<FeatureTypes>((GD_INT_GET(NUKE_FEATURE))));
 								}
 							}
 						}
@@ -2855,7 +2855,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 								{
 									pLoopPlot->SetImprovementPillaged(true);
 								}
-								pLoopPlot->setFeatureType((FeatureTypes)(GD_INT_GET(NUKE_FEATURE)));
+								pLoopPlot->setFeatureType(static_cast<FeatureTypes>((GD_INT_GET(NUKE_FEATURE))));
 							}
 						}
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
@@ -2963,7 +2963,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	}
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
@@ -3376,7 +3376,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1.0)
 	double fStrengthRatio = (iDefenderStrength100 > iAttackerStrength100) ?
-		(double(iDefenderStrength100) / max(1,iAttackerStrength100)) : (double(iAttackerStrength100) / max(1,iDefenderStrength100));
+		(static_cast<double>(iDefenderStrength100) / max(1,iAttackerStrength100)) : (static_cast<double>(iAttackerStrength100) / max(1,iDefenderStrength100));
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
@@ -3388,7 +3388,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 		fStrengthRatio = 1 / fStrengthRatio;
 
 	//this is it
-	iDamage = int(iDamage * fStrengthRatio);
+	iDamage = static_cast<int>(iDamage * fStrengthRatio);
 	if(iModifierPercent!=0)
 	{
 		iDamage *= (100+iModifierPercent);
@@ -4403,7 +4403,7 @@ CvUnit* CvUnitCombat::GetFireSupportUnit(PlayerTypes eDefender, int iDefendX, in
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+		pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -4465,9 +4465,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 				// Are any of the teams effected by the blast in the local team?
 				for(int i = 0; i < MAX_TEAMS && !isTargetVisibleToActivePlayer; ++i)
 				{
-					if(kAttacker.isNukeVictim(pPlot, ((TeamTypes)i)))
+					if(kAttacker.isNukeVictim(pPlot, static_cast<TeamTypes>(i)))
 					{
-						isTargetVisibleToActivePlayer = eActiveTeam == ((TeamTypes)i);
+						isTargetVisibleToActivePlayer = eActiveTeam == static_cast<TeamTypes>(i);
 					}
 				}
 			}
@@ -4573,7 +4573,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			szUnitType = pkUnitInfo->GetType();
 
 		//Elizabeth Special Achievement
-		if((CvString)kPlayer.getLeaderTypeKey() == "LEADER_ELIZABETH" && pkLoser->getDomainType() == DOMAIN_SEA)
+		if(static_cast<CvString>(kPlayer.getLeaderTypeKey()) == "LEADER_ELIZABETH" && pkLoser->getDomainType() == DOMAIN_SEA)
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BRITISHNAVY, 357, ACHIEVEMENT_SPECIAL_ARMADA);
 		}
@@ -4584,7 +4584,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		}
 
 		//Oda's Special Achievement
-		if((CvString)kPlayer.getLeaderTypeKey() == "LEADER_ODA_NOBUNAGA" && (pkWinner->GetMaxHitPoints() - pkWinner->getDamage() == 1))
+		if(static_cast<CvString>(kPlayer.getLeaderTypeKey()) == "LEADER_ODA_NOBUNAGA" && (pkWinner->GetMaxHitPoints() - pkWinner->getDamage() == 1))
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_KAMIKAZE);
 		}

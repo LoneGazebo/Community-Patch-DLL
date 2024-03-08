@@ -53,22 +53,22 @@ const char* CvContractEntry::GetPrereqPietyLevel() const
 }
 CivilizationTypes CvContractEntry::GetPrereqCivilization() const
 {
-	return (CivilizationTypes)m_iPrereqCivilization;
+	return static_cast<CivilizationTypes>(m_iPrereqCivilization);
 }
 
 EraTypes CvContractEntry::GetPrereqEra() const
 {
-	return (EraTypes)m_iPrereqEra;
+	return static_cast<EraTypes>(m_iPrereqEra);
 }
 
 EraTypes CvContractEntry::GetObsoleteEra() const
 {
-	return (EraTypes)m_iPrereqEra;
+	return static_cast<EraTypes>(m_iPrereqEra);
 }
 
 ReligionTypes CvContractEntry::GetPrereqReligion() const
 {
-	return (ReligionTypes)m_iPrereqReligion;
+	return static_cast<ReligionTypes>(m_iPrereqReligion);
 }
 
 
@@ -104,11 +104,11 @@ int CvContractEntry::GetMutinyChance() const
 
 PolicyTypes CvContractEntry::GetPolicyType() const
 {
-	return (PolicyTypes)m_iPolicyType;
+	return static_cast<PolicyTypes>(m_iPolicyType);
 }
 PromotionTypes CvContractEntry::GetPromotionType() const
 {
-	return (PromotionTypes)m_iPromotionType;
+	return static_cast<PromotionTypes>(m_iPromotionType);
 }
 int CvContractEntry::GetTurns() const
 {
@@ -336,8 +336,8 @@ bool CvPlayerContracts::PlayerHasAnyContract() const
 {
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes) iI))
+		CvContractEntry* pContract = GC.getContractInfo(static_cast<ContractTypes>(iI));
+		if(pContract && PlayerHasContract(static_cast<ContractTypes>(iI)))
 		{
 			return true;
 		}
@@ -403,10 +403,10 @@ int CvPlayerContracts::GetContractGoldMaintenance()
 	int iMaintenance = 0;
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		CvContractEntry* pContract = GC.getContractInfo(static_cast<ContractTypes>(iI));
+		if(pContract && PlayerHasContract(static_cast<ContractTypes>(iI)))
 		{
-			CvContract* pContractInfo = GetContract((ContractTypes)iI);
+			CvContract* pContractInfo = GetContract(static_cast<ContractTypes>(iI));
 			if(pContractInfo)
 			{
 				if(pContractInfo->m_iContractMaintenance != 0)
@@ -434,13 +434,13 @@ bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
 
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		CvContractEntry* pContract = GC.getContractInfo(static_cast<ContractTypes>(iI));
+		if(pContract && PlayerHasContract(static_cast<ContractTypes>(iI)))
 		{
-			CvContract* pContractInfo = GetContract((ContractTypes)iI);
+			CvContract* pContractInfo = GetContract(static_cast<ContractTypes>(iI));
 			if(pContractInfo)
 			{
-				if(GC.getGame().GetContractUnits((ContractTypes)iI, eUnit) > 0)
+				if(GC.getGame().GetContractUnits(static_cast<ContractTypes>(iI), eUnit) > 0)
 				{
 					return true;
 				}
@@ -460,7 +460,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 	{
 		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 		{
-			UnitTypes eUnit = (UnitTypes)iI;
+			UnitTypes eUnit = static_cast<UnitTypes>(iI);
 				
 			if(eUnit == NO_UNIT)
 				continue;
@@ -586,8 +586,8 @@ int CvPlayerContracts::GetNumActivePlayerContracts() const
 	int iNum = 0;
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes) iI))
+		CvContractEntry* pContract = GC.getContractInfo(static_cast<ContractTypes>(iI));
+		if(pContract && PlayerHasContract(static_cast<ContractTypes>(iI)))
 		{
 			iNum++;
 		}
@@ -599,12 +599,12 @@ void CvPlayerContracts::DoTurn()
 {
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		CvContractEntry* pContract = GC.getContractInfo(static_cast<ContractTypes>(iI));
+		if(pContract && PlayerHasContract(static_cast<ContractTypes>(iI)))
 		{
-			if(GetContractTurnsRemaining((ContractTypes)iI) <= 0)
+			if(GetContractTurnsRemaining(static_cast<ContractTypes>(iI)) <= 0)
 			{
-				GC.getGame().GetGameContracts()->EndContract((ContractTypes)iI, m_pPlayer->GetID());
+				GC.getGame().GetGameContracts()->EndContract(static_cast<ContractTypes>(iI), m_pPlayer->GetID());
 			}
 		}
 	}
@@ -642,7 +642,7 @@ void CvGameContracts::Init()
 	Reset();
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		ContractTypes eContract = (ContractTypes)iI;
+		ContractTypes eContract = static_cast<ContractTypes>(iI);
 		if(eContract == NO_CONTRACT)
 			continue;
 
@@ -685,7 +685,7 @@ void CvGameContracts::DoUpdateContracts()
 		CvContract kContract = (*it);
 		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 		{
-			UnitTypes eUnit = (UnitTypes)iI;
+			UnitTypes eUnit = static_cast<UnitTypes>(iI);
 				
 			if(eUnit == NO_UNIT)
 				continue;

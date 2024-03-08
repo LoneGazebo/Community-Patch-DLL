@@ -130,16 +130,16 @@ void ReadV0TypeArray(FDataStream& kStream, std::vector<TType>& aiArray, uint uiM
 		TType eType;
 		kStream >> eType;
 
-		if(eType == (TType)-1)
-			aiArray[iI] = (TType)-1;
+		if(eType == static_cast<TType>(-1))
+			aiArray[iI] = static_cast<TType>(-1);
 		else
 		{
-			if((uint) eType < uiV0TagCount)
+			if(static_cast<uint>(eType) < uiV0TagCount)
 			{
 				int iMappedType = GC.getInfoTypeForString(ppszV0Tags[eType]);
 				if(iMappedType != -1)
 				{
-					aiArray[iI] = (TType)iMappedType;
+					aiArray[iI] = static_cast<TType>(iMappedType);
 				}
 				else
 				{
@@ -150,7 +150,7 @@ void ReadV0TypeArray(FDataStream& kStream, std::vector<TType>& aiArray, uint uiM
 				}
 			}
 			else
-				aiArray[iI] = (TType)-1;
+				aiArray[iI] = static_cast<TType>(-1);
 		}
 	}
 }
@@ -165,16 +165,16 @@ void ReadV0TypeArray(FDataStream& kStream, TType* paArray, uint uiSize, const ch
 		TType eType;
 		kStream >> eType;
 
-		if(eType == (TType)-1)
-			paArray[iI] = (TType)-1;
+		if(eType == static_cast<TType>(-1))
+			paArray[iI] = static_cast<TType>(-1);
 		else
 		{
-			if((uint) eType < uiV0TagCount)
+			if(static_cast<uint>(eType) < uiV0TagCount)
 			{
 				int iMappedType = GC.getInfoTypeForString(ppszV0Tags[eType]);
 				if(iMappedType != -1)
 				{
-					paArray[iI] = (TType)iMappedType;
+					paArray[iI] = static_cast<TType>(iMappedType);
 				}
 				else
 				{
@@ -185,7 +185,7 @@ void ReadV0TypeArray(FDataStream& kStream, TType* paArray, uint uiSize, const ch
 				}
 			}
 			else
-				paArray[iI] = (TType)-1;
+				paArray[iI] = static_cast<TType>(-1);
 		}
 	}
 }
@@ -194,23 +194,23 @@ void ReadV0TypeArray(FDataStream& kStream, TType* paArray, uint uiSize, const ch
 template<typename TType>
 TType ConvertV0(TType eType, const char** ppszV0Tags, uint uiV0TagCount)
 {
-	if(eType != (TType)-1 && (uint)eType < uiV0TagCount)
+	if(eType != static_cast<TType>(-1) && static_cast<uint>(eType) < uiV0TagCount)
 	{
-		int iMappedType = GC.getInfoTypeForString(ppszV0Tags[(int)eType]);
+		int iMappedType = GC.getInfoTypeForString(ppszV0Tags[static_cast<int>(eType)]);
 		if(iMappedType != -1)
 		{
-			return (TType)iMappedType;
+			return static_cast<TType>(iMappedType);
 		}
 		else
 		{
 			CvString szError;
-			szError.Format("LOAD ERROR: Type not found: %d", (int)eType);
+			szError.Format("LOAD ERROR: Type not found: %d", static_cast<int>(eType));
 			GC.LogMessage(szError.GetCString());
 			CvAssertMsg(false, szError);
 		}
 	}
 
-	return (TType)-1;
+	return static_cast<TType>(-1);
 }
 
 /// Helper function to read in an array of T data that has a string'ized type ID before each entry
@@ -371,7 +371,7 @@ void ReadDataArray(FDataStream& kStream, std::vector<TData>& aiArray)
 		int iType = Read(kStream, &bValid);
 		if(iType != -1)
 		{
-			if (iType >= (int)aiArray.size())
+			if (iType >= static_cast<int>(aiArray.size()))
 				aiArray.resize(iType+1);
 
 			kStream >> aiArray[iType];
@@ -401,7 +401,7 @@ void ReadHashedDataArray(FDataStream& kStream, std::vector<TData>& aiArray)
 		int iType = ReadHashed(kStream, &bValid);
 		if(iType != -1)
 		{
-			if (iType >= (int)aiArray.size())
+			if (iType >= static_cast<int>(aiArray.size()))
 				aiArray.resize(iType+1);
 
 			kStream >> aiArray[iType];
@@ -428,7 +428,7 @@ void ReadTypeArray(FDataStream& kStream, std::vector<TType>& aArray)
 
 	for(uint iI = 0; iI < uiNumEntries; iI++)
 	{
-		aArray[iI] = (TType)Read(kStream);
+		aArray[iI] = static_cast<TType>(Read(kStream));
 	}
 }
 
@@ -445,7 +445,7 @@ void ReadHashedTypeArray(FDataStream& kStream, std::vector<TType>& aArray)
 
 	for(uint iI = 0; iI < uiNumEntries; iI++)
 	{
-		aArray[iI] = (TType)ReadHashed(kStream);
+		aArray[iI] = static_cast<TType>(ReadHashed(kStream));
 	}
 }
 
@@ -459,7 +459,7 @@ void ReadHashedTypeArray(FDataStream& kStream, TType* paArray, uint uiArraySize)
 
 	for(uint iI = 0; iI < uiNumEntries; iI++)
 	{
-		TType eType = (TType)ReadHashed(kStream);
+		TType eType = static_cast<TType>(ReadHashed(kStream));
 		if(iI < uiArraySize)
 			paArray[iI] = eType;
 	}
@@ -472,7 +472,7 @@ void ReadHashedTypeArray(FDataStream& kStream, uint uiInputArraySize, TType* paA
 {
 	for(uint iI = 0; iI < uiInputArraySize; iI++)
 	{
-		TType eType = (TType)ReadHashed(kStream);
+		TType eType = static_cast<TType>(ReadHashed(kStream));
 		if(iI < uiOutputArraySize)
 			paArray[iI] = eType;
 	}
@@ -483,8 +483,8 @@ void ReadHashedTypeArray(FDataStream& kStream, uint uiInputArraySize, TType* paA
 template<typename TType>
 bool ReadAndRemapDataArray(FDataStream& kStream, int iSrcCount, TType* pvDest, int iDestCount, const int* piaRemap)
 {
-	TType* pvBuffer = (TType*)_malloca(iSrcCount * sizeof(TType));
-	kStream.ReadIt(iSrcCount * sizeof(TType), (void*)pvBuffer);
+	TType* pvBuffer = static_cast<TType*>((0));
+	kStream.ReadIt(iSrcCount * sizeof(TType), static_cast<void*>(pvBuffer));
 
 	bool bRemapSuccess = true;
 	for(int i = 0; i < iSrcCount; ++i)
@@ -513,7 +513,7 @@ void ReadTypeArrayDBLookup(FDataStream& kStream, std::vector<TType>& aArray, con
 
 	for(uint iI = 0; iI < uiNumEntries; iI++)
 	{
-		aArray[iI] = (TType)ReadDBLookup(kStream, szTable);
+		aArray[iI] = static_cast<TType>(ReadDBLookup(kStream, szTable));
 	}
 }
 

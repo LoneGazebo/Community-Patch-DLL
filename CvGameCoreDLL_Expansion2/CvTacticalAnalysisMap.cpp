@@ -88,7 +88,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDom
 	else
 	{
 		//avoid overflow
-		int iRatio = int(0.5f + 100 * ( float(GetFriendlyRangedStrength()) / max(1u, GetEnemyRangedStrength())));
+		int iRatio = static_cast<int>(0.5f + 100 * (float(GetFriendlyRangedStrength()) / max(1u, GetEnemyRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -133,7 +133,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalRangedDominanceFlag(int
 	else
 	{
 		//avoid overflow
-		int iRatio = int(0.5f + 100 * ( float(GetFriendlyNavalRangedStrength()) / max(1u, GetEnemyNavalRangedStrength())));
+		int iRatio = static_cast<int>(0.5f + 100 * (float(GetFriendlyNavalRangedStrength()) / max(1u, GetEnemyNavalRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -378,7 +378,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::SetOverallDominance(int iDomina
 				iDominancePercentageFriendly += 30;
 
 			//a bit complex to make sure there is no overflow
-			int iRatio = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
+			int iRatio = static_cast<int>(0.5f + 100 * (float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
 			if (iRatio > 100 + iDominancePercentageFriendly)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_FRIENDLY;
@@ -854,7 +854,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		// ignore the barbarians here! do not base tactical decisions on transients
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
+			CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayerLoop));
 			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
 			bool bFriendly =
 				(eTeam == kPlayer.getTeam()) || //on the same team
@@ -1004,7 +1004,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		if (pZoneCity && pZoneCity->HasAccessToArea(pZone->GetAreaID()))
 		{
 			//should we take into account distance to the border as well? probably dominance is enough
-			iBaseValue += (int)sqrt(pZoneCity->getEconomicValue(m_ePlayer)*100.f/iMostValuableCity);
+			iBaseValue += static_cast<int>(sqrt(pZoneCity->getEconomicValue(m_ePlayer) * 100.f / iMostValuableCity));
 
 			if (GET_PLAYER(m_ePlayer).GetTacticalAI()->IsInFocusArea(pZoneCity->plot()))
 			{
@@ -1226,7 +1226,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 {
 	RefreshIfOutdated();
 
-	if(iIndex < 0 || iIndex >= (int)m_vDominanceZones.size())
+	if(iIndex < 0 || iIndex >= static_cast<int>(m_vDominanceZones.size()))
 		return NULL;
 	return &m_vDominanceZones[iIndex];
 }
@@ -1259,7 +1259,7 @@ CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(const CvPlot * pP
 {
 	RefreshIfOutdated();
 
-	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
+	if (!pPlot || pPlot->GetPlotIndex()>=static_cast<int>(m_vPlotZoneID.size()))
 		return NULL;
 
 	return GetZoneByID(m_vPlotZoneID[pPlot->GetPlotIndex()]);
@@ -1269,7 +1269,7 @@ int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 {
 	RefreshIfOutdated();
 
-	if (iPlotIndex<0 || iPlotIndex>=(int)m_vPlotZoneID.size())
+	if (iPlotIndex<0 || iPlotIndex>=static_cast<int>(m_vPlotZoneID.size()))
 		return -1;
 
 	return m_vPlotZoneID[iPlotIndex];
@@ -1280,7 +1280,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 {
 	RefreshIfOutdated();
 
-	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
+	if (!pPlot || pPlot->GetPlotIndex()>=static_cast<int>(m_vPlotZoneID.size()))
 		return false;
 
 	CvTacticalDominanceZone* pZone = GetZoneByID(m_vPlotZoneID[pPlot->GetPlotIndex()]);
@@ -1352,9 +1352,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	int tmp = 0;
 
 	loadFrom >> writeTo.m_iZoneID;
-	loadFrom >> tmp; writeTo.m_eTerritoryType = (eDominanceTerritoryTypes)tmp;
-	loadFrom >> tmp; writeTo.m_eOverallDominanceFlag = (eTacticalDominanceFlags)tmp;
-	loadFrom >> tmp; writeTo.m_ePosture = (eTacticalPosture)tmp;
+	loadFrom >> tmp; writeTo.m_eTerritoryType = static_cast<eDominanceTerritoryTypes>(tmp);
+	loadFrom >> tmp; writeTo.m_eOverallDominanceFlag = static_cast<eTacticalDominanceFlags>(tmp);
+	loadFrom >> tmp; writeTo.m_ePosture = static_cast<eTacticalPosture>(tmp);
 	loadFrom >> writeTo.m_eOwner;
 	loadFrom >> writeTo.m_iCityID;
 	loadFrom >> writeTo.m_iAreaID;

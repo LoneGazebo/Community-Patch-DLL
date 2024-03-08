@@ -82,7 +82,7 @@ CvDealAI* CvDllDealAI::GetInstance()
 //------------------------------------------------------------------------------
 ICvPlayer1* CvDllDealAI::GetPlayer()
 {
-	CvPlayerAI* pkPlayer = (CvPlayerAI*)m_pDealAI->GetPlayer();
+	CvPlayerAI* pkPlayer = static_cast<CvPlayerAI*>(m_pDealAI->GetPlayer());
 	return (NULL != pkPlayer)? new CvDllPlayer(pkPlayer) : NULL;
 }
 //------------------------------------------------------------------------------

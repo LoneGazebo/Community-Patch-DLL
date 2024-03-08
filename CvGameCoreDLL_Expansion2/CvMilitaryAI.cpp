@@ -414,7 +414,7 @@ bool CvMilitaryAI::IsUsingStrategy(MilitaryAIStrategyTypes eStrategy)
 	if (eStrategy == NO_MILITARYAISTRATEGY)
 		return false;
 
-	return m_pabUsingStrategy[(int) eStrategy];
+	return m_pabUsingStrategy[static_cast<int>(eStrategy)];
 }
 
 /// Signifies that eStrategy is now being utilized by this AI Player
@@ -440,15 +440,15 @@ void CvMilitaryAI::SetUsingStrategy(MilitaryAIStrategyTypes eStrategy, bool bVal
 /// Returns the turn on which a Strategy was adopted (-1 if it hasn't been)
 int CvMilitaryAI::GetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy)
 {
-	return m_paiTurnStrategyAdopted[(int) eStrategy];
+	return m_paiTurnStrategyAdopted[static_cast<int>(eStrategy)];
 }
 
 /// Sets the turn number eStrategy was most recently adopted
 void CvMilitaryAI::SetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnStrategyAdopted[(int) eStrategy] != iValue)
+	if(m_paiTurnStrategyAdopted[static_cast<int>(eStrategy)] != iValue)
 	{
-		m_paiTurnStrategyAdopted[(int) eStrategy] = iValue;
+		m_paiTurnStrategyAdopted[static_cast<int>(eStrategy)] = iValue;
 	}
 }
 
@@ -927,7 +927,7 @@ map<int, SPath> CvMilitaryAI::GetArmyPathsFromCity(CvCity* pMusterCity, bool bWa
 	vector<CvPlot*> vPotentialTargets;
 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayer& kLoopPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 
 		//skip teammates and allied city states
 		if (kLoopPlayer.getTeam() == m_pPlayer->getTeam())
@@ -1121,7 +1121,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		bool bAnyLiberationQuest = false;
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 			CvPlayer* pMinor = &GET_PLAYER(eMinor);
 			if (!pMinor->isAlive())
 				continue;
@@ -1176,10 +1176,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	//If we get instant yields from conquering specific terrain types, look for cities with those
 	for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
 	{
-		YieldTypes eYield = (YieldTypes)iYield;
+		YieldTypes eYield = static_cast<YieldTypes>(iYield);
 		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 		{
-			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+			TerrainTypes eTerrain = static_cast<TerrainTypes>(iTerrain);
 			if (m_pPlayer->GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield) > 0)
 			{
 				int iNumTerrain = pTargetCity->CountTerrain(eTerrain); // not using CountAllOwnedTerrain to save performance
@@ -1196,7 +1196,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	{
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			if(pTargetCity->IsHasResourceLocal(eResource, true) && (GC.getMap().getNumResources(eResource) > 0))
 			{
 				//Will this get us closer to a monopoly?
@@ -1212,10 +1212,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	}
 
 	// Economic value / hardness of target
-	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
+	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / static_cast<float>(max(1, pTargetCity->GetMaxHitPoints() - pTargetCity->getDamage())) );
 
 	//everything together now
-	int iRtnValue = (int)(target.m_iApproachScore * fDistWeightInterpolated * fDesirability * fEconomicValue);
+	int iRtnValue = static_cast<int>(target.m_iApproachScore * fDistWeightInterpolated * fDesirability * fEconomicValue);
 
 	/*
 	if(GC.getLogging() && GC.getAILogging())
@@ -1516,7 +1516,7 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 		// Collect the names of the players on the team
 		for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 		{
-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayer);
+			CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 			if(kPlayer.isAlive() && kPlayer.getTeam() == eOpponentTeam)
 			{
 				if(strOpponentName.GetLength() != 0)
@@ -1526,7 +1526,7 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 			}
 		}
 		// Strategy Info
-		strTemp.Format("Made peace with team: %d (%s)", (int)eOpponentTeam, strOpponentName.GetCString());
+		strTemp.Format("Made peace with team: %d (%s)", static_cast<int>(eOpponentTeam), strOpponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
@@ -1621,18 +1621,18 @@ void CvMilitaryAI::UpdateBaseData()
 			if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
 			{
 				m_iNumRangedLandUnits++;
-				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted())
+				if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)) && !pLoopUnit->getUnitInfo().IsMounted())
 					m_iNumArcherLandUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted())
+				else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)) && pLoopUnit->getUnitInfo().IsMounted())
 					m_iNumSkirmisherLandUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
+				else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true)))
 					m_iNumSiegeLandUnits++;
 			}
 			else if (pLoopUnit->canIntercept())
 				m_iNumAntiAirUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+			else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true)) || pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true)))
 				m_iNumMobileLandUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+			else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true)))
 				m_iNumReconLandUnits++;
 			else
 				m_iNumMeleeLandUnits++;
@@ -1644,11 +1644,11 @@ void CvMilitaryAI::UpdateBaseData()
 			if (pLoopUnit->getArmyID() != -1)
 				m_iNumNavalUnitsInArmies++;
 
-			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true))
+			if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)))
 				m_iNumMeleeNavalUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true))
+			else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true)))
 				m_iNumRangedNavalUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true))
+			else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true)))
 				m_iNumSubmarineNavalUnits++;
 
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
@@ -1663,9 +1663,9 @@ void CvMilitaryAI::UpdateBaseData()
 		{
 			m_iNumAirUnits++;
 
-			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true))
+			if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true)))
 				m_iNumBomberAirUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true))
+			else if (pLoopUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true)))
 				m_iNumFighterAirUnits++;
 		}
 		else if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isSuicide()) // missiles&bombs
@@ -1690,11 +1690,11 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	//now check how many units we want for defense
 	//these are only land units!
 	//offensive units and navy are checked later
-	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
+	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DEFENSE")));
 	int iModifier = 100 + iFlavorDefense*2;
 
 	// 1 Unit per City & 1 per Settler
-	iNumUnitsWantedDefense += (int)(m_pPlayer->getNumCities() * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
+	iNumUnitsWantedDefense += static_cast<int>(m_pPlayer->getNumCities() * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
 	iNumUnitsWantedDefense += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 	// tall players have few cities but many wonders
@@ -1729,7 +1729,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 		return;
 	}
 
-	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 	// this is the total number for offense, we split between land and sea later
 	// in practice some defensive land units can be used as offensive land units as well ...
 	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
@@ -1739,7 +1739,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	{
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
+			PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iMajorLoop);
 			if (eOtherPlayer != m_pPlayer->GetID())
 			{
 				//one army per target
@@ -1755,7 +1755,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 
 	// now how many should be naval units?
 	int iCoastalPercent = (iNumCoastalCities * 100) / max(1,m_pPlayer->getNumCities());
-	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
+	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL")));
 	int iNavalPercent = range(iFlavorNaval*5,10,50) + iCoastalPercent/3;
 
 	//you don't always get what you want ...
@@ -1888,7 +1888,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 	// Loop through all strategies
 	for(iStrategiesLoop = 0; iStrategiesLoop < GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies(); iStrategiesLoop++)
 	{
-		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategiesLoop;
+		MilitaryAIStrategyTypes eStrategy = static_cast<MilitaryAIStrategyTypes>(iStrategiesLoop);
 		CvMilitaryAIStrategyXMLEntry* pStrategy = GetMilitaryAIStrategies()->GetEntry(iStrategiesLoop);
 
 		if(pStrategy == NULL)	// Can have holes in the list
@@ -1911,13 +1911,13 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 		else
 		{
 			// Has the prereq Tech necessary?
-			if(pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechPrereq()))
+			if(pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pStrategy->GetTechPrereq())))
 			{
 				bTestStrategyStart = false;
 			}
 
 			// Has the Tech which obsoletes this Strategy?
-			if(bTestStrategyStart && pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechObsolete()))
+			if(bTestStrategyStart && pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pStrategy->GetTechObsolete())))
 			{
 				bTestStrategyStart = false;
 			}
@@ -1957,7 +1957,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 			bool bStrategyShouldBeActive = false;
 
 			// Has the Tech which obsoletes this Strategy? If so, Strategy should be deactivated regardless of other factors
-			if(pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechObsolete()))
+			if(pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pStrategy->GetTechObsolete())))
 			{
 				bStrategyShouldBeActive = false;
 			}
@@ -2211,7 +2211,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				}
 				if (bRollForNuke)
 				{
-					int iFlavorNuke = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
+					int iFlavorNuke = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_USE_NUKE")));
 					int iRoll = GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()));
 					if (iRoll <= iFlavorNuke)
 					{
@@ -2357,7 +2357,7 @@ void CvMilitaryAI::UpdateOperations()
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
@@ -2421,7 +2421,7 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 {
 
 	// Are we winning all the wars we are in?
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	MilitaryAIStrategyTypes eStrategyAtWar = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR"));
 	if(!IsUsingStrategy(eStrategyAtWar) || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
 	{
 		// Is there an operation waiting for one more unit?
@@ -2465,7 +2465,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	else
 	{
 		// Are we running at a deficit?
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+		EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"));
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 		// Are we running anything other than the Conquest Grand Strategy?
 		if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
@@ -2636,7 +2636,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		if (!pLoopUnit->canUseForAIOperation())
 			continue;
 
-		bool bIsObsolete = (TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech()));
+		bool bIsObsolete = static_cast<TechTypes>(pUnitInfo.GetObsoleteTech()) != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(pUnitInfo.GetObsoleteTech()));
 		if (bIsObsolete && bCheckObsolete)
 		{
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
@@ -2651,7 +2651,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 				{
 					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 					{
-						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+						ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
 						int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
 						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
@@ -2670,7 +2670,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		bool bResourceDeficit = false;
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
 			if (iNumResourceInUse > 0 && m_pPlayer->getNumResourceAvailable(eResource) < 0)
 			{
@@ -2790,7 +2790,7 @@ CvPlot *CvMilitaryAI::GetBestAirSweepTarget(CvUnit* pFighter) const
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 		if(kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
 		{
 			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
@@ -3266,7 +3266,7 @@ WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				int iWar = GetWarType(eLoopPlayer);
@@ -3284,7 +3284,7 @@ WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 		return (iLand >= iSea) ? WARTYPE_LAND : WARTYPE_SEA;
 	}
 
-	return (WarTypes)m_aiWarFocus[ePlayer];
+	return static_cast<WarTypes>(m_aiWarFocus[ePlayer]);
 }
 
 void CvMilitaryAI::UpdateWarType()
@@ -3335,7 +3335,7 @@ void CvMilitaryAI::UpdateWarType()
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
 					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
@@ -3368,7 +3368,7 @@ void CvMilitaryAI::UpdateWarType()
 	//And now theirs...
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{	
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 		{
 			if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
@@ -3538,7 +3538,7 @@ int MilitaryAIHelpers::GetWeightThresholdModifier(MilitaryAIStrategyTypes eStrat
 	// Look at all Flavors for the Player & this Strategy
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes) iFlavorLoop;
+		FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavorLoop);
 		int iPersonalityFlavor = pkFlavorManager->GetPersonalityIndividualFlavor(eFlavor);
 		CvMilitaryAIStrategyXMLEntry* pkEntry = pkAIStrategies->GetEntry(eStrategy);
 		CvAssert(pkEntry != NULL);
@@ -3557,7 +3557,7 @@ int MilitaryAIHelpers::GetWeightThresholdModifier(MilitaryAIStrategyTypes eStrat
 bool MilitaryAIHelpers::IsTestStrategy_EnoughMilitaryUnits(CvPlayer* pPlayer)
 {
 	// Are we running at a deficit?
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+	EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"));
 	bool bInDeficit = pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	// Are we running anything other than the Conquest Grand Strategy?
@@ -3613,7 +3613,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	PlayerTypes eOtherPlayer;
 
 	// If we're at war don't bother with this Strategy
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	MilitaryAIStrategyTypes eStrategyAtWar = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR"));
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		return false;
@@ -3638,7 +3638,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	CvDiplomacyAI* pkDiplomacyAI = pPlayer->GetDiplomacyAI();
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eOtherPlayer = (PlayerTypes) iMajorLoop;
+		eOtherPlayer = static_cast<PlayerTypes>(iMajorLoop);
 #if defined(MOD_BALANCE_CORE)
 		if(pkDiplomacyAI->GetVictoryBlockLevel(eOtherPlayer) > BLOCK_LEVEL_WEAK)
 		{
@@ -3717,7 +3717,7 @@ bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer)
 bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount)
 {
 	// If we're at war don't bother with this Strategy (unless it is clear we are already winning)
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	MilitaryAIStrategyTypes eStrategyAtWar = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR"));
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		if(pPlayer->GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_WINNING)
@@ -3755,7 +3755,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 			CvDiplomacyAI* pkDiplomacyAI = pPlayer->GetDiplomacyAI();
 			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
+				PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iMajorLoop);
 				if (pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
 				{
 					return false;
@@ -3766,7 +3766,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 		}
 
 		//Let's hunt barbs if we want to expand
-		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"));
 		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 		{
 			return true;
@@ -3810,7 +3810,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
@@ -3832,7 +3832,7 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
@@ -3844,7 +3844,7 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 /// "Enough Ranged" Player Strategy: If a player has too many ranged units
 bool MilitaryAIHelpers::IsTestStrategy_EnoughRangedUnits(CvPlayer* pPlayer, int iNumRanged, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RANGED")));
 	int iRatio = iNumRanged * 10 / max(1,iNumMelee+iNumRanged);
 	return (iRatio >= iFlavorRange);
 }
@@ -3861,7 +3861,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 		}
 	}
 #endif
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RANGED")));
 	int iRatio = iNumRanged * 10 / max(1,iNumMelee+iNumRanged);
 	return (iRatio <= iFlavorRange / 2);
 }
@@ -3869,14 +3869,14 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 /// "Need Ranged Early" Player Strategy: If a player is planning a early sneak attack we need to make sure that ranged are built since this will block this
 bool MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(CvPlayer* pPlayer)
 {
-	MilitaryAIStrategyTypes eStrategyWarMob = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+	MilitaryAIStrategyTypes eStrategyWarMob = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION"));
 	return pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob);
 }
 
 /// "Enough Mobile" Player Strategy: If a player has too many mobile units
 bool MilitaryAIHelpers::IsTestStrategy_EnoughMobileUnits(CvPlayer* pPlayer, int iNumMobile, int iNumMelee)
 {
-	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
+	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_MOBILE")));
 	if (!MOD_AI_UNIT_PRODUCTION)
 	{
 		int iRatio = iNumMobile * 10 / max(1,iNumMelee+iNumMobile);
@@ -3892,7 +3892,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughMobileUnits(CvPlayer* pPlayer, int 
 /// "Need Mobile" Player Strategy: If a player has too many slow units
 bool MilitaryAIHelpers::IsTestStrategy_NeedMobileUnits(CvPlayer* pPlayer, int iNumMobile, int iNumMelee)
 {
-	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
+	int iFlavorMobile = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_MOBILE")));
 	if (!MOD_AI_UNIT_PRODUCTION)
 	{
 		int iRatio = iNumMobile * 10 / max(1, iNumMelee + iNumMobile);
@@ -3908,7 +3908,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedMobileUnits(CvPlayer* pPlayer, int iN
 /// "Enough Air" Player Strategy: If a player has too many air units
 bool MilitaryAIHelpers::IsTestStrategy_EnoughAirUnits(CvPlayer* pPlayer, int iNumAir, int iNumMelee)
 {
-	int iFlavorAir = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
+	int iFlavorAir = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_AIR")));
 	int iRatio = iNumAir * 10 / max(1,iNumMelee+iNumAir);
 	return (iRatio >= iFlavorAir);
 }
@@ -3916,7 +3916,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughAirUnits(CvPlayer* pPlayer, int iNu
 /// "Need Air" Player Strategy: If a player has too few flying units
 bool MilitaryAIHelpers::IsTestStrategy_NeedAirUnits(CvPlayer* pPlayer, int iNumAir, int iNumMelee)
 {
-	int iFlavorAir = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
+	int iFlavorAir = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_AIR")));
 	int iRatio = iNumAir * 10 / max(1,iNumMelee+iNumAir);
 	return (iRatio <= iFlavorAir / 2);
 }
@@ -3934,7 +3934,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 		return true;
 	}
 
-	int iFlavorNuke = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NUKE"));
+	int iFlavorNuke = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NUKE")));
 	int iNumNukes = pPlayer->getNumNukeUnits();
 
 	return (iNumNukes < iFlavorNuke / 3);
@@ -3947,7 +3947,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughAntiAirUnits(CvPlayer* pPlayer, int
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if(eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->HasAirforce())
@@ -3976,7 +3976,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAntiAirUnits(CvPlayer* pPlayer, int i
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if(eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->HasAirforce())
@@ -4009,7 +4009,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 /// "Enough Archer" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughArcherUnits(CvPlayer* pPlayer, int iNumArcher, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ARCHER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_ARCHER")));
 	int iRatio = iNumArcher * 10 / max(1, iNumMelee);
 	return (iRatio >= iFlavorRange);
 }
@@ -4017,7 +4017,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughArcherUnits(CvPlayer* pPlayer, int 
 /// "Need Archer" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedArcherUnits(CvPlayer* pPlayer, int iNumArcher, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ARCHER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_ARCHER")));
 	int iRatio = iNumArcher * 10 / max(1, iNumMelee);
 	return (iRatio <= iFlavorRange / 2);
 }
@@ -4025,7 +4025,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedArcherUnits(CvPlayer* pPlayer, int iN
 /// "Enough Siege" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughSiegeUnits(CvPlayer* pPlayer, int iNumSiege, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SIEGE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SIEGE")));
 	int iRatio = iNumSiege * 10 / max(1, iNumMelee);
 	return (iRatio >= iFlavorRange);
 }
@@ -4033,7 +4033,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughSiegeUnits(CvPlayer* pPlayer, int i
 /// "Need Siege" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedSiegeUnits(CvPlayer* pPlayer, int iNumSiege, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SIEGE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SIEGE")));
 	int iRatio = iNumSiege * 10 / max(1, iNumMelee);
 	return (iRatio <= iFlavorRange / 4);
 }
@@ -4041,7 +4041,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedSiegeUnits(CvPlayer* pPlayer, int iNu
 /// "Enough Skirmisher" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughSkirmisherUnits(CvPlayer* pPlayer, int iNumSkirmisher, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SKIRMISHER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SKIRMISHER")));
 	int iRatio = iNumSkirmisher * 10 / max(1, iNumMelee);
 	return (iRatio >= iFlavorRange);
 }
@@ -4049,7 +4049,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughSkirmisherUnits(CvPlayer* pPlayer, 
 /// "Need Skirmisher" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedSkirmisherUnits(CvPlayer* pPlayer, int iNumSkirmisher, int iNumMelee)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SKIRMISHER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SKIRMISHER")));
 	int iRatio = iNumSkirmisher * 10 / max(1, iNumMelee);
 	return (iRatio <= iFlavorRange / 4);
 }
@@ -4057,7 +4057,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedSkirmisherUnits(CvPlayer* pPlayer, in
 /// "Enough NavalMelee" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalMeleeUnits(CvPlayer* pPlayer, int iNumNavalMelee, int iNumNaval)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE")));
 	int iRatio = iNumNavalMelee * 10 / max(1, iNumNaval);
 	return (iRatio >= (7 * iFlavorRange / 5));
 }
@@ -4065,7 +4065,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalMeleeUnits(CvPlayer* pPlayer, 
 /// "Need NavalMelee" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalMeleeUnits(CvPlayer* pPlayer, int iNumNavalMelee, int iNumNaval)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL_MELEE")));
 	int iRatio = iNumNavalMelee * 10 / max(1, iNumNaval);
 	return (iRatio <= (3 * iFlavorRange / 5));
 }
@@ -4073,7 +4073,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedNavalMeleeUnits(CvPlayer* pPlayer, in
 /// "Enough NavalRanged" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalRangedUnits(CvPlayer* pPlayer, int iNumNavalRanged, int iNumNaval)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED")));
 	int iRatio = iNumNavalRanged * 10 / max(1, iNumNaval);
 	return (iRatio >= (7 * iFlavorRange / 5));
 }
@@ -4081,7 +4081,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalRangedUnits(CvPlayer* pPlayer,
 /// "Need NavalRanged" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalRangedUnits(CvPlayer* pPlayer, int iNumNavalRanged, int iNumNaval)
 {	
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_NAVAL_RANGED")));
 	int iRatio = iNumNavalRanged * 10 / max(1, iNumNaval);
 	return (iRatio <= (3 * iFlavorRange / 5));
 }
@@ -4089,7 +4089,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedNavalRangedUnits(CvPlayer* pPlayer, i
 /// "Enough Submarine" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughSubmarineUnits(CvPlayer* pPlayer, int iNumSubmarine, int iNumNaval)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SUBMARINE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SUBMARINE")));
 	int iRatio = iNumSubmarine * 10 / max(1, iNumNaval);
 	return (iRatio >= (3 * iFlavorRange / 5));
 }
@@ -4097,7 +4097,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughSubmarineUnits(CvPlayer* pPlayer, i
 /// "Need Submarine" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedSubmarineUnits(CvPlayer* pPlayer, int iNumSubmarine, int iNumNaval)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SUBMARINE"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SUBMARINE")));
 	int iRatio = iNumSubmarine * 10 / max(1, iNumNaval);
 	return (iRatio <= (iFlavorRange / 5));
 }
@@ -4105,7 +4105,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedSubmarineUnits(CvPlayer* pPlayer, int
 /// "Enough Bomber" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughBomberUnits(CvPlayer* pPlayer, int iNumBomber, int iNumAir)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_BOMBER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_BOMBER")));
 	int iRatio = iNumBomber * 10 / max(1, iNumAir);
 	return (iRatio >= (7 * iFlavorRange / 5));
 }
@@ -4113,7 +4113,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughBomberUnits(CvPlayer* pPlayer, int 
 /// "Need Bomber" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedBomberUnits(CvPlayer* pPlayer, int iNumBomber, int iNumAir)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_BOMBER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_BOMBER")));
 	int iRatio = iNumBomber * 10 / max(1, iNumAir);
 	return (iRatio <= (3 * iFlavorRange / 5));
 }
@@ -4121,7 +4121,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedBomberUnits(CvPlayer* pPlayer, int iN
 /// "Enough Fighter" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_EnoughFighterUnits(CvPlayer* pPlayer, int iNumFighter, int iNumAir)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_FIGHTER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_FIGHTER")));
 	int iRatio = iNumFighter * 10 / max(1, iNumAir);
 	return (iRatio >= (7 * iFlavorRange / 5));
 }
@@ -4129,7 +4129,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughFighterUnits(CvPlayer* pPlayer, int
 /// "Need Fighter" Player Strategy
 bool MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(CvPlayer* pPlayer, int iNumFighter, int iNumAir)
 {
-	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_FIGHTER"));
+	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_FIGHTER")));
 	int iRatio = iNumFighter * 10 / max(1, iNumAir);
 	return (iRatio <= (3 * iFlavorRange / 5));
 }
@@ -4187,13 +4187,13 @@ CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckT
 
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCombinedAttack()
 {
-	static EraTypes eThreshold = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	static EraTypes eThreshold = static_cast<EraTypes>(GC.getInfoTypeForString("ERA_MEDIEVAL", true));
 	return GC.getGame().getCurrentEra() > eThreshold ? MUFORMATION_LATE_GAME_INVASION_FORCE : MUFORMATION_NAVAL_INVASION;
 }
 
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForPureNavalAttack()
 {
-	static EraTypes eThreshold = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	static EraTypes eThreshold = static_cast<EraTypes>(GC.getInfoTypeForString("ERA_MEDIEVAL", true));
 	return GC.getGame().getCurrentEra() > eThreshold ? MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE : MUFORMATION_PURE_NAVAL_CITY_ATTACK;
 }
 

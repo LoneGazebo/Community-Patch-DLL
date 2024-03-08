@@ -111,9 +111,9 @@ int CvLuaDeal::lRemoveByType(lua_State* L)
 	int args = lua_gettop(L);
 
 	if(args == 1)
-		pkDeal->RemoveByType((TradeableItems) lua_tointeger(L, 2), NO_PLAYER);
+		pkDeal->RemoveByType(static_cast<TradeableItems>(lua_tointeger(L, 2)), NO_PLAYER);
 	else
-		pkDeal->RemoveByType((TradeableItems) lua_tointeger(L, 2), (PlayerTypes) lua_tointeger(L, 3));
+		pkDeal->RemoveByType(static_cast<TradeableItems>(lua_tointeger(L, 2)), static_cast<PlayerTypes>(lua_tointeger(L, 3)));
 
 	return 0;
 }
@@ -139,9 +139,9 @@ const char* CvLuaDeal::GetTypeName()
 int CvLuaDeal::lIsPossibleToTradeItem(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 3);
-	const TradeableItems eItem = (TradeableItems) lua_tointeger(L, 4);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eToPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
+	const TradeableItems eItem = static_cast<TradeableItems>(lua_tointeger(L, 4));
 	const int iData1 = lua_tointeger(L, 5);
 	const int iData2 = lua_tointeger(L, 6);
 	const int iData3 = lua_tointeger(L, 7);
@@ -155,9 +155,9 @@ int CvLuaDeal::lIsPossibleToTradeItem(lua_State* L)
 int CvLuaDeal::lGetReasonsItemUntradeable(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 3);
-	const TradeableItems eItem = (TradeableItems) lua_tointeger(L, 4);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eToPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
+	const TradeableItems eItem = static_cast<TradeableItems>(lua_tointeger(L, 4));
 	const int iData1 = lua_tointeger(L, 5);
 	const int iData2 = lua_tointeger(L, 6);
 	const int iData3 = lua_tointeger(L, 7);
@@ -171,9 +171,9 @@ int CvLuaDeal::lGetReasonsItemUntradeable(lua_State* L)
 int CvLuaDeal::lBlockTemporaryForPermanentTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const TradeableItems eItem = (TradeableItems) lua_tointeger(L, 2);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 3);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 4);
+	const TradeableItems eItem = static_cast<TradeableItems>(lua_tointeger(L, 2));
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
+	const PlayerTypes eToPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 4));
 
 	const bool bResult = pkDeal->BlockTemporaryForPermanentTrade(eItem, eFromPlayer, eToPlayer);
 	lua_pushboolean(L, bResult);
@@ -216,8 +216,8 @@ int CvLuaDeal::lGetNextItem(lua_State* L)
 int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	CvPlayerAI* pkThisPlayer = &GET_PLAYER(eFromPlayer);
 
 	int iDealValueToMe = 0;
@@ -231,7 +231,7 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 int CvLuaDeal::lAddGoldTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iAmount = lua_tointeger(L, 3);
 
 	pkDeal->AddGoldTrade(eFromPlayer, iAmount);
@@ -241,7 +241,7 @@ int CvLuaDeal::lAddGoldTrade(lua_State* L)
 int CvLuaDeal::lAddGoldPerTurnTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iAmount = lua_tointeger(L, 3);
 	const int iDuration = lua_tointeger(L, 4);
 
@@ -252,7 +252,7 @@ int CvLuaDeal::lAddGoldPerTurnTrade(lua_State* L)
 int CvLuaDeal::lAddMapTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkDeal->AddMapTrade(eFromPlayer);
 	return 0;
@@ -261,8 +261,8 @@ int CvLuaDeal::lAddMapTrade(lua_State* L)
 int CvLuaDeal::lAddResourceTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 3));
 	const int iAmount = lua_tointeger(L, 4);
 	const int iDuration = lua_tointeger(L, 5);
 
@@ -273,7 +273,7 @@ int CvLuaDeal::lAddResourceTrade(lua_State* L)
 int CvLuaDeal::lAddCityTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iCityID = lua_tointeger(L, 3);
 
 	pkDeal->AddCityTrade(eFromPlayer, iCityID);
@@ -283,7 +283,7 @@ int CvLuaDeal::lAddCityTrade(lua_State* L)
 int CvLuaDeal::lAddAllowEmbassy(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkDeal->AddAllowEmbassy(eFromPlayer);
 	return 0;
@@ -292,7 +292,7 @@ int CvLuaDeal::lAddAllowEmbassy(lua_State* L)
 int CvLuaDeal::lAddOpenBorders(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iDuration = lua_tointeger(L, 3);
 
 	pkDeal->AddOpenBorders(eFromPlayer, iDuration);
@@ -302,7 +302,7 @@ int CvLuaDeal::lAddOpenBorders(lua_State* L)
 int CvLuaDeal::lAddDefensivePact(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iDuration = lua_tointeger(L, 3);
 
 	pkDeal->AddDefensivePact(eFromPlayer, iDuration);
@@ -312,7 +312,7 @@ int CvLuaDeal::lAddDefensivePact(lua_State* L)
 int CvLuaDeal::lAddResearchAgreement(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iDuration = lua_tointeger(L, 3);
 
 	pkDeal->AddResearchAgreement(eFromPlayer, iDuration);
@@ -322,7 +322,7 @@ int CvLuaDeal::lAddResearchAgreement(lua_State* L)
 int CvLuaDeal::lAddPeaceTreaty(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iDuration = lua_tointeger(L, 3);
 
 	pkDeal->AddPeaceTreaty(eFromPlayer, iDuration);
@@ -332,8 +332,8 @@ int CvLuaDeal::lAddPeaceTreaty(lua_State* L)
 int CvLuaDeal::lAddThirdPartyPeace(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const TeamTypes eThirdPartyTeam = (TeamTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const TeamTypes eThirdPartyTeam = static_cast<TeamTypes>(lua_tointeger(L, 3));
 	const int iDuration = lua_tointeger(L, 4);
 
 	pkDeal->AddThirdPartyPeace(eFromPlayer, eThirdPartyTeam, iDuration);
@@ -343,8 +343,8 @@ int CvLuaDeal::lAddThirdPartyPeace(lua_State* L)
 int CvLuaDeal::lAddThirdPartyWar(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const TeamTypes eThirdPartyTeam = (TeamTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const TeamTypes eThirdPartyTeam = static_cast<TeamTypes>(lua_tointeger(L, 3));
 
 	pkDeal->AddThirdPartyWar(eFromPlayer, eThirdPartyTeam);
 	return 0;
@@ -353,7 +353,7 @@ int CvLuaDeal::lAddThirdPartyWar(lua_State* L)
 int CvLuaDeal::lAddDeclarationOfFriendship(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkDeal->AddDeclarationOfFriendship(eFromPlayer);
 	return 0;
@@ -362,7 +362,7 @@ int CvLuaDeal::lAddDeclarationOfFriendship(lua_State* L)
 int CvLuaDeal::lAddVoteCommitment(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iResolutionID = lua_tointeger(L, 3);
 	const int iVoteChoice = lua_tointeger(L, 4);
 	const int iNumVotes = lua_tointeger(L, 5);
@@ -375,8 +375,8 @@ int CvLuaDeal::lAddVoteCommitment(lua_State* L)
 int CvLuaDeal::lAddTechTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const TechTypes eTech = (TechTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const TechTypes eTech = static_cast<TechTypes>(lua_tointeger(L, 3));
 
 	pkDeal->AddTechTrade(eFromPlayer, eTech);
 	return 0;
@@ -385,7 +385,7 @@ int CvLuaDeal::lAddTechTrade(lua_State* L)
 int CvLuaDeal::lAddVassalageTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkDeal->AddVassalageTrade(eFromPlayer);
 	return 0;
@@ -394,7 +394,7 @@ int CvLuaDeal::lAddVassalageTrade(lua_State* L)
 int CvLuaDeal::lAddRevokeVassalageTrade(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkDeal->AddRevokeVassalageTrade(eFromPlayer);
 	return 0;
@@ -404,7 +404,7 @@ int CvLuaDeal::lAddRevokeVassalageTrade(lua_State* L)
 int CvLuaDeal::lRemoveVoteCommitment(lua_State* L)
 {
 	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iResolutionID = lua_tointeger(L, 3);
 	const int iVoteChoice = lua_tointeger(L, 4);
 	const int iNumVotes = lua_tointeger(L, 5);

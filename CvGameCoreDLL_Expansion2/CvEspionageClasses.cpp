@@ -323,18 +323,18 @@ FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 	MOD_SERIALIZE_READ(53, loadFrom, writeTo.m_sName, NULL);
 	int iSpyRank = 0;
 	loadFrom >> iSpyRank;
-	writeTo.m_eRank = (CvSpyRank)iSpyRank;
+	writeTo.m_eRank = static_cast<CvSpyRank>(iSpyRank);
 	loadFrom >> writeTo.m_iExperience;
 	loadFrom >> writeTo.m_iCityX;
 	loadFrom >> writeTo.m_iCityY;
 
 	int iSpyState = 0;
 	loadFrom >> iSpyState;
-	writeTo.m_eSpyState = (CvSpyState)iSpyState;
+	writeTo.m_eSpyState = static_cast<CvSpyState>(iSpyState);
 
 	int iSpyFocus = 0;
 	loadFrom >> iSpyFocus;
-	writeTo.m_eSpyFocus = (CityEventChoiceTypes)iSpyFocus;
+	writeTo.m_eSpyFocus = static_cast<CityEventChoiceTypes>(iSpyFocus);
 
 	loadFrom >> writeTo.m_iReviveCounter;
 	loadFrom >> writeTo.m_bIsDiplomat;
@@ -359,12 +359,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvEspionageSpy& readFrom)
 
 	saveTo << readFrom.m_iName;
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_sName);
-	saveTo << (int)readFrom.m_eRank;
+	saveTo << static_cast<int>(readFrom.m_eRank);
 	saveTo << readFrom.m_iExperience;
 	saveTo << readFrom.m_iCityX;
 	saveTo << readFrom.m_iCityY;
-	saveTo << (int)readFrom.m_eSpyState;
-	saveTo << (int)readFrom.m_eSpyFocus;
+	saveTo << static_cast<int>(readFrom.m_eSpyState);
+	saveTo << static_cast<int>(readFrom.m_eSpyFocus);
 	saveTo << readFrom.m_iReviveCounter;
 	saveTo << readFrom.m_bIsDiplomat;
 	saveTo << readFrom.m_bEvaluateReassignment;
@@ -486,7 +486,7 @@ void CvPlayerEspionage::CreateSpy()
 	}
 
 	CvEspionageSpy kNewSpy;
-	kNewSpy.m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
+	kNewSpy.m_eRank = static_cast<CvSpyRank>(m_pPlayer->GetStartingSpyRank());
 	kNewSpy.m_iExperience = 0;
 	kNewSpy.m_eSpyState = SPY_STATE_UNASSIGNED;
 	kNewSpy.m_eSpyFocus = NO_EVENT_CHOICE_CITY;
@@ -1095,7 +1095,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		if(pSpy->m_iReviveCounter >= GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER))
 		{
 			GetNextSpyName(pSpy);
-			pSpy->m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
+			pSpy->m_eRank = static_cast<CvSpyRank>(m_pPlayer->GetStartingSpyRank());
 			pSpy->m_iExperience = 0;
 			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_UNASSIGNED);
 			pSpy->m_iCityX = -1;
@@ -1235,7 +1235,7 @@ bool CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 		std::vector<int> aCounterspyMissionList;
 		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
 		{
-			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(static_cast<CityEventChoiceTypes>(i));
 			if (pkMissionInfo->isCounterspyMission())
 			{
 				aCounterspyMissionList.push_back(i);
@@ -1289,7 +1289,7 @@ bool CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 				strSummary << pSpy->GetSpyName(m_pPlayer);
 				strSummary << pCity->getNameKey();
 
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_ESPIONAGE_AA"), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
+				pNotifications->Add(static_cast<NotificationTypes>(FString::Hash("NOTIFICATION_ESPIONAGE_AA")), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
 			}
 		}
 		pCity->GetCityEspionage()->ChangePendingEvents(m_pPlayer->GetID(), 1);
@@ -1325,9 +1325,9 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 
 
 	// Spy result is calculated based on the ID and capture chance of the selected mission
-	int iIdentifyRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix((int)eMission).mix(GetNumSpyActionsDone(pCity->getOwner())));
+	int iIdentifyRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(static_cast<int>(eMission)).mix(GetNumSpyActionsDone(pCity->getOwner())));
 	bool bIdentified = (iIdentifyRoll <= pkMissionInfo->GetSpyIdentificationChance());
-	int iCaptureRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix((int)eMission).mix(GetNumSpyActionsDone(pCity->getOwner())));
+	int iCaptureRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(static_cast<int>(eMission)).mix(GetNumSpyActionsDone(pCity->getOwner())));
 	bool bCaught = (iCaptureRoll <= pkMissionInfo->GetSpyCaptureChance());
 
 	// counterspy?
@@ -1345,7 +1345,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 			bKilled = true;
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				YieldTypes eYield = (YieldTypes)iI;
+				YieldTypes eYield = static_cast<YieldTypes>(iI);
 				if (eYield == NO_YIELD)
 					continue;
 
@@ -1417,7 +1417,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			YieldTypes eYield = (YieldTypes)iI;
+			YieldTypes eYield = static_cast<YieldTypes>(iI);
 			int iSpyIDYield = GET_PLAYER(eCityOwner).getYieldForSpyID(eYield);
 			if (iSpyIDYield > 0)
 				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_IDENTIFY, false, NO_GREATPERSON, NO_BUILDING, iSpyIDYield, true, NO_PLAYER, NULL, false, pCity, false, true, true, eYield);
@@ -1773,7 +1773,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	std::vector<int> aiMajorCivIndex;
 	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		if(GET_PLAYER((PlayerTypes)i).isAlive())
+		if(GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive())
 		{
 			aiMajorCivIndex.push_back(i);
 		}
@@ -1792,7 +1792,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	int iSpyRank = 0;
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui]);
 		// a player shouldn't target themselves for a sneak attack. That's strange.
 		if(eTargetPlayer == eCityOwner)
 			continue;
@@ -1833,7 +1833,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		PlayerTypes eRevealedTargetPlayer = NO_PLAYER;
 		if (iSpyRank == SPY_RANK_RECRUIT)
 		{
-			eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
+			eRevealedTargetPlayer = static_cast<PlayerTypes>(MAX_MAJOR_CIVS); // hack to indicate that we shouldn't know the target due to our low spy rank
 		}
 		else if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
@@ -1939,7 +1939,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	{
 		for (uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 		{
-			PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+			PlayerTypes eOtherOtherPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui]);
 			if (eOtherOtherPlayer == eCityOwner)
 			{
 				continue;
@@ -1965,7 +1965,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			// find player with which a coop war has been agreed to
 			for (uint ui2 = 0; ui2 < aiMajorCivIndex.size(); ui2++)
 			{
-				PlayerTypes eThirdPlayer = (PlayerTypes)aiMajorCivIndex[ui2];
+				PlayerTypes eThirdPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui2]);
 
 				if (GET_PLAYER(eOtherOtherPlayer).getTeam() == GET_PLAYER(eThirdPlayer).getTeam())
 					continue;
@@ -1987,7 +1987,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	// deception!
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		PlayerTypes eOtherOtherPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui]);
 		// doesn't make sense for player to give information on themselves
 		if(eOtherOtherPlayer == eCityOwner)
 		{
@@ -2115,7 +2115,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	std::vector<int> aiMajorCivIndex;
 	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		if(GET_PLAYER((PlayerTypes)i).isAlive())
+		if(GET_PLAYER(static_cast<PlayerTypes>(i)).isAlive())
 		{
 			aiMajorCivIndex.push_back(i);
 		}
@@ -2132,7 +2132,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	// sending out a sneak attack
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui]);
 		// a player shouldn't target themselves for a sneak attack. That's strange.
 		if(eTargetPlayer == eOtherPlayer)
 			continue;
@@ -2151,7 +2151,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 			continue;
 
 		CvCity* pTargetCity = pSneakAttackOperation->GetTargetPlot()->getPlotCity();
-		PlayerTypes eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
+		PlayerTypes eRevealedTargetPlayer = static_cast<PlayerTypes>(MAX_MAJOR_CIVS); // hack to indicate that we shouldn't know the target due to our low spy rank
 		if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
 			eRevealedTargetPlayer = eTargetPlayer;
@@ -2182,7 +2182,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		PlayerTypes eOtherOtherPlayer = static_cast<PlayerTypes>(aiMajorCivIndex[ui]);
 		// doesn't make sense for player to give information on themselves
 		if(eOtherOtherPlayer == eOtherPlayer)
 		{
@@ -2268,7 +2268,7 @@ bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 bool isSpyNameInUse(const char* szSpyName)
 {
 	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
-		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayerAI& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		if (thisPlayer.isEverAlive()) {
 			if (isSpyNameInUse(&thisPlayer, szSpyName)) {
 				return true;
@@ -2305,7 +2305,7 @@ bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 bool isCivInPlay(const CivilizationTypes eCiv)
 {
 	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
-		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayerAI& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationType() == eCiv) {
 			return true;
 		}
@@ -2886,7 +2886,7 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 			CvSpyRank eOriginalRank = m_aSpyList[uiSpyIndex].m_eRank;
 
 			// announce promotion through notification
-			m_aSpyList[uiSpyIndex].m_eRank = (CvSpyRank)(m_aSpyList[uiSpyIndex].m_eRank + 1);
+			m_aSpyList[uiSpyIndex].m_eRank = static_cast<CvSpyRank>(m_aSpyList[uiSpyIndex].m_eRank + 1);
 
 			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 			if (pNotifications)
@@ -2976,7 +2976,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 			if (MOD_BALANCE_VP)
 			{
 				/* Network Points */
-				return CalcNetworkPointsPerTurn((CvSpyState)iSpyState, pCity, iSpyIndex);
+				return CalcNetworkPointsPerTurn(static_cast<CvSpyState>(iSpyState), pCity, iSpyIndex);
 			}
 			else
 			{
@@ -3033,7 +3033,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 		if (MOD_BALANCE_VP)
 		{
 			/* Network Points */
-			return CalcNetworkPointsPerTurn((CvSpyState)iSpyState, pCity, iSpyIndex);
+			return CalcNetworkPointsPerTurn(static_cast<CvSpyState>(iSpyState), pCity, iSpyIndex);
 		}
 		else
 		{
@@ -3682,7 +3682,7 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 		fSpyMultiplier *= fNobodyBonus;
 	}
 
-	int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultiplier) / 100);
+	int iResultPercentage = 100 - static_cast<int>((iDeltaInfluence * fSpyMultiplier) / 100);
 
 	if (iResultPercentage > 85)
 	{
@@ -3731,7 +3731,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	int aiNewInfluenceValueTimes100[MAX_MAJOR_CIVS];
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100((PlayerTypes)ui);
+		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(static_cast<PlayerTypes>(ui));
 	}
 
 	m_aSpyList[uiSpyIndex].m_bEvaluateReassignment = true; // flag for reassignment
@@ -3755,7 +3755,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		// reduce the influence of all the other players
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) ui;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(ui);
 
 			if (eLoopPlayer == m_pPlayer->GetID())
 			{
@@ -3804,7 +3804,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	pMinorCivAI->SetDisableNotifications(true);
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(ui);
 		if(!GET_PLAYER(ePlayer).isAlive())
 		{
 			continue;
@@ -3949,7 +3949,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorCivLoop);
 			if (eMinor != eCityOwner && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(m_pPlayer->GetID(), /*bTestComplete*/ true, /*bTestObsolete*/ true, MINOR_CIV_QUEST_COUP);
 		}
@@ -4255,11 +4255,11 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 		// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
-			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iBuildingClassLoop));
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop));
 		}
 		if (eBuilding != NO_BUILDING)
 		{
@@ -4275,7 +4275,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 								{
 									GWIds.push_back(iGreatWorkIndex);
@@ -4290,7 +4290,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 								{
 									GWIds.push_back(iGreatWorkIndex);
@@ -4305,7 +4305,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(static_cast<BuildingClassTypes>(iBuildingClassLoop), iI);
 								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 								{
 									// add to list!
@@ -4328,8 +4328,8 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 	if (ePlayer > MAX_MAJOR_CIVS)
 		return;
 
-	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
+	CvAssertMsg(static_cast<uint>(ePlayer) < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	if(static_cast<uint>(ePlayer) >= m_aaPlayerStealableTechList.size())
 	{
 		return;
 	}
@@ -4345,7 +4345,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 
 		// Does the other player already have this tech?
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech(eTech))
@@ -4367,8 +4367,8 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
 bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 {
-	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
+	CvAssertMsg(static_cast<uint>(ePlayer) < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	if(static_cast<uint>(ePlayer) >= m_aaPlayerStealableTechList.size())
 	{
 		return false;
 	}
@@ -4387,8 +4387,8 @@ bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 /// GetNumTechsToSteal - How many techs you can steal from a given player
 int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 {
-	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
+	CvAssertMsg(static_cast<uint>(ePlayer) < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	if(static_cast<uint>(ePlayer) >= m_aaPlayerStealableTechList.size())
 	{
 		return -1;
 	}
@@ -4397,8 +4397,8 @@ int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 }
 int CvPlayerEspionage::GetNumSpyActionsDone(PlayerTypes ePlayer)
 {
-	CvAssertMsg((uint)ePlayer < m_aiNumSpyActionsDone.size(), "ePlayer out of bounds");
-	if((uint)ePlayer >= m_aiNumSpyActionsDone.size())
+	CvAssertMsg(static_cast<uint>(ePlayer) < m_aiNumSpyActionsDone.size(), "ePlayer out of bounds");
+	if(static_cast<uint>(ePlayer) >= m_aiNumSpyActionsDone.size())
 	{
 		return -1;
 	}
@@ -4460,7 +4460,7 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 	kMessage.m_iSpyResult = iSpyResult;
 	kMessage.m_iAmountStolen = iAmountStolen;
 	kMessage.m_eStolenTech = eStolenTech;
-	kMessage.m_iMission = (int)eMission;
+	kMessage.m_iMission = static_cast<int>(eMission);
 	kMessage.m_iGWID = iGWID;
 
 #if defined(MOD_EVENTS_ESPIONAGE)
@@ -4664,7 +4664,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		else
 		{
 			// VP
-			CvString strEffectText = pCity->GetScaledSpyEffectText((CityEventChoiceTypes)m_aSpyNotificationMessages[ui].m_iMission, false, m_aSpyNotificationMessages[ui].m_eStolenTech, m_aSpyNotificationMessages[ui].m_iGWID, m_aSpyNotificationMessages[ui].m_iAmountStolen);
+			CvString strEffectText = pCity->GetScaledSpyEffectText(static_cast<CityEventChoiceTypes>(m_aSpyNotificationMessages[ui].m_iMission), false, m_aSpyNotificationMessages[ui].m_eStolenTech, m_aSpyNotificationMessages[ui].m_iGWID, m_aSpyNotificationMessages[ui].m_iAmountStolen);
 
 			switch (m_aSpyNotificationMessages[ui].m_iSpyResult)
 			{
@@ -6452,7 +6452,7 @@ CityEventTypes CvPlayerEspionage::GetSpyMissionEvent()
 	CityEventTypes eSetupEvent = NO_EVENT_CITY;
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
-		CityEventTypes eEvent = (CityEventTypes)iLoop;
+		CityEventTypes eEvent = static_cast<CityEventTypes>(iLoop);
 		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
@@ -6482,7 +6482,7 @@ CityEventTypes CvPlayerEspionage::GetCounterspyEvent()
 	CityEventTypes eCounterspyEvent = NO_EVENT_CITY;
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
-		CityEventTypes eEvent = (CityEventTypes)iLoop;
+		CityEventTypes eEvent = static_cast<CityEventTypes>(iLoop);
 		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
@@ -6590,10 +6590,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> kMessage.m_eBuilding;
 		int iProjectType = 0;
 		loadFrom >> iProjectType;
-		kMessage.m_eProject = (ProjectTypes)iProjectType;
+		kMessage.m_eProject = static_cast<ProjectTypes>(iProjectType);
 		int iUnitType = 0;
 		loadFrom >> iUnitType;
-		kMessage.m_eUnit = (UnitTypes)iUnitType;
+		kMessage.m_eUnit = static_cast<UnitTypes>(iUnitType);
 		loadFrom >> kMessage.m_iIntrigueType;
 		loadFrom >> kMessage.m_iTurnNum;
 		loadFrom >> kMessage.m_iCityX;
@@ -6674,8 +6674,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eTargetPlayer;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eDiplomacyPlayer;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eBuilding;
-		saveTo << (int)(readFrom.m_aIntrigueNotificationMessages[ui].m_eProject);
-		saveTo << (int)(readFrom.m_aIntrigueNotificationMessages[ui].m_eUnit);
+		saveTo << static_cast<int>(readFrom.m_aIntrigueNotificationMessages[ui].m_eProject);
+		saveTo << static_cast<int>(readFrom.m_aIntrigueNotificationMessages[ui].m_eUnit);
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iIntrigueType;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iTurnNum;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iCityX;
@@ -6965,7 +6965,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 		iNextPassiveBonus = INT_MAX;
 		for (int i = 0; i < GC.getNumSpyPassiveBonusInfos(); i++)
 		{
-			CvSpyPassiveBonusEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusInfo((SpyPassiveBonusTypes)i);
+			CvSpyPassiveBonusEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusInfo(static_cast<SpyPassiveBonusTypes>(i));
 			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
 			if (iNPNeeded > iPassiveBonusThresholdBefore)
 			{
@@ -6989,7 +6989,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 		iNextPassiveBonus = INT_MAX;
 		for (int i = 0; i < GC.getNumSpyPassiveBonusInfos(); i++)
 		{
-			CvSpyPassiveBonusEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusInfo((SpyPassiveBonusTypes)i);
+			CvSpyPassiveBonusEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusInfo(static_cast<SpyPassiveBonusTypes>(i));
 			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
 			if (iNPNeeded > iPassiveBonusThresholdAfter)
 			{
@@ -7030,7 +7030,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 		CvString strMissions = "";
 		for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 		{
-			CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+			CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iLoop);
 			if (eEventChoice != NO_EVENT_CHOICE_CITY)
 			{
 				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -7079,7 +7079,7 @@ void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionag
 		iNextPassiveBonus = INT_MAX;
 		for (int i = 0; i < GC.getNumSpyPassiveBonusDiplomatInfos(); i++)
 		{
-			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo((SpyPassiveBonusDiplomatTypes)i);
+			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo(static_cast<SpyPassiveBonusDiplomatTypes>(i));
 			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
 			if (iNPNeeded > iPassiveBonusThresholdBefore)
 			{
@@ -7102,7 +7102,7 @@ void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionag
 		iNextPassiveBonus = INT_MAX;
 		for (int i = 0; i < GC.getNumSpyPassiveBonusDiplomatInfos(); i++)
 		{
-			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo((SpyPassiveBonusDiplomatTypes)i);
+			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo(static_cast<SpyPassiveBonusDiplomatTypes>(i));
 			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
 			if (iNPNeeded > iPassiveBonusThresholdAfter)
 			{
@@ -7849,7 +7849,7 @@ void CvEspionageAI::PerformSpyMissions()
 	std::vector<int> aSpyMissionList;
 	for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
 	{
-		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(static_cast<CityEventChoiceTypes>(i));
 		if (pkMissionInfo->isEspionageMission())
 		{
 			aSpyMissionList.push_back(i);
@@ -7988,7 +7988,7 @@ void CvEspionageAI::PerformSpyMissions()
 			CityEventChoiceTypes eOpportunityMission = NO_EVENT_CHOICE_CITY;
 			for (size_t i = 0; i < aSpyMissionList.size(); i++)
 			{
-				CityEventChoiceTypes eLoopMission = (CityEventChoiceTypes)aSpyMissionList[i];
+				CityEventChoiceTypes eLoopMission = static_cast<CityEventChoiceTypes>(aSpyMissionList[i]);
 				if (pCity->IsCityEventChoiceValidEspionage(eLoopMission, eSpyMissionParentEvent, uiSpy, ePlayer))
 				{
 					eOpportunityMission = eLoopMission;
@@ -8031,7 +8031,7 @@ void CvEspionageAI::StealTechnology()
 	// try to steal technologies
 	for(uint uiDefendingPlayer = 0; uiDefendingPlayer < MAX_MAJOR_CIVS; uiDefendingPlayer++)
 	{
-		PlayerTypes eDefendingPlayer = (PlayerTypes)uiDefendingPlayer;
+		PlayerTypes eDefendingPlayer = static_cast<PlayerTypes>(uiDefendingPlayer);
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 		{
 			// steal a tech
@@ -8043,7 +8043,7 @@ void CvEspionageAI::StealTechnology()
 			pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
 			
 			// recalculate the num techs to steal list
-			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
+			pEspionage->BuildStealableTechList(static_cast<PlayerTypes>(uiDefendingPlayer));
 			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
@@ -8062,7 +8062,7 @@ void CvEspionageAI::UpdateCivOutOfTechTurn()
 	// determine which civs have run out of techs to steal
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+		PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(ui);
 
 		if(m_pPlayer->GetID() == eOtherPlayer)
 		{
@@ -8183,7 +8183,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 					int iNumCityRobbed = 0;
 					for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 					{
-						iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[(PlayerTypes)iLoopPlayer];
+						iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[static_cast<PlayerTypes>(iLoopPlayer)];
 					}
 					iScore += min(75, 1000 * iNumCityRobbed / iTurnsOfEspionage);
 				}
@@ -8361,11 +8361,11 @@ CityEventChoiceTypes CvEspionageAI::GetBestMissionInCity(CvCity* pCity, int& iSc
 	int iMissionScore = -1;
 	for (size_t i = 0; i < aMissionList.size(); i++)
 	{
-		iMissionScore = GetMissionScore(pCity, (CityEventChoiceTypes)aMissionList[i], iSpyIndex);
+		iMissionScore = GetMissionScore(pCity, static_cast<CityEventChoiceTypes>(aMissionList[i]), iSpyIndex);
 		if (iMissionScore > iScore)
 		{
 			iScore = iMissionScore;
-			eBestMission = (CityEventChoiceTypes)aMissionList[i];
+			eBestMission = static_cast<CityEventChoiceTypes>(aMissionList[i]);
 		}
 	}
 	
@@ -8383,7 +8383,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 	int iNumPlayers = 0;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)ui;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
 
 		// don't count the player's own cities
 		if(eTargetPlayer == m_pPlayer->GetID() || !GET_PLAYER(eTargetPlayer).isAlive())
@@ -8501,7 +8501,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 	{
 		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
 		{
-			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(static_cast<CityEventChoiceTypes>(i));
 			if (pkMissionInfo->isEspionageMission())
 			{
 				aSpyMissionList.push_back(i);
@@ -8512,7 +8512,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 	std::vector<ScoreCityEntry> aCityScores;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)i;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(i);
 
 		// don't count the player's own cities
 		if (eTargetPlayer == ePlayer)
@@ -8544,7 +8544,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 		int iDiploModifier = 0; // player-related diplo modifier
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 			if (eMinor != NO_PLAYER)
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
@@ -8701,7 +8701,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	bool bNoForeignSpies = true;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)i;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(i);
 
 		// don't count the player's own cities
 		if (eTargetPlayer == ePlayer)
@@ -8731,7 +8731,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	{
 		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
 		{
-			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(static_cast<CityEventChoiceTypes>(i));
 			if (pkMissionInfo->isCounterspyMission())
 			{
 				aCounterspyMissionList.push_back(i);
@@ -8767,7 +8767,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 			for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 			{
-				PlayerTypes eTargetPlayer = (PlayerTypes)i;
+				PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(i);
 
 				// don't count the player's own cities
 				if (eTargetPlayer == ePlayer)
@@ -8845,7 +8845,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 	int iLoop = 0;
 	for(uint ui = MAX_MAJOR_CIVS; ui < MAX_CIV_PLAYERS; ui++)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)ui;
+		PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
 
 		// only count minor civs
 		if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
@@ -8878,7 +8878,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 			if (eMinor != NO_PLAYER)
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
@@ -8923,14 +8923,14 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 					int iInfluenceSecondBest = 0;
 					for(int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoopPlayer);
 						if (eLoopPlayer == m_pPlayer->GetID())
 							continue;
 
 						iInfluenceSecondBest = max(iInfluenceSecondBest, pMinorCivAI->GetEffectiveFriendshipWithMajor(eLoopPlayer));
 					}
 					int iInfluenceDifference = pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()) - iInfluenceSecondBest;
-					int iEra = max(1, (int)m_pPlayer->GetCurrentEra());
+					int iEra = max(1, static_cast<int>(m_pPlayer->GetCurrentEra()));
 					if (iInfluenceDifference >= 150 * iEra)
 						continue;
 				}
@@ -9137,7 +9137,7 @@ int CvEspionageAI::GetCityStatePlan(PlayerTypes* peDiploThreat)
 
 		for(uint ui = MAX_MAJOR_CIVS; ui < MAX_CIV_PLAYERS; ui++)
 		{
-			PlayerTypes eTargetPlayer = (PlayerTypes)ui;
+			PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
 
 			// only count minor civs
 			if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
@@ -9162,7 +9162,7 @@ int CvEspionageAI::GetCityStatePlan(PlayerTypes* peDiploThreat)
 		int iMaxVotes = 0;
 		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			PlayerTypes eTargetPlayer = (PlayerTypes)ui;
+			PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
 			if (aiMajorCivVotes[eTargetPlayer] > iMaxVotes)
 			{
 				iMaxVotes = aiMajorCivVotes[eTargetPlayer];

@@ -55,7 +55,7 @@ void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedF
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for (int iI = 0; iI < iNumFlavors; iI++)
 	{
-		LogFlavorChange((FlavorTypes)iI, piUpdatedFlavorValues[iI]-m_piLatestFlavorValues[iI], reason, true);
+		LogFlavorChange(static_cast<FlavorTypes>(iI), piUpdatedFlavorValues[iI]-m_piLatestFlavorValues[iI], reason, true);
 		m_piLatestFlavorValues[iI] = piUpdatedFlavorValues[iI];
 	}
 
@@ -74,7 +74,7 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 	{
 		if(piDeltaFlavorValues[iI] != 0)
 		{
-			LogFlavorChange((FlavorTypes)iI, piDeltaFlavorValues[iI], reason, effectstart);
+			LogFlavorChange(static_cast<FlavorTypes>(iI), piDeltaFlavorValues[iI], reason, effectstart);
 			//don't enforce a certain range here, this will permanently skew the flavor if a temporary effect is cancelled!
 			m_piLatestFlavorValues[iI] += piDeltaFlavorValues[iI];
 		}
@@ -299,7 +299,7 @@ void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes
 		//don't enforce a certain range here, this will permanently skew the flavor if a temporary effect is cancelled!
 		if(piDeltaFlavorValues[iI] != 0)
 		{
-			LogActivePersonalityChange((FlavorTypes)iI, piDeltaFlavorValues[iI], reason, effectstart);
+			LogActivePersonalityChange(static_cast<FlavorTypes>(iI), piDeltaFlavorValues[iI], reason, effectstart);
 			m_piActiveFlavor[iI] += piDeltaFlavorValues[iI];
 		}
 	}
@@ -328,7 +328,7 @@ void CvFlavorManager::ResetToBasePersonality()
 {
 	for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
-		LogActivePersonalityChange((FlavorTypes)iI, m_piPersonalityFlavor[iI] - m_piActiveFlavor[iI], "Reset_To_Base", true);
+		LogActivePersonalityChange(static_cast<FlavorTypes>(iI), m_piPersonalityFlavor[iI] - m_piActiveFlavor[iI], "Reset_To_Base", true);
 		m_piActiveFlavor[iI] = m_piPersonalityFlavor[iI];
 	}
 
@@ -345,7 +345,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 	{
 		int iNumFlavorTypes = GC.getNumFlavorTypes();
 		// Find tiles per player
-		float fTilesPerPlayer = iTotalLandTiles / (float)iNumPlayers;
+		float fTilesPerPlayer = iTotalLandTiles / static_cast<float>(iNumPlayers);
 
 		// Compute +/- addition
 		//
@@ -353,7 +353,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 		// and a few player on a huge map.  "FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER" is the typical log10 of
 		// tiles per player.  We go up and down from this point (multiplying by a coefficient) from here
 		float fAdjust = log10(fTilesPerPlayer) - /*2.1f*/ GD_FLOAT_GET(FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER);
-		int iAdjust = (int)(fAdjust * /*8*/ GD_INT_GET(FLAVOR_EXPANDGROW_COEFFICIENT));
+		int iAdjust = static_cast<int>(fAdjust * /*8*/ GD_INT_GET(FLAVOR_EXPANDGROW_COEFFICIENT));
 
 		int iFlavorMaxValue = /*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE);
 		int iFlavorMinValue = /*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE);
@@ -391,7 +391,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 /// Retrieve the value of one Personality flavor, typically in the range [0,10]
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+	if (static_cast<int>(eType) < 0 || static_cast<int>(eType) >= GC.getNumFlavorTypes()) return 0;
 
 	return range(m_piPersonalityFlavor[eType],0,30);
 }
@@ -406,7 +406,7 @@ CvEnumMap<FlavorTypes, int>& CvFlavorManager::GetAllPersonalityFlavors()
 /// Retrieve the value of one Personality flavor, modified for the diplomacy AI
 int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+	if (static_cast<int>(eType) < 0 || static_cast<int>(eType) >= GC.getNumFlavorTypes()) return 0;
 
 	int iValue = m_piPersonalityFlavor[eType];
 
@@ -489,7 +489,7 @@ void CvFlavorManager::LogActivePersonalityChange(FlavorTypes eFlavor, int change
 		{
 			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 			{
-				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piActiveFlavor[iI], change, reason ? reason : "unknown", start ? "start" : "end");
+				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes(static_cast<FlavorTypes>(iI)).GetCString(), m_piActiveFlavor[iI], change, reason ? reason : "unknown", start ? "start" : "end");
 				strOutBuf = strBaseString + strTemp;
 				pLog->Msg(strOutBuf);
 			}

@@ -721,7 +721,7 @@ int CvLuaUnit::lUpgrade(lua_State* L)
 int CvLuaUnit::lUpgradeTo(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitTypes eUpgradeUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUpgradeUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	const bool bIsFree = luaL_optbool(L, 3, false);
 	
 	CvUnit* pkNewUnit = pkUnit->DoUpgradeTo(eUpgradeUnitType, bIsFree);
@@ -736,7 +736,7 @@ int CvLuaUnit::lKill(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bDelay = lua_toboolean(L, 2);
 	const PlayerTypes ePlayer
-	    = (lua_isnil(L, 3))? NO_PLAYER : (PlayerTypes)lua_tointeger(L, 3);
+	    = (lua_isnil(L, 3))? NO_PLAYER : static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	pkUnit->kill(bDelay, ePlayer);
 	return 0;
@@ -765,7 +765,7 @@ int CvLuaUnit::lIsBetterDefenderThan(lua_State* L)
 int CvLuaUnit::lCanDoCommand(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const CommandTypes eCommand = (CommandTypes)lua_tointeger(L, 2);
+	const CommandTypes eCommand = static_cast<CommandTypes>(lua_tointeger(L, 2));
 	const int iData1		= lua_tointeger(L, 3);
 	const int iData2		= lua_tointeger(L, 4);
 	const bool bTestVisible = luaL_optint(L, 5, 0);		//defaults to false
@@ -997,7 +997,7 @@ int CvLuaUnit::lGetMeleeAttackFromPlot(lua_State* L)
 int CvLuaUnit::lCanEnterTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TeamTypes eTeam				= (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam				= static_cast<TeamTypes>(lua_tointeger(L, 2));
 	//this parameter is useless
 	const bool bIgnoreRightOfPassage	= luaL_optint(L, 3, 0);
 
@@ -1117,7 +1117,7 @@ int CvLuaUnit::lGetCombatDamage(lua_State* L)
 int CvLuaUnit::lGetFireSupportUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PlayerTypes eDefender = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eDefender = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const int iX = lua_tointeger(L, 3);
 	const int iY = lua_tointeger(L, 4);
 
@@ -1131,7 +1131,7 @@ int CvLuaUnit::lGetFireSupportUnit(lua_State* L)
 int CvLuaUnit::lCanAutomate(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const AutomateTypes eAutomate = (AutomateTypes)lua_tointeger(L, 2);
+	const AutomateTypes eAutomate = static_cast<AutomateTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->CanAutomate(eAutomate);
 
 	lua_pushboolean(L, bResult);
@@ -1198,7 +1198,7 @@ int CvLuaUnit::lCanGift(lua_State* L)
 int CvLuaUnit::lCanDistanceGift(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eToPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->CanDistanceGift(eToPlayer);
 
 	lua_pushboolean(L, bResult);
@@ -1209,8 +1209,8 @@ int CvLuaUnit::lCanDistanceGift(lua_State* L)
 int CvLuaUnit::lIsUnitValidGiftForCityStateQuest(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const PlayerTypes eToPlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
+	const PlayerTypes eToPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	bool bResult = false;
 	if (GET_PLAYER(eToPlayer).isMinorCiv())
@@ -1474,7 +1474,7 @@ int CvLuaUnit::lIsNukeVictim(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 3);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 3));
 	const bool bResult = pkUnit->isNukeVictim(pkPlot, eTeam);
 
 	lua_pushboolean(L, bResult);
@@ -1581,7 +1581,7 @@ int CvLuaUnit::lCanMakeTradeRouteAt(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
-	TradeConnectionType eConnection = (TradeConnectionType)lua_tointeger(L, 5);
+	TradeConnectionType eConnection = static_cast<TradeConnectionType>(lua_tointeger(L, 5));
 	const bool bResult = pkUnit->canMakeTradeRouteAt(pkPlot, x, y, eConnection);
 
 	lua_pushboolean(L, bResult);
@@ -1790,7 +1790,7 @@ int CvLuaUnit::lCanJoin(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 3);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 3));
 	const bool bResult = pkUnit->canJoinCity(pkPlot, eSpecialist);
 
 	lua_pushboolean(L, bResult);
@@ -1802,7 +1802,7 @@ int CvLuaUnit::lCanConstruct(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 3);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 3));
 	const bool bResult = pkUnit->canConstruct(pkPlot, eBuilding);
 
 	lua_pushboolean(L, bResult);
@@ -2130,7 +2130,7 @@ int CvLuaUnit::lCanBuild(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 3);
+	const BuildTypes eBuild = static_cast<BuildTypes>(lua_tointeger(L, 3));
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bTestGold = luaL_optint(L, 5, 1);
 	const bool bResult = pkUnit->canBuild(pkPlot, eBuild, bTestVisible, bTestGold);
@@ -2188,7 +2188,7 @@ int CvLuaUnit::lGiveExperience(lua_State* L)
 int CvLuaUnit::lCanPromote(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const int iLeaderUnitId = lua_tointeger(L, 3);
 	const bool bResult = pkUnit->canPromote(ePromotion, iLeaderUnitId);
 
@@ -2200,7 +2200,7 @@ int CvLuaUnit::lCanPromote(lua_State* L)
 int CvLuaUnit::lPromote(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const int iLeaderUnitId = lua_tointeger(L, 3);
 
 	pkUnit->promote(ePromotion, iLeaderUnitId);
@@ -2221,7 +2221,7 @@ int CvLuaUnit::lGetUpgradeUnitType(lua_State* L)
 int CvLuaUnit::lUpgradePrice(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->upgradePrice(eUnit);
 	lua_pushinteger(L, iResult);
@@ -2241,7 +2241,7 @@ int CvLuaUnit::lCanUpgradeRightNow(lua_State* L)
 int CvLuaUnit::lCanUpgradeTo(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitTypes eUpgradeUnitType = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUpgradeUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	const bool bTestVisible = luaL_optint(L, 3, 0);
 	const bool bResult = pkUnit->CanUpgradeTo(eUpgradeUnitType, bTestVisible);
 
@@ -2264,8 +2264,8 @@ int CvLuaUnit::lCanUpgradeInTerritory(lua_State* L)
 int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
-	const UnitTypes eUpgradeUnitType = (UnitTypes) luaL_optint(L, 3, pkUnit->GetUpgradeUnitType());
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
+	const UnitTypes eUpgradeUnitType = static_cast<UnitTypes>(luaL_optint(L, 3, pkUnit->GetUpgradeUnitType()));
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
 	if(pkUnitInfo == NULL)
@@ -2284,8 +2284,8 @@ int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 int CvLuaUnit::lGetNumResourceTotalNeededToUpgrade(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
-	const UnitTypes eUpgradeUnitType = (UnitTypes)luaL_optint(L, 3, pkUnit->GetUpgradeUnitType());
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
+	const UnitTypes eUpgradeUnitType = static_cast<UnitTypes>(luaL_optint(L, 3, pkUnit->GetUpgradeUnitType()));
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
 	if (pkUnitInfo == NULL)
@@ -2335,7 +2335,7 @@ int CvLuaUnit::lGetSpecialUnitType(lua_State* L)
 int CvLuaUnit::lGetCaptureUnitType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const CivilizationTypes eCivilization = (CivilizationTypes)lua_tointeger(L, 2);
+	const CivilizationTypes eCivilization = static_cast<CivilizationTypes>(lua_tointeger(L, 2));
 
 	const UnitTypes eResult = pkUnit->getCaptureUnitType(eCivilization);
 	lua_pushinteger(L, eResult);
@@ -2347,7 +2347,7 @@ int CvLuaUnit::lGetUnitCombatType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const UnitCombatTypes eResult = (UnitCombatTypes)pkUnit->getUnitCombatType();
+	const UnitCombatTypes eResult = static_cast<UnitCombatTypes>(pkUnit->getUnitCombatType());
 	lua_pushinteger(L, eResult);
 	return 1;
 }
@@ -2378,7 +2378,7 @@ int CvLuaUnit::lGetUnitAIType(lua_State* L)
 int CvLuaUnit::lSetUnitAIType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitAITypes eUnitAI = (UnitAITypes)lua_tointeger(L, 2);
+	const UnitAITypes eUnitAI = static_cast<UnitAITypes>(lua_tointeger(L, 2));
 	pkUnit->AI_setUnitAIType(eUnitAI);
 	return 1;
 }
@@ -2427,7 +2427,7 @@ int CvLuaUnit::lGetDropRange(lua_State* L)
 int CvLuaUnit::lFlavorValue(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FlavorTypes eFlavor = (FlavorTypes)lua_tointeger(L, 2);
+	const FlavorTypes eFlavor = static_cast<FlavorTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->flavorValue(eFlavor);
 	lua_pushinteger(L, iResult);
@@ -2625,7 +2625,7 @@ int CvLuaUnit::lDoSquadMovement(lua_State* L)
 int CvLuaUnit::lSetSquadEndMovementType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const SquadsEndMovementType iNewValue = (SquadsEndMovementType)lua_tointeger(L, 2);
+	const SquadsEndMovementType iNewValue = static_cast<SquadsEndMovementType>(lua_tointeger(L, 2));
 
 	pkUnit->SetSquadEndMovementType(iNewValue);
 	return 0;
@@ -2820,7 +2820,7 @@ int CvLuaUnit::lIsGoldenAge(lua_State* L)
 int CvLuaUnit::lCanCoexistWithEnemyUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->canCoexistWithEnemyUnit(eTeam);
 
 	lua_pushboolean(L, bResult);
@@ -2842,7 +2842,7 @@ int CvLuaUnit::lIsContractUnit(lua_State* L)
 int CvLuaUnit::lIsSpecificContractUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	ContractTypes eContract = static_cast<ContractTypes>(lua_tointeger(L, 2));
 	const bool bResult = (pkUnit->getContract() == eContract);
 
 	lua_pushboolean(L, bResult);
@@ -3110,7 +3110,7 @@ int CvLuaUnit::lGetEmbarkedUnitDefense(lua_State* L)
 int CvLuaUnit::lCanSiege(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->canSiege(eTeam);
 
 	lua_pushboolean(L, bResult);
@@ -3840,7 +3840,7 @@ int CvLuaUnit::lIsNeverInvisible(lua_State* L)
 int CvLuaUnit::lIsInvisible(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bDebug = lua_toboolean(L, 3);
 	const int iCheckCargo = luaL_optint(L, 4, 0);
 	const bool bResult = pkUnit->isInvisible(eTeam, bDebug, iCheckCargo != 0);
@@ -4174,7 +4174,7 @@ int CvLuaUnit::lRoughFromModifier(lua_State* L)
 int CvLuaUnit::lTerrainAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eTerrain = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eTerrain = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->terrainAttackModifier(eTerrain);
 	lua_pushinteger(L, iResult);
@@ -4185,7 +4185,7 @@ int CvLuaUnit::lTerrainAttackModifier(lua_State* L)
 int CvLuaUnit::lTerrainDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eTerrain = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eTerrain = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->terrainDefenseModifier(eTerrain);
 	lua_pushinteger(L, iResult);
@@ -4196,7 +4196,7 @@ int CvLuaUnit::lTerrainDefenseModifier(lua_State* L)
 int CvLuaUnit::lFeatureAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eFeature = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eFeature = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->featureAttackModifier(eFeature);
 	lua_pushinteger(L, iResult);
@@ -4207,7 +4207,7 @@ int CvLuaUnit::lFeatureAttackModifier(lua_State* L)
 int CvLuaUnit::lFeatureDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eFeature = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eFeature = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->featureDefenseModifier(eFeature);
 	lua_pushinteger(L, iResult);
@@ -4218,7 +4218,7 @@ int CvLuaUnit::lFeatureDefenseModifier(lua_State* L)
 int CvLuaUnit::lUnitClassAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitClassTypes eUnitClass = (UnitClassTypes)lua_tointeger(L, 2);
+	const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->unitClassAttackModifier(eUnitClass);
 	lua_pushinteger(L, iResult);
@@ -4229,7 +4229,7 @@ int CvLuaUnit::lUnitClassAttackModifier(lua_State* L)
 int CvLuaUnit::lUnitClassDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitClassTypes eUnitClass = (UnitClassTypes)lua_tointeger(L, 2);
+	const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->unitClassDefenseModifier(eUnitClass);
 	lua_pushinteger(L, iResult);
@@ -4240,7 +4240,7 @@ int CvLuaUnit::lUnitClassDefenseModifier(lua_State* L)
 int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitCombatTypes eUnitCombat = (UnitCombatTypes)lua_tointeger(L, 2);
+	const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->unitCombatModifier(eUnitCombat);
 	
@@ -4413,7 +4413,7 @@ int CvLuaUnit::lGetMultiAttackBonusCity(lua_State* L)
 int CvLuaUnit::lDomainModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = static_cast<DomainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->domainModifier(eDomain);
 	lua_pushinteger(L, iResult);
@@ -4423,7 +4423,7 @@ int CvLuaUnit::lDomainModifier(lua_State* L)
 int CvLuaUnit::lDomainAttackPercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = static_cast<DomainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraDomainAttack(eDomain);
 	lua_pushinteger(L, iResult);
@@ -4433,7 +4433,7 @@ int CvLuaUnit::lDomainAttackPercent(lua_State* L)
 int CvLuaUnit::lDomainDefensePercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = static_cast<DomainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraDomainDefense(eDomain);
 	lua_pushinteger(L, iResult);
@@ -4566,7 +4566,7 @@ int CvLuaUnit::lCanCargoAllMove(lua_State* L)
 int CvLuaUnit::lGetUnitAICargo(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitAITypes eUnitAI = (UnitAITypes)lua_tointeger(L, 2);
+	const UnitAITypes eUnitAI = static_cast<UnitAITypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getUnitAICargo(eUnitAI);
 	lua_pushinteger(L, iResult);
@@ -4747,7 +4747,7 @@ int CvLuaUnit::lSetDamage(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const int iNewValue = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (lua_isnil(L, 3))? NO_PLAYER : (PlayerTypes)lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = (lua_isnil(L, 3))? NO_PLAYER : static_cast<PlayerTypes>(lua_tointeger(L, 3));
 	const bool bNotifyEntity = luaL_optint(L, 4, 1);
 
 	pkUnit->setDamage(iNewValue, ePlayer, bNotifyEntity);
@@ -4759,7 +4759,7 @@ int CvLuaUnit::lChangeDamage(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const int iChange = lua_tointeger(L, 2);
-	const PlayerTypes ePlayer = (lua_isnil(L, 3))? NO_PLAYER : (PlayerTypes)lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = (lua_isnil(L, 3))? NO_PLAYER : static_cast<PlayerTypes>(lua_tointeger(L, 3));
 
 	pkUnit->changeDamage(iChange, ePlayer);
 	return 0;
@@ -5514,7 +5514,7 @@ int CvLuaUnit::lGetVisualOwner(lua_State* L)
 int CvLuaUnit::lGetCombatOwner(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TeamTypes eForTeam = (TeamTypes)lua_tointeger(L, 2);
+	const TeamTypes eForTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getCombatOwner(eForTeam, *(pkUnit->plot()));
 	lua_pushinteger(L, iResult);
@@ -5531,7 +5531,7 @@ int CvLuaUnit::lGetOriginalOwner(lua_State* L)
 int CvLuaUnit::lSetOriginalOwner(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PlayerTypes ePlayerType = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayerType = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 
 	pkUnit->SetOriginalOwner(ePlayerType);
 	return 0;
@@ -5581,7 +5581,7 @@ int CvLuaUnit::lGetLeaderUnitType(lua_State* L)
 int CvLuaUnit::lSetLeaderUnitType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitTypes eLeaderUnitType = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eLeaderUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	pkUnit->setLeaderUnitType(eLeaderUnitType);
 	return 0;
@@ -5819,7 +5819,7 @@ int CvLuaUnit::lIsCargo(lua_State* L)
 int CvLuaUnit::lGetExtraDomainModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const DomainTypes eIndex = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eIndex = static_cast<DomainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraDomainModifier(eIndex);
 	lua_pushinteger(L, iResult);
@@ -5884,7 +5884,7 @@ int CvLuaUnit::lGetCityName(lua_State* L)
 int CvLuaUnit::lIsTerrainDoubleMove(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eIndex = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eIndex = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isTerrainDoubleMove(eIndex);
 
 	lua_pushboolean(L, bResult);
@@ -5895,7 +5895,7 @@ int CvLuaUnit::lIsTerrainDoubleMove(lua_State* L)
 int CvLuaUnit::lIsFeatureDoubleMove(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eIndex = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eIndex = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isFeatureDoubleMove(eIndex);
 
 	lua_pushboolean(L, bResult);
@@ -5907,7 +5907,7 @@ int CvLuaUnit::lIsFeatureDoubleMove(lua_State* L)
 int CvLuaUnit::lIsTerrainHalfMove(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eIndex = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eIndex = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isTerrainHalfMove(eIndex);
 
 	lua_pushboolean(L, bResult);
@@ -5918,7 +5918,7 @@ int CvLuaUnit::lIsTerrainHalfMove(lua_State* L)
 int CvLuaUnit::lIsFeatureHalfMove(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eIndex = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eIndex = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isFeatureHalfMove(eIndex);
 
 	lua_pushboolean(L, bResult);
@@ -5970,7 +5970,7 @@ int CvLuaUnit::lSetScenarioData(lua_State* L)
 int CvLuaUnit::lGetExtraTerrainAttackPercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eIndex = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eIndex = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraTerrainAttackPercent(eIndex);
 	lua_pushinteger(L, iResult);
@@ -5981,7 +5981,7 @@ int CvLuaUnit::lGetExtraTerrainAttackPercent(lua_State* L)
 int CvLuaUnit::lGetExtraTerrainDefensePercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const TerrainTypes eIndex = (TerrainTypes)lua_tointeger(L, 2);
+	const TerrainTypes eIndex = static_cast<TerrainTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraTerrainDefensePercent(eIndex);
 	lua_pushinteger(L, iResult);
@@ -5992,7 +5992,7 @@ int CvLuaUnit::lGetExtraTerrainDefensePercent(lua_State* L)
 int CvLuaUnit::lGetExtraFeatureAttackPercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eIndex = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eIndex = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraFeatureAttackPercent(eIndex);
 	lua_pushinteger(L, iResult);
@@ -6003,7 +6003,7 @@ int CvLuaUnit::lGetExtraFeatureAttackPercent(lua_State* L)
 int CvLuaUnit::lGetExtraFeatureDefensePercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const FeatureTypes eIndex = (FeatureTypes)lua_tointeger(L, 2);
+	const FeatureTypes eIndex = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraFeatureDefensePercent(eIndex);
 	lua_pushinteger(L, iResult);
@@ -6014,7 +6014,7 @@ int CvLuaUnit::lGetExtraFeatureDefensePercent(lua_State* L)
 int CvLuaUnit::lGetExtraUnitCombatModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
+	const UnitCombatTypes eIndex = static_cast<UnitCombatTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getExtraUnitCombatModifier(eIndex);
 	lua_pushinteger(L, iResult);
@@ -6025,7 +6025,7 @@ int CvLuaUnit::lGetExtraUnitCombatModifier(lua_State* L)
 int CvLuaUnit::lGetUnitClassModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const UnitClassTypes eIndex = (UnitClassTypes)lua_tointeger(L, 2);
+	const UnitClassTypes eIndex = static_cast<UnitClassTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkUnit->getUnitClassModifier(eIndex);
 	lua_pushinteger(L, iResult);
@@ -6036,7 +6036,7 @@ int CvLuaUnit::lGetUnitClassModifier(lua_State* L)
 int CvLuaUnit::lCanAcquirePromotion(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->canAcquirePromotion(ePromotion);
 
 	lua_pushboolean(L, bResult);
@@ -6057,7 +6057,7 @@ int CvLuaUnit::lCanAcquirePromotionAny(lua_State* L)
 int CvLuaUnit::lIsPromotionValid(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isPromotionValid(ePromotion);
 
 	lua_pushboolean(L, bResult);
@@ -6068,7 +6068,7 @@ int CvLuaUnit::lIsPromotionValid(lua_State* L)
 int CvLuaUnit::lIsHasPromotion(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->isHasPromotion(ePromotion);
 
 	lua_pushboolean(L, bResult);
@@ -6079,7 +6079,7 @@ int CvLuaUnit::lIsHasPromotion(lua_State* L)
 int CvLuaUnit::lSetHasPromotion(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes eIndex = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes eIndex = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const bool bNewValue = lua_toboolean(L, 3);
 
 	pkUnit->setHasPromotion(eIndex, bNewValue);
@@ -6088,7 +6088,7 @@ int CvLuaUnit::lSetHasPromotion(lua_State* L)
 int CvLuaUnit::lGetPromotionDuration(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const int iResult = pkUnit->getPromotionDuration(ePromotion);
 
 	lua_pushinteger(L, iResult);
@@ -6097,7 +6097,7 @@ int CvLuaUnit::lGetPromotionDuration(lua_State* L)
 int CvLuaUnit::lGetTurnPromotionGained(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const PromotionTypes ePromotion = static_cast<PromotionTypes>(lua_tointeger(L, 2));
 	const int iResult = pkUnit->getTurnPromotionGained(ePromotion);
 
 	lua_pushinteger(L, iResult);
@@ -6197,7 +6197,7 @@ int CvLuaUnit::lSetReligion(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const int iReligion = lua_tointeger(L, 2);
 
-	pkUnit->GetReligionDataMutable()->SetReligion((ReligionTypes) iReligion);
+	pkUnit->GetReligionDataMutable()->SetReligion(static_cast<ReligionTypes>(iReligion));
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -6296,7 +6296,7 @@ int CvLuaUnit::lGetUnitPortraitOffset(lua_State* L)
 int CvLuaUnit::lSetActivityType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const ActivityTypes eActivity = (ActivityTypes)lua_tointeger(L, 2);
+	const ActivityTypes eActivity = static_cast<ActivityTypes>(lua_tointeger(L, 2));
 	pkUnit->SetActivityType(eActivity);
 
 	return 0;
@@ -6344,13 +6344,13 @@ int CvLuaUnit::lIsBusy(lua_State* L)
 int CvLuaUnit::lPushMission(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const MissionTypes eMission = (MissionTypes)lua_tointeger(L, 2);
+	const MissionTypes eMission = static_cast<MissionTypes>(lua_tointeger(L, 2));
 	const int iData1 = luaL_optint(L, 3, -1);
 	const int iData2 = luaL_optint(L, 4, -1);
 	const int iFlags = luaL_optint(L, 5, 0);
 	const bool bAppend = luaL_optint(L, 6, 0);
 	const bool bManual = luaL_optint(L, 7, 0);
-	const MissionAITypes eMissionAI = (MissionAITypes)luaL_optint(L, 8, NO_MISSIONAI);
+	const MissionAITypes eMissionAI = static_cast<MissionAITypes>(luaL_optint(L, 8, NO_MISSIONAI));
 	CvPlot* pkMissionAIPlot = CvLuaPlot::GetInstance(L, 9, false);
 	CvUnit* pkMissionAIUnit = CvLuaUnit::GetInstance(L, 10, false);
 
@@ -6455,7 +6455,7 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 				// Loop through all minors and get the total number we've met.
 				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 				{
-					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+					PlayerTypes eMinor = static_cast<PlayerTypes>(iPlayerLoop);
 
 					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 					{
@@ -6486,7 +6486,7 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 			// Loop through all minors and get the total number we've met.
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eMinor = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 				{
@@ -6520,7 +6520,7 @@ int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
 	int iAttackBonus = 0;
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 		if(eResourceLoop != NO_RESOURCE)
 		{
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
@@ -6557,7 +6557,7 @@ int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
 	int iDefenseBonus = 0;
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 		if(eResourceLoop != NO_RESOURCE)
 		{
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
@@ -6593,7 +6593,7 @@ int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
 int CvLuaUnit::lIsHigherTechThan(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	UnitTypes eOtherUnit = (UnitTypes)lua_tointeger(L, 2);
+	UnitTypes eOtherUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkUnit->IsHigherTechThan(eOtherUnit);
 
 	lua_pushboolean(L, bResult);
@@ -6626,7 +6626,7 @@ int CvLuaUnit::lAddMessage(lua_State* L)
 {
 	CvUnit* pUnit = GetInstance(L);
 	const char* szMessage = lua_tostring(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 3, pUnit->getOwner());
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optinteger(L, 3, pUnit->getOwner()));
 
 	SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage);
 	return 0;

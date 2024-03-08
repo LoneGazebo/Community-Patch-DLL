@@ -134,7 +134,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		CvCityBuildable buildable;
 		buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 		buildable.m_iIndex = eNextWonder;
-		buildable.m_iTurnsToConstruct = getProductionTurnsLeft((BuildingTypes)buildable.m_eBuildableType, 0);
+		buildable.m_iTurnsToConstruct = getProductionTurnsLeft(static_cast<BuildingTypes>(buildable.m_eBuildableType), 0);
 		pushOrder(ORDER_CONSTRUCT, buildable.m_iIndex, -1, false, false, false, false);
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -146,7 +146,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 			CvString playerName = kOwner.getCivilizationShortDescription();
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("%s, WONDER - Started %s, Turns: %d", getName().GetCString(), GC.getBuildingInfo((BuildingTypes)buildable.m_iIndex)->GetDescription(), buildable.m_iTurnsToConstruct);
+			strOutBuf.Format("%s, WONDER - Started %s, Turns: %d", getName().GetCString(), GC.getBuildingInfo(static_cast<BuildingTypes>(buildable.m_iIndex))->GetDescription(), buildable.m_iTurnsToConstruct);
 			strBaseString += strOutBuf;
 			kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 		}
@@ -235,7 +235,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
-				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iLoop);
 				if(eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -247,7 +247,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 							{
 								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
 								{
-									int iOurFlavor = GET_PLAYER(getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									int iOurFlavor = GET_PLAYER(getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(iFlavor));
 									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
 								}
@@ -262,7 +262,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				flavorChoices.StableSortItems();
 				
 				//And grab the top selection.
-				CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)flavorChoices.GetElement(0);
+				CityEventChoiceTypes eBestEventChoice = static_cast<CityEventChoiceTypes>(flavorChoices.GetElement(0));
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -295,7 +295,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
-				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iLoop);
 				if(eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -316,7 +316,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			randomChoices.StableSortItems();
 				
 			//And grab the top selection.
-			CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)randomChoices.GetElement(0);
+			CityEventChoiceTypes eBestEventChoice = static_cast<CityEventChoiceTypes>(randomChoices.GetElement(0));
 
 			if(GC.getLogging() && GC.getAILogging())
 			{

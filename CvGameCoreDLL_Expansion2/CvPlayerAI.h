@@ -25,7 +25,7 @@ public:
 	static CvPlayerAI& getPlayer(PlayerTypes ePlayer);
 	static bool IsValid(PlayerTypes ePlayer)
 	{
-		return ((int)ePlayer >= 0 && (int)ePlayer < MAX_PLAYERS);
+		return (static_cast<int>(ePlayer) >= 0 && static_cast<int>(ePlayer) < MAX_PLAYERS);
 	}
 
 	static void initStatics();

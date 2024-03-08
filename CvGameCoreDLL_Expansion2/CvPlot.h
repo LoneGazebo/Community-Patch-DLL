@@ -400,7 +400,7 @@ public:
 
 	inline PlayerTypes getOwner() const
 	{
-		return (PlayerTypes)m_eOwner;
+		return static_cast<PlayerTypes>(m_eOwner);
 	}
 
 	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
@@ -409,15 +409,15 @@ public:
 
 	PlotTypes getPlotType() const
 	{
-		return (PlotTypes)m_ePlotType;
+		return static_cast<PlotTypes>(m_ePlotType);
 	}
 	inline bool isWater()          const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
+		return static_cast<PlotTypes>(m_ePlotType) == PLOT_OCEAN;
 	};
 	bool isHills()          const
 	{
-		return (PlotTypes)m_ePlotType == PLOT_HILLS;
+		return static_cast<PlotTypes>(m_ePlotType) == PLOT_HILLS;
 	};
 	bool isIce()            const
 	{
@@ -430,7 +430,7 @@ public:
 	bool isMountain()       const
 	{
 		//the two should be synonymous ...
-		return (TerrainTypes)m_eTerrainType == TERRAIN_MOUNTAIN || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
+		return static_cast<TerrainTypes>(m_eTerrainType) == TERRAIN_MOUNTAIN || static_cast<PlotTypes>(m_ePlotType) == PLOT_MOUNTAIN;
 	};
 	bool isRiver()          const
 	{
@@ -444,11 +444,11 @@ public:
 
 	inline TerrainTypes getTerrainType() const
 	{
-		return (TerrainTypes)m_eTerrainType;
+		return static_cast<TerrainTypes>(m_eTerrainType);
 	}
 	inline FeatureTypes getFeatureType() const
 	{
-		return (FeatureTypes)m_eFeatureType;
+		return static_cast<FeatureTypes>(m_eFeatureType);
 	}
 
 	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const;

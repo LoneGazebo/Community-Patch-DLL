@@ -60,14 +60,14 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
-		BuildTypes eBuild = (BuildTypes)i;
+		BuildTypes eBuild = static_cast<BuildTypes>(i);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(!pkBuild)
 		{
 			continue;
 		}
 		
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuild->getImprovement());
 		if(eImprovement == NO_IMPROVEMENT)
 		{
 			continue;
@@ -88,7 +88,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 				{
 					if (pkImprovementInfo->GetFeatureMakesValid(i))
 					{
-						m_aeSaveFeatureForImprovementUntilTech[i] = make_pair(eImprovement, (TechTypes)pkBuild->getTechPrereq());
+						m_aeSaveFeatureForImprovementUntilTech[i] = make_pair(eImprovement, static_cast<TechTypes>(pkBuild->getTechPrereq()));
 					}
 				}
 				if (pkImprovementInfo->IsAdjacentCity())
@@ -426,7 +426,7 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, int& iVill
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100(static_cast<YieldTypes>(iJ));
 
 					if (iVillageYieldBonus != 0)
 					{
@@ -441,13 +441,13 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, int& iVill
 		{
 			for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 			{
-				BuildTypes eBuild = (BuildTypes)iJ;
+				BuildTypes eBuild = static_cast<BuildTypes>(iJ);
 				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 
 				if (!pkBuildInfo)
 					continue;
 
-				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+				ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 
 				if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
@@ -470,7 +470,7 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, int& iVill
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100(static_cast<YieldTypes>(iJ));
 				}
 
 				if (iVillageYieldBonus != 0 && m_pPlayer->canBuild(pPlot, eBuild))
@@ -647,11 +647,11 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			float fUnhappiness = 0.00f;
 			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
 			{
-				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+				fUnhappiness += static_cast<float>(pTargetCity->getPopulation()) * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
 			}
 			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
 
-			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+			int iPotentialUnhappinessFromIsolation = range(static_cast<int>(fUnhappiness), 0, iLimit);
 
 			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 		}
@@ -673,7 +673,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			// Target city would get a production and gold boost from a train station.
 			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
+				BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingIndex);
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
 
 				if (pkBuilding == NULL)
@@ -682,7 +682,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 				if (!pkBuilding->IsRequiresRail())
 					continue;
 
-				if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+				if (!m_pPlayer->HasTech(static_cast<TechTypes>(pkBuilding->GetPrereqAndTech())))
 					continue;
 
 				iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
@@ -1035,7 +1035,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 			bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
-				CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+				CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iI));
 				if (pAdjacentPlot != NULL)
 				{
 					if (bHasLuxuryRequirement)
@@ -1096,7 +1096,7 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
 		int iCity = 0;
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayer& kLoopPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			vDestPlots.push_back(pDestCity->plot());
 	}
@@ -1394,14 +1394,14 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 	for(int i = GC.getNumBuildInfos() - 1; i >= 0; i--)
 	{
-		BuildTypes eBuild = (BuildTypes)i;
+		BuildTypes eBuild = static_cast<BuildTypes>(i);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(!pkBuild)
 		{
 			continue;
 		}
 
-		RouteTypes eRoute = (RouteTypes)pkBuild->getRoute();
+		RouteTypes eRoute = static_cast<RouteTypes>(pkBuild->getRoute());
 		if(eRoute == NO_ROUTE)
 		{
 			continue;
@@ -1409,7 +1409,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 		if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
 		{
-			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq());
+			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(GC.getBuildInfo(eBuild)->getTechPrereq()));
 			if(!bHasTech)
 			{
 				continue;
@@ -1418,7 +1418,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 #if defined(MOD_BALANCE_CORE)
 		if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
 		{
-			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete());
+			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(static_cast<TechTypes>(GC.getBuildInfo(eBuild)->getTechObsolete()));
 			if(bHasTech)
 			{
 				continue;
@@ -1691,8 +1691,8 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
-					iVillageYieldBonus -= pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, iJ) * GetYieldBaseModifierTimes100(static_cast<YieldTypes>(iJ));
+					iVillageYieldBonus -= pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100(static_cast<YieldTypes>(iJ));
 
 					if (iVillageYieldBonus != 0)
 					{
@@ -1759,7 +1759,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 	vector<BuildTypes> aPossibleBuilds;
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
 
 		if (!m_pPlayer->canBuild(NULL, eBuild))
 			continue;
@@ -1872,7 +1872,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<B
 		if(pkBuild == NULL)
 			continue;
 
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuild->getImprovement());
 		if(eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -1961,7 +1961,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		if(pkBuild == NULL)
 			continue;
 
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(pkBuild->getImprovement());
 		if(eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -2243,7 +2243,7 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 	BuildTypes eChopBuild = NO_BUILD;
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(NULL != pkBuild && pkBuild->getImprovement() == NO_IMPROVEMENT && pkBuild->isFeatureRemove(eFeature) && pkBuild->getFeatureProduction(eFeature) > 0 && m_pPlayer->canBuild(pPlot, eBuild))
 		{
@@ -2274,8 +2274,8 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
 		// calculate natural yields
-		int iPreviousYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), pPlot->getFeatureType(), pPlot->getResourceType(m_pPlayer->getTeam()), NULL);
-		int iNewYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), NO_FEATURE /*eNewFeature*/, pPlot->getResourceType(m_pPlayer->getTeam()), NULL);
+		int iPreviousYield = pPlot->calculateNatureYield(static_cast<YieldTypes>(ui), m_pPlayer->GetID(), pPlot->getFeatureType(), pPlot->getResourceType(m_pPlayer->getTeam()), NULL);
+		int iNewYield = pPlot->calculateNatureYield(static_cast<YieldTypes>(ui), m_pPlayer->GetID(), NO_FEATURE /*eNewFeature*/, pPlot->getResourceType(m_pPlayer->getTeam()), NULL);
 		int iDeltaYield = iNewYield - iPreviousYield;
 
 		if(iDeltaYield == 0)
@@ -2288,33 +2288,33 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 			switch(ui)
 			{
 			case YIELD_FOOD:
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GROWTH")
+				if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GROWTH")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD);
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD);
 				}
 				break;
 			case YIELD_PRODUCTION:
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+				if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_PRODUCTION")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION);
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION);
 				}
 				break;
 			case YIELD_GOLD:
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
+				if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GOLD")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD);
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD);
 				}
 				break;
 			case YIELD_SCIENCE:
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
+				if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SCIENCE")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE);
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)) * /*2*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE);
 				}
 				break;
 			case YIELD_CULTURE:
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CULTURE")
+				if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_CULTURE")
 				{
-					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE);
+					iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)) * /*3*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE);
 				}
 				break;
 			case YIELD_FAITH:
@@ -2636,7 +2636,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
 	const CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-	const ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+	const ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? static_cast<ResourceTypes>(pkOldImprovementInfo->GetResourceFromImprovement()) : NO_RESOURCE;
 	const FeatureTypes eFeatureFromOldImprovement = pkOldImprovementInfo ? pkOldImprovementInfo->GetCreatedFeature() : NO_FEATURE;
 
 	//Some base value.
@@ -2691,7 +2691,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	const bool bIsWithinWorkRange = pOwningCity && pOwningCity->IsWithinWorkRange(pPlot);
 	bool bCityIsSated = true;
 
-	const ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+	const ResourceTypes eResourceFromImprovement = pkImprovementInfo ? static_cast<ResourceTypes>(pkImprovementInfo->GetResourceFromImprovement()) : NO_RESOURCE;
 	const FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
 
 	bool bChangedFeatureState = (eFeatureFromImprovement != NO_FEATURE && eFeatureFromImprovement != eFeature)
@@ -2774,7 +2774,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
-		YieldTypes eYield = (YieldTypes)ui;
+		YieldTypes eYield = static_cast<YieldTypes>(ui);
 
 		// Simplification - errata yields not worth considering.
 		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
@@ -2834,7 +2834,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 					for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 					{
-						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), ((DirectionTypes)iDirectionLoop));
+						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), static_cast<DirectionTypes>(iDirectionLoop));
 						int iAdjacentPlotIndex = pCityAdjacentPlot->GetPlotIndex();
 						FeatureTypes eAdjacentFeature = sState.mChangedPlotFeatures.find(iAdjacentPlotIndex) != sState.mChangedPlotFeatures.end() ? sState.mChangedPlotFeatures[iAdjacentPlotIndex] : pCityAdjacentPlot->getFeatureType();
 						if (pCityAdjacentPlot && eAdjacentFeature == eFeature && pCityAdjacentPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -3071,7 +3071,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				// Avoid building improvements on resources until we have the technology to improve that resource
 				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if (!m_pPlayer->HasTech((TechTypes)pkResourceInfo->getImproveTech()))
+				if (!m_pPlayer->HasTech(static_cast<TechTypes>(pkResourceInfo->getImproveTech())))
 					bAvoidPlot = true;
 			}
 			else if ((bWillBeCityConnectingRoad && !bBenefitsFromRoads) || (!bWillBeCityConnectingRoad && bBenefitsFromRoads))
@@ -3125,7 +3125,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		int iAdjacentGood = 0;
 		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), static_cast<DirectionTypes>(iDirectionLoop));
 
 			if (pAdjacentPlot != NULL && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
 			{
@@ -3150,10 +3150,10 @@ BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImp
 {
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 
-		if(NULL != pkBuild && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
+		if(NULL != pkBuild && eImprovement == static_cast<ImprovementTypes>(pkBuild->getImprovement()))
 		{
 			return eBuild;
 		}
@@ -3166,7 +3166,7 @@ BuildTypes CvBuilderTaskingAI::GetRepairBuild(void)
 {
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
-		BuildTypes eBuild = (BuildTypes)i;
+		BuildTypes eBuild = static_cast<BuildTypes>(i);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 
 		if(NULL != pkBuild && pkBuild->isRepair())
@@ -3198,7 +3198,7 @@ BuildTypes CvBuilderTaskingAI::GetFalloutRemove(void)
 
 	for(int iBuild = 0; iBuild < GC.getNumBuildInfos(); iBuild++)
 	{
-		BuildTypes eBuild = (BuildTypes)iBuild;
+		BuildTypes eBuild = static_cast<BuildTypes>(iBuild);
 		CvBuildInfo* pBuildInfo = GC.getBuildInfo(eBuild);
 		if(NULL != pBuildInfo && pBuildInfo->isFeatureRemove(eFalloutFeature))
 		{
@@ -3216,7 +3216,7 @@ BuildTypes CvBuilderTaskingAI::GetRemoveRoute(void)
 
 	for (int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
-		BuildTypes eBuild = (BuildTypes)i;
+		BuildTypes eBuild = static_cast<BuildTypes>(i);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if (pkBuild && pkBuild->IsRemoveRoute())
 		{
@@ -3235,7 +3235,7 @@ BuildTypes CvBuilderTaskingAI::GetBuildRoute(RouteTypes eRoute) const
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
-		BuildTypes eBuild = (BuildTypes)i;
+		BuildTypes eBuild = static_cast<BuildTypes>(i);
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(pkBuild && pkBuild->getRoute() == eRoute)
 		{
@@ -3437,14 +3437,14 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(CvPlot* pPlot)
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
 #if defined(MOD_BALANCE_CORE)
-		if((YieldTypes)ui <= YIELD_FAITH)
+		if(static_cast<YieldTypes>(ui) <= YIELD_FAITH)
 		{
 #endif
-		m_aiCurrentPlotYields[ui] = pPlot->getYield((YieldTypes)ui);
+		m_aiCurrentPlotYields[ui] = pPlot->getYield(static_cast<YieldTypes>(ui));
 
 		if(m_bLogging){
 			CvString strLog;
-			YieldTypes yield = (YieldTypes) ui;
+			YieldTypes yield = static_cast<YieldTypes>(ui);
 			strLog.Format("Plot Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiCurrentPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
 		}
@@ -3485,10 +3485,10 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if ((YieldTypes)ui <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
+			if (static_cast<YieldTypes>(ui) <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
 			{
 #endif
-				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, static_cast<YieldTypes>(ui), false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
@@ -3500,7 +3500,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 						{
 							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
 							{
-								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
+								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, static_cast<YieldTypes>(ui), false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
 								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 							}
 						}
@@ -3510,7 +3510,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 
 				if (m_bLogging){
 					CvString strLog;
-					YieldTypes yield = (YieldTypes)ui;
+					YieldTypes yield = static_cast<YieldTypes>(ui);
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}
@@ -3527,15 +3527,15 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if ((YieldTypes)ui <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
+			if (static_cast<YieldTypes>(ui) <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
 			{
 #endif
-				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, static_cast<YieldTypes>(ui), false, bIgnoreCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
 				if (m_bLogging){
 					CvString strLog;
-					YieldTypes yield = (YieldTypes)ui;
+					YieldTypes yield = static_cast<YieldTypes>(ui);
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}

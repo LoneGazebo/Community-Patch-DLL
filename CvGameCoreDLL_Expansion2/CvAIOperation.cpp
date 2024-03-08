@@ -1720,7 +1720,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 		int iNumResourceInfos = GC.getNumResourceInfos();
 		for (int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (!pkResourceInfo)
 				continue;
@@ -3114,7 +3114,7 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
 	int iBestScore = 0;
-	ImprovementTypes eBarbCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+	ImprovementTypes eBarbCamp = static_cast<ImprovementTypes>(GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
 
 	// Look at map for Barbarian camps
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
@@ -3286,7 +3286,7 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 			unitInfo->GetUnitAIType(slot.m_primaryUnitType) || 
 			unitInfo->GetUnitAIType(slot.m_secondaryUnitType))
 		{
-			iMatchingIndex = (int)i;
+			iMatchingIndex = static_cast<int>(i);
 			break;
 		}
 	}

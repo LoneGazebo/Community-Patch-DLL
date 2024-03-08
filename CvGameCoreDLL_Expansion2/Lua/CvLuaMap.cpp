@@ -196,7 +196,7 @@ int CvLuaMap::lGetNumPlots(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lGetNumResources(lua_State* L)
 {
-	const ResourceTypes eResource = (ResourceTypes)luaL_checkinteger(L, 1);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkinteger(L, 1));
 
 	const int iResult = GC.getMap().getNumResources(eResource);
 	lua_pushinteger(L, iResult);
@@ -205,7 +205,7 @@ int CvLuaMap::lGetNumResources(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lGetNumResourcesOnLand(lua_State* L)
 {
-	const ResourceTypes eResource = (ResourceTypes)luaL_checkinteger(L, 1);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkinteger(L, 1));
 
 	const int iResult = GC.getMap().getNumResourcesOnLand(eResource);
 	lua_pushinteger(L, iResult);
@@ -311,7 +311,7 @@ int CvLuaMap::lGetNumLandAreas(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lGetRandomResourceQuantity(lua_State* L)
 {
-	const ResourceTypes eResource = (ResourceTypes)luaL_checkinteger(L, 1);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(luaL_checkinteger(L, 1));
 
 	const int iResult = GC.getMap().getRandomResourceQuantity(eResource);
 	lua_pushinteger(L, iResult);
@@ -410,7 +410,7 @@ int CvLuaMap::lPlotDirection(lua_State* L)
 {
 	int iX = lua_tointeger(L, 1);
 	int iY = lua_tointeger(L, 2);
-	DirectionTypes eDirection = (DirectionTypes)abs(static_cast<int>(lua_tointeger(L, 3) % 6));
+	DirectionTypes eDirection = static_cast<DirectionTypes>(abs(static_cast<int>(lua_tointeger(L, 3) % 6)));
 
 	//safety first
 	int iMapX = coordRange(iX, GC.getMap().getGridWidth(), GC.getMap().isWrapX());

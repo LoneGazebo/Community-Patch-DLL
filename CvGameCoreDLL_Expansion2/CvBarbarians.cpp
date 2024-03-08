@@ -322,7 +322,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 				// Completes a quest for anyone?
 				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
-					PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+					PlayerTypes eMinor = static_cast<PlayerTypes>(iMinorLoop);
 					CvPlayer& minorPlayer = GET_PLAYER(eMinor);
 
 					if (!minorPlayer.isAlive())
@@ -551,7 +551,7 @@ bool CvBarbarians::DoTakeOverCityState(CvCity* pCity)
 void CvBarbarians::DoCamps()
 {
 	CvGame& kGame = GC.getGame();
-	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+	ImprovementTypes eCamp = static_cast<ImprovementTypes>(GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
 	CvImprovementEntry* pkCampInfo = GC.getImprovementInfo(eCamp);
 	int iGameTurn = GC.getGame().getGameTurn();
 	int iInitialSpawnTurn = /*0 in CP, 2 in VP*/ std::max(GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN), 0);
@@ -618,7 +618,7 @@ void CvBarbarians::DoCamps()
 	int iEra = GC.getGame().getCurrentEra();
 	std::vector<CvPlot*> vPotentialPlots,vPotentialCoastalPlots;
 	std::vector<int> MajorCapitals,BarbCamps,RecentlyClearedBarbCamps;
-	ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+	ImprovementTypes eLandmark = static_cast<ImprovementTypes>(GC.getInfoTypeForString("IMPROVEMENT_LANDMARK"));
 
 	// Iterate through all plots
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
@@ -866,7 +866,7 @@ void CvBarbarians::DoCamps()
 	std::vector<PlayerTypes> vThoseWhoSee;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).IsAlwaysSeeBarbCamps())
 			vThoseWhoSee.push_back(ePlayer);
 	}
@@ -1114,7 +1114,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource)
 			{
@@ -1336,14 +1336,14 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 		if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
 			continue;
 
-		const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType());
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if (!pkUnitClassInfo)
 			continue;
 
 		// UU Shenanigans
 
-		UnitTypes eDefaultUnit = (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex();
+		UnitTypes eDefaultUnit = static_cast<UnitTypes>(pkUnitClassInfo->getDefaultUnitIndex());
 		UnitTypes eBarbUnitOverride = kBarbarianPlayer.GetSpecificUnitType(eUnitClass);
 		bool bIsUU = eLoopUnit != eDefaultUnit;
 
@@ -1375,11 +1375,11 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 			continue;
 
 		// Barbarians can't spawn any units that require policies or projects
-		PolicyTypes ePolicy = (PolicyTypes)pkUnitInfo->GetPolicyType();
+		PolicyTypes ePolicy = static_cast<PolicyTypes>(pkUnitInfo->GetPolicyType());
 		if (ePolicy != NO_POLICY)
 			continue;
 
-		ProjectTypes ePrereqProject = (ProjectTypes)pkUnitInfo->GetProjectPrereq();
+		ProjectTypes ePrereqProject = static_cast<ProjectTypes>(pkUnitInfo->GetProjectPrereq());
 		if (ePrereqProject != NO_PROJECT)
 			continue;
 
@@ -1392,7 +1392,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo)
 			{
-				bool bTypeMatch = eResource == (ResourceTypes)pkUnitInfo->GetResourceType();
+				bool bTypeMatch = eResource == static_cast<ResourceTypes>(pkUnitInfo->GetResourceType());
 				int iNumResourceRequired = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 				int iNumResourceTotal = MOD_UNITS_RESOURCE_QUANTITY_TOTALS ? pkUnitInfo->GetResourceQuantityTotal(eResource) : 0;
 
@@ -1411,14 +1411,14 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 			continue;
 
 		// Must have prereq tech(s) and must NOT have obsolete tech
-		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
-		TechTypes eObsoleteTech = (TechTypes)pkUnitInfo->GetObsoleteTech();
+		TechTypes ePrereqTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
+		TechTypes eObsoleteTech = static_cast<TechTypes>(pkUnitInfo->GetObsoleteTech());
 		if (ePrereqTech != NO_TECH && !GET_TEAM(BARBARIAN_TEAM).GetTeamTechs()->HasTech(ePrereqTech))
 			continue;
 
 		for (int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
 		{
-			ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTechs(iI);
+			ePrereqTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTechs(iI));
 			if (ePrereqTech != NO_TECH && !GET_TEAM(BARBARIAN_TEAM).GetTeamTechs()->HasTech(ePrereqTech))
 				continue;
 		}
@@ -1488,7 +1488,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BarbariansCampGetSpawnUnit, pPlot->getX(), pPlot->getY(), eBestUnit) == GAMEEVENTRETURN_VALUE) 
 		{
 			// Defend against modder stupidity!
-			UnitTypes eUnitType = (UnitTypes)iValue;
+			UnitTypes eUnitType = static_cast<UnitTypes>(iValue);
 			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL)
 			{
 				eBestUnit = eUnitType;

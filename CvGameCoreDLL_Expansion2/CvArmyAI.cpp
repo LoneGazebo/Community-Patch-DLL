@@ -228,13 +228,13 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	}
 
 	//finally, compute average
-	float fNUnits = (float)iNumUnits;
+	float fNUnits = static_cast<float>(iNumUnits);
 	float fAvgX = (iTotalX/fNUnits) + iRefX;
 	float fAvgY = (iTotalY/fNUnits) + iRefY;
 
 	//rounding to nearest integer
-	int iAvgX = fAvgX > 0 ? int(fAvgX + 0.5f) : int(fAvgX - 0.5f);
-	int iAvgY = fAvgY > 0 ? int(fAvgY + 0.5f) : int(fAvgY - 0.5f);
+	int iAvgX = fAvgX > 0 ? static_cast<int>(fAvgX + 0.5f) : static_cast<int>(fAvgX - 0.5f);
+	int iAvgY = fAvgY > 0 ? static_cast<int>(fAvgY + 0.5f) : static_cast<int>(fAvgY - 0.5f);
 
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
@@ -570,7 +570,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	CvUnit* pThisUnit = thisPlayer.getUnit(iUnitID);
-	if (!pThisUnit || iSlotNum<0 || iSlotNum>=(int)m_FormationEntries.size())
+	if (!pThisUnit || iSlotNum<0 || iSlotNum>=static_cast<int>(m_FormationEntries.size()))
 		return;
 
 	// uh, slot already used?

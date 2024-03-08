@@ -218,7 +218,7 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 			if(pkEmphasis->GetYieldChange(iI))
 			{
 				m_aiEmphasizeYieldCount[iI] += ((IsEmphasize(eIndex)) ? 1 : -1);
-				CvAssert(GetEmphasizeYieldCount((YieldTypes)iI) >= 0);
+				CvAssert(GetEmphasizeYieldCount(static_cast<YieldTypes>(iI)) >= 0);
 			}
 		}
 

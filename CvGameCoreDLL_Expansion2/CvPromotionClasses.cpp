@@ -432,13 +432,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		m_iNearbyImprovementBonusRange = kResults.GetInt("NearbyImprovementBonusRange");
 		const char* szTextVal = kResults.GetText("CombatBonusImprovement");
 		if (szTextVal) {
-			m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
+			m_eCombatBonusImprovement = static_cast<ImprovementTypes>(GC.getInfoTypeForString(szTextVal, true));
 		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	const char* szCombatBonusFromNearbyUnitClass = kResults.GetText("CombatBonusFromNearbyUnitClass");
-	m_iCombatBonusFromNearbyUnitClass = (UnitClassTypes)GC.getInfoTypeForString(szCombatBonusFromNearbyUnitClass, true);
+	m_iCombatBonusFromNearbyUnitClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString(szCombatBonusFromNearbyUnitClass, true));
 	m_iNearbyUnitClassBonusRange = kResults.GetInt("NearbyUnitClassBonusRange");
 	m_iNearbyUnitClassBonus = kResults.GetInt("NearbyUnitClassBonus");
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
@@ -516,16 +516,16 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
-	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
+	m_iConvertDomainUnit = static_cast<UnitTypes>(GC.getInfoTypeForString(szConvertDomainUnit, true));
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
-	m_iConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_iConvertDomain = static_cast<DomainTypes>(GC.getInfoTypeForString(szConvertDomain, true));
 	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
 	m_bIsConvertEnemyUnitToBarbarian = kResults.GetBool("IsConvertEnemyUnitToBarbarian");
 	m_bIsConvertOnFullHP = kResults.GetBool("IsConvertOnFullHP");
 	m_bIsConvertOnDamage = kResults.GetBool("IsConvertOnDamage");
 	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
 	const char* szConvertDamageOrFullHPUnit = kResults.GetText("ConvertDamageOrFullHPUnit");
-	m_iConvertDamageOrFullHPUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDamageOrFullHPUnit, true);
+	m_iConvertDamageOrFullHPUnit = static_cast<UnitTypes>(GC.getInfoTypeForString(szConvertDamageOrFullHPUnit, true));
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
@@ -539,7 +539,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExperiencePercent = kResults.GetInt("GiveExperiencePercent");
 	m_iGiveOutsideFriendlyLandsModifier = kResults.GetInt("GiveOutsideFriendlyLandsModifier");
 	const char* szGiveDomain = kResults.GetText("GiveDomain");
-	m_iGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
+	m_iGiveDomain = static_cast<DomainTypes>(GC.getInfoTypeForString(szGiveDomain, true));
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
@@ -1184,7 +1184,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		while(pResults->Step())
 		{
-			const int iUnit = (UnitTypes)pResults->GetInt(0);
+			const int iUnit = static_cast<UnitTypes>(pResults->GetInt(0));
 			CvAssert(iUnit < iNumUnitTypes);
 
 			m_pbCivilianUnitType[iUnit] = true;
@@ -3357,10 +3357,10 @@ void CvUnitPromotions::UpdateCache()
 		{
 			if(m_kHasPromotion.GetBit(iPromotion))
 			{
-				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
+				CvPromotionEntry* promotion = GC.getPromotionInfo(static_cast<PromotionTypes>(iPromotion));
 				if(promotion)
 				{
-					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(iTerrain);
+					TechTypes eTech = static_cast<TechTypes>(promotion->GetTerrainPassableTech(iTerrain));
 					if(eTech != NO_TECH)
 					{
 						reqTechs.push_back(eTech);
@@ -3380,10 +3380,10 @@ void CvUnitPromotions::UpdateCache()
 		{
 			if(m_kHasPromotion.GetBit(iPromotion))
 			{
-				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
+				CvPromotionEntry* promotion = GC.getPromotionInfo(static_cast<PromotionTypes>(iPromotion));
 				if(promotion)
 				{
-					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(iFeature);
+					TechTypes eTech = static_cast<TechTypes>(promotion->GetFeaturePassableTech(iFeature));
 					if (eTech != NO_TECH)
 					{
 						reqTechs.push_back(eTech);
@@ -3443,13 +3443,13 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTy
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 {
-	if ((size_t)eUnitClass<m_unitClassAttackMod.size())
+	if (static_cast<size_t>(eUnitClass)<m_unitClassAttackMod.size())
 		return m_unitClassAttackMod[eUnitClass];
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
 	{
-		PromotionTypes ePromotion = (PromotionTypes)iLoop;
+		PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
 		CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
 		if(promotion && HasPromotion(ePromotion))
 		{
@@ -3463,13 +3463,13 @@ int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 /// returns the advantage percent when defending against the specified unit class
 int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 {
-	if ((size_t)eUnitClass<m_unitClassDefenseMod.size())
+	if (static_cast<size_t>(eUnitClass)<m_unitClassDefenseMod.size())
 		return m_unitClassDefenseMod[eUnitClass];
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
 	{
-		PromotionTypes ePromotion = (PromotionTypes)iLoop;
+		PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
 		CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
 		if(promotion && HasPromotion(ePromotion))
 		{
@@ -3492,7 +3492,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	{
 		if (pkEntry->IsPostCombatRandomPromotion(iI))
 		{
-			if (!pkEntry->ArePostCombatPromotionsExclusive() || !IsInUseByPlayer((PromotionTypes)iI, pThisUnit->getOwner()))
+			if (!pkEntry->ArePostCombatPromotionsExclusive() || !IsInUseByPlayer(static_cast<PromotionTypes>(iI), pThisUnit->getOwner()))
 			{
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {

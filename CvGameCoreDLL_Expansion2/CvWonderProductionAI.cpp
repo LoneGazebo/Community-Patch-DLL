@@ -99,8 +99,8 @@ void CvWonderProductionAI::FlavorUpdate()
 	// Broadcast to our sub AI objects
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
-		AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
+		int iFlavorValue = GetLatestFlavorValue(static_cast<FlavorTypes>(iFlavor));
+		AddFlavorWeights(static_cast<FlavorTypes>(iFlavor), iFlavorValue);
 	}
 }
 
@@ -182,7 +182,9 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 		if (m_Buildables.GetTotalWeight() > 0)
 		{
 			iWonderWeight = m_Buildables.GetTotalWeight();
-			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), CvSeeder::fromRaw(0x97d85ba6).mix(m_pPlayer->GetID()).mix(m_pPlayer->GetNumWonders()));
+			BuildingTypes eSelection = static_cast<BuildingTypes>(m_Buildables.ChooseAbovePercentThreshold(
+				GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(),
+				CvSeeder::fromRaw(0x97d85ba6).mix(m_pPlayer->GetID()).mix(m_pPlayer->GetNumWonders())));
 			return eSelection;
 		}
 		// Nothing with any weight

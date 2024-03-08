@@ -362,11 +362,11 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 	//there are only two plots we need to check
 	DirectionTypes moveDir = directionXY(pFromPlot, pToPlot);
-	int eRight = (int(moveDir) + 1) % 6;
-	int eLeft = (int(moveDir) + 5) % 6;
+	int eRight = (static_cast<int>(moveDir) + 1) % 6;
+	int eLeft = (static_cast<int>(moveDir) + 5) % 6;
 	CvPlot* aPlotsToCheck[2];
-	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eRight);
-	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eLeft);
+	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), static_cast<DirectionTypes>(eRight));
+	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), static_cast<DirectionTypes>(eLeft));
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
@@ -467,11 +467,11 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 	//there are only two plots we need to check
 	DirectionTypes moveDir = directionXY(pFromPlot, pToPlot);
-	int eRight = (int(moveDir) + 1) % 6;
-	int eLeft = (int(moveDir) + 5) % 6;
+	int eRight = (static_cast<int>(moveDir) + 1) % 6;
+	int eLeft = (static_cast<int>(moveDir) + 5) % 6;
 	CvPlot* aPlotsToCheck[2];
-	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eRight);
-	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eLeft);
+	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), static_cast<DirectionTypes>(eRight));
+	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), static_cast<DirectionTypes>(eLeft));
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];

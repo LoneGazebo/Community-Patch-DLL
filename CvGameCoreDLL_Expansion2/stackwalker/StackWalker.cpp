@@ -671,9 +671,9 @@ private:
       return FALSE;
     }
 
-    hMods = (HMODULE*)malloc(sizeof(HMODULE) * (TTBUFLEN / sizeof(HMODULE)));
-    tt = (char*)malloc(sizeof(char) * TTBUFLEN);
-    tt2 = (char*)malloc(sizeof(char) * TTBUFLEN);
+    hMods = static_cast<HMODULE*>(malloc(sizeof(HMODULE) * (TTBUFLEN / sizeof(HMODULE))));
+    tt = static_cast<char*>(malloc(sizeof(char) * TTBUFLEN));
+    tt2 = static_cast<char*>(malloc(sizeof(char) * TTBUFLEN));
     if ((hMods == NULL) || (tt == NULL) || (tt2 == NULL))
       goto cleanup;
 
@@ -754,7 +754,7 @@ private:
               else
               {
                 fileVersion =
-                    ((ULONGLONG)fInfo->dwFileVersionLS) + ((ULONGLONG)fInfo->dwFileVersionMS << 32);
+                    static_cast<ULONGLONG>(fInfo->dwFileVersionLS) + (static_cast<ULONGLONG>(fInfo->dwFileVersionMS) << 32);
               }
             }
             free(vData);
@@ -846,7 +846,7 @@ public:
     static bool s_useV3Version = true;
     if (s_useV3Version)
     {
-      if (this->pSGMI(hProcess, baseAddr, (IMAGEHLP_MODULE64_V3*)pData) != FALSE)
+      if (this->pSGMI(hProcess, baseAddr, static_cast<IMAGEHLP_MODULE64_V3*>(pData)) != FALSE)
       {
         // only copy as much memory as is reserved...
         memcpy(pModuleInfo, pData, sizeof(IMAGEHLP_MODULE64_V3));
@@ -860,7 +860,7 @@ public:
     // could not retrieve the bigger structure, try with the smaller one (as defined in VC7.1)...
     pModuleInfo->SizeOfStruct = sizeof(IMAGEHLP_MODULE64_V2);
     memcpy(pData, pModuleInfo, sizeof(IMAGEHLP_MODULE64_V2));
-    if (this->pSGMI(hProcess, baseAddr, (IMAGEHLP_MODULE64_V3*)pData) != FALSE)
+    if (this->pSGMI(hProcess, baseAddr, static_cast<IMAGEHLP_MODULE64_V3*>(pData)) != FALSE)
     {
       // only copy as much memory as is reserved...
       memcpy(pModuleInfo, pData, sizeof(IMAGEHLP_MODULE64_V2));
@@ -927,7 +927,7 @@ BOOL StackWalker::LoadModules()
   if ((this->m_options & SymBuildPath) != 0)
   {
     const size_t nSymPathLen = 4096;
-    szSymPath = (char*)malloc(nSymPathLen);
+    szSymPath = static_cast<char*>(malloc(nSymPathLen));
     if (szSymPath == NULL)
     {
       SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -1131,7 +1131,7 @@ BOOL StackWalker::ShowCallstack(int                       maxFrames,
 #error "Platform not supported!"
 #endif
 
-  pSym = (IMAGEHLP_SYMBOL64*)malloc(sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN);
+  pSym = static_cast<IMAGEHLP_SYMBOL64*>(malloc(sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN));
   if (!pSym)
     goto cleanup; // not enough memory...
   memset(pSym, 0, sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN);
@@ -1311,7 +1311,7 @@ BOOL StackWalker::ShowObject(LPVOID pObject)
   DWORD64            dwAddress = DWORD64(pObject);
   DWORD64            dwDisplacement = 0;
   IMAGEHLP_SYMBOL64* pSym =
-      (IMAGEHLP_SYMBOL64*)malloc(sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN);
+      static_cast<IMAGEHLP_SYMBOL64*>(malloc(sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN));
   memset(pSym, 0, sizeof(IMAGEHLP_SYMBOL64) + STACKWALK_MAX_NAMELEN);
   pSym->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
   pSym->MaxNameLength = STACKWALK_MAX_NAMELEN;
@@ -1367,10 +1367,10 @@ void StackWalker::OnLoadModule(LPCSTR    img,
                 img, mod, (LPVOID)baseAddr, size, result, symType, pdbName);
   else
   {
-    DWORD v4 = (DWORD)(fileVersion & 0xFFFF);
-    DWORD v3 = (DWORD)((fileVersion >> 16) & 0xFFFF);
-    DWORD v2 = (DWORD)((fileVersion >> 32) & 0xFFFF);
-    DWORD v1 = (DWORD)((fileVersion >> 48) & 0xFFFF);
+    DWORD v4 = static_cast<DWORD>(fileVersion & 0xFFFF);
+    DWORD v3 = static_cast<DWORD>((fileVersion >> 16) & 0xFFFF);
+    DWORD v2 = static_cast<DWORD>((fileVersion >> 32) & 0xFFFF);
+    DWORD v1 = static_cast<DWORD>((fileVersion >> 48) & 0xFFFF);
     _snprintf_s(
         buffer, maxLen,
         "%s:%s (%p), size: %d (result: %d), SymType: '%s', PDB: '%s', fileVersion: %d.%d.%d.%d\n",

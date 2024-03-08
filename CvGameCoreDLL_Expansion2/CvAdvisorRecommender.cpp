@@ -60,7 +60,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// buildings
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.GetGameBuildings()->GetNumBuildings(); iBuildingLoop++)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
+		BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		if(!pCity->canConstruct(eBuilding))
 		{
 			continue;
@@ -80,7 +80,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// units
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
-		UnitTypes eUnit = (UnitTypes)iUnitLoop;
+		UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		if(!pCity->canTrain(eUnit))
 		{
 			continue;
@@ -100,7 +100,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// projects
 	for(int iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		ProjectTypes eProject = (ProjectTypes)iProjectLoop;
+		ProjectTypes eProject = static_cast<ProjectTypes>(iProjectLoop);
 		if(!pCity->canCreate(eProject))
 		{
 			continue;
@@ -178,12 +178,12 @@ bool CvAdvisorRecommender::IsUnitRecommended(UnitTypes eUnit, AdvisorTypes eAdvi
 
 bool  CvAdvisorRecommender::IsBuildingRecommended(BuildingTypes eBuilding, AdvisorTypes eAdvisor)
 {
-	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && (BuildingTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eBuilding;
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && static_cast<BuildingTypes>(m_aRecommendedBuilds[eAdvisor].m_iIndex) == eBuilding;
 }
 
 bool  CvAdvisorRecommender::IsProjectRecommended(ProjectTypes eProject, AdvisorTypes eAdvisor)
 {
-	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && (ProjectTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eProject;
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && static_cast<ProjectTypes>(m_aRecommendedBuilds[eAdvisor].m_iIndex) == eProject;
 }
 
 void CvAdvisorRecommender::ResetTechs()
@@ -206,7 +206,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 		if(pPlayerTechs->CanResearch(eTech))
 		{
 			m_aResearchableTechs.push_back(iTechLoop, pPlayerTechAI->GetWeight(eTech));
@@ -215,7 +215,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 
 	for(int iI = 0; iI < m_aResearchableTechs.size(); iI++)
 	{
-		TechTypes eTech = (TechTypes) m_aResearchableTechs.GetElement(iI);
+		TechTypes eTech = static_cast<TechTypes>(m_aResearchableTechs.GetElement(iI));
 		int iTurnsLeft = pPlayerTechs->GetResearchTurnsLeft(eTech, true);
 
 		// reweight by turns left
@@ -226,7 +226,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		int iNewWeight = 0;
 		if(GET_PLAYER(ePlayer).GetNumFreeTechs() == 0)
 		{
-			iNewWeight = int(double(m_aResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+			iNewWeight = static_cast<int>(double(m_aResearchableTechs.GetWeight(iI)) / fWeightDivisor);
 		}
 		else
 		{
@@ -255,7 +255,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 	{
 		m_aFinalRoundTechs.StableSortItems();
 
-		TechTypes eTech = (TechTypes)m_aFinalRoundTechs.GetElement(0);
+		TechTypes eTech = static_cast<TechTypes>(m_aFinalRoundTechs.GetElement(0));
 		int iScore = m_aFinalRoundTechs.GetWeight(0);
 
 		AdvisorTypes eAvailableAdvisor = FindUnassignedAdvisorForTech(ePlayer, eTech);
@@ -520,7 +520,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes)i;
+		FlavorTypes eFlavor = static_cast<FlavorTypes>(i);
 		int iTechFlavorValue = pTechEntry->GetFlavorValue(eFlavor);
 		if(iTechFlavorValue <= 0)
 		{
@@ -529,7 +529,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 		for(uint uiAdvisor = 0; uiAdvisor < NUM_ADVISOR_TYPES; uiAdvisor++)
 		{
-			AdvisorTypes eAdvisor = (AdvisorTypes)uiAdvisor;
+			AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(uiAdvisor);
 			aiAdvisorValues[uiAdvisor] += iTechFlavorValue * AdvisorInterestInFlavor(eAdvisor, eFlavor);
 		}
 	}
@@ -546,7 +546,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 		if(aiAdvisorValues[ui] > iHighestValue)
 		{
-			eWinningAdvisor = (AdvisorTypes)ui;
+			eWinningAdvisor = static_cast<AdvisorTypes>(ui);
 			iHighestValue = aiAdvisorValues[ui];
 		}
 	}
@@ -564,13 +564,13 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 	case CITY_BUILDABLE_UNIT:
 	case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 	case CITY_BUILDABLE_UNIT_FOR_ARMY:
-		pUnit = GC.getUnitInfo((UnitTypes)buildable.m_iIndex);
+		pUnit = GC.getUnitInfo(static_cast<UnitTypes>(buildable.m_iIndex));
 		break;
 	case CITY_BUILDABLE_BUILDING:
-		pBuilding = GC.getBuildingInfo((BuildingTypes)buildable.m_iIndex);
+		pBuilding = GC.getBuildingInfo(static_cast<BuildingTypes>(buildable.m_iIndex));
 		break;
 	case CITY_BUILDABLE_PROJECT:
-		pProject = GC.getProjectInfo((ProjectTypes)buildable.m_iIndex);
+		pProject = GC.getProjectInfo(static_cast<ProjectTypes>(buildable.m_iIndex));
 		break;
 	case NOT_A_CITY_BUILDABLE:
 	case CITY_BUILDABLE_PROCESS:
@@ -585,7 +585,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 
 	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes)i;
+		FlavorTypes eFlavor = static_cast<FlavorTypes>(i);
 		int iFlavorValue = 0;
 		if(pBuilding)
 		{
@@ -607,7 +607,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 
 		for(uint uiAdvisor = 0; uiAdvisor < NUM_ADVISOR_TYPES; uiAdvisor++)
 		{
-			AdvisorTypes eAdvisor = (AdvisorTypes)uiAdvisor;
+			AdvisorTypes eAdvisor = static_cast<AdvisorTypes>(uiAdvisor);
 			aiAdvisorValues[uiAdvisor] += iFlavorValue * AdvisorInterestInFlavor(eAdvisor, eFlavor);
 		}
 	}
@@ -624,7 +624,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 
 		if(aiAdvisorValues[ui] > iHighestValue)
 		{
-			eWinningAdvisor = (AdvisorTypes)ui;
+			eWinningAdvisor = static_cast<AdvisorTypes>(ui);
 			iHighestValue = aiAdvisorValues[ui];
 		}
 	}

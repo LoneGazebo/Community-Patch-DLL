@@ -496,7 +496,7 @@ void CvCombatInfo::setAttackNuclearLevel(int iNuclearDamageLevel)
 
 const CvCombatMemberEntry* CvCombatInfo::getCombatMember(BattleUnitTypes unitType) const
 {
-	if((int)unitType < (int)BATTLE_UNIT_COUNT)
+	if(static_cast<int>(unitType) < static_cast<int>(BATTLE_UNIT_COUNT))
 		return &m_kCombatMembers[unitType];
 	return NULL;
 }

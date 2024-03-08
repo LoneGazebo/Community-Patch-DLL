@@ -240,13 +240,13 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	//References
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("HeadquartersBuildingClass");
-	m_eHeadquartersBuildingClass = (BuildingClassTypes) GC.getInfoTypeForString(szTextVal, true);
+	m_eHeadquartersBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	szTextVal = kResults.GetText("OfficeBuildingClass");
-	m_eOfficeBuildingClass = (BuildingClassTypes) GC.getInfoTypeForString(szTextVal, true);
+	m_eOfficeBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(szTextVal, true));
 	
 	szTextVal = kResults.GetText("FranchiseBuildingClass");
-	m_eFranchiseBuildingClass = (BuildingClassTypes) GC.getInfoTypeForString(szTextVal, true);
+	m_eFranchiseBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	szTextVal = kResults.GetText("OfficeBenefitHelper");
 	m_strOfficeBenefitHelper = szTextVal;
@@ -259,19 +259,19 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	CvBuildingClassInfo* pkBuildingInfo = GC.getBuildingClassInfo(m_eHeadquartersBuildingClass);
 	if (pkBuildingInfo)
 	{
-		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
+		pkBuildingInfo->m_eCorporationType = static_cast<CorporationTypes>(GetID());
 		pkBuildingInfo->m_bIsHeadquarters = true;
 	}
 	pkBuildingInfo = GC.getBuildingClassInfo(m_eOfficeBuildingClass);
 	if (pkBuildingInfo)
 	{
-		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
+		pkBuildingInfo->m_eCorporationType = static_cast<CorporationTypes>(GetID());
 		pkBuildingInfo->m_bIsOffice = true;
 	}
 	pkBuildingInfo = GC.getBuildingClassInfo(m_eFranchiseBuildingClass);
 	if (pkBuildingInfo)
 	{
-		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
+		pkBuildingInfo->m_eCorporationType = static_cast<CorporationTypes>(GetID());
 		pkBuildingInfo->m_bIsFranchise = true;
 	}
 
@@ -608,9 +608,9 @@ void CvPlayerCorporations::DestroyCorporation()
 	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Don't check for Rome as even they don't keep Corporation buildings on conquest
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	{
-		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass);
-		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
-		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+		eHeadquarters = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass));
+		eOffice = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass));
+		eFranchise = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass));
 	}
 
 	int iLoop = 0;
@@ -641,7 +641,7 @@ void CvPlayerCorporations::DestroyCorporation()
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop=0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		if(!GET_PLAYER(eLoopPlayer).isAlive()) continue;
 		
 		iLoop = 0;
@@ -663,7 +663,7 @@ void CvPlayerCorporations::DestroyCorporation()
 	// Push notification to all players about destroyed Corporation
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoopPlayer);
 		if (GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -849,7 +849,7 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 		// Search all players for Franchises (if no Nationalization Tenet)
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
 			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
 				CvCity* pLoopCity = NULL;
@@ -878,9 +878,9 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
-		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
+		if (GetFranchisesPerImprovement(static_cast<ImprovementTypes>(iI)) > 0)
 		{
-			iFranchises += (m_pPlayer->getImprovementCount((ImprovementTypes)iI, true) * GetFranchisesPerImprovement((ImprovementTypes)iI));
+			iFranchises += (m_pPlayer->getImprovementCount(static_cast<ImprovementTypes>(iI), true) * GetFranchisesPerImprovement(static_cast<ImprovementTypes>(iI)));
 		}
 	}
 
@@ -894,7 +894,7 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			eYield = (YieldTypes) iI;
+			eYield = static_cast<YieldTypes>(iI);
 			pLoopCity->UpdateYieldFromCorporationFranchises(eYield);
 		}
 	}
@@ -931,7 +931,8 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 	if (!CanCreateFranchiseInCity(pOriginCity, pDestCity))
 		return;
 
-	BuildingTypes eFranchise = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+	BuildingTypes eFranchise = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+		pkCorporationInfo->GetFranchiseBuildingClass()));
 	if (eFranchise == NO_BUILDING)
 		return;
 
@@ -946,8 +947,8 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		pOriginCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
-		pDestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+		pOriginCity->UpdateYieldFromCorporationFranchises(static_cast<YieldTypes>(iI));
+		pDestCity->UpdateYieldFromCorporationFranchises(static_cast<YieldTypes>(iI));
 	}
 
 	// send notification to owner player and target player
@@ -1018,7 +1019,8 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	if (pkCorporation == NULL)
 		return;
 
-	BuildingTypes eFranchiseBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporation->GetFranchiseBuildingClass());
+	BuildingTypes eFranchiseBuilding = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+		pkCorporation->GetFranchiseBuildingClass()));
 	if (eFranchiseBuilding == NO_BUILDING)
 		return;
 
@@ -1036,7 +1038,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
 
 		if (!GET_PLAYER(ePlayer).isAlive())
 			continue;
@@ -1103,14 +1105,14 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				pBestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+				pBestCity->UpdateYieldFromCorporationFranchises(static_cast<YieldTypes>(iI));
 				CvCity* pLoopCity = NULL;
 				int iLoop = 0;
 				for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+						pLoopCity->UpdateYieldFromCorporationFranchises(static_cast<YieldTypes>(iI));
 					}
 				}
 			}
@@ -1219,7 +1221,8 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	int iCurrentValue = 0;
 	int iNumFranchises = GetNumFranchises();
 
-	BuildingTypes eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
+	BuildingTypes eOffice = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+		pkCorporationInfo->GetOfficeBuildingClass()));
 	CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
 	if (pkOfficeInfo == NULL)
 		return "";
@@ -1240,7 +1243,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	// Free Resource?
 	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 	{
-		ResourceTypes eResource = (ResourceTypes)iI;
+		ResourceTypes eResource = static_cast<ResourceTypes>(iI);
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource) > 0)
 		{
@@ -1258,7 +1261,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	// Yield Change?
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eYield = (YieldTypes)iI;
+		YieldTypes eYield = static_cast<YieldTypes>(iI);
 		CvYieldInfo* pYield = GC.getYieldInfo(eYield);
 		if (pkOfficeInfo->GetYieldPerFranchise(eYield) > 0)
 		{
@@ -1320,8 +1323,9 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 	else
 	{
 		iReturnValue += pkCorporationInfo->GetBaseFranchises();
-		iReturnValue += (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
-		iReturnValue += (int)(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
+		iReturnValue += static_cast<int>(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(
+			BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
+		iReturnValue += static_cast<int>(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 		// Add in any "bonus" franchises from policies
 		iReturnValue += GetAdditionalNumFranchises();
@@ -1331,7 +1335,7 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 		{
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+				PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
 				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
 				{
 					if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
@@ -1356,9 +1360,9 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
-		if (GetFranchisesPerImprovement((ImprovementTypes)iI) > 0)
+		if (GetFranchisesPerImprovement(static_cast<ImprovementTypes>(iI)) > 0)
 		{
-			iReturnValue += (m_pPlayer->getImprovementCount((ImprovementTypes)iI, true) * GetFranchisesPerImprovement((ImprovementTypes)iI));
+			iReturnValue += (m_pPlayer->getImprovementCount(static_cast<ImprovementTypes>(iI), true) * GetFranchisesPerImprovement(static_cast<ImprovementTypes>(iI)));
 		}
 	}
 
@@ -1384,10 +1388,11 @@ CvString CvPlayerCorporations::GetNumFranchisesTooltip()
 	}
 
 	int iTotal = pkCorporationInfo->GetBaseFranchises();
-	int iNumTrades = (int)(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
+	int iNumTrades = static_cast<int>(m_pPlayer->GetTrade()->GetNumTradeRoutesPossible() * /*1.0f*/ GD_FLOAT_GET(
+		BALANCE_CORE_CORP_OFFICE_TR_CONVERSION));
 	iTotal += iNumTrades;
 
-	iTotal += (int)(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
+	iTotal += static_cast<int>(GetNumOffices() * /*0.5f*/ GD_FLOAT_GET(BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION));
 
 	// Add in any "bonus" franchises from policies
 	int iPolicy = GetAdditionalNumFranchises();
@@ -1469,9 +1474,12 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 	}
 	else
 	{
-		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetHeadquartersBuildingClass());
-		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
-		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+		eHeadquarters = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+			pkCorporationInfo->GetHeadquartersBuildingClass()));
+		eOffice = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+			pkCorporationInfo->GetOfficeBuildingClass()));
+		eFranchise = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(
+			pkCorporationInfo->GetFranchiseBuildingClass()));
 	}
 
 	const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
@@ -1626,7 +1634,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	{
-		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+		eFranchise = static_cast<BuildingTypes>(m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass));
 
 		if (eFranchise == NO_BUILDING)
 			return;
@@ -1639,7 +1647,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 	//and destroy our franchises!
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (!GET_PLAYER(eLoopPlayer).isAlive()) 
 			continue;
@@ -1943,7 +1951,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 	BuildingClassTypes eOfficeClass = pkCorporationInfo->GetOfficeBuildingClass();
 	if(eOfficeClass != NO_BUILDINGCLASS)
 	{
-		BuildingTypes eOffice = (BuildingTypes) GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
+		BuildingTypes eOffice = static_cast<BuildingTypes>(GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationBuildings(eOfficeClass));
 		pHeadquarters->GetCityBuildings()->SetNumFreeBuilding(eOffice, 1);
 		kPlayer.GetCorporations()->RecalculateNumOffices();
 	}
@@ -1957,7 +1965,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 	PlayerTypes eLoopPlayer = NO_PLAYER;
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		eLoopPlayer = (PlayerTypes) iI;
+		eLoopPlayer = static_cast<PlayerTypes>(iI);
 			
 		if(!GET_PLAYER(eLoopPlayer).isAlive())
 			continue;

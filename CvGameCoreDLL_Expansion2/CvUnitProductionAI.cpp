@@ -161,7 +161,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllow
 	{
 		m_Buildables.StableSortItems();
 		LogPossibleBuilds(eUnitAIType);
-		return (UnitTypes)m_Buildables.GetElement(0);
+		return static_cast<UnitTypes>(m_Buildables.GetElement(0));
 	}
 
 	// Unless we didn't find any
@@ -380,9 +380,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Check for special unlimited units from specific resources (not a strategic check)
 		if(pkUnitEntry->GetResourceType() != NO_RESOURCE)
 		{
-			if(kPlayer.getNumResourceAvailable((ResourceTypes)pkUnitEntry->GetResourceType(), false) > 0)
+			if(kPlayer.getNumResourceAvailable(static_cast<ResourceTypes>(pkUnitEntry->GetResourceType()), false) > 0)
 			{
-				iBonus += 5 * kPlayer.getNumResourceAvailable((ResourceTypes)pkUnitEntry->GetResourceType(), false);
+				iBonus += 5 * kPlayer.getNumResourceAvailable(static_cast<ResourceTypes>(pkUnitEntry->GetResourceType()), false);
 			}
 			else
 			{
@@ -395,7 +395,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				//Aluminum Check
-				ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+				ResourceTypes eAluminumResource = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_ALUMINUM", true));
 				if(pkUnitEntry->GetResourceQuantityRequirement(eAluminumResource) > 0)
 				{
 					//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
@@ -406,7 +406,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 			}
 
-			ResourceTypes eNeededResource = (ResourceTypes)pkUnitEntry->GetResourceType();
+			ResourceTypes eNeededResource = static_cast<ResourceTypes>(pkUnitEntry->GetResourceType());
 			if (eNeededResource != NO_RESOURCE)
 			{	
 				//if we have a lot of the resource, we should spend it ... the units are usually good
@@ -418,7 +418,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//UNIT TYPE CHECKS
 		//////////////////////
 		//Virtually force this.
-		if (m_pCity->IsUnitInvestment((UnitClassTypes)pkUnitEntry->GetUnitClassType()))
+		if (m_pCity->IsUnitInvestment(static_cast<UnitClassTypes>(pkUnitEntry->GetUnitClassType())))
 		{
 			iBonus += 500;
 		}
@@ -542,7 +542,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
 					iBonus += 75;
 
-				iValue *= max(1, (int)kPlayer.GetCurrentEra());
+				iValue *= max(1, static_cast<int>(kPlayer.GetCurrentEra()));
 
 				if (iCurrent * 2 < iDesired)
 					iValue *= 2;
@@ -557,7 +557,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
 					vector<PlayerTypes> vUnfriendlyMajors = kPlayer.GetUnfriendlyMajors();
-					int iNumPlayers = (int)warPlayers.size();
+					int iNumPlayers = static_cast<int>(warPlayers.size());
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
 					{
@@ -604,13 +604,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
 					iBonus += 150;
 
-				iValue *= max(1, (int)kPlayer.GetCurrentEra());
+				iValue *= max(1, static_cast<int>(kPlayer.GetCurrentEra()));
 
 				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
 					vector<PlayerTypes> vUnfriendlyMajors = kPlayer.GetUnfriendlyMajors();
-					int iNumPlayers = (int)warPlayers.size();
+					int iNumPlayers = static_cast<int>(warPlayers.size());
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
 					{
@@ -701,7 +701,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iOurAir =  + kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false) + kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false);
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && 
 					(kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
@@ -728,7 +728,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		/////////////
 		//GRAND STRATEGY CHECKS
 		//////////////////
-		EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");				
+		EconomicAIStrategyTypes eStrategyConquest = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST"));				
 		if(pkUnitEntry->GetCombat() > 0)
 		{
 			if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
@@ -737,7 +737,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 
-		int iProductionBonus = kPlayer.GetUnitClassProductionModifier((UnitClassTypes)pkUnitEntry->GetUnitClassType());
+		int iProductionBonus = kPlayer.GetUnitClassProductionModifier(static_cast<UnitClassTypes>(pkUnitEntry->GetUnitClassType()));
 		if (iProductionBonus > 0)
 		{
 			iBonus += (iProductionBonus / 5);
@@ -765,11 +765,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Promotion Bonus
 			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 			{
-				PromotionTypes ePromotion = (PromotionTypes)iI;
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
 				if (pkUnitEntry->GetFreePromotions(iI))
 					iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
 
-				if (kPlayer.GetFreePromotionCount((PromotionTypes)iI))
+				if (kPlayer.GetFreePromotionCount(static_cast<PromotionTypes>(iI)))
 					iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
 			}
 
@@ -780,8 +780,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iInfluence += GC.getPromotionInfo(freePromotions[iI])->GetDiploMissionInfluence();
 			}
 
-			EconomicAIStrategyTypes eNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
-			EconomicAIStrategyTypes eNeedDiplomatsCrit = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
+			EconomicAIStrategyTypes eNeedDiplomats = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS"));
+			EconomicAIStrategyTypes eNeedDiplomatsCrit = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL"));
 			if(kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedDiplomats))
 			{
 				iInfluence *= 2;
@@ -797,7 +797,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			if (MOD_BALANCE_VP)
 			{
-				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+				ResourceTypes ePaper = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_PAPER", true));
 				if (ePaper != NO_RESOURCE && kPlayer.getResourceFromCSAlliances(ePaper) > 0)
 				{
 					iInfluence *= 2;
@@ -809,7 +809,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
-			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
+			EconomicAIStrategyTypes eStrategySS = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP"));
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
 				iBonus += 10000;
@@ -852,7 +852,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 					for (size_t iI = 0; iI < pReligion->m_Beliefs.GetBeliefList().size(); iI++)
 					{
-						const BeliefTypes eBelief = (BeliefTypes) pReligion->m_Beliefs.GetBeliefList()[iI];
+						const BeliefTypes eBelief = static_cast<BeliefTypes>(pReligion->m_Beliefs.GetBeliefList()[iI]);
 						CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 						if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pCity->getOwner()))
 						{
@@ -1028,15 +1028,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return SR_STRATEGY;
 
 		//this checks war state, grand strategy and more!
-		EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+		EconomicAIStrategyTypes eNoMoreExpand = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION"));
 		if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
 			return SR_STRATEGY;
 
-		AICityStrategyTypes eEnoughSettlers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
+		AICityStrategyTypes eEnoughSettlers = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS"));
 		if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eEnoughSettlers))
 			return SR_BALANCE;
 
-		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_EXPANSION")));
 
 		//we already checked ECONOMICAISTRATEGY_ENOUGH_EXPANSION, so we know we have a good settle plot
 		//but let's bump the prio based on the quality of the plot
@@ -1049,7 +1049,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//strategies affect unit flavors but unfortunately we largely ignore "pre" score from the flavor system
 			iFlavorExpansion += 100;
 
-		AICityStrategyTypes eFeeder = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
+		AICityStrategyTypes eFeeder = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER"));
 		if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeeder))
 			iFlavorExpansion += 50;
 
@@ -1088,7 +1088,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				return SR_IMPOSSIBLE;
 			}
-			EconomicAIStrategyTypes eWantArch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS");
+			EconomicAIStrategyTypes eWantArch = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS"));
 			if(!kPlayer.GetEconomicAI()->IsUsingStrategy(eWantArch))
 			{
 				return SR_BALANCE;
@@ -1113,7 +1113,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					if (static_cast<YieldTypes>(iI) > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 						break;
 
 					const YieldTypes eYield = static_cast<YieldTypes>(iI);
@@ -1140,7 +1140,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return SR_USELESS;
 		}
-		AICityStrategyTypes eNoNavalWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT");
+		AICityStrategyTypes eNoNavalWorkers = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT"));
 		if(eNoNavalWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoNavalWorkers))
 		{
 			return SR_USELESS;
@@ -1150,7 +1150,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iUnimprovedAround = 0;
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes)iResourceLoop;
+				ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 				if (eResourceLoop != NO_RESOURCE)
 				{
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
@@ -1168,7 +1168,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (pLoopCity->HasSharedAreaWith(m_pCity,true,false))
 				{
-					AICityStrategyTypes eNeedNavalWorker = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
+					AICityStrategyTypes eNeedNavalWorker = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT"));
 					if (eNeedNavalWorker != NO_AICITYSTRATEGY && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedNavalWorker))
 						iBonus += (250 * (pLoopCity->getPopulation() + kPlayer.GetCurrentEra()));
 				}
@@ -1190,17 +1190,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iMissingBuilders = kPlayer.getCitiesNeedingTerrainImprovements() + 1 - iNumBuilders; //one for roads
 		int iScale = (iMissingBuilders > 2) ? 3 : 1; //escalate if many are missing
 
-		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
+		AICityStrategyTypes eNoWorkers = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS"));
 		if (eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))
 		{
 			return SR_USELESS;
 		}
-		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
+		AICityStrategyTypes eWantWorkers = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS"));
 		if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
 			iBonus += (200 * iMissingBuilders * iScale);
 		}
-		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
+		AICityStrategyTypes eNeedWorkers = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS"));
 		if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
 			iBonus += (500 * iMissingBuilders * iScale);
@@ -1252,7 +1252,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (bCombat && kPlayer.getNumCities() > 1)
 		{
 			//Let's try to build our units in our best cities only.
-			if (m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
+			if (m_pCity == kPlayer.GetBestMilitaryCity(static_cast<UnitCombatTypes>(pkUnitEntry->GetUnitCombatType())))
 			{
 				iBonus += 25 * kPlayer.getNumCities();
 			}
@@ -1318,7 +1318,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += 100;
 
-			if (pkUnitEntry->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) // reduce the bonus for recons, they aren't that spammable
+			if (pkUnitEntry->GetUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true))) // reduce the bonus for recons, they aren't that spammable
 				iBonus -= 80;
 		}
 
@@ -1374,8 +1374,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	if (bCombat && pkUnitEntry->GetRangedCombat() <= 0 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 	{
-		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
-		MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
+		MilitaryAIStrategyTypes eStrategyBarbs = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS"));
+		MilitaryAIStrategyTypes eStrategyBarbsCritical = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL"));
 		
 		if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyBarbs))
 		{
@@ -1436,24 +1436,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	// MOD_AI_UNIT_PRODUCTION - NEW STRATEGIES -- consider if we have too much or too few of a unit
 	if (bCombat && MOD_AI_UNIT_PRODUCTION)
 	{
-		MilitaryAIStrategyTypes eStrategyArcher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_ARCHER");
-		MilitaryAIStrategyTypes eStrategyEnoughArcher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_ARCHER");
-		MilitaryAIStrategyTypes eStrategySiege = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SIEGE");
-		MilitaryAIStrategyTypes eStrategyEnoughSiege = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SIEGE");
-		MilitaryAIStrategyTypes eStrategySkirmisher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SKIRMISHER");
-		MilitaryAIStrategyTypes eStrategyEnoughSkirmisher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SKIRMISHER");
-		MilitaryAIStrategyTypes eStrategyMobile = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_MOBILE");
-		MilitaryAIStrategyTypes eStrategyEnoughMobile = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_MOBILE");
-		MilitaryAIStrategyTypes eStrategyNavalMelee = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_MELEE");
+		MilitaryAIStrategyTypes eStrategyArcher = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_ARCHER"));
+		MilitaryAIStrategyTypes eStrategyEnoughArcher = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_ARCHER"));
+		MilitaryAIStrategyTypes eStrategySiege = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SIEGE"));
+		MilitaryAIStrategyTypes eStrategyEnoughSiege = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SIEGE"));
+		MilitaryAIStrategyTypes eStrategySkirmisher = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SKIRMISHER"));
+		MilitaryAIStrategyTypes eStrategyEnoughSkirmisher = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SKIRMISHER"));
+		MilitaryAIStrategyTypes eStrategyMobile = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_MOBILE"));
+		MilitaryAIStrategyTypes eStrategyEnoughMobile = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_MOBILE"));
+		MilitaryAIStrategyTypes eStrategyNavalMelee = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_MELEE"));
 		//MilitaryAIStrategyTypes eStrategyEnoughNavalMelee = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_MELEE");
-		MilitaryAIStrategyTypes eStrategyNavalRanged = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_RANGED");
-		MilitaryAIStrategyTypes eStrategyEnoughNavalRanged = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED");
-		MilitaryAIStrategyTypes eStrategySubmarine = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SUBMARINE");
-		MilitaryAIStrategyTypes eStrategyEnoughSubmarine = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SUBMARINE");
-		MilitaryAIStrategyTypes eStrategyBomber = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_BOMBER");
-		MilitaryAIStrategyTypes eStrategyEnoughBomber = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_BOMBER");
-		MilitaryAIStrategyTypes eStrategyFighter = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_FIGHTER");
-		MilitaryAIStrategyTypes eStrategyEnoughFighter = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_FIGHTER");
+		MilitaryAIStrategyTypes eStrategyNavalRanged = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_RANGED"));
+		MilitaryAIStrategyTypes eStrategyEnoughNavalRanged = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED"));
+		MilitaryAIStrategyTypes eStrategySubmarine = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SUBMARINE"));
+		MilitaryAIStrategyTypes eStrategyEnoughSubmarine = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SUBMARINE"));
+		MilitaryAIStrategyTypes eStrategyBomber = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_BOMBER"));
+		MilitaryAIStrategyTypes eStrategyEnoughBomber = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_BOMBER"));
+		MilitaryAIStrategyTypes eStrategyFighter = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_FIGHTER"));
+		MilitaryAIStrategyTypes eStrategyEnoughFighter = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_FIGHTER"));
 
 		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_RANGED)
 		{

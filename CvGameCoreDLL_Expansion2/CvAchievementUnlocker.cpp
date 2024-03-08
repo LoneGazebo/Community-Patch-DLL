@@ -87,7 +87,7 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 			{
 				for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 				{
-					CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes) iPlayerLoop);
+					CvPlayer* pPlayer = &GET_PLAYER(static_cast<PlayerTypes>(iPlayerLoop));
 
 					//All known players must be dead and killed by us
 					if(GET_TEAM(pPlayer->getTeam()).isHasMet(GET_PLAYER(kGame.getActivePlayer()).getTeam()))
@@ -140,7 +140,7 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 	bool bEXP_02 = gDLL->IsDLCValid(guid); if (bEXP_02) CUSTOMLOG("Found BNW");
 
 	for (int iAchievement = 0; iAchievement < NUM_ACHIEVEMENTS; iAchievement++) {
-		EAchievement eAchievement = (EAchievement) iAchievement;
+		EAchievement eAchievement = static_cast<EAchievement>(iAchievement);
 
 		// Multiplayer achievements - can't have these!
 		if (eAchievement == ACHIEVEMENT_WIN_MULTIPLAYER)
@@ -225,7 +225,7 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 	//Cache value if needed
 	if(m_ePapalPrimacyType == UNDEFINED_TYPE)
 	{
-		m_ePapalPrimacyType = (BeliefTypes)GC.getInfoTypeForString("BELIEF_PAPAL_PRIMACY", true);
+		m_ePapalPrimacyType = static_cast<BeliefTypes>(GC.getInfoTypeForString("BELIEF_PAPAL_PRIMACY", true));
 	}
 	
 	if(m_ePapalPrimacyType != NO_BELIEF)
@@ -270,12 +270,12 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 	//Attempt to read from cache
 	if(m_eEthiopiaType == UNDEFINED_TYPE)
 	{
-		m_eEthiopiaType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_ETHIOPIA", true);
+		m_eEthiopiaType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_ETHIOPIA", true));
 	}
 
 	if(m_eGreatProphetType == UNDEFINED_TYPE)
 	{
-		m_eGreatProphetType = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
+		m_eGreatProphetType = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_PROPHET", true));
 	}
 
 	if(m_eEthiopiaType != NO_CIVILIZATION && m_eGreatProphetType != NO_UNIT)
@@ -299,17 +299,17 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 
 	if(m_eCarthageType == UNDEFINED_TYPE)
 	{
-		m_eCarthageType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_CARTHAGE", true);
+		m_eCarthageType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_CARTHAGE", true));
 	}
 
 	if(m_eRomeType == UNDEFINED_TYPE)
 	{
-		m_eRomeType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_ROME", true);
+		m_eRomeType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_ROME", true));
 	}
 
 	if(m_eAfricanForestElephantType == UNDEFINED_TYPE)
 	{
-		m_eAfricanForestElephantType = (UnitTypes)GC.getInfoTypeForString("UNIT_CARTHAGINIAN_FOREST_ELEPHANT", true);
+		m_eAfricanForestElephantType = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_CARTHAGINIAN_FOREST_ELEPHANT", true));
 	}
 	
 	if(m_eCarthageType != NO_CIVILIZATION && m_eRomeType != NO_CIVILIZATION && m_eAfricanForestElephantType != NO_UNIT)
@@ -339,17 +339,17 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 
 	if(m_eByzantinesType == UNDEFINED_TYPE)
 	{
-		m_eByzantinesType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_BYZANTIUM", true);
+		m_eByzantinesType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_BYZANTIUM", true));
 	}
 
 	if(m_eGreekType == UNDEFINED_TYPE)
 	{
-		m_eGreekType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_GREECE", true);
+		m_eGreekType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_GREECE", true));
 	}
 
 	if(m_eDromonType == UNDEFINED_TYPE)
 	{
-		m_eDromonType = (UnitTypes)GC.getInfoTypeForString("UNIT_BYZANTINE_DROMON", true);
+		m_eDromonType = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_BYZANTINE_DROMON", true));
 	}
 
 	if(m_eDromonType != NO_UNIT && m_eByzantinesType != NO_CIVILIZATION && m_eGreekType != NO_CIVILIZATION)
@@ -373,7 +373,7 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 	{
 		if(m_eSkyFortress == UNDEFINED_TYPE)
 		{
-			m_eSkyFortress = (UnitTypes)GC.getInfoTypeForString("UNIT_SKY_FORTRESS" , true);
+			m_eSkyFortress = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_SKY_FORTRESS", true));
 		}
 
 		if(pKillingUnit->getDomainType() == DOMAIN_AIR)
@@ -405,17 +405,17 @@ void CvPlayerAchievements::StartTurn()
 
 	if(m_eSwedenType == UNDEFINED_TYPE)
 	{
-		m_eSwedenType = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_SWEDEN", true);
+		m_eSwedenType = static_cast<CivilizationTypes>(GC.getInfoTypeForString("CIVILIZATION_SWEDEN", true));
 	}
 
 	if(m_eGreatGeneralType == UNDEFINED_TYPE)
 	{
-		m_eGreatGeneralType = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL", true);
+		m_eGreatGeneralType = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_GREAT_GENERAL", true));
 	}
 
 	if(m_eHakkapelittaType == UNDEFINED_TYPE)
 	{
-		m_eHakkapelittaType = (UnitTypes)GC.getInfoTypeForString("UNIT_SWEDISH_HAKKAPELIITTA", true);
+		m_eHakkapelittaType = static_cast<UnitTypes>(GC.getInfoTypeForString("UNIT_SWEDISH_HAKKAPELIITTA", true));
 	}
 
 	if(m_eSwedenType != NO_CIVILIZATION && m_eGreatGeneralType != NO_UNIT && m_eHakkapelittaType != NO_UNIT)
@@ -458,22 +458,22 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 
 	if(m_eCollossusType == UNDEFINED_TYPE)
 	{
-		m_eCollossusType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_COLOSSUS", true);
+		m_eCollossusType = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_COLOSSUS", true));
 	}
 
 	if(m_ePetraType == UNDEFINED_TYPE)
 	{
-		m_ePetraType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_PETRA", true);
+		m_ePetraType = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_PETRA", true));
 	}
 
 	if(m_eCaravansaryType == UNDEFINED_TYPE)
 	{
-		m_eCaravansaryType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_CARAVANSARY", true);
+		m_eCaravansaryType = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_CARAVANSARY", true));
 	}
 
 	if(m_eHarborType == UNDEFINED_TYPE)
 	{
-		m_eHarborType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_HARBOR", true);
+		m_eHarborType = static_cast<BuildingTypes>(GC.getInfoTypeForString("BUILDING_HARBOR", true));
 	}
 
 	if(m_kPlayer.isLocalPlayer() && m_kPlayer.isHuman() && m_eCollossusType != NO_BUILDING && m_ePetraType != NO_BUILDING && m_eCaravansaryType != NO_BUILDING && m_eHarborType != NO_BUILDING)

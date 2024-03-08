@@ -59,7 +59,7 @@ int CvAIGrandStrategyXMLEntry::GetSpecializationBoost(YieldTypes eYield) const
 {
 	FAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	FAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piSpecializationBoost ? m_piSpecializationBoost[(int)eYield] : 0;
+	return m_piSpecializationBoost ? m_piSpecializationBoost[static_cast<int>(eYield)] : 0;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
@@ -252,9 +252,9 @@ void CvGrandStrategyAI::DoTurn()
 		// Loop through all GrandStrategies to set their Priorities
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
-			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+			eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 			pGrandStrategy = GetAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-			strGrandStrategyName = (CvString)pGrandStrategy->GetType();
+			strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 
 			// Base Priority looks at Personality Flavors (0 - 10) and multiplies * the Flavors attached to a Grand Strategy (0-10),
 			// so expect a number between 0 and 100 back from this
@@ -308,7 +308,7 @@ void CvGrandStrategyAI::DoTurn()
 			// Tally up how many players we think are pusuing each Grand Strategy
 			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
+				PlayerTypes ePlayer = static_cast<PlayerTypes>(iMajorLoop);
 				if (ePlayer == NO_PLAYER || ePlayer == GetPlayer()->GetID())
 					continue;
 
@@ -316,9 +316,9 @@ void CvGrandStrategyAI::DoTurn()
 				{
 					if (GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 					{
-						if (GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == (AIGrandStrategyTypes)iGrandStrategiesLoop)
+						if (GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop))
 						{
-							if (OtherPlayerDoingBetterThanUs(ePlayer, (AIGrandStrategyTypes)iGrandStrategiesLoop))
+							if (OtherPlayerDoingBetterThanUs(ePlayer, static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop)))
 							{
 								iNumPlayers++;
 							}
@@ -335,7 +335,7 @@ void CvGrandStrategyAI::DoTurn()
 		// Now modify our preferences based on how many people are going for stuff
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
-			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+			eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 
 			//Get 1/3.
 			int iFraction = (GetGrandStrategyPriority(eGrandStrategy) * /*33*/ GD_INT_GET(AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER)) / 100;
@@ -360,7 +360,7 @@ void CvGrandStrategyAI::DoTurn()
 
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
-			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+			eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 
 			iPriority = GetGrandStrategyPriority(eGrandStrategy);
 
@@ -392,14 +392,14 @@ void CvGrandStrategyAI::DoTurn()
 
 	if (!m_pPlayer->isHuman())
 	{
-		m_iFlavorGold = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		m_iFlavorScience = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		m_iFlavorCulture = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		m_iFlavorProduction = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-		m_iFlavorFaith = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		m_iFlavorHappiness = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
-		m_iFlavorGrowth = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		m_iFlavorDiplomacy = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		m_iFlavorGold = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+		m_iFlavorScience = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
+		m_iFlavorCulture = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
+		m_iFlavorProduction = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_PRODUCTION")));
+		m_iFlavorFaith = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
+		m_iFlavorHappiness = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_HAPPINESS")));
+		m_iFlavorGrowth = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GROWTH")));
+		m_iFlavorDiplomacy = GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DIPLOMACY")));
 	}
 
 }
@@ -410,7 +410,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iPriority = 0;
 
 	// If Conquest Victory isn't even available then don't bother with anything
-	VictoryTypes eVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_DOMINATION", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DOMINATION", true));
 	if (eVictory == NO_VICTORY || !GC.getGame().isVictoryValid(eVictory))
 	{
 		if (!GC.getGame().areNoVictoriesValid())
@@ -453,9 +453,9 @@ int CvGrandStrategyAI::GetConquestPriority()
 
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
-			if (pTeam.GetID() != iTeamLoop && !GET_TEAM((TeamTypes)iTeamLoop).isMinorCiv())
+			if (pTeam.GetID() != iTeamLoop && !GET_TEAM(static_cast<TeamTypes>(iTeamLoop)).isMinorCiv())
 			{
-				if (pTeam.isHasMet((TeamTypes)iTeamLoop))
+				if (pTeam.isHasMet(static_cast<TeamTypes>(iTeamLoop)))
 				{
 					bHasMetMajor = true;
 					break;
@@ -520,7 +520,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	// Count the number of Majors we know
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iMajorLoop;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iMajorLoop);
 
 		if (GET_PLAYER(ePlayer).isAlive() && iMajorLoop != GetPlayer()->GetID())
 		{
@@ -586,7 +586,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
+			PlayerTypes ePlayer = static_cast<PlayerTypes>(iMajorLoop);
 
 			if (GET_PLAYER(ePlayer).isAlive() && iMajorLoop != GetPlayer()->GetID())
 			{
@@ -614,31 +614,31 @@ int CvGrandStrategyAI::GetConquestPriority()
 			{
 				for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
+					if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_OFFENSE")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MOBILE")
+					if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_MOBILE")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_MILITARY_TRAINING")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NAVAL")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RECON")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NAVAL_RECON")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RANGED")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_RANGED")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_AIR")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_AIR")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -646,35 +646,35 @@ int CvGrandStrategyAI::GetConquestPriority()
 					//AI_UNIT_PRODUCTION
 					else if (MOD_AI_UNIT_PRODUCTION)
 					{
-						if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_ARCHER")
+						if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_ARCHER")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SIEGE")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SIEGE")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SKIRMISHER")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SKIRMISHER")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_MELEE")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NAVAL_MELEE")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RANGED")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NAVAL_RANGED")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SUBMARINE")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SUBMARINE")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_FIGHTER")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_FIGHTER")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_BOMBER")
+						else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_BOMBER")
 						{
 							iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 						}
@@ -705,15 +705,15 @@ int CvGrandStrategyAI::GetConquestPriority()
 					{
 						for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
-							if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
+							if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_OFFENSE")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_MILITARY_TRAINING")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_NAVAL")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
@@ -814,7 +814,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	int iPriority = 0;
 
 	// If Culture Victory isn't even available then don't bother with anything
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_CULTURAL", true));
 	if(eVictory == NO_VICTORY || !GC.getGame().isVictoryValid(eVictory))
 	{
 		return -100;
@@ -827,7 +827,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	}
 
 	// Before tourism kicks in, add weight based on flavor
-	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 
 	int iEra = m_pPlayer->GetCurrentEra();
 	if(iEra <= 0)
@@ -848,7 +848,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
 		if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != m_pPlayer->GetID())
@@ -909,19 +909,19 @@ int CvGrandStrategyAI::GetCulturePriority()
 			{
 				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GREAT_PEOPLE")
+					if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GREAT_PEOPLE")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_CULTURE")
+					else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_CULTURE")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")
+					else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_WONDER")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_HAPPINESS")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -948,19 +948,19 @@ int CvGrandStrategyAI::GetCulturePriority()
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_CULTURE")
+							if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_CULTURE")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GREAT_PEOPLE")
+							else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GREAT_PEOPLE")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")
+							else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_WONDER")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_HAPPINESS")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
@@ -1071,7 +1071,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
 	// If UN Victory isn't even available then don't bother with anything
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	if(eVictory == NO_VICTORY || !GC.getGame().isVictoryValid(eVictory))
 	{
 		return -100;
@@ -1089,7 +1089,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 
 	if (MOD_BALANCE_VP)
 	{
-		ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+		ResourceTypes ePaper = static_cast<ResourceTypes>(GC.getInfoTypeForString("RESOURCE_PAPER", true));
 		if (ePaper != NO_RESOURCE && m_pPlayer->getResourceFromCSAlliances(ePaper) > 0)
 		{
 			iPriorityBonus += m_pPlayer->getResourceFromCSAlliances(ePaper) / 5;
@@ -1107,19 +1107,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			{
 				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
+					if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GOLD")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
+					else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_DIPLOMACY")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 3;
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_PRODUCTION")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_RELIGION")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -1146,19 +1146,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
+							if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GOLD")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
+							else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_DIPLOMACY")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_PRODUCTION")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_RELIGION")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
@@ -1266,7 +1266,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
 	{
 		// Before leagues kick in, add weight based on flavor
-		int iFlavorDiplo =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		int iFlavorDiplo =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DIPLOMACY")));
 		iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorDiplo * 125 / 100;
 	}
 	else
@@ -1282,7 +1282,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			int iHighestOtherPlayerVotes = 0;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 				if(eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isAlive())
 				{
@@ -1369,7 +1369,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iPriority = 0;
 
 	// If SS Victory isn't even available then don't bother with anything
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 	if(eVictory == NO_VICTORY || !GC.getGame().isVictoryValid(eVictory))
 	{
 		return -100;
@@ -1381,7 +1381,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		iPriority += 10000;
 	}
 
-	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
 
 	// the later the game the greater the chance
 	iPriority += ((m_pPlayer->GetCurrentEra() * m_pPlayer->GetCurrentEra()) * max(1, iFlavorScience) * 300) / 100;
@@ -1392,7 +1392,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 		CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
 		if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != m_pPlayer->GetID())
@@ -1419,7 +1419,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		iPriority += /*50*/ GD_INT_GET(AI_GS_CULTURE_AHEAD_WEIGHT) * iNumCivsAlive;
 	}
 	// if I already built the Apollo Program I am very likely to follow through
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	ProjectTypes eApolloProgram = static_cast<ProjectTypes>(GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true));
 	if(eApolloProgram != NO_PROJECT)
 	{
 		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
@@ -1443,19 +1443,19 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 			{
 				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
+					if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SPACESHIP")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
+					else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SCIENCE")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
+					else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GROWTH")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
-					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+					else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_TILE_IMPROVEMENT")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -1482,19 +1482,19 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
+							if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SPACESHIP")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
+							else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_SCIENCE")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
+							else if(GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_GROWTH")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+							else if (GC.getFlavorTypes(static_cast<FlavorTypes>(iFlavorLoop)) == "FLAVOR_TILE_IMPROVEMENT")
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
@@ -1594,7 +1594,7 @@ int CvGrandStrategyAI::GetBaseGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 	{
 		if(pGrandStrategy->GetFlavorValue(iFlavorLoop) != 0)
 		{
-			iPriority += (pGrandStrategy->GetFlavorValue(iFlavorLoop) * GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes) iFlavorLoop));
+			iPriority += (pGrandStrategy->GetFlavorValue(iFlavorLoop) * GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor(static_cast<FlavorTypes>(iFlavorLoop)));
 		}
 	}
 
@@ -1723,7 +1723,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 	int iWorldTourismAverage = 0;
 	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		eMajor = static_cast<PlayerTypes>(iMajorLoop);
 
 		if(GET_PLAYER(eMajor).isAlive())
 		{
@@ -1741,7 +1741,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 	TeamTypes eTeam;
 	for(int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 	{
-		eTeam = (TeamTypes) iTeamLoop;
+		eTeam = static_cast<TeamTypes>(iTeamLoop);
 
 		if(GET_TEAM(eTeam).isAlive())
 		{
@@ -1754,7 +1754,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 	// Look at every Major we've met
 	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		eMajor = static_cast<PlayerTypes>(iMajorLoop);
 
 		if(GET_PLAYER(eMajor).isAlive() && iMajorLoop != GetPlayer()->GetID())
 		{
@@ -1762,9 +1762,9 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 			{
 				for(iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 				{
-					eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategiesLoop;
+					eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategiesLoop);
 					pGrandStrategy = GetAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-					strGrandStrategyName = (CvString) pGrandStrategy->GetType();
+					strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 
 					if(strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 					{
@@ -1797,7 +1797,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 
 					vGrandStrategyPriorities.StableSortItems();
 
-					eGrandStrategy = (AIGrandStrategyTypes) vGrandStrategyPriorities.GetElement(0);
+					eGrandStrategy = static_cast<AIGrandStrategyTypes>(vGrandStrategyPriorities.GetElement(0));
 					iPriority = vGrandStrategyPriorities.GetWeight(0);
 					eGuessConfidence = GUESS_CONFIDENCE_UNSURE;
 
@@ -1834,14 +1834,14 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 AIGrandStrategyTypes CvGrandStrategyAI::GetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer) const
 {
 	FAssert(ePlayer < MAX_MAJOR_CIVS);
-	return (AIGrandStrategyTypes) m_eGuessOtherPlayerActiveGrandStrategy[ePlayer];
+	return static_cast<AIGrandStrategyTypes>(m_eGuessOtherPlayerActiveGrandStrategy[ePlayer]);
 }
 
 /// How confident is the AI in its guess of what another player's Active Grand Strategy is?
 GuessConfidenceTypes CvGrandStrategyAI::GetGuessOtherPlayerActiveGrandStrategyConfidence(PlayerTypes ePlayer) const
 {
 	FAssert(ePlayer < MAX_MAJOR_CIVS);
-	return (GuessConfidenceTypes) m_eGuessOtherPlayerActiveGrandStrategyConfidence[ePlayer];
+	return static_cast<GuessConfidenceTypes>(m_eGuessOtherPlayerActiveGrandStrategyConfidence[ePlayer]);
 }
 
 /// Sets what this AI BELIEVES another player's Active Grand Strategy to be
@@ -1863,7 +1863,7 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 	pGrandStrategy = GetAIGrandStrategies()->GetEntry((int)eGrandStrategy);
 	if(pGrandStrategy)
 	{
-		strGrandStrategyName = (CvString) pGrandStrategy->GetType();
+		strGrandStrategyName = static_cast<CvString>(pGrandStrategy->GetType());
 		if(strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 		{
 			int iNumCapitalsUs = GetPlayer()->GetNumCapitalCities();
@@ -1911,7 +1911,7 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 		}
 		else if(strGrandStrategyName == "AIGRANDSTRATEGY_SPACESHIP")
 		{
-			ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+			ProjectTypes eApolloProgram = static_cast<ProjectTypes>(GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true));
 			if(eApolloProgram != NO_PROJECT)
 			{
 				//They have Apollo, and we don't.
@@ -1981,7 +1981,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 	}
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER))
+	if (eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_AUTOCRACY)) || eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_ORDER)))
 	{
 		iConquestPriority *= 3;
 		iConquestPriority /= 2;
@@ -1993,7 +1993,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 /// Guess as to how much another Player is prioritizing Culture as his means of winning the game
 int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, int iWorldCultureAverage, int iWorldTourismAverage)
 {
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_CULTURAL", true));
 
 	// If Culture Victory isn't even available then don't bother with anything
 	if (eVictory == NO_VICTORY)
@@ -2041,7 +2041,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	//Freedom is usually a sure bet for culture strategy.
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
+	if (eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM)) || eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_AUTOCRACY)))
 	{
 		iCulturePriority *= 3;
 		iCulturePriority /= 2;
@@ -2053,7 +2053,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 /// Guess as to how much another Player is prioritizing the UN as his means of winning the game
 int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePlayer)
 {
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 
 	// If UN Victory isn't even available then don't bother with anything
 	if (eVictory == NO_VICTORY)
@@ -2064,7 +2064,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 	int iCityStatesAlive = 0;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 
 		if (eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMinorCiv())
 		{
@@ -2086,7 +2086,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 	//Freedom is usually a sure bet for diplomatic strategy.
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
+	if (eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM)) || eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_AUTOCRACY)))
 	{
 		iPriority *= 3;
 		iPriority /= 2;
@@ -2107,7 +2107,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 /// Guess as to how much another Player is prioritizing the SS as his means of winning the game
 int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer, int iWorldNumTechsAverage)
 {
-	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+	VictoryTypes eVictory = static_cast<VictoryTypes>(GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 
 	// If SS Victory isn't even available then don't bother with anything
 	if (eVictory == NO_VICTORY)
@@ -2116,7 +2116,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	// If the player has the Apollo Program we're pretty sure he's going for the SS
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	ProjectTypes eApolloProgram = static_cast<ProjectTypes>(GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true));
 	if(eApolloProgram != NO_PROJECT)
 	{
 		if(GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
@@ -2129,7 +2129,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*600*/ GD_INT_GET(AI_GS_SS_TECH_PROGRESS_MOD) / max(iWorldNumTechsAverage, 1);
 
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM))
+	if (eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_ORDER)) || eCurrentBranchType == static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM)))
 	{
 		iSSPriority *= 3;
 		iSSPriority /= 2;
@@ -2178,7 +2178,7 @@ void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStra
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
 
-			eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategyLoop;
+			eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategyLoop);
 
 			// GrandStrategy Info
 			CvAIGrandStrategyXMLEntry* pEntry = GC.getAIGrandStrategyInfo(eGrandStrategy);
@@ -2237,7 +2237,7 @@ void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGra
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
 
-			eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategyLoop;
+			eGrandStrategy = static_cast<AIGrandStrategyTypes>(iGrandStrategyLoop);
 			iPriority = vGrandStrategyPriorities[iGrandStrategyLoop];
 
 			CvAIGrandStrategyXMLEntry* pEntry = GC.getAIGrandStrategyInfo(eGrandStrategy);

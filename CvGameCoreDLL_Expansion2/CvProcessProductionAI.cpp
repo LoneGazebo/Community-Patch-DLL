@@ -87,7 +87,7 @@ void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	// Loop through all projects
 	for(iProcess = 0; iProcess < GC.getNumProcessInfos(); iProcess++)
 	{
-		entry = GC.getProcessInfo((ProcessTypes)iProcess);
+		entry = GC.getProcessInfo(static_cast<ProcessTypes>(iProcess));
 		if (entry)
 		{
 			// Set its weight by looking at project's weight for this flavor and using iWeight multiplier passed in
@@ -156,7 +156,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 		}
 
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS"));
 		// scale based on flavor and world size
 		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
@@ -184,7 +184,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 		}
 
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = static_cast<MilitaryAIStrategyTypes>(GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS"));
 		// scale based on flavor and world size
 		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
@@ -203,11 +203,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			iModifier /= 5;
 	}
 
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
-	AICityStrategyTypes eNeedFood = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD");
-	AICityStrategyTypes eNeedFoodNaval = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
-	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
+	EconomicAIStrategyTypes eStrategyLosingMoney = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"));
+	EconomicAIStrategyTypes eStrategyCultureGS = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE"));
+	AICityStrategyTypes eNeedFood = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD"));
+	AICityStrategyTypes eNeedFoodNaval = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH"));
+	AICityStrategyTypes eScienceCap = static_cast<AICityStrategyTypes>(GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY"));
 
 	//Yield value.
 	
@@ -215,7 +215,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	int iProduction = m_pCity->getYieldRate(YIELD_PRODUCTION, false);
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		YieldTypes eYield = (YieldTypes)iYield;
+		YieldTypes eYield = static_cast<YieldTypes>(iYield);
 		if(eYield == NO_YIELD)
 			continue;
 
@@ -330,7 +330,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	bool bIsProject = false;
 	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
 	{
-		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
+		LeagueProjectTypes eLeagueProject = static_cast<LeagueProjectTypes>(iI);
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
 		if (pInfo && pInfo->GetProcess() == eProcess)
 		{
@@ -384,7 +384,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 50);
 					}
 
-					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
+					EconomicAIStrategyTypes eStrategyCultureGS = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE"));
 					// Temporary Culture Modifier
 					if (pRewardInfo->GetCultureBonusTurns() > 0)
 					{			
@@ -411,7 +411,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 					// City-State Influence Boost
 					//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
-					EconomicAIStrategyTypes eStrategyUNGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_DIPLOMACY");
+					EconomicAIStrategyTypes eStrategyUNGS = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_DIPLOMACY"));
 					if (pRewardInfo->GetCityStateInfluenceBoost() > 0)
 					{		
 						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
@@ -423,7 +423,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iModifier += 500;
 						}
 					}
-					EconomicAIStrategyTypes eStrategySpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
+					EconomicAIStrategyTypes eStrategySpaceShip = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP"));
 					// Beaker boost based on previous turns
 					if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
 					{
@@ -456,7 +456,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							}
 						}
 					}
-					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
+					EconomicAIStrategyTypes eStrategyConquest = static_cast<EconomicAIStrategyTypes>(GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST"));
 
 					//CSD Project Rewards
 					if (pRewardInfo->GetAttackBonusTurns() > 0)
@@ -538,7 +538,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		// Dump out the weight of each buildable item
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
-			CvProcessInfo* pProcessInfo = GC.getProcessInfo((ProcessTypes)m_Buildables.GetElement(iI));
+			CvProcessInfo* pProcessInfo = GC.getProcessInfo(static_cast<ProcessTypes>(m_Buildables.GetElement(iI)));
 			strDesc = (pProcessInfo != NULL)? pProcessInfo->GetDescription() : "Unknown";
 			strTemp.Format("Process, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
 			strOutBuf = strBaseString + strTemp;

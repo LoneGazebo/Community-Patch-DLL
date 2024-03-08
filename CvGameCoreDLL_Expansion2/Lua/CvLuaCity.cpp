@@ -839,7 +839,7 @@ int CvLuaCity::lCreateGreatAdmiral(lua_State* L)
 int CvLuaCity::lDoTask(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const TaskTypes eTask = (TaskTypes)lua_tointeger(L, 2);
+	const TaskTypes eTask = static_cast<TaskTypes>(lua_tointeger(L, 2));
 	const int iData1 = luaL_optint(L, 3, -1);
 	const int iData2 = luaL_optint(L, 4, -1);
 	const bool bOption = luaL_optint(L, 5, 0);
@@ -961,7 +961,7 @@ int CvLuaCity::lFindPopulationRank(lua_State* L)
 int CvLuaCity::lFindBaseYieldRateRank(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->findBaseYieldRateRank(eYield);
 
 	lua_pushinteger(L, iResult);
@@ -972,7 +972,7 @@ int CvLuaCity::lFindBaseYieldRateRank(lua_State* L)
 int CvLuaCity::lFindYieldRateRank(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->findYieldRateRank(eYield);
 
 	lua_pushinteger(L, iResult);
@@ -983,7 +983,7 @@ int CvLuaCity::lFindYieldRateRank(lua_State* L)
 int CvLuaCity::lAllUpgradesAvailable(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	const int iUpgradeCount = luaL_optint(L, 3, 0);
 
 	const UnitTypes eResult = pkCity->allUpgradesAvailable(eUnit, iUpgradeCount);
@@ -1035,7 +1035,7 @@ int CvLuaCity::lCanTrainTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
@@ -1053,7 +1053,7 @@ int CvLuaCity::lCanTrain(lua_State* L)
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
 	const bool bWillPurchase = luaL_optint(L, 6, 0);
-	const bool bResult = pkCity->canTrain((UnitTypes)iUnit, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
+	const bool bResult = pkCity->canTrain(static_cast<UnitTypes>(iUnit), bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1063,7 +1063,7 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
@@ -1081,7 +1081,7 @@ int CvLuaCity::lCanConstruct(lua_State* L)
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
 	const bool bWillPurchase = luaL_optint(L, 6, 0);
-	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
+	const bool bResult = pkCity->canConstruct(static_cast<BuildingTypes>(iBuilding), bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1094,7 +1094,7 @@ int CvLuaCity::lCanCreate(lua_State* L)
 	const int iProject = lua_tointeger(L, 2);
 	const bool bContinue = luaL_optint(L, 3, 0);
 	const bool bTestVisible = luaL_optint(L, 4, 0);
-	const bool bResult = pkCity->canCreate((ProjectTypes)iProject, bContinue, bTestVisible);
+	const bool bResult = pkCity->canCreate(static_cast<ProjectTypes>(iProject), bContinue, bTestVisible);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1106,7 +1106,7 @@ int CvLuaCity::lCanPrepare(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iSpecialist = lua_tointeger(L, 2);
 	const bool bContinue = luaL_optint(L, 3, 0);
-	const bool bResult = pkCity->canPrepare((SpecialistTypes)iSpecialist, bContinue);
+	const bool bResult = pkCity->canPrepare(static_cast<SpecialistTypes>(iSpecialist), bContinue);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1118,7 +1118,7 @@ int CvLuaCity::lCanMaintain(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iProcess = lua_tointeger(L, 2);
 	const bool bContinue = luaL_optint(L, 3, 0);
-	const bool bResult = pkCity->canMaintain((ProcessTypes)iProcess, bContinue);
+	const bool bResult = pkCity->canMaintain(static_cast<ProcessTypes>(iProcess), bContinue);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1128,7 +1128,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
@@ -1194,7 +1194,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		const CvCivilizationInfo& thisCivilization = pkCity->getCivilizationInfo();
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 		{
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 			if(!pkBuildingClassInfo)
 			{
@@ -1214,12 +1214,12 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 					}
 					else
 					{
-						ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+						ePrereqBuilding = static_cast<BuildingTypes>(thisCivilization.getCivilizationBuildings(eBuildingClass));
 					}
 				}
 				else
 				{
-					ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+					ePrereqBuilding = static_cast<BuildingTypes>(thisCivilization.getCivilizationBuildings(eBuildingClass));
 				}
 
 				if(ePrereqBuilding != NO_BUILDING && pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
@@ -1246,7 +1246,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 		//Have we already invested here?
-		const UnitClassTypes eUnitClass = (UnitClassTypes)thisUnitInfo->GetUnitClassType();
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(thisUnitInfo->GetUnitClassType());
 		if (pkCity->IsUnitInvestment(eUnitClass))
 		{
 			int iValue = 100 * pkCity->GetUnitCostInvestmentReduction(eUnitClass) / pkCity->getProductionNeeded(eUnit, true);
@@ -1304,7 +1304,7 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	// Already a unit here
 	if(!pkCity->CanPlaceUnitHere(eUnit))
@@ -1394,7 +1394,7 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
@@ -1463,7 +1463,7 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
@@ -1509,7 +1509,7 @@ int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 int CvLuaCity::lGetPlotsBoostedByBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	std::vector<int> aiPlotList;
 	pkCity->GetPlotsBoostedByBuilding(aiPlotList, eBuildingType);
@@ -1622,7 +1622,7 @@ int CvLuaCity::lCanContinueProduction(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	OrderData order;
-	order.eOrderType = (OrderTypes)lua_tointeger(L, 2);
+	order.eOrderType = static_cast<OrderTypes>(lua_tointeger(L, 2));
 	order.iData1 = lua_tointeger(L, 3);
 	order.iData2 = lua_tointeger(L, 4);
 	order.bSave = lua_toboolean(L, 5);
@@ -1758,7 +1758,7 @@ int CvLuaCity::lGetFirstBuildingOrder(lua_State* L)
 int CvLuaCity::lIsUnitFoodProduction(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	PlayerTypes eOwner = pkCity->getOwner();
 
 	const int iResult = isUnitTypeFoodProduction(eOwner,eUnitType);
@@ -1792,7 +1792,7 @@ int CvLuaCity::lGetProductionNeeded(lua_State* L)
 int CvLuaCity::lGetUnitProductionNeeded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkCity->getProductionNeeded(eUnitType);
 
@@ -1804,7 +1804,7 @@ int CvLuaCity::lGetUnitProductionNeeded(lua_State* L)
 int CvLuaCity::lGetBuildingProductionNeeded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkCity->getProductionNeeded(eBuildingType);
 
@@ -1819,7 +1819,7 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iResult = 0;
 	int iTotalDiscount = 0;
-	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 	if (pGameBuilding)
 	{
@@ -1839,7 +1839,7 @@ int CvLuaCity::lIsWorldWonder(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	bool bResult = false;
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 	if (pGameBuilding)
 	{
@@ -1858,7 +1858,7 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 	int iNumWorldWonderPercent = 0;
 	CvCity* pkCity = GetInstance(L);
 
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && pGameBuilding)
 	{
@@ -1883,11 +1883,11 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 								if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
 									continue;
 
-								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								CvTechEntry* pkTechInfo = GC.getTechInfo(static_cast<TechTypes>(pkeBuildingInfo->GetPrereqAndTech()));
 								if (pkTechInfo)
 								{
 									// Loop through all eras and apply Building production mod based on how much time has passed
-									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+									EraTypes eBuildingUnlockedEra = static_cast<EraTypes>(pkTechInfo->GetEra());
 
 									if (eBuildingUnlockedEra == NO_ERA)
 										continue;
@@ -1925,7 +1925,7 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 	int iTotalPoliciesNeeded = 0;
 	CvCity* pkCity = GetInstance(L);
 
-	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	if (eBuilding != NO_BUILDING)
 	{
 		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -1949,13 +1949,13 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 						}
 						// Depends on era of wonder
 						EraTypes eEra;
-						TechTypes eTech = (TechTypes)pBuildingInfo->GetPrereqAndTech();
+						TechTypes eTech = static_cast<TechTypes>(pBuildingInfo->GetPrereqAndTech());
 						if (eTech != NO_TECH)
 						{
 							CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
 							if (pEntry)
 							{
-								eEra = (EraTypes)pEntry->GetEra();
+								eEra = static_cast<EraTypes>(pEntry->GetEra());
 								if (eEra != NO_ERA)
 								{
 									iNumPoliciesReduced += pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, pkCity->getOwner(), pHolyCity);
@@ -1996,9 +1996,9 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iResult = 0;
 	int iTotalDiscount = 0;
-	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-	const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+	const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pGameUnit->GetUnitClassType());
 	if(pkCity->IsUnitInvestment(eUnitClass))
 	{
 		iResult = pkCity->getProductionNeeded(eUnitType, true) - pkCity->GetUnitCostInvestmentReduction(eUnitClass);
@@ -2013,7 +2013,7 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 int CvLuaCity::lGetProjectProductionNeeded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 2);
+	const ProjectTypes eProjectType = static_cast<ProjectTypes>(lua_tointeger(L, 2));
 
 	const int iResult = pkCity->getProductionNeeded(eProjectType);
 
@@ -2069,10 +2069,10 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const bool bTestPurchaseCost = lua_toboolean(L, 2);
 	const bool bTestTrainable = lua_toboolean(L, 3);
-	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 4);
-	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 5);
-	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 6);
-	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 7);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 4));
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 5));
+	const ProjectTypes eProjectType = static_cast<ProjectTypes>(lua_tointeger(L, 6));
+	const YieldTypes ePurchaseYield = static_cast<YieldTypes>(lua_tointeger(L, 7));
 
 	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	const bool bResult = pkCity->IsCanPurchase(bTestPurchaseCost, bTestTrainable, eUnitType, eBuildingType, eProjectType, ePurchaseYield);
@@ -2085,10 +2085,10 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 int CvLuaCity::lPurchase(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
-	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 3);
-	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
-	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
+	const UnitTypes eUnitType = static_cast<UnitTypes>(lua_tointeger(L, 2));
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 3));
+	const ProjectTypes eProjectType = static_cast<ProjectTypes>(lua_tointeger(L, 4));
+	const YieldTypes ePurchaseYield = static_cast<YieldTypes>(lua_tointeger(L, 5));
 
 	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
@@ -2142,7 +2142,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 
 	// City Yield Rate Modifier
 	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
@@ -2209,7 +2209,7 @@ int CvLuaCity::lGetRawProductionDifferenceTimes100(lua_State* L)
 int CvLuaCity::lGetUnitProductionModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitTypes iUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes iUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getProductionModifier(iUnit);
 
 	lua_pushinteger(L, iResult);
@@ -2220,7 +2220,7 @@ int CvLuaCity::lGetUnitProductionModifier(lua_State* L)
 int CvLuaCity::lGetBuildingProductionModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes iBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	if(iBuilding != NO_BUILDING)
 	{
 		const int iResult = pkCity->getProductionModifier(iBuilding);
@@ -2237,7 +2237,7 @@ int CvLuaCity::lGetBuildingProductionModifier(lua_State* L)
 int CvLuaCity::lGetProjectProductionModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const ProjectTypes eProject = (ProjectTypes)lua_tointeger(L, 2);
+	const ProjectTypes eProject = static_cast<ProjectTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getProductionModifier(eProject);
 
 	lua_pushinteger(L, iResult);
@@ -2248,7 +2248,7 @@ int CvLuaCity::lGetProjectProductionModifier(lua_State* L)
 int CvLuaCity::lGetSpecialistProductionModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getProductionModifier(eSpecialist);
 
 	lua_pushinteger(L, iResult);
@@ -2480,7 +2480,7 @@ int CvLuaCity::lMaxHurryPopulation(lua_State* L)
 int CvLuaCity::lGetNumBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	if(eBuildingType != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuildingType);
@@ -2498,7 +2498,7 @@ int CvLuaCity::lGetNumBuilding(lua_State* L)
 int CvLuaCity::lIsHasBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	if(eBuildingType != NO_BUILDING)
 	{
 		const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuildingType);
@@ -2515,7 +2515,7 @@ int CvLuaCity::lIsHasBuilding(lua_State* L)
 int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
@@ -2527,7 +2527,7 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType));
 			iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		}
 		lua_pushinteger(L, iResult);
@@ -2543,7 +2543,7 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
 		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
@@ -2554,7 +2554,7 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 		else
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
-			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			BuildingTypes eBuilding = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType));
 			const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			lua_pushboolean(L, bResult);
 		}
@@ -2569,8 +2569,8 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 int CvLuaCity::lGetLocalBuildingClassYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	int iResult = 0;
 	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
 	{	
@@ -2584,8 +2584,8 @@ int CvLuaCity::lGetLocalBuildingClassYield(lua_State* L)
 int CvLuaCity::lGetEventBuildingClassYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	int iResult = 0;
 	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
 	{	
@@ -2599,8 +2599,8 @@ int CvLuaCity::lGetEventBuildingClassYield(lua_State* L)
 int CvLuaCity::lGetEventBuildingClassModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	int iResult = 0;
 	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
 	{	
@@ -2620,7 +2620,7 @@ int CvLuaCity::lGetEventCityYield(lua_State* L)
 int CvLuaCity::lGetNumActiveBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	if(eBuildingType != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetNumActiveBuilding(eBuildingType);
@@ -2947,7 +2947,7 @@ int CvLuaCity::lGetEventGPPFromSpecialists(lua_State* L)
 int CvLuaCity::lGetSpecialistRate(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 2));
 	int Rate = 0;
 	if (eSpecialist != NO_SPECIALIST)
 	{
@@ -3109,7 +3109,7 @@ int CvLuaCity::lGetYieldPerTurnFromTraits(lua_State* L)
 int CvLuaCity::lGetYieldFromUnitsInCity(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 2);
+	YieldTypes eYieldType = static_cast<YieldTypes>(lua_tointeger(L, 2));
 
 	int Total = 0;
 	CvPlot* pCityPlot = pkCity->plot();
@@ -3163,12 +3163,12 @@ int CvLuaCity::lChangeCultureRateModifier(lua_State* L)
 int CvLuaCity::lGetCityYieldModFromMonopoly(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 2);
+	YieldTypes eYieldType = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	int iModifier = 0;
 	// Do we get increased yields from a resource monopoly?
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResourceLoop = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 		if (pInfo && pInfo->isMonopoly())
 		{
@@ -3262,7 +3262,7 @@ int CvLuaCity::lGetNumAvailableGreatWorkSlots(lua_State* L)
 int CvLuaCity::lGetTourismMultiplier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	lua_pushinteger(L, pkCity->GetCityCulture()->GetTourismMultiplier(ePlayer, false, false, false, false, false));
 	return 1;
 }
@@ -3395,7 +3395,7 @@ int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
-		FeatureTypes eFeature = (FeatureTypes) iI;
+		FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
 		if(eFeature != NO_FEATURE)
 		{
 			iBonus += pkCity->GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_FAITH);
@@ -3435,7 +3435,7 @@ int CvLuaCity::lIsReligionInCity(lua_State* L)
 int CvLuaCity::lHasConvertedToReligionEver(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkCity->HasPaidAdoptionBonus(eReligion);
 
 	lua_pushboolean(L, bResult);
@@ -3446,7 +3446,7 @@ int CvLuaCity::lHasConvertedToReligionEver(lua_State* L)
 int CvLuaCity::lIsHolyCityForReligion(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	const bool bResult = pkCity->GetCityReligions()->IsHolyCityForReligion(eReligion);
 
 	lua_pushboolean(L, bResult);
@@ -3467,7 +3467,7 @@ int CvLuaCity::lIsHolyCityAnyReligion(lua_State* L)
 int CvLuaCity::lGetNumFollowers(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->GetCityReligions()->GetNumFollowers(eReligion);
 
 	lua_pushinteger(L, iResult);
@@ -3505,7 +3505,7 @@ int CvLuaCity::lGetSecondaryReligionPantheonBelief(lua_State* L)
 int CvLuaCity::lGetPressurePerTurn(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	int iNumSourceCities = 0;
 	const int iResult = (int)pkCity->GetCityReligions()->GetPressurePerTurn(eReligion, &iNumSourceCities);
 	lua_pushinteger(L, iResult);
@@ -3518,8 +3518,8 @@ int CvLuaCity::lGetPressurePerTurn(lua_State* L)
 int CvLuaCity::lConvertPercentFollowers(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eToReligion = (ReligionTypes)lua_tointeger(L, 2);
-	ReligionTypes eFromReligion = (ReligionTypes)lua_tointeger(L, 3);
+	ReligionTypes eToReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
+	ReligionTypes eFromReligion = static_cast<ReligionTypes>(lua_tointeger(L, 3));
 	int iPercent = lua_tointeger(L, 4);
 	pkCity->GetCityReligions()->ConvertPercentFollowers(eToReligion, eFromReligion, iPercent);
 	return 1;
@@ -3529,7 +3529,7 @@ int CvLuaCity::lConvertPercentFollowers(lua_State* L)
 int CvLuaCity::lAdoptReligionFully(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	pkCity->GetCityReligions()->AdoptReligionFully(eReligion);
 	return 1;
 }
@@ -3540,7 +3540,7 @@ int CvLuaCity::lGetReligionBuildingClassHappiness(lua_State* L)
 	int iHappinessFromBuilding = 0;
 
 	CvCity* pkCity = GetInstance(L);
-	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
+	BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
 
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	if(eMajority != NO_RELIGION)
@@ -3562,8 +3562,8 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 	int iYieldFromBuilding = 0;
 
 	CvCity* pkCity = GetInstance(L);
-	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
-	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
+	BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	YieldTypes eYieldType = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -3619,8 +3619,8 @@ int CvLuaCity::lGetLeagueBuildingClassYieldChange(lua_State* L)
 	int iYieldFromBuilding = 0;
 
 	CvCity* pkCity = GetInstance(L);
-	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
-	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
+	BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	YieldTypes eYieldType = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	if (eBuildingClass != NO_BUILDINGCLASS)
 	{
@@ -3642,7 +3642,7 @@ int CvLuaCity::lGetLeagueBuildingClassYieldChange(lua_State* L)
 int CvLuaCity::lGetNumTradeRoutesAddingPressure(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	ReligionTypes eReligion = static_cast<ReligionTypes>(lua_tointeger(L, 2));
 	
 	int iNumTradeRoutes = pkCity->GetCityReligions()->GetNumTradeRouteConnections(eReligion);
 	lua_pushinteger(L, iNumTradeRoutes);
@@ -3787,28 +3787,28 @@ int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
 int CvLuaCity::lGetBasicNeedsMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iMedian = (int)pkCity->GetBasicNeedsMedian(false, 0);
+	int iMedian = static_cast<int>(pkCity->GetBasicNeedsMedian(false, 0));
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
 int CvLuaCity::lGetGoldMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iMedian = (int)pkCity->GetGoldMedian(false, 0);
+	int iMedian = static_cast<int>(pkCity->GetGoldMedian(false, 0));
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
 int CvLuaCity::lGetScienceMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iMedian = (int)pkCity->GetScienceMedian(false, 0);
+	int iMedian = static_cast<int>(pkCity->GetScienceMedian(false, 0));
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
 int CvLuaCity::lGetCultureMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iMedian = (int)pkCity->GetCultureMedian(false, 0);
+	int iMedian = static_cast<int>(pkCity->GetCultureMedian(false, 0));
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
@@ -3822,7 +3822,7 @@ int CvLuaCity::lGetReligiousUnrestPerMinorityFollower(lua_State* L)
 		fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
 		fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false));
 		fUnhappyPerMinorityPop /= 100;
-		iReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+		iReligiousUnrestPerMinorityFollower = static_cast<int>(fUnhappyPerMinorityPop);
 	}
 
 	lua_pushinteger(L, iReligiousUnrestPerMinorityFollower);
@@ -3831,7 +3831,7 @@ int CvLuaCity::lGetReligiousUnrestPerMinorityFollower(lua_State* L)
 int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	int iNewMedian = 0;
 	if (eBuilding != NO_BUILDING)
 	{
@@ -3839,7 +3839,7 @@ int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
 			int iModifier = pkBuildingInfo->GetBasicNeedsMedianModifier() + pkBuildingInfo->GetBasicNeedsMedianModifierGlobal();
-			iNewMedian = (int)pkCity->GetBasicNeedsMedian(false, iModifier);
+			iNewMedian = static_cast<int>(pkCity->GetBasicNeedsMedian(false, iModifier));
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
@@ -3848,7 +3848,7 @@ int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 int CvLuaCity::lGetTheoreticalNewGoldMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	int iNewMedian = 0;
 	if (eBuilding != NO_BUILDING)
 	{
@@ -3856,7 +3856,7 @@ int CvLuaCity::lGetTheoreticalNewGoldMedian(lua_State* L)
 		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
 			int iModifier = pkBuildingInfo->GetGoldMedianModifier() + pkBuildingInfo->GetGoldMedianModifierGlobal();
-			iNewMedian = (int)pkCity->GetGoldMedian(false, iModifier);
+			iNewMedian = static_cast<int>(pkCity->GetGoldMedian(false, iModifier));
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
@@ -3865,7 +3865,7 @@ int CvLuaCity::lGetTheoreticalNewGoldMedian(lua_State* L)
 int CvLuaCity::lGetTheoreticalNewScienceMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	int iNewMedian = 0;
 	if (eBuilding != NO_BUILDING)
 	{
@@ -3873,7 +3873,7 @@ int CvLuaCity::lGetTheoreticalNewScienceMedian(lua_State* L)
 		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
 			int iModifier = pkBuildingInfo->GetScienceMedianModifier() + pkBuildingInfo->GetScienceMedianModifierGlobal();
-			iNewMedian = (int)pkCity->GetScienceMedian(false, iModifier);
+			iNewMedian = static_cast<int>(pkCity->GetScienceMedian(false, iModifier));
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
@@ -3882,7 +3882,7 @@ int CvLuaCity::lGetTheoreticalNewScienceMedian(lua_State* L)
 int CvLuaCity::lGetTheoreticalNewCultureMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	int iNewMedian = 0;
 	if (eBuilding != NO_BUILDING)
 	{
@@ -3890,7 +3890,7 @@ int CvLuaCity::lGetTheoreticalNewCultureMedian(lua_State* L)
 		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
 			int iModifier = pkBuildingInfo->GetCultureMedianModifier() + pkBuildingInfo->GetCultureMedianModifierGlobal();
-			iNewMedian = (int)pkCity->GetCultureMedian(false, iModifier);
+			iNewMedian = static_cast<int>(pkCity->GetCultureMedian(false, iModifier));
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
@@ -3899,7 +3899,7 @@ int CvLuaCity::lGetTheoreticalNewCultureMedian(lua_State* L)
 int CvLuaCity::lGetTheoreticalNewReligiousUnrestPerMinorityFollower(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	int iNewReligiousUnrestPerMinorityFollower = 0;
 	if (eBuilding != NO_BUILDING && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
@@ -3911,7 +3911,7 @@ int CvLuaCity::lGetTheoreticalNewReligiousUnrestPerMinorityFollower(lua_State* L
 			fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
 			fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false) + iModifier);
 			fUnhappyPerMinorityPop /= 100;
-			iNewReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+			iNewReligiousUnrestPerMinorityFollower = static_cast<int>(fUnhappyPerMinorityPop);
 		}
 	}
 
@@ -3963,7 +3963,7 @@ int CvLuaCity::lGetAllNeedsModifier(lua_State* L)
 int CvLuaCity::lGetUnhappinessFromYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 
 	int iValue = 0;
 	if (eIndex == YIELD_FOOD || eIndex == YIELD_PRODUCTION)
@@ -4149,7 +4149,7 @@ int CvLuaCity::lCreateApolloProgram(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	if(pkCity != NULL)
 	{
-		ProjectTypes eApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
+		ProjectTypes eApolloProgram = static_cast<ProjectTypes>(GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT));
 		pkCity->CreateProject(eApolloProgram);
 	}
 
@@ -4411,7 +4411,7 @@ int CvLuaCity::lGetOriginalOwner(lua_State* L)
 int CvLuaCity::lGetSeaPlotYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getSeaPlotYield(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4422,7 +4422,7 @@ int CvLuaCity::lGetSeaPlotYield(lua_State* L)
 int CvLuaCity::lGetRiverPlotYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getRiverPlotYield(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4433,7 +4433,7 @@ int CvLuaCity::lGetRiverPlotYield(lua_State* L)
 int CvLuaCity::lGetLakePlotYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getLakePlotYield(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4444,7 +4444,7 @@ int CvLuaCity::lGetLakePlotYield(lua_State* L)
 int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getBaseYieldRate(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4454,7 +4454,7 @@ int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 int CvLuaCity::lGetYieldPerTurnFromMinors(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->GetYieldFromMinors(eYield);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -4463,7 +4463,7 @@ int CvLuaCity::lGetYieldPerTurnFromMinors(lua_State* L)
 int CvLuaCity::lSetYieldPerTurnFromMinors(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = lua_tointeger(L, 3);
 	pkCity->SetYieldFromMinors(eYield, iValue);
 	return 1;
@@ -4524,7 +4524,7 @@ int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
 int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	int iReturnValue = GET_PLAYER(pkCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(pkCity, eIndex);
 	lua_pushinteger(L, iReturnValue);
 	return 1;
@@ -4539,10 +4539,10 @@ int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
 {
 	int iResult = 0;
 	CvCity* pkCity = GetInstance(L);
-	YieldTypes eIndex1 = (YieldTypes)lua_tointeger(L, 2);
+	YieldTypes eIndex1 = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eIndex2 = (YieldTypes)iI;
+		YieldTypes eIndex2 = static_cast<YieldTypes>(iI);
 		if(eIndex2 == NO_YIELD)
 		{
 			continue;
@@ -4586,7 +4586,7 @@ int CvLuaCity::lGetYieldPerPopInEmpireTimes100(lua_State* L)
 int CvLuaCity::lGetBaseYieldRateModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iExtra = luaL_optint(L, 3, 0);
 	const int iResult = pkCity->getBaseYieldRateModifier(eIndex, iExtra);
 
@@ -4598,7 +4598,7 @@ int CvLuaCity::lGetBaseYieldRateModifier(lua_State* L)
 int CvLuaCity::lGetYieldRate(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const bool bIgnoreTrade = luaL_optbool(L, 3, false);
 	const int iResult = pkCity->getYieldRate(eIndex, bIgnoreTrade);
 
@@ -4610,7 +4610,7 @@ int CvLuaCity::lGetYieldRate(lua_State* L)
 int CvLuaCity::lGetYieldRateTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const bool bIgnoreTrade = luaL_optbool(L, 3, false);
 	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade);
 
@@ -4622,7 +4622,7 @@ int CvLuaCity::lGetYieldRateTimes100(lua_State* L)
 int CvLuaCity::lGetYieldRateModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getYieldRateModifier(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4634,7 +4634,7 @@ int CvLuaCity::lGetYieldRateModifier(lua_State* L)
 int CvLuaCity::lGetExtraSpecialistYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getExtraSpecialistYield(eIndex);
 
 	lua_pushinteger(L, iResult);
@@ -4721,7 +4721,7 @@ int CvLuaCity::lIsHasResourceLocal(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iResource = lua_tointeger(L, 2);
 	const bool bTestVisible = lua_toboolean(L, 3);
-	const bool bResult = pkCity->IsHasResourceLocal((ResourceTypes)iResource, bTestVisible);
+	const bool bResult = pkCity->IsHasResourceLocal(static_cast<ResourceTypes>(iResource), bTestVisible);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -4734,7 +4734,7 @@ int CvLuaCity::lGetBuildingProduction(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		const int iResult = pkCity->GetCityBuildings()->GetBuildingProduction((BuildingTypes)iIndex);
+		const int iResult = pkCity->GetCityBuildings()->GetBuildingProduction(static_cast<BuildingTypes>(iIndex));
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -4752,7 +4752,7 @@ int CvLuaCity::lSetBuildingProduction(lua_State* L)
 	const int iNewValue = lua_tointeger(L, 3);
 	if(iIndex != NO_BUILDING)
 	{
-		pkCity->GetCityBuildings()->SetBuildingProduction((BuildingTypes)iIndex, iNewValue);
+		pkCity->GetCityBuildings()->SetBuildingProduction(static_cast<BuildingTypes>(iIndex), iNewValue);
 	}
 
 	return 1;
@@ -4766,7 +4766,7 @@ int CvLuaCity::lChangeBuildingProduction(lua_State* L)
 	const int iChange = lua_tointeger(L, 3);
 	if(iIndex != NO_BUILDING)
 	{
-		pkCity->GetCityBuildings()->ChangeBuildingProduction((BuildingTypes)iIndex, iChange);
+		pkCity->GetCityBuildings()->ChangeBuildingProduction(static_cast<BuildingTypes>(iIndex), iChange);
 	}
 
 	return 1;
@@ -4779,7 +4779,7 @@ int CvLuaCity::lGetBuildingProductionTime(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		const int iResult = pkCity->GetCityBuildings()->GetBuildingProductionTime((BuildingTypes)iIndex);
+		const int iResult = pkCity->GetCityBuildings()->GetBuildingProductionTime(static_cast<BuildingTypes>(iIndex));
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -4797,7 +4797,7 @@ int CvLuaCity::lSetBuildingProductionTime(lua_State* L)
 	const int iNewValue = lua_tointeger(L, 3);
 	if(iIndex != NO_BUILDING)
 	{
-		pkCity->GetCityBuildings()->SetBuildingProductionTime((BuildingTypes)iIndex, iNewValue);
+		pkCity->GetCityBuildings()->SetBuildingProductionTime(static_cast<BuildingTypes>(iIndex), iNewValue);
 	}
 
 	return 1;
@@ -4810,7 +4810,7 @@ int CvLuaCity::lChangeBuildingProductionTime(lua_State* L)
 	const int iIndex = toValue<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		pkCity->GetCityBuildings()->ChangeBuildingProductionTime((BuildingTypes)iIndex, toValue<int>(L, 3));
+		pkCity->GetCityBuildings()->ChangeBuildingProductionTime(static_cast<BuildingTypes>(iIndex), toValue<int>(L, 3));
 	}
 
 	return 1;
@@ -4823,7 +4823,7 @@ int CvLuaCity::lGetBuildingOriginalOwner(lua_State* L)
 	const int iIndex = toValue<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iIndex);
+		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalOwner(static_cast<BuildingTypes>(iIndex));
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -4840,7 +4840,7 @@ int CvLuaCity::lGetBuildingOriginalTime(lua_State* L)
 	const int iIndex = toValue<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iIndex);
+		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalTime(static_cast<BuildingTypes>(iIndex));
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -5047,7 +5047,7 @@ int CvLuaCity::lChangeSpecialistGreatPersonProgressTimes100(lua_State* L)
 int CvLuaCity::lGetExtraSpecialistPoints(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 2));
 
 	if (eSpecialist != NO_SPECIALIST)
 	{
@@ -5140,7 +5140,7 @@ int CvLuaCity::lSetFocusType(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iFocus = lua_tointeger(L, 2);
 
-	pkCity->GetCityCitizens()->SetFocusType((CityAIFocusTypes) iFocus, true);
+	pkCity->GetCityCitizens()->SetFocusType(static_cast<CityAIFocusTypes>(iFocus), true);
 
 	return 1;
 }
@@ -5602,7 +5602,7 @@ int CvLuaCity::lClearOrderQueue(lua_State* L)
 int CvLuaCity::lPushOrder(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const OrderTypes eOrder	= (OrderTypes)lua_tointeger(L, 2);
+	const OrderTypes eOrder	= static_cast<OrderTypes>(lua_tointeger(L, 2));
 	const int iData1		= lua_tointeger(L, 3);
 	const int iData2		= lua_tointeger(L, 4);
 	const bool bSave		= lua_tointeger(L, 5);
@@ -5665,7 +5665,7 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int eBuildingClass = lua_tointeger(L, 2);
 	const int eYield = lua_tointeger(L, 3);
-	const int iResult = pkCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield);
+	const int iResult = pkCity->GetCityBuildings()->GetBuildingYieldChange(static_cast<BuildingClassTypes>(eBuildingClass), static_cast<YieldTypes>(eYield));
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5675,7 +5675,7 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const BuildingClassTypes eBuildingClassType = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
 	const int iResult = pkCity->getBuildingClassCultureChange((BuildingClassTypes)eBuildingClassType);
 
 	lua_pushinteger(L, iResult);
@@ -5685,7 +5685,7 @@ int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
 int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
@@ -5714,7 +5714,7 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
 	if (ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
 	{
-		 iRtnValue = pkCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield);
+		 iRtnValue = pkCity->getReligionBuildingYieldRateModifier(static_cast<BuildingClassTypes>(eBuildingClass), static_cast<YieldTypes>(eYield));
 	}
 
 	lua_pushinteger(L, iRtnValue);
@@ -5726,7 +5726,7 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
 	iResult += pkCity->GetBaseYieldRateFromCSFriendship(eIndex);
 
@@ -5736,8 +5736,8 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 int CvLuaCity::lGetBuildingYieldChangeFromCorporationFranchises(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(lua_tointeger(L, 2));
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	int iResult = pkCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5745,7 +5745,7 @@ int CvLuaCity::lGetBuildingYieldChangeFromCorporationFranchises(lua_State* L)
 int CvLuaCity::lGetYieldChangeFromCorporationFranchises(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	int iResult = pkCity->GetYieldChangeFromCorporationFranchises(eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5753,7 +5753,7 @@ int CvLuaCity::lGetYieldChangeFromCorporationFranchises(lua_State* L)
 int CvLuaCity::lGetTradeRouteCityMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = (pkCity->GetTradeRouteCityMod(eIndex));
 
 	lua_pushinteger(L, iResult);
@@ -5763,7 +5763,7 @@ int CvLuaCity::lGetTradeRouteCityMod(lua_State* L)
 int CvLuaCity::lGetGreatWorkYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = min(20, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromGreatWorks(eIndex) * pkCity->GetCityBuildings()->GetNumGreatWorks()));
 
 	lua_pushinteger(L, iResult);
@@ -5772,7 +5772,7 @@ int CvLuaCity::lGetGreatWorkYieldMod(lua_State* L)
 int CvLuaCity::lGetActiveSpyYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetSpyPoints(true) / 100));
 
 	lua_pushinteger(L, iResult);
@@ -5783,7 +5783,7 @@ int CvLuaCity::lGetResourceQuantityPerXFranchises(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iResource = lua_tointeger(L, 2);
 	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetNumFranchises();
-	int iCorpResource = pkCity->GetResourceQuantityPerXFranchises((ResourceTypes)iResource);
+	int iCorpResource = pkCity->GetResourceQuantityPerXFranchises(static_cast<ResourceTypes>(iResource));
 	int iResult = 0;
 	if(iCorpResource > 0)
 	{
@@ -5805,7 +5805,7 @@ int CvLuaCity::lIsFranchised(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
 	bResult = pkCity->IsHasFranchise(GET_PLAYER(ePlayer).GetCorporations()->GetFoundedCorporation());
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -5830,7 +5830,7 @@ int CvLuaCity::lGetYieldChangeTradeRoute(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	int iResult = 0;
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	if(pkCity->IsRouteToCapitalConnected())
 	{
 		iResult = GET_PLAYER(pkCity->getOwner()).GetYieldChangeTradeRoute(eIndex);
@@ -5844,8 +5844,8 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 {
 	int iRtnValue = 0;
 	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes) lua_tointeger(L, 2);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 3);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 2));
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkCity->getOwner());
@@ -5898,10 +5898,10 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);
-			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield, ePlayer, pkCity);
+			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD(static_cast<YieldTypes>(eYield), ePlayer, pkCity);
 		}
-		iRtnValue += GET_PLAYER(ePlayer).GetYieldFromWLTKD((YieldTypes)eYield);
-		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
+		iRtnValue += GET_PLAYER(ePlayer).GetYieldFromWLTKD(static_cast<YieldTypes>(eYield));
+		iRtnValue += pkCity->GetYieldFromWLTKD(static_cast<YieldTypes>(eYield));
 	}
 	lua_pushinteger(L, iRtnValue);
 
@@ -5936,10 +5936,10 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
-				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield, ePlayer, pkCity);
+				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge(static_cast<YieldTypes>(eYield), ePlayer, pkCity);
 			}
 		}
-		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
+		iRtnValue += pkCity->GetGoldenAgeYieldMod(static_cast<YieldTypes>(eYield));
 	}
 	lua_pushinteger(L, iRtnValue);
 
@@ -5950,7 +5950,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 int CvLuaCity::lGetBuildingEspionageModifier(lua_State* L)
 {
 	//CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvAssertMsg(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
@@ -5967,7 +5967,7 @@ int CvLuaCity::lGetBuildingEspionageModifier(lua_State* L)
 // int GetBuildingGlobalEspionageModifier(BuildingClassTypes eBuildingClass)
 int CvLuaCity::lGetBuildingGlobalEspionageModifier(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvAssertMsg(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
@@ -6031,7 +6031,7 @@ int CvLuaCity::lGetCounterSpy(lua_State* L)
 int CvLuaCity::lGetBuildingConversionModifier(lua_State* L)
 {
 	//CvCity* pkCity = GetInstance(L);
-	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvAssertMsg(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
@@ -6048,7 +6048,7 @@ int CvLuaCity::lGetBuildingConversionModifier(lua_State* L)
 // int GetBuildingGlobalConversionModifier(BuildingTypes eBuilding)
 int CvLuaCity::lGetBuildingGlobalConversionModifier(lua_State* L)
 {
-	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvAssertMsg(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
@@ -6072,7 +6072,7 @@ int CvLuaCity::lSetBuildingYieldChange(lua_State* L)
 	const int eYield = lua_tointeger(L, 3);
 	const int iChange = lua_tointeger(L, 4);
 
-	pkCity->GetCityBuildings()->SetBuildingYieldChange((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield, iChange);
+	pkCity->GetCityBuildings()->SetBuildingYieldChange(static_cast<BuildingClassTypes>(eBuildingClass), static_cast<YieldTypes>(eYield), iChange);
 
 	return 1;
 }
@@ -6090,7 +6090,7 @@ int CvLuaCity::lCanPlaceUnitHere(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	int iUnitType = lua_tointeger(L, 2);
-	lua_pushboolean(L, pkCity->CanPlaceUnitHere((UnitTypes)iUnitType));
+	lua_pushboolean(L, pkCity->CanPlaceUnitHere(static_cast<UnitTypes>(iUnitType)));
 
 	return 1;
 }
@@ -6098,8 +6098,8 @@ int CvLuaCity::lCanPlaceUnitHere(lua_State* L)
 int CvLuaCity::lGetSpecialistYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes) lua_tointeger(L, 2);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 3);
+	const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(lua_tointeger(L, 2));
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 3));
 
 	const PlayerTypes ePlayer = pkCity->getOwner();
 
@@ -6166,7 +6166,7 @@ int CvLuaCity::lAddMessage(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	const char* szMessage = lua_tostring(L, 2);
-	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 3, pCity->getOwner());
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_optinteger(L, 3, pCity->getOwner()));
 
 	SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage);
 	return 0;
@@ -6175,7 +6175,7 @@ int CvLuaCity::lAddMessage(lua_State* L)
 int CvLuaCity::lCountNumWorkedFeature(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const FeatureTypes eFeature = (FeatureTypes) lua_tointeger(L, 2);
+	const FeatureTypes eFeature = static_cast<FeatureTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->CountNumWorkedFeature(eFeature);
 
 	lua_pushinteger(L, iValue);
@@ -6186,7 +6186,7 @@ int CvLuaCity::lCountNumWorkedFeature(lua_State* L)
 int CvLuaCity::lCountNumWorkedImprovement(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
 	const bool bIgnorePillaged = luaL_optbool(L, 3, true);
 	const int iValue = pkCity->CountNumWorkedImprovement(eImprovement, bIgnorePillaged);
 
@@ -6198,7 +6198,7 @@ int CvLuaCity::lCountNumWorkedImprovement(lua_State* L)
 int CvLuaCity::lCountNumWorkedResource(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+	const ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->CountNumWorkedResource(eResource);
 
 	lua_pushinteger(L, iValue);
@@ -6209,7 +6209,7 @@ int CvLuaCity::lCountNumWorkedResource(lua_State* L)
 int CvLuaCity::lCountNumImprovement(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->CountNumImprovement(eImprovement);
 
 	lua_pushinteger(L, iValue);
@@ -6220,7 +6220,7 @@ int CvLuaCity::lCountNumImprovement(lua_State* L)
 int CvLuaCity::lCountNumWorkedRiverTiles(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const TerrainTypes eTerrain = (TerrainTypes)luaL_optint(L, 2, NO_TERRAIN);
+	const TerrainTypes eTerrain = static_cast<TerrainTypes>(luaL_optint(L, 2, NO_TERRAIN));
 	const int iValue = pkCity->CountNumWorkedRiverTiles(eTerrain);
 
 	lua_pushinteger(L, iValue);
@@ -6326,9 +6326,9 @@ int CvLuaCity::lGetDisabledTooltip(lua_State* L)
 {
 	CvString DisabledTT = "";
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	const int iSpyID = luaL_optint(L, 3, -1);
-	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, NO_PLAYER);
+	const PlayerTypes eSpyOwner = static_cast<PlayerTypes>(luaL_optint(L, 4, NO_PLAYER));
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice, iSpyID, eSpyOwner);
@@ -6341,10 +6341,10 @@ int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 {
 	CvString CoreYieldTip = "";
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	const bool bYieldsOnly = lua_toboolean(L, 3);
 	const int iSpyID = luaL_optint(L, 4, -1);
-	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+	const PlayerTypes eSpyOwner = static_cast<PlayerTypes>(luaL_optint(L, 5, NO_PLAYER));
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly, iSpyID, eSpyOwner);
@@ -6356,7 +6356,7 @@ int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	const bool bInstantEvents = luaL_optbool(L, 3, false);
 	bool bResult = false;
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -6372,7 +6372,7 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 					{
 						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 						{
-							CityEventTypes eEvent = (CityEventTypes)iLoop;
+							CityEventTypes eEvent = static_cast<CityEventTypes>(iLoop);
 							if(eEvent != NO_EVENT_CITY)
 							{
 								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
@@ -6412,30 +6412,30 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 int CvLuaCity::lDoCityEventChoice(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	const int iSpyID = luaL_optint(L, 3, -1);
-	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, -1);
+	const PlayerTypes eSpyOwner = static_cast<PlayerTypes>(luaL_optint(L, 4, -1));
 	pkCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, iSpyID, eSpyOwner);
 	return 1;
 }
 int CvLuaCity::lDoCityStartEvent(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = static_cast<CityEventTypes>(lua_tointeger(L, 2));
 	pkCity->DoStartEvent(eEvent, true);
 	return 1;
 }
 int CvLuaCity::lDoCancelCityEventChoice(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEvent = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	pkCity->DoCancelEventChoice(eEvent);
 	return 1;
 }
 int CvLuaCity::lGetCityEventCooldown(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = static_cast<CityEventTypes>(lua_tointeger(L, 2));
 	const int iCooldown = pkCity->GetEventCooldown(eEvent);
 	CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
@@ -6449,7 +6449,7 @@ int CvLuaCity::lGetCityEventCooldown(lua_State* L)
 int CvLuaCity::lSetCityEventCooldown(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = static_cast<CityEventTypes>(lua_tointeger(L, 2));
 	const int iCooldown = lua_tointeger(L, 3);
 	pkCity->SetEventCooldown(eEvent, iCooldown);
 	return 1;
@@ -6457,7 +6457,7 @@ int CvLuaCity::lSetCityEventCooldown(lua_State* L)
 int CvLuaCity::lGetCityEventChoiceCooldown(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEvent = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEvent);
 	if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isOneShot())
 	{
@@ -6471,7 +6471,7 @@ int CvLuaCity::lGetCityEventChoiceCooldown(lua_State* L)
 int CvLuaCity::lSetCityEventChoiceCooldown(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventChoiceTypes eEvent = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
 	const int iCooldown = lua_tointeger(L, 3);
 	pkCity->SetEventChoiceDuration(eEvent, iCooldown);
 	return 1;
@@ -6479,8 +6479,8 @@ int CvLuaCity::lSetCityEventChoiceCooldown(lua_State* L)
 int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
-	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
+	const CityEventTypes eEvent = static_cast<CityEventTypes>(lua_tointeger(L, 3));
 	const bool bValue = pkCity->IsCityEventChoiceValid(eEventChoice, eEvent);
 
 	lua_pushboolean(L, bValue);
@@ -6490,10 +6490,10 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 int CvLuaCity::lIsCityEventChoiceValidEspionage(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
-	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(lua_tointeger(L, 2));
+	const CityEventTypes eEvent = static_cast<CityEventTypes>(lua_tointeger(L, 3));
 	const int uiSpyIndex = lua_tointeger(L, 4);
-	const PlayerTypes eSpyOwner = (PlayerTypes)lua_tointeger(L, 5);
+	const PlayerTypes eSpyOwner = static_cast<PlayerTypes>(lua_tointeger(L, 5));
 	const bool bValue = pkCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, eSpyOwner);
 
 	lua_pushboolean(L, bValue);
@@ -6718,7 +6718,7 @@ int CvLuaCity::lGetLoyaltyState(lua_State* L)
 int CvLuaCity::lSetLoyaltyState(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const LoyaltyStateTypes eLoyalty = (LoyaltyStateTypes)lua_tointeger(L, 2);
+	const LoyaltyStateTypes eLoyalty = static_cast<LoyaltyStateTypes>(lua_tointeger(L, 2));
 	pkCity->SetLoyaltyState((int)eLoyalty);
 	return 1;
 }
@@ -6736,7 +6736,7 @@ int CvLuaCity::lHasLoyaltyState(lua_State* L)
 int CvLuaCity::lGetYieldModifierFromHappiness(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldModifierFromHappiness(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6745,7 +6745,7 @@ int CvLuaCity::lSetYieldModifierFromHappiness(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldModifierFromHappiness(eYield, iValue);
 	return 1;
 }
@@ -6753,7 +6753,7 @@ int CvLuaCity::lSetYieldModifierFromHappiness(lua_State* L)
 int CvLuaCity::lGetYieldModifierFromHealth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldModifierFromHealth(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6762,7 +6762,7 @@ int CvLuaCity::lSetYieldModifierFromHealth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldModifierFromHealth(eYield, iValue);
 	return 1;
 }
@@ -6770,7 +6770,7 @@ int CvLuaCity::lSetYieldModifierFromHealth(lua_State* L)
 int CvLuaCity::lGetYieldModifierFromCrime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldModifierFromCrime(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6779,7 +6779,7 @@ int CvLuaCity::lSetYieldModifierFromCrime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldModifierFromCrime(eYield, iValue);
 	return 1;
 }
@@ -6788,7 +6788,7 @@ int CvLuaCity::lSetYieldModifierFromCrime(lua_State* L)
 int CvLuaCity::lGetYieldModifierFromDevelopment(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldModifierFromDevelopment(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6797,7 +6797,7 @@ int CvLuaCity::lSetYieldModifierFromDevelopment(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldModifierFromDevelopment(eYield, iValue);
 	return 1;
 }
@@ -6805,7 +6805,7 @@ int CvLuaCity::lSetYieldModifierFromDevelopment(lua_State* L)
 int CvLuaCity::lGetYieldFromHappiness(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldFromHappiness(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6814,7 +6814,7 @@ int CvLuaCity::lSetYieldFromHappiness(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldFromHappiness(eYield, iValue);
 	return 1;
 }
@@ -6822,7 +6822,7 @@ int CvLuaCity::lSetYieldFromHappiness(lua_State* L)
 int CvLuaCity::lGetYieldFromHealth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldFromHealth(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6831,7 +6831,7 @@ int CvLuaCity::lSetYieldFromHealth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldFromHealth(eYield, iValue);
 	return 1;
 }
@@ -6839,7 +6839,7 @@ int CvLuaCity::lSetYieldFromHealth(lua_State* L)
 int CvLuaCity::lGetYieldFromCrime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldFromCrime(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6848,7 +6848,7 @@ int CvLuaCity::lSetYieldFromCrime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldFromCrime(eYield, iValue);
 	return 1;
 }
@@ -6856,7 +6856,7 @@ int CvLuaCity::lSetYieldFromCrime(lua_State* L)
 int CvLuaCity::lGetYieldFromDevelopment(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	const int iValue = pkCity->GetYieldFromDevelopment(eYield);
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -6865,7 +6865,7 @@ int CvLuaCity::lSetYieldFromDevelopment(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 3);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkCity->SetYieldFromDevelopment(eYield, iValue);
 	return 1;
 }

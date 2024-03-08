@@ -216,7 +216,7 @@ void CvGameTrade::InvalidateTradePathCache()
 {
 	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_PLAYERS; uiPlayer1++)
 	{
-		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		PlayerTypes ePlayer1 = static_cast<PlayerTypes>(uiPlayer1);
 		InvalidateTradePathCache(ePlayer1);
 	}
 }
@@ -258,7 +258,7 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
 		int iCity = 0;
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayer& kLoopPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			if (pDestCity->plot()->isCity()) //idiot proofing
 				vDestPlots.push_back(pDestCity->plot());
@@ -534,7 +534,7 @@ bool CvGameTrade::CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDe
 		{
 			for (uint uiDomain = 0; uiDomain < NUM_DOMAIN_TYPES; uiDomain++)
 			{
-				DomainTypes eDomain = (DomainTypes)uiDomain;
+				DomainTypes eDomain = static_cast<DomainTypes>(uiDomain);
 				// check only the domain we want
 				if (eDomainRestriction != NO_DOMAIN && eDomainRestriction != eDomain)
 				{
@@ -549,7 +549,7 @@ bool CvGameTrade::CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDe
 				for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 				{
 					// Check the route, but not the path
-					if (CanCreateTradeRoute(pOriginLoopCity, pDestLoopCity, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
+					if (CanCreateTradeRoute(pOriginLoopCity, pDestLoopCity, eDomain, static_cast<TradeConnectionType>(uiConnectionTypes), false, false))
 					{
 						// Check the path
 						if (pGameTrade->IsValidTradeRoutePath(pOriginLoopCity, pDestLoopCity, eDomain))
@@ -588,7 +588,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();
-	CvAssertMsg(iNewTradeRouteIndex < (int)m_aTradeConnections.size(), "iNewTradeRouteIndex out of bounds");
+	CvAssertMsg(iNewTradeRouteIndex < static_cast<int>(m_aTradeConnections.size()), "iNewTradeRouteIndex out of bounds");
 
 	// couldn't find valid connection, bail out
 	if (iNewTradeRouteIndex < 0)
@@ -685,10 +685,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	{
 		if (!GET_PLAYER(eDestPlayer).isHuman() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
-			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
+			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DIPLOMACY")));
+			int iFlavorCultureDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 			int iGoldDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD] / 10);
 			int iScienceDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] / 10);
 			int iCultureDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_CULTURE] / 10);
@@ -700,10 +700,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		}
 		if (!GET_PLAYER(eOriginPlayer).isHuman() && GET_PLAYER(eOriginPlayer).isMajorCiv())
 		{
-			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
+			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_DIPLOMACY")));
+			int iFlavorCultureOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 			int iGoldOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD] / 10);
 			int iScienceOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] / 10);
 			int iCultureOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_CULTURE] / 10);
@@ -1123,8 +1123,8 @@ bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::ClearTradeRoute(int iIndex)
 {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 		return false;
 
 	TradeConnection& kTradeConnection = m_aTradeConnections[iIndex];
@@ -1233,7 +1233,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	// calculate turns per circuit
 	int iRawSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
 	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
-	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
+	int iRouteSpeed = static_cast<int>(0.5f + iSpeedFactor * iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;
 	if (iRouteSpeed != 0)
@@ -1242,17 +1242,18 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	int iTargetTurns = /*30*/ GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
 	iTargetTurns = max(iTargetTurns, 1);
-	iTargetTurns += (int)(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0));
+	iTargetTurns += static_cast<int>(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) /
+		100.0));
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
 	if (fTurnsPerCircuit != 0)
-		iCircuitsToComplete = max( int(iTargetTurns/fTurnsPerCircuit), 2);
+		iCircuitsToComplete = max( static_cast<int>(iTargetTurns / fTurnsPerCircuit), 2);
 
 	// return values
 	if (piCircuitsToComplete != NULL) 
 		*piCircuitsToComplete = iCircuitsToComplete;
-	return int(fTurnsPerCircuit * iCircuitsToComplete);
+	return static_cast<int>(fTurnsPerCircuit * iCircuitsToComplete);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -1527,7 +1528,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 		// walk through each player on the team
 		for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 		{
-			PlayerTypes eTRPlayer = (PlayerTypes)uiPlayer;
+			PlayerTypes eTRPlayer = static_cast<PlayerTypes>(uiPlayer);
 			if (GET_PLAYER(eTRPlayer).getTeam() != eTRTeam)
 			{
 				continue;
@@ -1611,7 +1612,7 @@ int CvGameTrade::GetIndexFromID (int iID)
 PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return NO_PLAYER;
 	}
@@ -1624,7 +1625,7 @@ PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 PlayerTypes CvGameTrade::GetDestFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return NO_PLAYER;
 	}
@@ -1659,7 +1660,7 @@ bool CvGameTrade::IsUnitIDUsed (int iUnitID)
 
 const TradeConnection * CvGameTrade::GetConnectionFromIndex(int iIndex) const
 {
-	if (iIndex>=0 && iIndex<(int)m_aTradeConnections.size())
+	if (iIndex>=0 && iIndex<static_cast<int>(m_aTradeConnections.size()))
 		return &(m_aTradeConnections[iIndex]);
 	return NULL;
 }
@@ -1715,12 +1716,12 @@ void CvGameTrade::BuildTechDifference ()
 	// for each major civ
 	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_MAJOR_CIVS; uiPlayer1++)
 	{
-		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		PlayerTypes ePlayer1 = static_cast<PlayerTypes>(uiPlayer1);
 		TeamTypes eTeam1 = GET_PLAYER(ePlayer1).getTeam();
 
 		for (uint uiPlayer2 = 0; uiPlayer2 < MAX_MAJOR_CIVS; uiPlayer2++)
 		{	
-			PlayerTypes ePlayer2 = (PlayerTypes)uiPlayer2;
+			PlayerTypes ePlayer2 = static_cast<PlayerTypes>(uiPlayer2);
 			TeamTypes eTeam2 = GET_PLAYER(ePlayer2).getTeam();
 
 			if (eTeam1 == eTeam2) 
@@ -1738,7 +1739,7 @@ void CvGameTrade::BuildTechDifference ()
 				CvPlayerTechs* pPlayerTechs = GET_PLAYER(ePlayer1).GetPlayerTechs();
 				for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 				{
-					TechTypes eTech = (TechTypes)iTechLoop;
+					TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 					bool bPlayer1Knows = GET_TEAM(eTeam1).GetTeamTechs()->HasTech(eTech);
 					bool bPlayer2Knows = GET_TEAM(eTeam2).GetTeamTechs()->HasTech(eTech);
 					if (bPlayer2Knows && !bPlayer1Knows)
@@ -1819,12 +1820,12 @@ void CvGameTrade::BuildPolicyDifference()
 	// for each major civ
 	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_MAJOR_CIVS; uiPlayer1++)
 	{
-		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		PlayerTypes ePlayer1 = static_cast<PlayerTypes>(uiPlayer1);
 		TeamTypes eTeam1 = GET_PLAYER(ePlayer1).getTeam();
 
 		for (uint uiPlayer2 = 0; uiPlayer2 < MAX_MAJOR_CIVS; uiPlayer2++)
 		{
-			PlayerTypes ePlayer2 = (PlayerTypes)uiPlayer2;
+			PlayerTypes ePlayer2 = static_cast<PlayerTypes>(uiPlayer2);
 			TeamTypes eTeam2 = GET_PLAYER(ePlayer2).getTeam();
 
 			if (eTeam1 == eTeam2)
@@ -1895,8 +1896,8 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 }
 
 bool CvGameTrade::IsRecalledUnit (int iIndex) {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return false;
 	}
@@ -1908,8 +1909,8 @@ bool CvGameTrade::IsRecalledUnit (int iIndex) {
 //	--------------------------------------------------------------------------------
 /// recall a trade unit
 void CvGameTrade::RecallUnit (int iIndex, bool bImmediate) {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return;
 	}
@@ -1926,8 +1927,8 @@ void CvGameTrade::RecallUnit (int iIndex, bool bImmediate) {
 //	--------------------------------------------------------------------------------
 /// end a trade route
 void CvGameTrade::EndTradeRoute (int iIndex) {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return;
 	}
@@ -1941,8 +1942,8 @@ void CvGameTrade::EndTradeRoute (int iIndex) {
 /// move a trade unit along its path for all its movement points
 bool CvGameTrade::MoveUnit (int iIndex) 
 {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return false;
 	}
@@ -2026,15 +2027,15 @@ bool CvGameTrade::MoveUnit (int iIndex)
 /// move a trade unit a single step along its path (called by MoveUnit)
 bool CvGameTrade::StepUnit (int iIndex)
 {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return false;
 	}
 
 	// if the unit needs to turn around
 	TradeConnection &kTradeConnection = m_aTradeConnections[iIndex];
-	bool bAtEndGoingForward = (kTradeConnection.m_bTradeUnitMovingForward && kTradeConnection.m_iTradeUnitLocationIndex >= ((int)kTradeConnection.m_aPlotList.size() - 1));
+	bool bAtEndGoingForward = (kTradeConnection.m_bTradeUnitMovingForward && kTradeConnection.m_iTradeUnitLocationIndex >= (static_cast<int>(kTradeConnection.m_aPlotList.size()) - 1));
 	bool bAtEndGoingBackward = (!kTradeConnection.m_bTradeUnitMovingForward && kTradeConnection.m_iTradeUnitLocationIndex <= 0);
 	if (bAtEndGoingForward || bAtEndGoingBackward)
 	{
@@ -2070,8 +2071,8 @@ bool CvGameTrade::StepUnit (int iIndex)
 			//build land routes
 			RouteTypes autoBuildRoadType = ROUTE_ROAD;
 			// check if the rairoad is unlocked (by tech and by era).
-			EraTypes eModern = (EraTypes)GC.getInfoTypeForString("ERA_MODERN", true);
-			TechTypes iRequiredTech = (TechTypes)GC.getInfoTypeForString("TECH_RAILROAD", true);
+			EraTypes eModern = static_cast<EraTypes>(GC.getInfoTypeForString("ERA_MODERN", true));
+			TechTypes iRequiredTech = static_cast<TechTypes>(GC.getInfoTypeForString("TECH_RAILROAD", true));
 			if ((GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() >= eModern) && (GET_TEAM(GET_PLAYER(kTradeConnection.m_eOriginOwner).getTeam()).GetTeamTechs()->HasTech(iRequiredTech)))
 			{
 				autoBuildRoadType = ROUTE_RAILROAD;
@@ -2110,8 +2111,8 @@ bool CvGameTrade::StepUnit (int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::CreateTradeUnitForRoute(int iIndex)
 {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return;
 	}
@@ -2138,8 +2139,8 @@ void CvGameTrade::CreateTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 {
-	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
-	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+	CvAssertMsg(iIndex >= 0 && iIndex < static_cast<int>(m_aTradeConnections.size()), "iIndex out of bounds");
+	if (iIndex < 0 || iIndex >= static_cast<int>(m_aTradeConnections.size()))
 	{
 		return NULL;
 	}
@@ -2265,7 +2266,7 @@ void CvPlayerTrade::LogTradeMsg(CvString& strMsg) const
 
 const vector<int>& CvGameTrade::GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const
 {
-	if (ePlayer>=0 && (size_t)ePlayer<m_routesPerPlayer.size())
+	if (ePlayer>=0 && static_cast<size_t>(ePlayer)<m_routesPerPlayer.size())
 		return m_routesPerPlayer[ePlayer];
 
 	//should be the barbarians, always empty
@@ -2298,9 +2299,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 
 	int plotsX[MAX_PLOTS_TO_DISPLAY];
 	int plotsY[MAX_PLOTS_TO_DISPLAY];
-	for (int i = 0; i < int(writeTo.m_aTradeConnections.size()); ++i)
+	for (int i = 0; i < static_cast<int>(writeTo.m_aTradeConnections.size()); ++i)
 	{
-		int nPlots = std::min(MAX_PLOTS_TO_DISPLAY, int(writeTo.m_aTradeConnections[i].m_aPlotList.size()));
+		int nPlots = std::min(MAX_PLOTS_TO_DISPLAY, static_cast<int>(writeTo.m_aTradeConnections[i].m_aPlotList.size()));
 		if (nPlots > 0)
 		{
 			for (int i2=0; i2<nPlots; i2++)
@@ -2702,7 +2703,8 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+					int iCeilTechDifference = static_cast<int>(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+						TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 
 					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2750,7 +2752,8 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedCultureDifference = 0;
 				if (iCultureDifference > 0)
 				{
-					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
+					int iCeilCultureDifference = static_cast<int>(sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+						TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 
 					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2782,7 +2785,8 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+				int iCeilTechDifference = static_cast<int>(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+					TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2794,7 +2798,8 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedCultureDifference = 0;
 			if (iCultureDifference > 0)
 			{
-				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
+				int iCeilCultureDifference = static_cast<int>(sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+					TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 			}
 
@@ -2899,7 +2904,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 
 				for (int i = 0; i < GC.getNumResourceInfos(); i++)
 				{
-					ResourceTypes eResource = (ResourceTypes)i;
+					ResourceTypes eResource = static_cast<ResourceTypes>(i);
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 					if (pkResourceInfo)
 					{
@@ -3209,7 +3214,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, kTradeConnection.m_eOriginOwner))) // check that the our religion does not have our belief, to prevent double counting
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * MAX(1, (int)m_pPlayer->GetCurrentEra());
+					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * MAX(1, static_cast<int>(m_pPlayer->GetCurrentEra()));
 				}
 			}
 		}
@@ -3238,9 +3243,9 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		CvPlayerPolicies* pOwnerPlayerPolicies = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies();
 		CvPlayerPolicies* pDestPlayerPolicies = GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies();
 
-		PolicyBranchTypes eFreedom = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
-		PolicyBranchTypes eAutocracy = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
-		PolicyBranchTypes eOrder = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
+		PolicyBranchTypes eFreedom = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_FREEDOM));
+		PolicyBranchTypes eAutocracy = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_AUTOCRACY));
+		PolicyBranchTypes eOrder = static_cast<PolicyBranchTypes>(GD_INT_GET(POLICY_BRANCH_ORDER));
 
 		bool bBothAutocracy = false;
 		bool bBothOrder = false;
@@ -4215,7 +4220,7 @@ void CvPlayerTrade::UpdateTradeConnectionValues (void)
 		{
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
-				pTrade->SetOriginYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, true));
+				pTrade->SetOriginYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, static_cast<YieldTypes>(uiYields), true));
 			}
 		}
 
@@ -4223,7 +4228,7 @@ void CvPlayerTrade::UpdateTradeConnectionValues (void)
 		{
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
-				pTrade->SetDestYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false));
+				pTrade->SetDestYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, static_cast<YieldTypes>(uiYields), false));
 			}
 		}
 	}
@@ -4392,7 +4397,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(PlayerTypes eOtherPlayer, DomainTypes eD
 			for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 			{
 				// Check the route, but not the path
-				if (CanCreateTradeRoute(pLoopCity, pLoopCity2, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
+				if (CanCreateTradeRoute(pLoopCity, pLoopCity2, eDomain, static_cast<TradeConnectionType>(uiConnectionTypes), false, false))
 				{
 					// Check the path
 					if (pGameTrade->IsValidTradeRoutePath(pLoopCity, pLoopCity2, eDomain))
@@ -4425,7 +4430,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 			for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 			{
 				// Check the route, but not the path
-				if (CanCreateTradeRoute(pLoopCity, pLoopCity2, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
+				if (CanCreateTradeRoute(pLoopCity, pLoopCity2, eDomain, static_cast<TradeConnectionType>(uiConnectionTypes), false, false))
 				{
 					// Check the path
 					if (pGameTrade->IsValidTradeRoutePath(pLoopCity, pLoopCity2, eDomain))
@@ -4464,7 +4469,7 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 		{
 			if (nPlots > MAX_PLOTS_TO_DISPLAY)
 				nPlots = MAX_PLOTS_TO_DISPLAY;
-			for (uint ui = 0; ui < (uint)nPlots; ui++) 
+			for (uint ui = 0; ui < static_cast<uint>(nPlots); ui++) 
 			{
 				plotsX[ui] = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList[ui].m_iX;
 				plotsY[ui] = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList[ui].m_iY;
@@ -4726,7 +4731,7 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 	int iNumValid = 0;
 	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(ui);
 
 		if (!GET_PLAYER(ePlayer).isAlive())
 		{
@@ -4757,7 +4762,7 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 		for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 		{
 			// Check the trade route, ignoring the path for now
-			if (CanCreateTradeRoute(pFromCity, pLoopCity, eDomain, (TradeConnectionType)uiConnectionTypes, false, false))
+			if (CanCreateTradeRoute(pFromCity, pLoopCity, eDomain, static_cast<TradeConnectionType>(uiConnectionTypes), false, false))
 			{
 				// Now test the path
 				if (bCheckPath)
@@ -5258,7 +5263,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
 	{
 		int iCity = 0;
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		CvPlayer& kLoopPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 		{
 			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
@@ -5459,11 +5464,11 @@ int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity) const
 
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(static_cast<BuildingClassTypes>(iI));
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI);
+				eBuilding = static_cast<BuildingTypes>(kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI));
 			}
 			if (eBuilding != NO_BUILDING)
 			{
@@ -5475,17 +5480,17 @@ int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity) const
 
 				if (pBuildingEntry)
 				{
-					if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(static_cast<BuildingTypes>(pBuildingEntry->GetID())))
 					{
 						int iTurnMod = pBuildingEntry->GetTRTurnModGlobal();
 						if (iTurnMod != 0)
 						{
-							iTurnChange += (iTurnMod * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+							iTurnChange += (iTurnMod * pLoopCity->GetCityBuildings()->GetNumBuilding(static_cast<BuildingTypes>(pBuildingEntry->GetID())));
 						}
 						int iTurnModLocal = pBuildingEntry->GetTRTurnModLocal();
 						if (iTurnModLocal != 0 && bSameCity)
 						{
-							iTurnChange += (iTurnModLocal * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
+							iTurnChange += (iTurnModLocal * pLoopCity->GetCityBuildings()->GetNumBuilding(static_cast<BuildingTypes>(pBuildingEntry->GetID())));
 						}
 					}
 				}
@@ -5518,7 +5523,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void) const
 
 	for(int iTechLoop = 0; iTechLoop < pMyPlayerTechEntries->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes eTech = static_cast<TechTypes>(iTechLoop);
 		if (!pMyTeamTechs->HasTech(eTech))
 		{
 			continue;
@@ -5541,7 +5546,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void) const
 			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(vBuildings[i]);
 			if (pBuildingEntry)
 			{
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding(static_cast<BuildingTypes>(pBuildingEntry->GetID())))
 				{
 					int iNumRouteBonus = pBuildingEntry->GetNumTradeRouteBonus();
 					if (iNumRouteBonus != 0)
@@ -6117,7 +6122,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 		PlayerTypes eOtherPlayer = NO_PLAYER;
 		for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 		{
-			eOtherPlayer = (PlayerTypes)ui;
+			eOtherPlayer = static_cast<PlayerTypes>(ui);
 
 			if (!GET_PLAYER(eOtherPlayer).isAlive())
 				continue;
@@ -6137,7 +6142,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 					continue;
 
 				DomainTypes eDomain = NO_DOMAIN;
-				for (eDomain = (DomainTypes)0; eDomain < NUM_DOMAIN_TYPES; eDomain = (DomainTypes)(eDomain + 1))
+				for (eDomain = static_cast<DomainTypes>(0); eDomain < NUM_DOMAIN_TYPES; eDomain = static_cast<DomainTypes>(eDomain + 1))
 				{
 					// if this isn't a valid trade domain, ignore
 					if (eDomain != DOMAIN_LAND && eDomain != DOMAIN_SEA)
@@ -6152,7 +6157,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 					TradeConnectionType eConnection = NUM_TRADE_CONNECTION_TYPES;
 					for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 					{
-						eConnection = (TradeConnectionType)uiConnectionTypes;
+						eConnection = static_cast<TradeConnectionType>(uiConnectionTypes);
 
 						// Check the trade route ignoring the path
 						if (!pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, !bSkipExisting, false))
@@ -6209,7 +6214,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	int iPlayerEra = MAX((int)m_pPlayer->GetCurrentEra(), 1);
+	int iPlayerEra = MAX(static_cast<int>(m_pPlayer->GetCurrentEra()), 1);
 	int iOtherPlayerEra = MAX((int)GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra(), 1);
 
 	if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6228,7 +6233,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 	if(iGPT < -1)
-		iGoldAmount *= (int)sqrt((float)-iGPT);
+		iGoldAmount *= static_cast<int>(sqrt((float)-iGPT));
 
 	// if a city is impoverished, let's send trade routes from there
 	if (MOD_BALANCE_VP)
@@ -6528,19 +6533,21 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 					iToPressure = 0;
 				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
-				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
-				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
+				double dExistingPressureModFrom = sqrt(log(static_cast<double>(MAX(1, iExistingToPressureAtFrom + iFromPressure)) / static_cast<double>(MAX(1, iExistingToPressureAtFrom))) / log(2.));
+				double dExistingPressureModTo = sqrt(log(static_cast<double>(MAX(1, iExistingGoodPressureAtTo + iToPressure)) / static_cast<double>(MAX(1, iExistingGoodPressureAtTo))) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta += static_cast<int>(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) +
+					0.5);
+				iReligionDelta -= static_cast<int>(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) +
+					0.5);
 			}
 		}
 	}
 
-	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
+	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
+	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 	int iGoldScore = iGoldDelta / max(1, (10-iFlavorGold));
 	int iScienceScore = (iTechDelta *  iFlavorScience);
 	int iCultureScore = (iCultureDelta * iFlavorCulture);
@@ -6576,13 +6583,13 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), static_cast<YieldTypes>(iJ)) * 10);
 		}
 
 		//If we get a bonus from sending trade routes to foreign territory, let's send an international route!
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
-			YieldTypes eYieldLoop = (YieldTypes)iJ;
+			YieldTypes eYieldLoop = static_cast<YieldTypes>(iJ);
 			if (eYieldLoop != YIELD_GOLD && eYieldLoop != YIELD_SCIENCE && eYieldLoop != YIELD_CULTURE) // We already checked these yield types above with a more sophisticated routine
 			{
 				int iTempScore = 0;
@@ -6632,7 +6639,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			iDangerSum += 100;
 	}
 
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
+	int iEra = max(1, static_cast<int>(m_pPlayer->GetCurrentEra())); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
 	//Let's encourage TRs to feitorias.
@@ -6659,7 +6666,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		//If we aren't connected to a player, and we benefit from this, ramp up the score!
 		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
-			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(static_cast<YieldTypes>(iYieldLoop)) > 0)
 			{
 				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 				{
@@ -6742,12 +6749,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 							}
 							else
 							{
-								eOfficeBuilding = (BuildingTypes)GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+								eOfficeBuilding = static_cast<BuildingTypes>(GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice));
 							}
 						}
 						else
 						{
-							eOfficeBuilding = (BuildingTypes)GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+							eOfficeBuilding = static_cast<BuildingTypes>(GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice));
 						}
 						if (eOfficeBuilding != NO_BUILDING)
 						{
@@ -6779,7 +6786,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				{
 					for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 					{
-						int iYieldFromCorp = pFromCity->GetTradeRouteCityMod((YieldTypes)iYield);
+						int iYieldFromCorp = pFromCity->GetTradeRouteCityMod(static_cast<YieldTypes>(iYield));
 						if (iYieldFromCorp > 0)
 						{
 							iScore += (iYieldFromCorp * 50);
@@ -6927,9 +6934,9 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(static_cast<YieldTypes>(iYieldLoop)) > 0)
 		{
-			iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop)) * 10;
+			iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(static_cast<YieldTypes>(iYieldLoop))) * 10;
 		}
 		if(m_pPlayer->GetGoldInternalTrade() > 0)
 		{
@@ -6970,7 +6977,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), static_cast<YieldTypes>(iJ)) * 10);
 		}
 	}
 
@@ -7157,19 +7164,21 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 					iToPressure = 0;
 				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
-				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
-				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
+				double dExistingPressureModFrom = sqrt(log(static_cast<double>(MAX(1, iExistingToPressureAtFrom + iFromPressure)) / static_cast<double>(MAX(1, iExistingToPressureAtFrom))) / log(2.));
+				double dExistingPressureModTo = sqrt(log(static_cast<double>(MAX(1, iExistingGoodPressureAtTo + iToPressure)) / static_cast<double>(MAX(1, iExistingGoodPressureAtTo))) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta += static_cast<int>(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) +
+					0.5);
+				iReligionDelta -= static_cast<int>(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) +
+					0.5);
 			}
 		}
 	}
 
-	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_GOLD")));
+	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_SCIENCE")));
+	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_RELIGION")));
+	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_CULTURE")));
 	int iGoldScore = iGoldAmount / max(1, (10 - iFlavorGold));
 	int iScienceScore = (iAdjustedScienceAmount *  iFlavorScience);
 	int iCultureScore = (iAdjustedCultureAmount * iFlavorCulture);
@@ -7200,7 +7209,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), static_cast<YieldTypes>(iJ)) * 10);
 		}
 	}
 
@@ -7228,7 +7237,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			iDangerSum += 100;
 	}
 
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
+	int iEra = max(1, static_cast<int>(m_pPlayer->GetCurrentEra())); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
 	//finally
@@ -7702,5 +7711,5 @@ int TradeConnection::GetMovementSpeed()
 	int iRawSpeed = GET_PLAYER(m_eOriginOwner).GetTrade()->GetTradeRouteSpeed(m_eDomain);
 
 	//unfortunately have to round the result to integer, so often the speed factor won't matter
-	return int(0.5f + m_iSpeedFactor*iRawSpeed / 100.f);
+	return static_cast<int>(0.5f + m_iSpeedFactor * iRawSpeed / 100.f);
 }

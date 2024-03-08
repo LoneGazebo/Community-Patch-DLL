@@ -185,7 +185,7 @@ ICvMissionData1* CvDllUnit::GetHeadMissionData() const
 //------------------------------------------------------------------------------
 UnitCombatTypes CvDllUnit::GetUnitCombatType()
 {
-	return (UnitCombatTypes)m_pUnit->getUnitCombatType();
+	return static_cast<UnitCombatTypes>(m_pUnit->getUnitCombatType());
 }
 //------------------------------------------------------------------------------
 int CvDllUnit::GetX() const

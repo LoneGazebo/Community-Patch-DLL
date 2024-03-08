@@ -160,7 +160,7 @@ protected:
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	void GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
 
-	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
+	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = static_cast<CvUnit*>(NULL)) const;
 	bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const;
 
 	void UpdateCanalPlots();

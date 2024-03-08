@@ -430,7 +430,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iLocalFaithCooldown = kResults.GetInt("LocalFaithPurchaseCooldown");
 
 	szTextVal = kResults.GetText("FriendlyLandsPromotion");
-	m_iFriendlyLandsPromotion = (PromotionTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_iFriendlyLandsPromotion = static_cast<PromotionTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	m_bIsMounted = kResults.GetBool("IsMounted");
 
@@ -522,7 +522,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	//TechTypes
 	{
 		//Initialize array to NO_TECH
-		kUtility.InitializeArray(m_piPrereqAndTechs, "Technologies", (int)NO_TECH);
+		kUtility.InitializeArray(m_piPrereqAndTechs, "Technologies", static_cast<int>(NO_TECH));
 
 		std::string strKey = "Units - TechTypes";
 		Database::Results* pResults = kUtility.GetResults(strKey);
@@ -1196,7 +1196,7 @@ int CvUnitEntry::GetCivilianAttackPriority() const
 /// Default AI behavior
 UnitAITypes CvUnitEntry::GetDefaultUnitAIType() const
 {
-	return (UnitAITypes)m_iDefaultUnitAIType;
+	return static_cast<UnitAITypes>(m_iDefaultUnitAIType);
 }
 
 /// Tech needed to pillage (if we can pillage)
@@ -1221,10 +1221,10 @@ int CvUnitEntry::GetObsoleteTech() const
 /// Era this unit belongs to
 int CvUnitEntry::GetEra() const
 {
-	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	TechTypes eTech = static_cast<TechTypes>(GetPrereqAndTech());
 	if (eTech != NO_TECH)
 	{
-		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
+		CvTechEntry* pTech = GC.getTechInfo(static_cast<TechTypes>(GetPrereqAndTech()));
 		return pTech->GetEra();
 	}
 
@@ -1545,25 +1545,25 @@ int CvUnitEntry::GetResourceQuantityExpended(int i) const
 /// Production boost for having a specific building in city
 int CvUnitEntry::GetBuildingProductionModifier(BuildingTypes eBuilding) const
 {
-	CvAssertMsg((int)eBuilding < GC.getNumBuildingInfos(), "Building type out of bounds");
-	CvAssertMsg((int)eBuilding > -1, "Index out of bounds");
-	return m_piProductionModifierBuildings[(int)eBuilding];
+	CvAssertMsg(static_cast<int>(eBuilding) < GC.getNumBuildingInfos(), "Building type out of bounds");
+	CvAssertMsg(static_cast<int>(eBuilding) > -1, "Index out of bounds");
+	return m_piProductionModifierBuildings[static_cast<int>(eBuilding)];
 }
 
 /// Do we get one of our yields from defeating an enemy?
 int CvUnitEntry::GetYieldFromKills(YieldTypes eYield) const
 {
-	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromKills[(int)eYield];
+	CvAssertMsg(static_cast<int>(eYield) < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg(static_cast<int>(eYield) > -1, "Index out of bounds");
+	return m_piYieldFromKills[static_cast<int>(eYield)];
 }
 
 /// Do we get one of our yields from defeating a barbarian?
 int CvUnitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
-	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromBarbarianKills[(int)eYield];
+	CvAssertMsg(static_cast<int>(eYield) < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg(static_cast<int>(eYield) > -1, "Index out of bounds");
+	return m_piYieldFromBarbarianKills[static_cast<int>(eYield)];
 }
 
 /// Boost in production for leader with this trait
@@ -1841,7 +1841,7 @@ int CvUnitEntry::GetLocalFaithCooldown() const
 }
 PromotionTypes CvUnitEntry::GetFriendlyLandsPromotion() const
 {
-	return (PromotionTypes)m_iFriendlyLandsPromotion;
+	return static_cast<PromotionTypes>(m_iFriendlyLandsPromotion);
 }
 #endif
 /// What flag icon to use
@@ -1898,10 +1898,10 @@ void CvUnitEntry::DoUpdatePower()
 // ***************
 
 	// We want a Unit that has twice the strength to be roughly worth 3x as much with regards to Power
-	iPower = int(pow((double) GetCombat(), 1.5));
+	iPower = static_cast<int>(pow((double)GetCombat(), 1.5));
 
 	// Ranged Strength
-	int iRangedStrength = int(pow((double) GetRangedCombat(), 1.45));
+	int iRangedStrength = static_cast<int>(pow((double)GetRangedCombat(), 1.45));
 
 	if(iRangedStrength > iPower)
 	{
@@ -1909,7 +1909,7 @@ void CvUnitEntry::DoUpdatePower()
 	}
 
 	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
-	iPower = int((float) iPower * pow(min(1.0,(double) GetMoves()), 0.3));
+	iPower = static_cast<int>((float)iPower * pow(min(1.0, (double)GetMoves()), 0.3));
 
 	if (IsImmobile()) 
 	{
@@ -1944,7 +1944,7 @@ void CvUnitEntry::DoUpdatePower()
 
 	for (int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
 	{
-		CvPromotionEntry* kPromotion = GC.getPromotionInfo((PromotionTypes)iPromotionLoop);
+		CvPromotionEntry* kPromotion = GC.getPromotionInfo(static_cast<PromotionTypes>(iPromotionLoop));
 		if (kPromotion == NULL)
 			continue;
 

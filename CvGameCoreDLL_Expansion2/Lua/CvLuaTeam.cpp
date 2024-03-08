@@ -283,7 +283,7 @@ int CvLuaTeam::pRegister(lua_State* L)
 
 	for(int i = 0; i < MAX_TEAMS; ++i)
 	{
-		CvTeam* pkTeam = &(GET_TEAM((TeamTypes)i));
+		CvTeam* pkTeam = &(GET_TEAM(static_cast<TeamTypes>(i)));
 		CvLuaTeam::Push(L, pkTeam);
 		lua_rawseti(L, -2, i);
 	}
@@ -351,7 +351,7 @@ int CvLuaTeam::lGetNumTurnsLockedIntoWar(lua_State* L)
 int CvLuaTeam::lMeet(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	TeamTypes eOtherTeam = (TeamTypes)lua_tointeger(L, 2);
+	TeamTypes eOtherTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bSuppressMessages = lua_toboolean(L, 3);
 
 	pkTeam->meet(eOtherTeam, bSuppressMessages);
@@ -845,7 +845,7 @@ int CvLuaTeam::lIsResearchAgreementTradingAllowedWithTeam(lua_State* L)
 int CvLuaTeam::lSetOpenBorders(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bValue = luaL_optbool(L, 3, false);
 
 	pkTeam->SetAllowsOpenBordersToTeam(eTeam, bValue);
@@ -855,7 +855,7 @@ int CvLuaTeam::lSetOpenBorders(lua_State* L)
 int CvLuaTeam::lSetForcePeace(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bValue = luaL_optbool(L, 3, false);
 
 	pkTeam->setForcePeace(eTeam, bValue);
@@ -865,7 +865,7 @@ int CvLuaTeam::lSetForcePeace(lua_State* L)
 int CvLuaTeam::lGetNumTurnsAtWar(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	int iValue = 0;
 	if(eTeam != NO_TEAM)
 	{
@@ -1139,7 +1139,7 @@ int CvLuaTeam::lIsForcePeace(lua_State* L)
 int CvLuaTeam::lIsWarBlockedByPeaceTreaty(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	TeamTypes eOtherTeam = (TeamTypes)lua_tointeger(L, 2);
+	TeamTypes eOtherTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 
 	if (eOtherTeam == NO_TEAM)
 	{
@@ -1154,7 +1154,7 @@ int CvLuaTeam::lIsWarBlockedByPeaceTreaty(lua_State* L)
 
 	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
-		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+		TeamTypes eLoopTeam = static_cast<TeamTypes>(iTeamLoop);
 
 		if (eLoopTeam != NO_TEAM && eLoopTeam != pkTeam->GetID() && eLoopTeam != eOtherTeam)
 		{
@@ -1312,7 +1312,7 @@ int CvLuaTeam::lIsHasResearchAgreement(lua_State* L)
 int CvLuaTeam::lIsHasTech(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	const TechTypes eTech = static_cast<TechTypes>(lua_tointeger(L, 2));
 
 	lua_pushboolean(L, pkTeam->GetTeamTechs()->HasTech(eTech));
 	return 1;
@@ -1323,9 +1323,9 @@ int CvLuaTeam::lIsHasTech(lua_State* L)
 int CvLuaTeam::lSetHasTech(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TechTypes eIndex = (TechTypes)lua_tointeger(L, 2);
+	const TechTypes eIndex = static_cast<TechTypes>(lua_tointeger(L, 2));
 	const bool bNewValue = lua_toboolean(L, 3);
-	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, 4));
 	bool bFirst = lua_toboolean(L, 5);
 	bool bAnnounce = lua_toboolean(L, 6);
 	const bool bNoBonus = luaL_optbool(L, 7, false);
@@ -1504,7 +1504,7 @@ int CvLuaTeam::lIsVoluntaryVassal(lua_State* L)
 int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 {
 	CvTeam* pkTeam = GetInstance(L);
-	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, 2));
 	const bool bVoluntary = luaL_optbool(L, 3, false);
 
 	pkTeam->DoBecomeVassal(eTeam, bVoluntary, NO_PLAYER);

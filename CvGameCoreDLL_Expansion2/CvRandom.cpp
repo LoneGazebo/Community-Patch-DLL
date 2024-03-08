@@ -97,7 +97,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 	m_ulCallCount++;
 
 	unsigned long long ullNewSeed = ((RANDOM_A * m_ullRandomSeed) + RANDOM_C);
-	unsigned long ul = ((unsigned long)((((ullNewSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_INT) * (ulNum)) / (MAX_UNSIGNED_INT + 1LL)));
+	unsigned long ul = static_cast<unsigned long>((((ullNewSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_INT) * (ulNum)) / (MAX_UNSIGNED_INT + 1LL));
 
 	if(GC.getLogging())
 	{
@@ -134,7 +134,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 
 float CvRandom::getFloat()
 {
-	return (((float)(get(MAX_UNSIGNED_INT))) / ((float)MAX_UNSIGNED_INT));
+	return (static_cast<float>(get(MAX_UNSIGNED_INT)) / static_cast<float>(MAX_UNSIGNED_INT));
 }
 
 

@@ -882,7 +882,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iPolicyType = static_cast<PolicyTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	const char* szSpecificCivilizationType = kResults.GetText("CivilizationRequired");
-	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
+	m_eCivType = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szSpecificCivilizationType, true));
 #endif
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("ResourceType");
@@ -903,14 +903,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGreatPeopleRateChange= kResults.GetInt("GreatPeopleRateChange");
 
 	szTextVal = kResults.GetText("GreatWorkSlotType");
-	m_eGreatWorkSlotType = (GreatWorkSlotType)GC.getInfoTypeForString(szTextVal, true);
+	m_eGreatWorkSlotType = static_cast<GreatWorkSlotType>(GC.getInfoTypeForString(szTextVal, true));
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	szTextVal = kResults.GetText("GreatWorkYieldType");
-	m_eGreatWorkYieldType = (YieldTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_eGreatWorkYieldType = static_cast<YieldTypes>(GC.getInfoTypeForString(szTextVal, true));
 #endif
 	m_iGreatWorkCount = kResults.GetInt("GreatWorkCount");
 	szTextVal = kResults.GetText("FreeGreatWork");
-	m_eFreeGreatWork = (GreatWorkType)GC.getInfoTypeForString(szTextVal, true);
+	m_eFreeGreatWork = static_cast<GreatWorkType>(GC.getInfoTypeForString(szTextVal, true));
 
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
@@ -1062,10 +1062,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYield[idx];
 
 			const char* szYield = pResourceTypes->GetText("YieldIn");
-			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+			pDoubleYieldInfo.m_iYieldIn = static_cast<YieldTypes>(GC.getInfoTypeForString(szYield, true));
 
 			szYield = pResourceTypes->GetText("YieldOut");
-			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+			pDoubleYieldInfo.m_iYieldOut = static_cast<YieldTypes>(GC.getInfoTypeForString(szYield, true));
 
 			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
 
@@ -1095,10 +1095,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYieldGlobal[idx];
 
 			const char* szYield = pResourceTypes->GetText("YieldIn");
-			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+			pDoubleYieldInfo.m_iYieldIn = static_cast<YieldTypes>(GC.getInfoTypeForString(szYield, true));
 
 			szYield = pResourceTypes->GetText("YieldOut");
-			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+			pDoubleYieldInfo.m_iYieldOut = static_cast<YieldTypes>(GC.getInfoTypeForString(szYield, true));
 
 			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
 
@@ -1604,7 +1604,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 /// Class of this building
 BuildingClassTypes CvBuildingEntry::GetBuildingClassType() const
 {
-	return (BuildingClassTypes)m_iBuildingClassType;
+	return static_cast<BuildingClassTypes>(m_iBuildingClassType);
 }
 
 const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
@@ -1697,10 +1697,10 @@ int CvBuildingEntry::GetPrereqAndTech() const
 /// Era this building belongs to
 int CvBuildingEntry::GetEra() const
 {
-	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	TechTypes eTech = static_cast<TechTypes>(GetPrereqAndTech());
 	if (eTech != NO_TECH)
 	{
-		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
+		CvTechEntry* pTech = GC.getTechInfo(static_cast<TechTypes>(GetPrereqAndTech()));
 		return pTech->GetEra();
 	}
 
@@ -4599,7 +4599,7 @@ void CvCityBuildings::CacheBuildingTypeByClass() const
 			CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
 			if (pkInfo && pkInfo->GetBuildingClassType() == i && GetNumBuilding(*iI) > 0)
 			{
-				m_buildingTypeByClass.insert(std::make_pair((BuildingClassTypes) i, (BuildingTypes) *iI));
+				m_buildingTypeByClass.insert(std::make_pair(static_cast<BuildingClassTypes>(i), (BuildingTypes) *iI));
 			}
 		}
 	}
@@ -4698,7 +4698,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
-			m_buildingsThatExistAtLeastOnce.push_back((BuildingTypes)i);
+			m_buildingsThatExistAtLeastOnce.push_back(static_cast<BuildingTypes>(i));
 
 	SetBuildingTypeByClassDirty(true);
 }
@@ -4867,7 +4867,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 		return false;
 
 	// Is this a free building?
-	if(GetNumFreeBuilding((BuildingTypes)kBuilding.GetID()) > 0)
+	if(GetNumFreeBuilding(static_cast<BuildingTypes>(kBuilding.GetID())) > 0)
 		return false;
 
 #if defined(MOD_BALANCE_CORE)
@@ -4894,7 +4894,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		if ((YieldTypes)iYieldLoop == NO_YIELD)
+		if (static_cast<YieldTypes>(iYieldLoop) == NO_YIELD)
 			continue;
 
 		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
@@ -5319,7 +5319,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		{
 			if(buildingEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 			{
-				pPlayer->changeNumResourceUsed((ResourceTypes) iResourceLoop, iChangeNumRealBuilding * buildingEntry->GetResourceQuantityRequirement(iResourceLoop));
+				pPlayer->changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), iChangeNumRealBuilding * buildingEntry->GetResourceQuantityRequirement(iResourceLoop));
 			}
 		}
 
@@ -5370,7 +5370,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						// Wonder notification for all other players
 						for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 						{
-							CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
+							CvPlayerAI& thisPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
 							if(thisPlayer.isAlive() || thisPlayer.isObserver())
 							{
 								// Owner already got his messaging
@@ -5540,7 +5540,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+					eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(m_pCity->getCivilizationType())->
+					                                          getCivilizationBuildings(eBuildingClass));
 				}
 				if(NO_BUILDING != eBuilding)
 				{
@@ -5571,7 +5572,8 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 		}
 		else
 		{
-			eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+			eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(m_pCity->getCivilizationType())->
+			                                          getCivilizationBuildings(eBuildingClass));
 		}
 		if(NO_BUILDING != eBuilding)
 		{
@@ -5750,7 +5752,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 	{
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
+			BuildingClassTypes eLoopBuildingClass = static_cast<BuildingClassTypes>(iI);
 			BuildingTypes eBuilding = NO_BUILDING;
 
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
@@ -5759,7 +5761,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+				eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(
+					eLoopBuildingClass));
 			}
 			if(NO_BUILDING != eBuilding)
 			{
@@ -5791,7 +5794,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 	{
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
+			BuildingClassTypes eLoopBuildingClass = static_cast<BuildingClassTypes>(iI);
 			BuildingTypes eBuilding = NO_BUILDING;
 
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
@@ -5800,7 +5803,8 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 			}
 			else
 			{
-				eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+				eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(
+					eLoopBuildingClass));
 			}
 			if(NO_BUILDING != eBuilding)
 			{
@@ -6004,7 +6008,7 @@ int CvCityBuildings::GetNumGreatWorks() const
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+					eBuilding = static_cast<BuildingTypes>(pkCivInfo->getCivilizationBuildings(eBldgClass));
 				}
 
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
@@ -6037,8 +6041,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 
 	int iRtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+	GreatWorkClass eArtifactsClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"));
+	GreatWorkClass eArtClass = static_cast<GreatWorkClass>(GC.getInfoTypeForString("GREAT_WORK_ART"));
 #endif
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
@@ -6058,7 +6062,7 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 				}
 				else
 				{
-					eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+					eBuilding = static_cast<BuildingTypes>(pkCivInfo->getCivilizationBuildings(eBldgClass));
 				}
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
@@ -6487,7 +6491,7 @@ bool CvCityBuildings::CheckForAllWondersBuilt()
 
 	for(iI = iStartStatWonder; iI < iEndStatWonder; iI++)
 	{
-		if(gDLL->GetSteamStat((ESteamStat)iI, &nStat))
+		if(gDLL->GetSteamStat(static_cast<ESteamStat>(iI), &nStat))
 		{
 			if(nStat <= 0)
 			{

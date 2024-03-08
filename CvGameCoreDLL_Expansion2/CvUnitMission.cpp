@@ -129,7 +129,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 	// Update Builder Resource info
 	if(eMission == CvTypes::getMISSION_BUILD())
 	{
-		const BuildTypes eBuild = (BuildTypes) iData1;
+		const BuildTypes eBuild = static_cast<BuildTypes>(iData1);
 		if(eBuild != NO_BUILD)
 		{
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
@@ -146,14 +146,14 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 						
 						// Assumes that the BuildFeatures table has an extra column RemoveOnly
 						for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
-							CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+							CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo(static_cast<BuildTypes>(iI));
 							if(pRemoveBuildInfo) {
 								if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
 									CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
-									TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
+									TechTypes eObsoleteTech = static_cast<TechTypes>(pRemoveBuildInfo->getFeatureObsoleteTech(eFeature));
 
 									if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
-										TechTypes ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
+										TechTypes ePrereqTech = static_cast<TechTypes>(pRemoveBuildInfo->getFeatureTech(eFeature));
 									
 										// We have a candidate build for removing this feature
 										if (ePrereqTech == NO_TECH) {
@@ -165,7 +165,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 											if (pRemoveBuild == NULL) {
 												pRemoveBuild = pRemoveBuildInfo;
 										}
-										else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
+										else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo(static_cast<TechTypes>(pRemoveBuild->getFeatureTech(eFeature)))->GetGridX()) {
 												pRemoveBuild = pRemoveBuildInfo;
 											}
 										}
@@ -184,7 +184,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 							
 							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
 							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+							UnitClassTypes eArchaeologistClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true));
 							if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
 							{
 								bAppend = true;
@@ -241,11 +241,11 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 		{
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 			{
-				eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+				eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 			}
 			else if(pkBuildInfo->getRoute() != NO_ROUTE)
 			{
-				eRoute = (RouteTypes) pkBuildInfo->getRoute();
+				eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 			}
 		}
 
@@ -275,7 +275,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 
 			if(iNumResource > 0)
 			{
-				GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -iNumResource);
+				GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), -iNumResource);
 			}
 		}
 
@@ -674,7 +674,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						break;
 					}
 				}
-				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(kMissionData.iData1)).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
 					if(hUnit->UnitPathTo(pTargetUnit->getX(), pTargetUnit->getY(), kMissionData.iFlags) >= 0)
@@ -710,7 +710,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_BUILD())
 			{
-				if(!hUnit->UnitBuild((BuildTypes)(kMissionData.iData1)))
+				if(!hUnit->UnitBuild(static_cast<BuildTypes>(kMissionData.iData1)))
 				{
 					bDone = true;
 				}
@@ -779,7 +779,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
-				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(kMissionData.iData1)).getUnit(kMissionData.iData2);
 				if((!pTargetUnit) ||hUnit-> plot() == pTargetUnit->plot())
 				{
 					bDone = true;
@@ -828,7 +828,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_WAIT_FOR())
 			{
-				CvUnit* pkWaitingFor = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pkWaitingFor = GET_PLAYER(static_cast<PlayerTypes>(kMissionData.iData1)).getUnit(kMissionData.iData2);
 				if(!pkWaitingFor || !pkWaitingFor->IsBusy())
 				{
 					bDone = true;
@@ -880,11 +880,11 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 							if (pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 							{
-								eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+								eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 							}
 							else if (pkBuildInfo->getRoute() != NO_ROUTE)
 							{
-								eRoute = (RouteTypes)pkBuildInfo->getRoute();
+								eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 							}
 
 							if (eImprovement != NO_IMPROVEMENT || eRoute != NO_ROUTE)
@@ -912,7 +912,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 									if (iNumResource > 0)
 									{
-										GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes)iResourceLoop, -iNumResource);
+										GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), -iNumResource);
 									}
 								}
 							}
@@ -1053,7 +1053,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 		CvAssertMsg(iData2 != NO_UNIT, "iData2 should be a valid Unit ID");
 		if (iData1 != NO_PLAYER && iData2 != NO_UNIT)
 		{
-			pTargetUnit = GET_PLAYER((PlayerTypes)iData1).getUnit(iData2);
+			pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(iData1)).getUnit(iData2);
 
 			if (pTargetUnit->IsImmobile())
 			{
@@ -1175,14 +1175,14 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_JOIN())
 	{
-		if(hUnit->canJoinCity(pPlot, ((SpecialistTypes)iData1)))
+		if(hUnit->canJoinCity(pPlot, static_cast<SpecialistTypes>(iData1)))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_CONSTRUCT())
 	{
-		if(hUnit->canConstruct(pPlot, ((BuildingTypes)iData1)))
+		if(hUnit->canConstruct(pPlot, static_cast<BuildingTypes>(iData1)))
 		{
 			return true;
 		}
@@ -1280,8 +1280,8 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_BUILD())
 	{
-		CvAssertMsg(((BuildTypes)iData1) < GC.getNumBuildInfos(), "Invalid Build");
-		if(hUnit->canBuild(pPlot, ((BuildTypes)iData1), bTestVisible))
+		CvAssertMsg((static_cast<BuildTypes>(iData1)) < GC.getNumBuildInfos(), "Invalid Build");
+		if(hUnit->canBuild(pPlot, static_cast<BuildTypes>(iData1), bTestVisible))
 		{
 			return true;
 		}
@@ -1629,7 +1629,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_JOIN())
 			{
-				if(hUnit->joinCity((SpecialistTypes)(hUnit->HeadMissionData()->iData1)))
+				if(hUnit->joinCity(static_cast<SpecialistTypes>(hUnit->HeadMissionData()->iData1)))
 				{
 					bAction = true;
 				}
@@ -1637,7 +1637,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_CONSTRUCT())
 			{
-				if(hUnit->construct((BuildingTypes)(hUnit->HeadMissionData()->iData1)))
+				if(hUnit->construct(static_cast<BuildingTypes>(hUnit->HeadMissionData()->iData1)))
 				{
 					bAction = true;
 				}
@@ -1760,7 +1760,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 						GC.getGame().GetGameTrade()->InvalidateTradePathCache(hUnit->getOwner()); // although we are only interested in one trade route, we invalidate all since the originating client has updated their whole cache when opening the popup
 					}
 
-					if(hUnit->makeTradeRoute(pPlot->getX(), pPlot->getY(), (TradeConnectionType)pkQueueData->iData2))
+					if(hUnit->makeTradeRoute(pPlot->getX(), pPlot->getY(), static_cast<TradeConnectionType>(pkQueueData->iData2)))
 					{
 						bAction = true;
 					}
@@ -1801,7 +1801,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_BUILD())
 			{
-				BuildTypes currentBuild = (BuildTypes)(hUnit->HeadMissionData()->iData1);
+				BuildTypes currentBuild = static_cast<BuildTypes>(hUnit->HeadMissionData()->iData1);
 				// Gold cost for Improvement construction
 				kUnitOwner.GetTreasury()->ChangeGold(-kUnitOwner.getBuildCost(hUnit->plot(),currentBuild));
 
@@ -1813,11 +1813,11 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 					if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 					{
-						eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+						eImprovement = static_cast<ImprovementTypes>(pkBuildInfo->getImprovement());
 					}
 					else
 					{
-						eRoute = (RouteTypes) pkBuildInfo->getRoute();
+						eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 					}
 
 					// Update the amount of a Resource used up by popped Build
@@ -1846,7 +1846,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 						if(iNumResource > 0)
 						{
-							GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, iNumResource);
+							GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed(static_cast<ResourceTypes>(iResourceLoop), iNumResource);
 						}
 					}
 				}
@@ -1983,7 +1983,7 @@ CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 
 		else if(pMissionNode->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 		{
-			CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)pMissionNode->iData1).getUnit(pMissionNode->iData2);
+			CvUnit* pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(pMissionNode->iData1)).getUnit(pMissionNode->iData2);
 			if(pTargetUnit)
 			{
 				return pTargetUnit->plot();
@@ -2043,7 +2043,7 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 		{
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
-				pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(kMissionData.iData1)).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
 					pTargetPlot = pTargetUnit->plot();
@@ -2320,7 +2320,7 @@ const MissionData* CvUnitMission::IsHeadMission(CvUnit* hUnit, int iMission)
 	if(hUnit->m_missionQueue.getLength())
 	{
 		const MissionData& kMissionData = *hUnit->m_missionQueue.head();
-		if(kMissionData.eMissionType == (MissionTypes)iMission)
+		if(kMissionData.eMissionType == static_cast<MissionTypes>(iMission))
 			return &kMissionData;
 	}
 	return NULL;
@@ -2342,7 +2342,7 @@ bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
-				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER(static_cast<PlayerTypes>(kMissionData.iData1)).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
 					pTargetPlot = pTargetUnit->plot();

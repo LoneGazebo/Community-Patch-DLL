@@ -747,7 +747,7 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 	// Check Playables
 	for(int i = 0; i < GC.getNumCivilizationInfos(); ++i)
 	{
-		CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes) i);
+		CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo(static_cast<CivilizationTypes>(i));
 		if(pkCivilization)
 		{
 			if(pkCivilization->isPlayable())
@@ -849,7 +849,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	int i = 0;
 	for(i=0; i<NUM_COMMAND_TYPES; i++)
 	{
-		CvCommandInfo* commandInfo = GC.getCommandInfo((CommandTypes)i);
+		CvCommandInfo* commandInfo = GC.getCommandInfo(static_cast<CommandTypes>(i));
 		if(commandInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -861,7 +861,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<NUM_INTERFACEMODE_TYPES; i++)
 	{
-		CvInterfaceModeInfo* interfaceInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)i);
+		CvInterfaceModeInfo* interfaceInfo = GC.getInterfaceModeInfo(static_cast<InterfaceModeTypes>(i));
 		if(interfaceInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -873,7 +873,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<GC.getNumBuildInfos(); i++)
 	{
-		CvBuildInfo* buildInfo = GC.getBuildInfo((BuildTypes)i);
+		CvBuildInfo* buildInfo = GC.getBuildInfo(static_cast<BuildTypes>(i));
 		if(buildInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -885,7 +885,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<GC.getNumPromotionInfos(); i++)
 	{
-		CvPromotionEntry* promotionEntry = GC.getPromotionInfo((PromotionTypes)i);
+		CvPromotionEntry* promotionEntry = GC.getPromotionInfo(static_cast<PromotionTypes>(i));
 		if(promotionEntry)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -897,7 +897,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<GC.getNumSpecialistInfos(); i++)
 	{
-		CvSpecialistInfo* specialistInfo = GC.getSpecialistInfo((SpecialistTypes)i);
+		CvSpecialistInfo* specialistInfo = GC.getSpecialistInfo(static_cast<SpecialistTypes>(i));
 		if(specialistInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -909,7 +909,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<NUM_CONTROL_TYPES; i++)
 	{
-		CvControlInfo* controlInfo = GC.getControlInfo((ControlTypes)i);
+		CvControlInfo* controlInfo = GC.getControlInfo(static_cast<ControlTypes>(i));
 		if(controlInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -933,7 +933,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 	for(i=0; i<iNumMissionTypes; i++)
 	{
-		CvMissionInfo* missionInfo = GC.getMissionInfo((MissionTypes)i);
+		CvMissionInfo* missionInfo = GC.getMissionInfo(static_cast<MissionTypes>(i));
 		if(missionInfo)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
@@ -954,49 +954,49 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 		CvAssert(piIndexList[piOrderedIndex[i]] != -1);
 
 		pActionInfo->setOriginalIndex(piIndexList[piOrderedIndex[i]]);
-		pActionInfo->setSubType((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]]);
-		if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_COMMAND)
+		pActionInfo->setSubType(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]));
+		if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_COMMAND)
 		{
-			GC.getCommandInfo((CommandTypes)piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
+			GC.getCommandInfo(static_cast<CommandTypes>(piIndexList[piOrderedIndex[i]]))->setActionInfoIndex(i);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_INTERFACEMODE)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_INTERFACEMODE)
 		{
-			GC.getInterfaceModeInfo((InterfaceModeTypes)piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
+			GC.getInterfaceModeInfo(static_cast<InterfaceModeTypes>(piIndexList[piOrderedIndex[i]]))->setActionInfoIndex(i);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_BUILD)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_BUILD)
 		{
-			GC.getBuildInfo((BuildTypes)piIndexList[piOrderedIndex[i]])->setMissionType(GC.getInfoTypeForString("MISSION_BUILD"));
-			GC.getBuildInfo((BuildTypes)piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
+			GC.getBuildInfo(static_cast<BuildTypes>(piIndexList[piOrderedIndex[i]]))->setMissionType(GC.getInfoTypeForString("MISSION_BUILD"));
+			GC.getBuildInfo(static_cast<BuildTypes>(piIndexList[piOrderedIndex[i]]))->setActionInfoIndex(i);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_PROMOTION)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_PROMOTION)
 		{
-			CvPromotionEntry* pkEntry = GC.getPromotionInfo((PromotionTypes)piIndexList[piOrderedIndex[i]]);
+			CvPromotionEntry* pkEntry = GC.getPromotionInfo(static_cast<PromotionTypes>(piIndexList[piOrderedIndex[i]]));
 
 			pkEntry->SetCommandType(GC.getInfoTypeForString("COMMAND_PROMOTION"));
 			pkEntry->setActionInfoIndex(i);
 			CvString strHotKey = pkEntry->CreateHotKeyFromDescription(pkEntry->getHotKey(), pkEntry->isShiftDown(), pkEntry->isAltDown(), pkEntry->isCtrlDown());
-			pkEntry->setHotKeyDescription(pkEntry->GetDescription(), GC.getCommandInfo((CommandTypes)(pkEntry->GetCommandType()))->GetDescription(), strHotKey);
+			pkEntry->setHotKeyDescription(pkEntry->GetDescription(), GC.getCommandInfo(static_cast<CommandTypes>(pkEntry->GetCommandType()))->GetDescription(), strHotKey);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_SPECIALIST)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_SPECIALIST)
 		{
-			CvSpecialistInfo* pkSpecialist = GC.getSpecialistInfo((SpecialistTypes)piIndexList[piOrderedIndex[i]]);
+			CvSpecialistInfo* pkSpecialist = GC.getSpecialistInfo(static_cast<SpecialistTypes>(piIndexList[piOrderedIndex[i]]));
 
 			pkSpecialist->setMissionType(GC.getInfoTypeForString("MISSION_JOIN"));
 			pkSpecialist->setActionInfoIndex(i);
 			CvString strHotKey = pkSpecialist->CreateHotKeyFromDescription(pkSpecialist->getHotKey(), pkSpecialist->isShiftDown(), pkSpecialist->isAltDown(), pkSpecialist->isCtrlDown());
-			pkSpecialist->setHotKeyDescription(pkSpecialist->GetDescription(), GC.getMissionInfo((MissionTypes)(pkSpecialist->getMissionType()))->GetDescription(), strHotKey);
+			pkSpecialist->setHotKeyDescription(pkSpecialist->GetDescription(), GC.getMissionInfo(static_cast<MissionTypes>(pkSpecialist->getMissionType()))->GetDescription(), strHotKey);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_CONTROL)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_CONTROL)
 		{
-			GC.getControlInfo((ControlTypes)piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
+			GC.getControlInfo(static_cast<ControlTypes>(piIndexList[piOrderedIndex[i]]))->setActionInfoIndex(i);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_AUTOMATE)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_AUTOMATE)
 		{
 			GC.getAutomateInfo(piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
 		}
-		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_MISSION)
+		else if(static_cast<ActionSubTypes>(piActionInfoTypeList[piOrderedIndex[i]]) == ACTIONSUBTYPE_MISSION)
 		{
-			GC.getMissionInfo((MissionTypes)piIndexList[piOrderedIndex[i]])->setActionInfoIndex(i);
+			GC.getMissionInfo(static_cast<MissionTypes>(piIndexList[piOrderedIndex[i]]))->setActionInfoIndex(i);
 		}
 
 		GC.getActionInfo().push_back(pActionInfo);

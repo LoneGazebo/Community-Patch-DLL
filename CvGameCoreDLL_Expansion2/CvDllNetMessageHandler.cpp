@@ -484,7 +484,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 			CvAssertMsg(iTargetPlayer != -1, "iTargetPlayer is -1");
 			if(iTargetPlayer != -1)
 			{
-				PlayerTypes eTargetPlayer = (PlayerTypes)iTargetPlayer;
+				PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(iTargetPlayer);
 				CvCity* pCity = GET_PLAYER(eTargetPlayer).getCity(iTargetCity);
 				CvAssertMsg(pCity, "pCity is null");
 				if(pCity)

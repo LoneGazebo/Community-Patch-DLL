@@ -153,10 +153,10 @@ bool CvDllDlcPackageInfoList::MoveNext()
 			return false;	// Nope, just leave as -1 and return false
 	}
 
-	if((size_t)m_iIndex < m_packageIDs.size())
+	if(static_cast<size_t>(m_iIndex) < m_packageIDs.size())
 		m_iIndex++;
 
-	return (size_t)m_iIndex < m_packageIDs.size();
+	return static_cast<size_t>(m_iIndex) < m_packageIDs.size();
 }
 //------------------------------------------------------------------------------
 void CvDllDlcPackageInfoList::Reset()
@@ -166,7 +166,7 @@ void CvDllDlcPackageInfoList::Reset()
 //------------------------------------------------------------------------------
 ICvUnknown* CvDllDlcPackageInfoList::GetCurrent()
 {
-	if(m_iIndex > -1 && (size_t)m_iIndex < m_packageIDs.size())
+	if(m_iIndex > -1 && static_cast<size_t>(m_iIndex) < m_packageIDs.size())
 	{
 		return new CvDllDlcPackageInfo(m_packageIDs[m_iIndex]);
 	}

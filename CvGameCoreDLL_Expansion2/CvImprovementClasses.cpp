@@ -332,7 +332,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iUnitPlotExperience = kResults.GetInt("UnitPlotExperience");
 	m_iGAUnitPlotExperience = kResults.GetInt("GAUnitPlotExperience");
 	const char* szFeatureType = kResults.GetText("CreatesFeature");
-	m_eCreatesFeature = (FeatureTypes)GC.getInfoTypeForString(szFeatureType, true);
+	m_eCreatesFeature = static_cast<FeatureTypes>(GC.getInfoTypeForString(szFeatureType, true));
 	m_eRandResourceChance = kResults.GetInt("RandResourceChance");
 	m_eRemovesSelf = kResults.GetBool("RemoveWhenComplete");
 	m_bNewOwner = kResults.GetBool("NewOwner");
@@ -350,11 +350,11 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
-	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+	m_eRequiredCivilization = static_cast<CivilizationTypes>(GC.getInfoTypeForString(szCivilizationType, true));
 #if defined(MOD_BALANCE_CORE)
 	m_iHappinessOnConstruction = kResults.GetInt("HappinessOnConstruction");
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
-	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
+	m_iImprovementResource = static_cast<ResourceTypes>(GC.getInfoTypeForString(szImprovementResource, true));
 	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("UnitFreePromotion");
@@ -1704,7 +1704,7 @@ void ImprovementArrayHelpers::Read(FDataStream& kStream, int* paiImprovementArra
 	{
 		uint uiHash = 0;
 		kStream >> uiHash;
-		if (uiHash != 0 && uiHash != (uint)NO_IMPROVEMENT)
+		if (uiHash != 0 && uiHash != static_cast<uint>(NO_IMPROVEMENT))
 		{
 			int iType = GC.getInfoTypeForHash(uiHash);
 			if(iType != -1 && iType < iArraySize)
@@ -1741,7 +1741,7 @@ void ImprovementArrayHelpers::Write(FDataStream& kStream, int* paiImprovementArr
 		}
 		else
 		{
-			kStream << (int)NO_IMPROVEMENT;
+			kStream << static_cast<int>(NO_IMPROVEMENT);
 		}
 	}
 }
