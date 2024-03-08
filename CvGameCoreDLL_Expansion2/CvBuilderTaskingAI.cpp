@@ -388,7 +388,7 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 	return (iCityCitizenRatio * iCityCitizensModifier + iBaseRatio * iBaseModifier) / (iCityCitizenRatio + iBaseRatio);
 }
 
-void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
+void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
 {
 	vector<int> aiMovingForwardCostsWithRoute(path.length() - 1);
 	vector<int> aiMovingBackwardCostsWithRoute(path.length() - 1);
@@ -515,7 +515,7 @@ pair<int, int> CvBuilderTaskingAI::GetPlotPair(int iPlotId1, int iPlotId2)
 		return make_pair(iPlotId2, iPlotId1);
 }
 
-void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, SPath path, RoutePurpose ePurpose)
+void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose)
 {
 	vector<int> routePlots;
 
