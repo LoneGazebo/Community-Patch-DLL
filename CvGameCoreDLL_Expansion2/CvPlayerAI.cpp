@@ -1790,6 +1790,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		}
 	}
 
+	//build one citadel at a time
+	if (iCitadels == 0)
+	{
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+
 	//during war we want field commanders
 	int iWars = (int)GetPlayersAtWarWith().size();
 	//just a rough estimation
@@ -1798,16 +1804,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	int iDesiredNumCommanders = max(1, (iWars+iPotentialArmies)/2);
 	if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-
-	//build one citadel at a time
-	std::vector<CvPlot*> vDummy;
-	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	if(iCitadels==0)
-	{
-		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
-		if (pTargetPlot)
-		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
 	
 	// default
 	return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
@@ -2770,7 +2766,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			ResourceTypes eResource = pAdjacentPlot->getResourceType(getTeam());
 			if(eResource != NO_RESOURCE)
 			{
-				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);
+				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, pAdjacentPlot->getNumResource()) * iWeightFactor);
 			}
 
 			// score yield

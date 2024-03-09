@@ -106,6 +106,7 @@ public:
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
 	int GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned=0);
+	int GetCultureBombValue(CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes, int> GetBestRouteTypeAndValue(const CvPlot* pPlot) const;

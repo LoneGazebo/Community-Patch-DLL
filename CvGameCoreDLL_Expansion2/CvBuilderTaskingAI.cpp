@@ -15,6 +15,7 @@
 #include "CvImprovementClasses.h"
 #include "CvCityConnections.h"
 #include "CvEconomicAI.h"
+#include "CvDiplomacyAI.h"
 #include "CvGameCoreEnumSerialization.h" //toString(const YieldTypes& v)
 #include "CvTypes.h"
 
@@ -3117,39 +3118,147 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && (bNewIsDefensive || bOldIsDefensive))
 	{
 		int iDefenseBuildValue = pPlot->GetDefenseBuildValue(m_pPlayer->GetID(), eBuild, eImprovement, sState);
-		iSecondaryScore += iDefenseBuildValue;
+		if (iDefenseBuildValue != 0)
+			iSecondaryScore += iDefenseBuildValue;
 	}
 
 	// Do we want a canal here?
 	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && WantCanalAtPlot(pPlot) && pkImprovementInfo->GetNearbyEnemyDamage() == 0)
 		iSecondaryScore += 3000;
 
-	// TODO flesh out culture bomb logic and move it from TacticalAI?
-	// Currently this is only for human player recommendations.
+	// Bonuses from claiming adjacent tiles
 	if (bIsCultureBomb && eBuild != NO_BUILD && (pOwningCity || pPlot->isAdjacentPlayer(m_pPlayer->GetID())))
 	{
-		int iAdjacentGood = 0;
-		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
-
-			if (pAdjacentPlot != NULL && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
-			{
-				iAdjacentGood++;
-			}
-		}
-		if (iAdjacentGood > 0)
-		{
-			iSecondaryScore += 1000 * iAdjacentGood;
-		}
+		int iCultureBombValue = GetCultureBombValue(pPlot, eBuild, eImprovement, sState);
+		if (iCultureBombValue != 0)
+			iSecondaryScore += iCultureBombValue;
 	}
 
 	const int iImprovementMaintenanceTimes100 = pkImprovementInfo ? pkImprovementInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) : 0;
-	iSecondaryScore -= iImprovementMaintenanceTimes100;
+	if (iImprovementMaintenanceTimes100 != 0)
+		iSecondaryScore -= iImprovementMaintenanceTimes100;
 
 	if (iYieldScore + iSecondaryScore <= 0)
 		return iYieldScore + iSecondaryScore;
 	return iYieldScore + iBaseYieldScore + iSecondaryScore;
+}
+
+int CvBuilderTaskingAI::GetCultureBombValue(CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState)
+{
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	if (!pkBuildInfo)
+		return 0;
+
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	if (!pkImprovementInfo)
+		return 0;
+
+	int iRange = range(pkImprovementInfo->GetCultureBombRadius() + m_pPlayer->GetCultureBombBoost(), 1, 5);
+
+	int iScore = 0;
+
+	for (int iI = 0; iI < RING_PLOTS[iRange]; iI++)
+	{
+		CvPlot* pAdjacentPlot = iterateRingPlots(pPlot, iI);
+		if (pAdjacentPlot == NULL)
+			continue;
+
+		// don't evaluate city plots since we don't get ownership of them with the bomb
+		if (pAdjacentPlot->isCity())
+			continue;
+
+		//don't count the plot if we already own it
+		if (pAdjacentPlot->getOwner() == m_pPlayer->GetID())
+			continue;
+
+		//Let's grab embassies if we can!
+		if (pAdjacentPlot->IsImprovementEmbassy())
+		{
+			if (GET_PLAYER(pAdjacentPlot->GetPlayerThatBuiltImprovement()).getTeam() != m_pPlayer->getTeam())
+				iScore += 2000;
+		}
+
+		int iMultiplier = 100;
+
+		const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
+		if (eOtherPlayer != NO_PLAYER && eOtherPlayer != BARBARIAN_PLAYER && eOtherPlayer != m_pPlayer->GetID())
+		{
+			if (m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
+			{
+				return -1000;
+			}
+			else if (GET_PLAYER(eOtherPlayer).isMinorCiv())
+			{
+				// grabbing tiles away from minors is nice
+				iMultiplier = 130;
+			}
+			else
+			{
+				// grabbing tiles away from majors is really nice
+				iMultiplier = 200;
+			}
+		}
+
+		// score resource - this may be the dominant factor!
+		ResourceTypes eResource = pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceWeight = GetResourceWeight(eResource, pAdjacentPlot->getNumResource(), sState.mExtraResources[eResource]);
+
+			iScore += (iResourceWeight * iMultiplier) / 100;
+
+			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eResource);
+			//amp up monopoly alloc!
+			if (pkConnectedResource && pkConnectedResource->isMonopoly())
+			{
+				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iScore += ((iResourceWeight * m_pPlayer->GetMonopolyPercent(eResource)) * iMultiplier) / /*25*100*/ 2500;
+				}
+				else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iScore += ((iResourceWeight * m_pPlayer->GetMonopolyPercent(eResource)) * iMultiplier) / /*25*100*/ 2500;
+				}
+			}
+		}
+
+		int iBestCityDistance = INT_MAX;
+		int iLoop = 0;
+		bool bWillBeWorkable = false;
+
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			CvPlot* pPlot = pLoopCity->plot();
+			if (pPlot)
+			{
+				int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+				if (iDistance < iBestCityDistance)
+				{
+					if (pLoopCity->IsWithinWorkRange(pPlot))
+					{
+						bWillBeWorkable = true;
+						break;
+					}
+
+					iBestCityDistance = iDistance;
+				}
+			}
+		}
+
+		if (!bWillBeWorkable)
+			continue;
+
+		for (int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
+		{
+			YieldTypes eYield = (YieldTypes)iYield;
+			iScore += (pAdjacentPlot->getYield(eYield) * GetYieldBaseModifierTimes100(eYield) * iMultiplier) / 100;
+		}
+	}
+
+	return iScore;
 }
 
 BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const

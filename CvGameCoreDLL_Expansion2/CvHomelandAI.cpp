@@ -3276,13 +3276,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// Prune directives that are in the same plot
 					continue;
 				}
-				else if (pkImprovementInfo && pkImprovementInfo->IsNoTwoAdjacent())
+				else if (pkImprovementInfo && pkImprovementInfo->IsNoTwoAdjacent() && eOtherDirective.m_eBuild == eDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 				{
 					// Prune directives to ensure we don't try to build two adjacent that cannot be adjacent
-					if (eOtherDirective.m_eBuild == eDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
-					{
-						continue;
-					}
+					continue;
+				}
+				else if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() && pkImprovementInfo->GetCultureBombRadius() > 0 && eOtherDirective.m_eBuild == eDirective.m_eBuild)
+				{
+					// Only plan one citadel at the time
+					continue;
 				}
 
 				bool bDirectiveUpdated = false;
@@ -4492,38 +4494,38 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, pUnit->isCultureBomb() ? NO_BUILD : eCitadel, vPlotsToAvoid, false);
-			if(pTargetPlot)
+			if (pUnit->isCultureBomb())
 			{
-				if(pUnit->plot() != pTargetPlot)
+				// No building, handle here
+				CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, pUnit->isCultureBomb() ? NO_BUILD : eCitadel, vPlotsToAvoid, false);
+				if (pTargetPlot)
 				{
-					//continue moving to target
-					int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, iFlags))
+					if (pUnit->plot() != pTargetPlot)
 					{
-						vPlotsToAvoid.push_back(pTargetPlot);
-						UnitProcessed(pUnit->GetID());
-
-						//just for debugging
-						pUnit->SetMissionAI(MISSIONAI_BUILD,pTargetPlot,NULL);
-
-						if(GC.getLogging() && GC.getAILogging())
+						//continue moving to target
+						int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+						if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, iFlags))
 						{
-							CvString strLogString;
-							strLogString.Format("Great general moving to build citadel at, X: %d, Y: %d, current location, X: %d, Y: %d", 
-								pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-					}
-					else
-						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
-				}
+							vPlotsToAvoid.push_back(pTargetPlot);
+							UnitProcessed(pUnit->GetID());
 
-				if(pUnit->plot() == pTargetPlot && pUnit->canMove())
-				{
-					if (pUnit->isCultureBomb())
+							//just for debugging
+							pUnit->SetMissionAI(MISSIONAI_BUILD, pTargetPlot, NULL);
+
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Great general moving to build citadel at, X: %d, Y: %d, current location, X: %d, Y: %d",
+									pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
+								LogHomelandMessage(strLogString);
+							}
+						}
+						else
+							pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+					}
+
+					if (pUnit->plot() == pTargetPlot && pUnit->canMove())
 					{
-						//nothing to build
 						pUnit->PushMission(CvTypes::getMISSION_CULTURE_BOMB());
 						if (GC.getLogging() && GC.getAILogging())
 						{
@@ -4533,50 +4535,17 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						}
 						UnitProcessed(pUnit->GetID());
 					}
-					else
-					{
-						// find the great general improvement
-						BuildTypes eSelectedBuildType = NO_BUILD;
-						BuildTypes eBuild;
-						int iBuildIndex;
-						for (iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
-						{
-							eBuild = (BuildTypes)iBuildIndex;
-							CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-							if (pkBuild == NULL)
-								continue;
-
-							if (!pUnit->canBuild(pTargetPlot, eBuild))
-							{
-								continue;
-							}
-
-							eSelectedBuildType = eBuild;
-							break;
-						}
-
-						CvAssertMsg(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
-						if (eSelectedBuildType != NO_BUILD)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, false, false, MISSIONAI_BUILD, pTargetPlot);
-							if (GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Great General citadel'd at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
-							}
-							UnitProcessed(pUnit->GetID());
-						}
-						else
-						{
-							//give up
-							pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
-						}
-					}
+				}
+				else
+				{
+					pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 				}
 			}
 			else
-				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+			{
+				// Building, handle in ExecuteWorkerMoves
+				m_greatPeopleForImprovements.push_back(pUnit->GetID());
+			}
 		}
 
 		if (pUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
