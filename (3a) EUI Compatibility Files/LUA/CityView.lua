@@ -953,9 +953,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 						+ city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
 						+ cityOwner:GetPolicyBuildingClassYieldChange(buildingClassID, yieldID)
 
-			if GameInfo.Yields[yieldID].Type == "YIELD_CULTURE" then
-				buildingCultureRate = buildingCultureRate + city:GetBuildingClassCultureChange(buildingClassID )
-			end
 			-- Yield modifiers from the building
 			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
