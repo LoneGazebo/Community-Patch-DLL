@@ -4683,8 +4683,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		// Our team's city?
 		else if (GET_PLAYER(pNewCity->getOriginalOwner()).getTeam() == getTeam())
 		{
-			// A teammate's city? Automatically liberated!
-			if (ePlayerToLiberate != NO_PLAYER)
+			// Conquered a teammate's city? Automatically liberated!
+			if (bConquest && ePlayerToLiberate != NO_PLAYER)
 			{
 				DoLiberatePlayer(ePlayerToLiberate, pNewCity->GetID(), false, false);
 				pNewCity = NULL; // delete the pointer
