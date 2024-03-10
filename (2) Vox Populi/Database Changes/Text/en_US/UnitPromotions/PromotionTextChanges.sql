@@ -455,7 +455,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
+SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]featureless Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
 -- Morale 

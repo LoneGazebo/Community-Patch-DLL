@@ -879,7 +879,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
 
 			-- Target is on featureless hill
-			if eToFeature ~= FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
+			if eToFeature == FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
 				iModifier = pMyUnit:TerrainAttackModifier(GameInfoTypes.TERRAIN_HILL);
 				sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
@@ -1210,7 +1210,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				end
 
 				-- Defending on featureless hill
-				if eToFeature ~= FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
+				if eToFeature == FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
 					iModifier = pTheirUnit:TerrainAttackModifier(GameInfoTypes.TERRAIN_HILL);
 					sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
