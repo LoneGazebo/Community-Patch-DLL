@@ -43750,7 +43750,12 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
 		CvAIOperation* pThisOperation = m_AIOperations[i].second;
-		if (plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot())<3)
+		CvPlot* pMusterPlot = pThisOperation->GetMusterPlot();
+
+		if (!pMusterPlot)
+			continue;
+
+		if (plotDistance(*pMusterPlot, *pCity->plot()) < 3)
 		{
 			return (bNaval == pThisOperation->IsNavalOperation());
 		}
