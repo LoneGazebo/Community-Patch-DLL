@@ -2114,6 +2114,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 	if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pPlot->GetPlayerThatBuiltRoute()).getTeam()))
 		return;
 
+	// Don't remove roads far from owned territory
+	if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		return;
+
 	pair<RouteTypes, int> pRouteAndValue = GetBestRouteTypeAndValue(pPlot);
 
 	RouteTypes eNeededRoute = pRouteAndValue.first;
@@ -2127,7 +2131,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 
 	CvRouteInfo* pExistingRouteInfo = GC.getRouteInfo(eExistingRoute);
 
-	int iWeight = pExistingRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * 5;
+	int iWeight = pExistingRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
