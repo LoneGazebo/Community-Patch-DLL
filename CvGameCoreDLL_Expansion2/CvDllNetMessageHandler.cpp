@@ -228,7 +228,9 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
 	{
-		pkCity->Purchase(eUnitType, eBuildingType, eProjectType, static_cast<YieldTypes>(ePurchaseYield));
+		pkCity->PurchaseUnit(eUnitType, static_cast<YieldTypes>(ePurchaseYield));
+		pkCity->PurchaseBuilding(eBuildingType, static_cast<YieldTypes>(ePurchaseYield));
+		pkCity->PurchaseProject(eProjectType, static_cast<YieldTypes>(ePurchaseYield));
 	}
 }
 //------------------------------------------------------------------------------

@@ -4773,16 +4773,16 @@ bool CvTeam::IsAllowsOpenBordersToTeam(TeamTypes eIndex) const
 {
 	if (eIndex < 0 || eIndex >= MAX_TEAMS) return false;
 
+	// We always have open borders with ourselves
+	if (GetID() == eIndex)
+		return true;
+
 	// Did we resurrect them?
 	if (GetLiberatedByTeam() == eIndex && !isAtWar(eIndex))
 		return true;
 
 	// Are we their master?
 	if (GetMaster() == eIndex)
-		return true;
-
-	// We always have open borders with ourselves
-	if (GetID() == eIndex)
 		return true;
 
 	return m_abOpenBorders[eIndex];

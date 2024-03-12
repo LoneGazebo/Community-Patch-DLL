@@ -851,10 +851,10 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			-- Target is on rough terrain
 			if pToPlot:IsRoughGround() then
 				if not bRanged then
-					iModifier = pMyUnit:OpenAttackModifier();
+					iModifier = pMyUnit:RoughAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS", nBonus, iMiscModifier, true, true);
 				else
-					iModifier = pMyUnit:OpenRangedAttackModifier();
+					iModifier = pMyUnit:RoughRangedAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS", nBonus, iMiscModifier, true, true);
 				end
 			end
@@ -1295,10 +1295,10 @@ function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurre
 	Controls.MyRedBar:SetHide(true);
 	Controls.MyYellowBar:SetHide(true);
 	Controls.MyGreenBar:SetHide(true);
-	if fHealthPercent <= 30 then
+	if fHealthPercent <= 0.30 then
 		Controls.MyRedBar:SetSize(tHealthBarSize);
 		Controls.MyRedBar:SetHide(false);
-	elseif fHealthPercent <= 50 then
+	elseif fHealthPercent <= 0.50 then
 		Controls.MyYellowBar:SetSize(tHealthBarSize);
 		Controls.MyYellowBar:SetHide(false);
 	else
@@ -1344,10 +1344,10 @@ function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurre
 	Controls.TheirRedBar:SetHide(true);
 	Controls.TheirGreenBar:SetHide(true);
 	Controls.TheirYellowBar:SetHide(true);
-	if fHealthPercent <= 30 then
+	if fHealthPercent <= 0.30 then
 		Controls.TheirRedBar:SetSize(tHealthBarSize);
 		Controls.TheirRedBar:SetHide(false);
-	elseif fHealthPercent <= 50 then
+	elseif fHealthPercent <= 0.50 then
 		Controls.TheirYellowBar:SetSize(tHealthBarSize);
 		Controls.TheirYellowBar:SetHide(false);
 	else

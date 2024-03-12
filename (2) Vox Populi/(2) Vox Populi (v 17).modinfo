@@ -791,7 +791,6 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="916ED76DBF666B0828BDD456FFF1642B" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
-    <File md5="65F9F720C39A22E8F1D033DAAF06FF47" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
     <File md5="C53D53505ECC43A6FD9D3CA9AE55E697" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">Core Files/Overrides/Bombardment.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>

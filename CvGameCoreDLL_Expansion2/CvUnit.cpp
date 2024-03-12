@@ -4772,12 +4772,19 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
+	// most common case, moving in our own territory
+	if (kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
 		return true;
 
+	// Barbarians have special restrictions early in the game (do this before the isEnemy check!)
+	if (isBarbarian() && eTeam != BARBARIAN_TEAM && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		return false;
+
+	// Are we at war?
 	if(isEnemy(eTeam))
 		return true;
 
+	// Special abilities
 	if(isRivalTerritory() || isTrade())
 		return true;
 
@@ -5144,16 +5151,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		return true;
 	}
 	*/
-
-	// Barbarians have special restrictions early in the game
-	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
-	{
-		//do not capture settlers early in the game ...
-		if (plot.isOwned() || plot.getFirstUnitOfAITypeOtherTeam(BARBARIAN_TEAM, UNITAI_SETTLE) != NULL)
-		{
-			return false;
-		}
-	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && !IsCivilianUnit())
