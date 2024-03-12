@@ -136,7 +136,7 @@ EraTypes LeagueHelpers::GetGameEraForTrigger()
 	}
 	if (eMostAdvancedEra - 1 > NO_ERA)
 	{
-		eGameEra = static_cast<EraTypes>((int)eMostAdvancedEra - 1);
+		eGameEra = static_cast<EraTypes>(static_cast<int>(eMostAdvancedEra) - 1);
 	}
 
 	// Unless half or more civs are in this era too, then it is this era
@@ -168,7 +168,7 @@ EraTypes LeagueHelpers::GetNextGameEraForTrigger()
 
 EraTypes LeagueHelpers::GetNextGameEraForTrigger(EraTypes eThisEra)
 {
-	EraTypes eNextEra = static_cast<EraTypes>((int)eThisEra + 1);
+	EraTypes eNextEra = static_cast<EraTypes>(static_cast<int>(eThisEra) + 1);
 
 	if (eNextEra >= GC.getNumEraInfos())
 	{
@@ -6472,7 +6472,7 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 	// Total cost
 	if (eObserver != NO_PLAYER && IsProjectActive(eProject) && GetProjectCost(eProject)>0)
 	{
-		int iPercentCompleted = static_cast<int>(((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
+		int iPercentCompleted = static_cast<int>((static_cast<float>(GetProjectProgress(eProject)) / static_cast<float>(GetProjectCost(eProject))) * 100);
 		iPercentCompleted = MIN(100, iPercentCompleted);
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_PROGRESS_COST");
 		sTemp << iPercentCompleted;
@@ -8659,7 +8659,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
-						int iPercentCompleted = static_cast<int>((float)GetProjectProgress(eProject) / max(1, GetProjectCost(eProject)) * 100);
+						int iPercentCompleted = static_cast<int>(static_cast<float>(GetProjectProgress(eProject)) / max(1, GetProjectCost(eProject)) * 100);
 						iPercentCompleted = MIN(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
@@ -8749,7 +8749,7 @@ void CvLeague::CheckProjectsProgress()
 				// How close is it?
 				else
 				{
-					int iPercentCompleted = static_cast<int>(((float)iTotal / max(1, iNeeded)) * 100);
+					int iPercentCompleted = static_cast<int>((static_cast<float>(iTotal) / max(1, iNeeded)) * 100);
 					iPercentCompleted = MIN(100, iPercentCompleted);
 
 					if (!it->bProgressWarningSent && iPercentCompleted >= /*33 in CP, 25 in CSD*/ GD_INT_GET(LEAGUE_PROJECT_PROGRESS_PERCENT_WARNING))
@@ -9465,8 +9465,8 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 				}
 			}
 			// In case the game era is actually before or after the triggers in the database
-			EraTypes eGoverningEraTrigger = static_cast<EraTypes>(MAX((int)LeagueHelpers::GetGameEraForTrigger(), (int)eEarliestEraTrigger));
-			eGoverningEraTrigger = static_cast<EraTypes>(MIN((int)eGoverningEraTrigger, (int)eLatestEraTrigger));
+			EraTypes eGoverningEraTrigger = static_cast<EraTypes>(MAX(static_cast<int>(LeagueHelpers::GetGameEraForTrigger()), static_cast<int>(eEarliestEraTrigger)));
+			eGoverningEraTrigger = static_cast<EraTypes>(MIN(static_cast<int>(eGoverningEraTrigger), static_cast<int>(eLatestEraTrigger)));
 
 			// Find which special session info this league begins at
 			LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;

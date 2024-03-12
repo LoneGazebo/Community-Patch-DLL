@@ -88,7 +88,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDom
 	else
 	{
 		//avoid overflow
-		int iRatio = static_cast<int>(0.5f + 100 * (float(GetFriendlyRangedStrength()) / max(1u, GetEnemyRangedStrength())));
+		int iRatio = static_cast<int>(0.5f + 100 * (static_cast<float>(GetFriendlyRangedStrength()) / max(1u, GetEnemyRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -133,7 +133,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalRangedDominanceFlag(int
 	else
 	{
 		//avoid overflow
-		int iRatio = static_cast<int>(0.5f + 100 * (float(GetFriendlyNavalRangedStrength()) / max(1u, GetEnemyNavalRangedStrength())));
+		int iRatio = static_cast<int>(0.5f + 100 * (static_cast<float>(GetFriendlyNavalRangedStrength()) / max(1u, GetEnemyNavalRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -378,7 +378,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::SetOverallDominance(int iDomina
 				iDominancePercentageFriendly += 30;
 
 			//a bit complex to make sure there is no overflow
-			int iRatio = static_cast<int>(0.5f + 100 * (float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
+			int iRatio = static_cast<int>(0.5f + 100 * (static_cast<float>(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
 			if (iRatio > 100 + iDominancePercentageFriendly)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_FRIENDLY;

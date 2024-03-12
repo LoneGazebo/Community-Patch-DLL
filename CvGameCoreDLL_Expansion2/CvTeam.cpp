@@ -5331,7 +5331,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 							{
 								if(GET_PLAYER(static_cast<PlayerTypes>(iJ)).getTeam() == GetID())
 								{
-									BuildingTypes eBuilding = static_cast<BuildingTypes>(GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
+									BuildingTypes eBuilding = static_cast<BuildingTypes>(GET_PLAYER(static_cast<PlayerTypes>(iJ)).getCivilizationInfo().getCivilizationBuildings(eBuildingClass));
 
 									CvCity* pCapital = GET_PLAYER(static_cast<PlayerTypes>(iJ)).getCapitalCity();
 

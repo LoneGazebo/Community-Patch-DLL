@@ -6911,7 +6911,8 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
 	iItemValue = max(10, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
-	float fItemMultiplier = static_cast<float>(pow((double)std::max(1, (iTechEra)), (double)/*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT)));
+	float fItemMultiplier = static_cast<float>(pow((double)std::max(1, (iTechEra)), static_cast<double>( /*0.7*/
+		                                               GD_FLOAT_GET(TECH_COST_ERA_EXPONENT))));
 	iItemValue = static_cast<int>(iItemValue * fItemMultiplier);
 
 	// Apply the Modifier

@@ -670,12 +670,12 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 								kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_SPECIFIC_PLAYER,eTargetPlayer);
 								if(pkTargetRequests->HasPendingRequests())
 								{
-									ePlayerLoop = static_cast<PlayerTypes>((int)ePlayerLoop + 1);
+									ePlayerLoop = static_cast<PlayerTypes>(static_cast<int>(ePlayerLoop) + 1);
 									break;
 								}
 							}
 
-							ePlayerLoop = static_cast<PlayerTypes>((int)ePlayerLoop + 1);
+							ePlayerLoop = static_cast<PlayerTypes>(static_cast<int>(ePlayerLoop) + 1);
 						}
 
 						pkTargetRequests->SetNextAIPlayer(((static_cast<int>(ePlayerLoop) >= iMaxCivPlayers)?NO_PLAYER:ePlayerLoop));

@@ -2292,7 +2292,7 @@ int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int iTurnsLe
 	double fTotalCostFactor = /*0.15f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.015f*/ GD_FLOAT_GET(AI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFT));
 	double fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
 
-	return static_cast<int>(double(iOriginalWeight) / fWeightDivisor);
+	return static_cast<int>(static_cast<double>(iOriginalWeight) / fWeightDivisor);
 }
 
 // Figure out what the WeightThreshold Mod should be by looking at the Flavors for this player & the Strategy
@@ -2665,7 +2665,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 				{
 					continue;
 				}
-				ImprovementTypes eImprovement = static_cast<ImprovementTypes>(GC.getBuildInfo((BuildTypes)iI)->getImprovement());
+				ImprovementTypes eImprovement = static_cast<ImprovementTypes>(GC.getBuildInfo(static_cast<BuildTypes>(iI))->getImprovement());
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);

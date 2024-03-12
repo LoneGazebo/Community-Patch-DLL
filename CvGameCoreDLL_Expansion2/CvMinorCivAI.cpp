@@ -17475,7 +17475,8 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 {
 	// The more Gold you spend the more Friendship you get!
-	iGold = static_cast<int>(pow((double)iGold, (double)/*1.01f*/ GD_FLOAT_GET(GOLD_GIFT_FRIENDSHIP_EXPONENT)));
+	iGold = static_cast<int>(pow((double)iGold, static_cast<double>( /*1.01f*/
+		                             GD_FLOAT_GET(GOLD_GIFT_FRIENDSHIP_EXPONENT))));
 	// The higher this divisor the less Friendship is gained
 	int iFriendship = static_cast<int>(iGold / /*9.8f in CP, 18f in CSD*/ GD_FLOAT_GET(GOLD_GIFT_FRIENDSHIP_DIVISOR));
 

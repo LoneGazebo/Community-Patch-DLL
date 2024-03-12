@@ -15027,7 +15027,8 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice /= 100;
 
 	// Apply exponent
-	iPrice = static_cast<int>(pow((double)iPrice, (double)/*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT)));
+	iPrice = static_cast<int>(pow((double)iPrice, static_cast<double>( /*1.0f*/
+		                              GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT))));
 
 	// Make the number not be funky
 	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
@@ -18815,7 +18816,7 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 const DomainTypes CvUnit::getGiveDomain() const
 {
 	VALIDATE_OBJECT
-	return static_cast<DomainTypes>((int)m_eGiveDomain);
+	return static_cast<DomainTypes>(static_cast<int>(m_eGiveDomain));
 }
 void CvUnit::ChangeGiveDomain(DomainTypes eDomain)
 {
@@ -18915,7 +18916,7 @@ inline bool CvUnit::isConvertUnit() const
 const DomainTypes CvUnit::getConvertDomain() const
 {
 	VALIDATE_OBJECT
-	return static_cast<DomainTypes>((int)m_eConvertDomain);
+	return static_cast<DomainTypes>(static_cast<int>(m_eConvertDomain));
 }
 void CvUnit::ChangeConvertDomain(DomainTypes eDomain)
 {

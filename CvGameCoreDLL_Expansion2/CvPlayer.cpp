@@ -22714,7 +22714,7 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 					if (iDistanceFactor <= 0)
 						iDistanceFactor = 1;
 
-					iDistanceFactor = static_cast<int>(sqrt((float)iDistanceFactor));
+					iDistanceFactor = static_cast<int>(sqrt(static_cast<float>(iDistanceFactor)));
 					iUnhappiness += (iDistanceFactor * iCulturalDominanceOverUs);
 				}
 			}
@@ -23023,7 +23023,7 @@ int CvPlayer::GetHappinessFromReligion()
 			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace, GetID(), pHolyCity, true);
 
 			float iHappinessPerFollowingCity = pReligion->m_Beliefs.GetHappinessPerFollowingCity(GetID(), pHolyCity, true);
-			iHappinessFromReligion += static_cast<int>((float)pReligions->GetNumCitiesFollowing(eStateReligion) * iHappinessPerFollowingCity);
+			iHappinessFromReligion += static_cast<int>(static_cast<float>(pReligions->GetNumCitiesFollowing(eStateReligion)) * iHappinessPerFollowingCity);
 
 			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(GetID(), pHolyCity, true);
 			if (iHappinessPerXPeacefulForeignFollowers > 0)
@@ -41757,7 +41757,8 @@ int CvPlayer::GetHurryGoldCost(HurryTypes eHurry) const
 
 			// Cost of Gold rushing based on the ORIGINAL Research price
 			int iGoldForFullPrice = iTotalCost * pkHurryInfo->getGoldPerBeaker();
-			iGoldForFullPrice = static_cast<int>(pow((double)iGoldForFullPrice, (double)/*1.10f*/ GD_FLOAT_GET(HURRY_GOLD_TECH_EXPONENT)));
+			iGoldForFullPrice = static_cast<int>(pow((double)iGoldForFullPrice, static_cast<double>( /*1.10f*/
+				                                         GD_FLOAT_GET(HURRY_GOLD_TECH_EXPONENT))));
 
 			// Figure out the actual cost by comparing what's left to the original Research cost, and multiplying that by the amount to Gold rush the original cost
 			iGold = (iGoldForFullPrice * iResearchLeft / iTotalCost);
@@ -41775,7 +41776,8 @@ int CvPlayer::GetHurryGoldCost(HurryTypes eHurry) const
 
 			// Cost of Gold rushing based on the ORIGINAL Culture price
 			int iGoldForFullPrice = iCurrentPolicyCost * pkHurryInfo->getGoldPerCulture();
-			iGoldForFullPrice = static_cast<int>(pow((double)iGoldForFullPrice, (double)/*1.10f*/ GD_FLOAT_GET(HURRY_GOLD_CULTURE_EXPONENT)));
+			iGoldForFullPrice = static_cast<int>(pow((double)iGoldForFullPrice, static_cast<double>( /*1.10f*/
+				                                         GD_FLOAT_GET(HURRY_GOLD_CULTURE_EXPONENT))));
 
 			// Figure out the actual cost by comparing what's left to the original Culture cost, and multiplying that by the amount to Gold rush the original cost
 			iGold = (iGoldForFullPrice * iCultureLeft / iCurrentPolicyCost);
@@ -49651,7 +49653,8 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	int iExtraPopThreshold = static_cast<int>((iPopulation - 1) * /*8.0f in CP, 12.0f in VP*/ GD_FLOAT_GET(CITY_GROWTH_MULTIPLIER));
 
 	iBaseThreshold += iExtraPopThreshold;
-	iExtraPopThreshold = static_cast<int>(pow(double(iPopulation - 1), (double)/*1.5f in CP, 2.22f in VP*/ GD_FLOAT_GET(CITY_GROWTH_EXPONENT)));
+	iExtraPopThreshold = static_cast<int>(pow(static_cast<double>(iPopulation - 1), static_cast<double>( /*1.5f in CP, 2.22f in VP*/
+		                                          GD_FLOAT_GET(CITY_GROWTH_EXPONENT))));
 
 	int iThreshold = iBaseThreshold + iExtraPopThreshold;
 

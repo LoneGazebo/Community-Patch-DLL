@@ -1909,7 +1909,7 @@ void CvUnitEntry::DoUpdatePower()
 	}
 
 	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
-	iPower = static_cast<int>((float)iPower * pow(min(1.0, (double)GetMoves()), 0.3));
+	iPower = static_cast<int>(static_cast<float>(iPower) * pow(min(1.0, static_cast<double>(GetMoves())), 0.3));
 
 	if (IsImmobile()) 
 	{

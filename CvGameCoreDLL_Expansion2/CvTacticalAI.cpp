@@ -10402,7 +10402,7 @@ int CvTacticalPosition::countChildren() const
 float CvTacticalPosition::getAggressionBias() const
 {
 	//avoid extreme ratios, use the sqrt
-	float fUnitNumberRatio = sqrtf(nOurUnits / static_cast<float>(max(1, (int)nEnemies)));
+	float fUnitNumberRatio = sqrtf(nOurUnits / static_cast<float>(max(1, static_cast<int>(nEnemies))));
 
 	int iFlavorOffense = GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy(static_cast<FlavorTypes>(GC.getInfoTypeForString("FLAVOR_OFFENSE")));
 	if (iFlavorOffense > 6)

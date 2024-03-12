@@ -4317,8 +4317,8 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetID())) // Only run this once!
 			{
-				DoFLevelTypes eHighestDoF = static_cast<DoFLevelTypes>(max((int)GetDoFType(ePlayer),
-				                                                           (int)GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDoFType(GetID())));
+				DoFLevelTypes eHighestDoF = static_cast<DoFLevelTypes>(max(static_cast<int>(GetDoFType(ePlayer)),
+				                                                           static_cast<int>(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDoFType(GetID()))));
 				switch (eHighestDoF)
 				{
 				case DOF_TYPE_UNTRUSTWORTHY:
@@ -15864,7 +15864,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	PlayerProximityTypes eOurProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
 	PlayerProximityTypes eTheirProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMyPlayer);
-	PlayerProximityTypes eClosestProximity = static_cast<PlayerProximityTypes>(max((int)eOurProximity, (int)eTheirProximity));
+	PlayerProximityTypes eClosestProximity = static_cast<PlayerProximityTypes>(max(static_cast<int>(eOurProximity), static_cast<int>(eTheirProximity)));
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 	bool bMetValidMinor = GetPlayer()->HasMetValidMinorCiv();
 	CvDiplomacyAI* pTheirDiplo = GET_PLAYER(ePlayer).GetDiplomacyAI();
@@ -49034,7 +49034,7 @@ int CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer)
 	int iPercentTaxed = iGoldTaxedSinceVassalStarted * 100 / iGoldCollectedSinceVassalStarted;
 
 	// Opinion weight from how much % we've taxed them
-	iOpinionWeight = static_cast<int>(pow((float)iPercentTaxed, /*1.5f*/ GD_FLOAT_GET(OPINION_WEIGHT_VASSAL_TAX_EXPONENT))) / max(/*4*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_TAX_DIVISOR), 1);
+	iOpinionWeight = static_cast<int>(pow(static_cast<float>(iPercentTaxed), /*1.5f*/ GD_FLOAT_GET(OPINION_WEIGHT_VASSAL_TAX_EXPONENT))) / max(/*4*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_TAX_DIVISOR), 1);
 	// Opinion weight from current tax %
 	iOpinionWeight += GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetVassalTax(GetID()) * /*50*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER) / 100;
 	

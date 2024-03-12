@@ -11246,19 +11246,19 @@ void CvGame::updateGlobalMedians()
 
 	// Exponential smoothing so the yield medians change gradually
 	float fAlpha = /*0.65f*/ GD_FLOAT_GET(DISTRESS_MEDIAN_RATE_CHANGE);
-	int iNewMedian = static_cast<int>(0.5f + ((int)vfBasicNeedsYield[n] * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
+	int iNewMedian = static_cast<int>(0.5f + (static_cast<int>(vfBasicNeedsYield[n]) * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
 	SetBasicNeedsMedian(iNewMedian);
 
 	fAlpha = /*0.65f*/ GD_FLOAT_GET(POVERTY_MEDIAN_RATE_CHANGE);
-	iNewMedian = static_cast<int>(0.5f + ((int)vfGoldYield[n] * fAlpha) + (GetGoldMedian() * (1 - fAlpha)));
+	iNewMedian = static_cast<int>(0.5f + (static_cast<int>(vfGoldYield[n]) * fAlpha) + (GetGoldMedian() * (1 - fAlpha)));
 	SetGoldMedian(iNewMedian);
 
 	fAlpha = /*0.65f*/ GD_FLOAT_GET(ILLITERACY_MEDIAN_RATE_CHANGE);
-	iNewMedian = static_cast<int>(0.5f + ((int)vfScienceYield[n] * fAlpha) + (GetScienceMedian() * (1 - fAlpha)));
+	iNewMedian = static_cast<int>(0.5f + (static_cast<int>(vfScienceYield[n]) * fAlpha) + (GetScienceMedian() * (1 - fAlpha)));
 	SetScienceMedian(iNewMedian);
 
 	fAlpha = /*0.65f*/ GD_FLOAT_GET(BOREDOM_MEDIAN_RATE_CHANGE);
-	iNewMedian = static_cast<int>(0.5f + ((int)vfCultureYield[n] * fAlpha) + (GetCultureMedian() * (1 - fAlpha)));
+	iNewMedian = static_cast<int>(0.5f + (static_cast<int>(vfCultureYield[n]) * fAlpha) + (GetCultureMedian() * (1 - fAlpha)));
 	SetCultureMedian(iNewMedian);
 
 	DoGlobalMedianLogging();

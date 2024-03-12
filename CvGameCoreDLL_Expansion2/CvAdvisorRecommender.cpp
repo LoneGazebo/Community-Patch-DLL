@@ -226,7 +226,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		int iNewWeight = 0;
 		if(GET_PLAYER(ePlayer).GetNumFreeTechs() == 0)
 		{
-			iNewWeight = static_cast<int>(double(m_aResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+			iNewWeight = static_cast<int>(static_cast<double>(m_aResearchableTechs.GetWeight(iI)) / fWeightDivisor);
 		}
 		else
 		{

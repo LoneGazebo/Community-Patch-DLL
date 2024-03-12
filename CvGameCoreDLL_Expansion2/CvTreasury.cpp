@@ -996,7 +996,8 @@ int CvTreasury::GetVassalGoldMaintenance() const
 				for(CvCity* pLoopCity = GET_PLAYER(static_cast<PlayerTypes>(iI)).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(static_cast<PlayerTypes>(iI)).nextCity(&iLoop))
 				{
 					iCityPop = pLoopCity->getPopulation();
-					iRtnValue += std::max(0, static_cast<int>(pow((double)iCityPop, (double)/*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
+					iRtnValue += std::max(0, static_cast<int>(pow((double)iCityPop, static_cast<double>( /*0.8f*/
+						                                              GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT)))));
 				}
 
 				iRtnValue += std::max(0, (GET_PLAYER(static_cast<PlayerTypes>(iI)).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100));

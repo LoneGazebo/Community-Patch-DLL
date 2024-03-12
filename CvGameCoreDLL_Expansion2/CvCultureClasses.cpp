@@ -5391,7 +5391,7 @@ void CvPlayerCulture::DoPublicOpinion()
 						//INFLUENCE_TREND_RISING = 1, INFLUENCE_TREND_STATIC = 0, INFLUENCE_TREND_FALLING = -1
 
 						iTheirInfluenceLevel -= static_cast<int>(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
-						iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
+						iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend(static_cast<PlayerTypes>(iLoopPlayer))) - 1;
 					}
 				}
 
@@ -5714,7 +5714,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 
 					//INFLUENCE_TREND_RISING = 1, INFLUENCE_TREND_STATIC = 0, INFLUENCE_TREND_FALLING = -1
 					iTheirInfluenceLevel -= static_cast<int>(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
-					iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
+					iOurInfluenceLevel -= static_cast<int>(m_pPlayer->GetCulture()->GetInfluenceTrend(static_cast<PlayerTypes>(iLoopPlayer))) - 1;
 				}
 
 				int iCulturalDominanceOverUs = max(0, iTheirInfluenceLevel) - max(0, iOurInfluenceLevel);

@@ -351,11 +351,11 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 		int iNewWeight = 0;
 		if (bNeedExpensiveTechs)
 		{
-			iNewWeight = static_cast<int>(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
+			iNewWeight = static_cast<int>(static_cast<double>(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
 		}
 		else
 		{
-			iNewWeight = static_cast<int>(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+			iNewWeight = static_cast<int>(static_cast<double>(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
 		}
 
 		if (pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())

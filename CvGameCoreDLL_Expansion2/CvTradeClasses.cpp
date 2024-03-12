@@ -2703,7 +2703,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-					int iCeilTechDifference = static_cast<int>(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+					int iCeilTechDifference = static_cast<int>(sqrt(static_cast<float>(iTechDifference)) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
 						TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 
@@ -2752,7 +2752,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedCultureDifference = 0;
 				if (iCultureDifference > 0)
 				{
-					int iCeilCultureDifference = static_cast<int>(sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+					int iCeilCultureDifference = static_cast<int>(sqrt(static_cast<float>(iCultureDifference)) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
 						TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 
@@ -2785,7 +2785,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-				int iCeilTechDifference = static_cast<int>(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+				int iCeilTechDifference = static_cast<int>(sqrt(static_cast<float>(iTechDifference)) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
 					TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
@@ -2798,7 +2798,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedCultureDifference = 0;
 			if (iCultureDifference > 0)
 			{
-				int iCeilCultureDifference = static_cast<int>(sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
+				int iCeilCultureDifference = static_cast<int>(sqrt(static_cast<float>(iCultureDifference)) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(
 					TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 			}
@@ -6233,7 +6233,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 	if(iGPT < -1)
-		iGoldAmount *= static_cast<int>(sqrt((float)-iGPT));
+		iGoldAmount *= static_cast<int>(sqrt(static_cast<float>(-iGPT)));
 
 	// if a city is impoverished, let's send trade routes from there
 	if (MOD_BALANCE_VP)

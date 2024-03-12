@@ -17,7 +17,7 @@
 
 inline int sqrti(int input)
 {
-	return static_cast<int>(sqrt((float)abs(input)));
+	return static_cast<int>(sqrt(static_cast<float>(abs(input))));
 }
 
 inline int range(int iNum, int iLow, int iHigh)

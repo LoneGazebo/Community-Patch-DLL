@@ -5032,7 +5032,8 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		/*0.0f in CP, 0.2f in VP*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
 
 	// Exponential cost scaling
-	iCost = static_cast<int>(pow((double)iCost, (double)/*2.01f in CP, 2.22f in VP*/ GD_FLOAT_GET(POLICY_COST_EXPONENT)));
+	iCost = static_cast<int>(pow((double)iCost, static_cast<double>( /*2.01f in CP, 2.22f in VP*/
+		                             GD_FLOAT_GET(POLICY_COST_EXPONENT))));
 
 	// Base cost that doesn't get exponent-ed
 	iCost += /*25 in CP, 50 in VP*/ GD_INT_GET(BASE_POLICY_COST);

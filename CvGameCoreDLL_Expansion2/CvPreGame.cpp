@@ -995,7 +995,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 		}
 
 		// Must get the string from the hash
-		GameOptionTypes eOptionIndex = static_cast<GameOptionTypes>(GC.getInfoTypeForHash((uint)eOption));
+		GameOptionTypes eOptionIndex = static_cast<GameOptionTypes>(GC.getInfoTypeForHash(static_cast<uint>(eOption)));
 		if(eOptionIndex >= 0)
 		{
 			CvGameOptionInfo* pkInfo = GC.getGameOptionInfo(eOptionIndex);

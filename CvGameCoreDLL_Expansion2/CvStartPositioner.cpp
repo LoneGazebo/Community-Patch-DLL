@@ -904,7 +904,7 @@ int getRegionDistanceMeasure(const SStartRegion& a, const SStartRegion& b)
 	bx = (bx * 100) / b.vPlots.size();
 	by = (by * 100) / b.vPlots.size();
 
-	return static_cast<int>(sqrtf(float(ax - bx) * (ax - bx) + float(ay - by) * (ay - by)));
+	return static_cast<int>(sqrtf(static_cast<float>(ax - bx) * (ax - bx) + static_cast<float>(ay - by) * (ay - by)));
 }
 
 int findNeighborIdToMerge(map<int, SStartRegion>::iterator self, const map<int,SStartRegion>& regions)
