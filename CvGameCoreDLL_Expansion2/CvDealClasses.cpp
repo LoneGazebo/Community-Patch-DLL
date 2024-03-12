@@ -629,7 +629,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Buyer needs an embassy in peacetime (except for deals between teammates)
-			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam) && eFromTeam != eToTeam)
+			if (!bPeaceDeal && !bSameTeam && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 
 			if (iData1 != -1)
@@ -658,7 +658,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					if (pCity->getDamageTakenLastTurn() > 0)
 						return false;
 
-					if (!bHumanToHuman && pCity->getOriginalOwner() == ePlayer && eFromTeam != eToTeam)
+					if (!bHumanToHuman && !bSameTeam && pCity->getOriginalOwner() == ePlayer)
 						return false;
 
 					if (pCity->GetCityCitizens()->AnyPlotBlockaded())
