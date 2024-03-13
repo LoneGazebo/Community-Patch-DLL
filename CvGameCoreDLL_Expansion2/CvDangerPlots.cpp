@@ -24,7 +24,7 @@
 REMARK_GROUP("CvDangerPlots");
 
 //this adds up quickly if there multiple invisible tiles around ...
-#define FOG_DEFAULT_DANGER (2)
+#define FOG_DEFAULT_DANGER (1)
 
 /// Constructor
 CvDangerPlots::CvDangerPlots(void)
@@ -177,9 +177,8 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRan
 			{
 				CvPlot* pAttackPlot = iterateRingPlots(pPotentialHiddedUnitPlot, j);
 				if (pAttackPlot && pAttackPlot->getDomain() == pOrigin->getDomain())
-					//note: we accept duplicate indices in m_fogDanger by design
 					//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
-					m_DangerPlots[pAttackPlot->GetPlotIndex()].m_fogDanger.push_back(pPotentialHiddedUnitPlot->GetPlotIndex());
+					m_DangerPlots[pAttackPlot->GetPlotIndex()].m_iFogCount++;
 			}
 		}
 	}
@@ -232,7 +231,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
 				m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
-				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 3, false);
+				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 2, false);
 			}
 		}
 
@@ -266,7 +265,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
-			AddFogDanger(pLoopCity->plot(), eLoopTeam, 4, true);
+			AddFogDanger(pLoopCity->plot(), eLoopTeam, 3, true);
 		}
 	}
 
@@ -822,10 +821,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		iPlotDamage += m_iImprovementDamage;
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
-		// Damage from fog (check visibility again, might have changed ...)
-		for (size_t i=0; i<m_fogDanger.size(); i++)
-			if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(pUnit->getTeam()))
-				iPlotDamage += FOG_DEFAULT_DANGER;
+		// Potential damage from enemy units in fog 
+		// Note: Visibility might have changed but tracking this is too expensive, this should be good enough
+		iPlotDamage += m_iFogCount*FOG_DEFAULT_DANGER;
 
 		// Damage from cities
 		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
@@ -923,10 +921,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		iPlotDamage += iCityDamage;
 	}
 
-	// Damage from fog (check visibility again, might have changed ...)
-	for (size_t i=0; i<m_fogDanger.size(); i++)
-		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(pUnit->getTeam()))
-			iPlotDamage += FOG_DEFAULT_DANGER;
+	// Potential damage from enemy units in fog 
+	// Note: Visibility might have changed but tracking this is too expensive, this should be good enough
+	iPlotDamage += m_iFogCount * FOG_DEFAULT_DANGER;
 
 	// Damage from surrounding improvements (citadel) and the plot itself
 	iPlotDamage += m_iImprovementDamage;

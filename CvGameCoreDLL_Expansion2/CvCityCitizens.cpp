@@ -533,15 +533,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	return iValue;
 }
 
-void CvCityCitizens::UpdateCache() const
+int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache)
 {
-	gCachedNumbers.update(m_pCity);
-}
-
-int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
-{
-	const SPrecomputedExpensiveNumbers cache = gCachedNumbers;
-
 	CityAIFocusTypes eFocus = GetFocusType();
 	bool bAvoidGrowth = IsAvoidGrowth();
 
@@ -567,7 +560,6 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
 	}
 
 	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
-
 	if (iYieldMod > 0)
 		return (iModifierTimes100 * iYieldMod) / 10;
 
@@ -918,7 +910,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 }
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers& cache)
 {
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pSpecialistInfo == NULL)
@@ -1228,7 +1220,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	if (MOD_BALANCE_VP)
 	{
 		int iCityHappiness = 0;
-		int iGlobalHappiness = 0;
 		int iValuePercent = 100;
 		//if the specialist would cause urbanization, reduce specialist value depending on local and global unhappiness
 		if ((m_pCity->GetCityCitizens()->GetTotalSpecialistCount() + 1 - m_pCity->GetNumFreeSpecialists()) > 0)
@@ -1241,21 +1232,24 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			else
 			{
 				iCityHappiness = m_pCity->getHappinessDelta();
-				iGlobalHappiness = (GetPlayer()->GetHappinessFromCitizenNeeds()*10/11) - GetPlayer()->GetUnhappinessFromCitizenNeeds();
+
 				//iGlobalHappiness == 0 corresponds to a happiness level of 55%. We don't want to assign too many specialists when close to the 50% threshold
-				if (iGlobalHappiness <= 0 && iCityHappiness <= 0)
+				if (cache.iGlobalHappiness==INT_MAX) //update on demand
+					cache.iGlobalHappiness = pPlayer->GetHappinessFromCitizenNeeds() * 10 / 11 - pPlayer->GetUnhappinessFromCitizenNeeds();
+
+				if (cache.iGlobalHappiness <= 0 && iCityHappiness <= 0)
 				{
 					// unhappy both globally and locally
-					iValuePercent = max(10, 65 + (iGlobalHappiness + iCityHappiness - 2) * 5);
+					iValuePercent = max(10, 65 + (cache.iGlobalHappiness + iCityHappiness - 2) * 5);
 				}
-				if (iGlobalHappiness <= 0 || iCityHappiness <= 0)
+				if (cache.iGlobalHappiness <= 0 || iCityHappiness <= 0)
 				{
-					iValuePercent = max(10, 65 + min(iGlobalHappiness - 1, iCityHappiness - 1) * 5);
+					iValuePercent = max(10, 65 + min(cache.iGlobalHappiness - 1, iCityHappiness - 1) * 5);
 				}
 				else
 				{
 					// we're happy
-					iValuePercent = min(100, 90 + min(iGlobalHappiness, iCityHappiness) * 2);
+					iValuePercent = min(100, 90 + min(cache.iGlobalHappiness, iCityHappiness) * 2);
 				}
 			}
 		}
@@ -3706,6 +3700,8 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 
 void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 {
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+
 	iFamine = pCity->GetUnhappinessFromFamine();
 	iDistress = pCity->GetDistress(false);
 	iPoverty = pCity->GetPoverty(false);
@@ -3714,6 +3710,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	iReligiousUnrest = pCity->GetUnhappinessFromReligiousUnrest();
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
+
+	//this is so expensive, put a marker and it will be updated on demand
+	iGlobalHappiness = INT_MAX;
 
 	if (pCity->IsPuppet())
 	{
@@ -3739,7 +3738,6 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
 			bonusForXTerrain[i][j] = INT_MAX;
 
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	if (kPlayer.isHuman())
 	{
 		bWantArt = false;

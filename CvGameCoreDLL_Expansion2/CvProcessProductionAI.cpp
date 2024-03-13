@@ -169,7 +169,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			//don't need this if no damage
-			if (m_pCity->getDamage() == 0)
+			if (m_pCity->getDamage()==0 && m_pCity->getDamageTakenLastTurn()==0)
 				return SR_USELESS;
 
 			if (m_pCity->isInDangerOfFalling())

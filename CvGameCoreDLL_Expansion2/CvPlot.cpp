@@ -4043,7 +4043,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 
 		if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
 		{
-			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
+			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetCivApproach(eLoopPlayer)!= CIV_APPROACH_FRIENDLY)
 				vUnfriendlyMajors.push_back(eLoopPlayer);
 			else
 				continue;

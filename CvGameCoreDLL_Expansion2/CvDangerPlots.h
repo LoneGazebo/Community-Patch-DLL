@@ -66,12 +66,12 @@ struct CvDangerPlotContents
 	{
 		m_bFlatPlotDamage = false;
 		m_iImprovementDamage = 0;
+		m_iFogCount = 0;
 
 		//make sure the allocated size doesn't grow too much over time
 		m_apUnits.clear(); if (m_apUnits.capacity() > 5) { m_apUnits = DangerUnitVector(); m_apUnits.reserve(5); }
 		m_apCities.clear(); //cities are fairly static so don't care to prune
 		m_apCaptureUnits.clear(); if (m_apCaptureUnits.capacity() > 5) { DangerUnitVector().swap(m_apCaptureUnits); }
-		m_fogDanger.clear(); if (m_fogDanger.capacity() > 5) { vector<int>().swap(m_fogDanger); }
 
 		//reset cache
 		m_lastUnitDangerResults.clear();
@@ -98,60 +98,11 @@ struct CvDangerPlotContents
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
 	DangerUnitVector m_apCaptureUnits; //for civilians
-	std::vector<int> m_fogDanger;
+	int m_iFogCount;
 
 	//caching ...
 	std::deque< std::pair<SCachedUnitDanger,int> > m_lastUnitDangerResults;
 };
-
-/*
-inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & kStruct)
-{
-	int iX;
-	int iY;
-
-	kStream >> iX;
-	kStream >> iY;
-
-	CvPlot* pPlot = GC.getMap().plot(iX,iY);
-
-	if (pPlot)
-	{
-		kStruct.m_pPlot = pPlot;
-		kStream << kStruct.m_bFlatPlotDamage;
-		kStream << kStruct.m_bEnemyAdjacent;
-		kStream << kStruct.m_bEnemyCanCapture;
-		kStream << kStruct.m_iImprovementDamage;
-		kStream << kStruct.m_apUnits;
-		kStream << kStruct.m_apCities;
-		kStream << kStruct.m_fogDanger;
-	}
-	else
-		kStruct.clear();
-
-	return kStream;
-}
-
-inline FDataStream & operator << (FDataStream & kStream, const CvDangerPlotContents & kStruct)
-{
-	if (kStruct.m_pPlot)
-	{
-		kStream << kStruct.m_pPlot->getX();
-		kStream << kStruct.m_pPlot->getY();
-		kStream << kStruct.m_bFlatPlotDamage;
-		kStream << kStruct.m_bEnemyAdjacent;
-		kStream << kStruct.m_bEnemyCanCapture;
-		kStream << kStruct.m_iImprovementDamage;
-		kStream << kStruct.m_apUnits;
-		kStream << kStruct.m_apCities;
-		kStream << kStruct.m_fogDanger;
-	}
-	else
-		kStream << -1 << -1;
-
-	return kStream;
-}
-*/
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvDangerPlots

@@ -817,6 +817,7 @@ protected:
 	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
+	PlotIndexContainer enemyPlots; //plot indices for enemy units, to be checked for potential attacks
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
@@ -824,8 +825,8 @@ protected:
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
-	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
-	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
+	unsigned char nOurOriginalUnits; //movable units included in sim. only valid for root position.
+	unsigned char nOriginalEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	unsigned char nFirstInterestingAssignment; //in case we want to skip INITIALs and BLOCKEDs
 	CvPlot* pTargetPlot;
 
@@ -931,6 +932,7 @@ public:
 	const STacticalAssignment* getLatestMoveAssignment(int iUnitID) const;
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
+	bool isAttackablePlot(int iPlotIndex) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);
 	bool isUnique(int levelsToCheck=2) const;
 	void setFirstInterestingAssignment(size_t i);
@@ -951,7 +953,7 @@ public:
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	const vector<STacticalAssignment>& getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
-	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
+	const int getNumEnemies() const { return nOriginalEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
 	const int getNumPlots() const { return (int)tactPlots.size(); }
 
