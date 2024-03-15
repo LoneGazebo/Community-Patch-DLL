@@ -29,7 +29,6 @@ public:
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
-public:
 	bool IsAvoidGrowth() const;
 	bool IsGreatPeople() const;
 
