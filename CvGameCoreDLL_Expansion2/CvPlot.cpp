@@ -13737,7 +13737,7 @@ bool CvPlot::canTrain(UnitTypes eUnit) const
 	}
 
 	CvUnitEntry& thisUnitEntry = *pkUnitInfo;
-	DomainTypes thisUnitDomain = (DomainTypes) thisUnitEntry.GetDomainType();
+	DomainTypes thisUnitDomain = thisUnitEntry.GetDomainType();
 
 	if(thisUnitEntry.IsPrereqResources())
 	{

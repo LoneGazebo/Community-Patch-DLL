@@ -1706,7 +1706,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 
 		}
 
-		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount((TechTypes)m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount(m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
 		{
 			return;
 		}
@@ -2338,7 +2338,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 	{
 		// Write out an array of all the active tech's hash types so we can re-map on loading if need be.
 		int iNumTechs = m_pTechs->GetNumTechs();
-		kStream << (int)iNumTechs;
+		kStream << iNumTechs;
 
 		for(int i = 0; i < iNumTechs; ++i)
 			CvInfosSerializationHelper::WriteHashed(kStream, m_pTechs->GetEntry(i));
@@ -2353,7 +2353,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 	}
 	else
 	{
-		kStream << (int)0;
+		kStream << 0;
 	}
 }
 

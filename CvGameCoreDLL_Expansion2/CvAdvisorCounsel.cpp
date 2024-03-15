@@ -318,7 +318,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				BuildingTypes eBuilding = (BuildingTypes)iI;
 				CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
-				if(pBuilding && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut((BuildingClassTypes)pBuilding->GetBuildingClassType()))
+				if(pBuilding && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut(pBuilding->GetBuildingClassType()))
 				{
 					BuildingTypes eCivBuilding = ((GET_PLAYER(ePlayer).GetSpecificBuildingType(pBuilding->GetBuildingClassInfo().GetType(), false)));
 					if (eBuilding != eCivBuilding)

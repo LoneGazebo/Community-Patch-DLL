@@ -6884,7 +6884,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pBuildingInfo)
 				{
-					CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo((BuildingClassTypes)pBuildingInfo->GetBuildingClassType());
+					CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(pBuildingInfo->GetBuildingClassType());
 					if (pInfo && pInfo->getMaxGlobalInstances() == 1)
 					{
 						iScore *= 20;

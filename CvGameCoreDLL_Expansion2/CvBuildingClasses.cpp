@@ -6643,7 +6643,7 @@ void BuildingArrayHelpers::Write(FDataStream& kStream, int* paiBuildingArray, in
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }

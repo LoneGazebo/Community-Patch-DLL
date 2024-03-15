@@ -105,7 +105,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 			const CvBuildingClassInfo& kBuildingClass = pkBuilding->GetBuildingClassInfo();
 			if (::isWorldWonderClass(kBuildingClass))
 			{
-				bAlreadyBuilt = GC.getGame().getBuildingClassCreatedCount((BuildingClassTypes)GC.getBuildingInfo(eNextWonder)->GetBuildingClassType()) > 0;
+				bAlreadyBuilt = GC.getGame().getBuildingClassCreatedCount(GC.getBuildingInfo(eNextWonder)->GetBuildingClassType()) > 0;
 			}
 		}
 	}

@@ -1310,7 +1310,7 @@ void CvEconomicAI::LogMonitor(void)
 
 	int iInternationalTradeGPT = pTreasury->GetGoldFromCitiesTimes100(false) - pTreasury->GetGoldFromCitiesTimes100(true);
 	AppendToLog(strHeader, strLog, "Gold From Cities", pTreasury->GetGoldFromCitiesTimes100(true) / 100);
-	AppendToLog(strHeader, strLog, "Gold From Trade Routes", (int)(iInternationalTradeGPT / 100));
+	AppendToLog(strHeader, strLog, "Gold From Trade Routes", (iInternationalTradeGPT / 100));
 	AppendToLog(strHeader, strLog, "Treasury", pTreasury->GetGold());
 	AppendToLog(strHeader, strLog, "GPT - Connects", pTreasury->GetCityConnectionGold());
 	AppendToLog(strHeader, strLog, "GPT - Diplo", pTreasury->GetGoldPerTurnFromDiplomacy());
@@ -1322,7 +1322,7 @@ void CvEconomicAI::LogMonitor(void)
 	int iGoldFromCityConnect = pTreasury->GetCityConnectionGoldTimes100() / 100;
 	int iGPTFromReligion = pTreasury->GetGoldPerTurnFromReligion();
 	int iGPTFromTraits = pTreasury->GetGoldPerTurnFromTraits();
-	int iTradeRouteGold = (int)(iInternationalTradeGPT / 100);
+	int iTradeRouteGold = (iInternationalTradeGPT / 100);
 	int iTotalIncome = iGoldFromCitiesMinusTR + iGPTFromDiplomacy + iGoldFromCityConnect + iGPTFromReligion + iGPTFromTraits + iTradeRouteGold;
 	AppendToLog(strHeader, strLog, "Total Income", iTotalIncome);
 
@@ -1907,7 +1907,7 @@ void CvEconomicAI::DoHurry()
 						//and build it!
 						if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 						{
-							const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+							const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
 						}
 						else

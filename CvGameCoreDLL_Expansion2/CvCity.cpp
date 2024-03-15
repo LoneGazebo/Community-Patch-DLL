@@ -1950,7 +1950,7 @@ void CvCity::setupGraphical()
 	}
 
 	CvPlayer& player = GET_PLAYER(getOwner());
-	EraTypes eCurrentEra = (EraTypes)player.GetCurrentEra();
+	EraTypes eCurrentEra = player.GetCurrentEra();
 
 	CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(this));
 	gDLL->GameplayCityCreated(pkDllCity.get(), eCurrentEra);
@@ -2085,7 +2085,7 @@ void CvCity::setupSpaceshipGraphics()
 	ProjectTypes ApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
 	int spaceshipState = 0;
 
-	if (isCapital() && thisTeam.getProjectCount((ProjectTypes)ApolloProgram) == 1)
+	if (isCapital() && thisTeam.getProjectCount(ApolloProgram) == 1)
 	{
 		ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
 		ProjectTypes boosterID = (ProjectTypes)GD_INT_GET(SPACESHIP_BOOSTER);
@@ -2111,32 +2111,32 @@ void CvCity::setupSpaceshipGraphics()
 
 		spaceshipState = eFrame;
 
-		if ((thisTeam.getProjectCount((ProjectTypes)capsuleID)) == 1)
+		if ((thisTeam.getProjectCount(capsuleID)) == 1)
 		{
 			spaceshipState += eCapsule;
 		}
 
-		if ((thisTeam.getProjectCount((ProjectTypes)stasisID)) == 1)
+		if ((thisTeam.getProjectCount(stasisID)) == 1)
 		{
 			spaceshipState += eStasis_Chamber;
 		}
 
-		if ((thisTeam.getProjectCount((ProjectTypes)engineID)) == 1)
+		if ((thisTeam.getProjectCount(engineID)) == 1)
 		{
 			spaceshipState += eEngine;
 		}
 
-		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
+		if ((thisTeam.getProjectCount(boosterID)) >= 1)
 		{
 			spaceshipState += eBooster1;
 		}
 
-		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
+		if ((thisTeam.getProjectCount(boosterID)) >= 2)
 		{
 			spaceshipState += eBooster2;
 		}
 
-		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) == 3)
+		if ((thisTeam.getProjectCount(boosterID)) == 3)
 		{
 			spaceshipState += eBooster3;
 		}
@@ -2302,7 +2302,7 @@ void CvCity::kill()
 	while (pUnitNode != NULL)
 	{
 		oldUnits.insertAtEnd(pUnitNode);
-		pUnitNode = pPlot->nextUnitNode((IDInfo*)pUnitNode);
+		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 	}
 
 	pUnitNode = oldUnits.head();
@@ -10464,7 +10464,7 @@ ResourceTypes CvCity::GetResourceDemanded(bool bHideUnknown) const
 void CvCity::SetResourceDemanded(ResourceTypes eResource)
 {
 	VALIDATE_OBJECT
-	m_iResourceDemanded = (ResourceTypes)eResource;
+	m_iResourceDemanded = eResource;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10987,7 +10987,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if (pkUnitInfo)
 		{
-			DomainTypes eDomain = (DomainTypes)pkUnitInfo->GetDomainType();
+			DomainTypes eDomain = pkUnitInfo->GetDomainType();
 			UnitCombatTypes eUnitCombat = (UnitCombatTypes)(pkUnitInfo->GetUnitCombatType());
 
 			if (eUnitCombat != NO_UNITCOMBAT)
@@ -11001,7 +11001,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 				iExperience += getDomainFreeExperienceFromGreatWorks(eDomain);
 				iExperience += getDomainFreeExperienceFromGreatWorksGlobal(eDomain);
 				iExperience += kOwner.GetDomainFreeExperience(eDomain);
-				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));
+				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier(pkUnitInfo->GetDomainType());
 			}
 
 			iExperience += getSpecialistFreeExperience();
@@ -11035,7 +11035,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman() && kOwner.isLocalPlayer())
 			{
 				// This unit begins with a promotion from XP, and part of that XP came from filled Great Work slots
-				if ((pUnit->getExperienceTimes100() / 100) >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks((DomainTypes)pUnit->getUnitInfo().GetDomainType()) > 0)
+				if ((pUnit->getExperienceTimes100() / 100) >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks(pUnit->getUnitInfo().GetDomainType()) > 0)
 				{
 					// We have a Royal Library
 					BuildingTypes eRoyalLibrary = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ROYAL_LIBRARY", true);
@@ -11822,7 +11822,7 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreInvestment)
 		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
 		if (pGameBuilding)
 		{
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			const BuildingClassTypes eBuildingClass = pGameBuilding->GetBuildingClassType();
 
 			if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 			{
@@ -12700,7 +12700,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && (NO_BUILDING != eBuilding))
 	{
 		//Have we already invested here?
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+		const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 		if (IsBuildingInvestment(eBuildingClass))
 		{
 			return -1;
@@ -13034,7 +13034,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									bool bValid = true;
 
 									// no ships in land-locked cities
-									if (!pOriginCity->isCoastal() && (DomainTypes)pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+									if (!pOriginCity->isCoastal() && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 									{
 										bValid = false;
 									}
@@ -13398,14 +13398,14 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 #endif
 
 	// Domain bonus
-	iTempMod = getDomainProductionModifier((DomainTypes)(pkUnitInfo->GetDomainType()));
+	iTempMod = getDomainProductionModifier(pkUnitInfo->GetDomainType());
 	iMultiplier += iTempMod;
 	if (toolTipSink && iTempMod)
 	{
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_UNIT_DOMAIN", iTempMod);
 	}
 #if defined(MOD_BALANCE_CORE)
-	if (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier((DomainTypes)(pkUnitInfo->GetDomainType())) != NO_DOMAIN)
+	if (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) != NO_DOMAIN)
 	{
 		int iProtections = 0;
 		for (int iMinorLoop = 0; iMinorLoop < MAX_MINOR_CIVS; iMinorLoop++)
@@ -13416,7 +13416,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 				iProtections++;
 			}
 		}
-		iTempMod = (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier((DomainTypes)(pkUnitInfo->GetDomainType())) * iProtections);
+		iTempMod = (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) * iProtections);
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
 		{
@@ -14531,7 +14531,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	if (pBuildingInfo == NULL)
 		return;
 
-	BuildingClassTypes eBuildingClass = (BuildingClassTypes)pBuildingInfo->GetBuildingClassType();
+	BuildingClassTypes eBuildingClass = pBuildingInfo->GetBuildingClassType();
 
 	CvPlayer& owningPlayer = GET_PLAYER(getOwner());
 	CvTeam& owningTeam = GET_TEAM(getTeam());
@@ -15660,7 +15660,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 					if (pReligion != NULL)
 					{
-						if (pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), getOwner(), this))
+						if (pReligion->m_Beliefs.IsBuildingClassEnabled(pBuildingInfo->GetBuildingClassType(), getOwner(), this))
 						{
 							ChangeReligiousPressureModifier(eMajority, pBuildingInfo->GetReligiousPressureModifier() * iChange);
 							bSpecificFaithOnly = true;
@@ -17301,11 +17301,11 @@ void CvCity::CheckForOperationUnits()
 		{
 			CvFormationSlotEntry slotEntry = pThisArmy->GetSlotInfo(thisOperationSlot.m_iSlotID);
 			int iTempWeight = 100;
-			eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+			eUnitAI = slotEntry.m_primaryUnitType;
 			eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 			if (eBestUnit == NO_UNIT)
 			{
-				eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
+				eUnitAI = slotEntry.m_secondaryUnitType;
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 			}
 			if (eBestUnit != NO_UNIT)
@@ -21840,7 +21840,7 @@ void CvCity::DoAnnex(bool bRaze)
 
 			if (pkBuildingInfo && pkBuildingInfo->IsNoOccupiedUnhappiness())
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+				const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 				if (eBuildingClass != NO_BUILDINGCLASS)
 				{
 					SetBuildingInvestment(eBuildingClass, true);
@@ -22027,7 +22027,7 @@ void CvCity::UpdateHappinessFromReligion()
 				CvBuildingEntry* pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
-					BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkInfo->GetBuildingClassType();
+					BuildingClassTypes eBuildingClass = pkInfo->GetBuildingClassType();
 					iBuildingHappiness += (pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers, getOwner(), this) * GetCityBuildings()->GetNumBuilding(eBuilding));
 				}
 			}
@@ -22101,7 +22101,7 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 			if (!pkBuildingB)
 				continue;
 
-			BuildingClassTypes eBuildingClassB = (BuildingClassTypes)pkBuildingB->GetBuildingClassType();
+			BuildingClassTypes eBuildingClassB = pkBuildingB->GetBuildingClassType();
 
 			int iHappinessPerBuilding = pkBuildingA->GetBuildingClassLocalHappiness(eBuildingClassB);
 			if (iHappinessPerBuilding > 0)
@@ -27846,7 +27846,7 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 		{
 			if (pInfo->GetDomainFreeExperiencePerGreatWork(eIndex) != 0)
 			{
-				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding((BuildingClassTypes)pInfo->GetBuildingClassType());
+				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding(pInfo->GetBuildingClassType());
 				iXP += (iGreatWorks * pInfo->GetDomainFreeExperiencePerGreatWork(eIndex));
 			}
 		}
@@ -30053,7 +30053,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)iData1);
 			if (pkBuildingInfo)
 			{
-				GET_PLAYER(getOwner()).changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), 1);
+				GET_PLAYER(getOwner()).changeBuildingClassMaking((pkBuildingInfo->GetBuildingClassType()), 1);
 				bValid = true;
 			}
 		}
@@ -30233,7 +30233,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if (pkBuildingInfo)
 		{
-			kOwner.changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), -1);
+			kOwner.changeBuildingClassMaking((pkBuildingInfo->GetBuildingClassType()), -1);
 
 			if (bFinish)
 			{
@@ -31210,32 +31210,32 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			// this section is kind of hard-coded but it is completely hard-coded on the engine-side so I have to give it the numbers it expects
 			int spaceshipState = eFrame;
 
-			if ((thisTeam.getProjectCount((ProjectTypes)capsuleID)) == 1)
+			if ((thisTeam.getProjectCount(capsuleID)) == 1)
 			{
 				spaceshipState += eCapsule;
 			}
 
-			if ((thisTeam.getProjectCount((ProjectTypes)stasisID)) == 1)
+			if ((thisTeam.getProjectCount(stasisID)) == 1)
 			{
 				spaceshipState += eStasis_Chamber;
 			}
 
-			if ((thisTeam.getProjectCount((ProjectTypes)engineID)) == 1)
+			if ((thisTeam.getProjectCount(engineID)) == 1)
 			{
 				spaceshipState += eEngine;
 			}
 
-			if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
+			if ((thisTeam.getProjectCount(boosterID)) >= 1)
 			{
 				spaceshipState += eBooster1;
 			}
 
-			if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
+			if ((thisTeam.getProjectCount(boosterID)) >= 2)
 			{
 				spaceshipState += eBooster2;
 			}
 
-			if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) == 3)
+			if ((thisTeam.getProjectCount(boosterID)) == 3)
 			{
 				spaceshipState += eBooster3;
 			}
@@ -31368,7 +31368,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot) co
 
 	//first choice is route and no enemy
 	for (size_t i = 0; i < validChoices.size(); i++)
-		if (validChoices[i]->isValidRoute(NULL) && validChoices[i]->GetNumEnemyUnitsAdjacent(getTeam(), (DomainTypes)pkUnitInfo->GetDomainType()) == 0)
+		if (validChoices[i]->isValidRoute(NULL) && validChoices[i]->GetNumEnemyUnitsAdjacent(getTeam(), pkUnitInfo->GetDomainType()) == 0)
 			return validChoices[i];
 
 	//now check for plots with route
@@ -31378,7 +31378,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot) co
 
 	//now try to find one without enemies around
 	for (size_t i = 0; i < validChoices.size(); i++)
-		if (validChoices[i]->GetNumEnemyUnitsAdjacent(getTeam(), (DomainTypes)pkUnitInfo->GetDomainType()) == 0)
+		if (validChoices[i]->GetNumEnemyUnitsAdjacent(getTeam(), pkUnitInfo->GetDomainType()) == 0)
 			return validChoices[i];
 
 	//ok, let's just take the first one
@@ -31565,7 +31565,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (!pGameBuilding)
 					return false;
 
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+				const BuildingClassTypes eBuildingClass = pGameBuilding->GetBuildingClassType();
 				if (IsBuildingInvestment(eBuildingClass))
 				{
 					return false;
@@ -32182,7 +32182,7 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 
 		if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 		{
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			const BuildingClassTypes eBuildingClass = pGameBuilding->GetBuildingClassType();
 			if (eBuildingClass != NO_BUILDINGCLASS)
 			{
 				SetBuildingInvestment(eBuildingClass, true);
@@ -32210,7 +32210,7 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 				CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
 				if (pkPurchasedBuildingInfo)
 				{
-					const BuildingClassTypes ePurchasedClass = (BuildingClassTypes)pkPurchasedBuildingInfo->GetBuildingClassType();
+					const BuildingClassTypes ePurchasedClass = pkPurchasedBuildingInfo->GetBuildingClassType();
 					if (ePurchasedClass != NO_BUILDINGCLASS)
 						SetPurchased(ePurchasedClass, true);
 				}
@@ -32256,7 +32256,7 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 			CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
 			if (pkPurchasedBuildingInfo)
 			{
-				const BuildingClassTypes ePurchasedClass = (BuildingClassTypes)pkPurchasedBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes ePurchasedClass = pkPurchasedBuildingInfo->GetBuildingClassType();
 				if (ePurchasedClass != NO_BUILDINGCLASS)
 				{
 					SetPurchased(ePurchasedClass, true);
@@ -32506,7 +32506,7 @@ bool CvCity::doCheckProduction()
 		int iBuildingProduction = m_pCityBuildings->GetBuildingProduction(eExpiredBuilding);
 		if (iBuildingProduction > 0)
 		{
-			const BuildingClassTypes eExpiredBuildingClass = (BuildingClassTypes)(pkExpiredBuildingInfo->GetBuildingClassType());
+			const BuildingClassTypes eExpiredBuildingClass = pkExpiredBuildingInfo->GetBuildingClassType();
 
 			if (thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
 			{
@@ -32534,7 +32534,7 @@ bool CvCity::doCheckProduction()
 				}
 
 				iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
-				const BuildingClassTypes eWonderClass = (BuildingClassTypes)pkExpiredBuildingInfo->GetBuildingClassType();
+				const BuildingClassTypes eWonderClass = pkExpiredBuildingInfo->GetBuildingClassType();
 				if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass) && isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
 				{
 					iProductionGold += ((25 * iMaxedBuildingGoldPercent) / 100);
@@ -32732,8 +32732,8 @@ bool CvCity::doCheckProduction()
 
 									if (NULL != pkOrderBuildingInfo && NULL != pkUpgradeBuildingInfo)
 									{
-										const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
-										const BuildingClassTypes eUpgradeBuildingClass = (BuildingClassTypes)pkUpgradeBuildingInfo->GetBuildingClassType();
+										const BuildingClassTypes eOrderBuildingClass = pkOrderBuildingInfo->GetBuildingClassType();
+										const BuildingClassTypes eUpgradeBuildingClass = pkUpgradeBuildingInfo->GetBuildingClassType();
 
 										thisPlayer.changeBuildingClassMaking(eOrderBuildingClass, -1);
 										pOrderNode->iData1 = eUpgradeBuilding;
