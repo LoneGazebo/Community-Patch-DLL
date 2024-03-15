@@ -9459,6 +9459,9 @@ void CvTacticalPosition::countEnemiesAndCheckVisibility()
 		tactPlots[i].setNumVisiblePlotsRange2(iVisiblityScore2);
 		tactPlots[i].setNumVisiblePlotsRange3(iVisiblityScore3);
 	}
+
+	//need this to be sorted for binary search
+	std::sort(enemyPlots.begin(), enemyPlots.end());
 }
 
 void CvTacticalPosition::refreshVolatilePlotProperties()
@@ -9767,7 +9770,7 @@ bool CvTacticalPosition::plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignme
 
 bool CvTacticalPosition::isAttackablePlot(int iPlotIndex) const
 {
-	return std::find( enemyPlots.begin(), enemyPlots.end(), iPlotIndex ) != enemyPlots.end();
+	return std::binary_search( enemyPlots.begin(), enemyPlots.end(), iPlotIndex );
 }
 
 pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& newAssignment)
@@ -10826,14 +10829,17 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 		//here the magic happens!
 		current->makeNextAssignments(iMaxBranchesNow, iMaxChoicesPerUnitNow, storage, openPositionsHeap, completedPositions, heapSort);
+
+		int iOldPauseCount = iUsedPositions / 500;
 		iUsedPositions += current->getChildren().size();
+		int iNewPauseCount = iUsedPositions / 500;
 
 		//at some point we have seen enough good positions to pick one
 		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
 			break;
 
 		//be a good citizen and let the UI run in between ... stupid design
-		if ((iUsedPositions % 1000) == 999 && gDLL->HasGameCoreLock())
+		if (iOldPauseCount!=iNewPauseCount && gDLL->HasGameCoreLock())
 		{
 			gDLL->ReleaseGameCoreLock();
 			Sleep(1);
@@ -10890,12 +10896,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		if (true)
+		if (false)
 		{
 			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim finished. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
 				initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
-			if (iUsedPositions < (int)completedPositions.size())
-				OutputDebugString("huh?\n");
 		}
 
 		//debug dump
