@@ -1585,71 +1585,34 @@ void CvHomelandAI::PlotUpgradeMoves()
 				TechTypes ePrereqTech = (TechTypes) GC.getUnitInfo(eUpgradeUnitType)->GetPrereqAndTech();
 				if(ePrereqTech == NO_TECH || GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 				{
-					// Resource requirement
-					bool bMissingResource = false;
-					if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+
+					// Initial priority: units with lowest power first
+					int iPriority = UPGRADE_THIS_TURN_PRIORITY_BOOST - GC.getUnitInfo(pUnit->getUnitType())->GetPower();
+
+					// Priority is boosted if can upgrade immediately
+					if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 					{
-						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
-						{
-							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-							int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
-							if (iNumResource > 0)
-							{
-								//Don't use all of our Aluminum, keep some for spaceship parts
-								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-								if (eResource == eAluminumResource)
-								{
-									iNumResource += 5;
-								}
-
-								int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
-								if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
-								{
-									bMissingResource = true;
-								}
-
-								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-								{
-									int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
-									if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
-									{
-										bMissingResource = true;
-									}
-								}
-							}
-						}
+						iPriority += UPGRADE_THIS_TURN_PRIORITY_BOOST;
 					}
 
-					if(!bMissingResource)
+					// Alternatively, priority boosted a lesser amount if in friendly territory
+					else if(pUnit->getOwner() == pUnit->plot()->getOwner())
 					{
-						CvHomelandUnit unit;
-						unit.SetID(pUnit->GetID());
-
-						// Initial priority: units with lowest power first
-						int iPriority = UPGRADE_THIS_TURN_PRIORITY_BOOST - GC.getUnitInfo(pUnit->getUnitType())->GetPower();
-
-						// Priority is boosted if can upgrade immediately
-						if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
-						{
-							iPriority += UPGRADE_THIS_TURN_PRIORITY_BOOST;
-						}
-
-						// Alternatively, priority boosted a lesser amount if in friendly territory
-						else if(pUnit->getOwner() == pUnit->plot()->getOwner())
-						{
-							iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
-						}
-
-						//Extra emphasis on air/sea units
-						if (pUnit->getDomainType() != DOMAIN_LAND)
-							iPriority *= 2;
-
-						//Add in experience - we should promote veterans.
-						iPriority += pUnit->getExperienceTimes100();
-
-						unit.SetAuxIntData(max(1, iPriority));
-						m_CurrentMoveUnits.push_back(unit);
+						iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
 					}
+
+					//Extra emphasis on air/sea units
+					if (pUnit->getDomainType() != DOMAIN_LAND)
+						iPriority *= 2;
+
+					//Add in experience - we should promote veterans.
+					iPriority += pUnit->getExperienceTimes100();
+
+					unit.SetAuxIntData(max(1, iPriority));
+					m_CurrentMoveUnits.push_back(unit);
 				}
 			}
 		}
@@ -1681,6 +1644,45 @@ void CvHomelandAI::PlotUpgradeMoves()
 				int iArmySlot = -1;
 				if (pArmy)
 					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+				// Resource requirement
+				bool bMissingResource = false;
+				if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+				{
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
+					{
+						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+						UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+						int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
+						if (iNumResource > 0)
+						{
+							//Don't use all of our Aluminum, keep some for spaceship parts
+							ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+							if (eResource == eAluminumResource)
+							{
+								iNumResource += (m_pPlayer->GetNumAluminumStillNeededForSpaceship() + m_pPlayer->GetNumAluminumStillNeededForCoreCities());
+							}
+
+							int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
+							if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
+							{
+								bMissingResource = true;
+							}
+
+							if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+							{
+								int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
+								if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
+								{
+									bMissingResource = true;
+								}
+							}
+						}
+					}
+				}
+
+				if (bMissingResource)
+					continue;
 
 				//this removes the unit from the army (if any)
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
@@ -4825,7 +4827,39 @@ void CvHomelandAI::ExecuteSSPartMoves()
 		if(!pUnit)
 			continue;
 
-		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+		// do an airlift if it's possible and we'd need more than one turn to reach the capital normally
+		if (pUnit->plot() != pCapitalCity->plot())
+		{
+			bool bCanAirlift = pUnit->canAirliftAt(pUnit->plot(), pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
+			bool bShouldUseAirlift = bCanAirlift;
+
+			if (pUnit->GeneratePath(pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED))
+			{
+				CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
+				if (pWayPoint == pCapitalCity->plot())
+				{
+					// can reach the capital normally in one turn or less
+					bShouldUseAirlift = false;
+				}
+			}
+
+			if (bShouldUseAirlift)
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("Airlifting %s into capital", strTemp.GetCString());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->airlift(pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
+			}
+			else
+			{
+				ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+			}
+		}
 
 		if(pUnit->plot() == pCapitalCity->plot() && pUnit->canMove())
 		{
@@ -4836,6 +4870,7 @@ void CvHomelandAI::ExecuteSSPartMoves()
 				strTemp = pUnit->getUnitInfo().GetDescription();
 				strLogString.Format("Adding %s to spaceship, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
+				m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 			}
 
 			pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
