@@ -28896,7 +28896,8 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 	int iYieldLoop = 0;
 
-	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
+	// we have to use iMaxRange + 1 to find plots that are at up to iMaxRange tiles away because for influence pathfinding iStartMoves = 0 is used
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange + 1);
 	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach(pThisPlot, data);
 
 	int iWorkPlotDistance = getWorkPlotDistance();
@@ -29120,7 +29121,8 @@ int CvCity::calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const
 	if (pDest == NULL)
 		return -1;
 
-	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
+	// we have to use iMaxRange + 1 to find plots that are at up to iMaxRange tiles away because for influence pathfinding iStartMoves = 0 is used
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange + 1);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), pDest->getX(), pDest->getY(), data);
 	if (!path)
 		return -1; // no passable path exists
@@ -29155,7 +29157,11 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GD_INT_GET(PLOT_INFLUENCE_DISTANCE_DIVISOR);
 	int iPLOT_BUY_RESOURCE_COST = /*-100 in CP, 0 in VP*/ GD_INT_GET(PLOT_BUY_RESOURCE_COST);
 
-	int iDistance = calculateInfluenceDistance(pPlot, iMaxRange);
+	// the path length can be larger than iMaxRange because there might not be a straight line of owned tiles from the city center to the plot
+	int iDistance = calculateInfluenceDistance(pPlot, GetNumWorkablePlots());
+	if (iDistance == -1)
+		return 9999; // failsafe
+
 	int iRefDistance = GetCheapestPlotInfluenceDistance();
 	if (iRefDistance == INT_MAX)
 		iRefDistance = 0;
