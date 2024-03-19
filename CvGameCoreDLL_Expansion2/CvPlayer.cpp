@@ -43171,6 +43171,10 @@ bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) co
 	TeamTypes ePlayerTeam = getTeam();
 	PlayerTypes ePlotOwner = pPlot->getOwner();
 
+	// If a manual route is planned here, it's considered safe
+	if (pPlot->GetPlannedRouteState(GetID()) >= ROAD_PLANNING_INCLUDE)
+		return true;
+
 	// Our plots and surrounding plots are safe
 	if (ePlotTeam == ePlayerTeam || (bIncludeAdjacent && pPlot->isAdjacentTeam(getTeam(), false)))
 	{

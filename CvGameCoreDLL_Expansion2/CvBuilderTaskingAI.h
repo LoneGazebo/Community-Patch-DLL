@@ -95,7 +95,8 @@ public:
 
 	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
 	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	void AddRouteOrRepairDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue, RoutePurpose ePurpose);
+	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
 	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 	void AddRepairImprovementDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
@@ -130,9 +131,9 @@ public:
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
 
-	set<int> GetMainRoutePlots() const;
-	set<int> GetShortcutRoutePlots() const;
-	set<int> GetStrategicRoutePlots() const;
+	bool IsMainRoutePlot(const CvPlot* pPlot) const;
+	bool IsShortcutRoutePlot(const CvPlot* pPlot) const;
+	bool IsStrategicRoutePlot(const CvPlot* pPlot) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -154,7 +155,7 @@ protected:
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 
-	set<int> GetRoutePlotsForPurpose(RoutePurpose ePurpose) const;
+	bool IsPlannedRouteForPurpose(const CvPlot* pPlot, RoutePurpose ePurpose) const;
 	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose);
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
@@ -171,12 +172,13 @@ protected:
 	bool m_bLogging;
 
 	typedef pair<RouteTypes,int> RoutePlot;
-	map<PlannedRoute, int> m_plannedRouteAdditiveValues; //serialized
-	map<PlannedRoute, int> m_plannedRouteNonAdditiveValues; //serialized
-	map<PlannedRoute, vector<int>> m_plannedRoutePlots; //serialized
-	map<PlannedRoute, set<RoutePurpose>> m_plannedRoutePurposes; //serialized
-	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned; //serialized
+	map<PlannedRoute, int> m_plannedRouteAdditiveValues;
+	map<PlannedRoute, int> m_plannedRouteNonAdditiveValues;
+	map<PlannedRoute, vector<int>> m_plannedRoutePlots;
+	map<PlannedRoute, RoutePurpose> m_plannedRoutePurposes;
+	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned;
 	map<int, RoutePlot> m_bestRouteTypeAndValue; //serialized
+	map<int, RoutePurpose> m_plotRoutePurposes; //serialized
 	map<int, PlannedRoute> m_bestRouteForPlot;
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
