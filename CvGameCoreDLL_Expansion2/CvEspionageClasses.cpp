@@ -614,7 +614,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 									strNotification << pSpy->GetSpyName(m_pPlayer);
 									strNotification << szMissionText;
 									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED_S", pCity->getNameKey());
-									pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_ALERT, strNotification.toUTF8(), strSummary, pCity->getX(), pCity->getY(), -1);
+									pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary, pCity->getX(), pCity->getY(), -1);
 								}
 							}
 						}
@@ -1161,7 +1161,7 @@ bool CvPlayerEspionage::DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTarg
 	GET_PLAYER(eDefendingPlayer).GetEspionage()->UpdateSpyMessage(pPlayerCity->getX(), pPlayerCity->getY(), m_pPlayer->GetID(), eStolenTech);
 	
 	// recalculate the num techs to steal list
-	BuildStealableTechList((PlayerTypes)eTargetPlayer);
+	BuildStealableTechList(eTargetPlayer);
 
 	return true;
 }
@@ -1227,6 +1227,11 @@ bool CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 	if (eSetupEvent == NO_EVENT_CITY)
 		return false;
 
+	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
+	if (!pSpy)
+		return false;
+
+	pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 	pCity->SetEventActive(eSetupEvent, true);
 
 	if (!m_pPlayer->isHuman())
@@ -1274,23 +1279,19 @@ bool CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 	}
 	else
 	{
-		CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-		if (pSpy)
+		CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+		if (pNotifications)
 		{
-			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-			if (pNotifications)
-			{
-				Localization::String strBuffer = Localization::Lookup("TXT_KEY_CHOOSE_EVENT_AA_CHOICE");
-				strBuffer << GetSpyRankName(pSpy->m_eRank);
-				strBuffer << pSpy->GetSpyName(m_pPlayer);
+			Localization::String strBuffer = Localization::Lookup("TXT_KEY_CHOOSE_EVENT_AA_CHOICE");
+			strBuffer << GetSpyRankName(pSpy->m_eRank);
+			strBuffer << pSpy->GetSpyName(m_pPlayer);
 
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_CHOOSE_EVENT_AA_TT");
-				strSummary << GetSpyRankName(pSpy->m_eRank);
-				strSummary << pSpy->GetSpyName(m_pPlayer);
-				strSummary << pCity->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_CHOOSE_EVENT_AA_TT");
+			strSummary << GetSpyRankName(pSpy->m_eRank);
+			strSummary << pSpy->GetSpyName(m_pPlayer);
+			strSummary << pCity->getNameKey();
 
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_ESPIONAGE_AA"), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
-			}
+			pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_ESPIONAGE_AA"), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
 		}
 		pCity->GetCityEspionage()->ChangePendingEvents(m_pPlayer->GetID(), 1);
 	}
@@ -2682,112 +2683,6 @@ int CvPlayerEspionage::GetNumTurnsSpyImprisoned(uint uiSpyIndex)
 	return max(0, GD_INT_GET(ESPIONAGE_IMPRISONMENT_COOLDOWN) + pSpy->GetTurnSpyImprisoned() - GC.getGame().getGameTurn());
 }
 
-void CvPlayerEspionage::ChangeCounterspyMission(uint uiSpyIndex, CityEventChoiceTypes eNewMission)
-{
-	CvAssertMsg(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
-	if (uiSpyIndex >= m_aSpyList.size())
-	{
-		return;
-	}
-
-	CvEspionageSpy* pSpy = &m_aSpyList[uiSpyIndex];
-	PlayerTypes eSpyOwner = m_pPlayer->GetID();
-
-	int iCityX = pSpy->m_iCityX;
-	int iCityY = pSpy->m_iCityY;
-
-	CvPlot* pPlot = GC.getMap().plot(iCityX, iCityY);
-	CvAssertMsg(pPlot, "Spy coordinates did not point to plot");
-
-	CvCity* pCity = pPlot->getPlotCity();
-	CvAssertMsg(pCity, "No city in plot pointed to by spy");
-
-	if (pCity != NULL && pCity->getOwner() == eSpyOwner)
-	{
-		CityEventChoiceTypes ePreviousFocus = pSpy->GetSpyFocus();
-		if (ePreviousFocus != eNewMission)
-		{
-			// try to cancel current mission
-			if (ePreviousFocus != NO_EVENT_CHOICE_CITY)
-			{
-				// can't change missions right now
-				if (GetNumTurnsSpyMovementBlocked(uiSpyIndex) > 0)
-				{
-					return;
-				}
-				pCity->SetEventChoiceActive(ePreviousFocus, true);
-				pCity->DoCancelEventChoice(ePreviousFocus);
-
-				// notify other players
-				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(ePreviousFocus);
-				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
-				{
-					const char* szMissionText = pkEventChoiceInfo->GetHelp();
-					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
-					{
-						const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
-						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-						if (pNotifications)
-						{
-							// does the player have a spy in this city?
-							CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(ePlayer).GetEspionage();
-							if (pPlayerEspionage && pPlayerEspionage->GetSpyIndexInCity(pCity) != -1)
-							{
-								CvEspionageSpy* pSpy = pPlayerEspionage->GetSpyByID(pPlayerEspionage->GetSpyIndexInCity(pCity));
-								if (pSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED", pCity->getNameKey(), szMissionText);
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED_S", pCity->getNameKey());
-									pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_ALERT, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
-								}
-							}
-						}
-					}
-				}
-			}
-			if (eNewMission != NO_EVENT_CHOICE_CITY)
-			{
-				pCity->SetEventChoiceActive(eNewMission, true);
-				pCity->DoEventChoice(eNewMission, NO_EVENT_CITY, true, uiSpyIndex, eSpyOwner);
-				pSpy->SetTurnCounterspyMissionChanged(GC.getGame().getGameTurn());
-
-				// notify other players
-				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eNewMission);
-				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
-				{
-					const char* szMissionText = pkEventChoiceInfo->GetHelp();
-					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
-					{
-						const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
-						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-						if (pNotifications)
-						{
-							// does the player have a spy in this city?
-							CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(ePlayer).GetEspionage();
-							if (pPlayerEspionage && pPlayerEspionage->GetSpyIndexInCity(pCity) != -1)
-							{
-								CvEspionageSpy* pSpy = pPlayerEspionage->GetSpyByID(pPlayerEspionage->GetSpyIndexInCity(pCity));
-								if (pSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED", pCity->getNameKey(), szMissionText);
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED_S", pCity->getNameKey());
-									pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_ALERT, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
-								}
-							}
-						}
-					}
-				}
-			}
-			pSpy->SetSpyFocus(eNewMission);
-			pCity->GetCityEspionage()->SetPendingEvents(eSpyOwner, 0);
-		}
-	}
-	else
-	{
-		UNREACHABLE();
-	}
-
-}
 /// RemoveSpyFromCity - Remove a spy from this city
 bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 {
@@ -2825,8 +2720,13 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	//counterspy?
 	if (pCity != NULL && pCity->getOwner() == m_pPlayer->GetID() && MOD_BALANCE_VP)
 	{
-		ChangeCounterspyMission(uiSpyIndex, NO_EVENT_CHOICE_CITY);
+		CityEventChoiceTypes eCounterspyMission = pSpy->GetSpyFocus();
+		if (eCounterspyMission != NO_EVENT_CHOICE_CITY)
+		{
+			pCity->DoCancelEventChoice(eCounterspyMission);
+		}
 	}
+
 	// Spy was rigging an election? Reset streak count
 	if (pCity != NULL && GET_PLAYER(pCity->getOwner()).isMinorCiv())
 	{
@@ -4683,7 +4583,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE");
 				strSummary << pCity->getNameKey();
 				strSummary << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationInfo().getAdjectiveKey();
-				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 			}
 			break;
 			case SPY_RESULT_CAUGHT:
@@ -4697,7 +4597,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				strMessage << strEffectText;
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN");
 				strSummary << pCity->getNameKey();
-				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 			break;
 			case SPY_RESULT_KILLED:
@@ -7746,12 +7646,12 @@ void CvEspionageAI::DoTurn()
 			{
 				pEspionage->ExtractSpyFromCity(pEspionage->GetSpyIndexInCity(pCity));
 			}
-			else if (MOD_BALANCE_VP && aCityScores[i].m_eMission != NO_EVENT_CHOICE_CITY && pEspionage->m_aSpyList[uiSpyIndex].GetSpyFocus() != aCityScores[i].m_eMission)
+			else if (MOD_BALANCE_VP && pEspionage->m_aSpyList[uiSpyIndex].GetSpyState() != SPY_STATE_TRAVELLING && aCityScores[i].m_eMission != NO_EVENT_CHOICE_CITY && pEspionage->m_aSpyList[uiSpyIndex].GetSpyFocus() != aCityScores[i].m_eMission)
 			{
 				// if the focus doesn't match with what we want, change it
 				if (pCity->getOwner() == m_pPlayer->GetID())
 				{
-					// counterspy. we need to make sure the spy may change focus right now and notifications are given to other players
+					// counterspy. changing the focus is done by activating the corresponding counterspy event
 					if (GC.getLogging())
 					{
 						CvString strMsg;
@@ -7761,11 +7661,11 @@ void CvEspionageAI::DoTurn()
 						strMsg += GC.getCityEventChoiceInfo(aCityScores[i].m_eMission)->GetDescription();
 						pEspionage->LogEspionageMsg(strMsg);
 					}
-					pEspionage->ChangeCounterspyMission(uiSpyIndex, aCityScores[i].m_eMission);
+					pCity->DoEventChoice(aCityScores[i].m_eMission, NO_EVENT_CITY, false, uiSpyIndex, m_pPlayer->GetID());
 				}
 				else
 				{
-					// offensive spy. we can just change the focus in this case, as it's only used for the AI-internal evaluation what mission to go for
+					// offensive spy. we just set the focus in this case, as it's only used for the AI-internal evaluation what mission to go for
 					if (GC.getLogging())
 					{
 						CvString strMsg;
@@ -7819,7 +7719,11 @@ void CvEspionageAI::DoTurn()
 			}
 
 			pEspionage->MoveSpyTo(pCity, uiSpy, aCityScores[i].m_bDiplomat);
-			pEspionage->m_aSpyList[uiSpy].SetSpyFocus(aCityScores[i].m_eMission);
+			// for offensive missions: set spy focus (counterspy focus will be set later when the event choice is made)
+			if (pCity->getOwner() != m_pPlayer->GetID())
+			{
+				pEspionage->m_aSpyList[uiSpy].SetSpyFocus(aCityScores[i].m_eMission);
+			}
 			pEspionage->m_aSpyList[uiSpy].m_bEvaluateReassignment = false;
 			break;
 
@@ -8153,7 +8057,47 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 
+		// low base value because of the XP counterspies get per turn
 		int iScore = GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY);
+
+		// if there are no offensive spy missions or we don't know any other players who have spies, counterspies have very little value
+		bool bNoOffensiveMissions = true;
+		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+		{
+			CvModEventCityChoiceInfo* pkLoopMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+			if (pkLoopMissionInfo->isEspionageMission())
+			{
+				bNoOffensiveMissions = false;
+				break;
+			}
+		}
+		if (bNoOffensiveMissions)
+			return iScore;
+
+		bool bNoForeignSpies = true;
+		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+		{
+			PlayerTypes eTargetPlayer = (PlayerTypes)i;
+			if (eTargetPlayer == ePlayer)
+			{
+				continue;
+			}
+
+			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+				continue;
+
+			if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+				continue;
+
+			if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
+			{
+				bNoForeignSpies = false;
+				break;
+			}
+		}
+		if (bNoForeignSpies)
+			return iScore;
+
 		if (pkMissionInfo->isCounterspyBlockSapCity())
 		{
 			// this is only interesting if we're under siege
@@ -8353,12 +8297,16 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 /// VP only. Evaluates which mission to select in a city. iScore (passed by reference) returns the score of the mission. 
 CityEventChoiceTypes CvEspionageAI::GetBestMissionInCity(CvCity* pCity, int& iScore, std::vector<int> aMissionList, int iSpyIndex)
 {
+	iScore = -1;
+	int iMissionScore = -1;
+
 	if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
+		return NO_EVENT_CHOICE_CITY;
+	
+	if (aMissionList.empty())
 		return NO_EVENT_CHOICE_CITY;
 
 	CityEventChoiceTypes eBestMission = NO_EVENT_CHOICE_CITY;
-	iScore = -1;
-	int iMissionScore = -1;
 	for (size_t i = 0; i < aMissionList.size(); i++)
 	{
 		iMissionScore = GetMissionScore(pCity, (CityEventChoiceTypes)aMissionList[i], iSpyIndex);
@@ -8538,6 +8486,10 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				continue;
 		}
 
+		// no advanced missions? not worth going there
+		if (MOD_BALANCE_VP && aSpyMissionList.empty())
+			continue;
+
 		TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 		CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eTargetPlayer).GetDiplomacyAI();
 
@@ -8695,35 +8647,40 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	std::vector<ScoreCityEntry> aCityScores;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
-	if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs() <= 0)
-		return aCityScores;
-
-	bool bNoForeignSpies = true;
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	if (!MOD_BALANCE_VP)
 	{
-		PlayerTypes eTargetPlayer = (PlayerTypes)i;
+		// in CP, we don't need any counterspies if we don't know any enemy player
+		// in VP, we might use counterspies anyway because of the XP, but they'll get a very low mission score
+		if (m_pPlayer->GetDiplomacyAI()->GetNumValidMajorCivs() <= 0)
+			return aCityScores;
 
-		// don't count the player's own cities
-		if (eTargetPlayer == ePlayer)
+		bool bNoForeignSpies = true;
+		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
-			continue;
+			PlayerTypes eTargetPlayer = (PlayerTypes)i;
+
+			// don't count the player's own cities
+			if (eTargetPlayer == ePlayer)
+			{
+				continue;
+			}
+
+			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+				continue;
+
+			if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+				continue;
+
+			if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
+			{
+				bNoForeignSpies = false;
+				break;
+			}
 		}
 
-		if (GET_PLAYER(eTargetPlayer).isMinorCiv())
-			continue;
-
-		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
-			continue;
-
-		if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
-		{
-			bNoForeignSpies = false;
-			break;
-		}
+		if (bNoForeignSpies)
+			return aCityScores;
 	}
-
-	if(bNoForeignSpies)
-		return aCityScores;
 
 	// for performance reasons, make a list of all the possible counterspy missions
 	std::vector<int> aCounterspyMissionList;
@@ -8738,7 +8695,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 			}
 		}
 	}
-	
+
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))

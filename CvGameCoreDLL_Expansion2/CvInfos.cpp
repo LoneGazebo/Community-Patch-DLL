@@ -1897,7 +1897,7 @@ void BuildingClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int i
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }
@@ -1950,7 +1950,7 @@ void UnitClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int iArra
 		}
 		else
 		{			
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }
@@ -5518,7 +5518,7 @@ void BuildArrayHelpers::Write(FDataStream& kStream, short* paiBuildArray, int iA
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }
@@ -12988,7 +12988,7 @@ void FeatureArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiFeatur
 	{
 		int iHash = 0;
 		kStream >> iHash;
-		if(iHash != (int)0)
+		if(iHash != 0)
 		{
 			int iType = GC.getInfoTypeForHash(iHash);
 			if(iType != -1)
@@ -13034,7 +13034,7 @@ void FeatureArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiFeatu
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }
@@ -13105,7 +13105,7 @@ void TerrainArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiTerrai
 	{
 		int iHash = 0;
 		kStream >> iHash;
-		if(iHash != (int)0)
+		if(iHash != 0)
 		{
 			int iType = GC.getInfoTypeForHash(iHash);
 			if(iType != -1)
@@ -13151,7 +13151,7 @@ void TerrainArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiTerra
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }

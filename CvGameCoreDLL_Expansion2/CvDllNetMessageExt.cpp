@@ -12,7 +12,7 @@ namespace NetMessageExt
 			{
 				case 999:				
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eActualPlayer = ePlayer;
 					EventTypes ePlayerEvent = static_cast<EventTypes>(iArg1);
 					EventChoiceTypes eEventChoice = static_cast<EventChoiceTypes>(iArg3);
 					Response::DoEventChoice(eActualPlayer, eEventChoice, ePlayerEvent);					
@@ -20,7 +20,7 @@ namespace NetMessageExt
 				}
 				case 1000:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eActualPlayer = ePlayer;
 					CityEventTypes eCityEvent = static_cast<CityEventTypes>(iArg1);
 					int iCityID = iArg2;
 					CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iArg3);
@@ -31,14 +31,14 @@ namespace NetMessageExt
 				}
 				case 1001:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eActualPlayer = ePlayer;
 					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
 					Response::DoMinorBullyAnnex(eActualPlayer, eMinor);
 					break;
 				}
 				case 1002:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eActualPlayer = ePlayer;
 					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
 					bool booleanFromInt = false;
 					booleanFromInt = iArg2 == 1;
@@ -55,15 +55,15 @@ namespace NetMessageExt
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent)
 		{	
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1, 999);
+			gDLL->sendMoveGreatWorks(ePlayer, static_cast<int>(eEvent), -1, static_cast<int>(eEventChoice), -1, -1, 999);
 		}
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{			
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner), 1000);
+			gDLL->sendMoveGreatWorks(ePlayer, static_cast<int>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, eSpyOwner, 1000);
 		}
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor)
 		{	
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), -1, -1, -1, -1, 1001);
+			gDLL->sendMoveGreatWorks(ePlayer, eMinor, -1, -1, -1, -1, 1001);
 		}
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 		{	
@@ -73,7 +73,7 @@ namespace NetMessageExt
 			} else {
 				booleanToInt = 0;
 			}
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), booleanToInt, -1, -1, -1, 1002);
+			gDLL->sendMoveGreatWorks(ePlayer, eMinor, booleanToInt, -1, -1, -1, 1002);
 		}
 	}
 

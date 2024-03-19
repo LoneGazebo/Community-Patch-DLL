@@ -248,6 +248,7 @@ void CvPlot::reset()
 		m_abResourceForceReveal[iI] = false;
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
 		m_aeRevealedRouteType[iI] = NO_ROUTE;
+		m_aeHumanPlannedRouteState[iI] = NO_PLANNED_ROUTE;
 #if defined(MOD_BALANCE_CORE)
 		m_abIsImpassable[iI] = false;
 		m_abStrategicRoute[iI] = false;
@@ -11561,6 +11562,18 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 	m_abResourceForceReveal[eTeam] = bValue;
 }
 
+RoutePlanTypes CvPlot::GetPlannedRouteState(PlayerTypes ePlayer) const
+{
+	return (RoutePlanTypes)m_aeHumanPlannedRouteState[ePlayer];
+}
+
+void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	m_aeHumanPlannedRouteState[ePlayer] = eRoutePlanType;
+}
+
 //	--------------------------------------------------------------------------------
 /// Current player's knowledge of other players' visibility count
 int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
@@ -13253,6 +13266,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor.template as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
+		visitor(plot.m_aeHumanPlannedRouteState[i]);
 	}
 
 	visitor(plot.m_bfRevealed.m_bits);
@@ -13737,7 +13751,7 @@ bool CvPlot::canTrain(UnitTypes eUnit) const
 	}
 
 	CvUnitEntry& thisUnitEntry = *pkUnitInfo;
-	DomainTypes thisUnitDomain = (DomainTypes) thisUnitEntry.GetDomainType();
+	DomainTypes thisUnitDomain = thisUnitEntry.GetDomainType();
 
 	if(thisUnitEntry.IsPrereqResources())
 	{

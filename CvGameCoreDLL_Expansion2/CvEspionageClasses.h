@@ -334,7 +334,6 @@ public:
 	int GetNumTurnsSpyMovementBlocked(uint uiSpyIndex);
 	int GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex);
 	int GetNumTurnsSpyImprisoned(uint uiSpyIndex);
-	void ChangeCounterspyMission(uint uiSpyIndex, CityEventChoiceTypes eNewMission);
 	bool ExtractSpyFromCity(uint uiSpyIndex);
 	void LevelUpSpy(uint uiSpyIndex, int iExperience = 0);
 

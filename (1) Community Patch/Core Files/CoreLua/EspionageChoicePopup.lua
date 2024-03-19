@@ -191,8 +191,7 @@ CommitItems["CityEventChoices"] = function(selection, playerID, plotID, spyID)
 			--print("Making Choice " .. eventChoiceType);
 			local eventChoice = GameInfo.CityEventChoices[eventChoiceType];
 			if(eventChoice ~= nil) then
-				local pPlayer = Players[playerID];
-				pPlayer:ChangeCounterspyMission(spyID, eventChoice.ID);
+				city:DoCityEventChoice(eventChoice.ID, spyID, playerID);
 			end
 		end
 	end

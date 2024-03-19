@@ -1199,7 +1199,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForOperation = m_pCity->GetUnitForOperation();
 		if (eUnitForOperation != NO_UNIT)
 		{
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitForOperation);
 			if (pUnitEntry)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
@@ -1226,7 +1226,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitForArmy);
 			if (pUnitEntry)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
@@ -3662,7 +3662,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iFlatYield += (pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities());
 
-			if (pCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) > 0)
+			if (pCity->GetCityBuildings()->GetNumBuildingClass(pkLoopBuilding->GetBuildingClassType()) > 0)
 			{
 				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
 			}

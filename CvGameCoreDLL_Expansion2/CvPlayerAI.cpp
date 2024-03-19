@@ -701,7 +701,7 @@ void CvPlayerAI::AI_considerAnnex()
 		{
 			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
 			{
-				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
+				eCourthouseType = buildingInfo->GetBuildingClassType();
 				break;
 			}
 		}
@@ -3007,7 +3007,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			}
 
 			//don't remove existing great people improvements
-			ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
+			ImprovementTypes eExistingImprovement = pAdjacentPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
@@ -3067,7 +3067,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// don't build next to existing bombs
 			if (iRange == 1)
 			{
-				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
+				ImprovementTypes eExistingImprovement = pAdjacentPlot->getImprovementType();
 				if (eExistingImprovement != NO_IMPROVEMENT)
 				{
 					CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);

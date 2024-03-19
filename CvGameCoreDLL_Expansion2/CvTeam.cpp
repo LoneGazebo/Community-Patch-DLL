@@ -6918,7 +6918,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
-								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
+								eFreeUnit = (GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass()));
 
 								if (eFreeUnit != NO_UNIT)
 								{
@@ -9328,7 +9328,7 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary)
 	if(eIndex==GetID())
 		return;
 
-	m_eMaster = bNewValue ? (TeamTypes) eIndex : NO_TEAM;
+	m_eMaster = bNewValue ? eIndex : NO_TEAM;
 	m_bIsVoluntaryVassal = bNewValue ? bVoluntary : false;
 }
 
@@ -10334,14 +10334,11 @@ int CvTeam::GetSSProjectCount(bool bIncludeApollo)
 	ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 	int iTotal = 0;
-	if (bIncludeApollo)
-	{
-		iTotal += getProjectCount((ProjectTypes)ApolloProgram) + getProjectMaking((ProjectTypes)ApolloProgram);
-	}
-	iTotal += getProjectCount((ProjectTypes)capsuleID) + getProjectMaking((ProjectTypes)capsuleID);
-	iTotal += getProjectCount((ProjectTypes)boosterID) + getProjectMaking((ProjectTypes)boosterID);
-	iTotal += getProjectCount((ProjectTypes)stasisID) + getProjectMaking((ProjectTypes)stasisID);
-	iTotal += getProjectCount((ProjectTypes)engineID) + getProjectMaking((ProjectTypes)engineID);
+	iTotal += bIncludeApollo ? getProjectCount(ApolloProgram) + getProjectMaking(ApolloProgram) : 0;
+	iTotal += getProjectCount(capsuleID) + getProjectMaking(capsuleID);
+	iTotal += getProjectCount(boosterID) + getProjectMaking(boosterID);
+	iTotal += getProjectCount(stasisID) + getProjectMaking(stasisID);
+	iTotal += getProjectCount(engineID) + getProjectMaking(engineID);
 
 	return iTotal;
 }

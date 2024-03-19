@@ -17669,7 +17669,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	if (eUsage != RESOURCEUSAGE_STRATEGIC && eUsage != RESOURCEUSAGE_LUXURY)
 		return false;
 
-	ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -17724,7 +17724,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 
 	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
-	ImprovementTypes eCurrentImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	ImprovementTypes eCurrentImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eCurrentImprovement);
 	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson()))
 	{
