@@ -46,7 +46,8 @@ public:
 		CONNECTION_RAILROAD = 2,
 		CONNECTION_ANY_LAND = 3,
 		CONNECTION_HARBOR = 4,
-		CONNECTION_ANY = 7
+		CONNECTION_AIRPORT = 8,
+		CONNECTION_ANY = 15
 	};
 
 	//cities may be connected to other players as well, so we store a pair of owner and id
@@ -70,6 +71,7 @@ protected:
 	PlotIndexStore m_plotsWithConnectionToCapital;
 	PlotIndexStore m_plotIdsToConnect;
 	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes; //this is not about trade routes but city connections
+	std::vector<BuildingTypes> m_aBuildingsAllowAirRoutes;
 	CvPlayer* m_pPlayer;
 	bool m_bDirty;
 	SingleCityConnectionStore dummy;

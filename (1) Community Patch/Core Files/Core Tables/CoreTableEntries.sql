@@ -201,6 +201,8 @@ ALTER TABLE Buildings ADD COLUMN 'FoodBonusPerCityMajorityFollower' INTEGER DEFA
 ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
+-- Allows city connections via the air
+ALTER TABLE Buildings ADD AllowsAirRoutes BOOLEAN DEFAULT 0;
 
 -- Building, Belief, UA
 -- Increase to border growth expansion rate

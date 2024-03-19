@@ -389,6 +389,35 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	if (pkBuildingInfo->AllowsAirRoutes())
+	{
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		int iLocalBonus = 0;
+		if (m_pCity->IsRouteToCapitalConnected())
+		{
+			iLocalBonus -= 50;
+		}
+		else if (pCapital != NULL && !pCapital->HasSharedAreaWith(m_pCity, true, true))
+		{
+			iLocalBonus += 10 * max(1, m_pCity->getPopulation());
+		}
+		else
+		{
+			iLocalBonus += 5 * max(1, m_pCity->getPopulation());
+		}
+
+		int iUnhappyConnection = m_pCity->GetUnhappinessFromIsolation();
+		if (iUnhappyConnection > 0)
+		{
+			iLocalBonus += (iUnhappyConnection * 10);
+			bGoodforHappiness = true;
+			bGoodforGPT = true;
+		}
+
+		if (iLocalBonus > 0)
+			iBonus += iLocalBonus;
+	}
+
 	//bonus to sea trade
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
 	{

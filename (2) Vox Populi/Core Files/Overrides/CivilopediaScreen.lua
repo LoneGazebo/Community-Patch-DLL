@@ -4322,6 +4322,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("GoldenAge");
 		AnalyzeBuilding("MapCentering");
 		AnalyzeBuilding("AllowsWaterRoutes");
+		AnalyzeBuilding("AllowsAirRoutes");
 		AnalyzeBuilding("ExtraLuxuries");
 		AnalyzeBuilding("DiplomaticVoting");
 		AnalyzeBuilding("AffectSpiesNow");
