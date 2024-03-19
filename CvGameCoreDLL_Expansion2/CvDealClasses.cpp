@@ -4529,7 +4529,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo((BuildingTypes)iJ);
 						if (pkBuildingEntry && (CvString)pkBuildingEntry->GetType() == "BUILDING_BAZAAR")
 						{
-							if (GET_PLAYER(eGivingPlayer).getBuildingClassCount((BuildingClassTypes)pkBuildingEntry->GetBuildingClassType()) >= 1)
+							if (GET_PLAYER(eGivingPlayer).getBuildingClassCount(pkBuildingEntry->GetBuildingClassType()) >= 1)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TRADER);
 							}

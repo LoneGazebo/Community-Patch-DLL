@@ -318,7 +318,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	//Are we alone?
-	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
+	DomainTypes eDomain = pkUnitEntry->GetDomainType();
 	if (!bFree && bCombat)
 	{
 		CvLandmass* pLM = GC.getMap().getLandmassById(m_pCity->plot()->getLandmass());
@@ -1258,7 +1258,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 			//Let's try to build our units in our best cities only.
-			if (m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, (DomainTypes)pkUnitEntry->GetDomainType()))
+			if (m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, pkUnitEntry->GetDomainType()))
 			{
 				iBonus += 25 * kPlayer.getNumCities();
 			}

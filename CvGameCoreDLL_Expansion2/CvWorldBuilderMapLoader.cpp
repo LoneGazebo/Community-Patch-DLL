@@ -681,7 +681,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 	const CvUnitEntry* pkUnitType = GC.getUnitInfo(eUnitType);
 	FAssert(pkUnitType); // We should probably be concerned if this unit type isn't valid
 	if(pkUnitType != NULL)
-		eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+		eAIType = pkUnitType->GetDefaultUnitAIType();
 	else
 		return;	// The unit type is invalid, we really can't go any further.
 

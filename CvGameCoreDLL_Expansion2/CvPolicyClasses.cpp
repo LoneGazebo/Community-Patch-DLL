@@ -5875,7 +5875,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 						}
 						else if (pkBuilding->GetPolicyType() != NO_POLICY)
 						{
-							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo((PolicyTypes)pkBuilding->GetPolicyType());
+							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(pkBuilding->GetPolicyType());
 							if (pkLoopPolicyInfo)
 							{
 								// This policy belongs to our branch

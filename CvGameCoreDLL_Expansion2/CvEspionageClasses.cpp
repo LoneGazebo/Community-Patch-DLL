@@ -1161,7 +1161,7 @@ bool CvPlayerEspionage::DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTarg
 	GET_PLAYER(eDefendingPlayer).GetEspionage()->UpdateSpyMessage(pPlayerCity->getX(), pPlayerCity->getY(), m_pPlayer->GetID(), eStolenTech);
 	
 	// recalculate the num techs to steal list
-	BuildStealableTechList((PlayerTypes)eTargetPlayer);
+	BuildStealableTechList(eTargetPlayer);
 
 	return true;
 }

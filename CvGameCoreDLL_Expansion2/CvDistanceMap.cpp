@@ -73,7 +73,7 @@ int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 {
 	if ((size_t)plot.GetPlotIndex() < m_vData.size())
-		return int( m_vData[ plot.GetPlotIndex() ].feature );
+		return m_vData[ plot.GetPlotIndex() ].feature;
 
 	return -1;
 }

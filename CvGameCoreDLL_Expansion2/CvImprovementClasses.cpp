@@ -1757,7 +1757,7 @@ void ImprovementArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiIm
 	{
 		int iHash = 0;
 		kStream >> iHash;
-		if(iHash != (int)0)
+		if(iHash != 0)
 		{
 			int iType = GC.getInfoTypeForHash(iHash);
 			if(iType != -1)
@@ -1803,7 +1803,7 @@ void ImprovementArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiI
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }

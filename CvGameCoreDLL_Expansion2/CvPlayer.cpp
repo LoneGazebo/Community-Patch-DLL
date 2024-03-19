@@ -2570,7 +2570,7 @@ void CvPlayer::initFreeUnits()
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if (pkUnitInfo && eUnit != NO_UNIT)
 		{
-			UnitAITypes eDefaultAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+			UnitAITypes eDefaultAI = pkUnitInfo->GetDefaultUnitAIType();
 			addFreeUnit(eUnit, true, eDefaultAI);
 		}
 
@@ -2808,7 +2808,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 						{
 							// replacing the parameters
 							eUnit = eLocalUnit;
-							eUnitAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+							eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 							break;
 						}
 					}
@@ -3095,7 +3095,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	while (pUnitNode != NULL)
 	{
 		oldUnits.insertAtEnd(pUnitNode);
-		pUnitNode = pCityPlot->nextUnitNode((IDInfo*)pUnitNode);
+		pUnitNode = pCityPlot->nextUnitNode(pUnitNode);
 	}
 
 	pUnitNode = oldUnits.head();
@@ -3545,7 +3545,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 						CvNotifications* pNotify = GetNotifications();
 						if (pNotify)
 						{
-							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, pCity->GetID(), GetID());
 						}
 					}
 					if (GC.getLogging() && GC.getAILogging())
@@ -3580,7 +3580,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 						CvNotifications* pNotify = GetNotifications();
 						if (pNotify)
 						{
-							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, pCity->GetID(), GetID());
 						}
 					}
 					if (GC.getLogging() && GC.getAILogging())
@@ -14685,7 +14685,7 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 				if (!pkBuildingInfo2)
 					continue;
 
-				BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo2->GetBuildingClassType());
+				BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings(pkBuildingInfo2->GetBuildingClassType());
 				if (eCivBuilding != eBuilding2)
 					continue;
 
@@ -15340,7 +15340,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 					return false;			
 			}
 
-			DomainTypes eDomain = (DomainTypes)pUnitInfo.GetDomainType();
+			DomainTypes eDomain = pUnitInfo.GetDomainType();
 			if (!GetTrade()->CanCreateTradeRoute(eDomain))
 			{
 				if (eDomain == DOMAIN_LAND)
@@ -15415,7 +15415,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	int iI = 0;
 	CvTeam& currentTeam = GET_TEAM(getTeam());
 
-	const BuildingClassTypes eBuildingClass = ((BuildingClassTypes)(pBuildingInfo.GetBuildingClassType()));
+	const BuildingClassTypes eBuildingClass = (pBuildingInfo.GetBuildingClassType());
 	const CvBuildingClassInfo& kBuildingClass = pkBuildingInfo->GetBuildingClassInfo();
 
 	// Checks to make sure civilization doesn't have an override that prevents construction of this building
@@ -15441,7 +15441,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		}
 	}
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	PolicyTypes ePolicy = (PolicyTypes)pBuildingInfo.GetPolicyType();
+	PolicyTypes ePolicy = pBuildingInfo.GetPolicyType();
 	if (MOD_BALANCE_CORE_POLICIES && ePolicy != NO_POLICY)
 	{
 		if (!GetPlayerPolicies()->HasPolicy(ePolicy))
@@ -19698,7 +19698,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 			CvNotifications* pNotification = GetNotifications();
 			if(pNotification)
 			{
-				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pConqueredCity->getX(), pConqueredCity->getY(), (int) pConqueredCity->GetID(), GetID());
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pConqueredCity->getX(), pConqueredCity->getY(), pConqueredCity->GetID(), GetID());
 			}
 		}
 	}
@@ -30997,7 +30997,7 @@ int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
 	//get the build
 	if (iBuild >= 0 && iBuild < GC.getNumBuildInfos())
 	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iBuild);
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(iBuild);
 		int buildercost = pkBuildInfo->getBuilderCost();
 
 		//if road, use RouteBuilderCostMod
@@ -38390,7 +38390,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 			{
 				// Compare to strongest unit we can build in that domain, for an apples to apples comparison
 				// Best unit that can be currently built in a domain is given a value of 100
-				DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+				DomainTypes eDomain = pkUnitInfo->GetDomainType();
 
 				if (eDomain == DOMAIN_AIR)
 				{
@@ -51148,7 +51148,7 @@ void CvPlayer::SetBestWonderCities()
 		if (!pkeBuildingInfo)
 			continue;
 
-		BuildingClassTypes eClass = (BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType();
+		BuildingClassTypes eClass = pkeBuildingInfo->GetBuildingClassType();
 		const CvBuildingClassInfo& kBuildingClassInfo = pkeBuildingInfo->GetBuildingClassInfo();
 		if (!::isWorldWonderClass(kBuildingClassInfo) && !::isNationalWonderClass(kBuildingClassInfo))
 			continue;

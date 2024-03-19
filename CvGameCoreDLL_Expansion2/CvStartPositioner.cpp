@@ -692,7 +692,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 					}
 
 					// Above the minimum found value?
-					if(bDebugMap || ((int)uiPlotFoundValue > (int)m_iBestFoundValueOnMap * iPercentOfBest / 100))
+					if(bDebugMap || (uiPlotFoundValue > m_iBestFoundValueOnMap * iPercentOfBest / 100))
 					{
 						// Check distance
 						if(!PlotTooCloseToAnotherCiv(pLoopPlot,m_iRequiredSeparation))

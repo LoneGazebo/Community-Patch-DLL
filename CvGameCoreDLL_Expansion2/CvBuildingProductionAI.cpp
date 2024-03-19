@@ -482,7 +482,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
 				{
-					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 25);
+					iBonus += (kPlayer.getBuildingClassCount(pkLoopBuilding->GetBuildingClassType()) * 25);
 					bGoodforHappiness = true;
 				}
 			}
@@ -689,7 +689,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreSituational)
 	{
 		//Virtually force this.
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+		const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 		if(m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
 			iBonus += 1000;

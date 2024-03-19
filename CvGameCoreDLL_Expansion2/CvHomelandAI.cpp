@@ -2809,7 +2809,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			pUnit->SetAutomateType(NO_AUTOMATE);
 
 		//in case it was non-native scout, reset the unit AI
-		pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
+		pUnit->AI_setUnitAIType(pUnit->getUnitInfo().GetDefaultUnitAIType());
 		return true; //nothing left to do
 	}
 }
@@ -5850,7 +5850,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 
 			if(pTarget->getImprovementType() != NO_IMPROVEMENT && pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST)
 			{
-				if(GC.getImprovementInfo((ImprovementTypes) pTarget->getImprovementType())->IsCreatedByGreatPerson())
+				if(GC.getImprovementInfo( pTarget->getImprovementType())->IsCreatedByGreatPerson())
 				{
 					continue;
 				}
