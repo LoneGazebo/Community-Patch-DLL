@@ -276,6 +276,9 @@ INSERT INTO Defines (Name, Value) SELECT 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FAITH'
 UPDATE Defines SET Value = 3 WHERE Name = 'AI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE';
 UPDATE AICityStrategies SET WeightThreshold = 1 WHERE Type = 'AICITYSTRATEGY_WANT_TILE_IMPROVERS';
 
+-- Number of cities the AI considers as core production cities for spaceship building
+INSERT INTO Defines (Name, Value) SELECT 'AI_NUM_CORE_CITIES_FOR_SPACESHIP', 4;
+
 -- AI Player Strategy
 UPDATE Defines SET Value = 20 WHERE Name = 'AI_STRATEGY_EARLY_EXPANSION_NUM_UNOWNED_TILES_REQUIRED'; -- Was 25 before, making the AI miss out on possible good city spots just because there might be cities nearby
 

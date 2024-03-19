@@ -10878,7 +10878,6 @@ bool CvCity::isProductionUnit() const
 	return false;
 }
 
-
 //	--------------------------------------------------------------------------------
 bool CvCity::isProductionBuilding() const
 {
@@ -11094,6 +11093,7 @@ UnitTypes CvCity::getProductionUnit() const
 
 	return NO_UNIT;
 }
+
 
 
 //	--------------------------------------------------------------------------------
@@ -11432,6 +11432,23 @@ const char* CvCity::getProductionNameKey() const
 	}
 
 	return "";
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::isProductionSpaceshipPart() const
+{
+	VALIDATE_OBJECT
+	UnitTypes eCurrentUnit = getProductionUnit();
+	if (eCurrentUnit != NO_UNIT)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eCurrentUnit);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11937,6 +11954,16 @@ int CvCity::getProductionTurnsLeft() const
 	return INT_MAX;
 }
 
+//	--------------------------------------------------------------------------------
+int CvCity::getUnitTotalProductionTurns(UnitTypes eUnit) const
+{
+	VALIDATE_OBJECT
+	int iProductionNeeded = getProductionNeeded(eUnit) * 100;
+	int iProductionModifier = getProductionModifier(eUnit);
+	return getProductionTurnsLeft(iProductionNeeded, 0,
+		getProductionDifferenceTimes100(iProductionNeeded, 0, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), true),
+		getProductionDifferenceTimes100(iProductionNeeded, 0, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), false));
+}
 
 //	--------------------------------------------------------------------------------
 int CvCity::getProductionTurnsLeft(UnitTypes eUnit, int iNum) const

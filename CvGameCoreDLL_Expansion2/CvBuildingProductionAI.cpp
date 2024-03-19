@@ -441,6 +441,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	///Resources check
 	int iLuxuries = 0;
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -451,6 +452,30 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
 			{
 				return SR_STRATEGY;
+			}
+
+			// the building needs aluminum? check if we'd still have enough for the spaceship
+			if (eResource == eAluminum && pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0)
+			{
+				vector<CvCity*> vCitiesForSpaceshipParts = kPlayer.GetCoreCitiesForSpaceshipProduction();
+				if (std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), m_pCity) == vCitiesForSpaceshipParts.end())
+				{
+					// this is not one of the core cities for spaceship parts. only build something if we'd still have enough aluminum for spaceship parts and for buildings in the core cities
+					int iNumAluminumWeCanUse = kPlayer.getNumResourceAvailable(eResource, false) - kPlayer.GetNumAluminumStillNeededForSpaceship() - kPlayer.GetNumAluminumStillNeededForCoreCities();
+					if (pkBuildingInfo->GetResourceQuantityRequirement(eResource) > iNumAluminumWeCanUse)
+					{
+						return SR_STRATEGY;
+					}
+				}
+				else
+				{
+					// in the core cities we do want to build the building, unless we need the aluminum for the spaceship parts
+					int iNumAluminumWeCanUse = kPlayer.getNumResourceAvailable(eResource, false) - kPlayer.GetNumAluminumStillNeededForSpaceship();
+					if (pkBuildingInfo->GetResourceQuantityRequirement(eResource) > iNumAluminumWeCanUse)
+					{
+						return SR_STRATEGY;
+					}
+				}
 			}
 
 			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)

@@ -451,6 +451,10 @@ CvPlayer::CvPlayer() :
 , m_iNumFreeTenets()
 , m_iCachedCurrentWarValue()
 , m_iLastSliceMoved() // not serialized
+, m_vCitiesForSpaceshipParts() // not serialized
+, m_iCitiesForSpaceshipPartsUpdateTurn(-1) // not serialized
+, m_vCoreCitiesForSpaceshipProduction() // not serialized
+, m_iCoreCitiesForSpaceshipProductionUpdateTurn(-1) // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
 , m_activeWaitingForEndTurnMessage(false)
@@ -1708,6 +1712,10 @@ void CvPlayer::uninit()
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
+	m_vCitiesForSpaceshipParts.clear();
+	m_iCitiesForSpaceshipPartsUpdateTurn = -1;
+	m_vCoreCitiesForSpaceshipProduction.clear();
+	m_iCoreCitiesForSpaceshipProductionUpdateTurn = -1;
 
 	m_bNoNewWars = false;
 	m_bTerribleShapeForWar = false;
@@ -11524,6 +11532,9 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Do turn for all Cities
 	if (getNumCities() > 0)
 	{
+		// AI spaceship production is planned on player level, overriding the normal AI city production selection
+		AI_doSpaceshipProduction();
+
 		int iLoop = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
@@ -51498,6 +51509,225 @@ PromotionTypes CvPlayer::GetDeepWaterEmbarkationPromotion() const
 	}
 }
 #endif
+
+
+void CvPlayer::LogSpaceshipPlanMessage(const CvString& strMsg)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString szTemp2;
+		CvString strPlayerName;
+		FILogFile* pLog = NULL;
+
+		strPlayerName = getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
+		CvString strLogName;
+		if (GC.getPlayerAndCityAILogSplit())
+		{
+			strLogName = "SpaceshipPlanningLog_" + strPlayerName + ".csv";
+		}
+		else
+		{
+			strLogName = "SpaceshipPlanningLog.csv";
+		}
+		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += strPlayerName + ", ";
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
+
+
+
+//	--------------------------------------------------------------------------------
+/// a list of cities which are considered core cities for spaceship building. the AI will try to retain aluminum to build spaceship factories in those cities
+vector<CvCity*> CvPlayer::GetCoreCitiesForSpaceshipProduction()
+{
+	if (GC.getGame().getGameTurn() == m_iCoreCitiesForSpaceshipProductionUpdateTurn)
+	{
+		return m_vCoreCitiesForSpaceshipProduction;
+	}
+
+	m_iCoreCitiesForSpaceshipProductionUpdateTurn = GC.getGame().getGameTurn();
+	m_vCoreCitiesForSpaceshipProduction.clear();
+
+	if (isHuman() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return m_vCoreCitiesForSpaceshipProduction;
+
+	int iNumCitiesToConsider = GD_INT_GET(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
+
+	// get unit type for one of the spaceship parts (doesn't matter which one)
+	UnitTypes eSpaceshipUnit = NO_UNIT;
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		UnitTypes eUnitLoop = (UnitTypes)iUnitLoop;
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitLoop);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			eSpaceshipUnit = eUnitLoop;
+			break;
+		}
+	}
+
+	// loop through all cities and check if they're useful for spaceship production
+	CvWeightedVector<CvCity*> vCityWeights;
+	CvCity* pCapital = getCapitalCity();
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		if (pLoopCity->isUnderSiege())
+			continue;
+
+		// how much production per turn would the city generate if it were building a spaceship part?
+		int iWeight = pLoopCity->getProductionDifference(0, 0, pLoopCity->getProductionModifier(eSpaceshipUnit), false, false);
+		if (pLoopCity->isCapital())
+		{
+			iWeight *= 2;
+		}
+		else if (!pLoopCity->CanAirlift())
+		{
+			// if we can't airlift, reduce weight based on distance to capital
+			if (pCapital)
+			{
+				iWeight -= 4 * plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+			}
+		}
+
+		if (iWeight > 0)
+		{
+			vCityWeights.push_back(pLoopCity, iWeight);
+		}
+	}
+	if (vCityWeights.size() == 0)
+		return m_vCoreCitiesForSpaceshipProduction;
+
+	// pick the cities with the highest weight
+	vCityWeights.StableSortItems();
+	for (int i = 0; i < min(vCityWeights.size(), iNumCitiesToConsider); i++)
+	{
+		m_vCoreCitiesForSpaceshipProduction.push_back(vCityWeights.GetElement(i));
+	}
+	return m_vCoreCitiesForSpaceshipProduction;
+}
+
+//	--------------------------------------------------------------------------------
+/// the number of aluminum still needed for buildings in the core cities for spaceship parts (GetCoreCitiesForSpaceshipProduction)
+int CvPlayer::GetNumAluminumStillNeededForCoreCities()
+{
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+
+	int iTotal = 0;
+	vector<CvCity*> vCoreCities = GetCoreCitiesForSpaceshipProduction();
+	if (vCoreCities.size() > 0)
+	{
+		// in each core city, we want to build two buildings: spaceship factories and hydro plants (CP) / power plants (VP).
+		// todo: un-hardcode this and calculate the number of buildings based on the building entries in the database
+		iTotal += vCoreCities.size() * 2;
+
+		// check how many of those buildings we already have
+		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingInfo && pkBuildingInfo->GetResourceQuantityRequirement(eAluminum) > 0)
+			{
+				for (uint ui = 0; ui < vCoreCities.size(); ui++)
+				{
+					CvCity* pLoopCity = vCoreCities[ui];
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 || pLoopCity->isBuildingInQueue(eBuilding))
+					{
+						iTotal -= pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
+					}
+				}
+			}
+		}
+	}
+
+	return iTotal;
+}
+
+//	--------------------------------------------------------------------------------
+/// the number of aluminum still needed for spaceship parts
+int CvPlayer::GetNumAluminumStillNeededForSpaceship()
+{
+	if (isBarbarian() || isMinorCiv())
+		return 0;
+
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return 0;
+
+	if (getCapitalCity() == NULL)
+		return 0;
+
+	// how many spaceship parts do we still have to build?
+	int iTotal = 6;
+	iTotal -= GET_TEAM(getTeam()).GetSSProjectCount(false);
+
+	// spaceship parts currently in production
+	int iCityLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+	{
+		if (pLoopCity->isProductionSpaceshipPart())
+		{
+			iTotal--;
+		}
+	}
+	return iTotal;
+}
+
+int CvPlayer::GetNumSpaceshipPartsBuildableNow(bool bIncludeCurrentlyInProduction)
+{
+	// space victory disabled?
+	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+		return 0;
+
+	// don't have apollo program yet?
+	ProjectTypes eApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
+	CvTeam& thisTeam = GET_TEAM(getTeam());
+	if (thisTeam.getProjectCount(eApolloProgram) == 0)
+		return 0;
+
+	// loop though the spaceship units for which we have the required tech and check how many we still need
+	int iTotal = 0;
+	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)i);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			TechTypes eRequiredTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+			if (thisTeam.GetTeamTechs()->HasTech(eRequiredTech))
+			{
+				ProjectTypes eSpaceshipProject = (ProjectTypes)pkUnitInfo->GetSpaceshipProject();
+				CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eSpaceshipProject);
+				// how many parts of that type are required?
+				iTotal += pkProjectInfo->GetMaxTeamInstances();
+				// how many parts do we already have?
+				iTotal -= thisTeam.getProjectCount(eSpaceshipProject);
+				if (!bIncludeCurrentlyInProduction)
+				{
+					int iCityLoop = 0;
+					for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+					{
+						if (pLoopCity->getProductionUnit() == (UnitTypes)i)
+						{
+							iTotal -= 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return iTotal;
+}
 
 //	--------------------------------------------------------------------------------
 /// Provide Notification about someone adopting a new Religon

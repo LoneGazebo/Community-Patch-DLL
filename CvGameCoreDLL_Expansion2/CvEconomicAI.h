@@ -253,6 +253,8 @@ private:
 	void DisbandExtraWorkboats();
 	void DisbandUselessSettlers();
 	void DisbandMiscUnits();
+	void DisbandUnitsToFreeSpaceshipResources();
+
 	CvUnit* FindSettlerToScrap(bool bMayBeInOperation);
 	CvUnit* FindSeaWorkerToScrap();
 	void DisbandExtraArchaeologists();
@@ -265,6 +267,7 @@ private:
 	// Logging functions
 	void LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue);
 	void LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots);
+	void LogScrapUnitSpaceship(CvUnit* pUnit, int iNumAluminumNeeded, int iNumAluminumAvailable);
 
 
 	CvPlayer* m_pPlayer;

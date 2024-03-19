@@ -10325,7 +10325,7 @@ void CvTeam::SetTradeTech(TechTypes eTech, bool bValue)
 	m_pabTradeTech[eTech] = bValue;
 }
 
-int CvTeam::GetSSProjectCount()
+int CvTeam::GetSSProjectCount(bool bIncludeApollo)
 {
 	ProjectTypes ApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
 	ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
@@ -10334,7 +10334,7 @@ int CvTeam::GetSSProjectCount()
 	ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 	int iTotal = 0;
-	iTotal += getProjectCount(ApolloProgram) + getProjectMaking(ApolloProgram);
+	iTotal += bIncludeApollo ? getProjectCount(ApolloProgram) + getProjectMaking(ApolloProgram) : 0;
 	iTotal += getProjectCount(capsuleID) + getProjectMaking(capsuleID);
 	iTotal += getProjectCount(boosterID) + getProjectMaking(boosterID);
 	iTotal += getProjectCount(stasisID) + getProjectMaking(stasisID);

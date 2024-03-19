@@ -7331,13 +7331,17 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	int iCityLoop = 0;
 	for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		UnitTypes eUnit = pCity->getProductionUnit();
-		if (eUnit != -1)
+		if(pCity->isProductionSpaceshipPart())
 		{
-			CvUnitEntry *pkUnit = GC.GetGameUnits()->GetEntry(eUnit);
-			if (pkUnit)
+			apProductionTargetCities.push_back(pCity);
+		}
+		else if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() && m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
+		{
+			// is this a city in which we want to build spaceship parts in the near future?
+			vector<CvCity*> vCitiesForSpaceship = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
+			if (vCitiesForSpaceship.size() > 0)
 			{
-				if (pkUnit->GetSpaceshipProject() != NO_PROJECT)
+				if (find(vCitiesForSpaceship.begin(), vCitiesForSpaceship.end(), pCity) != vCitiesForSpaceship.end())
 				{
 					apProductionTargetCities.push_back(pCity);
 				}

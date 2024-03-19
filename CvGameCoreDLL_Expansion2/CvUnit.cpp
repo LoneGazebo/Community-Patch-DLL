@@ -6006,7 +6006,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::scrap()
+void CvUnit::scrap(bool bDelay)
 {
 	VALIDATE_OBJECT
 	if(!canScrap())
@@ -6020,7 +6020,7 @@ void CvUnit::scrap()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 	}
 
-	kill(true);
+	kill(bDelay);
 }
 
 //	--------------------------------------------------------------------------------

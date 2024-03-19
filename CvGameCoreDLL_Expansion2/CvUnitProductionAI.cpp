@@ -398,8 +398,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 				if(pkUnitEntry->GetResourceQuantityRequirement(eAluminumResource) > 0)
 				{
-					//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
-					if(kPlayer.getNumResourceAvailable(eAluminumResource, false) <= 5)
+					if(kPlayer.getNumResourceAvailable(eAluminumResource, false) <= (kPlayer.GetNumAluminumStillNeededForSpaceship() + kPlayer.GetNumAluminumStillNeededForCoreCities()))
 					{
 						return SR_STRATEGY;
 					}
@@ -809,6 +808,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
+			// if we're an AI player going for spaceship victory, spaceship production is controlled in AI_doSpaceshipProduction, overriding normal AI production selection. other cities should not start building spaceship parts on their own
+			if (!kPlayer.isHuman() && !kPlayer.isMinorCiv() && kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+			{
+				return SR_STRATEGY;
+			}
+
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
