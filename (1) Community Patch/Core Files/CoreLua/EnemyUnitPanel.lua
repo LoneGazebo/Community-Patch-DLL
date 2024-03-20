@@ -13,7 +13,7 @@ local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
 -- Maximum number of bonuses that can be displayed on the combat simulator. Rest are displayed as misc. bonus.
-local g_iMaxBonusDisplay = 4;
+local g_iMaxBonusDisplay = 7;
 
 --------------------------------------------------------------------------------
 -- Update unit/city display name
@@ -1274,7 +1274,7 @@ end
 --------------------------------------------------------------------------------
 function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurrentDamage, iMyDamageInflicted, iTheirDamageInflicted)
 	local iHealthBarWidth = 8;
-	local iHealthBarHeight = 115;
+	local iHealthBarHeight = 160;
 
 	-------------------------
 	-- My health bar
