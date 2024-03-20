@@ -869,7 +869,7 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 			end
 --CBP
 			local sQuestreward = pMinor:GetRewardString(iMajor, eType);
-			if(questreward ~= "")then
+			if(sQuestreward ~= "") then
 				sToolTipText = sToolTipText .. "[NEWLINE]" .. sQuestreward;
 			end
 --END
