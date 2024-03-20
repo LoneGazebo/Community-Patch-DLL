@@ -1131,7 +1131,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
-	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
+	pkCity->canTrain(eUnit, false, false, false, true, &toolTip);
 
 	int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
 	int iSupplyPenaltyPerUnit = /*10 in CP, 5 in VP*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
