@@ -3934,7 +3934,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		//Improvement that provides free promotion? Only if player owns them.
 		ImprovementTypes eNeededImprovement = pNewPlot->getImprovementType();
-		if(eNeededImprovement != NO_IMPROVEMENT)
+		if(eNeededImprovement != NO_IMPROVEMENT && !pNewPlot->IsImprovementPillaged())
 		{
 			//Only check for it to be owned by the player if that's valid!
 			if (!GC.getImprovementInfo(eNeededImprovement)->IsOwnerOnly() || pNewPlot->getOwner() == getOwner())
@@ -27777,10 +27777,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
 		return;
 
+	CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
 	if (isHasPromotion(eIndex) != bNewValue)
 	{
-		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
-
 		if (bNewValue && MOD_GLOBAL_CANNOT_EMBARK && getUnitInfo().CannotEmbark())
 		{
 			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater())
@@ -27987,22 +27986,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 		ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
 		ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
-		if(thisPromotion.PromotionDuration() != 0)
-		{
-			if(bNewValue)
-			{
-				//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
-				ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
-				if(getPromotionDuration(eIndex) > 0)
-				{
-					SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
-				}
-			}
-			else
-			{
-				ChangePromotionDuration(NO_PROMOTION, 0);
-			}
-		}
 		if(thisPromotion.NegatesPromotion() != NO_PROMOTION)
 		{
 			if(bNewValue)
@@ -28263,6 +28246,24 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		//promotion changes may invalidate some caches
 		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
+	}
+
+	//top up the duration, also if we already had the promotion
+	if (thisPromotion.PromotionDuration() != 0)
+	{
+		if (bNewValue)
+		{
+			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
+			ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
+			if (getPromotionDuration(eIndex) > 0)
+			{
+				SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+			}
+		}
+		else
+		{
+			ChangePromotionDuration(NO_PROMOTION, 0);
+		}
 	}
 }
 
