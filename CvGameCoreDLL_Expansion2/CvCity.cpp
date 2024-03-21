@@ -1107,10 +1107,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Stuff for Pioneers and Colonists
 	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && bInitialFounding && pkSettlerUnitEntry != NULL)
 	{
-		if (pkSettlerUnitEntry->IsFound())
-		{
-			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, 0, 1, 1);
-		}
 		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, /*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), 1);
