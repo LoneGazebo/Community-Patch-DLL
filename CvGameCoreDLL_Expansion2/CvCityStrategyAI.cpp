@@ -5114,7 +5114,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
-		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 2);
+		iValue += (max(0, pkBuildingInfo->GetGreatWorkCount()) * iNumWorks * 2);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
 			if (pCity != NULL && pCity->isCapital())
@@ -5340,16 +5340,16 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	
 	if(pkBuildingInfo->GetGreatWorkSlotType() == eArtArtifactSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 2);
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 2);
+		iBonus += (max(0, pkBuildingInfo->GetGreatWorkCount()) * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 2);
+		iBonus += (max(0, pkBuildingInfo->GetGreatWorkCount()) * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 2);
 	}
 	else if(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 2);
+		iBonus += (max(0, pkBuildingInfo->GetGreatWorkCount()) * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 2);
 	}
 	else if(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 2);
+		iBonus += (max(0, pkBuildingInfo->GetGreatWorkCount()) * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 2);
 	}
 	
 	//Strategy-specific yield bonuses (that lack a yield modifier)

@@ -4270,7 +4270,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 				{
 					if (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot && iOpenArtSlots > 0)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						if (iNumSlots > 0)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)
@@ -4285,7 +4285,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 					}
 					else if (pkBuilding->GetGreatWorkSlotType() == eMusicSlot && iOpenMusicSlots > 0)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						if (iNumSlots > 0)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)
@@ -4300,7 +4300,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 					}
 					else if (pkBuilding->GetGreatWorkSlotType() == eWritingSlot && iOpenWritingSlots > 0)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						if (iNumSlots > 0)
 						{
 							for (int iI = 0; iI < iNumSlots; iI++)

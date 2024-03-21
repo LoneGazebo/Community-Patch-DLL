@@ -5708,7 +5708,7 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) 
 		{
 			if (eSlotType == NO_GREAT_WORK_SLOT || pkBuilding->GetGreatWorkSlotType() == eSlotType)
 			{
-				int iNumSlots = pkBuilding->GetGreatWorkCount();
+				int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 				int iNumOpenSlots = iNumSlots - GetNumGreatWorksInBuilding(pkBuilding->GetBuildingClassType());
 				if(iNumOpenSlots > 0)
 				{
@@ -5766,7 +5766,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pkBuildingInfo && GetNumBuilding(eBuilding) > 0)
 				{
-					int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
+					int iNumSlots = max(0, pkBuildingInfo->GetGreatWorkCount());
 					for (int jJ = 0; jJ < iNumSlots; jJ++)
 					{
 						if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)
@@ -5809,7 +5809,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 				{
 					if (pkBuildingInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
 					{
-						int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuildingInfo->GetGreatWorkCount());
 						for (int jJ = 0; jJ < iNumSlots; jJ++)
 						{
 							if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)

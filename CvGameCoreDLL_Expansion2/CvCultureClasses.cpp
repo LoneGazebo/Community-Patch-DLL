@@ -384,7 +384,7 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 					{
 						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
 								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -454,7 +454,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 					{
 						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
 								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -511,7 +511,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 					{
 						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
 								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -692,7 +692,7 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 					{
 						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
 								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -1067,7 +1067,7 @@ bool CvPlayerCulture::ControlsGreatWork (int iIndex)
 				{
 					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
 							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -1112,7 +1112,7 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
 							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -1202,7 +1202,7 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 						}
 
 						//but do consider great works in all cities to be moved!
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
 							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -1333,7 +1333,7 @@ void CvPlayerCulture::DoSwapGreatWorks()
 						}
 
 						//but do consider great works in all cities to be moved
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
 							int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -1708,7 +1708,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		// Dedicated routine to handle the equal art/artifact case
 		else if (pkBonusInfo->IsMustBeEqualArtArtifact())
 		{
-			if (ThemeEqualArtArtifact(*buildingIt, bestThemes.GetElement(iI), pkEntry->GetGreatWorkCount(), works1, works2, bConsiderOtherPlayers, bestThemes.GetElement(iI)))
+			if (ThemeEqualArtArtifact(*buildingIt, bestThemes.GetElement(iI), max(0, pkEntry->GetGreatWorkCount()), works1, works2, bConsiderOtherPlayers, bestThemes.GetElement(iI)))
 			{
 				return true;
 			}
@@ -1723,7 +1723,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		}
 
 		// If not enough works, try other theming bonuses
-		int iCountSlots = pkEntry->GetGreatWorkCount();
+		int iCountSlots = max(0, pkEntry->GetGreatWorkCount());
 		if (worksToConsider.size() < (unsigned int)iCountSlots)
 		{
 			continue;
@@ -2315,7 +2315,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 	CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(iThemingBonusIndex);
 
-	int iCountSlots = pkEntry->GetGreatWorkCount();
+	int iCountSlots = max(0, pkEntry->GetGreatWorkCount());
 
 	// Try each of the Artifacts as the starter
 	for (it = works2.begin(); it != works2.end(); it++)
@@ -3006,7 +3006,7 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		return false;
 	}
 
-	int iCountSlots = pkEntry->GetGreatWorkCount();
+	int iCountSlots = max(0, pkEntry->GetGreatWorkCount());
 	if (iCountSlots < 1)
 	{
 		return false;
@@ -4060,7 +4060,7 @@ void CvPlayerCulture::DoTurn()
 					{
 						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 							for (int iI = 0; iI < iNumSlots; iI++)
 							{
 								int iGreatWorkIndex = pLoopCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
@@ -4126,7 +4126,7 @@ void CvPlayerCulture::DoTurn()
 						{
 							if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 							{
-								int iNumSlots = pkBuilding->GetGreatWorkCount();
+								int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 								bool bAnySlotEmpty = false;
 								for (int iI = 0; iI < iNumSlots; iI++)
 								{
@@ -6279,7 +6279,7 @@ void CvCityCulture::ClearGreatWorks()
 			{
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-					int iNumSlots = pkBuilding->GetGreatWorkCount();
+					int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 					for (int iI = 0; iI < iNumSlots; iI++)
 					{
 						m_pCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
@@ -6312,7 +6312,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 			CvBuildingClassInfo *pkBuildingClass = GC.getBuildingClassInfo((BuildingClassTypes)iBuildingClassLoop);
 			if (pkBuilding && pkBuildingClass && !isWorldWonderClass(*pkBuildingClass))
 			{
-				int iNumSlots = pkBuilding->GetGreatWorkCount();
+				int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 				if (iNumSlots > 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) == 0)
 				{
 					if (m_pCity->canConstruct(eBuilding,allBuildingCount))
@@ -7844,7 +7844,7 @@ void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 				if (pkBuilding)
 				{
-					int iNumSlots = pkBuilding->GetGreatWorkCount();
+					int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 					if (m_pCity->GetCityBuildings()->GetNumGreatWorksInBuilding(eBuildingClass) < iNumSlots)
 					{
 						m_pCity->GetCityBuildings()->SetThemingBonusIndex(eBuilding , -1);
@@ -8053,7 +8053,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 
 	if (pkEntry)
 	{
-		int iNumSlots = pkEntry->GetGreatWorkCount();
+		int iNumSlots = max(0, pkEntry->GetGreatWorkCount());
 		if (aGreatWorkIndices.size() != iNumSlots)
 		{
 			return -1;  // No theming bonus if some slots still empty or too many entries

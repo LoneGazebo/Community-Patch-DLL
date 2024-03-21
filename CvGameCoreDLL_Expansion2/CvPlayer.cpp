@@ -4426,7 +4426,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (iBuildingCount > 0)
 		{
 			// Transfer Great Works to the building
-			int iGreatWorksCount = pkBuilding->GetGreatWorkCount();
+			int iGreatWorksCount = max(0, pkBuilding->GetGreatWorkCount());
 			int iGreatWorksAdded = 0;
 			if (iGreatWorksCount > 0)
 			{
@@ -19725,7 +19725,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 								{
 									if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
 									{
-										int iNumSlots = pkBuilding->GetGreatWorkCount();
+										int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 										if (iNumSlots > 0)
 										{
 											for (int iI = 0; iI < iNumSlots; iI++)
@@ -19813,7 +19813,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 									{
 										if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot || pkBuilding->GetGreatWorkSlotType() == eMusicSlot || pkBuilding->GetGreatWorkSlotType() == eWritingSlot))
 										{
-											int iNumSlots = pkBuilding->GetGreatWorkCount();
+											int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
 											if (iNumSlots > 0)
 											{
 												for (int iI = 0; iI < iNumSlots; iI++)
