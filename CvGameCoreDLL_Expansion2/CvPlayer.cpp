@@ -14989,9 +14989,9 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 			}
 		}
 
-		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange, true, true);
+		pCity->changePopulation(iPopChange, true, true);
 
-		//25% food, to prevent instant-starvation
+		//additional food to prevent instant-starvation
 		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));
 
 		//And a little territory to boot
