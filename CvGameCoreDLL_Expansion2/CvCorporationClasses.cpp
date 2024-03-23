@@ -1427,18 +1427,20 @@ void CvPlayerCorporations::ClearAllCorporationsFromCity(CvCity* pCity)
 		if (!pkBuilding->IsCorp())
 			continue;
 	
-		pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+		if (pkBuilding->GetBuildingClassInfo().IsHeadquarters())
+		{
+			GC.getGame().GetGameCorporations()->DestroyCorporation((pkBuilding->GetBuildingClassInfo().getCorporationType()));
+		}
+		else
+		{
+			pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+		}
 
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
 			strLogString.Format("Corporation Building Destroyed in City: %s. Building: %s.", pCity->getName().c_str(), pkBuilding->GetText());
 			LogCorporationMessage(strLogString);
-		}
-
-		if (pkBuilding->GetBuildingClassInfo().IsHeadquarters())
-		{
-			GC.getGame().GetGameCorporations()->DestroyCorporation((pkBuilding->GetBuildingClassInfo().getCorporationType()));
 		}
 	}
 }
