@@ -15145,10 +15145,13 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-	// Spaceship part we already have?
-	ProjectTypes eProject = (ProjectTypes) pUnitInfo.GetSpaceshipProject();
-	if(eProject != NO_PROJECT)
+	// Spaceship part we already have? Science victory disabled?
+	ProjectTypes eProject = (ProjectTypes)pUnitInfo.GetSpaceshipProject();
+	if (eProject != NO_PROJECT)
 	{
+		if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+			return false;
+
 		if(GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
 			return false;
 
