@@ -34423,7 +34423,7 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 		if (pLoopUnit->IsCivilianUnit())
 			continue;
 
-		iPower += pLoopUnit->GetPower();
+		int iPower = pLoopUnit->GetPower();
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			iPower /= 2;
