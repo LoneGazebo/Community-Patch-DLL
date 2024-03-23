@@ -34423,19 +34423,12 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 		if (pLoopUnit->IsCivilianUnit())
 			continue;
 
-		//we are interested in the offensive capabilities of the player
-		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
-
-		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
-		int iPromotionFactor = 100;
-		if (pLoopUnit->getLevel()>3)
-			iPromotionFactor += pLoopUnit->getLevel() * 10 - 30;
-
-		//assume garrisons won't take part in offensive action
-		if (pLoopUnit->IsGarrisoned())
+		iPower += pLoopUnit->GetPower();
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
 			iPower /= 2;
-
-		iSum += (iPower*iPromotionFactor)/100;
+		}
+		iSum += iPower;
 	}
 	
 	return iSum;
