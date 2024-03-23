@@ -12296,7 +12296,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		}
 
 		//teleport our units if necessary
-		GC.getMap().verifyUnitValidPlot();
+		GC.getMap().verifyUnitValidPlot(m_pPlayer->GetID());
 
 		if(eOldAlly == GC.getGame().getActivePlayer())
 		{

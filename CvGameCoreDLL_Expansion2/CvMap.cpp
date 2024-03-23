@@ -852,11 +852,11 @@ void CvMap::updateAdjacency()
 }
 
 //	--------------------------------------------------------------------------------
-void CvMap::verifyUnitValidPlot()
+void CvMap::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer)
 {
 	for (int iI = 0; iI < numPlots(); iI++)
 	{
-		plotByIndexUnchecked(iI)->verifyUnitValidPlot();
+		plotByIndexUnchecked(iI)->verifyUnitValidPlot(eForSpecificPlayer);
 	}
 }
 

@@ -1301,12 +1301,12 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	// anyone who WANTED to declare war becomes aggressive now
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (GET_PLAYER(eLoopPlayer).getTeam() == m_eID && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			for (int iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 			{
-				PlayerTypes eLoopTarget = (PlayerTypes) iTargetLoop;
+				PlayerTypes eLoopTarget = (PlayerTypes)iTargetLoop;
 				if (GET_PLAYER(eLoopTarget).getTeam() == eTeam && GET_PLAYER(eLoopTarget).isAlive())
 				{
 					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -1448,7 +1448,14 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && (GET_PLAYER(eLoopPlayer).getTeam() == GetID() || GET_PLAYER(eLoopPlayer).getTeam() == eTeam))
+		{
+			GC.getMap().verifyUnitValidPlot(eLoopPlayer);
+		}
+	}
 #endif
 
 	// Set initial war counters for all players
@@ -4797,7 +4804,14 @@ void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 	{
 		m_abOpenBorders[eIndex] = bNewValue;
 
-		GC.getMap().verifyUnitValidPlot();
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eIndex)
+			{
+				GC.getMap().verifyUnitValidPlot(eLoopPlayer);
+			}
+		}
 
 		if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
 		{
