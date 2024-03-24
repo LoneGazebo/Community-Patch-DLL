@@ -6712,7 +6712,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
 		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 		iTileTourism = ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6728,7 +6728,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			int iCulture = m_pCity->getJONSCulturePerTurn();
 			iGATourism = ((iCulture * iPercent) / 100);
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6748,7 +6748,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			iSacredSitesTourism = m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6769,7 +6769,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		if(iReligiousArtTourism != 0)
 		{
 #endif
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6792,7 +6792,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6808,7 +6808,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		iTourismFromWW *= m_pCity->getNumWorldWonders();
 		if(iTourismFromWW != 0)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6818,7 +6818,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW);
 	if(iRemainder != 0)
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6836,7 +6836,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6863,7 +6863,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				// City shares religion with this player
 				if (kPlayer.GetReligions()->GetStateReligion() == ePlayerReligion)
 				{
-					if (sharedReligionCivs.length() > 0)
+					if (!sharedReligionCivs.empty())
 					{
 						sharedReligionCivs += ", ";
 					}
@@ -6875,7 +6875,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
 					(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(eTeam)))
 				{
-					if (openBordersCivs.length() > 0)
+					if (!openBordersCivs.empty())
 					{
 						openBordersCivs += ", ";
 					}
@@ -6885,7 +6885,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				// Trade route with this player
 				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pCity->getOwner(), (PlayerTypes)iLoopPlayer))
 				{
-					if (tradeRouteCivs.length() > 0)
+					if (!tradeRouteCivs.empty())
 					{
 						tradeRouteCivs += ", ";
 					}
@@ -6897,7 +6897,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				{
 					if (kCityPlayer.GetExcessHappiness() > kPlayer.GetExcessHappiness())
 					{
-						if (lessHappyCivs.length() > 0)
+						if (!lessHappyCivs.empty())
 						{
 							lessHappyCivs += ", ";
 						}
@@ -6916,7 +6916,7 @@ CvString CvCityCulture::GetTourismTooltip()
 							// Are they at war with me too?
 							if (GET_TEAM(kCityPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 							{
-								if (commonFoeCivs.length() > 0)
+								if (!commonFoeCivs.empty())
 								{
 									commonFoeCivs += ", ";
 								}
@@ -6931,7 +6931,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				{
 					if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
 					{
-						if (sharedIdeologyCivs.length() > 0)
+						if (!sharedIdeologyCivs.empty())
 						{
 							sharedIdeologyCivs += ", ";
 						}
@@ -6942,7 +6942,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				// Different ideology penalty (applies all the time)
 				if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 				{
-					if (differentIdeologyCivs.length() > 0)
+					if (!differentIdeologyCivs.empty())
 					{
 						differentIdeologyCivs += ", ";
 					}
@@ -6952,27 +6952,27 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 
 		// Build the strings
-		if (sharedReligionCivs.length() > 0)
+		if (!sharedReligionCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGION_BONUS", kCityPlayer.GetCulture()->GetTourismModifierSharedReligion());
 			szRtnValue += szTemp + sharedReligionCivs;
 		}
-		if (openBordersCivs.length() > 0)
+		if (!openBordersCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS", kCityPlayer.GetCulture()->GetTourismModifierOpenBorders());
 			szRtnValue += szTemp + openBordersCivs;
 		}
-		if (tradeRouteCivs.length() > 0)
+		if (!tradeRouteCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6980,36 +6980,36 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += szTemp + tradeRouteCivs;
 		}
 		
-		if (lessHappyCivs.length() > 0)
+		if (!lessHappyCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_LESS_HAPPY_BONUS", iLessHappyMod);
 			szRtnValue += szTemp + lessHappyCivs;
 		}
-		if (commonFoeCivs.length() > 0)
+		if (!commonFoeCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_COMMON_FOE_BONUS", iCommonFoeMod);
 			szRtnValue += szTemp + commonFoeCivs;
 		}
-		if (sharedIdeologyCivs.length() > 0)
+		if (!sharedIdeologyCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_SHARED_IDEOLOGY_BONUS", iSharedIdeologyMod);
 			szRtnValue += szTemp + sharedIdeologyCivs;
 		}
-		if (differentIdeologyCivs.length() > 0)
+		if (!differentIdeologyCivs.empty())
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -7021,7 +7021,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	int iTechSpreadModifier = kCityPlayer.GetInfluenceSpreadModifier();
 	if (iTechSpreadModifier != 0)
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -7031,7 +7031,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
 	if (iLeagueCityModifier != 0)
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -7041,7 +7041,7 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	if (kCityPlayer.isGoldenAge() && kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier())
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -7057,7 +7057,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7074,7 +7074,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7089,7 +7089,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7103,7 +7103,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7120,7 +7120,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7135,7 +7135,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7151,7 +7151,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7167,7 +7167,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7181,7 +7181,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7195,7 +7195,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7209,7 +7209,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7223,7 +7223,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7237,7 +7237,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7250,7 +7250,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7271,7 +7271,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7286,7 +7286,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7300,7 +7300,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7329,7 +7329,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7349,7 +7349,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				{
 					if (!bHasCityModTooltip)
 					{
-						if (szRtnValue.length() > 0)
+						if (!szRtnValue.empty())
 						{
 							szRtnValue += "[NEWLINE]";
 						}
@@ -7371,7 +7371,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod += GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent();
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7398,7 +7398,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7418,7 +7418,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7437,7 +7437,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7454,7 +7454,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod = 0;
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
