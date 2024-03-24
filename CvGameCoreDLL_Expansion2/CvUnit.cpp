@@ -17418,20 +17418,15 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 	if (pOtherUnit->getOwner() == NO_PLAYER)
 		return 0;
 
-	if (pOtherUnit->isBarbarian() || isBarbarian())
-		return 0;
-
-	if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
-		return 0;
-
 	// No bonus if we're attacking in their territory
 	if (plot()->getOwner() == pOtherUnit->getOwner())
 		return 0;
 
+	// Will always be zero for non-majors
 	int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
 
 	// Not our territory?
-	if (!plot()->IsFriendlyTerritory(getOwner()))
+	if (iResistance && !plot()->IsFriendlyTerritory(getOwner()))
 		iResistance /= 2;
 
 	return iResistance;
@@ -17810,7 +17805,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			int iTempModifier = unitCombatModifier(eUnitCombat);
 			if (pOtherUnit->getUnitInfo().IsMounted())
 			{
-				UnitCombatTypes eMountedCombat = (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true);
+				static UnitCombatTypes eMountedCombat = (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true);
 				if (eMountedCombat != eUnitCombat)
 					iTempModifier += unitCombatModifier(eMountedCombat);
 			}

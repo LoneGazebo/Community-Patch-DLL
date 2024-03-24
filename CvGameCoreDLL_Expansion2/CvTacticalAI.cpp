@@ -49,7 +49,6 @@ vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
 vector<STacticalAssignment> gPossibleMoves;
 vector<STacticalAssignment> gOverAllChoices;
 vector<STacticalAssignment> gMovesToAdd;
-map<int, vector<STacticalAssignment>> gChoicePerUnit;
 PlayerTypes eLastTactSimPlayer = NO_PLAYER;
 
 //just some statistics
@@ -2746,7 +2745,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			}
 		}
 
-		//try to arrage the units somewhat closer to the target
+		//try to arrange the units somewhat closer to the target
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget);
 	}
 }
@@ -4950,6 +4949,8 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 
 CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {
+	static UnitCombatTypes eReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+
 	m_CurrentMoveUnits.clear();
 	std::vector<OptionWithScore<CvUnit*>> possibleUnits;
 
@@ -4965,7 +4966,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			// Economic AI still places a high value on goody huts for AI explorers, so they'll still be prioritized; see EconomicAIHelpers::ScoreExplorePlot()
 			if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && eMove == AI_TACTICAL_GOODY && pTarget->isGoody())
 			{
-				if (pLoopUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pLoopUnit->IsGainsXPFromScouting())
+				if (pLoopUnit->getUnitCombatType() != eReconType && !pLoopUnit->IsGainsXPFromScouting())
 					continue;
 			}
 
@@ -9016,6 +9017,14 @@ void CvTacticalPosition::addInitialAssignments()
 	}
 }
 
+//finding a particular unit
+struct PrIsMoveForUnit
+{
+	int iUnitID;
+	PrIsMoveForUnit(int iID) : iUnitID(iID) {}
+	bool operator()(const STacticalAssignment& other) { return iUnitID == other.iUnitID; }
+};
+
 bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage,
 	vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort)
 {
@@ -9033,12 +9042,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	updateMovePlotsIfRequired();
 
 	gOverAllChoices.clear();
-	gChoicePerUnit.clear();
-
 	for (size_t i=0; i<availableUnits.size(); i++)
 	{
 		getPreferredAssignmentsForUnit(availableUnits[i], iMaxChoicesPerUnit);
-		gChoicePerUnit[availableUnits[i].iUnitID] = gPossibleMoves;
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
 
@@ -9066,33 +9072,33 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			else if (blocks == 1)
 			{
 				//find best non-blocked move for blocking unit (search only one level deep)
-				vector<STacticalAssignment>& blockingUnitChoices = gChoicePerUnit[ getFirstBlockingUnitIDAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType) ];
-				for (size_t j = 0; j < blockingUnitChoices.size(); j++)
+				int blockID = getFirstBlockingUnitIDAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
+				for (size_t j = 0; j < gOverAllChoices.size(); j++)
 				{
-					if (blockingUnitChoices[j].eAssignmentType == A_MOVE)
+					if (gOverAllChoices[j].iUnitID==blockID && gOverAllChoices[j].eAssignmentType == A_MOVE)
 					{
 						//check if the combo has a positive score - but forcing out a similar unit is usually pointless
-						int iBias = (gOverAllChoices[i].eMoveType != blockingUnitChoices[j].eMoveType) ? 0 : 10;
-						if (gOverAllChoices[i].iScore + blockingUnitChoices[j].iScore < iBias)
+						int iBias = (gOverAllChoices[i].eMoveType != gOverAllChoices[j].eMoveType) ? 0 : 10;
+						if (gOverAllChoices[i].iScore + gOverAllChoices[j].iScore < iBias)
 							continue;
 
 						//block wants to move into the plot currently occupied by this unit. bingo!
-						if (gOverAllChoices[i].iFromPlotIndex == blockingUnitChoices[j].iToPlotIndex)
+						if (gOverAllChoices[i].iFromPlotIndex == gOverAllChoices[j].iToPlotIndex)
 						{
-							const STacticalAssignment* pLA = getLatestAssignment(blockingUnitChoices[j].iUnitID);
+							const STacticalAssignment* pLA = getLatestAssignment(gOverAllChoices[j].iUnitID);
 							if (pLA->eAssignmentType != A_MOVE_SWAP) //don't want to swap out a unit which was just swapped in
 							{
 								gMovesToAdd.push_back(gOverAllChoices[i]);
 								gMovesToAdd.back().eAssignmentType = A_MOVE_SWAP; //this one will actually move both units
-								gMovesToAdd.push_back(blockingUnitChoices[j]);
+								gMovesToAdd.push_back(gOverAllChoices[j]);
 								gMovesToAdd.back().eAssignmentType = A_MOVE_SWAP_REVERSE; //this one is just bookkeeping
 								break;
 							}
 						}
-						else if (!isMoveBlockedByOtherUnit(blockingUnitChoices[j])) //free plot
+						else if (!isMoveBlockedByOtherUnit(gOverAllChoices[j])) //free plot
 						{
 							//add the move to make space
-							gMovesToAdd.push_back(blockingUnitChoices[j]);
+							gMovesToAdd.push_back(gOverAllChoices[j]);
 							//mark that this is a forced move so we're allowed to move back later
 							gMovesToAdd.back().eAssignmentType = A_MOVE_FORCED;
 							//now we can do the original move
@@ -9106,15 +9112,26 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				if (gMovesToAdd.size() != 2)
 					continue;
 			}
-			else //to many block to sort out
+			else //too many blocks to sort out
 				continue;
 		}
 
 		if (!gMovesToAdd.empty())
 		{
-			//maybe we have a block/finish move following our "primary" move? should be harmless to add them together. this reduces our total search depth
-			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID && (gOverAllChoices[i + 1].eAssignmentType == A_FINISH_TEMP || gOverAllChoices[i + 1].eAssignmentType == A_BLOCKED))
-				gMovesToAdd.push_back(gOverAllChoices[++i]);
+			if (heapSort.bDepthFirst)
+			{
+				//maybe we have a block/finish move following our "primary" move? should be harmless to add them together. this reduces our total search depth
+				while (i < gOverAllChoices.size() - 1 && (gOverAllChoices[i + 1].eAssignmentType == A_FINISH_TEMP || gOverAllChoices[i + 1].eAssignmentType == A_BLOCKED))
+				{
+					//if we don't have a move for the next unit yet
+					if (std::find_if(gMovesToAdd.begin(), gMovesToAdd.end(), PrIsMoveForUnit(gOverAllChoices[i+1].iUnitID)) == gMovesToAdd.end())
+					{
+						gMovesToAdd.push_back(gOverAllChoices[++i]);
+					}
+					else
+						break;
+				}
+			}
 
 			//we need memory for the new child but we'll commit it only later after the uniqueness check
 			CvTacticalPosition* pNewChild = storage.peekNext();
@@ -9259,7 +9276,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 			return false; //something wrong
 
 		//if the unit is blocked but has movement left and can flee, let's assume that is ok
-		if (unit.eLastAssignment == A_BLOCKED && unit.iMovesLeft>GC.getMOVE_DENOMINATOR())
+		if (unit.eLastAssignment == A_BLOCKED && unit.iMovesLeft>0)
 			continue;
 
 		//if we have a restart pending, that can also be ok if we're not planning to stay
@@ -9908,7 +9925,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	std::pair<int, int> visibilityResult(0, 0);
 	
 	vector<SUnitStats>::iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(newAssignment.iUnitID));
-	if (itUnit == availableUnits.end())
+	if (itUnit == availableUnits.end() || itUnit->iPlotIndex != newAssignment.iFromPlotIndex)
 		return false;
 
 	//tactical plots are only touched for "real" moves. blocked units may be on invalid plots.
@@ -10896,10 +10913,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		if (false)
+		if (true)
 		{
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim finished. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
-				initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
+				int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
 		}
 
 		//debug dump
