@@ -5460,6 +5460,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 			{
 				// Change final turn
 				it->m_iFinalTurn = GC.getGame().getGameTurn();
+				it->m_iDuration = it->m_iFinalTurn - it->m_iStartTurn;
 
 				// Cancel individual items
 				TradedItemList::iterator itemIter;

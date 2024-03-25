@@ -148,7 +148,7 @@ public:
 	void updateYield();
 	void updateAdjacency();
 
-	void verifyUnitValidPlot();
+	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER);
 
 	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100);
 

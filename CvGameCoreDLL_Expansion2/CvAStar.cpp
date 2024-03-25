@@ -1945,9 +1945,6 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pFromPlot,*pToPlot) > data.iMaxTurns)
-		return FALSE;
-
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
 	{
@@ -2036,9 +2033,6 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	CvPlot* pOrigin = GC.getMap().plotUnchecked(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	if (!pOrigin || !pToPlot)
-		return FALSE;
-
-	if(plotDistance(*pOrigin,*pToPlot) > data.iMaxTurns)
 		return FALSE;
 
 	//can only claim ocean tiles after we can cross oceans

@@ -649,7 +649,7 @@ void CvPlot::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::verifyUnitValidPlot(bool bWakeUp)
+void CvPlot::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer, bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
@@ -665,23 +665,26 @@ void CvPlot::verifyUnitValidPlot(bool bWakeUp)
 		CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
 		if(pLoopUnit != NULL)
 		{
-			if(!pLoopUnit->isDelayedDeath())
+			if (eForSpecificPlayer == NO_PLAYER || (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() == eForSpecificPlayer))
 			{
-				if(pLoopUnit->atPlot(*this))
+				if (!pLoopUnit->isDelayedDeath())
 				{
-					//if plot ownership changes we want to make sure that human units
-					//which would suffer attrition or cause annoyance are woken up
-					if (bWakeUp)
-						pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
-
-					if(!(pLoopUnit->isCargo()))
+					if (pLoopUnit->atPlot(*this))
 					{
-						if(!(pLoopUnit->isInCombat()))
+						//if plot ownership changes we want to make sure that human units
+						//which would suffer attrition or cause annoyance are woken up
+						if (bWakeUp)
+							pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
+						if (!(pLoopUnit->isCargo()))
 						{
-							if (!pLoopUnit->canEndTurnAtPlot(this))
+							if (!(pLoopUnit->isInCombat()))
 							{
-								if (!pLoopUnit->jumpToNearestValidPlot())
-									pLoopUnit->kill(true);
+								if (!pLoopUnit->canEndTurnAtPlot(this))
+								{
+									if (!pLoopUnit->jumpToNearestValidPlot())
+										pLoopUnit->kill(true);
+								}
 							}
 						}
 					}
@@ -6764,7 +6767,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(bCheckUnits)
 			{
-				verifyUnitValidPlot(true);
+				verifyUnitValidPlot(NO_PLAYER, true);
 			}
 
 			if(GC.getGame().isDebugMode())

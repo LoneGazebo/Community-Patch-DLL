@@ -1680,8 +1680,8 @@ bool CvMinorCivQuest::IsExpired()
 	if (!pMinor->isAlive() || !pMinor->getCapitalCity() || !pAssignedPlayer->isAlive() || !pAssignedPlayer->getCapitalCity())
 		return true;
 
-	// If this quest type has an end turn, have we passed it?
-	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
+	// If this quest type has an end turn, have we reached it?
+	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() >= GetEndTurn())
 		return true;
 
 	CvTeam* pAssignedTeam = &GET_TEAM(pAssignedPlayer->getTeam());
@@ -12296,7 +12296,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		}
 
 		//teleport our units if necessary
-		GC.getMap().verifyUnitValidPlot();
+		GC.getMap().verifyUnitValidPlot(m_pPlayer->GetID());
 
 		if(eOldAlly == GC.getGame().getActivePlayer())
 		{

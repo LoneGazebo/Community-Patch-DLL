@@ -2482,7 +2482,7 @@ local function UpdateCityViewNow()
 					buildings = specialistBuildings
 				elseif greatWorkCount > 0 then
 					buildings = greatWorkBuildings
-				elseif greatWorkCount == 0 then		-- compatibility with Firaxis code exploit for invisibility
+				elseif greatWorkCount == 0 and building.IsDummy == 0 then		-- compatibility with Firaxis code exploit for invisibility
 					buildings = otherBuildings
 				end
 				if buildings then

@@ -1787,7 +1787,7 @@ function OnCityViewUpdate()
 				if not (building.IsCorporation == 1) then
 					local buildingID= building.ID;
 					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0 and GameInfo.Buildings[buildingID].IsDummy == 0) then
 							numBuildingsInThisCity = numBuildingsInThisCity + 1;
 							local element = {};
 							local name = Locale.ConvertTextKey( building.Description )

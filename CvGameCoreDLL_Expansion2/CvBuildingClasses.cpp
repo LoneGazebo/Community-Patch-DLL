@@ -1799,7 +1799,7 @@ YieldTypes CvBuildingEntry::GetGreatWorkYieldType() const
 /// How many great works are allowed by this Building
 int CvBuildingEntry::GetGreatWorkCount() const
 {
-	return m_iGreatWorkCount;
+	return max(0, m_iGreatWorkCount); // protect against modders using negative values
 }
 
 /// Does this building come with a built-in Great Work?

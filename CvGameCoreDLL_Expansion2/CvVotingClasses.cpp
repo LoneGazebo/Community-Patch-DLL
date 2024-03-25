@@ -12029,14 +12029,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bCanGold)
 			{
-				int iOurSeaMight = GetPlayer()->GetMilitaryMight();
+				int iOurSeaMight = GetPlayer()->GetMilitarySeaMight();
 				int iHighestSeaMight = 0;
 				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 				{
 					PlayerTypes e = (PlayerTypes)i;
 					if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 					{
-						int iSeaMight = GET_PLAYER(e).GetMilitaryMight();
+						int iSeaMight = GET_PLAYER(e).GetMilitarySeaMight();
 						if (iSeaMight > iHighestSeaMight)
 						{
 							iHighestSeaMight = iSeaMight;

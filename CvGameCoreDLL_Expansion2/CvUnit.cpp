@@ -31181,7 +31181,7 @@ bool CvUnit::IsCanDefend() const
 bool CvUnit::IsCivilianUnit() const
 {
 	//aircraft are not combat units but can attack ranged ...
-	return !IsCombatUnit() && !IsCanAttackRanged();
+	return !IsCombatUnit() && !IsCanAttackRanged() && !canNuke();
 }
 
 // Combat eligibility routines

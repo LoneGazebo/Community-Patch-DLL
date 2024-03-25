@@ -365,7 +365,7 @@
 			<Text>They want you to liberate the city of {1_CityName:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL">
-			<Text>Protect them from a barbarian horde!</Text>
+			<Text>Protect them from a barbarian horde! If there are barbarians next to the city when the quest ends, the city will be [COLOR_NEGATIVE_TEXT]sacked[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
 			<Text>A revolution against their ally is occurring!</Text>

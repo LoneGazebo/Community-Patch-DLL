@@ -1267,6 +1267,9 @@ void CvPlayerTechs::SetLocalePriorities()
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerTechs::SetGSPriorities()
 {
+	if (m_pPlayer->isMinorCiv())
+		return;
+
 	for(int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
 		m_piGSTechPriority[iI] = 1;

@@ -445,7 +445,7 @@
 			<Text>A barbarian horde is assaulting {1_MinorCivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_HORDE">
-			<Text>A horde of barbarians has emerged near {2_MinorCivName:textkey}! If the barbarians maintain their siege at the end of [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will be sacked[ENDCOLOR]!</Text>
+			<Text>A horde of barbarians has emerged near {2_MinorCivName:textkey}! If there are barbarians next to the city at the end of [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] turns, [COLOR_NEGATIVE_TEXT]the city will be sacked[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_HORDE">
 			<Text>Horde near {1_MinorCivName:textkey} dispersed!</Text>
@@ -457,7 +457,7 @@
 			<Text>Barbarians swarming {1_MinorCivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_HORDE">
-			<Text>Barbarians have established themselves near {1_CityStateName:textkey} and [COLOR_NEGATIVE_TEXT]may take it over[ENDCOLOR]!</Text>
+			<Text>Barbarians have established themselves near {1_CityStateName:textkey} and [COLOR_NEGATIVE_TEXT]are taking it over[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION">
 			<Text>Revolution against {1_TargetName:textkey} in {2_MinorCivName:textkey}</Text>

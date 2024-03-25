@@ -115,7 +115,7 @@ public:
 
 	void updateCenterUnit();
 
-	void verifyUnitValidPlot(bool bWakeUp=false);
+	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER, bool bWakeUp = false);
 
 	void nukeExplosion(int iDamageLevel, CvUnit* pNukeUnit = NULL);
 

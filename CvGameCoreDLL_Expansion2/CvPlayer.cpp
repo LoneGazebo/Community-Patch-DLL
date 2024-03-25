@@ -15036,12 +15036,10 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnitInfo.IsMinorCivGift() && !isBarbarian())
 	{
 		return false;
 	}
-#endif
 
 	// Should we check whether this Unit has been blocked out by the civ XML?
 	if(!bIgnoreUniqueUnitStatus)
@@ -15055,7 +15053,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	// If there is a replacement for the unit class, and this unit is not a unique unit
 	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && !bIgnoreUniqueUnitStatus && GetUnitClassReplacement(eUnitClass) != NO_UNITCLASS)
 	{
@@ -15064,7 +15061,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 		}
 	}
-#endif
 
 	if(!bIgnoreCost)
 	{
@@ -15074,7 +15070,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
 	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE && !isBarbarian())
 	{
@@ -15091,7 +15086,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 		}
 	}
-#endif
 
 	
 	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
@@ -15162,28 +15156,13 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-	// Game Unit Class Max
-	if(GC.getGame().isUnitClassMaxedOut(eUnitClass))
+	// Spaceship part we already have? Science victory disabled?
+	ProjectTypes eProject = (ProjectTypes)pUnitInfo.GetSpaceshipProject();
+	if (eProject != NO_PROJECT)
 	{
-		return false;
-	}
+		if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+			return false;
 
-	// Team Unit Class Max
-	if(GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Player Unit Class Max
-	if(isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Spaceship part we already have?
-	ProjectTypes eProject = (ProjectTypes) pUnitInfo.GetSpaceshipProject();
-	if(eProject != NO_PROJECT)
-	{
 		if(GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
 			return false;
 
@@ -15250,7 +15229,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 							return false;
 					}
 				}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 				{
 					int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
@@ -15271,7 +15249,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 						}
 					}
 				}
-#endif
 			}
 
 		}
@@ -15292,7 +15269,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 
 		if(isUnitClassMaxedOut(eUnitClass, (getUnitClassMaking(eUnitClass) + ((bContinue) ? -1 : 0))))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(isNationalUnitClass(eUnitClass))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
@@ -15305,11 +15281,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 				if(toolTipSink == NULL)
 					return false;
 			}
-#else
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
-			if(toolTipSink == NULL)
-				return false;
-#endif
 		}
 
 		if(GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
@@ -34463,22 +34434,15 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 		if (pLoopUnit->IsCivilianUnit())
 			continue;
 
-		//we are interested in the offensive capabilities of the player
-		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
-
-		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
-		int iPromotionFactor = 100;
-		if (pLoopUnit->getLevel()>3)
-			iPromotionFactor += pLoopUnit->getLevel() * 10 - 30;
-
-		//assume garrisons won't take part in offensive action
-		if (pLoopUnit->IsGarrisoned())
+		int iPower = pLoopUnit->GetPower();
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
 			iPower /= 2;
-
-		iSum += (iPower*iPromotionFactor)/100;
+		}
+		iSum += iPower;
 	}
 	
-	return iSum;
+	return (iSum / 4);
 }
 
 //	--------------------------------------------------------------------------------
@@ -41428,7 +41392,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(isUnitLimitPerCity(eIndex))
 	{
 		CvAssertMsg(getUnitClassCount(eIndex) <= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()), "getUnitInstancePerCity is expected to be less than maximum bound of UnitInstancePerCity (invalid index)");
@@ -41443,16 +41406,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 	{
 		return false;
 	}
-#else
-	if(!isNationalUnitClass(eIndex))
-	{
-		return false;
-	}
-
-	CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
-
-	return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
-#endif
 }
 
 
