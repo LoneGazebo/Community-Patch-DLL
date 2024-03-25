@@ -211,7 +211,7 @@
 
 		<!-- Opera House -->
 		<Row Tag="TXT_KEY_BUILDING_OPERA_HOUSE_HELP">
-			<Text>+5% [ICON_CULTURE] Culture in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City.</Text>
+			<Text>[ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City.</Text>
 		</Row>
 
 		<!-- Museum -->
@@ -311,7 +311,7 @@
 			<Text>This National Wonder cannot be built unless the city has a Stock Exchange. Build this national wonder to receive additional Delegates in the World Congress based on the number of Declaration of Friendships you currently have with other players. You will also receive a large boost to the Food and Gold output of the city where it is built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
-			<Text>Requires [COLOR_MAGENTA]Freedom[ENDCOLOR]. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the City in which it is built. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+			<Text>Requires [COLOR_MAGENTA]Freedom[ENDCOLOR]. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FINANCE_CENTER_TEXT">
 			<Text>A Financial Center is a global city that is home to a large number of internationally significant banks, businesses, and stock exchanges. An International Financial Center, sometimes abbreviated to IFC, is a non-specific term usually used to describe an important participant in international financial market trading, usually having at least one major stock market. During much of the 20th century, the United States and its financial capital, New York City, were the leaders. But since the 1990s, with the rise of a multipolar world with new regional powers and global capitalism, numerous financial centres have challenged the predominance of Wall Street, particularly from Asia, which some analysts believe will be the focus of new worldwide growth.</Text>
@@ -324,7 +324,7 @@
 			<Text>This National Wonder cannot be built unless the city has a Public School. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defensive Pacts and Vassals you currently have. You will also receive a large boost to the Culture and Science output of the city where it is built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
-			<Text>Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the City in which it is built. [COLOR_POSITIVE_TEXT]Removes[ENDCOLOR] your global limit on forming Defensive Pacts. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+			<Text>Requires [COLOR_MAGENTA]Order[ENDCOLOR]. [COLOR_POSITIVE_TEXT]Removes[ENDCOLOR] your global limit on forming Defensive Pacts. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PALACE_SCIENCE_CULTURE_TEXT">
 			<Text>The Palace of Culture and Science in Warsaw is the tallest building in Poland, the eighth tallest building in the European Union. The building was originally known as the Joseph Stalin Palace of Culture and Science, but in the wake of destalinization the dedication to Stalin was revoked; Stalin's name was removed from the interior lobby and one of the building's sculptures. Currently it is the 187th tallest building in the world.</Text>
@@ -337,7 +337,7 @@
 			<Text>This National Wonder cannot be built unless the city has a Military Academy. Build this national wonder to receive additional Delegates in the World Congress based on the number of enemy Capitals you have conquered. You will also receive a large boost to the Tourism and Production output of the city where it is built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
-			<Text>Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR]. +15 [ICON_TOURISM] Tourism and +5% [ICON_PRODUCTION] Production in the City in which it is built. Receive 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every [COLOR_POSITIVE_TEXT]Enemy[ENDCOLOR] [ICON_CAPITAL] [COLOR_POSITIVE_TEXT]Capital[ENDCOLOR] you control.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+			<Text>Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR]. Receive 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every [COLOR_POSITIVE_TEXT]Enemy[ENDCOLOR] [ICON_CAPITAL] [COLOR_POSITIVE_TEXT]Capital[ENDCOLOR] you control.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT">
 			<Text>The "Ehrenhalle" (Hall of Honor) was built by the city of Nuremberg according to a plan of German architect Fritz Mayer. It was inaugurated in 1930, before the Hitler era during the Weimar Republic. It is an arcaded hall with an adjacent cobbled stone terrace with two rows of pedestals for fire bowls. All fourteen pylons remain virtually intact and have not been ignited since the final Nazi party rally in September, 1938. Originally, the hall was to be a memorial site for the 9,855 soldiers from Nuremberg who were fallen in World War I. During the Party Congress of 1929 the then unfinished "Hall of Honour" was used for the enactment of a cult of the dead by the National Socialists for the first time. During the Third Reich, the Nazis used the site primarily as a commemoration for the fallen soldiers of World War I and a commemoration of the 16 dead of the "Hitlerputsch" (the so-called "Martyrs of the NS Movement") (Beer Hall Putsch) on 9 November, 1923, in Munich. Hitler, accompanied by SS-leader Heinrich Himmler and SA-leader Viktor Lutze, strode through the arena over the 240 meters long granite path from the main grandstand to the terrace of the Ehrenhalle and showed the Nazi salute there. The ritual was the climax of the celebration.</Text>
@@ -866,7 +866,7 @@
 			<Text>Can only be built in cities following a religion with the Gurdwaras belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Gurdwara offers bonuses towards Growth and Defense.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GURDWARA_HELP">
-			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]+10% [ICON_FOOD] Food and +10% [ICON_STRENGTH] Defense in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GURDWARA_PEDIA">
 			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
@@ -1012,7 +1012,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+1 tile work radius. +10% to all City Yields. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_CIV5_POLICY_TRADITION_HEADING}[ENDCOLOR] Finisher.</Text>
+			<Text>+1 tile work radius.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_CIV5_POLICY_TRADITION_HEADING}[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
