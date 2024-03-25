@@ -485,6 +485,8 @@
 #define MOD_NOTIFICATION_SETTINGS					gCustomMods.isNOTIFICATION_SETTINGS()
 // Full map state logging
 #define MOD_LOG_MAP_STATE							gCustomMods.isLOG_MAP_STATE()
+// Route Planner modmod
+#define MOD_ROUTE_PLANNER							gCustomMods.isROUTE_PLANNER()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1565,6 +1567,7 @@ public:
 	MOD_OPT_DECL(NOT_FOR_SALE);
 	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(LOG_MAP_STATE);
+	MOD_OPT_DECL(ROUTE_PLANNER);
 
 protected:
 	bool m_bInit;

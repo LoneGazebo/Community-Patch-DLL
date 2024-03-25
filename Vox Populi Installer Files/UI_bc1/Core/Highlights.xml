@@ -51,4 +51,10 @@
 	<style name="SquadsGroupMovement" type="FilledHex" width ="1" color="196,196,196,128" />
 	<style name="SquadsBoxSelect" type="FilledHex" width ="1" color="0,255,0,128" />
 	<style name="InfluenceBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="255,20,147,255"/>
+
+	<style name="RoutePlannerCityConnection" type="SplineBorder" width ="10" color="255,234,0,255" />
+
+	<style name="RoutePlannerInclude" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="0,196,0,255" />
+	<style name="RoutePlannerExclude" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="196,0,0,255" />
+	<style name="RPPCR" type="SplineBorder" width ="6" texture="hex_contour2.dds" color="0,255,255,255" />
 </Highlights>

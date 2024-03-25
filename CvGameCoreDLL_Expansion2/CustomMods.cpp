@@ -568,6 +568,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 		MOD_OPT_CACHE(NOT_FOR_SALE);
 		MOD_OPT_CACHE(NOTIFICATION_SETTINGS);
 		MOD_OPT_CACHE(LOG_MAP_STATE);
+		MOD_OPT_CACHE(ROUTE_PLANNER);
 
 		m_bInit = true;
 	}
