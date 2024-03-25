@@ -6474,7 +6474,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 				{
 					if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
 							int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);

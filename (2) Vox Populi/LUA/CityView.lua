@@ -1542,20 +1542,15 @@ function OnCityViewUpdate()
 
 		local freeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if(freeSpecialists > 0) then
-			print("Free specialists!")
 			local freeSpecialtxt = tostring(freeSpecialists);
-			print(freeSpecialtxt);
 			Controls.FreeSpecialistLabel:SetText(freeSpecialtxt);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists );
 		else
-			print("No free specialists...")
 			local defSpecialist = tostring((GameDefines.UNHAPPINESS_PER_SPECIALIST / 100));
 			Controls.FreeSpecialistLabel:SetText(defSpecialist);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
-			print(defSpecialist);
-			print("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
 		end
 
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT);
@@ -1792,7 +1787,7 @@ function OnCityViewUpdate()
 				if not (building.IsCorporation == 1) then
 					local buildingID= building.ID;
 					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0 and GameInfo.Buildings[buildingID].IsDummy == 0) then
 							numBuildingsInThisCity = numBuildingsInThisCity + 1;
 							local element = {};
 							local name = Locale.ConvertTextKey( building.Description )

@@ -1797,7 +1797,7 @@ YieldTypes CvBuildingEntry::GetGreatWorkYieldType() const
 /// How many great works are allowed by this Building
 int CvBuildingEntry::GetGreatWorkCount() const
 {
-	return m_iGreatWorkCount;
+	return max(0, m_iGreatWorkCount); // protect against modders using negative values
 }
 
 /// Does this building come with a built-in Great Work?
@@ -5708,7 +5708,7 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) 
 		{
 			if (eSlotType == NO_GREAT_WORK_SLOT || pkBuilding->GetGreatWorkSlotType() == eSlotType)
 			{
-				int iNumSlots = max(0, pkBuilding->GetGreatWorkCount());
+				int iNumSlots = pkBuilding->GetGreatWorkCount();
 				int iNumOpenSlots = iNumSlots - GetNumGreatWorksInBuilding(pkBuilding->GetBuildingClassType());
 				if(iNumOpenSlots > 0)
 				{
@@ -5766,7 +5766,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pkBuildingInfo && GetNumBuilding(eBuilding) > 0)
 				{
-					int iNumSlots = max(0, pkBuildingInfo->GetGreatWorkCount());
+					int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
 					for (int jJ = 0; jJ < iNumSlots; jJ++)
 					{
 						if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)
@@ -5809,7 +5809,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 				{
 					if (pkBuildingInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
 					{
-						int iNumSlots = max(0, pkBuildingInfo->GetGreatWorkCount());
+						int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
 						for (int jJ = 0; jJ < iNumSlots; jJ++)
 						{
 							if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)
