@@ -796,7 +796,7 @@ void CvTacticalAI::ProcessDominanceZones()
 				CvCity* pZoneCity = pZone->GetZoneCity();
 				strLogString.Format("Zone %d, %s, city of %s, posture %s",  
 					pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "water" : "land",
-					pZoneCity ? pZoneCity->getNameNoSpace().c_str() : "no_name_city", 
+					pZoneCity ? pZoneCity->getNameNoSpace().c_str() : "none", 
 					postureNames[pZone->GetPosture()]);
 				LogTacticalMessage(strLogString);
 			}
@@ -1209,15 +1209,15 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 				switch(targetType)
 				{
 				case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging high priority %s, X: %d, Y: %d,", strTemp.GetCString(),
+					strLogString.Format("Looking at damaging high priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
 							            pDefender->getX(), pDefender->getY());
 					break;
 				case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging medium priority %s, X: %d, Y: %d,", strTemp.GetCString(),
+					strLogString.Format("Looking at damaging medium priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
 							            pDefender->getX(), pDefender->getY());
 					break;
 				case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging low priority %s, X: %d, Y: %d,", strTemp.GetCString(),
+					strLogString.Format("Looking at damaging low priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
 							            pDefender->getX(), pDefender->getY());
 					break;
 				default:
@@ -1252,15 +1252,15 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 					switch(targetType)
 					{
 					case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing high priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+						strLogString.Format("Looking at killing high priority %s, id %d, X: %d, Y: %d, ", strTemp.GetCString(),
 							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing medium priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+						strLogString.Format("Looking at killing medium priority %s, id %d, X: %d, Y: %d ,", strTemp.GetCString(),
 							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing low priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+						strLogString.Format("Looking at killing low priority %s, id %d, X: %d, Y: %d, ", strTemp.GetCString(),
 							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					default:
@@ -3252,7 +3252,7 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 		}
 
 		//zone boundaries are arbitrary sometimes so include neighboring tiles as well for small zones
-		if (pZone && plotDistance(pZone->GetCenterX(), pZone->GetCenterY(), it->GetTargetX(), it->GetTargetY()) <= 5)
+		if (pZone && plotDistance(pZone->GetCenterX(), pZone->GetCenterY(), it->GetTargetX(), it->GetTargetY()) <= 3)
 		{
 			CvPlot* pTargetPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 			for (size_t i = 0; i < RING1_PLOTS; i++)
@@ -7328,7 +7328,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	}
 	else if (tactPlot.isEnemyCombatUnit())
 	{
-		CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true, true); //ignore the official visibility
+		CvUnit* pEnemy = tactPlot.getEnemyUnit();
 		if (!pEnemy)
 		{
 			result.iScore = -INT_MAX;
@@ -8071,10 +8071,10 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 
 		if (evalMode != EM_INTERMEDIATE)
 		{
-			//we want one of our own combat units covering us
+			//we want one of our own combat units covering us (either sim or non sim)
 			if (testPlot.isCombatEndTurn())
 			{
-				bool bHaveRealCover = false;
+				bool bHaveSimCover = false;
 				const vector<STacticalUnit>& units = testPlot.getUnitsAtPlot();
 				for (size_t i = 0; i < units.size(); i++)
 				{
@@ -8084,21 +8084,25 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 						CvUnit* pDefender = GET_PLAYER(assumedPosition.getPlayer()).getUnit(units[i].iUnitID);
 						if (!assumedPosition.lastAssignmentIsAfterRestart(units[i].iUnitID) && !pDefender->shouldHeal(false))
 						{
-							bHaveRealCover = true;
+							bHaveSimCover = true;
 							break;
 						}
 					}
 				}
-				//don't do it
-				if (!bHaveRealCover)
-					return result;
+				if (!bHaveSimCover)
+				{
+					bool bHaveRealCover = false;
+					CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
+					if (pTestPlot->isFriendlyCity(*pUnit) || (pBestDefender && pBestDefender->TurnProcessed() && !pBestDefender->isProjectedToDieNextTurn()))
+						bHaveRealCover = true;
+
+					//don't do it
+					if (!bHaveRealCover)
+						return result;
+				}
 			}
-			else //maybe we still have cover ...
-			{
-				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
-				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed() || pBestDefender->isProjectedToDieNextTurn()))
-					return result; //no can do!
-			}
+			else if (!pTestPlot->isFriendlyCity(*pUnit)) //cities are considered safe
+				return result;
 
 			//surrounding cover is also good
 			int iFriends = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH) : testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
@@ -8310,7 +8314,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	bEnemyCivilianPresent = false;
 	bEdgeOfTheKnownWorld = false;
 	bAdjacentToEnemyCitadel = false;
-	bHasEnemyCombatUnit = false;
+	pEnemyCombatUnit = NULL;
 
 	//set only once
 	bFriendlyDefenderEndTurn = false;
@@ -8333,6 +8337,11 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	aiEnemyCombatUnitsAdjacent[TD_LAND] = 0;
 	aiEnemyCombatUnitsAdjacent[TD_SEA] = 0;
 
+	//enemy distance alone is not enough
+	//there may be multiple enemy combat units but we only care about the best defender
+	//also ignore the official visibility, we only add tactical plots if we can see them in the sim
+	pEnemyCombatUnit = pPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true,true);
+
 	//concerning embarkation. this is complex because it allows combat units to stack, violating the 1UPT rule.
 	//note that there are other exceptions as well, eg a fort can hold a naval unit and a land unit.
 	//therefore we check for "native domain". we consider non-native domain units in the simulation but only allow moves into the native domain.
@@ -8353,9 +8362,6 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 			//combat units (embarked or not)
 			if (pPlotUnit->IsCanDefend())
 			{
-				//enemy distance alone is not enough
-				bHasEnemyCombatUnit = true;
-
 				//enemy distance for other plots will be set afterwards in refreshVolatilePlotProperties
 				//but we need to set the zeros here!
 				aiEnemyDistance[TD_BOTH] = 0;
@@ -8402,7 +8408,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 					bfBlockedByNonSimCombatUnit |= 4;
 				}
 
-				if (pPlotUnit->TurnProcessed())
+				if (pPlotUnit->TurnProcessed() && !pPlotUnit->isProjectedToDieNextTurn())
 					bFriendlyDefenderEndTurn = true;
 
 				//rules for cities are complex so just don't try it
@@ -8598,7 +8604,7 @@ int CvTacticalPlot::getNumAdjacentFriendliesEndTurn(eTactPlotDomain eDomain) con
 bool CvTacticalPlot::removeEnemyUnitIfPresent()
 {
 	bool bReturn = false;
-	bHasEnemyCombatUnit = false;
+	pEnemyCombatUnit = NULL;
 
 	if (aiEnemyDistance[TD_BOTH] == 0)
 	{
@@ -9267,6 +9273,8 @@ bool CvTacticalPosition::isExhausted() const
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
 bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 { 
+	int iBadUnitID = -1; //for debugging
+
 	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else will hopefully pick up the pieces
 	for (size_t i=0; i<notQuiteFinishedUnits.size(); i++)
 	{
@@ -9302,7 +9310,10 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 			}
 		}
 		else
+		{
+			iBadUnitID = unit.iUnitID;
 			return false;
+		}
 	}
 
 	//try to enforce some sort of sparsity, we should use only the minimum amount of units. 
@@ -9338,6 +9349,7 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 {
 	//if we made a kill, that is always good
 	//on the other hand it messes up the enemy distance, so we cannot really compare before/after in that case!
+	//note that regular attacks are checked below!
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 		if (isKillAssignment(assignedMoves[i].eAssignmentType))
 			return true;
@@ -9356,14 +9368,14 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 	int iAttacksNoMove = 0;
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 	{
-		//compare final to initial and see whether we came closer to the ideal distance
-		const STacticalAssignment& final = assignedMoves[i];
-		if (final.eAssignmentType == A_FINISH)
+		const STacticalAssignment& move = assignedMoves[i];
+		if (move.eAssignmentType == A_FINISH)
 		{
-			const STacticalAssignment* initial = getInitialAssignment(final.iUnitID);
-			const SUnitStats* unit = root->getAvailableUnitStats(final.iUnitID);
+			//compare final to initial and see whether we came closer to the ideal distance
+			const STacticalAssignment* initial = getInitialAssignment(move.iUnitID);
+			const SUnitStats* unit = root->getAvailableUnitStats(move.iUnitID);
 			const CvTacticalPlot& initialPlot = root->getTactPlot(initial->iFromPlotIndex);
-			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
+			const CvTacticalPlot& finalPlot = getTactPlot(move.iFromPlotIndex);
 
 			//only relevant in degenerate cases without enemies
 			iBefore += plotDistance(*initialPlot.getPlot(), *root->getTarget());
@@ -9413,12 +9425,11 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 				break;
 			}
 		}
-		else if (final.eAssignmentType == A_RESTART)
-			//ignore the rest
-			break;
-		else if (final.eAssignmentType == A_RANGEATTACK || final.eAssignmentType == A_MELEEATTACK)
+		else if (move.eAssignmentType == A_RANGEATTACK || move.eAssignmentType == A_MELEEATTACK)
 			//we already checked for kills!
 			iAttacksNoMove++;
+
+		//note that RESTARTS are ignored here ... just hope that we still find good moves after the restart
 	}
 	
 	//staying in place and bombarding is fine! note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
@@ -9636,6 +9647,7 @@ void CvTacticalPosition::wipe()
 	vector<STacticalAssignment>().swap(assignedMoves);
 	vector<SUnitStats>().swap(availableUnits);
 	vector<SUnitStats>().swap(notQuiteFinishedUnits);
+	iID = 0; //easier debugging
 }
 
 bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
@@ -10812,6 +10824,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//small performance optimization
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
 
+	//around 15 units everythings becomes slow so don't use more
+	initialPosition->dropSuperfluousUnits(15);
+
 	openPositionsHeap.clear();
 	completedPositions.clear();
 	size_t iUsedPositions = 0;
@@ -10915,8 +10930,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	{
 		if (true)
 		{
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
-				int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
+				pTarget->getX(),pTarget->getY(),int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
 		}
 
 		//debug dump

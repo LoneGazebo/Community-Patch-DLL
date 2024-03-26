@@ -723,7 +723,8 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
-	bool isEnemyCombatUnit() const { return bHasEnemyCombatUnit; }
+	bool isEnemyCombatUnit() const { return pEnemyCombatUnit!=NULL; }
+	CvUnit* getEnemyUnit() const { return pEnemyCombatUnit; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
@@ -736,6 +737,7 @@ public:
 
 protected:
 	const CvPlot* pPlot; //null if invalid
+	CvUnit* pEnemyCombatUnit; //there may also be enemy cities without garrison!
 	vector<STacticalUnit> vUnitsHere; //which (simulated) units are in this plot?
 
 	unsigned char aiEnemyDistance[3]; //distance to attack targets, not civilians. recomputed every time an enemy is killed or discovered
@@ -762,9 +764,7 @@ protected:
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
 	bool bAdjacentToEnemyCitadel:1;
-
 	bool bFriendlyDefenderEndTurn:1; 
-	bool bHasEnemyCombatUnit:1; //there may also be cities without garrison!
 };
 
 struct SAttackStats
