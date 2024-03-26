@@ -584,7 +584,7 @@ WHERE Tag = 'TXT_KEY_WONDER_GREAT_WALL_HELP';
 
 -- Alhambra
 UPDATE Language_en_US
-SET Text = 'Requires completion of [COLOR_MAGENTA]Authority[ENDCOLOR] Branch. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Castle in the City in which it is built. All Mounted Melee units receive the [COLOR_POSITIVE_TEXT]Jinete[ENDCOLOR] Promotion, improving [ICON_STRENGTH] Combat Strength when attacking and providing a chance to withdraw from combat. Boosts City [ICON_CULTURE] Culture output by 10%.'
+SET Text = 'Requires completion of [COLOR_MAGENTA]Authority[ENDCOLOR] Branch. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Castle in the City in which it is built. All Mounted Melee units receive the [COLOR_POSITIVE_TEXT]Jinete[ENDCOLOR] Promotion, improving [ICON_STRENGTH] Combat Strength when attacking and providing a chance to withdraw from combat.'
 WHERE Tag = 'TXT_KEY_WONDER_ALHAMBRA_HELP';
 
 UPDATE Language_en_US
@@ -739,12 +739,12 @@ WHERE Tag = 'TXT_KEY_WONDER_CN_TOWER_HELP';
 
 -- Cristo Redentor
 UPDATE Language_en_US
-SET Text = '+25 [ICON_TOURISM] Tourism. Hotels provide +2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_CULTURE] Culture, and [ICON_TOURISM] Tourism.'
+SET Text = 'Hotels provide +2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_CULTURE] Culture, and [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_WONDER_CRISTO_REDENTOR_HELP';
 
 -- Sydney Opera House
 UPDATE Language_en_US
-SET Text = 'Can only be constructed in a Coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and +25% [ICON_CULTURE] Culture in this City. Contains 2 slots for [ICON_VP_GREATMUSIC] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Can only be constructed in a Coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy. Contains 2 slots for [ICON_VP_GREATMUSIC] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP';
 
 -- Great Firewall

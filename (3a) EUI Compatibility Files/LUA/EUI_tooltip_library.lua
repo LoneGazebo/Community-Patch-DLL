@@ -619,6 +619,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
 	local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
 	local defenseChange = tonumber(building.Defense) or 0
+	local defenseModifier = tonumber(building.BuildingDefenseModifier) or 0
 	local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
 	local damageReductionChange = tonumber(building.DamageReductionFlat) or 0
 	local cultureChange = not gk_mode and tonumber(building.Culture) or 0
@@ -850,6 +851,9 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	-- Defense:
 	if defenseChange ~=0 then
 		tip = S("%s %+g[ICON_STRENGTH]", tip, defenseChange / 100 )
+	end
+	if defenseModifier ~=0 then
+		tip = S("%s %+g%%[ICON_STRENGTH]", tip, defenseModifier )
 	end
 	if hitPointChange ~=0 then
 		tip = tip .. " " .. L( "TXT_KEY_PEDIA_DEFENSE_HITPOINTS", hitPointChange )
