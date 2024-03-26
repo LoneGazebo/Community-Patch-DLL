@@ -8055,6 +8055,18 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE_S">
 			<Text>Peace with {1_Civ} possible!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_MODIFIER">
+			<Text>[ICON_FOOD] Food: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FAITH_MODIFIER">
+			<Text>[ICON_PEACE] Faith: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
+			<Text>[ICON_STRENGTH] Defense: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_MODIFIER">
+			<Text>[ICON_CULTURE] Culture: +{1_Num}%</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

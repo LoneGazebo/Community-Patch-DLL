@@ -463,12 +463,160 @@ void CvPlayerEspionage::Reset()
 /// DoTurn
 void CvPlayerEspionage::DoTurn()
 {
+	if (GC.getGame().getGameTurn() % 5 == 0)
+	{
+		LogSpyStatus();
+	}
 	ProcessSpyMessages();
 
 	for(uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
 	{
 		ProcessSpy(uiSpy);
 	}
+}
+
+/// LogSpyStatus
+void CvPlayerEspionage::LogSpyStatus()
+{
+	if (m_aSpyList.size() == 0)
+		return;
+
+	CvString strMsg;
+	strMsg = "";
+	LogEspionageMsg(strMsg);
+	strMsg = "----------- SPY STATUS BREAKDOWN ----------";
+	LogEspionageMsg(strMsg);
+
+	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
+	if (pDiploAI->IsGoingForCultureVictory())
+	{
+		strMsg = "Going for Culture Victory";
+	}
+	else if(pDiploAI->IsGoingForSpaceshipVictory())
+	{
+		strMsg = "Going for Science Victory";
+	}
+	else if (pDiploAI->IsGoingForDiploVictory())
+	{
+		strMsg = "Going for Diplo Victory";
+	}
+	else if (pDiploAI->IsGoingForWorldConquest())
+	{
+		strMsg = "Going for Domination Victory";
+	}
+	else
+	{
+		strMsg = "Unknown Victory Type";
+	}
+	LogEspionageMsg(strMsg);
+
+	CvString strSpyStatus;
+	for (uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
+	{
+		CvEspionageSpy* pSpy = GetSpyByID(uiSpy);
+		CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
+		CvCity* pCity = NULL;
+		CvCityEspionage* pCityEspionage = NULL;
+		PlayerTypes ePlayer = m_pPlayer->GetID();
+		PlayerTypes eCityOwner = NO_PLAYER;
+		CityEventChoiceTypes eMission = pSpy->GetSpyFocus();
+		int iNetworkPointsNeeded = 0;
+		if (eMission != NO_EVENT_CHOICE_CITY)
+		{
+			CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eMission);
+			if (pkMissionInfo)
+			{
+				iNetworkPointsNeeded = pkMissionInfo->GetNetworkPointsNeededScaled();
+			}
+		}
+		if (pCityPlot)
+		{
+			pCity = pCityPlot->getPlotCity();
+			if (pCity)
+			{
+				eCityOwner = pCity->getOwner();
+				pCityEspionage = pCity->GetCityEspionage();
+			}
+		}
+		PlayerTypes eMinorAlly = NO_PLAYER;
+		strSpyStatus.Format("Spy #%d %s (Lvl. %d, %d/%d): ", uiSpy, GetLocalizedText(pSpy->GetSpyName(m_pPlayer)).c_str(), pSpy->GetSpyRank(ePlayer) + 1, pSpy->m_iExperience, GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
+		switch (pSpy->GetSpyState())
+		{
+		case SPY_STATE_UNASSIGNED:
+			strMsg = "UNASSIGNED";
+			break;
+		case SPY_STATE_TRAVELLING:
+			strMsg.Format("TRAVELLING to %s, %s", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription());
+			break;
+		case SPY_STATE_SURVEILLANCE:
+			strMsg.Format("SURVEILLANCE in %s, %s", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription());
+			break;
+		case SPY_STATE_DEAD:
+		case SPY_STATE_TERMINATED:
+			strMsg = "KILLED";
+			break;
+		case SPY_STATE_IMPRISONED:
+			strMsg = "IMPRISONED";
+			break;
+		case SPY_STATE_MAKING_INTRODUCTIONS:
+			strMsg.Format("MAKING INTRODUCTIONS in %s, %s", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription());
+			break;
+		case SPY_STATE_SCHMOOZE:
+			if (MOD_BALANCE_VP)
+			{
+				strMsg.Format("SCHMOOZING in %s, %s. NP: %d", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription(), pCityEspionage->GetAmount(ePlayer));
+			}
+			else
+			{
+				strMsg.Format("SCHMOOZING in %s, %s", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription());
+			}
+			break;
+		case SPY_STATE_RIG_ELECTION:
+			eMinorAlly = GET_PLAYER(eCityOwner).GetMinorCivAI()->GetAlly();
+			if (eMinorAlly == NO_PLAYER)
+			{
+				strMsg.Format("RIGGING ELECTION in %s. Our Infl.: %d, no current ally. Consecutive Rigging #%d. Turns until election: %d", GET_PLAYER(eCityOwner).getCivilizationShortDescription(), GET_PLAYER(eCityOwner).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer), GET_PLAYER(eCityOwner).GetMinorCivAI()->GetNumConsecutiveSuccessfulRiggings(ePlayer)+1, GC.getGame().GetTurnsUntilMinorCivElection());
+			}
+			else
+			{
+				strMsg.Format("RIGGING ELECTION in %s. Our Infl.: %d, Ally: %s (%d). Consecutive Rigging #%d. Turns until election: %d", GET_PLAYER(eCityOwner).getCivilizationShortDescription(), GET_PLAYER(eCityOwner).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer), GET_PLAYER(eMinorAlly).getCivilizationShortDescription(), GET_PLAYER(eCityOwner).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMinorAlly), GET_PLAYER(eCityOwner).GetMinorCivAI()->GetNumConsecutiveSuccessfulRiggings(ePlayer)+1, GC.getGame().GetTurnsUntilMinorCivElection());
+			}
+			break;
+		case SPY_STATE_COUNTER_INTEL:
+			if (MOD_BALANCE_VP)
+			{
+				strMsg.Format("COUNTERING INTEL in %s. Current Mission: %s", pCity->getName().c_str(), GC.getCityEventChoiceInfo(eMission)->GetDescription());
+			}
+			else
+			{
+				strMsg.Format("COUNTERING INTEL in %s.", pCity->getName().c_str());
+			}
+			break;
+		case SPY_STATE_GATHERING_INTEL:
+			if (MOD_BALANCE_VP)
+			{
+				if (eMission != NO_EVENT_CHOICE_CITY)
+				{
+					strMsg.Format("GATHERING INTEL in %s, %s. Mission: %s. NP: %d/%d", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription(), GC.getCityEventChoiceInfo(eMission)->GetDescription(), pCityEspionage->GetAmount(ePlayer), iNetworkPointsNeeded);
+				}
+				else
+				{
+					strMsg.Format("GATHERING INTEL in %s, %s. No Current Mission. NP: %d", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription(), pCityEspionage->GetAmount(ePlayer));
+				}
+			}
+			else
+			{
+				strMsg.Format("GATHERING INTEL in %s, %s. Progress: %d/%d", pCity->getName().c_str(), GET_PLAYER(eCityOwner).getCivilizationShortDescription(), pCityEspionage->GetAmount(ePlayer), pCityEspionage->m_aiGoal[ePlayer]);
+			}
+			break;
+		}
+		strSpyStatus = strSpyStatus + strMsg;
+		LogEspionageMsg(strSpyStatus);
+	}
+	strMsg = "----------- END SPY STATUS BREAKDOWN ----------";
+	LogEspionageMsg(strMsg);
+	strMsg = "";
+	LogEspionageMsg(strMsg);
 }
 
 /// AddSpy - Grants the player a spy to use
@@ -2592,47 +2740,6 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 		int iRate = CalcPerTurn(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		int iGoal = CalcRequired(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		pCityEspionage->SetActivity(m_pPlayer->GetID(), 0, iRate, iGoal);
-	}
-
-	if(GC.getLogging())
-	{
-		CvString strMsg;
-		strMsg.Format("Moving spy, %d,", uiSpyIndex);
-		strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-		strMsg += ",";
-		if(pOldCity)
-		{
-			strMsg += GET_PLAYER(pOldCity->getOwner()).getCivilizationShortDescription();
-			strMsg += ",";
-			strMsg += pOldCity->getName();
-		}
-		else
-		{
-			strMsg += "Unassigned";
-			strMsg += ",";
-		}
-		strMsg += ",";
-
-		if(pCity)
-		{
-			strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-			strMsg += ",";
-			strMsg += pCity->getName();
-		}
-		else
-		{
-			strMsg += "Unassigned";
-			strMsg += ",";
-		}
-		strMsg += ",";
-
-		if (bAsDiplomat)
-		{
-			strMsg += "Diplomat";
-		}
-		strMsg += ",";
-
-		LogEspionageMsg(strMsg);
 	}
 
 	return true;
@@ -7604,29 +7711,21 @@ void CvEspionageAI::DoTurn()
 
 	if (GC.getLogging())
 	{
-		for (uint i = 0; i < (uint)aCityScores.size(); i++)
+		for (uint i = 0; i < min((uint)aCityScores.size(), (uint)10); i++)
 		{
-			CvString strScore = "";
-			strScore.Format("Score: %d,", aCityScores[i].m_iScore);
-
-			CvString strMsg;
-			strMsg.Format("Top City Choices");
-			strMsg += ",";
-			strMsg += aCityScores[i].m_pCity->getName();
-			strMsg += ",";
-			strMsg += strScore;
-			strMsg += ",";
-			strMsg += aCityScores[i].m_bDiplomat ? "as diplomat" : "as spy";
-			strMsg += ",";
+			CvString strCiv = GET_PLAYER(aCityScores[i].m_pCity->getOwner()).isMinorCiv() ? "Minor Civ" : GET_PLAYER(aCityScores[i].m_pCity->getOwner()).getCivilizationShortDescription();			
+			CvString strMissionInfo = "";
+			if (aCityScores[i].m_bDiplomat)
+			{
+				strMissionInfo += ", as Diplomat";
+			}
 			if (aCityScores[i].m_eMission != NO_EVENT_CHOICE_CITY && GC.getCityEventChoiceInfo(aCityScores[i].m_eMission))
 			{
-				strMsg += GC.getCityEventChoiceInfo(aCityScores[i].m_eMission)->GetDescription();
-				strMsg += ",";
+				strMissionInfo += ", ";
+				strMissionInfo += GC.getCityEventChoiceInfo(aCityScores[i].m_eMission)->GetDescription();
 			}
-			strMsg += GET_PLAYER(aCityScores[i].m_pCity->getOwner()).isMinorCiv() ? "minor civ," : "";
-			strMsg += ",";
-			strMsg += GET_PLAYER(aCityScores[i].m_pCity->getOwner()).getCivilizationShortDescription();
-			strMsg += ",";
+			CvString strMsg;
+			strMsg.Format("Top City Choices: %s (%s)%s. Score: %d", aCityScores[i].m_pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), aCityScores[i].m_iScore);
 			pEspionage->LogEspionageScoringMsg(strMsg);
 		}
 	}
@@ -7708,7 +7807,14 @@ void CvEspionageAI::DoTurn()
 			if (GC.getLogging())
 			{
 				CvString strMsg;
-				pEspionage->GetCityWithSpy(uiSpy) ? strMsg.Format("Moving Spy in %s to new city: ", pEspionage->GetCityWithSpy(uiSpy)->getName().c_str()) : strMsg.Format("Moving unassigned Spy to new city: ");
+				if (pEspionage->GetCityWithSpy(uiSpy))
+				{
+					strMsg.Format("Moving Spy #%d in %s to new city: ", uiSpy, pEspionage->GetCityWithSpy(uiSpy)->getName().c_str());
+				}
+				else
+				{
+					strMsg.Format("Moving unassigned Spy #%d to new city: ", uiSpy);
+				}
 				strMsg += pCity->getName();
 				if (aCityScores[i].m_eMission != NO_EVENT_CHOICE_CITY)
 				{

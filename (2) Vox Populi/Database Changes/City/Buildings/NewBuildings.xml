@@ -977,6 +977,7 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
 			<IsDummy>1</IsDummy>
+			<ShowInPedia>0</ShowInPedia>
 		</Row>
 		<!-- Mission -->
 		<Row>

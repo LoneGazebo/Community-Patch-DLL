@@ -307,6 +307,7 @@ public:
 
 	// Functions invoked each player turn
 	void DoTurn(void);
+	void LogSpyStatus();
 
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);

@@ -13433,7 +13433,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		if (iMajorStrength < viMilitaryStrengths[MedianElement])
 		{
 			bBadMilitary = true;
-			bDistance = CanMajorProtect(eMajor, true);
+			bDistance = !CanMajorProtect(eMajor, true);
 		}
 	}
 
