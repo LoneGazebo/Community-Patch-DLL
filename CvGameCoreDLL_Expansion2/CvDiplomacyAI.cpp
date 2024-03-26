@@ -9909,7 +9909,7 @@ bool CvDiplomacyAI::IsSeriousAboutVictory() const
 
 	// AI isn't too focused on victory in the early game, if victory competition is disabled, or if it hasn't picked a grand strategy with a high enough priority
 	bool bDontCareAboutWinning = eMyGrandStrategy == NO_AIGRANDSTRATEGY;
-	bDontCareAboutWinning |= GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	bDontCareAboutWinning |= eMyGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 	bDontCareAboutWinning |= !IsCompetingForVictory();
 	bDontCareAboutWinning |= iGameEra < 3;
 	bDontCareAboutWinning |= eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0;
