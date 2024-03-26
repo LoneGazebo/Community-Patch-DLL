@@ -15619,6 +15619,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	int iImprovementDefenseModifier = pkImprovementInfo->GetDefenseModifier();
 	int iImprovementDamage = pkImprovementInfo->GetNearbyEnemyDamage();
+	int iCultureBombRadius = pkImprovementInfo->GetCultureBombRadius();
+	if (iCultureBombRadius > 0)
+		iCultureBombRadius = range(iCultureBombRadius + GET_PLAYER(eOwner).GetCultureBombBoost(), 1, 5);
 
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(eOwner).GetDiplomacyAI();
 
@@ -15650,7 +15653,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 		if (pLoopAdjacentPlot->isWater())
 			continue;
 
-		if(pLoopAdjacentPlot->getOwner() == eOwner)
+		if(pLoopAdjacentPlot->getOwner() == eOwner || (iCultureBombRadius > 0 && !pLoopAdjacentPlot->isCity()))
 		{
 			iAdjacentOwnedLand++;
 
@@ -15697,7 +15700,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 		if (pLoopNearbyPlot->isWater())
 			continue;
 
-		if (pLoopNearbyPlot->getOwner() == eOwner)
+		if (pLoopNearbyPlot->getOwner() == eOwner || (iCultureBombRadius > 1 && !pLoopNearbyPlot->isCity()))
 		{
 			// Avoid building next to cities
 			if (pLoopNearbyPlot->isCity())
