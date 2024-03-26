@@ -17531,18 +17531,14 @@ int CvCity::foodDifference(bool bJustCheckingStarve) const
 int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	int iDifference = 0;
+	int iDifference = getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100();
 
+	//cannot grow during settler production, but can starve!
+	//excess food will be converted to production via GetFoodProductionTimes100()
 	if (isFoodProduction())
-	{
-		iDifference = std::min(0, GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100()));
-	}
-	else
-	{
-		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-	}
+		iDifference = std::min(0, iDifference);
 
-	//can starve if at size 1 and nothing stored
+	//cannot starve if at size 1 and nothing stored
 	if (getPopulation() == 1 && getFoodTimes100() == 0)
 	{
 		iDifference = std::max(0, iDifference);
