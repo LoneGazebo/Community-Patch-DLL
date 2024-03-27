@@ -3233,6 +3233,8 @@ void CvTacticalAI::ClearCurrentMoveUnits(AITacticalMove eNewMove)
 /// Sift through the target list and find just those that apply to the dominance zone we are currently looking at
 void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */)
 {
+	int iMaxRadius = GetTacticalAnalysisMap()->GetMaxZoneRadius();
+
 	m_ZoneTargets.clear();
 	for(TacticalList::iterator it = m_AllTargets.begin(); it != m_AllTargets.end(); ++it)
 	{
@@ -3251,19 +3253,10 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 			continue;
 		}
 
-		//zone boundaries are arbitrary sometimes so include neighboring tiles as well for small zones
-		if (pZone && plotDistance(pZone->GetCenterX(), pZone->GetCenterY(), it->GetTargetX(), it->GetTargetY()) <= 3)
+		//zone boundaries are arbitrary sometimes so include neighboring tiles as well for smaller zones
+		if (pZone && plotDistance(pZone->GetCenterX(), pZone->GetCenterY(), it->GetTargetX(), it->GetTargetY()) <= iMaxRadius)
 		{
-			CvPlot* pTargetPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-			for (size_t i = 0; i < RING1_PLOTS; i++)
-			{
-				CvPlot* pNeighbor = iterateRingPlots(pTargetPlot, i);
-				if (pNeighbor && GetTacticalAnalysisMap()->GetZoneByPlot(pNeighbor) == pZone)
-				{
-					m_ZoneTargets.push_back(*it);
-					break;
-				}
-			}
+			m_ZoneTargets.push_back(*it);
 		}
 	}
 }

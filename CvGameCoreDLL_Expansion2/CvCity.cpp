@@ -35553,7 +35553,7 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 bool CvCity::isUnderSiege() const
 {
 	//damage taken decays exponentially so check for >0
-	return m_iDamageTakenLastTurn > 5 || GetCityCitizens()->AnyPlotBlockaded();
+	return m_iDamageTakenLastTurn > 5 && GetCityCitizens()->AnyPlotBlockaded();
 }
 
 int CvCity::getDamageTakenLastTurn() const
