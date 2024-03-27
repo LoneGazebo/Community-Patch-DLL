@@ -1599,6 +1599,9 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	gCachedNumbers.update(m_pCity);
 	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), gCachedNumbers);
 
+	vector<CvPlot*> justAddedPlot; //avoid touching a plot multiple times, should not happen but it does
+	vector<BuildingTypes> justAddedBuildings;
+
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation() / 2)
 	{
@@ -1611,6 +1614,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		//where do we have potential for improvement?
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
+
+		//check whether we are turning in circles ...
+		if (std::find(justAddedPlot.begin(), justAddedPlot.end(), pWorstWorkedPlot) != justAddedPlot.end())
+			pWorstWorkedPlot = NULL;
+		if (std::find(justAddedBuildings.begin(), justAddedBuildings.end(), eWorstSpecialistBuilding) != justAddedBuildings.end())
+			eWorstSpecialistBuilding = NO_BUILDING;
 
 		bool bReleaseLaborer = (GetNumDefaultSpecialists() > GetNumForcedDefaultSpecialists()) && (iWorstSpecialistValue > iLaborerValue);
 		if (bReleaseLaborer)
@@ -1685,19 +1694,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				pBestFreePlot->setOwningCityOverride(m_pCity);
 
 			SetWorkingPlot(pBestFreePlot, true, CvCity::YIELD_UPDATE_GLOBAL);
-
-			//new plot is same as old plot, we're done
-			if (pBestFreePlot == pWorstWorkedPlot)
-			{
-				if (pLog)
-				{
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-					CvString strOutBuf;
-					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
-					pLog->Msg(strOutBuf);
-				}
-				break;
-			}
+			justAddedPlot.push_back(pBestFreePlot);
 
 			if (pLog)
 			{
@@ -1723,6 +1720,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eBestSpecialistBuilding);
 
 				if (pLog)
 				{
@@ -1746,13 +1744,18 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//add the citizen back to the original plot
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedPlot.push_back(pWorstWorkedPlot);
 				break;
 			}
 			else if (eWorstSpecialistBuilding != NO_BUILDING)
 			{
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eWorstSpecialistBuilding);
 			}
+			else
+				//if nothing else works, create a laborer
+				ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_LOCAL);
 		}
 
 		iCount++;

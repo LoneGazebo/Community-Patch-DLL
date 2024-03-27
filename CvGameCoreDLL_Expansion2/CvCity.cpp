@@ -2670,18 +2670,10 @@ void CvCity::doTurn()
 	{
 		DoResistanceTurn();
 
-		bool bAllowNoProduction = !doCheckProduction();
-#if defined(MOD_BALANCE_CORE)
-		bool bWeGrew = false;
-		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
-		{
-			doGrowth();
-			bWeGrew = true;
-		}
-#endif
+		doGrowth();
+		GetCityCitizens()->DoTurn();
 
-		doProduction(bAllowNoProduction);
+		doProduction(!doCheckProduction());
 		doDecay();
 		doMeltdown();
 
@@ -2745,14 +2737,6 @@ void CvCity::doTurn()
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100SCIENCE);
 			}
 		}
-
-#if defined(MOD_BALANCE_CORE)
-		if (!bWeGrew)
-		{
-			doGrowth();
-		}
-#endif
-		GetCityCitizens()->DoTurn();
 
 		// sending notifications on when routes are connected to the capital
 		if (!isCapital())
