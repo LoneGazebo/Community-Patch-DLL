@@ -11279,6 +11279,10 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 	if (GetExtraVotesPerDiplomat() > 0)
 	{
 		iScore += 1;
+		if (m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iScore += 2;
+		}
 	}
 	if (EvaluateAlignment(ePlayer) > ALIGNMENT_NEUTRAL)
 	{

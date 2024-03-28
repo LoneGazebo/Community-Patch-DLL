@@ -17111,9 +17111,6 @@ void CvMinorCivAI::DoElection()
 				continue;
 			}
 
-			// on election day, evaluate spy to be reassigned
-			pPlayerEspionage->m_aSpyList[iSpyID].m_bEvaluateReassignment = true;
-
 			// if the spy assigned here is not rigging the election yet, continue
 			if(pPlayerEspionage->m_aSpyList[iSpyID].m_eSpyState != SPY_STATE_RIG_ELECTION)
 			{
@@ -17194,6 +17191,13 @@ void CvMinorCivAI::DoElection()
 				}
 				CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Spy #%d successfully rigged election in %s. Influence gained: %d", iSpyID, pCapital->getName().c_str(), iValue);
+					GET_PLAYER(ePlayer).GetEspionage()->LogEspionageMsg(strMsg);
+				}
+
 				// if all players have at least one spy, this election is counted toward the number of successfully rigged elections in a row
 				bool bAllPlayersHaveSpies = true;
 				for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
@@ -17265,6 +17269,12 @@ void CvMinorCivAI::DoElection()
 						pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 					}
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Spy #%d failed to rig election in %s. Influence lost: %d", ui, pCapital->getName().c_str(), iDiminishAmount / 100);
+						GET_PLAYER(ePlayer).GetEspionage()->LogEspionageMsg(strMsg);
+					}
 				}
 				else if (bMet && (bFriends || iFriendship > iRelationshipAnchor))
 				{
