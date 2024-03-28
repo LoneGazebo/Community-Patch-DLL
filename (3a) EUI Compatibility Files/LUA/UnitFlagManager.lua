@@ -668,8 +668,10 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		if g_isSquadsModEnabled and unit:GetSquadNumber() > -1 and b_ShowSquadNumberUnderFlag then
 			flag.SquadNumber:SetHide( false )
 			flag.SquadNumber:SetText( tostring(unit:GetSquadNumber()) )
+		else
+			flag.SquadNumber:SetHide( true )
+			flag.SquadNumber:SetText( "" )
 		end
-
 		---------------------------------------------------------
 		-- update all other info
 		flag.Anchor:SetHide( isHiddenByFog or isInvisibleToActiveTeam )

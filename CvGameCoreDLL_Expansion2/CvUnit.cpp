@@ -15971,6 +15971,11 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	{
 		if (pLoopUnit->canMoveInto(*pDestPlot))
 		{
+			// If this unit is going to move later, clear its path cache. Otherwise, due to the 
+			// use of MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT it can try to continue on its old path
+			// instead of calculating a new route to the destination plot
+			pLoopUnit->ClearMissionQueue(false);
+
 			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
 			{
 				stackingUnits.push_back(pLoopUnit);
