@@ -1968,7 +1968,13 @@ UPDATE Language_en_US
 SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_FORMAL} So far, the leader has {1_LeaderScore}  {1_LeaderScore: plural 1?Technology; other?Technologies;} and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL';
 
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_TOURISM] Tourism from {2_Num} [ICON_GREAT_WORK] {2_Num: plural 1?Great Work; other?Great Works;}'
+WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS';
 
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_TOURISM] Tourism from buildings purchased with [ICON_PEACE] Faith'
+WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS';
 
 
 

@@ -16002,6 +16002,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (iMod != 0)
 			{
 				ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
+				ResetGreatWorkYieldCache();
+				
 			}
 
 			if ((pBuildingInfo->GetYieldFromVictory(eYield) > 0))

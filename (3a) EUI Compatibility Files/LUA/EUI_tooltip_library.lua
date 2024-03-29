@@ -562,12 +562,19 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local buildingClass = GameInfo.BuildingClasses[ buildingClassType ]
 	local buildingClassID = buildingClass and buildingClass.ID
 	local activePlayerID = Game and Game.GetActivePlayer()
+	-- when viewing a (foreign) city, always show tooltips as they are for the city owner
+	if (city ~= nil) then
+		activePlayerID = city:GetOwner();
+	end
 	local activePlayer = activePlayerID and Players[ activePlayerID ]
 	local maxGlobalInstances = buildingClass and tonumber(buildingClass.MaxGlobalInstances) or 0
 	local thisBuildingType = { BuildingType = buildingType }
 	local thisBuildingAndResourceTypes =  { BuildingType = buildingType }
 	local thisBuildingClassType = { BuildingClassType = buildingClassType }
 	local activeTeamID = Game and Game.GetActiveTeam()
+	if (city ~= nil) then
+		activeTeamID = activePlayer:GetTeam();
+	end
 	local activeTeam = activeTeamID and Teams[ activeTeamID ]
 	local activeTeamTechs = activeTeam and activeTeam:GetTeamTechs()
 	local activePlayerIdeologyID = bnw_mode and activePlayer and activePlayer:GetLateGamePolicyTree()
