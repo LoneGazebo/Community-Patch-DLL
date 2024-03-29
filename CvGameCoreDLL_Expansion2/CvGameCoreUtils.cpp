@@ -395,7 +395,7 @@ CvCity* GetPlayerCity(IDInfo city)
 {
 	if((city.eOwner >= 0) && city.eOwner < MAX_PLAYERS)
 	{
-		return (GET_PLAYER((PlayerTypes)city.eOwner).getCity(city.iID));
+		return (GET_PLAYER(city.eOwner).getCity(city.iID));
 	}
 
 	return NULL;

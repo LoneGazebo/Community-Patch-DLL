@@ -97,7 +97,7 @@ public:
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
-	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, const SPrecomputedExpensiveNumbers& cache);
 
 	// Specialist AI
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);

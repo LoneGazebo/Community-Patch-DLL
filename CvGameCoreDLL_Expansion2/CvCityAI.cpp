@@ -76,6 +76,13 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	VALIDATE_OBJECT
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	CvCitySpecializationAI* pSpecializationAI = kOwner.GetCitySpecializationAI();
+	
+	// if going for science victory, spaceship planning is done on player level and not here. don't change production if this city is producing a spaceship part
+	if (!kOwner.isMinorCiv() && kOwner.GetDiplomacyAI()->IsGoingForSpaceshipVictory() && isProductionSpaceshipPart())
+	{
+		return;
+	}
+
 	bool bBuildWonder = false;
 
 	bool bAlreadyBuildingWonder = false;
@@ -105,7 +112,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 			const CvBuildingClassInfo& kBuildingClass = pkBuilding->GetBuildingClassInfo();
 			if (::isWorldWonderClass(kBuildingClass))
 			{
-				bAlreadyBuilt = GC.getGame().getBuildingClassCreatedCount((BuildingClassTypes)GC.getBuildingInfo(eNextWonder)->GetBuildingClassType()) > 0;
+				bAlreadyBuilt = GC.getGame().getBuildingClassCreatedCount(GC.getBuildingInfo(eNextWonder)->GetBuildingClassType()) > 0;
 			}
 		}
 	}
@@ -134,7 +141,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		CvCityBuildable buildable;
 		buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 		buildable.m_iIndex = eNextWonder;
-		buildable.m_iTurnsToConstruct = getProductionTurnsLeft((BuildingTypes)buildable.m_eBuildableType, 0);
+		buildable.m_iTurnsToConstruct = getProductionTurnsLeft(eNextWonder, 0);
 		pushOrder(ORDER_CONSTRUCT, buildable.m_iIndex, -1, false, false, false, false);
 
 		if(GC.getLogging() && GC.getAILogging())

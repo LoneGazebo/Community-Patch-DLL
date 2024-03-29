@@ -731,9 +731,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 					yieldChange = yieldChange + city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID )
 				end
 -- CBP
-				if yield.Type == "YIELD_CULTURE" then
-					yieldChange = yieldChange + city:GetBuildingClassCultureChange(buildingClassID )
-				end
 				
 				yieldChange = yieldChange + city:GetLocalBuildingClassYield(buildingClassID, yieldID)
 					

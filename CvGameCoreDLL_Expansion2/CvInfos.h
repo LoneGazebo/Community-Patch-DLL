@@ -2201,7 +2201,6 @@ protected:
 private:
 	CvString m_strArtDefineTag;
 
-private:
 	CvFeatureInfo(const CvFeatureInfo&);
 	CvFeatureInfo& operator=(const CvFeatureInfo&);
 };
@@ -2358,7 +2357,6 @@ protected:
 private:
 	CvString m_strArtDefineTag;
 
-private:
 	CvTerrainInfo(const CvTerrainInfo&);
 	CvTerrainInfo& operator=(const CvTerrainInfo&);
 

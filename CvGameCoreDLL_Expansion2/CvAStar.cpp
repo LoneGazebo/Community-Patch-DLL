@@ -1945,9 +1945,6 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pFromPlot,*pToPlot) > data.iMaxTurns)
-		return FALSE;
-
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
 	{
@@ -2038,9 +2035,6 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	if (!pOrigin || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pOrigin,*pToPlot) > data.iMaxTurns)
-		return FALSE;
-
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
 	{
@@ -2076,8 +2070,8 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
 	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
-		//we only care about water connections here because they are not normal routes
-		if (it->second & CvCityConnections::CONNECTION_HARBOR)
+		//we only care about water and air connections here because they are not normal routes
+		if (it->second & (CvCityConnections::CONNECTION_HARBOR | CvCityConnections::CONNECTION_AIRPORT))
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
 			if (pSecondCity && !pSecondCity->IsRazing())
@@ -2334,6 +2328,9 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		return FALSE;
 
 	if(!pNewPlot->isValidMovePlot(ePlayer))
+		return FALSE;
+
+	if (pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
 		return FALSE;
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();

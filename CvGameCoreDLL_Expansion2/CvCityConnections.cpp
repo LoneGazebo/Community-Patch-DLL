@@ -36,6 +36,7 @@ void CvCityConnections::Init(CvPlayer* pPlayer)
 	m_pPlayer = pPlayer;
 
 	m_aBuildingsAllowWaterRoutes.clear();
+	m_aBuildingsAllowAirRoutes.clear();
 	CvBuildingXMLEntries* pkBuildingEntries = GC.GetGameBuildings();
 	for(int i = 0; i < pkBuildingEntries->GetNumBuildings(); i++)
 	{
@@ -46,6 +47,11 @@ void CvCityConnections::Init(CvPlayer* pPlayer)
 			if(pkBuildingInfo->AllowsWaterRoutes())
 			{
 				m_aBuildingsAllowWaterRoutes.push_back(eBuilding);
+			}
+
+			if (pkBuildingInfo->AllowsAirRoutes())
+			{
+				m_aBuildingsAllowAirRoutes.push_back(eBuilding);
 			}
 		}
 	}
@@ -281,14 +287,33 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		// See if we have a harbor / lighthouse, whatever
 		bool bStartCityAllowsWater = false;
-		for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
-			if(pStartCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
+		for (std::vector<BuildingTypes>::const_iterator it = m_aBuildingsAllowWaterRoutes.begin(); it != m_aBuildingsAllowWaterRoutes.end(); ++it)
+		{
+			if (pStartCity->GetCityBuildings()->GetNumActiveBuilding(*it) > 0)
+			{
 				bStartCityAllowsWater = true;
+				break;
+			}
+		}
 		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(DOMAIN_SEA))
 		{
 			data.eRoute = NO_ROUTE;
 			data.ePath = PT_CITY_CONNECTION_WATER;
 			waterPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
+		}
+
+		// See if we have an airport or similar
+		bool bStartCityAllowsAir = false;
+		if (!pStartCity->IsBlockadedWaterAndLand())
+		{
+			for (std::vector<BuildingTypes>::const_iterator it = m_aBuildingsAllowAirRoutes.begin(); it != m_aBuildingsAllowAirRoutes.end(); ++it)
+			{
+				if (pStartCity->GetCityBuildings()->GetNumActiveBuilding(*it) > 0)
+				{
+					bStartCityAllowsAir = true;
+					break;
+				}
+			}
 		}
 
 		//start with an empty map
@@ -304,13 +329,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
-
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_ROAD);
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_ROAD);
 			}
 		}
 
@@ -324,13 +343,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
-
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_RAILROAD);
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_RAILROAD);
 			}
 		}
 
@@ -351,13 +364,46 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_HARBOR);
+			}
+		}
 
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_HARBOR);
+		if (bStartCityAllowsAir)
+		{
+			// Loop through all the players
+			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kPlayer.isAlive())
+				{
+					// Loop through each of their cities
+					int iLoop = 0;
+					for (CvCity* pEndCity = kPlayer.firstCity(&iLoop); pEndCity != NULL; pEndCity = kPlayer.nextCity(&iLoop))
+					{
+						if (pEndCity->plot() == pStartCity->plot())
+							continue;
+
+						if (pEndCity->IsBlockadedWaterAndLand())
+							continue;
+
+						// See if target city has an airport or similar
+						bool bEndCityAllowsAir = false;
+						for (std::vector<BuildingTypes>::const_iterator it = m_aBuildingsAllowAirRoutes.begin(); it != m_aBuildingsAllowAirRoutes.end(); ++it)
+						{
+							if (pEndCity->GetCityBuildings()->GetNumActiveBuilding(*it) > 0)
+							{
+								bEndCityAllowsAir = true;
+								break;
+							}
+						}
+
+						if (!bEndCityAllowsAir)
+							continue;
+
+						pair<int, int> destination(pEndCity->getOwner(), pEndCity->GetID());
+						localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_AIRPORT);
+					}
+				}
 			}
 		}
 
@@ -383,7 +429,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), true) == GAMEEVENTRETURN_TRUE);
 			}
 
-			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_HARBOR) && bCallIndirectEvents)
+			if (!AreCitiesDirectlyConnected(pCityA,pCityB,(CityConnectionTypes)(CONNECTION_HARBOR|CONNECTION_AIRPORT)) && bCallIndirectEvents)
 			{
 				// Event to determine if connected by an alternative indirect route type
 				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), false) == GAMEEVENTRETURN_TRUE);

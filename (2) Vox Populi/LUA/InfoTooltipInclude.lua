@@ -350,6 +350,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iCulture = iCulture + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_CULTURE);
+		iCulture = iCulture + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 		-- Yield bonuses to World Wonders
 		if Game.IsWorldWonderClass(buildingClassID) then
 			iCulture = iCulture + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_CULTURE)
@@ -372,6 +373,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FAITH);
+		iFaith = iFaith + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		-- Yield bonuses to World Wonders
 		if Game.IsWorldWonderClass(buildingClassID) then
 			iFaith = iFaith + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FAITH)
@@ -425,6 +427,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FOOD);
+		iFood = iFood + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
 		-- Yield bonuses to World Wonders
 		if Game.IsWorldWonderClass(buildingClassID) then
 			iFood = iFood + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FOOD)
@@ -509,6 +512,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 	-- Production Change
 	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
+	iProd = iProd + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 -- CBP
 	if (pCity ~= nil) then
 		iProd = iProd + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);

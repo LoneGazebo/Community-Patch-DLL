@@ -6141,15 +6141,15 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 		int iYield = m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 		if(iYield > 0)
 		{
-			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true))
+			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true))
 			{
 				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 			}
-			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
 			{
 				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 			}
-			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN", true))
+			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN", true))
 			{
 				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 			}

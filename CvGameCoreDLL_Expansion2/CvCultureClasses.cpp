@@ -3129,11 +3129,11 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 	
 		if(pToCity)
 		{
-			BuildingClassTypes eToBuildingClass = (BuildingClassTypes)pkToEntry->GetBuildingClassType();
+			BuildingClassTypes eToBuildingClass = pkToEntry->GetBuildingClassType();
 			if(eToBuildingClass != NO_BUILDINGCLASS)
 			{
 				CvCity *pFromCity = m_pPlayer->getCity(iFromCityID);
-				BuildingClassTypes eFromBuildingClass = (BuildingClassTypes)pkFromEntry->GetBuildingClassType();
+				BuildingClassTypes eFromBuildingClass = pkFromEntry->GetBuildingClassType();
 				if(pFromCity && eFromBuildingClass != NO_BUILDINGCLASS)
 				{
 					gDLL->sendMoveGreatWorks(
@@ -6742,7 +6742,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
 		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 		iTileTourism = ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6758,7 +6758,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			int iCulture = m_pCity->getJONSCulturePerTurn();
 			iGATourism = ((iCulture * iPercent) / 100);
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6780,7 +6780,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		if (iSacredSitesTourism > 0)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6800,7 +6800,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		if(iReligiousArtTourism != 0)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6821,7 +6821,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6837,7 +6837,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		iTourismFromWW *= m_pCity->getNumWorldWonders();
 		if(iTourismFromWW != 0)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6847,7 +6847,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW - m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM));
 	if(iRemainder != 0)
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6865,7 +6865,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6883,7 +6883,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -6900,7 +6900,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -6915,7 +6915,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -6929,7 +6929,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -6946,7 +6946,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -6961,7 +6961,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -6977,7 +6977,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -6993,7 +6993,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7007,7 +7007,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7021,7 +7021,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7035,7 +7035,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7049,7 +7049,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7063,7 +7063,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7076,7 +7076,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7097,7 +7097,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7112,7 +7112,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7126,7 +7126,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7155,7 +7155,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7175,7 +7175,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				{
 					if (!bHasCityModTooltip)
 					{
-						if (szRtnValue.length() > 0)
+						if (!szRtnValue.empty())
 						{
 							szRtnValue += "[NEWLINE]";
 						}
@@ -7197,7 +7197,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod += GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent();
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7224,7 +7224,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7244,7 +7244,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7263,7 +7263,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7280,7 +7280,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod = 0;
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}

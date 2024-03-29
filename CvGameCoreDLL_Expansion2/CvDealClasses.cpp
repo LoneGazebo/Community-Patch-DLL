@@ -628,8 +628,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pToPlayer->isHuman())
 				return false;
 
-			// Buyer needs an embassy in peacetime
-			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+			// Buyer needs an embassy in peacetime (except for deals between teammates)
+			if (!bPeaceDeal && !bSameTeam && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 
 			if (iData1 != -1)
@@ -649,7 +649,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 
 				// Can't trade a city if sapped, blockaded, or took damage last turn (except in a peace deal)
-				// Also can't trade a city that the seller originally founded (except between humans or in a peace deal)
+				// Also can't trade a city that the seller originally founded (except between humans, teammates or in a peace deal)
 				if (!bPeaceDeal)
 				{
 					if (pCity->GetSappedTurns() > 0)
@@ -658,7 +658,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					if (pCity->getDamageTakenLastTurn() > 0)
 						return false;
 
-					if (!bHumanToHuman && pCity->getOriginalOwner() == ePlayer)
+					if (!bHumanToHuman && !bSameTeam && pCity->getOriginalOwner() == ePlayer)
 						return false;
 
 					if (pCity->GetCityCitizens()->AnyPlotBlockaded())
@@ -4529,7 +4529,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo((BuildingTypes)iJ);
 						if (pkBuildingEntry && (CvString)pkBuildingEntry->GetType() == "BUILDING_BAZAAR")
 						{
-							if (GET_PLAYER(eGivingPlayer).getBuildingClassCount((BuildingClassTypes)pkBuildingEntry->GetBuildingClassType()) >= 1)
+							if (GET_PLAYER(eGivingPlayer).getBuildingClassCount(pkBuildingEntry->GetBuildingClassType()) >= 1)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TRADER);
 							}
@@ -5460,6 +5460,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 			{
 				// Change final turn
 				it->m_iFinalTurn = GC.getGame().getGameTurn();
+				it->m_iDuration = it->m_iFinalTurn - it->m_iStartTurn;
 
 				// Cancel individual items
 				TradedItemList::iterator itemIter;

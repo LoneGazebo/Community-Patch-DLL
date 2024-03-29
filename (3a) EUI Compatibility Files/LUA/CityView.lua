@@ -953,9 +953,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 						+ city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
 						+ cityOwner:GetPolicyBuildingClassYieldChange(buildingClassID, yieldID)
 
-			if GameInfo.Yields[yieldID].Type == "YIELD_CULTURE" then
-				buildingCultureRate = buildingCultureRate + city:GetBuildingClassCultureChange(buildingClassID )
-			end
 			-- Yield modifiers from the building
 			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
@@ -2485,7 +2482,7 @@ local function UpdateCityViewNow()
 					buildings = specialistBuildings
 				elseif greatWorkCount > 0 then
 					buildings = greatWorkBuildings
-				elseif greatWorkCount == 0 then		-- compatibility with Firaxis code exploit for invisibility
+				elseif greatWorkCount == 0 and building.IsDummy == 0 then		-- compatibility with Firaxis code exploit for invisibility
 					buildings = otherBuildings
 				end
 				if buildings then

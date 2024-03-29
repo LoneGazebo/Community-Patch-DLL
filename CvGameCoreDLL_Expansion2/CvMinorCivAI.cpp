@@ -1680,8 +1680,8 @@ bool CvMinorCivQuest::IsExpired()
 	if (!pMinor->isAlive() || !pMinor->getCapitalCity() || !pAssignedPlayer->isAlive() || !pAssignedPlayer->getCapitalCity())
 		return true;
 
-	// If this quest type has an end turn, have we passed it?
-	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() > GetEndTurn())
+	// If this quest type has an end turn, have we reached it?
+	if (GetEndTurn() != NO_TURN && GC.getGame().getGameTurn() >= GetEndTurn())
 		return true;
 
 	CvTeam* pAssignedTeam = &GET_TEAM(pAssignedPlayer->getTeam());
@@ -12296,7 +12296,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		}
 
 		//teleport our units if necessary
-		GC.getMap().verifyUnitValidPlot();
+		GC.getMap().verifyUnitValidPlot(m_pPlayer->GetID());
 
 		if(eOldAlly == GC.getGame().getActivePlayer())
 		{
@@ -17669,7 +17669,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	if (eUsage != RESOURCEUSAGE_STRATEGIC && eUsage != RESOURCEUSAGE_LUXURY)
 		return false;
 
-	ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -17724,7 +17724,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 
 	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
-	ImprovementTypes eCurrentImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	ImprovementTypes eCurrentImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eCurrentImprovement);
 	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson()))
 	{

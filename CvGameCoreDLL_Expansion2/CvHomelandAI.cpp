@@ -1585,71 +1585,34 @@ void CvHomelandAI::PlotUpgradeMoves()
 				TechTypes ePrereqTech = (TechTypes) GC.getUnitInfo(eUpgradeUnitType)->GetPrereqAndTech();
 				if(ePrereqTech == NO_TECH || GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 				{
-					// Resource requirement
-					bool bMissingResource = false;
-					if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+
+					// Initial priority: units with lowest power first
+					int iPriority = UPGRADE_THIS_TURN_PRIORITY_BOOST - GC.getUnitInfo(pUnit->getUnitType())->GetPower();
+
+					// Priority is boosted if can upgrade immediately
+					if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 					{
-						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
-						{
-							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-							int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
-							if (iNumResource > 0)
-							{
-								//Don't use all of our Aluminum, keep some for spaceship parts
-								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-								if (eResource == eAluminumResource)
-								{
-									iNumResource += 5;
-								}
-
-								int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
-								if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
-								{
-									bMissingResource = true;
-								}
-
-								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-								{
-									int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
-									if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
-									{
-										bMissingResource = true;
-									}
-								}
-							}
-						}
+						iPriority += UPGRADE_THIS_TURN_PRIORITY_BOOST;
 					}
 
-					if(!bMissingResource)
+					// Alternatively, priority boosted a lesser amount if in friendly territory
+					else if(pUnit->getOwner() == pUnit->plot()->getOwner())
 					{
-						CvHomelandUnit unit;
-						unit.SetID(pUnit->GetID());
-
-						// Initial priority: units with lowest power first
-						int iPriority = UPGRADE_THIS_TURN_PRIORITY_BOOST - GC.getUnitInfo(pUnit->getUnitType())->GetPower();
-
-						// Priority is boosted if can upgrade immediately
-						if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
-						{
-							iPriority += UPGRADE_THIS_TURN_PRIORITY_BOOST;
-						}
-
-						// Alternatively, priority boosted a lesser amount if in friendly territory
-						else if(pUnit->getOwner() == pUnit->plot()->getOwner())
-						{
-							iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
-						}
-
-						//Extra emphasis on air/sea units
-						if (pUnit->getDomainType() != DOMAIN_LAND)
-							iPriority *= 2;
-
-						//Add in experience - we should promote veterans.
-						iPriority += pUnit->getExperienceTimes100();
-
-						unit.SetAuxIntData(max(1, iPriority));
-						m_CurrentMoveUnits.push_back(unit);
+						iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
 					}
+
+					//Extra emphasis on air/sea units
+					if (pUnit->getDomainType() != DOMAIN_LAND)
+						iPriority *= 2;
+
+					//Add in experience - we should promote veterans.
+					iPriority += pUnit->getExperienceTimes100();
+
+					unit.SetAuxIntData(max(1, iPriority));
+					m_CurrentMoveUnits.push_back(unit);
 				}
 			}
 		}
@@ -1681,6 +1644,45 @@ void CvHomelandAI::PlotUpgradeMoves()
 				int iArmySlot = -1;
 				if (pArmy)
 					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+				// Resource requirement
+				bool bMissingResource = false;
+				if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+				{
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
+					{
+						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+						UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+						int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
+						if (iNumResource > 0)
+						{
+							//Don't use all of our Aluminum, keep some for spaceship parts
+							ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+							if (eResource == eAluminumResource)
+							{
+								iNumResource += (m_pPlayer->GetNumAluminumStillNeededForSpaceship() + m_pPlayer->GetNumAluminumStillNeededForCoreCities());
+							}
+
+							int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
+							if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
+							{
+								bMissingResource = true;
+							}
+
+							if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+							{
+								int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
+								if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
+								{
+									bMissingResource = true;
+								}
+							}
+						}
+					}
+				}
+
+				if (bMissingResource)
+					continue;
 
 				//this removes the unit from the army (if any)
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
@@ -2809,7 +2811,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			pUnit->SetAutomateType(NO_AUTOMATE);
 
 		//in case it was non-native scout, reset the unit AI
-		pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
+		pUnit->AI_setUnitAIType(pUnit->getUnitInfo().GetDefaultUnitAIType());
 		return true; //nothing left to do
 	}
 }
@@ -2938,7 +2940,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
 		if (GetDirectiveWeight(eDirective, 0, 0) <= iBestWeightedScore)
 		{
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), -1));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
 		}
 
@@ -3035,7 +3037,36 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
-	CvAssert(aWeightedDirectives.size() == aDirectives.size())
+	CvAssert(aWeightedDirectives.size() == aDirectives.size());
+
+	bool bScoreUpdated = false;
+
+	// We need to double check if this best directive is actually reachable safely
+	for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aWeightedDirectives.begin(); it != aWeightedDirectives.end() && it->score != INT_MIN; ++it)
+	{
+		OptionWithScore<pair<CvUnit*, BuilderDirective>> optionWithScore = *it;
+		CvUnit* pUnit = optionWithScore.option.first;
+		BuilderDirective eDirective = optionWithScore.option.second;
+
+		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+		int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
+
+		// If we are closer than 9 tiles away, we know that there is a path to the target
+		if (iPlotDistance <= 9)
+			break;
+
+		int iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective);
+
+		if (iBuilderDistance == INT_MAX)
+		{
+			it->score = INT_MIN;
+			bScoreUpdated = true;
+		}
+	}
+
+	if (bScoreUpdated)
+		std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
 	return aWeightedDirectives;
 }
@@ -3122,7 +3153,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aDistanceWeightedDirectives = GetWeightedDirectives(m_pPlayer, topDirectives, ignoredDirectives, m_workedPlots, allWorkers, processedWorkers, plotDistanceCache);
 
 	// Loop through all the directives sorted by weighted score and distance (see GetDirectiveWeight)
-	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives[0].option.first != NULL && allWorkers.size() > processedWorkers.size())
+	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives[0].score != INT_MIN && allWorkers.size() > processedWorkers.size())
 	{
 		OptionWithScore<pair<CvUnit*, BuilderDirective>> pUnitAndDirectiveWithScore = aDistanceWeightedDirectives[0];
 
@@ -4796,7 +4827,39 @@ void CvHomelandAI::ExecuteSSPartMoves()
 		if(!pUnit)
 			continue;
 
-		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+		// do an airlift if it's possible and we'd need more than one turn to reach the capital normally
+		if (pUnit->plot() != pCapitalCity->plot())
+		{
+			bool bCanAirlift = pUnit->canAirliftAt(pUnit->plot(), pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
+			bool bShouldUseAirlift = bCanAirlift;
+
+			if (pUnit->GeneratePath(pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED))
+			{
+				CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
+				if (pWayPoint == pCapitalCity->plot())
+				{
+					// can reach the capital normally in one turn or less
+					bShouldUseAirlift = false;
+				}
+			}
+
+			if (bShouldUseAirlift)
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("Airlifting %s into capital", strTemp.GetCString());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->airlift(pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
+			}
+			else
+			{
+				ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+			}
+		}
 
 		if(pUnit->plot() == pCapitalCity->plot() && pUnit->canMove())
 		{
@@ -4807,6 +4870,7 @@ void CvHomelandAI::ExecuteSSPartMoves()
 				strTemp = pUnit->getUnitInfo().GetDescription();
 				strLogString.Format("Adding %s to spaceship, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
+				m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 			}
 
 			pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
@@ -5821,7 +5885,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 
 			if(pTarget->getImprovementType() != NO_IMPROVEMENT && pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST)
 			{
-				if(GC.getImprovementInfo((ImprovementTypes) pTarget->getImprovementType())->IsCreatedByGreatPerson())
+				if(GC.getImprovementInfo( pTarget->getImprovementType())->IsCreatedByGreatPerson())
 				{
 					continue;
 				}

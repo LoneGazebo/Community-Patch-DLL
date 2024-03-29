@@ -397,6 +397,7 @@ public:
 	const char* getProductionNameKey() const;
 	int getGeneralProductionTurnsLeft() const;
 
+	bool isProductionSpaceshipPart() const;
 	bool isFoodProduction() const;
 	int getFirstUnitOrder(UnitTypes eUnit) const;
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
@@ -413,6 +414,7 @@ public:
 	int getProductionNeeded(ProjectTypes eProject) const;
 	int getProductionNeeded(SpecialistTypes eSpecialist) const;
 	int getProductionTurnsLeft() const;
+	int getUnitTotalProductionTurns(UnitTypes eUnit) const;
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
@@ -1579,7 +1581,7 @@ public:
 	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
 	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
-	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation = true, bool bIsPurchase = false);
+	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT);
 	bool CreateBuilding(BuildingTypes eBuildingType);
 	bool CreateProject(ProjectTypes eProjectType);
 
@@ -1590,7 +1592,9 @@ public:
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
 	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
-	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+	CvUnit* PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield);
+	bool PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseYield);
+	bool PurchaseProject(ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
 	CvCityStrategyAI* GetCityStrategyAI() const;
 	CvCityCitizens* GetCityCitizens() const;
@@ -2218,7 +2222,6 @@ protected:
 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
 
-protected:
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
 	friend class CvCityGarrisonOverride;

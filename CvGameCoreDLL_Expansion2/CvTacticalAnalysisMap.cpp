@@ -1020,7 +1020,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				int iDamage = pZoneCity->getDamage();
 				if (iDamage > (pZoneCity->GetMaxHitPoints() / iMaxDamageMultiplier))
 				{
-					iBaseValue *= (int)((iDamage + 1) * 10 / pZoneCity->GetMaxHitPoints());
+					iBaseValue *= ((iDamage + 1) * 10 / pZoneCity->GetMaxHitPoints());
 				}
 			}
 

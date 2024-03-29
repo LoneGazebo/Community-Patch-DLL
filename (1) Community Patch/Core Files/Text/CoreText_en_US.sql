@@ -48,6 +48,10 @@ WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT
 
 -- Cities
 
+UPDATE Language_en_US	
+SET Text = '[NEWLINE]Requires {TXT_KEY_GRAMMAR_A_AN << {1_BuildingName:textkey}} in this City.'
+WHERE Tag = 'TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING';
+
 -- Razing
 UPDATE Language_en_US	
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
