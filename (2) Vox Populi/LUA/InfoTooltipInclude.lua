@@ -143,6 +143,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local pActiveTeam = Teams[Game.GetActiveTeam()];
+	-- when viewing a (foreign) city, always show tooltips as they are for the city owner
+	if (pCity ~= nil) then
+		pActivePlayer = Players[pCity:GetOwner()];
+		pActiveTeam = Teams[pActivePlayer:GetTeam()];
+	end
 	
 	local buildingClass = GameInfo.Buildings[iBuildingID].BuildingClass;
 	local buildingClassID = GameInfo.BuildingClasses[buildingClass].ID;
@@ -150,6 +155,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	local strHelpText = "";
 	
 	local lines = {};
+	local bFirst = true;
 	if (not bExcludeHeader) then
 		
 		if (not bExcludeName) then
@@ -177,6 +183,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 -- END
 			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_COST", iCost));
+			bFirst = false;
 		end
 		
 		if(pBuildingInfo.UnlockedByLeague and Game.GetNumActiveLeagues() > 0 and not Game.IsOption("GAMEOPTION_NO_LEAGUES")) then
@@ -186,6 +193,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 				local sCostPerPlayer = Locale.ConvertTextKey("TXT_KEY_PEDIA_COST_LABEL");
 				sCostPerPlayer = sCostPerPlayer .. " " .. Locale.ConvertTextKey("TXT_KEY_LEAGUE_PROJECT_COST_PER_PLAYER", iCostPerPlayer);
 				table.insert(lines, sCostPerPlayer);
+				bFirst = false;
 			end
 		end
 		
@@ -194,6 +202,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local iMaintenance = pBuildingInfo.GoldMaintenance;
 			if (iMaintenance ~= nil and iMaintenance ~= 0) then		
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_MAINTENANCE", iMaintenance));
+				bFirst = false;
 			end
 		end
 		
@@ -206,6 +215,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			if(iNumPolicies > 0) then
 				local iNumHave = pActivePlayer:GetNumPolicies(true);
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
+				bFirst = false;
 			end
 		end
 
@@ -215,6 +225,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			if(iNumNationalPop > 0) then
 				local iNumHave = pActivePlayer:GetTotalPopulation();
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
+				bFirst = false;
 			end
 		end
 
@@ -223,8 +234,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			if (pCity) then
 				local iNumHave = pCity:GetPopulation();
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL", iNumLocalPop, iNumHave));
+				bFirst = false;
 			end
 		end
+	end
+	
+	if(bFirst == false) then
+		table.insert(lines, "----------------");
 	end
 	
 	-- Happiness (from all sources)
@@ -335,6 +351,108 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 -- END
 	
+	
+	-- Food
+	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
+	if (pCity ~= nil) then
+		iFood = iFood + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
+		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
+-- CBP
+		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
+		iFood = iFood + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FOOD);
+		iFood = iFood + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iFood = iFood + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FOOD)
+		end
+-- END
+		-- Events
+		iFood = iFood + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
+		-- End 
+	end
+	if (iFood ~= nil and iFood ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FOOD", iFood));
+	end
+	
+	-- Food Modifier
+	local iFoodMod = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_FOOD);
+	iFoodMod = iFoodMod + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_FOOD);
+	if (pCity ~= nil) then
+		iFoodMod = iFoodMod + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
+	end
+	if (iFoodMod ~= nil and iFoodMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FOOD_MODIFIER", iFoodMod));
+	end
+	
+		-- Production Change
+	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
+	iProd = iProd + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+-- CBP
+	if (pCity ~= nil) then
+		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		iProd = iProd + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+-- Start Vox Populi
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iProd = iProd + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_PRODUCTION)
+		end
+-- End Vox Populi
+	end
+-- END	
+	if (pCity ~= nil) then
+		iProd = iProd + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		iProd = iProd + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		-- Events
+		iProd = iProd + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		-- End
+	end
+	if (iProd ~= nil and iProd ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION_CHANGE", iProd));
+	end
+	
+	-- Production Modifier
+	local iProductionMod = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_PRODUCTION);
+	iProductionMod = iProductionMod + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+	
+	if (pCity ~= nil) then
+		iProductionMod = iProductionMod + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+	end
+
+	if (iProductionMod ~= nil and iProductionMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION", iProductionMod));
+	end
+		
+	-- Gold Change
+	iGold = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_GOLD);
+	if (pCity ~= nil) then
+		iGold = iGold + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
+		iGold = iGold + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
+-- CBP	
+		iGold = iGold + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
+		iGold = iGold + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_GOLD);
+		iGold = iGold + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iGold = iGold + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_GOLD)
+		end
+-- END
+		-- Events
+		iGold = iGold + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
+		-- End 	
+	end
+	if (iGold ~= nil and iGold ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD_CHANGE", iGold));
+	end
+	
+	-- Gold Mod
+	local iGoldMod = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_GOLD);
+	iGoldMod = iGoldMod + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_GOLD);
+	if (pCity ~= nil) then
+		iGoldMod = iGoldMod + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
+	end
+	if (iGoldMod ~= nil and iGoldMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD", iGoldMod));
+	end
+	
 	-- Culture
 	local iCulture = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_CULTURE);
 	if (pCity ~= nil) then
@@ -343,8 +461,8 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 		iCulture = iCulture + pCity:GetBuildingClassCultureChange(buildingClassID);
 		iCulture = iCulture + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
-		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_CULTURE);
+		iCulture = iCulture + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 		-- Yield bonuses to World Wonders
 		if Game.IsWorldWonderClass(buildingClassID) then
 			iCulture = iCulture + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_CULTURE)
@@ -357,6 +475,16 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (iCulture ~= nil and iCulture ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_CULTURE", iCulture));
 	end
+	
+	-- Culture Modifier
+	local iCultureMod = pBuildingInfo.CultureRateModifier;
+	iCultureMod = iCultureMod + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
+	if (pCity ~= nil) then
+		iCultureMod = iCultureMod + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
+	end
+	if (iCultureMod ~= nil and iCultureMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_CULTURE_MODIFIER", iCultureMod));
+	end
 
 	-- Faith
 	local iFaith = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FAITH);
@@ -365,8 +493,8 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFaith = iFaith + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FAITH);
 -- CBP
-		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FAITH);
+		iFaith = iFaith + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		-- Yield bonuses to World Wonders
 		if Game.IsWorldWonderClass(buildingClassID) then
 			iFaith = iFaith + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FAITH)
@@ -380,10 +508,62 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FAITH", iFaith));
 	end
 	
+	-- Faith Modifier
+	local iFaithMod = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_FAITH);
+	iFaithMod = iFaithMod + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_FAITH);
+	if (pCity ~= nil) then
+		iFaithMod = iFaithMod + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
+	end
+	
+	if (iFaithMod ~= nil and iFaithMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FAITH_MODIFIER", iFaithMod));
+	end
+	
+	-- Science Change
+	local iScienceChange = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_SCIENCE);
+	if (pCity ~= nil) then
+		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+-- Start Vox Populi
+
+		iScienceChange = iScienceChange + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		iScienceChange = iScienceChange + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		iScienceChange = iScienceChange + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iScienceChange = iScienceChange + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_SCIENCE)
+		end
+-- End Vox Populi
+		-- Events
+		iScienceChange = iScienceChange + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		-- End 
+	end
+	if (iScienceChange ~= nil and iScienceChange ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE_CHANGE", iScienceChange));
+	end
+	
+	-- Science Modifier
+	local iScience = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_SCIENCE);
+	iScience = iScience + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
+-- CBP
+	if (pCity ~= nil) then
+		iScience = iScience + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
+	end
+-- END	
+	if (iScience ~= nil and iScience ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE", iScience));
+	end
+	
 	-- Defense
 	local iDefense = pBuildingInfo.Defense;
 	if (iDefense ~= nil and iDefense ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_DEFENSE", iDefense / 100));
+	end
+	
+	-- Defense Modifier
+	local iDefenseMod = pBuildingInfo.BuildingDefenseModifier;
+	if (iDefenseMod ~= nil and iDefenseMod ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER", iDefenseMod));
 	end
 	
 	-- Hit Points
@@ -410,123 +590,6 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 	--END
-	
-	-- Food
-	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
-	if (pCity ~= nil) then
-		iFood = iFood + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
-		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
--- CBP
-		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
-		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
-		iFood = iFood + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FOOD);
-		-- Yield bonuses to World Wonders
-		if Game.IsWorldWonderClass(buildingClassID) then
-			iFood = iFood + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FOOD)
-		end
--- END
-		-- Events
-		iFood = iFood + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
-		-- End 
-	end
-	if (iFood ~= nil and iFood ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FOOD", iFood));
-	end
-	
-	-- Gold Mod
-	local iGold = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_GOLD);
-	iGold = iGold + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_GOLD);
-	if (iGold ~= nil and iGold ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD", iGold));
-	end
-	
-	-- Gold Change
-	iGold = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_GOLD);
-	if (pCity ~= nil) then
-		iGold = iGold + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
-		iGold = iGold + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
--- CBP	
-		iGold = iGold + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
-		iGold = iGold + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
-		iGold = iGold + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_GOLD);
-		if Game.IsWorldWonderClass(buildingClassID) then
-			iGold = iGold + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_GOLD)
-		end
--- END
-		-- Events
-		iGold = iGold + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
-		-- End 	
-	end
-	if (iGold ~= nil and iGold ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD_CHANGE", iGold));
-	end
-	
-	-- Science
-	local iScience = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_SCIENCE);
-	iScience = iScience + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
--- CBP
-	if (pCity ~= nil) then
-		iScience = iScience + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
-		iScience = iScience + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
-		iScience = iScience + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_SCIENCE);
-	end
--- END	
-	if (iScience ~= nil and iScience ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE", iScience));
-	end
-	
-	-- Science
-	local iScienceChange = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
-	if (pCity ~= nil) then
-		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
-		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
--- Start Vox Populi
-		-- Yield bonuses to World Wonders
-		if Game.IsWorldWonderClass(buildingClassID) then
-			iScienceChange = iScienceChange + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_SCIENCE)
-		end
--- End Vox Populi
-		-- Events
-		iScienceChange = iScienceChange + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
-		-- End 
-	end
-	if (iScienceChange ~= nil and iScienceChange ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE_CHANGE", iScienceChange));
-	end
-	
-	-- Production
-	local iProduction = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_PRODUCTION);
-	iProduction = iProduction + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-
-	if (iProduction ~= nil and iProduction ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION", iProduction));
-	end
-
-	-- Production Change
-	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
--- CBP
-	if (pCity ~= nil) then
-		iProd = iProd + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-		iProd = iProd + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_PRODUCTION);
--- Start Vox Populi
-		-- Yield bonuses to World Wonders
-		if Game.IsWorldWonderClass(buildingClassID) then
-			iProd = iProd + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_PRODUCTION)
-		end
--- End Vox Populi
-	end
--- END	
-	if (pCity ~= nil) then
-		iProd = iProd + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-		iProd = iProd + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-		-- Events
-		iProd = iProd + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
-		-- End
-	end
-	if (iProd ~= nil and iProd ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION_CHANGE", iProd));
-	end
 	
 	-- Great People
 	local specialistType = pBuildingInfo.SpecialistType;

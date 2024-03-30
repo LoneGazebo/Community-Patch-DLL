@@ -9905,18 +9905,14 @@ bool CvDiplomacyAI::IsSeriousAboutVictory() const
 {
 	AIGrandStrategyTypes eDomination = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCareAboutWinning = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 	int iGameEra = GC.getGame().getCurrentEra();
 
-	// AI isn't too focused on victory in the early game
-	if (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0)
-	{
-		bDontCareAboutWinning = true;
-	}
-	else if (iGameEra < 3)
-	{
-		bDontCareAboutWinning = true;
-	}
+	// AI isn't too focused on victory in the early game, if victory competition is disabled, or if it hasn't picked a grand strategy with a high enough priority
+	bool bDontCareAboutWinning = eMyGrandStrategy == NO_AIGRANDSTRATEGY;
+	bDontCareAboutWinning = bDontCareAboutWinning || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	bDontCareAboutWinning = bDontCareAboutWinning || !IsCompetingForVictory();
+	bDontCareAboutWinning = bDontCareAboutWinning || iGameEra < 3;
+	bDontCareAboutWinning = bDontCareAboutWinning || eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0;
 
 	return !bDontCareAboutWinning;
 }

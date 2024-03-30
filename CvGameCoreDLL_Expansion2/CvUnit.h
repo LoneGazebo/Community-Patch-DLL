@@ -314,7 +314,7 @@ public:
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
 	bool canScrap(bool bTestVisible = false) const;
-	void scrap();
+	void scrap(bool bDelay = true);
 	int GetScrapGold() const;
 
 	bool canGift(bool bTestVisible = false, bool bTestTransport = true) const;

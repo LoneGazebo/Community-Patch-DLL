@@ -13,7 +13,7 @@ local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
 -- Maximum number of bonuses that can be displayed on the combat simulator. Rest are displayed as misc. bonus.
-local g_iMaxBonusDisplay = 4;
+local g_iMaxBonusDisplay = 7;
 
 --------------------------------------------------------------------------------
 -- Update unit/city display name
@@ -327,6 +327,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			pBattlePlot = pFromPlot;
 		else
 			-- Melee unit
+			pFromPlot = pMyUnit:GetMeleeAttackFromPlot(pToPlot);
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, pTheirUnit);
 		end
 	elseif pMyCity then
@@ -348,16 +349,6 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 	pMyPlayer = Players[eMyPlayer];
 	pTheirPlayer = Players[eTheirPlayer];
-
-	-- Estimate the from plot if melee attacking from a distance
-	if pMyUnit and not bRanged then
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
-			local pPlot = Map.GetPlot(v.X, v.Y);
-			if pPlot ~= pToPlot then
-				pFromPlot = pPlot;
-			end
-		end
-	end
 
 	-- Highlight the combat plots
 	if pMyUnit then
@@ -444,7 +435,13 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 	Controls.StalemateIndicator:SetHide(true);
 
 	if pMyUnit and pTheirUnit then
-		local eCombatPrediction = Game.GetCombatPrediction(pMyUnit, pTheirUnit);
+		local eCombatPrediction;
+		if pTheirUnit:IsEmbarked() then
+			eCombatPrediction = CombatPredictionTypes.COMBAT_PREDICTION_TOTAL_VICTORY;
+		else
+			eCombatPrediction = Game.GetCombatPrediction(pMyUnit, pTheirUnit);
+		end
+
 		if eCombatPrediction == CombatPredictionTypes.COMBAT_PREDICTION_RANGED then
 			Controls.RangedAttackIndicator:SetHide(false);
 			Controls.RangedAttackButtonLabel:SetText(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_INTERFACEMODE_RANGE_ATTACK")));
@@ -854,10 +851,10 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			-- Target is on rough terrain
 			if pToPlot:IsRoughGround() then
 				if not bRanged then
-					iModifier = pMyUnit:OpenAttackModifier();
+					iModifier = pMyUnit:RoughAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS", nBonus, iMiscModifier, true, true);
 				else
-					iModifier = pMyUnit:OpenRangedAttackModifier();
+					iModifier = pMyUnit:RoughRangedAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS", nBonus, iMiscModifier, true, true);
 				end
 			end
@@ -882,7 +879,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
 
 			-- Target is on featureless hill
-			if eToFeature ~= FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
+			if eToFeature == FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
 				iModifier = pMyUnit:TerrainAttackModifier(GameInfoTypes.TERRAIN_HILL);
 				sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
@@ -944,12 +941,14 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 	if pTheirUnit then
 		-- Plague (don't add to misc. bonus)
-		local sPlague, iChance = pTheirUnit:GetMovementRules(pMyUnit);
-		if sPlague ~= "" then
-			if iChance >= 0 then
-				nBonus = ProcessModifier(iChance, sPlague, nBonus, nil, false, true, "[COLOR_CYAN]");
-			else
-				nBonus = ProcessModifier(nil, sPlague, nBonus, nil, false);
+		if pMyUnit then
+			local sPlague, iChance = pTheirUnit:GetMovementRules(pMyUnit);
+			if sPlague ~= "" then
+				if iChance >= 0 then
+					nBonus = ProcessModifier(iChance, sPlague, nBonus, nil, false, true, "[COLOR_CYAN]");
+				else
+					nBonus = ProcessModifier(nil, sPlague, nBonus, nil, false);
+				end
 			end
 		end
 
@@ -971,7 +970,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			else
 				-- Capture chance (don't add to misc. bonus)
 				if not bRanged and iWithdrawChance < 100 then
-					iChance = pMyUnit:GetCaptureChance(pTheirUnit);
+					local iChance = pMyUnit:GetCaptureChance(pTheirUnit);
 					if iChance == 100 then
 						nBonus = ProcessModifier(nil, "TXT_KEY_EUPANEL_CAPTURE_CHANCE_100_PERCENT", nBonus, nil, false);
 					elseif iChance > 0 then
@@ -1211,11 +1210,23 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				end
 
 				-- Defending on featureless hill
-				if eToFeature ~= FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
+				if eToFeature == FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
 					iModifier = pTheirUnit:TerrainAttackModifier(GameInfoTypes.TERRAIN_HILL);
 					sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
 				end
+
+				-- Plot defense
+				iModifier = pToPlot:DefenseModifier(pTheirUnit:GetTeam(), false, false);
+				if iModifier > 0 and pTheirUnit:NoDefensiveBonus() then
+					-- Only improvements count
+					iModifier = iModifier - pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false);
+				end
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TERRAIN_MODIFIER", nBonus, iMiscModifier, false, true);
+
+				-- Fortify bonus
+				iModifier = pTheirUnit:FortifyModifier();
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FORTIFICATION_BONUS", nBonus, iMiscModifier, false, true);
 
 				-- Ranged defense modifier
 				if bRanged then
@@ -1238,7 +1249,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 	if nBonus > g_iMaxBonusDisplay then
 		controlTable = g_TheirCombatDataIM:GetInstance();
 		controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS");
-		controlTable.Value:SetText(GetFormattedText(iMiscModifier, true, true));
+		controlTable.Value:SetText(GetFormattedText(iMiscModifier, false, true));
 	end
 
 	RecalculateSize();
@@ -1263,7 +1274,7 @@ end
 --------------------------------------------------------------------------------
 function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurrentDamage, iMyDamageInflicted, iTheirDamageInflicted)
 	local iHealthBarWidth = 8;
-	local iHealthBarHeight = 115;
+	local iHealthBarHeight = 160;
 
 	-------------------------
 	-- My health bar
@@ -1284,10 +1295,10 @@ function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurre
 	Controls.MyRedBar:SetHide(true);
 	Controls.MyYellowBar:SetHide(true);
 	Controls.MyGreenBar:SetHide(true);
-	if fHealthPercent <= 30 then
+	if fHealthPercent <= 0.30 then
 		Controls.MyRedBar:SetSize(tHealthBarSize);
 		Controls.MyRedBar:SetHide(false);
-	elseif fHealthPercent <= 50 then
+	elseif fHealthPercent <= 0.50 then
 		Controls.MyYellowBar:SetSize(tHealthBarSize);
 		Controls.MyYellowBar:SetHide(false);
 	else
@@ -1333,10 +1344,10 @@ function DoUpdateHealthBars(iMyMaxHP, iTheirMaxHP, iMyCurrentDamage, iTheirCurre
 	Controls.TheirRedBar:SetHide(true);
 	Controls.TheirGreenBar:SetHide(true);
 	Controls.TheirYellowBar:SetHide(true);
-	if fHealthPercent <= 30 then
+	if fHealthPercent <= 0.30 then
 		Controls.TheirRedBar:SetSize(tHealthBarSize);
 		Controls.TheirRedBar:SetHide(false);
-	elseif fHealthPercent <= 50 then
+	elseif fHealthPercent <= 0.50 then
 		Controls.TheirYellowBar:SetSize(tHealthBarSize);
 		Controls.TheirYellowBar:SetHide(false);
 	else

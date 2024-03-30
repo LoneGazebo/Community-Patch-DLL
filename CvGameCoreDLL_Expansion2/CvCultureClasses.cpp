@@ -174,22 +174,40 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 	cultureString = "";
 	char const* sPrefix = "";
-	int iTourismPerWork = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
-	int iValue = 0;
-	
+	int iBaseValueTimes100 = 0;
+	int iAddedValue = 0;
+
+	CvCity* pCity = GetGreatWorkCity(iIndex);
+
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
 		YieldTypes eYield = (YieldTypes) iYield;
 		
-		if (eYield == YIELD_CULTURE) {
-			iValue = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
-		} else if (eYield == YIELD_TOURISM) {
-			iValue = iTourismPerWork;
-		} else {
-			iValue = 0;
+		if (eYield == YIELD_CULTURE)
+		{
+			iBaseValueTimes100 = 100 * /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
+		}
+		else if (eYield == YIELD_TOURISM)
+		{
+			iBaseValueTimes100 = 100 * /*2*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK);
+			int iMod = GET_PLAYER(eOwner).GetGreatWorksTourismModifierGlobal();
+			if (pCity)
+			{
+				iMod += pCity->GetCityBuildings()->GetGreatWorksTourismModifier();
+			}
+			iBaseValueTimes100 *= 100 + iMod;
+			iBaseValueTimes100 /= 100;
+		}
+		else
+		{
+			iBaseValueTimes100 = 0;
 		}
 
-		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
-		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+		iAddedValue = GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
+		iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+		if (pCity)
+		{
+			iAddedValue += pCity->GetGreatWorkYieldChange(eYield);
+		}
 
 		GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
 		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
@@ -199,34 +217,33 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		GreatWorkClass eRelicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_RELIC");
 		if(pWork->m_eClassType == eWritingClass)
 		{
-			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
-			iValue += GET_PLAYER(eOwner).getLitYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getLitYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eArtClass)
 		{
-			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtYieldChanges(eYield);
-			iValue += GET_PLAYER(eOwner).getArtYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtYieldChanges(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getArtYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eArtifactsClass)
 		{
-			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
-			iValue += GET_PLAYER(eOwner).getArtifactYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getArtifactYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eMusicClass)
 		{
-			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetMusicYieldChanges(eYield);
-			iValue += GET_PLAYER(eOwner).getMusicYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getMusicYieldBonus(eYield);
 		}
 		if (pWork->m_eClassType == eFilmClass)
 		{
-			iValue += GET_PLAYER(eOwner).getFilmYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getFilmYieldBonus(eYield);
 		}
 		if (pWork->m_eClassType == eRelicClass)
 		{
-			iValue += GET_PLAYER(eOwner).getRelicYieldBonus(eYield);
+			iAddedValue += GET_PLAYER(eOwner).getRelicYieldBonus(eYield);
 		}
 
-		CvCity* pCity = GetGreatWorkCity(iIndex);
 		if (pCity) {
 			ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -235,11 +252,11 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 				if(pReligion)
 				{
-					iValue += pReligion->m_Beliefs.GetGreatWorkYieldChange(pCity->getPopulation(), eYield, pCity->getOwner(), pCity);
+					iAddedValue += pReligion->m_Beliefs.GetGreatWorkYieldChange(pCity->getPopulation(), eYield, pCity->getOwner(), pCity);
 					eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
-						iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+						iAddedValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
 					}
 				}
 			}
@@ -256,15 +273,31 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, eOwner);
 						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, eOwner))) // check that the our religion does not have our belief, to prevent double counting
 						{
-							iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
+							iAddedValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
 						}
 					}
 				}
 			}
 		}
 
-		if (iValue != 0) {
-			cultureString.Format("%s%s+%d %s", cultureString.c_str(), sPrefix, iValue, GC.getYieldInfo(eYield)->getIconString());
+		int iTotalValueTimes100 = iBaseValueTimes100 + 100 * iAddedValue;
+		if (iTotalValueTimes100 != 0) {
+			if(iTotalValueTimes100 % 100 == 0)
+			{
+				cultureString.Format("%s%s+%d %s", cultureString.c_str(), sPrefix, iTotalValueTimes100 / 100, GC.getYieldInfo(eYield)->getIconString());
+			}
+			else
+			{
+				float fTotalValue = (float)iTotalValueTimes100 / 100;
+				if (iTotalValueTimes100 % 10 == 0)
+				{
+					cultureString.Format("%s%s+%.1f %s", cultureString.c_str(), sPrefix, fTotalValue, GC.getYieldInfo(eYield)->getIconString());
+				}
+				else
+				{
+					cultureString.Format("%s%s+%.2f %s", cultureString.c_str(), sPrefix, fTotalValue, GC.getYieldInfo(eYield)->getIconString());
+				}
+			}
 			sPrefix = ", ";
 		}
 	}
@@ -3096,11 +3129,11 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 	
 		if(pToCity)
 		{
-			BuildingClassTypes eToBuildingClass = (BuildingClassTypes)pkToEntry->GetBuildingClassType();
+			BuildingClassTypes eToBuildingClass = pkToEntry->GetBuildingClassType();
 			if(eToBuildingClass != NO_BUILDINGCLASS)
 			{
 				CvCity *pFromCity = m_pPlayer->getCity(iFromCityID);
-				BuildingClassTypes eFromBuildingClass = (BuildingClassTypes)pkFromEntry->GetBuildingClassType();
+				BuildingClassTypes eFromBuildingClass = pkFromEntry->GetBuildingClassType();
 				if(pFromCity && eFromBuildingClass != NO_BUILDINGCLASS)
 				{
 					gDLL->sendMoveGreatWorks(
@@ -6670,10 +6703,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvString commonFoeCivs = "";
 	CvString sharedIdeologyCivs = "";
 	CvString differentIdeologyCivs = "";
-	TeamTypes eTeam = m_pCity->getTeam();
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
-	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-	ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetStateReligion();
 	// Great Works
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage, ie not generating a yield
@@ -6712,7 +6742,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
 		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 		iTileTourism = ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6728,7 +6758,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			int iCulture = m_pCity->getJONSCulturePerTurn();
 			iGATourism = ((iCulture * iPercent) / 100);
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
@@ -6748,11 +6778,14 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			iSacredSitesTourism = m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
-		if (szRtnValue.length() > 0)
+		if (iSacredSitesTourism > 0)
 		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
+			if (!szRtnValue.empty())
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 		}
-		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
 		const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 		for(size_t iI = 0; iI < allBuildings.size(); iI++)
@@ -6765,18 +6798,14 @@ CvString CvCityCulture::GetTourismTooltip()
 					m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(iReligiousArtTourism != 0)
 		{
-#endif
-		if (szRtnValue.length() > 0)
-		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
+			if (!szRtnValue.empty())
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGIOUS_ART", iReligiousArtTourism);
 		}
-		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGIOUS_ART", iReligiousArtTourism);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	// Tech enhanced Tourism
@@ -6792,7 +6821,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6808,17 +6837,17 @@ CvString CvCityCulture::GetTourismTooltip()
 		iTourismFromWW *= m_pCity->getNumWorldWonders();
 		if(iTourismFromWW != 0)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW);
+	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW - m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM));
 	if(iRemainder != 0)
 	{
-		if (szRtnValue.length() > 0)
+		if (!szRtnValue.empty())
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
@@ -6836,7 +6865,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
 
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE][NEWLINE]";
 				}
@@ -6844,209 +6873,6 @@ CvString CvCityCulture::GetTourismTooltip()
 				szRtnValue += szTemp;
 			}
 		}
-	}
-
-	// Get policy bonuses
-	int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
-	int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
-	int iSharedIdeologyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
-
-	// If generating any, itemize which players we have bonuses with
-	if (iGWTourism != 0 || iTileTourism != 0)
-	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
-		{
-			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-			PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-			if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && iLoopPlayer != m_pCity->getOwner() && GET_TEAM(kCityPlayer.getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iLoopPlayer).getTeam()))
-			{
-				// City shares religion with this player
-				if (kPlayer.GetReligions()->GetStateReligion() == ePlayerReligion)
-				{
-					if (sharedReligionCivs.length() > 0)
-					{
-						sharedReligionCivs += ", ";
-					}
-					sharedReligionCivs += kPlayer.getCivilizationShortDescription();
-				}
-
-				// Open borders with this player
-				CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-				if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
-					(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(eTeam)))
-				{
-					if (openBordersCivs.length() > 0)
-					{
-						openBordersCivs += ", ";
-					}
-					openBordersCivs += kPlayer.getCivilizationShortDescription();
-				}
-
-				// Trade route with this player
-				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pCity->getOwner(), (PlayerTypes)iLoopPlayer))
-				{
-					if (tradeRouteCivs.length() > 0)
-					{
-						tradeRouteCivs += ", ";
-					}
-					tradeRouteCivs += kPlayer.getCivilizationShortDescription();
-				}
-
-				// POLICY BONUSES
-				if (iLessHappyMod != 0)
-				{
-					if (kCityPlayer.GetExcessHappiness() > kPlayer.GetExcessHappiness())
-					{
-						if (lessHappyCivs.length() > 0)
-						{
-							lessHappyCivs += ", ";
-						}
-						lessHappyCivs += kPlayer.getCivilizationShortDescription();
-					}
-				}
-				if (iCommonFoeMod != 0)
-				{
-					PlayerTypes eLoopPlayer;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(eLoopPlayer !=(PlayerTypes) iLoopPlayer && eLoopPlayer != m_pCity->getOwner() && kCityPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-						{
-							// Are they at war with me too?
-							if (GET_TEAM(kCityPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-							{
-								if (commonFoeCivs.length() > 0)
-								{
-									commonFoeCivs += ", ";
-								}
-								commonFoeCivs += kPlayer.getCivilizationShortDescription();
-							}
-						}
-					}
-				}
-
-				// Shared ideology bonus (comes from a policy)
-				if (iSharedIdeologyMod != 0)
-				{
-					if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
-					{
-						if (sharedIdeologyCivs.length() > 0)
-						{
-							sharedIdeologyCivs += ", ";
-						}
-						sharedIdeologyCivs += kPlayer.getCivilizationShortDescription();
-					}
-				}
-
-				// Different ideology penalty (applies all the time)
-				if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
-				{
-					if (differentIdeologyCivs.length() > 0)
-					{
-						differentIdeologyCivs += ", ";
-					}
-					differentIdeologyCivs += kPlayer.getCivilizationShortDescription();
-				}
-			}
-		}
-
-		// Build the strings
-		if (sharedReligionCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGION_BONUS", kCityPlayer.GetCulture()->GetTourismModifierSharedReligion());
-			szRtnValue += szTemp + sharedReligionCivs;
-		}
-		if (openBordersCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS", kCityPlayer.GetCulture()->GetTourismModifierOpenBorders());
-			szRtnValue += szTemp + openBordersCivs;
-		}
-		if (tradeRouteCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTE_BONUS", kCityPlayer.GetCulture()->GetTourismModifierTradeRoute());
-			szRtnValue += szTemp + tradeRouteCivs;
-		}
-		
-		if (lessHappyCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_LESS_HAPPY_BONUS", iLessHappyMod);
-			szRtnValue += szTemp + lessHappyCivs;
-		}
-		if (commonFoeCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_COMMON_FOE_BONUS", iCommonFoeMod);
-			szRtnValue += szTemp + commonFoeCivs;
-		}
-		if (sharedIdeologyCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_SHARED_IDEOLOGY_BONUS", iSharedIdeologyMod);
-			szRtnValue += szTemp + sharedIdeologyCivs;
-		}
-		if (differentIdeologyCivs.length() > 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_DIFFERENT_IDEOLOGY_PENALTY", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES));
-			szRtnValue += szTemp + differentIdeologyCivs;
-		}
-	}
-
-	int iTechSpreadModifier = kCityPlayer.GetInfluenceSpreadModifier();
-	if (iTechSpreadModifier != 0)
-	{
-		if (szRtnValue.length() > 0)
-		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
-		}
-		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_BONUS", iTechSpreadModifier);
-		szRtnValue += szTemp;
-	}
-	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
-	if (iLeagueCityModifier != 0)
-	{
-		if (szRtnValue.length() > 0)
-		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
-		}
-		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_LEAGUES_BONUS", iLeagueCityModifier);
-		szRtnValue += szTemp;
-	}
-
-	if (kCityPlayer.isGoldenAge() && kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier())
-	{
-		if (szRtnValue.length() > 0)
-		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
-		}
-		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CARNIVAL_BONUS", kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier());
-		szRtnValue += szTemp;
 	}
 
 	// City level yield modifiers (eg from buildings, policies, etc)
@@ -7057,7 +6883,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7074,7 +6900,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7089,7 +6915,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7103,7 +6929,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7120,7 +6946,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7135,7 +6961,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7151,7 +6977,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7167,7 +6993,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7181,7 +7007,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7195,7 +7021,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7209,7 +7035,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7223,7 +7049,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7237,7 +7063,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7250,7 +7076,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}
@@ -7271,7 +7097,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7286,7 +7112,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7300,7 +7126,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7329,7 +7155,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if (!bHasCityModTooltip)
 				{
-					if (szRtnValue.length() > 0)
+					if (!szRtnValue.empty())
 					{
 						szRtnValue += "[NEWLINE]";
 					}
@@ -7349,7 +7175,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				{
 					if (!bHasCityModTooltip)
 					{
-						if (szRtnValue.length() > 0)
+						if (!szRtnValue.empty())
 						{
 							szRtnValue += "[NEWLINE]";
 						}
@@ -7371,7 +7197,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod += GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent();
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7398,7 +7224,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7418,7 +7244,7 @@ CvString CvCityCulture::GetTourismTooltip()
 					{
 						if (!bHasCityModTooltip)
 						{
-							if (szRtnValue.length() > 0)
+							if (!szRtnValue.empty())
 							{
 								szRtnValue += "[NEWLINE]";
 							}
@@ -7437,7 +7263,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		{
 			if (!bHasCityModTooltip)
 			{
-				if (szRtnValue.length() > 0)
+				if (!szRtnValue.empty())
 				{
 					szRtnValue += "[NEWLINE]";
 				}
@@ -7454,7 +7280,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			iTempMod = 0;
 		if (!bHasCityModTooltip)
 		{
-			if (szRtnValue.length() > 0)
+			if (!szRtnValue.empty())
 			{
 				szRtnValue += "[NEWLINE]";
 			}

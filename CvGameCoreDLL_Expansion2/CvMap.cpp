@@ -369,6 +369,7 @@ void CvMap::InitPlots()
 
 	//have to include barbarian here ...
 	const int iNumTeams = MAX_TEAMS;
+	const int iNumPlayers = MAX_PLAYERS;
 
 	//allocate all the memory we need up front
 	m_pYields = FNEW(uint8[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
@@ -392,6 +393,8 @@ void CvMap::InitPlots()
 	memset(m_pRevealedRouteType, 0, iNumTeams*iNumPlots *sizeof(char));
 	m_pResourceForceReveal = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pResourceForceReveal, 0, iNumTeams*iNumPlots *sizeof(bool));
+	m_pHumanPlannedRouteState = FNEW(char[iNumPlayers * iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pHumanPlannedRouteState, 0, iNumPlayers * iNumPlots * sizeof(char));
 #if defined(MOD_BALANCE_CORE)
 	m_pIsImpassable = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pIsImpassable, 0, iNumTeams*iNumPlots *sizeof(bool));
@@ -409,6 +412,7 @@ void CvMap::InitPlots()
 	char* pRevealedImprovementType = m_pRevealedImprovementType;
 	char* pRevealedRouteType = m_pRevealedRouteType;
 	bool* pResourceForceReveal = m_pResourceForceReveal;
+	char* pHumanPlannedRouteState = m_pHumanPlannedRouteState;
 #if defined(MOD_BALANCE_CORE)
 	bool* pIsImpassable = m_pIsImpassable;
 	bool* pIsStrategic = m_pIsStrategic;
@@ -425,6 +429,7 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_aeRevealedImprovementType = pRevealedImprovementType;
 		m_pMapPlots[i].m_aeRevealedRouteType = pRevealedRouteType;
 		m_pMapPlots[i].m_abResourceForceReveal = pResourceForceReveal;
+		m_pMapPlots[i].m_aeHumanPlannedRouteState = pHumanPlannedRouteState;
 #if defined(MOD_BALANCE_CORE)
 		m_pMapPlots[i].m_abIsImpassable = pIsImpassable;
 		m_pMapPlots[i].m_abStrategicRoute = pIsStrategic;
@@ -439,6 +444,7 @@ void CvMap::InitPlots()
 		pRevealedImprovementType+= iNumTeams;
 		pRevealedRouteType		+= iNumTeams;
 		pResourceForceReveal	+= iNumTeams;
+		pHumanPlannedRouteState += iNumTeams;
 #if defined(MOD_BALANCE_CORE)
 		pIsImpassable			+= iNumTeams;
 		pIsStrategic			+= iNumTeams;
@@ -852,11 +858,11 @@ void CvMap::updateAdjacency()
 }
 
 //	--------------------------------------------------------------------------------
-void CvMap::verifyUnitValidPlot()
+void CvMap::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer)
 {
 	for (int iI = 0; iI < numPlots(); iI++)
 	{
-		plotByIndexUnchecked(iI)->verifyUnitValidPlot();
+		plotByIndexUnchecked(iI)->verifyUnitValidPlot(eForSpecificPlayer);
 	}
 }
 

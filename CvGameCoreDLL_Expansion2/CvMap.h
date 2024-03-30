@@ -148,7 +148,7 @@ public:
 	void updateYield();
 	void updateAdjacency();
 
-	void verifyUnitValidPlot();
+	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER);
 
 	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100);
 
@@ -394,6 +394,7 @@ protected:
 	char* m_pRevealedImprovementType;
 	char* m_pRevealedRouteType;
 	bool* m_pResourceForceReveal;
+	char* m_pHumanPlannedRouteState;
 
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;

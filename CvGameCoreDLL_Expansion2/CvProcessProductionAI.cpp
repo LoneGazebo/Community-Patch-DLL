@@ -219,7 +219,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if(eYield == NO_YIELD)
 			continue;
 
-		if(pProcess->getProductionToYieldModifier(eYield) > 0)
+		if(pProcess->getProductionToYieldModifier(eYield) > 0) 
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 				iModifier += 150;
@@ -266,6 +266,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_SCIENCE:
 				{
+					if (GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasResearchedAllTechs())
+						return 0;
+					
 					if (MOD_BALANCE_VP)
 					{
 						int iIlliteracy = m_pCity->GetIlliteracy(false);

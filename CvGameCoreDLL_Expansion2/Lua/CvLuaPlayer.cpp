@@ -1191,7 +1191,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanSpyStageCoup);
 	Method(GetAvailableSpyRelocationCities);
 	Method(CanMoveSpyTo);
-	Method(ChangeCounterspyMission);
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
 	Method(HasRecentIntrigueAbout);
@@ -1511,11 +1510,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsInstantYieldNotificationDisabled);
 	Method(SetInstantYieldNotificationDisabled);
-
-	// Debug methods for routes
-	Method(GetMainRouteTiles);
-	Method(GetShortcutRouteTiles);
-	Method(GetStrategicRouteTiles);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -16491,16 +16485,6 @@ int CvLuaPlayer::lCanMoveSpyTo(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lChangeCounterspyMission(lua_State* L)
-{
-	CvPlayerAI* pkThisPlayer = GetInstance(L);
-	uint spyID = (uint)lua_tointeger(L, 2);
-	CityEventChoiceTypes eNewMission = (CityEventChoiceTypes)lua_tointeger(L, 3);
-	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
-	pkPlayerEspionage->ChangeCounterspyMission(spyID, eNewMission);
-	return 1;
-}
-//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetNumTechsToSteal(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
@@ -18375,82 +18359,5 @@ int CvLuaPlayer::lSetInstantYieldNotificationDisabled(lua_State* L)
 	const bool bNewValue = (InstantYieldType)lua_toboolean(L, 3);
 
 	pkPlayer->SetInstantYieldNotificationDisabled(eInstantYield, bNewValue);
-	return 1;
-}
-
-int CvLuaPlayer::lGetMainRouteTiles(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	set<int> mainRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetMainRoutePlots();
-
-	lua_createtable(L, 0, 0);
-	int iCount = 1;
-
-	for (set<int>::iterator it = mainRoutePlots.begin(); it != mainRoutePlots.end(); ++it)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		if (pPlot)
-		{
-			lua_createtable(L, 0, 0);
-			const int t = lua_gettop(L);
-			lua_pushinteger(L, pPlot->getX());
-			lua_setfield(L, t, "x");
-			lua_pushinteger(L, pPlot->getY());
-			lua_setfield(L, t, "y");
-			lua_rawseti(L, -2, iCount++);
-		}
-	}
-	return 1;
-}
-
-int CvLuaPlayer::lGetShortcutRouteTiles(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	set<int> shortcutRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetShortcutRoutePlots();
-
-	lua_createtable(L, 0, 0);
-	int iCount = 1;
-
-	for (set<int>::iterator it = shortcutRoutePlots.begin(); it != shortcutRoutePlots.end(); ++it)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		if (pPlot)
-		{
-			lua_createtable(L, 0, 0);
-			const int t = lua_gettop(L);
-			lua_pushinteger(L, pPlot->getX());
-			lua_setfield(L, t, "x");
-			lua_pushinteger(L, pPlot->getY());
-			lua_setfield(L, t, "y");
-			lua_rawseti(L, -2, iCount++);
-		}
-	}
-
-	return 1;
-}
-
-int CvLuaPlayer::lGetStrategicRouteTiles(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	set<int> strategicRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetStrategicRoutePlots();
-
-	lua_createtable(L, 0, 0);
-	int iCount = 1;
-
-	for (set<int>::iterator it = strategicRoutePlots.begin(); it != strategicRoutePlots.end(); ++it)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		if (pPlot)
-		{
-			lua_createtable(L, 0, 0);
-			const int t = lua_gettop(L);
-			lua_pushinteger(L, pPlot->getX());
-			lua_setfield(L, t, "x");
-			lua_pushinteger(L, pPlot->getY());
-			lua_setfield(L, t, "y");
-			lua_rawseti(L, -2, iCount++);
-		}
-	}
-
 	return 1;
 }

@@ -2724,6 +2724,13 @@ public:
 	PromotionTypes GetDeepWaterEmbarkationPromotion() const;
 #endif
 
+	// spaceship planning
+	void LogSpaceshipPlanMessage(const CvString& strMsg);
+	vector<CvCity*> GetCoreCitiesForSpaceshipProduction();
+	int GetNumAluminumStillNeededForCoreCities();
+	int GetNumAluminumStillNeededForSpaceship();
+	int GetNumSpaceshipPartsBuildableNow(bool bIncludeCurrentlyInProduction = false);
+
 	void DoAnnounceReligionAdoption();
 	// End New Religion Stuff
 
@@ -2919,6 +2926,7 @@ public:
 	virtual void AI_doTurnPost() = 0;
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
+	virtual void AI_doSpaceshipProduction() = 0;
 	virtual void AI_unitUpdate(bool bHomelandAINeedsUpdate) = 0;
 	virtual void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
@@ -3531,6 +3539,11 @@ protected:
 	int m_iCachedCurrentWarValue;
 
 	int m_iLastSliceMoved; // not serialized
+
+	vector<CvCity*> m_vCitiesForSpaceshipParts; // not serialized
+	int m_iCitiesForSpaceshipPartsUpdateTurn; // not serialized
+	vector<CvCity*> m_vCoreCitiesForSpaceshipProduction; // not serialized
+	int m_iCoreCitiesForSpaceshipProductionUpdateTurn; // not serialized
 
 
 	uint m_uiStartTime;  // XXX save these?

@@ -451,6 +451,10 @@ CvPlayer::CvPlayer() :
 , m_iNumFreeTenets()
 , m_iCachedCurrentWarValue()
 , m_iLastSliceMoved() // not serialized
+, m_vCitiesForSpaceshipParts() // not serialized
+, m_iCitiesForSpaceshipPartsUpdateTurn(-1) // not serialized
+, m_vCoreCitiesForSpaceshipProduction() // not serialized
+, m_iCoreCitiesForSpaceshipProductionUpdateTurn(-1) // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
 , m_activeWaitingForEndTurnMessage(false)
@@ -1708,6 +1712,10 @@ void CvPlayer::uninit()
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
+	m_vCitiesForSpaceshipParts.clear();
+	m_iCitiesForSpaceshipPartsUpdateTurn = -1;
+	m_vCoreCitiesForSpaceshipProduction.clear();
+	m_iCoreCitiesForSpaceshipProductionUpdateTurn = -1;
 
 	m_bNoNewWars = false;
 	m_bTerribleShapeForWar = false;
@@ -2570,7 +2578,7 @@ void CvPlayer::initFreeUnits()
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if (pkUnitInfo && eUnit != NO_UNIT)
 		{
-			UnitAITypes eDefaultAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+			UnitAITypes eDefaultAI = pkUnitInfo->GetDefaultUnitAIType();
 			addFreeUnit(eUnit, true, eDefaultAI);
 		}
 
@@ -2808,7 +2816,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 						{
 							// replacing the parameters
 							eUnit = eLocalUnit;
-							eUnitAI = (UnitAITypes)pkUnitInfo->GetDefaultUnitAIType();
+							eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 							break;
 						}
 					}
@@ -3095,7 +3103,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	while (pUnitNode != NULL)
 	{
 		oldUnits.insertAtEnd(pUnitNode);
-		pUnitNode = pCityPlot->nextUnitNode((IDInfo*)pUnitNode);
+		pUnitNode = pCityPlot->nextUnitNode(pUnitNode);
 	}
 
 	pUnitNode = oldUnits.head();
@@ -3545,7 +3553,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 						CvNotifications* pNotify = GetNotifications();
 						if (pNotify)
 						{
-							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, pCity->GetID(), GetID());
 						}
 					}
 					if (GC.getLogging() && GC.getAILogging())
@@ -3580,7 +3588,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 						CvNotifications* pNotify = GetNotifications();
 						if (pNotify)
 						{
-							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, (int)pCity->GetID(), GetID());
+							pNotify->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, pCity->GetID(), GetID());
 						}
 					}
 					if (GC.getLogging() && GC.getAILogging())
@@ -4683,8 +4691,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		// Our team's city?
 		else if (GET_PLAYER(pNewCity->getOriginalOwner()).getTeam() == getTeam())
 		{
-			// A teammate's city? Automatically liberated!
-			if (ePlayerToLiberate != NO_PLAYER)
+			// Conquered a teammate's city? Automatically liberated!
+			if (bConquest && ePlayerToLiberate != NO_PLAYER)
 			{
 				DoLiberatePlayer(ePlayerToLiberate, pNewCity->GetID(), false, false);
 				pNewCity = NULL; // delete the pointer
@@ -11524,6 +11532,9 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Do turn for all Cities
 	if (getNumCities() > 0)
 	{
+		// AI spaceship production is planned on player level, overriding the normal AI city production selection
+		AI_doSpaceshipProduction();
+
 		int iLoop = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
@@ -14685,7 +14696,7 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 				if (!pkBuildingInfo2)
 					continue;
 
-				BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo2->GetBuildingClassType());
+				BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings(pkBuildingInfo2->GetBuildingClassType());
 				if (eCivBuilding != eBuilding2)
 					continue;
 
@@ -14978,9 +14989,9 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 			}
 		}
 
-		pCity->setPopulation(GetNewCityExtraPopulation() + iPopChange, true, true);
+		pCity->changePopulation(iPopChange, true, true);
 
-		//25% food, to prevent instant-starvation
+		//additional food to prevent instant-starvation
 		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));
 
 		//And a little territory to boot
@@ -15025,12 +15036,10 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnitInfo.IsMinorCivGift() && !isBarbarian())
 	{
 		return false;
 	}
-#endif
 
 	// Should we check whether this Unit has been blocked out by the civ XML?
 	if(!bIgnoreUniqueUnitStatus)
@@ -15044,7 +15053,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	// If there is a replacement for the unit class, and this unit is not a unique unit
 	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && !bIgnoreUniqueUnitStatus && GetUnitClassReplacement(eUnitClass) != NO_UNITCLASS)
 	{
@@ -15053,7 +15061,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 		}
 	}
-#endif
 
 	if(!bIgnoreCost)
 	{
@@ -15063,7 +15070,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
 	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE && !isBarbarian())
 	{
@@ -15080,7 +15086,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 		}
 	}
-#endif
 
 	
 	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
@@ -15151,28 +15156,13 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
-	// Game Unit Class Max
-	if(GC.getGame().isUnitClassMaxedOut(eUnitClass))
+	// Spaceship part we already have? Science victory disabled?
+	ProjectTypes eProject = (ProjectTypes)pUnitInfo.GetSpaceshipProject();
+	if (eProject != NO_PROJECT)
 	{
-		return false;
-	}
+		if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+			return false;
 
-	// Team Unit Class Max
-	if(GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Player Unit Class Max
-	if(isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Spaceship part we already have?
-	ProjectTypes eProject = (ProjectTypes) pUnitInfo.GetSpaceshipProject();
-	if(eProject != NO_PROJECT)
-	{
 		if(GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
 			return false;
 
@@ -15239,7 +15229,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 							return false;
 					}
 				}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 				{
 					int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
@@ -15260,7 +15249,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 						}
 					}
 				}
-#endif
 			}
 
 		}
@@ -15281,7 +15269,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 
 		if(isUnitClassMaxedOut(eUnitClass, (getUnitClassMaking(eUnitClass) + ((bContinue) ? -1 : 0))))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(isNationalUnitClass(eUnitClass))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
@@ -15294,11 +15281,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 				if(toolTipSink == NULL)
 					return false;
 			}
-#else
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
-			if(toolTipSink == NULL)
-				return false;
-#endif
 		}
 
 		if(GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
@@ -15340,7 +15322,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 					return false;			
 			}
 
-			DomainTypes eDomain = (DomainTypes)pUnitInfo.GetDomainType();
+			DomainTypes eDomain = pUnitInfo.GetDomainType();
 			if (!GetTrade()->CanCreateTradeRoute(eDomain))
 			{
 				if (eDomain == DOMAIN_LAND)
@@ -15415,7 +15397,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	int iI = 0;
 	CvTeam& currentTeam = GET_TEAM(getTeam());
 
-	const BuildingClassTypes eBuildingClass = ((BuildingClassTypes)(pBuildingInfo.GetBuildingClassType()));
+	const BuildingClassTypes eBuildingClass = (pBuildingInfo.GetBuildingClassType());
 	const CvBuildingClassInfo& kBuildingClass = pkBuildingInfo->GetBuildingClassInfo();
 
 	// Checks to make sure civilization doesn't have an override that prevents construction of this building
@@ -15441,7 +15423,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		}
 	}
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	PolicyTypes ePolicy = (PolicyTypes)pBuildingInfo.GetPolicyType();
+	PolicyTypes ePolicy = pBuildingInfo.GetPolicyType();
 	if (MOD_BALANCE_CORE_POLICIES && ePolicy != NO_POLICY)
 	{
 		if (!GetPlayerPolicies()->HasPolicy(ePolicy))
@@ -18713,6 +18695,11 @@ void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 	if(iChange != 0)
 	{
 		m_aiGreatWorkYieldChange[eYield] = m_aiGreatWorkYieldChange[eYield] + iChange;
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			pLoopCity->ResetGreatWorkYieldCache();
+		}
 	}
 }
 
@@ -19698,7 +19685,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 			CvNotifications* pNotification = GetNotifications();
 			if(pNotification)
 			{
-				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pConqueredCity->getX(), pConqueredCity->getY(), (int) pConqueredCity->GetID(), GetID());
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pConqueredCity->getX(), pConqueredCity->getY(), pConqueredCity->GetID(), GetID());
 			}
 		}
 	}
@@ -30997,7 +30984,7 @@ int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
 	//get the build
 	if (iBuild >= 0 && iBuild < GC.getNumBuildInfos())
 	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iBuild);
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(iBuild);
 		int buildercost = pkBuildInfo->getBuilderCost();
 
 		//if road, use RouteBuilderCostMod
@@ -34452,22 +34439,15 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 		if (pLoopUnit->IsCivilianUnit())
 			continue;
 
-		//we are interested in the offensive capabilities of the player
-		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
-
-		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
-		int iPromotionFactor = 100;
-		if (pLoopUnit->getLevel()>3)
-			iPromotionFactor += pLoopUnit->getLevel() * 10 - 30;
-
-		//assume garrisons won't take part in offensive action
-		if (pLoopUnit->IsGarrisoned())
+		int iPower = pLoopUnit->GetPower();
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
 			iPower /= 2;
-
-		iSum += (iPower*iPromotionFactor)/100;
+		}
+		iSum += iPower;
 	}
 	
-	return iSum;
+	return (iSum / 4);
 }
 
 //	--------------------------------------------------------------------------------
@@ -38390,7 +38370,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 			{
 				// Compare to strongest unit we can build in that domain, for an apples to apples comparison
 				// Best unit that can be currently built in a domain is given a value of 100
-				DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+				DomainTypes eDomain = pkUnitInfo->GetDomainType();
 
 				if (eDomain == DOMAIN_AIR)
 				{
@@ -41417,7 +41397,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(isUnitLimitPerCity(eIndex))
 	{
 		CvAssertMsg(getUnitClassCount(eIndex) <= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()), "getUnitInstancePerCity is expected to be less than maximum bound of UnitInstancePerCity (invalid index)");
@@ -41432,16 +41411,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 	{
 		return false;
 	}
-#else
-	if(!isNationalUnitClass(eIndex))
-	{
-		return false;
-	}
-
-	CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
-
-	return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
-#endif
 }
 
 
@@ -43086,6 +43055,10 @@ bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) co
 	TeamTypes ePlayerTeam = getTeam();
 	PlayerTypes ePlotOwner = pPlot->getOwner();
 
+	// If a manual route is planned here, it's considered safe
+	if (pPlot->GetPlannedRouteState(GetID()) >= ROAD_PLANNING_INCLUDE)
+		return true;
+
 	// Our plots and surrounding plots are safe
 	if (ePlotTeam == ePlayerTeam || (bIncludeAdjacent && pPlot->isAdjacentTeam(getTeam(), false)))
 	{
@@ -43665,7 +43638,12 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
 		CvAIOperation* pThisOperation = m_AIOperations[i].second;
-		if (plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot())<3)
+		CvPlot* pMusterPlot = pThisOperation->GetMusterPlot();
+
+		if (!pMusterPlot)
+			continue;
+
+		if (plotDistance(*pMusterPlot, *pCity->plot()) < 3)
 		{
 			return (bNaval == pThisOperation->IsNavalOperation());
 		}
@@ -51058,7 +51036,7 @@ void CvPlayer::SetBestWonderCities()
 		if (!pkeBuildingInfo)
 			continue;
 
-		BuildingClassTypes eClass = (BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType();
+		BuildingClassTypes eClass = pkeBuildingInfo->GetBuildingClassType();
 		const CvBuildingClassInfo& kBuildingClassInfo = pkeBuildingInfo->GetBuildingClassInfo();
 		if (!::isWorldWonderClass(kBuildingClassInfo) && !::isNationalWonderClass(kBuildingClassInfo))
 			continue;
@@ -51404,6 +51382,225 @@ PromotionTypes CvPlayer::GetDeepWaterEmbarkationPromotion() const
 	}
 }
 #endif
+
+
+void CvPlayer::LogSpaceshipPlanMessage(const CvString& strMsg)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString szTemp2;
+		CvString strPlayerName;
+		FILogFile* pLog = NULL;
+
+		strPlayerName = getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
+		CvString strLogName;
+		if (GC.getPlayerAndCityAILogSplit())
+		{
+			strLogName = "SpaceshipPlanningLog_" + strPlayerName + ".csv";
+		}
+		else
+		{
+			strLogName = "SpaceshipPlanningLog.csv";
+		}
+		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += strPlayerName + ", ";
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
+
+
+
+//	--------------------------------------------------------------------------------
+/// a list of cities which are considered core cities for spaceship building. the AI will try to retain aluminum to build spaceship factories in those cities
+vector<CvCity*> CvPlayer::GetCoreCitiesForSpaceshipProduction()
+{
+	if (GC.getGame().getGameTurn() == m_iCoreCitiesForSpaceshipProductionUpdateTurn)
+	{
+		return m_vCoreCitiesForSpaceshipProduction;
+	}
+
+	m_iCoreCitiesForSpaceshipProductionUpdateTurn = GC.getGame().getGameTurn();
+	m_vCoreCitiesForSpaceshipProduction.clear();
+
+	if (isHuman() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return m_vCoreCitiesForSpaceshipProduction;
+
+	int iNumCitiesToConsider = GD_INT_GET(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
+
+	// get unit type for one of the spaceship parts (doesn't matter which one)
+	UnitTypes eSpaceshipUnit = NO_UNIT;
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		UnitTypes eUnitLoop = (UnitTypes)iUnitLoop;
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitLoop);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			eSpaceshipUnit = eUnitLoop;
+			break;
+		}
+	}
+
+	// loop through all cities and check if they're useful for spaceship production
+	CvWeightedVector<CvCity*> vCityWeights;
+	CvCity* pCapital = getCapitalCity();
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		if (pLoopCity->isUnderSiege())
+			continue;
+
+		// how much production per turn would the city generate if it were building a spaceship part?
+		int iWeight = pLoopCity->getProductionDifference(0, 0, pLoopCity->getProductionModifier(eSpaceshipUnit), false, false);
+		if (pLoopCity->isCapital())
+		{
+			iWeight *= 2;
+		}
+		else if (!pLoopCity->CanAirlift())
+		{
+			// if we can't airlift, reduce weight based on distance to capital
+			if (pCapital)
+			{
+				iWeight -= 4 * plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+			}
+		}
+
+		if (iWeight > 0)
+		{
+			vCityWeights.push_back(pLoopCity, iWeight);
+		}
+	}
+	if (vCityWeights.size() == 0)
+		return m_vCoreCitiesForSpaceshipProduction;
+
+	// pick the cities with the highest weight
+	vCityWeights.StableSortItems();
+	for (int i = 0; i < min(vCityWeights.size(), iNumCitiesToConsider); i++)
+	{
+		m_vCoreCitiesForSpaceshipProduction.push_back(vCityWeights.GetElement(i));
+	}
+	return m_vCoreCitiesForSpaceshipProduction;
+}
+
+//	--------------------------------------------------------------------------------
+/// the number of aluminum still needed for buildings in the core cities for spaceship parts (GetCoreCitiesForSpaceshipProduction)
+int CvPlayer::GetNumAluminumStillNeededForCoreCities()
+{
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+
+	int iTotal = 0;
+	vector<CvCity*> vCoreCities = GetCoreCitiesForSpaceshipProduction();
+	if (vCoreCities.size() > 0)
+	{
+		// in each core city, we want to build two buildings: spaceship factories and hydro plants (CP) / power plants (VP).
+		// todo: un-hardcode this and calculate the number of buildings based on the building entries in the database
+		iTotal += vCoreCities.size() * 2;
+
+		// check how many of those buildings we already have
+		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingInfo && pkBuildingInfo->GetResourceQuantityRequirement(eAluminum) > 0)
+			{
+				for (uint ui = 0; ui < vCoreCities.size(); ui++)
+				{
+					CvCity* pLoopCity = vCoreCities[ui];
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 || pLoopCity->isBuildingInQueue(eBuilding))
+					{
+						iTotal -= pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
+					}
+				}
+			}
+		}
+	}
+
+	return iTotal;
+}
+
+//	--------------------------------------------------------------------------------
+/// the number of aluminum still needed for spaceship parts
+int CvPlayer::GetNumAluminumStillNeededForSpaceship()
+{
+	if (isBarbarian() || isMinorCiv())
+		return 0;
+
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return 0;
+
+	if (getCapitalCity() == NULL)
+		return 0;
+
+	// how many spaceship parts do we still have to build?
+	int iTotal = 6;
+	iTotal -= GET_TEAM(getTeam()).GetSSProjectCount(false);
+
+	// spaceship parts currently in production
+	int iCityLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+	{
+		if (pLoopCity->isProductionSpaceshipPart())
+		{
+			iTotal--;
+		}
+	}
+	return iTotal;
+}
+
+int CvPlayer::GetNumSpaceshipPartsBuildableNow(bool bIncludeCurrentlyInProduction)
+{
+	// space victory disabled?
+	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+		return 0;
+
+	// don't have apollo program yet?
+	ProjectTypes eApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
+	CvTeam& thisTeam = GET_TEAM(getTeam());
+	if (thisTeam.getProjectCount(eApolloProgram) == 0)
+		return 0;
+
+	// loop though the spaceship units for which we have the required tech and check how many we still need
+	int iTotal = 0;
+	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)i);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			TechTypes eRequiredTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+			if (thisTeam.GetTeamTechs()->HasTech(eRequiredTech))
+			{
+				ProjectTypes eSpaceshipProject = (ProjectTypes)pkUnitInfo->GetSpaceshipProject();
+				CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eSpaceshipProject);
+				// how many parts of that type are required?
+				iTotal += pkProjectInfo->GetMaxTeamInstances();
+				// how many parts do we already have?
+				iTotal -= thisTeam.getProjectCount(eSpaceshipProject);
+				if (!bIncludeCurrentlyInProduction)
+				{
+					int iCityLoop = 0;
+					for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+					{
+						if (pLoopCity->getProductionUnit() == (UnitTypes)i)
+						{
+							iTotal -= 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return iTotal;
+}
 
 //	--------------------------------------------------------------------------------
 /// Provide Notification about someone adopting a new Religon

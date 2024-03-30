@@ -4965,7 +4965,7 @@ CvString CvPlayerPolicies::GetWeLoveTheKingString()
 		{
 			// Does it have a string for us?
 			CvString str = m_pPolicies->GetPolicyEntry(i)->GetWeLoveTheKing();
-			if(str.length() > 0)
+			if(!str.empty())
 			{
 				rtnValue = str;
 				break;  // All done when find the first one
@@ -5875,7 +5875,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 						}
 						else if (pkBuilding->GetPolicyType() != NO_POLICY)
 						{
-							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo((PolicyTypes)pkBuilding->GetPolicyType());
+							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(pkBuilding->GetPolicyType());
 							if (pkLoopPolicyInfo)
 							{
 								// This policy belongs to our branch

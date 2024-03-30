@@ -628,7 +628,7 @@ void CvGame::InitPlayers()
 		SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
 		if (eStatus == SS_TAKEN || eStatus == SS_COMPUTER) // Don't set colors for unoccupied slots.
 		{
-			ePlayerColor = (PlayerColorTypes)CvPreGame::playerColor(eLoopPlayer);
+			ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
 
 			// If it wasn't set in the pregame for some reason, fetch it from the database.
 			if (ePlayerColor == NO_PLAYERCOLOR)
@@ -5444,7 +5444,6 @@ void CvGame::DoUpdateDiploVictory()
 				{
 					if (pPlayer->isAlive())
 					{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						{
 							fCityStatesToCount += 1.34f;
@@ -5453,13 +5452,9 @@ void CvGame::DoUpdateDiploVictory()
 						{
 							fCityStatesToCount += 1.0f;
 						}
-#else
-						fCityStatesToCount += 1.0f;
-#endif
 					}
 					else
 					{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						{
 							fCityStatesToCount += 0.75f;
@@ -5468,9 +5463,6 @@ void CvGame::DoUpdateDiploVictory()
 						{
 							fCityStatesToCount += 0.5f;
 						}
-#else
-						fCityStatesToCount += 0.5f;
-#endif
 					}
 				}
 			}
@@ -5479,7 +5471,6 @@ void CvGame::DoUpdateDiploVictory()
 			{
 				if (pPlayer->isAlive())
 				{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
 						fCivsToCount += 1.5f;
@@ -5488,11 +5479,9 @@ void CvGame::DoUpdateDiploVictory()
 					{
 						fCivsToCount += 1.0f;
 					}
-#endif
 				}
 				else
 				{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
 						fCivsToCount += 0.75f;
@@ -5501,9 +5490,6 @@ void CvGame::DoUpdateDiploVictory()
 					{
 						fCivsToCount += 0.5f;
 					}
-#else
-					fCivsToCount += 0.5f;
-#endif
 				}
 			}
 		}
@@ -5512,12 +5498,12 @@ void CvGame::DoUpdateDiploVictory()
 	// Number of delegates needed to win increases the more civs and city-states there are in the game,
 	// but these two scale differently since civs' delegates are harder to secure. These functions 
 	// are based on a logarithmic regression.
-	float fCivVotesPortion = (/*1.443f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT) * (float)log(fCivsToCount)) + /*7.000f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_CONSTANT);
+	float fCivVotesPortion = (/*1.443f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT) * log(fCivsToCount)) + /*7.000f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_CONSTANT);
 	if (fCivVotesPortion < 0.0f)
 	{
 		fCivVotesPortion = 0.0f;
 	}
-	float fCityStateVotesPortion = (/*16.023f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_COEFFICIENT) * (float)log(fCityStatesToCount)) + /*-13.758f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_CONSTANT);
+	float fCityStateVotesPortion = (/*16.023f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_COEFFICIENT) * log(fCityStatesToCount)) + /*-13.758f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_CONSTANT);
 	if (fCityStateVotesPortion < 0.0f)
 	{
 		fCityStateVotesPortion = 0.0f;
@@ -13969,7 +13955,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			// Then get a writing and set it
 			int iIndex = urandLimitExclusive(aWorksWriting.size(), pPlot->GetPseudoRandomSeed().mix(aWorksWriting.size()));
 			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
-			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
+			pPlot->SetArtifactGreatWork(eWrittenGreatWork);
 
 			// Erase that writing from future consideration
 			vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
@@ -14735,7 +14721,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 	if (eNewPlayer == NO_PLAYER || eNewTeam == NO_TEAM)
 		return false;
 
-	const TeamTypes eTeam(static_cast<TeamTypes>(eNewTeam));
+	const TeamTypes eTeam(eNewTeam);
 	CvTeam& kTeam = GET_TEAM(eTeam);
 
 	MinorCivTypes eNewType = CvPreGame::minorCivType(eNewPlayer);
@@ -14868,7 +14854,7 @@ void CvGame::SetExeWantForceResyncValue(int value)
 {
 	if (IsExeWantForceResyncAvailable())
 	{
-		*(int*)(s_iExeWantForceResync) = value;
+		*s_iExeWantForceResync = value;
 		if (value == 1)
 		{
 			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");

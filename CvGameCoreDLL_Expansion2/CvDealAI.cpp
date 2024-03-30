@@ -2015,24 +2015,17 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		vTotalWeightList.insert(vTotalWeightList.end(), vNonAirUnitsList.begin(), vNonAirUnitsList.begin() + iNonAirUnitsToBuild);
 	}
 
-	// spaceship parts
-	int iNumSpaceshipPartsNeeded = 0;
-	ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-	if (eApolloProgram != NO_PROJECT && GET_TEAM(pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
+	// spaceship parts and spaceship factories
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+	if (eResource == eAluminum)
 	{
-		ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-		if (eResource == eAluminum)
+		// how many do we still need?
+		int iNumAluminumStillNeeded = GetPlayer()->GetNumAluminumStillNeededForSpaceship() + GetPlayer()->GetNumAluminumStillNeededForCoreCities();
+		for (int i = 0; i < iNumAluminumStillNeeded; i++)
 		{
-			// how many do we still need?
-			iNumSpaceshipPartsNeeded = 6 - GET_TEAM(GetTeam()).GetSSProjectCount();
-			for (int i = 0; i < iNumSpaceshipPartsNeeded; i++)
-			{
-				vTotalWeightList.push_back(10000);
-			}
+			vTotalWeightList.push_back(10000);
 		}
 	}
-
-	// todo: add unimproved resources in our borders
 
 	//don't need anything?
 	if(vTotalWeightList.size() == 0)

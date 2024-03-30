@@ -245,7 +245,7 @@ void CvCityCitizens::DoTurn()
 		{
 			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
 		}
-		else if (m_pCity->getProductionProcess() != NO_PROCESS || m_pCity->getProductionProject() != NO_PROJECT)
+		else if (m_pCity->GetCityCitizens()->CityShouldEmphasizeProduction())
 		{
 			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 		}
@@ -487,7 +487,6 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	//we always want to be growing a little bit
 	//we might fall under the threshold if we stop working a given plot, so take that into account
 	bool bEmphasizeFood = CityShouldEmphasizeFood(bIsWorking ? cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)*100 : cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -524,7 +523,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 					iYield100 /= 20;
 			}
 
-			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
 			iValue += iYield100*max(1,iYieldMod);
 		}
@@ -539,7 +538,6 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield, const SPrecomput
 	bool bAvoidGrowth = IsAvoidGrowth();
 
 	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	//Simplification - errata yields not worth considering.
 	if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
@@ -559,7 +557,9 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield, const SPrecomput
 			iModifierTimes100 /= 20;
 	}
 
-	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+
+	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
+
 	if (iYieldMod > 0)
 		return (iModifierTimes100 * iYieldMod) / 10;
 
@@ -580,9 +580,45 @@ bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 
 bool CvCityCitizens::CityShouldEmphasizeProduction() const
 {
-	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
-	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
-	return (bCityFoodProduction || bCityWonderProduction);
+	if (GET_PLAYER(GetOwner()).isHuman() || m_pCity->getPopulation() <= 3)
+		return false;
+
+	//settler
+	if (m_pCity->isFoodProduction())
+		return true;
+
+	// world wonder
+	if (m_pCity->IsBuildingWorldWonder())
+		return true;
+
+	// league project
+	ProcessTypes eProcess = m_pCity->getProductionProcess();
+	if (eProcess != NO_PROCESS && m_pCity->IsProcessInternationalProject(eProcess))
+		return true;
+
+	// one-time project
+	ProjectTypes eProject = m_pCity->getProductionProject();
+	if (eProject != NO_PROJECT)
+	{
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		if (!pkProjectInfo->IsRepeatable())
+		{
+			return true;
+		}
+	}
+
+	// spaceship part
+	UnitTypes eUnit = m_pCity->getProductionUnit();
+	if (eUnit != NO_UNIT)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != -1)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /// Are this City's Citizens under automation?
@@ -688,7 +724,7 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 	return false;
 }
 
-int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
+int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, const SPrecomputedExpensiveNumbers& cache)
 {
 	int iDefaultValue = 0;
 	switch (eYield)
@@ -734,10 +770,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	}
 	else if (eYield == YIELD_PRODUCTION)
 	{
-		//building a wonder or project, give it a boost but not so much that we start starving
-		if (bEmphasizeProduction)
-			iYieldMod += iDefaultValue;
-
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 
@@ -917,7 +949,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 		return 0;
 
 	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	///////
 	// Bonuses
@@ -973,7 +1004,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 
 		if (iYield100 != 0)
 		{
-			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
 			//prefer to even out yields
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)

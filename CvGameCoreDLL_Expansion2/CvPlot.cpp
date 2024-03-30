@@ -248,6 +248,7 @@ void CvPlot::reset()
 		m_abResourceForceReveal[iI] = false;
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
 		m_aeRevealedRouteType[iI] = NO_ROUTE;
+		m_aeHumanPlannedRouteState[iI] = NO_PLANNED_ROUTE;
 #if defined(MOD_BALANCE_CORE)
 		m_abIsImpassable[iI] = false;
 		m_abStrategicRoute[iI] = false;
@@ -648,7 +649,7 @@ void CvPlot::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::verifyUnitValidPlot(bool bWakeUp)
+void CvPlot::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer, bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
@@ -664,23 +665,26 @@ void CvPlot::verifyUnitValidPlot(bool bWakeUp)
 		CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
 		if(pLoopUnit != NULL)
 		{
-			if(!pLoopUnit->isDelayedDeath())
+			if (eForSpecificPlayer == NO_PLAYER || (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() == eForSpecificPlayer))
 			{
-				if(pLoopUnit->atPlot(*this))
+				if (!pLoopUnit->isDelayedDeath())
 				{
-					//if plot ownership changes we want to make sure that human units
-					//which would suffer attrition or cause annoyance are woken up
-					if (bWakeUp)
-						pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
-
-					if(!(pLoopUnit->isCargo()))
+					if (pLoopUnit->atPlot(*this))
 					{
-						if(!(pLoopUnit->isInCombat()))
+						//if plot ownership changes we want to make sure that human units
+						//which would suffer attrition or cause annoyance are woken up
+						if (bWakeUp)
+							pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
+						if (!(pLoopUnit->isCargo()))
 						{
-							if (!pLoopUnit->canEndTurnAtPlot(this))
+							if (!(pLoopUnit->isInCombat()))
 							{
-								if (!pLoopUnit->jumpToNearestValidPlot())
-									pLoopUnit->kill(true);
+								if (!pLoopUnit->canEndTurnAtPlot(this))
+								{
+									if (!pLoopUnit->jumpToNearestValidPlot())
+										pLoopUnit->kill(true);
+								}
 							}
 						}
 					}
@@ -6411,7 +6415,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Remove Resource Quantity from total
 				if (getResourceType() != NO_RESOURCE)
 				{
-					if (GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
+					if (GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (isCity())
 						{
@@ -6771,7 +6775,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(bCheckUnits)
 			{
-				verifyUnitValidPlot(true);
+				verifyUnitValidPlot(NO_PLAYER, true);
 			}
 
 			if(GC.getGame().isDebugMode())
@@ -11569,6 +11573,18 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 	m_abResourceForceReveal[eTeam] = bValue;
 }
 
+RoutePlanTypes CvPlot::GetPlannedRouteState(PlayerTypes ePlayer) const
+{
+	return (RoutePlanTypes)m_aeHumanPlannedRouteState[ePlayer];
+}
+
+void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	m_aeHumanPlannedRouteState[ePlayer] = eRoutePlanType;
+}
+
 //	--------------------------------------------------------------------------------
 /// Current player's knowledge of other players' visibility count
 int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
@@ -13261,6 +13277,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor.template as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
+		visitor(plot.m_aeHumanPlannedRouteState[i]);
 	}
 
 	visitor(plot.m_bfRevealed.m_bits);
@@ -13745,7 +13762,7 @@ bool CvPlot::canTrain(UnitTypes eUnit) const
 	}
 
 	CvUnitEntry& thisUnitEntry = *pkUnitInfo;
-	DomainTypes thisUnitDomain = (DomainTypes) thisUnitEntry.GetDomainType();
+	DomainTypes thisUnitDomain = thisUnitEntry.GetDomainType();
 
 	if(thisUnitEntry.IsPrereqResources())
 	{

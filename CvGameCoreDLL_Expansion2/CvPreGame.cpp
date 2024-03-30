@@ -2937,28 +2937,25 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 			continue;
 
 		vAvailable.push_back(eAvailability);
-		if (MOD_BALANCE_CITY_STATE_TRAITS)
+		switch (eTrait)
 		{
-			switch (eTrait)
-			{
-			case MINOR_CIV_TRAIT_CULTURED:
-				vCultured.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MILITARISTIC:
-				vMilitaristic.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MARITIME:
-				vMaritime.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MERCANTILE:
-				vMercantile.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_RELIGIOUS:
-				vReligious.push_back(eAvailability);
-				break;
-			default:
-				UNREACHABLE();
-			}
+		case MINOR_CIV_TRAIT_CULTURED:
+			vCultured.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MILITARISTIC:
+			vMilitaristic.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MARITIME:
+			vMaritime.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MERCANTILE:
+			vMercantile.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_RELIGIOUS:
+			vReligious.push_back(eAvailability);
+			break;
+		default:
+			UNREACHABLE();
 		}
 	}
 	return vAvailable;
@@ -3081,7 +3078,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 		// Check to see if this is available, if not, set the index to NO_LEADER and the package ID to invalid
 		// The key will stay valid
 		bool bFailed = true;
-		if(szKey.length() > 0)
+		if(!szKey.empty())
 		{
 			// During the pre-game, we can't be sure the cached *Infos are current, so query the database
 			Database::Connection* pDB = GC.GetGameDatabase();
@@ -3107,7 +3104,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 		{
 			s_leaderHeads[p] = NO_LEADER;
 			ClearGUID(s_leaderPackageID[p]);
-			s_leaderKeysAvailable[p] = (szKey.length() == 0);	// If the key was empty, then it is the 'random' state so it is available
+			s_leaderKeysAvailable[p] = (szKey.empty());	// If the key was empty, then it is the 'random' state so it is available
 		}
 	}
 }
@@ -3827,7 +3824,7 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 		// Check to see if this is available, if not, set the index to NO_CIVILIZATION and the package ID to invalid
 		// The key will stay valid
 		bool bFailed = true;
-		if(szKey.length() > 0)
+		if(!szKey.empty())
 		{
 			// During the pre-game, we can't be sure the cached *Infos are current, so query the database
 			Database::Results kResults;
@@ -3850,7 +3847,7 @@ void setCivilizationKey(PlayerTypes p, const CvString& szKey)
 		{
 			s_civilizations[p] = NO_CIVILIZATION;
 			ClearGUID(s_civilizationPackageID[p]);
-			s_civilizationKeysAvailable[p] = (szKey.length() == 0);	// If the key was empty, then it is the 'random' state so it is available
+			s_civilizationKeysAvailable[p] = (szKey.empty());	// If the key was empty, then it is the 'random' state so it is available
 			s_civilizationKeysPlayable[p] = s_civilizationKeysAvailable[p];
 		}
 	}
