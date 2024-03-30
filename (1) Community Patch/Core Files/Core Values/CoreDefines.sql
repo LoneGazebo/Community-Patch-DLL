@@ -1478,6 +1478,12 @@ INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_VASSAL_MASTER_POP_PERCENT_TH
 
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_CAPITULATE_BASE_THRESHOLD', 100; -- How likely is a vassal to voluntarily capitulate?
 
+-- Border growth tile selection
+UPDATE Defines SET Value = 200 WHERE Name = 'PLOT_INFLUENCE_RING_COST';
+UPDATE Defines SET Value = 20 WHERE Name = 'PLOT_INFLUENCE_WATER_COST';
+UPDATE Defines SET Value = -40 WHERE Name = 'PLOT_INFLUENCE_YIELD_POINT_COST'; -- 3 yield tops 1 distance
+UPDATE Defines SET Value = -180 WHERE Name = 'PLOT_INFLUENCE_RESOURCE_COST'; -- should be more than 100 to be able to skip one ring
+UPDATE Defines SET Value = -500 WHERE Name = 'PLOT_INFLUENCE_NW_COST';
 
 -- Misc. Modmod Defines
 INSERT INTO Defines (Name, Value) SELECT 'FRIENDSHIP_THRESHOLD_MOD_MEDIEVAL', 6;
