@@ -143,6 +143,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local pActiveTeam = Teams[Game.GetActiveTeam()];
+	-- when viewing a (foreign) city, always show tooltips as they are for the city owner
+	if (pCity ~= nil) then
+		pActivePlayer = Players[pCity:GetOwner()];
+		pActiveTeam = Teams[pActivePlayer:GetTeam()];
+	end
 	
 	local buildingClass = GameInfo.Buildings[iBuildingID].BuildingClass;
 	local buildingClassID = GameInfo.BuildingClasses[buildingClass].ID;
