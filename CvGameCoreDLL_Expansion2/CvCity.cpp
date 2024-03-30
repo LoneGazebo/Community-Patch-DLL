@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
@@ -19093,7 +19093,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 
 		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, pPlotToAcquire->getTerrainType());
 
-		if (pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
 		{
 			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 			{
@@ -29011,17 +29011,17 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	aiPlotList.clear();
 	std::vector< pair<int, int> > resultList;
 
-	CvPlot* pLoopPlot = NULL;
+	CvPlot* pLoopPlot;
 	CvPlot* pThisPlot = plot();
 	const int iMaxRange = /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS);
 	TeamTypes thisTeam = getTeam();
 
-	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER =	/*100*/ GD_INT_GET(PLOT_INFLUENCE_DISTANCE_MULTIPLIER);
-	int iPLOT_INFLUENCE_RING_COST =				/*100*/ GD_INT_GET(PLOT_INFLUENCE_RING_COST);
-	int iPLOT_INFLUENCE_RESOURCE_COST =			/*-105 in CP, -180 in VP*/ GD_INT_GET(PLOT_INFLUENCE_RESOURCE_COST);
-	int iPLOT_INFLUENCE_NW_COST =				/*-105 in CP, -500 in VP*/ GD_INT_GET(PLOT_INFLUENCE_NW_COST);
-	int iPLOT_INFLUENCE_WATER_COST =			/*25 in CP, 20 in VP*/ GD_INT_GET(PLOT_INFLUENCE_WATER_COST);
-	int iPLOT_INFLUENCE_YIELD_POINT_COST =		/*-1 in CP, -40 in VP*/ GD_INT_GET(PLOT_INFLUENCE_YIELD_POINT_COST);
+	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER = /*100*/ GD_INT_GET(PLOT_INFLUENCE_DISTANCE_MULTIPLIER);
+	int iPLOT_INFLUENCE_RING_COST = /*200*/ GD_INT_GET(PLOT_INFLUENCE_RING_COST);
+	int iPLOT_INFLUENCE_RESOURCE_COST = /*-180*/ GD_INT_GET(PLOT_INFLUENCE_RESOURCE_COST);
+	int iPLOT_INFLUENCE_NW_COST = /*-500*/ GD_INT_GET(PLOT_INFLUENCE_NW_COST);
+	int iPLOT_INFLUENCE_WATER_COST = /*20*/ GD_INT_GET(PLOT_INFLUENCE_WATER_COST);
+	int iPLOT_INFLUENCE_YIELD_POINT_COST = /*-40*/ GD_INT_GET(PLOT_INFLUENCE_YIELD_POINT_COST);
 	int iPLOT_INFLUENCE_ADJACENT_NW_COST = -60;
 	int iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST = -40;
 	int iPLOT_INFLUENCE_ADJACENT_ENEMY_COST = -20;
@@ -29043,65 +29043,57 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 			{
 				if (pLoopPlot->getOwner() != NO_PLAYER)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if (MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && bForPurchase)
-					{
-						if (pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
-						{
-							continue;
-						}
-					}
-					else
-					{
-#endif
+					// Can't naturally gain owned plots
+					if (!bForPurchase)
 						continue;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
+
+					// Need the trait to buy owned plots
+					if (!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+						continue;
+
+					// Can't buy self-owned plots or city plots
+					if (pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
+						continue;
 				}
-#if defined(MOD_BALANCE_CORE)
-				//Let's rule out getting plots for which we lack an adjacent owned plot.
+
+				// Check for adjacent plots
 				bool bNoNeighbor = true;
 				bool bPromiseNeighbor = false;
-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)iI));
+					CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), static_cast<DirectionTypes>(iDirectionLoop));
+					if (pAdjacentPlot == NULL)
+						continue;
 
-					if (pAdjacentPlot != NULL)
+					PlayerTypes eAdjacentPlotOwner = pAdjacentPlot->getOwner();
+					if (eAdjacentPlotOwner == NO_PLAYER)
+						continue;
+
+					// Make sure city already owns one of the adjacent plots
+					if (eAdjacentPlotOwner == getOwner() && pAdjacentPlot->getOwningCityID() == GetID())
 					{
-						if (pAdjacentPlot->getOwner() == getOwner() && pAdjacentPlot->getOwningCityID() == GetID())
-						{
-							bNoNeighbor = false;
-							break;
-						}
-						if (bForPurchase && pAdjacentPlot->getOwner() != NO_PLAYER && GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
-						{
-							if (GET_PLAYER(pAdjacentPlot->getOwner()).GetDiplomacyAI()->IsPlayerMadeBorderPromise(getOwner()))
-							{
-								bPromiseNeighbor = true;
-								break;
-							}
-						}
-					}
-				}
-				if (bNoNeighbor)
-				{
-					continue;
-				}
-				if (bPromiseNeighbor)
-				{
-					continue;
-				}
-#endif
-#if defined(MOD_EVENTS_CITY_BORDERS)
-				// This can be used to implement a 12-mile limit
-				if (MOD_EVENTS_CITY_BORDERS) {
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityCanAcquirePlot, getOwner(), GetID(), pLoopPlot->getX(), pLoopPlot->getY()) == GAMEEVENTRETURN_FALSE) {
+						bNoNeighbor = false;
 						continue;
 					}
+
+					// Don't buy plots adjacent to another civ if a promise was made
+					if (bForPurchase && GET_PLAYER(eAdjacentPlotOwner).isMajorCiv() && GET_PLAYER(eAdjacentPlotOwner).GetDiplomacyAI()->IsPlayerMadeBorderPromise(getOwner()))
+					{
+						bPromiseNeighbor = true;
+						break;
+					}
 				}
-				else {
-#endif				
+				if (bNoNeighbor || bPromiseNeighbor)
+					continue;
+
+				// This can be used to implement a 12-mile limit
+				if (MOD_EVENTS_CITY_BORDERS)
+				{
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityCanAcquirePlot, getOwner(), GetID(), pLoopPlot->getX(), pLoopPlot->getY()) == GAMEEVENTRETURN_FALSE)
+						continue;
+				}
+				else
+				{
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					if (pkScriptSystem)
 					{
@@ -29114,14 +29106,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						bool bResult = false;
 						if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanAcquirePlot", args.get(), bResult))
 						{
-							if (!bResult) {
+							if (!bResult)
 								continue;
-							}
 						}
 					}
-#if defined(MOD_EVENTS_CITY_BORDERS)
 				}
-#endif			
 
 				ReachablePlots::iterator it = influencePlots.find(pLoopPlot->GetPlotIndex());
 				int iInfluenceCost = (it != influencePlots.end()) ? (it->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase()) : -1;
@@ -29130,102 +29119,194 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 				{
 					iInfluenceCost *= iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
 
-					// Resource Plots claimed first
-					int iResourceMod = 0;
 					ResourceTypes eResource = pLoopPlot->getResourceType(thisTeam);
+					FeatureTypes eFeature = pLoopPlot->getFeatureType();
 					if (eResource != NO_RESOURCE)
 					{
+						// Resource plots claimed first
+						int iResourceMod = 0;
 						CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 						if (pkResource)
 						{
-							//bonus resources are preferred because of their added yields anyway ... here it's just about trade
-							if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							ResourceUsageTypes eResourceUsage = pkResource->getResourceUsage();
+
+							// This resource is useful even outside of work radius
+							if (eResourceUsage == RESOURCEUSAGE_LUXURY || eResourceUsage == RESOURCEUSAGE_STRATEGIC)
 							{
 								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST;
 								if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) == 0)
 									iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST / 2;
 							}
 
+							// This resource provides a wonder production bonus
+							if (pkResource->getWonderProductionMod() > 0 && GET_PLAYER(getOwner()).GetCurrentEra() < pkResource->getWonderProductionModObsoleteEra())
+								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST * pkResource->getWonderProductionMod() / 100;
+
+							// This is the copy we need to gain a monopoly!
 							if (GET_PLAYER(getOwner()).WouldGainMonopoly(eResource, pLoopPlot->getNumResource()))
 								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST;
+						}
+						iInfluenceCost += iResourceMod;
+					}
+					else if (pLoopPlot->IsNaturalWonder())
+					{
+						// Natural Wonders are great
+						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
+					}
+					else
+					{
+						// Unworkable plots get a big penalty on top of the distance cost
+						if (plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY()) > iWorkPlotDistance)
+						{
+							iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
+						}
 
+						// De-prioritize unimproveable plots a bit too
+						if (pLoopPlot->isWater() || pLoopPlot->isMountain())
+						{
+							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
+						}
+						else if (eFeature != NO_FEATURE)
+						{
+							CvFeatureInfo* pkFeature = GC.getFeatureInfo(eFeature);
+							if (pkFeature && pkFeature->isNoImprovement())
+								iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
 						}
 					}
 
-					if (iResourceMod == 0) //no resource or ignored resource
-					{
-						// Water Plots claimed later
-						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
-							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
-					}
-					else
-						iInfluenceCost += iResourceMod;
-
-					// if we can't work this tile in this city make it much less likely to be picked
-					// Unless it's a Natural Wonder. We always want those.
-					if (!pLoopPlot->IsNaturalWonder() && plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY()) > iWorkPlotDistance)
-					{
-						iInfluenceCost += iPLOT_INFLUENCE_RING_COST * 2;
-					}
-
-					// while we're at it grab Natural Wonders quickly also
-					if (pLoopPlot->IsNaturalWonder())
-					{
-						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
-					}
-
-					// More Yield == more desirable
+					// Yields are good - note that this counts the yields as if the city has owned the plot
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
-						//Simplification - errata yields not worth considering.
-						if ((YieldTypes)iYieldLoop > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
+
+						// Skip errata yields
+						if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_GOLDEN_AGE_POINTS)
 							break;
 
-						int iWeight = (iYieldLoop == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
-						int iYield = pLoopPlot->calculateYield((YieldTypes)iYieldLoop, false, this);
+						int iWeight = (eYield == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
+						int iYield = pLoopPlot->calculateYield(eYield, false, this);
 
-						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * iYield * iWeight);
+						iInfluenceCost += iPLOT_INFLUENCE_YIELD_POINT_COST * iYield * iWeight;
 					}
 
-					// all other things being equal move towards unclaimed resources
-					bool bUnownedNaturalWonderAdjacentCount = false;
+					// Check adjacent plots too
 					bool bEnemyPlotAdjacent = false;
-					for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+					TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+					bool bTraitExtraLand = !bForPurchase && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(eTerrain);
+					for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)iI));
+						DirectionTypes eDirection = static_cast<DirectionTypes>(iDirectionLoop);
+						CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), eDirection);
+						if (pAdjacentPlot == NULL)
+							continue;
 
-						if (pAdjacentPlot != NULL)
+						if (pAdjacentPlot->getOwner() == NO_PLAYER)
 						{
-							if (pAdjacentPlot->getOwner() == NO_PLAYER)
+							int iPlotDistance = plotDistance(getX(), getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+							ResourceTypes eAdjacentResource = pAdjacentPlot->getResourceType(thisTeam);
+							bool bTraitClaimable = bTraitExtraLand && (pAdjacentPlot->getTerrainType() == eTerrain);
+
+							if (!bTraitClaimable)
 							{
-								int iPlotDistance = plotDistance(getX(), getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
-								ResourceTypes eAdjacentResource = pAdjacentPlot->getResourceType(thisTeam);
+								// Slight priority for each adjacent workable or sellable resource
 								if (eAdjacentResource != NO_RESOURCE)
 								{
-									// if we are close enough to work, or this is not a bonus resource
-									if (iPlotDistance <= iWorkPlotDistance || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
+									CvResourceInfo* pkAdjacentResource = GC.getResourceInfo(eAdjacentResource);
+									if (pkAdjacentResource)
 									{
-										iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST;
+										ResourceUsageTypes eResourceUsage = pkAdjacentResource->getResourceUsage();
+										if (iPlotDistance <= iWorkPlotDistance || eResourceUsage == RESOURCEUSAGE_LUXURY || eResourceUsage == RESOURCEUSAGE_STRATEGIC)
+										{
+											iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST;
+										}
+										else if (pkAdjacentResource->getWonderProductionMod() > 0 && GET_PLAYER(getOwner()).GetCurrentEra() < pkAdjacentResource->getWonderProductionModObsoleteEra())
+										{
+											iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST;
+										}
 									}
 								}
 
-								if (iPlotDistance <= iWorkPlotDistance) // grab for this city
-								{
-									if (pAdjacentPlot->IsNaturalWonder())
-										bUnownedNaturalWonderAdjacentCount = true;
-
-									if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getTeam() != getTeam())
-										bEnemyPlotAdjacent = true;
-								}
+								// Priority for each adjacent Natural Wonder
+								if (pAdjacentPlot->IsNaturalWonder())
+									iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_NW_COST;
 							}
+							else
+							{
+								// Special handling for the trait that grabs extra land on border growth:
+								// Basically the same scoring scheme as above but without checking adjacent plots
+								// Score is capped at -1 since claiming more plots can't be worse
+								it = influencePlots.find(pAdjacentPlot->GetPlotIndex());
+								int iAdjacentCost = (it != influencePlots.end()) ? (it->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase()) : iMaxRange * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
+
+								FeatureTypes eAdjacentFeature = pAdjacentPlot->getFeatureType();
+								if (eAdjacentResource != NO_RESOURCE)
+								{
+									CvResourceInfo* pkAdjacentResource = GC.getResourceInfo(eAdjacentResource);
+									if (pkAdjacentResource)
+									{
+										ResourceUsageTypes eResourceUsage = pkAdjacentResource->getResourceUsage();
+										if (eResourceUsage == RESOURCEUSAGE_LUXURY || eResourceUsage == RESOURCEUSAGE_STRATEGIC)
+										{
+											iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST;
+											if (GET_PLAYER(getOwner()).getNumResourceTotal(eAdjacentResource) == 0)
+												iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST / 2;
+										}
+
+										if (pkAdjacentResource->getWonderProductionMod() > 0 && GET_PLAYER(getOwner()).GetCurrentEra() < pkAdjacentResource->getWonderProductionModObsoleteEra())
+											iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST * pkAdjacentResource->getWonderProductionMod() / 100;
+
+										if (GET_PLAYER(getOwner()).WouldGainMonopoly(eResource, pAdjacentPlot->getNumResource()))
+											iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST;
+									}
+								}
+								else if (pAdjacentPlot->IsNaturalWonder())
+								{
+									iAdjacentCost += iPLOT_INFLUENCE_NW_COST;
+								}
+								else
+								{
+									if (plotDistance(pAdjacentPlot->getX(), pAdjacentPlot->getY(), getX(), getY()) > iWorkPlotDistance)
+									{
+										iAdjacentCost += iPLOT_INFLUENCE_RING_COST;
+									}
+
+									if (pAdjacentPlot->isWater() || pAdjacentPlot->isMountain())
+									{
+										iAdjacentCost += iPLOT_INFLUENCE_WATER_COST;
+									}
+									else if (eAdjacentFeature != NO_FEATURE)
+									{
+										CvFeatureInfo* pkFeature = GC.getFeatureInfo(eFeature);
+										if (pkFeature && pkFeature->isNoImprovement())
+											iAdjacentCost += iPLOT_INFLUENCE_WATER_COST;
+									}
+								}
+
+								for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+								{
+									YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
+
+									// Skip errata yields
+									if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_GOLDEN_AGE_POINTS)
+										break;
+
+									int iWeight = (eYield == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
+									int iYield = pAdjacentPlot->calculateYield(eYield, false, this);
+
+									iAdjacentCost += iPLOT_INFLUENCE_YIELD_POINT_COST * iYield * iWeight;
+								}
+
+								// Capped at -1 for each adjacent claimable plot
+								iInfluenceCost += min(-1, iAdjacentCost);
+							}
+						}
+						else if (pAdjacentPlot->getTeam() != getTeam())
+						{
+							bEnemyPlotAdjacent = true;
 						}
 					}
 
-					// move towards unclaimed NW
-					if (bUnownedNaturalWonderAdjacentCount)
-						iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_NW_COST;
-
-					// move towards enemy
+					// Prefer plots near other players (grab them before they do)
 					if (bEnemyPlotAdjacent)
 						iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_ENEMY_COST;
 
