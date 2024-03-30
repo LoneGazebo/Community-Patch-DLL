@@ -1753,8 +1753,11 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	vector<int>vAirUnitsList;
 	vector<int>vNonAirUnitsList;
 
-	CvPlayer* ePlayer = GetPlayer();
+	CvPlayer* pPlayer = GetPlayer();
 	int iOneGPTValue = GetOneGPTValue(bPeaceDeal);
+
+	//all techs within 2 of what we currently know
+	vector<TechTypes> vFrontierTechs = GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetTechFrontier();
 
 	// are there any buildings we can potentially construct using this resource?
 	vector<BuildingTypes> vBuildingsWithResourceRequirement;
@@ -1782,7 +1785,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// don't have prereq tech?
 		// if we're selling, consider also buildings we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !GetPlayer()->HasTech(ePrereqTech) && (!bFromMe || GetPlayer()->findPathLength(ePrereqTech, false) >= 3))
+		if (ePrereqTech != NO_TECH && !GetPlayer()->HasTech(ePrereqTech) && (!bFromMe || std::find(vFrontierTechs.begin(), vFrontierTechs.end(), ePrereqTech)==vFrontierTechs.end()))
 			continue;
 
 		// is the building obsolete?
@@ -1795,7 +1798,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	{
 		// loop through our cities and calculate the valuation for each building we can potentially build
 		int iCityLoop = 0;
-		for (CvCity* pLoopCity = ePlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = ePlayer->nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
 		{
 			// Exclude puppets
 			if (pLoopCity->IsPuppet())
@@ -1893,7 +1896,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 
 
 	// are there any units we can potentially train using this resource?
-	int iNumSupplyLeft = ePlayer->GetNumUnitsSupplied() - ePlayer->GetNumUnitsToSupply();
+	int iNumSupplyLeft = pPlayer->GetNumUnitsSupplied() - pPlayer->GetNumUnitsToSupply();
 
 	//at war or planing to go to war?
 	bool bWar = false;
@@ -1906,7 +1909,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (ePlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && ePlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
+			if (pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 			{
 				bWar = true;
 				break;
@@ -1920,7 +1923,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		if (pkUnitClassInfo == NULL)
 			continue;
 
-		const UnitTypes eUnit = ePlayer->GetSpecificUnitType(eUnitClass);
+		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 		if (eUnit == NO_UNIT)
 			continue;
 
@@ -1932,7 +1935,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		if (pkUnitInfo->GetResourceQuantityRequirement(eResource) == 0)
 			continue;
 
-		if (ePlayer->GetPlayerTraits()->NoTrain(eUnitClass))
+		if (pPlayer->GetPlayerTraits()->NoTrain(eUnitClass))
 			continue;
 
 		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pkUnitInfo->IsMinorCivGift())
@@ -1943,17 +1946,17 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			continue;
 
 		// nuclear non-proliferation?
-		if (pkUnitInfo->GetNukeDamageLevel() > 0 && GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(ePlayer->GetID()))
+		if (pkUnitInfo->GetNukeDamageLevel() > 0 && GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(pPlayer->GetID()))
 			continue;
 
 		// don't have prereq tech?
 		// if we're selling, consider also units we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !ePlayer->HasTech(ePrereqTech) && (!bFromMe || ePlayer->findPathLength(ePrereqTech, false) >= 3))
+		if (ePrereqTech != NO_TECH && !pPlayer->HasTech(ePrereqTech) && (!bFromMe || std::find(vFrontierTechs.begin(), vFrontierTechs.end(), ePrereqTech) == vFrontierTechs.end()))
 			continue;
 
 		// is the unit obsolete?
-		if (pkUnitInfo->GetObsoleteTech() != NO_TECH && ePlayer->HasTech((TechTypes)pkUnitInfo->GetObsoleteTech()))
+		if (pkUnitInfo->GetObsoleteTech() != NO_TECH && pPlayer->HasTech((TechTypes)pkUnitInfo->GetObsoleteTech()))
 			continue;
 
 		// don't count spaceship parts here, they'll be checked later
@@ -1986,9 +1989,9 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	{
 		int iNumFreeAirSlots = 0; // how many air units can we station in cities?
 		int iCityLoop = 0;
-		for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = ePlayer->nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
 		{
-			iNumFreeAirSlots += pLoopCity->GetMaxAirUnits() - pLoopCity->plot()->countNumAirUnits(ePlayer->getTeam());
+			iNumFreeAirSlots += pLoopCity->GetMaxAirUnits() - pLoopCity->plot()->countNumAirUnits(pPlayer->getTeam());
 		}
 
 		// select the units with the highest value for which we have space

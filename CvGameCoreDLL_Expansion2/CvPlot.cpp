@@ -3299,25 +3299,33 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 	CvUnit* pLoopUnit = NULL;
 	CvUnit* pBestUnit = NULL;
 
+	//early out
+	if (eAttackingPlayer != NO_PLAYER && !bIgnoreVisibility && !isVisible(GET_PLAYER(eAttackingPlayer).getTeam()))
+		return NULL;
+
 	while(pUnitNode != NULL)
 	{
+		//for performance, avoid looking up unit pointers if we can
+		if (eOwner != NO_PLAYER && pUnitNode->eOwner != eOwner)
+		{
+			pUnitNode = nextUnitNode(pUnitNode);
+			continue;
+		}
+
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && (bNoncombatAllowed || pLoopUnit->IsCanDefend()) && pLoopUnit != pAttacker)	// Does the unit exist, and can it fight, or do we care if it can't fight?
 		{
-			if((eOwner ==  NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
+			if(eAttackingPlayer == NO_PLAYER || bIgnoreVisibility || !pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false))
 			{
-				if((eAttackingPlayer == NO_PLAYER) || bIgnoreVisibility || (!(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)) && isVisible(GET_PLAYER(eAttackingPlayer).getTeam())))
+				if(!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
 				{
-					if(!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
+					if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
 					{
-						if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
+						if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 						{
-							if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
-							{
-								pBestUnit = pLoopUnit;
-							}
+							pBestUnit = pLoopUnit;
 						}
 					}
 				}
@@ -4047,7 +4055,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 
 		if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
 		{
-			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
+			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetCivApproach(eLoopPlayer)!= CIV_APPROACH_FRIENDLY)
 				vUnfriendlyMajors.push_back(eLoopPlayer);
 			else
 				continue;

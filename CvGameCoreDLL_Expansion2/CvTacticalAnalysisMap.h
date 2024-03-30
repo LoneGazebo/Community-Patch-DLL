@@ -316,6 +316,7 @@ public:
 	int GetDominanceZoneID(int iPlotIndex);
 	bool IsInEnemyDominatedZone(const CvPlot* pPlot);
 	int GetNumZones();
+	int GetMaxZoneRadius() const { return 5; }
 
 protected:
 	void CreateDominanceZones();

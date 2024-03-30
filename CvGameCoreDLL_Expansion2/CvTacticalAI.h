@@ -723,13 +723,21 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
-	bool isEnemyCombatUnit() const { return bHasEnemyCombatUnit; }
+	bool isEnemyCombatUnit() const { return pEnemyCombatUnit!=NULL; }
+	CvUnit* getEnemyUnit() const { return pEnemyCombatUnit; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 
+	int getNumVisiblePlotsRange2() const { return (int)nVisiblePlotsNearEnemyRange2; }
+	int getNumVisiblePlotsRange3() const { return (int)nVisiblePlotsNearEnemyRange2; }
+	void setNumVisiblePlotsRange2(int count) { nVisiblePlotsNearEnemyRange2 = (unsigned char)count; }
+	void setNumVisiblePlotsRange3(int count) { nVisiblePlotsNearEnemyRange3 = (unsigned char)count; }
+
+
 protected:
 	const CvPlot* pPlot; //null if invalid
+	CvUnit* pEnemyCombatUnit; //there may also be enemy cities without garrison!
 	vector<STacticalUnit> vUnitsHere; //which (simulated) units are in this plot?
 
 	unsigned char aiEnemyDistance[3]; //distance to attack targets, not civilians. recomputed every time an enemy is killed or discovered
@@ -739,6 +747,9 @@ protected:
 	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
 	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
+
+	unsigned char nVisiblePlotsNearEnemyRange2; //what can we see from here
+	unsigned char nVisiblePlotsNearEnemyRange3; //what can we see from here
 
 	//set once and not changed afterwards
 	unsigned char bfBlockedByNonSimCombatUnit; //bitfield per domain
@@ -753,9 +764,7 @@ protected:
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
 	bool bAdjacentToEnemyCitadel:1;
-
 	bool bFriendlyDefenderEndTurn:1; 
-	bool bHasEnemyCombatUnit:1; //there may also be cities without garrison!
 };
 
 struct SAttackStats
@@ -808,6 +817,7 @@ protected:
 	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
+	PlotIndexContainer enemyPlots; //plot indices for enemy units, to be checked for potential attacks
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
@@ -815,8 +825,8 @@ protected:
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
-	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
-	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
+	unsigned char nOurOriginalUnits; //movable units included in sim. only valid for root position.
+	unsigned char nOriginalEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	unsigned char nFirstInterestingAssignment; //in case we want to skip INITIALs and BLOCKEDs
 	CvPlot* pTargetPlot;
 
@@ -856,16 +866,19 @@ public:
 
 		PrPositionSortHeapGeneration(bool depthFirst) : bDepthFirst(depthFirst) {}
 
+		//we will pop the *last* element from the heap later
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
 		{
-			//tiebreaker
+			//within a generation always sort by (last round) score
+			//continue where it seems most promising right now, ignore "historical" scores
 			if (lhs->getGeneration() == rhs->getGeneration())
 				return lhs->getScoreLastRound() < rhs->getScoreLastRound();
 
-			//we will pop the *last* element from the heap later
 			if (bDepthFirst)
+				//we want to pick the highest generation first
 				return lhs->getGeneration() < rhs->getGeneration();
 			else
+				//we want to pick the lowest generation first
 				return lhs->getGeneration() > rhs->getGeneration();
 		}
 	};
@@ -893,7 +906,7 @@ public:
 	bool isEarlyFinish() const;
 	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
 	bool isKillOrImprovedPosition() const;
-	void countEnemies();
+	void countEnemiesAndCheckVisibility();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
@@ -919,6 +932,7 @@ public:
 	const STacticalAssignment* getLatestMoveAssignment(int iUnitID) const;
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
+	bool isAttackablePlot(int iPlotIndex) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);
 	bool isUnique(int levelsToCheck=2) const;
 	void setFirstInterestingAssignment(size_t i);
@@ -939,7 +953,7 @@ public:
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	const vector<STacticalAssignment>& getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
-	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
+	const int getNumEnemies() const { return nOriginalEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
 	const int getNumPlots() const { return (int)tactPlots.size(); }
 

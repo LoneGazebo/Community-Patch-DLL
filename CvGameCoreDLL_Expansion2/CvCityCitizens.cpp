@@ -532,15 +532,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	return iValue;
 }
 
-void CvCityCitizens::UpdateCache() const
+int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache)
 {
-	gCachedNumbers.update(m_pCity);
-}
-
-int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
-{
-	const SPrecomputedExpensiveNumbers cache = gCachedNumbers;
-
 	CityAIFocusTypes eFocus = GetFocusType();
 	bool bAvoidGrowth = IsAvoidGrowth();
 
@@ -563,6 +556,7 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
 		if (!bEmphasizeFood && bAvoidGrowth)
 			iModifierTimes100 /= 20;
 	}
+
 
 	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
@@ -948,7 +942,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 }
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers& cache)
 {
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pSpecialistInfo == NULL)
@@ -1257,7 +1251,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	if (MOD_BALANCE_VP)
 	{
 		int iCityHappiness = 0;
-		int iGlobalHappiness = 0;
 		int iValuePercent = 100;
 		//if the specialist would cause urbanization, reduce specialist value depending on local and global unhappiness
 		if ((m_pCity->GetCityCitizens()->GetTotalSpecialistCount() + 1 - m_pCity->GetNumFreeSpecialists()) > 0)
@@ -1270,21 +1263,24 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			else
 			{
 				iCityHappiness = m_pCity->getHappinessDelta();
-				iGlobalHappiness = (GetPlayer()->GetHappinessFromCitizenNeeds()*10/11) - GetPlayer()->GetUnhappinessFromCitizenNeeds();
+
 				//iGlobalHappiness == 0 corresponds to a happiness level of 55%. We don't want to assign too many specialists when close to the 50% threshold
-				if (iGlobalHappiness <= 0 && iCityHappiness <= 0)
+				if (cache.iGlobalHappiness==INT_MAX) //update on demand
+					cache.iGlobalHappiness = pPlayer->GetHappinessFromCitizenNeeds() * 10 / 11 - pPlayer->GetUnhappinessFromCitizenNeeds();
+
+				if (cache.iGlobalHappiness <= 0 && iCityHappiness <= 0)
 				{
 					// unhappy both globally and locally
-					iValuePercent = max(10, 65 + (iGlobalHappiness + iCityHappiness - 2) * 5);
+					iValuePercent = max(10, 65 + (cache.iGlobalHappiness + iCityHappiness - 2) * 5);
 				}
-				if (iGlobalHappiness <= 0 || iCityHappiness <= 0)
+				if (cache.iGlobalHappiness <= 0 || iCityHappiness <= 0)
 				{
-					iValuePercent = max(10, 65 + min(iGlobalHappiness - 1, iCityHappiness - 1) * 5);
+					iValuePercent = max(10, 65 + min(cache.iGlobalHappiness - 1, iCityHappiness - 1) * 5);
 				}
 				else
 				{
 					// we're happy
-					iValuePercent = min(100, 90 + min(iGlobalHappiness, iCityHappiness) * 2);
+					iValuePercent = min(100, 90 + min(cache.iGlobalHappiness, iCityHappiness) * 2);
 				}
 			}
 		}
@@ -1634,6 +1630,9 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	gCachedNumbers.update(m_pCity);
 	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), gCachedNumbers);
 
+	vector<CvPlot*> justAddedPlot; //avoid touching a plot multiple times, should not happen but it does
+	vector<BuildingTypes> justAddedBuildings;
+
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation() / 2)
 	{
@@ -1646,6 +1645,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		//where do we have potential for improvement?
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
+
+		//check whether we are turning in circles ...
+		if (std::find(justAddedPlot.begin(), justAddedPlot.end(), pWorstWorkedPlot) != justAddedPlot.end())
+			pWorstWorkedPlot = NULL;
+		if (std::find(justAddedBuildings.begin(), justAddedBuildings.end(), eWorstSpecialistBuilding) != justAddedBuildings.end())
+			eWorstSpecialistBuilding = NO_BUILDING;
 
 		bool bReleaseLaborer = (GetNumDefaultSpecialists() > GetNumForcedDefaultSpecialists()) && (iWorstSpecialistValue > iLaborerValue);
 		if (bReleaseLaborer)
@@ -1720,19 +1725,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				pBestFreePlot->setOwningCityOverride(m_pCity);
 
 			SetWorkingPlot(pBestFreePlot, true, CvCity::YIELD_UPDATE_GLOBAL);
-
-			//new plot is same as old plot, we're done
-			if (pBestFreePlot == pWorstWorkedPlot)
-			{
-				if (pLog)
-				{
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-					CvString strOutBuf;
-					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
-					pLog->Msg(strOutBuf);
-				}
-				break;
-			}
+			justAddedPlot.push_back(pBestFreePlot);
 
 			if (pLog)
 			{
@@ -1758,6 +1751,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eBestSpecialistBuilding);
 
 				if (pLog)
 				{
@@ -1781,13 +1775,18 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//add the citizen back to the original plot
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedPlot.push_back(pWorstWorkedPlot);
 				break;
 			}
 			else if (eWorstSpecialistBuilding != NO_BUILDING)
 			{
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eWorstSpecialistBuilding);
 			}
+			else
+				//if nothing else works, create a laborer
+				ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_LOCAL);
 		}
 
 		iCount++;
@@ -3735,6 +3734,8 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 
 void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 {
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+
 	iFamine = pCity->GetUnhappinessFromFamine();
 	iDistress = pCity->GetDistress(false);
 	iPoverty = pCity->GetPoverty(false);
@@ -3743,6 +3744,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	iReligiousUnrest = pCity->GetUnhappinessFromReligiousUnrest();
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
+
+	//this is so expensive, put a marker and it will be updated on demand
+	iGlobalHappiness = INT_MAX;
 
 	if (pCity->IsPuppet())
 	{
@@ -3768,7 +3772,6 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
 			bonusForXTerrain[i][j] = INT_MAX;
 
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	if (kPlayer.isHuman())
 	{
 		bWantArt = false;

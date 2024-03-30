@@ -192,7 +192,6 @@ protected:
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
 	BuildTypes m_eRemoveRouteBuild;
-	int m_iLastUpdatedCityCacheCityID; // Hack to be able to use CvCityCitizen logic to evaluate plot yields
 
 	//some player dependent flags for unique improvements
 	pair<ImprovementTypes,TechTypes> m_aeSaveFeatureForImprovementUntilTech[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)

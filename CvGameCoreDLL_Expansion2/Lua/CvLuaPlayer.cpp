@@ -903,7 +903,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetSpecialistExtraYield);
 
-	Method(FindPathLength);
+	Method(FindTechPathLength);
 
 	Method(GetQueuePosition);
 	Method(ClearResearchQueue);
@@ -10204,12 +10204,10 @@ int CvLuaPlayer::lGetSpecialistExtraYield(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int findPathLength(TechTypes  eTech, bool bCost);
-// If bCost is false, then it returns number of techs that need to be researched to acquire eTech
-// If bCost is true, then it returns the cost of a currently researched tech
-int CvLuaPlayer::lFindPathLength(lua_State* L)
+//int findTechPathLength(TechTypes  eTech);
+int CvLuaPlayer::lFindTechPathLength(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::findPathLength);
+	return BasicLuaMethod(L, &CvPlayerAI::findTechPathLength);
 }
 //------------------------------------------------------------------------------
 //int getQueuePosition( TechTypes  eTech );

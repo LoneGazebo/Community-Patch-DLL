@@ -2666,18 +2666,10 @@ void CvCity::doTurn()
 	{
 		DoResistanceTurn();
 
-		bool bAllowNoProduction = !doCheckProduction();
-#if defined(MOD_BALANCE_CORE)
-		bool bWeGrew = false;
-		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
-		{
-			doGrowth();
-			bWeGrew = true;
-		}
-#endif
+		doGrowth();
+		GetCityCitizens()->DoTurn();
 
-		doProduction(bAllowNoProduction);
+		doProduction(!doCheckProduction());
 		doDecay();
 		doMeltdown();
 
@@ -2741,14 +2733,6 @@ void CvCity::doTurn()
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100SCIENCE);
 			}
 		}
-
-#if defined(MOD_BALANCE_CORE)
-		if (!bWeGrew)
-		{
-			doGrowth();
-		}
-#endif
-		GetCityCitizens()->DoTurn();
 
 		// sending notifications on when routes are connected to the capital
 		if (!isCapital())
@@ -17634,18 +17618,14 @@ int CvCity::foodDifference(bool bJustCheckingStarve) const
 int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	int iDifference = 0;
+	int iDifference = getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100();
 
+	//cannot grow during settler production, but can starve!
+	//excess food will be converted to production via GetFoodProductionTimes100()
 	if (isFoodProduction())
-	{
-		iDifference = std::min(0, GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100()));
-	}
-	else
-	{
-		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
-	}
+		iDifference = std::min(0, iDifference);
 
-	//can starve if at size 1 and nothing stored
+	//cannot starve if at size 1 and nothing stored
 	if (getPopulation() == 1 && getFoodTimes100() == 0)
 	{
 		iDifference = std::max(0, iDifference);
@@ -35682,7 +35662,7 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 bool CvCity::isUnderSiege() const
 {
 	//damage taken decays exponentially so check for >0
-	return m_iDamageTakenLastTurn > 5 || GetCityCitizens()->AnyPlotBlockaded();
+	return m_iDamageTakenLastTurn > 5 && GetCityCitizens()->AnyPlotBlockaded();
 }
 
 int CvCity::getDamageTakenLastTurn() const

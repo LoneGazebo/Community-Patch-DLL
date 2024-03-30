@@ -1133,12 +1133,14 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 			}
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iTargetX, iTargetY);
-				if(pUnit->plot() == pTarget && pUnit->canMove())
+ 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iTargetX, iTargetY, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER|CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+				if (pUnit->plot() == pTarget && pUnit->canMove())
 				{
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, false, false, MISSIONAI_BUILD, pTarget);
 					bResult = true;
 				}
+				else if (pUnit->canMove())
+					MoveCivilianToSafety(pUnit);
 
 				// Delete this unit from those we have to move
 				UnitProcessed(pUnit->GetID());
@@ -1422,11 +1424,11 @@ void CvHomelandAI::ExecutePatrolMoves()
 	//get the most exposed cities and the most threatening neighbor cities
 	vector<SPatrolTarget> vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
-		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
+		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, 3);
 	if (iUnitsSea>0)
-		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
+		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, 3);
 
-	int iUnitMoveRange = m_pPlayer->isMinorCiv() ? 5 : 9; //determines how far a unit can move for a patrol
+	int iUnitMoveRange = m_pPlayer->isMinorCiv() ? 5 : 11; //determines how far a unit can move for a patrol
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,NO_PLAYER,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
@@ -6469,6 +6471,12 @@ vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, b
 
 		CvCity* pWorstNeighborCity = NULL;
 		int iBorderScore = pZone->GetBorderScore(eDomain,&pWorstNeighborCity);
+
+		if (GET_PLAYER(ePlayer).GetMilitaryAI()->IsPossibleMusterCity(pZoneCity, bWater ? ARMY_TYPE_NAVAL : ARMY_TYPE_LAND))
+			iBorderScore *= 3;
+
+		if (GET_PLAYER(ePlayer).GetMilitaryAI()->IsExposedToEnemy(pZoneCity, NO_PLAYER, bWater ? ARMY_TYPE_NAVAL : ARMY_TYPE_LAND))
+			iBorderScore *= 3;
 
 		if (iBorderScore>0)
 			vTargets.push_back( SPatrolTarget(pZoneCity->plot(), pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL, iBorderScore) );

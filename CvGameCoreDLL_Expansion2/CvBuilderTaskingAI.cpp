@@ -41,7 +41,6 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 	m_eFalloutFeature = GetFalloutFeature();
 	m_eFalloutRemove = GetFalloutRemove();
 	m_eRemoveRouteBuild = GetRemoveRoute();
-	m_iLastUpdatedCityCacheCityID = -1;
 
 	m_bLogging = GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging();
 
@@ -117,7 +116,6 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_eRepairBuild = NO_BUILD;
 	m_eFalloutFeature = NO_FEATURE;
 	m_eFalloutRemove = NO_BUILD;
-	m_iLastUpdatedCityCacheCityID = -1;
 
 	for (int i = 0; i < NUM_FEATURE_TYPES; i++)
 		m_aeSaveFeatureForImprovementUntilTech[i] = make_pair(NO_IMPROVEMENT, NO_TECH);
@@ -365,24 +363,13 @@ static int GetYieldBaseModifierTimes100(YieldTypes eYield)
 int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield)
 {
 	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
-
-	if (pOwningCity && pOwningCity->GetID() != m_iLastUpdatedCityCacheCityID)
-	{
-		pOwningCity->GetCityCitizens()->UpdateCache();
-		m_iLastUpdatedCityCacheCityID = pOwningCity->GetID();
-	}
-
-	int iCityCitizenRatio = 1;
-	int iBaseRatio = 3;
-
 	int iBaseModifier = GetYieldBaseModifierTimes100(eYield);
 
 	if (!pOwningCity)
 		return iBaseModifier;
 
-	int iCityCitizensModifier = pOwningCity->GetCityCitizens()->GetYieldModifierTimes100(eYield);
-
-	return (iCityCitizenRatio * iCityCitizensModifier + iBaseRatio * iBaseModifier) / (iCityCitizenRatio + iBaseRatio);
+	YieldTypes eDeficientYield = pOwningCity->GetCityStrategyAI()->GetMostDeficientYield();
+	return iBaseModifier + (eDeficientYield == eYield) ? iBaseModifier / 2 : 0;
 }
 
 void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)

@@ -8555,7 +8555,8 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		}
 		if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
 		{
-			iScore = (min(15, pCity->GetCityCitizens()->GetTotalSpecialistCount()) + 3 * min(15, GET_PLAYER(ePlayer).getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount())) / 2;
+			int iCapSpecialists = GET_PLAYER(ePlayer).getCapitalCity() ? GET_PLAYER(ePlayer).getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount() : 0;
+			iScore = (min(15, pCity->GetCityCitizens()->GetTotalSpecialistCount()) + 3 * min(15, iCapSpecialists)) / 2;
 			if (pDiplomacyAI->IsGoingForCultureVictory())
 			{
 				iScore += 15;

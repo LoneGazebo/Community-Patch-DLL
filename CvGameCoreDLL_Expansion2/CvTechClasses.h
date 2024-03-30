@@ -362,6 +362,10 @@ public:
 	int GetResearchLeft(TechTypes eTech) const;
 	CvTechXMLEntries* GetTechs() const;
 
+	set<TechTypes> GetTechsToResearchFor(TechTypes eTech, int iMaxSearchDepth) const;
+	bool HasPrereqTechs(TechTypes eTech, const vector<TechTypes>& extraTech) const;
+	vector<TechTypes> GetTechFrontier() const;
+
 #if defined(MOD_CIV6_EUREKA)
 	int GetEurekaCounter(TechTypes eTech) const;
 	int GetEurekaDiscount(TechTypes eTech) const;
