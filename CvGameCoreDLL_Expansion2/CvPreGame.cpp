@@ -2937,28 +2937,25 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 			continue;
 
 		vAvailable.push_back(eAvailability);
-		if (MOD_BALANCE_CITY_STATE_TRAITS)
+		switch (eTrait)
 		{
-			switch (eTrait)
-			{
-			case MINOR_CIV_TRAIT_CULTURED:
-				vCultured.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MILITARISTIC:
-				vMilitaristic.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MARITIME:
-				vMaritime.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_MERCANTILE:
-				vMercantile.push_back(eAvailability);
-				break;
-			case MINOR_CIV_TRAIT_RELIGIOUS:
-				vReligious.push_back(eAvailability);
-				break;
-			default:
-				UNREACHABLE();
-			}
+		case MINOR_CIV_TRAIT_CULTURED:
+			vCultured.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MILITARISTIC:
+			vMilitaristic.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MARITIME:
+			vMaritime.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_MERCANTILE:
+			vMercantile.push_back(eAvailability);
+			break;
+		case MINOR_CIV_TRAIT_RELIGIOUS:
+			vReligious.push_back(eAvailability);
+			break;
+		default:
+			UNREACHABLE();
 		}
 	}
 	return vAvailable;

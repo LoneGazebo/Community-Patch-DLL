@@ -307,6 +307,7 @@ public:
 
 	// Functions invoked each player turn
 	void DoTurn(void);
+	void LogSpyStatus();
 
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
@@ -542,14 +543,6 @@ typedef vector<CvCity*> EspionageCityList;
 class CvEspionageAI
 {
 public:
-	// check to see if the countdown clock is started
-	enum CLOSED_ENUM {
-		PLAN_DEFEND_CS_FOR_WIN,
-		PLAN_ATTACK_CS_TO_PREVENT_DEFEAT,
-		PLAN_COLLECT_VOTES,
-		PLAN_PLAY_NORMAL
-	};
-
 	CvEspionageAI(void);
 	~CvEspionageAI(void);
 	void Init(CvPlayer* pPlayer);
@@ -559,18 +552,17 @@ public:
 	void DoTurn(void);
 	void StealTechnology(void);
 	void UpdateCivOutOfTechTurn(void);
+	int GetPlayerModifier(PlayerTypes eTargetPlayer, bool bOnlyDiplo);
 	void AttemptCoups(void);
 	void PerformSpyMissions(void);
 
-	int GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission, int iSpyIndex = -1);
-	CityEventChoiceTypes GetBestMissionInCity(CvCity* pCity, int& iScore, std::vector<int> aMissionList, int iSpyIndex = -1);
+	int GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission, int iSpyIndex = -1, bool bLogAllChoices = false);
+	CityEventChoiceTypes GetBestMissionInCity(CvCity* pCity, int& iScore, std::vector<int> aMissionList, int iSpyIndex = -1, bool bLogAllChoices = false);
 
-	std::vector<ScoreCityEntry> BuildDiplomatCityList();
-	std::vector<ScoreCityEntry> BuildOffenseCityList();
-	std::vector<ScoreCityEntry> BuildDefenseCityList();
-	std::vector<ScoreCityEntry> BuildMinorCityList();
-
-	int GetCityStatePlan(PlayerTypes* peDiploThreat = NULL);
+	std::vector<ScoreCityEntry> BuildDiplomatCityList(bool bLogAllChoices = false);
+	std::vector<ScoreCityEntry> BuildOffenseCityList(bool bLogAllChoices = false);
+	std::vector<ScoreCityEntry> BuildDefenseCityList(bool bLogAllChoices = false);
+	std::vector<ScoreCityEntry> BuildMinorCityList(bool bLogAllChoices = false);
 
 	void EvaluateSpiesAssignedToTargetPlayer(PlayerTypes ePlayer);
 	void EvaluateUnassignedSpies(void);

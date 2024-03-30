@@ -5444,7 +5444,6 @@ void CvGame::DoUpdateDiploVictory()
 				{
 					if (pPlayer->isAlive())
 					{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						{
 							fCityStatesToCount += 1.34f;
@@ -5453,13 +5452,9 @@ void CvGame::DoUpdateDiploVictory()
 						{
 							fCityStatesToCount += 1.0f;
 						}
-#else
-						fCityStatesToCount += 1.0f;
-#endif
 					}
 					else
 					{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 						{
 							fCityStatesToCount += 0.75f;
@@ -5468,9 +5463,6 @@ void CvGame::DoUpdateDiploVictory()
 						{
 							fCityStatesToCount += 0.5f;
 						}
-#else
-						fCityStatesToCount += 0.5f;
-#endif
 					}
 				}
 			}
@@ -5479,7 +5471,6 @@ void CvGame::DoUpdateDiploVictory()
 			{
 				if (pPlayer->isAlive())
 				{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
 						fCivsToCount += 1.5f;
@@ -5488,11 +5479,9 @@ void CvGame::DoUpdateDiploVictory()
 					{
 						fCivsToCount += 1.0f;
 					}
-#endif
 				}
 				else
 				{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
 						fCivsToCount += 0.75f;
@@ -5501,9 +5490,6 @@ void CvGame::DoUpdateDiploVictory()
 					{
 						fCivsToCount += 0.5f;
 					}
-#else
-					fCivsToCount += 0.5f;
-#endif
 				}
 			}
 		}
