@@ -2715,7 +2715,7 @@ set<TechTypes> CvTeamTechs::GetTechsToResearchFor(TechTypes eTech, int iMaxSearc
 		{
 			set<TechTypes> prevGen = GetTechsToResearchFor(ePreReq, iMaxSearchDepth-1);
 			if (i == 0 || prevGen.size() < currentBest.size())
-				currentBest == prevGen;
+				currentBest = prevGen;
 		}
 	}
 	//store only the easiest option
