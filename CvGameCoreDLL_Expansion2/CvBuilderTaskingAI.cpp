@@ -369,7 +369,7 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 		return iBaseModifier;
 
 	YieldTypes eDeficientYield = pOwningCity->GetCityStrategyAI()->GetMostDeficientYield();
-	return iBaseModifier + (eDeficientYield == eYield) ? iBaseModifier / 2 : 0;
+	return iBaseModifier + ((eDeficientYield == eYield) ? iBaseModifier / 2 : 0);
 }
 
 void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
