@@ -3765,7 +3765,7 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes
 				if (pAdjacentPlot->isImpassable(GET_PLAYER(ePlotOwner).getTeam()))
 					continue;
 
-				if (adjacentPlayers.find(ePlotOwner) == adjacentPlayers.end())
+					// Directly insert ePlotOwner without checking if it already exists
 					adjacentPlayers.insert(ePlotOwner);
 			}
 		}

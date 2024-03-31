@@ -1625,8 +1625,10 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 			// Two routes going through the same plot, but with different destinations don't have additive value properties
 			plotValues[pPlot] = make_pair(max(newValues.first, oldValues.first), max(newValues.second, oldValues.second));
 			if (plotCosts.find(pPlot) == plotCosts.end())
-				plotCosts[pPlot] = INT_MAX;
-			plotCosts[pPlot] = min(plotCosts[pPlot], iNegativeModifier);
+				// Directly insert the value with INT_MAX if the plot doesn't exist in plotCosts
+				plotCosts.insert(std::make_pair(pPlot, INT_MAX));
+			// Update the cost if the negative modifier is lower than the existing cost
+			plotCosts[pPlot] = std::min(plotCosts[pPlot], iNegativeModifier);
 		}
 	}
 
