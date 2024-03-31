@@ -144,7 +144,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if (controls.CityBannerBGRightHL ~= nil) then
 			controls.CityBannerBGRightHL:SetColor( backgroundColor );
 		end
-		if (controls.CityBannerRightBackground ~= nill) then
+		if (controls.CityBannerRightBackground ~= nil) then
 			controls.CityBannerRightBackground:SetColor( backgroundColor );
 		end
 		if (controls.CityBannerLeftBackground ~= nil) then
