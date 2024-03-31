@@ -351,7 +351,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if(controls.CityGrowth) then
 			local cityGrowth = city:GetFoodTurnsLeft();
 			
-			if (city:IsFoodProduction() or city:FoodDifferenceTimes100() == 0) then
+			if (city:FoodDifferenceTimes100() == 0) then
 				cityGrowth = "-";
 				controls.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
 			elseif city:FoodDifferenceTimes100() < 0 then

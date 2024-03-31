@@ -2666,8 +2666,13 @@ void CvCity::doTurn()
 	{
 		DoResistanceTurn();
 
-		doGrowth();
-		GetCityCitizens()->DoTurn();
+		bool bWeGrew = false;
+		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
+		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
+		{
+			doGrowth();
+			bWeGrew = true;
+		}
 
 		doProduction(!doCheckProduction());
 		doDecay();
@@ -2733,6 +2738,12 @@ void CvCity::doTurn()
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100SCIENCE);
 			}
 		}
+
+		if (!bWeGrew)
+		{
+			doGrowth();
+		}
+		GetCityCitizens()->DoTurn();
 
 		// sending notifications on when routes are connected to the capital
 		if (!isCapital())
@@ -5954,13 +5965,22 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	//Let's narrow down all events here!
 	if (GetEventChoiceDuration(eChosenEventChoice) > 0)
 	{
-		localizedDurationText = pkEventInfo->isEspionageMission() ? Localization::Lookup("TXT_KEY_ESPIONAGE_EVENT_ACTIVE") : Localization::Lookup("TXT_KEY_EVENT_ACTIVE");
+		if(pkEventInfo->isEspionageMission())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_EVENT_ACTIVE");
+			localizedDurationText << GetEventChoiceDuration(eChosenEventChoice);
+		}
+		else
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ACTIVE");
+		}
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
 	if (pkEventInfo->getMutuallyExclusiveGroup() != 0)
 	{
 		bool bFoundEvent = false;
+		int iBlockedDuration = 0;
 		// check for all other event choices of the same group if they are active
 		for (int iLoopEventChoice = 0; iLoopEventChoice < GC.getNumCityEventChoiceInfos(); iLoopEventChoice++)
 		{
@@ -5977,13 +5997,22 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				if (GetEventChoiceDuration(eLoopEventChoice) > 0)
 				{
 					bFoundEvent = true;
+					iBlockedDuration = GetEventChoiceDuration(eLoopEventChoice);
 					break;
 				}
 			}
 		}
 		if (bFoundEvent)
 		{
-			localizedDurationText = pkEventInfo->isEspionageMission() ? Localization::Lookup("TXT_KEY_ESPIONAGE_EVENT_ACTIVE_RELATED") : Localization::Lookup("TXT_KEY_EVENT_ACTIVE_RELATED");
+			if (pkEventInfo->isEspionageMission())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_EVENT_ACTIVE_RELATED");
+				localizedDurationText << iBlockedDuration;
+			}
+			else
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ACTIVE_RELATED");
+			}
 			DisabledTT += localizedDurationText.toUTF8();
 		}
 	}

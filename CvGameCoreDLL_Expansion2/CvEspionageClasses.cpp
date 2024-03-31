@@ -9476,7 +9476,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			{
 				strCityStatePlan = " (Defend Votes)";
 			}
-			else if (eCurrentDiploThreat == NO_PLAYER && eAlly == eCurrentDiploThreat)
+			else if (eCurrentDiploThreat != NO_PLAYER && eAlly == eCurrentDiploThreat)
 			{
 				strCityStatePlan = " (Attack CS to prevent defeat)";
 			}

@@ -2686,7 +2686,7 @@ local function UpdateCityViewNow()
 
 		local cityGrowth = city:GetFoodTurnsLeft()
 		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
-		if city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
+		if foodPerTurnTimes100 == 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
 		elseif foodPerTurnTimes100 < 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STARVATION_TEXT" )
