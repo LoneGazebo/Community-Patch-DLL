@@ -771,11 +771,11 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.Barathor: All region weights below have been updated.
 	-- MOD.Barathor: Start
 	self.luxury_region_weights[1] = { -- Tundra
-		{self.fur_ID,		50},
-		{self.silver_ID,	40},
-		{self.salt_ID,		40},
-		{self.amber_ID,		10},
-		{self.copper_ID,	10},
+		{self.fur_ID,		60},
+		{self.amber_ID,		35},
+		{self.silver_ID,	30},
+		{self.copper_ID,	20},
+		{self.salt_ID,		15},
 		{self.gems_ID,		10},
 		{self.jade_ID,		10},
 		{self.lapis_ID,		10},
@@ -797,11 +797,11 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	self.luxury_region_weights[10] = self.luxury_region_weights[1];
 
 	self.luxury_region_weights[2] = { -- Jungle
-		{self.citrus_ID,	40},
-		{self.cocoa_ID,		40},
-		{self.spices_ID,	40},
-		{self.sugar_ID,		50},
-		{self.truffles_ID,	40},
+		{self.citrus_ID,	35},
+		{self.cocoa_ID,		35},
+		{self.spices_ID,	35},
+		{self.sugar_ID,		35},
+		{self.truffles_ID,	15},
 		{self.silk_ID,		10},
 		{self.dye_ID,		10},
 		{self.gems_ID,		10},
@@ -813,42 +813,42 @@ function AssignStartingPlots:__InitLuxuryWeights()
 
 	-- MOD.HungryForFood: Start
 	if self:IsEvenMoreResourcesActive() then
-		table.insert(self.luxury_region_weights[2], {self.obsidian_ID,	40});
-		table.insert(self.luxury_region_weights[2], {self.poppy_ID,		40});
+		table.insert(self.luxury_region_weights[2], {self.obsidian_ID,	35});
+		table.insert(self.luxury_region_weights[2], {self.poppy_ID,		35});
 		table.insert(self.luxury_region_weights[2], {self.platinum_ID,	10});
 		table.insert(self.luxury_region_weights[2], {self.tin_ID,		10});
 	end
 	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[3] = { -- Forest
-		{self.silk_ID,		40},
-		{self.dye_ID,		40},
-		{self.truffles_ID,	10},
-		{self.citrus_ID,	10},
-		{self.cocoa_ID,		10},
-		{self.spices_ID,	10},
-		{self.whale_ID,		10},
-		{self.crab_ID,		10},
-		{self.pearls_ID,	10},
-		{self.coral_ID,		10},
+		{self.truffles_ID,	40},
+		{self.silk_ID,		35},
+		{self.dye_ID,		35},
+		{self.citrus_ID,	15},
+		{self.cocoa_ID,		15},
+		{self.spices_ID,	15},
+		{self.whale_ID,		8},
+		{self.crab_ID,		8},
+		{self.pearls_ID,	8},
+		{self.coral_ID,		8},
 	};
 
 	-- MOD.HungryForFood: Start
 	if self:IsEvenMoreResourcesActive() then
-		table.insert(self.luxury_region_weights[3], {self.lavender_ID,	10});
+		table.insert(self.luxury_region_weights[3], {self.lavender_ID,	15});
 	end
 	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[4] = { -- Desert
-		{self.incense_ID,	40},
-		{self.salt_ID,		40},
-		{self.gold_ID,		40},
-		{self.lapis_ID,		40},
+		{self.incense_ID,	35},
+		{self.lapis_ID,		35},
+		{self.gold_ID,		20},
 		{self.silver_ID,	20},
+		{self.salt_ID,		15},
+		{self.jade_ID,		15},
 		{self.copper_ID,	10},
 		{self.amber_ID,		10},
 		{self.gems_ID,		10},
-		{self.jade_ID,		10},
 		{self.sugar_ID,		10},
 		{self.cotton_ID,	10},
 		{self.whale_ID,		10},
@@ -866,25 +866,25 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[5] = { -- Hills
-		{self.gold_ID,		30},
-		{self.copper_ID,	30},
-		{self.gems_ID,		30},
-		{self.salt_ID,		30},
-		{self.jade_ID,		30},
-		{self.amber_ID,		30},
-		{self.lapis_ID,		30},
-		{self.whale_ID,		10},
-		{self.crab_ID,		10},
-		{self.pearls_ID,	10},
-		{self.coral_ID,		10},
+		{self.gold_ID,		20},
+		{self.copper_ID,	20},
+		{self.gems_ID,		20},
+		{self.jade_ID,		20},
+		{self.salt_ID,		10},
+		{self.amber_ID,		10},
+		{self.lapis_ID,		10},
+		{self.whale_ID,		6},
+		{self.crab_ID,		6},
+		{self.pearls_ID,	6},
+		{self.coral_ID,		6},
 	};
 
 	-- MOD.HungryForFood: Start
 	if self:IsEvenMoreResourcesActive() then
-		table.insert(self.luxury_region_weights[5], {self.obsidian_ID,	30});
-		table.insert(self.luxury_region_weights[5], {self.poppy_ID,		30});
-		table.insert(self.luxury_region_weights[5], {self.platinum_ID,	30});
-		table.insert(self.luxury_region_weights[5], {self.tin_ID,		30});
+		table.insert(self.luxury_region_weights[5], {self.obsidian_ID,	20});
+		table.insert(self.luxury_region_weights[5], {self.poppy_ID,		20});
+		table.insert(self.luxury_region_weights[5], {self.platinum_ID,	20});
+		table.insert(self.luxury_region_weights[5], {self.tin_ID,		20});
 	end
 	-- MOD.HungryForFood: End
 
@@ -892,18 +892,19 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	self.luxury_region_weights[9] = self.luxury_region_weights[5];
 
 	self.luxury_region_weights[6] = { -- Plains
-		{self.incense_ID,	40},
 		{self.wine_ID,		40},
 		{self.olives_ID,	40},
 		{self.coffee_ID,	40},
-		{self.tobacco_ID,	10},
-		{self.tea_ID,		10},
-		{self.perfume_ID,	10},
-		{self.cotton_ID,	10},
-		{self.whale_ID,		10},
-		{self.crab_ID,		10},
-		{self.pearls_ID,	10},
-		{self.coral_ID,		10},
+		{self.incense_ID,	20},
+		{self.cotton_ID,	20},
+		{self.salt_ID,		15},
+		{self.tobacco_ID,	15},
+		{self.tea_ID,		15},
+		{self.perfume_ID,	15},
+		{self.whale_ID,		11},
+		{self.crab_ID,		11},
+		{self.pearls_ID,	11},
+		{self.coral_ID,		11},
 	};
 
 	-- MOD.HungryForFood: Start
@@ -914,24 +915,25 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[7] = { -- Grass
-		{self.tobacco_ID,	40},
-		{self.tea_ID,		40},
-		{self.perfume_ID,	40},
-		{self.cotton_ID,	40},
-		{self.wine_ID,		10},
-		{self.olives_ID,	10},
-		{self.coffee_ID,	10},
+		{self.tobacco_ID,	50},
+		{self.tea_ID,		50},
+		{self.perfume_ID,	50},
+		{self.cotton_ID,	35},
+		{self.wine_ID,		20},
+		{self.olives_ID,	20},
+		{self.coffee_ID,	20},
 		{self.sugar_ID,		10},
-		{self.whale_ID,		10},
-		{self.crab_ID,		10},
-		{self.pearls_ID,	10},
-		{self.coral_ID,		10},
+		{self.gold_ID,		10},
+		{self.whale_ID,		14},
+		{self.crab_ID,		14},
+		{self.pearls_ID,	14},
+		{self.coral_ID,		14},
 	};
 
 	-- MOD.HungryForFood: Start
 	if self:IsEvenMoreResourcesActive() then
-		table.insert(self.luxury_region_weights[7], {self.lavender_ID,	40});
-		table.insert(self.luxury_region_weights[7], {self.poppy_ID,		40});
+		table.insert(self.luxury_region_weights[7], {self.lavender_ID,	50});
+		table.insert(self.luxury_region_weights[7], {self.poppy_ID,		50});
 	end
 	-- MOD.HungryForFood: End
 
