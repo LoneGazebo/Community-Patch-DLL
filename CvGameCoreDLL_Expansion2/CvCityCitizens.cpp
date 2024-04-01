@@ -813,14 +813,12 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, SPrecomputedExpensiveNumbers& cache, bool bLogging)
 {
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
 
-	gCachedNumbers.update(m_pCity);
-
-	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST),gCachedNumbers);
+	int iBestSpecialistValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), cache);
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	CvBuildingEntry* pBestBuildingInfo = NULL;
 
@@ -849,7 +847,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 						iValue = specialistValueCache[eSpecialist];
 					else
 					{
-						iValue = GetSpecialistValue(eSpecialist, gCachedNumbers);
+						iValue = GetSpecialistValue(eSpecialist, cache);
 						specialistValueCache[eSpecialist] = iValue;
 					}
 
@@ -888,12 +886,10 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, SPrecomputedExpensiveNumbers& cache, bool bWantBest)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = bWantBest ? -INT_MAX : INT_MAX;
-
-	gCachedNumbers.update(m_pCity);
 
 	//many buildings have the same specialist yields ...
 	vector<int> checked(GC.getNumSpecialistInfos(),0);
@@ -909,7 +905,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 			if (checked[eSpecialist]>0)
 				continue;
 
-			int iValue = GetSpecialistValue(eSpecialist,gCachedNumbers);
+			int iValue = GetSpecialistValue(eSpecialist, cache);
 			checked[eSpecialist] = iValue;
 
 			if (bWantBest && iValue > iBestSpecialistValue)
@@ -1288,8 +1284,11 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	if (GetNumUnassignedCitizens() == 0)
 		return false;
 
+	//inside a loop, don't drop the global happiness!
+	gCachedNumbers.update(m_pCity, updateMode==CvCity::YIELD_UPDATE_LOCAL);
+
 	int iBestPlotValue = -1;
-	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, bLogging);
+	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers, bLogging);
 
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
 	int iNetFoodIfSpecialistWorked = iNetFood100 - m_pCity->foodConsumptionSpecialistTimes100() + m_pCity->foodConsumptionNonSpecialistTimes100();
@@ -1307,8 +1306,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 
 	if (bCanAffordSpecialist && !bSpecialistForbidden)
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, bLogging);
-
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, gCachedNumbers, bLogging);
 
 	if (iBestPlotValue > iSpecialistValue)
 	{
@@ -1384,8 +1382,9 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 	}
 
 	// No Default Specialists, remove a working Pop, if there is one
+	gCachedNumbers.update(m_pCity);
 	int iWorstPlotValue = 0;
-	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, bRemoveForcedStatus ? eWORST_WORKED_ANY : eWORST_WORKED_UNFORCED);
+	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, bRemoveForcedStatus ? eWORST_WORKED_ANY : eWORST_WORKED_UNFORCED, gCachedNumbers);
 
 	if (pWorstPlot != NULL)
 	{
@@ -1415,14 +1414,13 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 }
 
 /// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
-CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelectionMode eMode, bool bLogging)
+CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelectionMode eMode, SPrecomputedExpensiveNumbers& cache, bool bLogging)
 {
 	int iBestPlotValue = (eMode<eWORST_WORKED_UNFORCED) ? -INT_MAX : INT_MAX;
 	bool bBestPlotIsForcedWork = false;
 	CvPlot* pBestPlot = NULL;
 
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-	gCachedNumbers.update(m_pCity);
 
 	// Look at all workable Plots
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
@@ -1441,7 +1439,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 		case eBEST_UNWORKED_NO_OVERRIDE:
 			if (IsCanWork(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
-				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				iValue = GetPlotValue(pLoopPlot, cache);
 
 				//if it's forced, don't even look at the value
 				if (IsForcedWorkingPlot(iPlotLoop))
@@ -1460,7 +1458,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 		case eBEST_UNWORKED_ALLOW_OVERRIDE:
 			if (IsCanWorkWithOverride(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
-				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				iValue = GetPlotValue(pLoopPlot, cache);
 
 				//if it's forced, don't even look at the value
 				if (IsForcedWorkingPlot(iPlotLoop))
@@ -1479,7 +1477,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 		case eWORST_WORKED_UNFORCED:
 			if (IsWorkingPlot(iPlotLoop) && !IsForcedWorkingPlot(iPlotLoop))
 			{
-				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				iValue = GetPlotValue(pLoopPlot, cache);
 				if ( pBestPlot==NULL || iValue < iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
@@ -1491,7 +1489,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 		case eWORST_WORKED_FORCED:
 			if (IsWorkingPlot(iPlotLoop) && IsForcedWorkingPlot(iPlotLoop))
 			{
-				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				iValue = GetPlotValue(pLoopPlot, cache);
 				if ( pBestPlot==NULL || iValue < iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
@@ -1508,7 +1506,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 				// Select forced working plots but prioritize unforced working plots.
 				const bool bDisallowedByUnforcedPriority = !bBestPlotIsForcedWork && bIsForcedWork;
 				const bool bSupersedesByUnforcedPriority = bBestPlotIsForcedWork && !bIsForcedWork;
-				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+				iValue = GetPlotValue(pLoopPlot, cache);
 				if ((pBestPlot == NULL || bSupersedesByUnforcedPriority) || (!bDisallowedByUnforcedPriority && iValue < iBestPlotValue))
 				{
 					iBestPlotValue = iValue;
@@ -1524,7 +1522,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			CvString strOutBuf;
 			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d with forced work status %d. current net food %d", 
 				iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
-				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, int(bBestPlotIsForcedWork), gCachedNumbers.iExcessFoodTimes100);
+				pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue, int(bBestPlotIsForcedWork), cache.iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
 		}
 	}
@@ -1600,9 +1598,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		int iBestFreePlotValue = 0;
 		int iBestSpecialistValue = 0;
 
+		//inside a loop, don't drop the global happiness!
+		gCachedNumbers.update(m_pCity, true);
+
 		//where do we have potential for improvement?
-		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
-		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
+		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED, gCachedNumbers);
+		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, gCachedNumbers, false);
 
 		//check whether we are turning in circles ...
 		if (std::find(justAddedPlot.begin(), justAddedPlot.end(), pWorstWorkedPlot) != justAddedPlot.end())
@@ -1654,7 +1655,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			break;
 
 		//consider alternatives (no automatic plot overrides for humans!)
-		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, bIsHuman ? eBEST_UNWORKED_NO_OVERRIDE : eBEST_UNWORKED_ALLOW_OVERRIDE);
+		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, bIsHuman ? eBEST_UNWORKED_NO_OVERRIDE : eBEST_UNWORKED_ALLOW_OVERRIDE, gCachedNumbers);
 		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 
 		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
@@ -1669,7 +1670,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bCanAffordSpecialist = iNetFoodIfSpecialistWorked >= min(GetExcessFoodThreshold100(), iNetFoodIfBestTileWorked);
 
 		if (bCanAffordSpecialist && !bSpecialistForbidden)
-			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iBestSpecialistValue);
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iBestSpecialistValue,gCachedNumbers);
 
 		//can a laborer be better than a specialist?
 		if (iBestSpecialistValue < iLaborerValue)
@@ -1770,11 +1771,13 @@ bool CvCityCitizens::NeedReworkCitizens()
 		return true;
 	}
 
+	gCachedNumbers.update(m_pCity);
+
 	int iWorstWorkedPlotValue = 0;
-	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
+	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED, gCachedNumbers);
 
 	int iBestUnworkedPlotValue = 0;
-	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, eBEST_UNWORKED_NO_OVERRIDE);
+	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers);
 
 	//First let's look at plots - if there is a better plot not being worked, we need to reallocate.
 	if (pWorstWorkedPlot != NULL && pBestUnworkedPlot != NULL)
@@ -1790,7 +1793,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue,gCachedNumbers);
 	}
 
 	if (iSpecialistValue > iWorstWorkedPlotValue)
@@ -1803,7 +1806,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue,true);
+		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue,gCachedNumbers,true);
 	}
 
 	//check if new specialist is better than existing specialist
@@ -3315,7 +3318,7 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 {
 }
 
-void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
+void SPrecomputedExpensiveNumbers::update(CvCity * pCity, bool bKeepGlobalHappiness)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
@@ -3329,7 +3332,8 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	//this is so expensive, put a marker and it will be updated on demand
-	iGlobalHappiness = INT_MAX;
+	if (!bKeepGlobalHappiness)
+		iGlobalHappiness = INT_MAX;
 
 	if (pCity->IsPuppet())
 	{
