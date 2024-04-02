@@ -7232,14 +7232,15 @@ bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderI
 }
 
 //note that the score returned from this function is not multiplied by 10 yet
-void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, CAttackCache& cache, STacticalAssignment& result)
+bool ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, CAttackCache& cache, STacticalAssignment& result)
 {
 	if (eAggLvl == AL_NONE)
 	{
 		result.iScore = -INT_MAX;
-		return;
+		return false;
 	}
 
+	bool bIsKill = false;
 	int iDamageDealt = 0;
 	int iDamageReceived = 0; //always zero for ranged attack
 	int iExtraScore = 0; //splash damage and other bonuses
@@ -7263,7 +7264,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		if (!pEnemy)
 		{
 			result.iScore = -INT_MAX;
-			return;
+			return false;
 		}
 
 		//first try the cache
@@ -7300,7 +7301,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			if (fRemainingTurnsOnAttacker < fRemainingTurnsOnCity && !bGoodFirstAttack)
 			{
 				result.iScore = -INT_MAX;
-				return;
+				return false;
 			}
 		}
 
@@ -7325,7 +7326,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		if (!pEnemy)
 		{
 			result.iScore = -INT_MAX;
-			return;
+			return false;
 		}
 
 		//first use the cache
@@ -7383,6 +7384,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	//better than assuming it's not a kill and having a melee unit end up in a bad place
 	if (iDamageDealt >= iPrevHitPoints - 1)
 	{
+		bIsKill = true;
+
 		//don't hand out points for over-killing (but make an allowance for randomness)
 		iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
 
@@ -7400,15 +7403,11 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			}
 			else
 			{
-				iExtraScore += 600; //capturing a city is important
 				result.eAssignmentType = A_MELEEKILL;
 			}
 		}
 		else //enemy unit killed
 		{
-			//tbd: same bonus for melee kill and range kill? do we have a preference? what about move-after-attack?
-			iExtraScore += 200;
-
 			if (pTestPlot->getNumUnits() > 1 && !pTestPlot->isNeutralUnit(pUnit->getOwner(), false, false))
 				iExtraScore += 20; //even more points for a double kill
 
@@ -7457,7 +7456,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			break;
 		default:
 			result.iScore = -INT_MAX;
-			return;
+			return false;
 		}
 
 		//bias depends on the ratio of friendly to enemy units
@@ -7468,7 +7467,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		if (bVoluntaryCancel || bSuicideCancel)
 		{
 			result.iScore = -INT_MAX;
-			return;
+			return false;
 		}
 	}
 
@@ -7483,6 +7482,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 	result.iSelfDamage = iDamageReceived;
 	result.iDamage = iDamageDealt;
+
+	return bIsKill;
 }
 
 bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
@@ -7631,6 +7632,8 @@ int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& test
 
 			//we don't care for damage here but let's reuse the scoring function
 			STacticalAssignment temp;
+			//note here we don't care whether it's a kill or not - don't want to double dip for the move and the kill
+			//also, if the attack would be next turn, chance is the enemy will flee, so it never happens
 			ScoreAttack(targetPlot, pUnit, testPlot, level, assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
 			iBestAttackScore = max(temp.iScore, iBestAttackScore);
 		}
@@ -8182,9 +8185,12 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	eAggressionLevel level = assumedPosition.getAggressionLevel() == AL_NONE ? AL_LOW : assumedPosition.getAggressionLevel();
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, level, assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
+	bool bIsKill = ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, level, assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
 	if (newAssignment.iScore < 0)
 		return newAssignment;
+
+	//times 10 to match with ScorePlotForCombatUnitOffensive()
+	newAssignment.iScore *= 10;
 
 	//what happens next?
 	if (AttackEndsTurn(unit.pUnit, unit.iAttacksLeft))
@@ -8203,9 +8209,9 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 		newAssignment.iScore += (newAssignment.iRemainingMoves * 2) / GD_INT_GET(MOVE_DENOMINATOR);
 	}
 
-	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
-	//same logic as in ScorePlotForMeleeAttack()
-	newAssignment.iScore = newAssignment.iScore + 8 * 10;;
+	//flat bonus for a kill
+	if (bIsKill)
+		newAssignment.iScore += 1000;
 
 	//a slight boost for attacking the "real" target
 	if ( enemyPlot.getPlotIndex()==assumedPosition.getTarget()->GetPlotIndex() )
@@ -8237,7 +8243,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//check how much damage we could do
-	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), result);
+	bool bIsKill = ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), result);
 	if (result.iScore < 0)
 		return result;
 
@@ -8261,6 +8267,9 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 	}
 
+	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
+	result.iScore = (result.iScore + 8) * 10;
+
 	//strongly discourage melee attack on cities if the real target is something else (capturing is ok)
 	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
 		result.iScore /= 4;
@@ -8273,8 +8282,9 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	if (result.eAssignmentType == A_MELEEKILL && enemyPlot.isEnemyCivilian())
 		result.iScore += 5;
 
-	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
-	result.iScore = (result.iScore + 8) * 10;
+	//flat bonus for a kill
+	if (bIsKill)
+		result.iScore += 1000;
 
 	return result;
 }
