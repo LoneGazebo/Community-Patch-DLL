@@ -3589,7 +3589,10 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) - iDistance * 3;
 
 					if (pCity != NULL)
+					{
+						iValue /= 2; //prefer attacking units ...
 						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false);
+					}
 					else
 						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false);
 
