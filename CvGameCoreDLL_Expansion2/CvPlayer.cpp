@@ -3951,7 +3951,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		vbTraded[iPlayerLoop] = pCity->IsTraded(eLoopPlayer);
 		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
-		viNumTimesOwned[iPlayerLoop] = bOriginally ? 0 : pCity->GetNumTimesOwned(eLoopPlayer);
+		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
 		viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
@@ -4108,8 +4108,25 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		pNewCity->setPreviousOwner(NO_PLAYER);
 		pNewCity->setOriginalOwner(GetID());
 		pNewCity->setNeverLost(true);
-		if (bOriginalCapital)
-			GET_PLAYER(eOldOwner).resetOriginalCapitalXY();
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (eLoopPlayer == m_eID)
+				continue;
+
+			if (GET_PLAYER(eLoopPlayer).GetOriginalCapitalX() == iCityX && GET_PLAYER(eLoopPlayer).GetOriginalCapitalY() == iCityY)
+			{
+				GET_PLAYER(eLoopPlayer).SetHasLostCapital(false, NO_PLAYER);
+				GET_PLAYER(eLoopPlayer).resetOriginalCapitalXY();
+			}
+
+			if (GET_PLAYER(eLoopPlayer).GetLostHolyCityX() == iCityX && GET_PLAYER(eLoopPlayer).GetLostHolyCityY() == iCityY)
+			{
+				GET_PLAYER(eLoopPlayer).SetHasLostHolyCity(false, NO_PLAYER);
+				GET_PLAYER(eLoopPlayer).SetLostHolyCityXY(-1, -1);
+			}
+		}
 	}
 	else
 	{
@@ -4140,8 +4157,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		pNewCity->SetTraded(eLoopPlayer, vbTraded[iPlayerLoop]);
 		pNewCity->setEverLiberated(eLoopPlayer, vbEverLiberated[iPlayerLoop]);
-		pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
 		pNewCity->setEconomicValue(eLoopPlayer, viEconValue[iPlayerLoop]);
+		if (!bOriginally)
+			pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
 		{
@@ -4433,7 +4451,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			else
 			{
 				iBuildingCount += viNumRealBuilding[iI];
-				pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iBuildingCount, false, (PlayerTypes)viBuildingOriginalOwner[iI], viBuildingOriginalTime[iI]);
+				if (bOriginally)
+					pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iBuildingCount, false, m_eID, viBuildingOriginalTime[iI]);
+				else
+					pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iBuildingCount, false, (PlayerTypes)viBuildingOriginalOwner[iI], viBuildingOriginalTime[iI]);
 			}
 		}
 		if (iBuildingCount > 0)

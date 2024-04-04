@@ -15795,10 +15795,6 @@ int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced
 	{
 		bool bBlockLiberation = !bForced && !MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT;
 		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], bForced, true, bBlockLiberation);
-
-		// Reduce the resistance to 0 turns because we bought it fairly
-		if (pNewCity)
-			pNewCity->ChangeResistanceTurns(-pNewCity->GetResistanceTurns());
 	}
 
 	SetDisableNotifications(false);
