@@ -15,7 +15,7 @@
 
 	<UISkin name="BaseGame" set="BaseGame" platform="Common">
 		<Skin>
-		    <Directory>Core</Directory>
+			<Directory>Core</Directory>
 			<Directory>FrontEnd</Directory>
 			<Directory>GameSetup</Directory>
 		</Skin>
