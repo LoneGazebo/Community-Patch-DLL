@@ -1575,15 +1575,16 @@ int CvLuaPlayer::lInitCity(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//void acquireCity(CvCity* pCity, bool bConquest, bool bTrade);
+//void acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally);
 int CvLuaPlayer::lAcquireCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 	const bool bConquest = lua_toboolean(L, 3);
 	const bool bGift = lua_toboolean(L, 4);
+	const bool bOriginally = luaL_optbool(L, 5, false);
 
-	pkPlayer->acquireCity(pkCity, bConquest, bGift);
+	pkPlayer->acquireCity(pkCity, bConquest, bGift, bOriginally);
 	return 0;
 }
 //------------------------------------------------------------------------------

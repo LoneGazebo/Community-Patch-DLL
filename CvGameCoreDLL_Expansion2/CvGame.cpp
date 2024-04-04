@@ -14759,8 +14759,15 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 	// this function has finished executing.
 	kPlayer.setStartingPlot(pPlot);
 	kPlayer.GetMinorCivAI()->DoPickInitialItems();
-	
-	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false, false);
+
+	// The Phoenicia modmod converts founded cities into City-States
+	// Also, if a City-State was replaced with a City-State, this is actually a LUA workaround at game start to replace one City-State with another (since City-States can't have revolts).
+	// In either of these cases, set the city up as if it had never been conquered
+	PlayerTypes eOldOwner = pStartingCity->getOwner();
+	bool bWorkaround = eOldOwner != NO_PLAYER && GET_PLAYER(eOldOwner).isMinorCiv();
+	bool bBlockLiberation = bMajorFoundingCityState || bWorkaround;
+
+	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false, false, bBlockLiberation);
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
 
@@ -14776,24 +14783,14 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 	if (!pNewCity->IsNoOccupiedUnhappiness())
 		pNewCity->ChangeNoOccupiedUnhappinessCount(1);
 
-	// The Phoenicia modmod converts founded cities into City-States
-	// Also, if a City-State was replaced with a City-State, this is actually a LUA workaround at game start to replace one City-State with another (since City-States can't have revolts).
-	// In either of these cases, set the city up as if it had never been conquered
-	bool bWorkaround = false;
-	PlayerTypes ePreviousOwner = pNewCity->getPreviousOwner();
-	if (bMajorFoundingCityState || (ePreviousOwner != NO_PLAYER && GET_PLAYER(ePreviousOwner).isMinorCiv()))
+	if (bBlockLiberation)
 	{
-		pNewCity->setPreviousOwner(NO_PLAYER);
-		pNewCity->setOriginalOwner(eNewPlayer);
-		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
-		pNewCity->setNeverLost(true);
 		GET_PLAYER(eNewPlayer).setOriginalCapitalXY(pNewCity);
 
 		if (!bMajorFoundingCityState)
 		{
-			GET_PLAYER(ePreviousOwner).resetOriginalCapitalXY();
-			GET_PLAYER(ePreviousOwner).setAlive(false, false);
-			bWorkaround = true;
+			GET_PLAYER(eOldOwner).resetOriginalCapitalXY();
+			GET_PLAYER(eOldOwner).setAlive(false, false);
 		}
 	}
 

@@ -4683,7 +4683,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		case TRADE_ITEM_CITIES:
 		{
 			CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
-			GET_PLAYER(eReceivingPlayer).acquireCity(pCity, bIsPeaceDeal, !bIsPeaceDeal);
+			GET_PLAYER(eReceivingPlayer).acquireCity(pCity, bIsPeaceDeal, !bIsPeaceDeal, false);
 			break;
 		}
 

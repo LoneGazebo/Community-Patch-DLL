@@ -15793,7 +15793,8 @@ int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced
 
 	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
 	{
-		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], bForced, true);
+		bool bBlockLiberation = !bForced && !MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT;
+		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], bForced, true, bBlockLiberation);
 
 		// Reduce the resistance to 0 turns because we bought it fairly
 		if (pNewCity)

@@ -3045,7 +3045,8 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 /// This player acquires a city. 
 /// bConquest is true if the city was directly captured by this player's units, and false otherwise.
 /// bGift is true if the city was gifted to the player (can be from a trade or from the Austria/Venice UAs; liberation does NOT count in this)
-CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
+/// bOriginally treats the city as if it was always owned by the acquiring player (can't be liberated later). However, this still counts as killing the old owner if they die.
+CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally)
 {
 	if (!pCity)
 		return NULL;
@@ -3082,6 +3083,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 			bHolyCity = false;
 	}
+
+	// Is this a buyout of a City-State?
+	bool bMinorCivBuyout = !bConquest && bGift && GET_PLAYER(eOldOwner).isMinorCiv();
 
 	// Can we liberate this city for someone if we want to?
 	PlayerTypes ePlayerToLiberate = GetPlayerToLiberate(pCity);
@@ -3285,7 +3289,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 				if (GET_PLAYER(eOldOwner).isMajorCiv())
 				{
-					GET_PLAYER(eOldOwner).SetHasLostCapital(true, GetID());
+					if (!bOriginally)
+						GET_PLAYER(eOldOwner).SetHasLostCapital(true, GetID());
 
 					if (isMajorCiv())
 					{
@@ -3304,7 +3309,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				iLoserProgressValue *= /*150*/ GD_INT_GET(WAR_PROGRESS_HOLY_CITY_MULTIPLIER);
 				iLoserProgressValue /= 100;
 
-				if (!GET_PLAYER(eOldOwner).IsHasLostHolyCity()) // Only the first lost Holy City triggers diplo penalties and the like.
+				if (!GET_PLAYER(eOldOwner).IsHasLostHolyCity() && !bOriginally) // Only the first lost Holy City triggers diplo penalties and the like.
 				{
 					GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, GetID());
 					GET_PLAYER(eOldOwner).SetLostHolyCityXY(iCityX, iCityY);
@@ -3946,7 +3951,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		vbTraded[iPlayerLoop] = pCity->IsTraded(eLoopPlayer);
 		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
-		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
+		viNumTimesOwned[iPlayerLoop] = bOriginally ? 0 : pCity->GetNumTimesOwned(eLoopPlayer);
 		viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
@@ -4092,24 +4097,24 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	verifyAlive();
 
 	iNumCities++;
-	bool bMinorCivBuyout = !bConquest && bGift && GET_PLAYER(eOldOwner).isMinorCiv();
 
 	// Copy over data from the previous city
 	pNewCity->setName(strName);
+	pNewCity->setGameTurnFounded(iGameTurnFounded);
 
-	if (bMinorCivBuyout && !MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
+	// Prevent liberation later on?
+	if (bOriginally)
 	{
-		// Prevent liberation later on.
 		pNewCity->setPreviousOwner(NO_PLAYER);
 		pNewCity->setOriginalOwner(GetID());
-		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
 		pNewCity->setNeverLost(true);
+		if (bOriginalCapital)
+			GET_PLAYER(eOldOwner).resetOriginalCapitalXY();
 	}
 	else
 	{
 		pNewCity->setPreviousOwner(eOldOwner);
 		pNewCity->setOriginalOwner(eOriginalOwner);
-		pNewCity->setGameTurnFounded(iGameTurnFounded);
 		pNewCity->setNeverLost(false);
 	}
 
@@ -4140,7 +4145,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
 		{
-			if (bMinorCivBuyout && !MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
+			if (bOriginally)
 				pNewCity->SetIgnoredForExpansionBickering(eLoopPlayer, true);
 			else
 				pNewCity->SetIgnoredForExpansionBickering(eLoopPlayer, vbIgnoredForExpansionBickering[iPlayerLoop]);
@@ -4790,7 +4795,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), -1);
 			}
 		}
-		// If the city was originally ours, do nothing
+		// If the city was originally ours (or was set as such, if bOriginally is true), do nothing
 		else if (pNewCity->getOriginalOwner() != m_eID)
 		{
 			// Merchant of Venice purchase? Automatically puppeted.
@@ -9729,7 +9734,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 
 	// Give the city back to the liberated player
-	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, false);
+	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, false, false);
 	if (!pNewCity)
 		return;
 
@@ -22609,7 +22614,7 @@ void CvPlayer::DoCityRevolt()
 
 			// get the plot before transferring ownership
 			CvPlot *pPlot = pMostUnhappyCity->plot();
-			kRecipient.acquireCity(pMostUnhappyCity, false, false);
+			kRecipient.acquireCity(pMostUnhappyCity, false, false, false);
 			pMostUnhappyCity = NULL; //no longer valid
 
 			 // Move Units from player that don't belong here

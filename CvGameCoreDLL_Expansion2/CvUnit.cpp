@@ -20992,7 +20992,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 
-					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
+					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false, false); // will delete the pointer
 					pNewCity = NULL;
 
 					//it might happen that we liberate the city right after acquiring it

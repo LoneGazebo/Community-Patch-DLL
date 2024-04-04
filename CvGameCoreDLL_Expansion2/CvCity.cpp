@@ -7912,7 +7912,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 
 	case TASK_GIFT:
-		GET_PLAYER((PlayerTypes)iData1).acquireCity(this, false, true);
+		GET_PLAYER((PlayerTypes)iData1).acquireCity(this, false, true, false);
 		break;
 
 	case TASK_SET_AUTOMATED_CITIZENS:

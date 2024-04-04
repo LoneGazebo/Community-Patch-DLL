@@ -109,7 +109,7 @@ public:
 
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
-	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift);
+	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally);
 	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest);
 	void killCities();
 	CvString getNewCityName() const;
