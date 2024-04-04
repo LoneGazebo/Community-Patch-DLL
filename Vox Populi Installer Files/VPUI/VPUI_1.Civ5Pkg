@@ -15,6 +15,7 @@
 
 	<UISkin name="Expansion1Primary" set="Expansion1" platform="Common">
 		<Skin>
+		    <Directory>Core</Directory>
 			<Directory>FrontEnd</Directory>
 			<Directory>GameSetup</Directory>
 		</Skin>
