@@ -15,5 +15,5 @@ UPDATE LeagueSpecialSessions
 SET
 	BuildingTrigger = 'BUILDING_UN',
 	TriggerResolution = 'RESOLUTION_WORLD_IDEOLOGY',
-	EraTrigger = 'ERA_ANCIENT'
+	EraTrigger = 'ERA_MODERN'
 WHERE Type = 'LEAGUE_SPECIAL_SESSION_START_UNITED_NATIONS';

@@ -15120,7 +15120,8 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		if (!isMajorCiv())
 			return false;
 
-		if (GetPlayerTraits()->IsNoAnnexing())
+		// No settlers for venice, but merchants of venice are allowed
+		if (GetPlayerTraits()->IsNoAnnexing() && pUnitInfo.GetProductionCost() >= 0)
 			return false;
 
 		// One City Challenge

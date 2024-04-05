@@ -6986,9 +6986,10 @@ CvString CvLeague::GetLeagueSplashDescription(LeagueSpecialSessionTypes eGoverni
 	
 	if (!bJustFounded && pInfo != NULL)
 	{
-		EraTypes eEra = pInfo->GetEraTrigger();
-		if (eEra == NO_ERA)
+		//don't show theh era advance text if this session was triggered by a building
+		if (pInfo->GetBuildingTrigger() == NO_BUILDING)
 		{
+			EraTypes eEra = pInfo->GetEraTrigger();
 			CvEraInfo* pEraInfo = GC.getEraInfo(eEra);
 			CvAssert(pEraInfo != NULL);
 			if (pEraInfo != NULL)
@@ -6999,7 +7000,6 @@ CvString CvLeague::GetLeagueSplashDescription(LeagueSpecialSessionTypes eGoverni
 				s += "[NEWLINE][NEWLINE]";
 			}
 		}
-		
 		s += Localization::Lookup(pInfo->GetHelp()).toUTF8();
 	}
 	else
@@ -9230,22 +9230,26 @@ void CvGameLeagues::DoTurn()
 		// Already founded - do we want to trigger a special session, or just a normal turn?
 		else
 		{
+
+			CvLeague* pLeague = GetActiveLeague();
+			CvAssert(pLeague != NULL);
+
 			EraTypes eGameEra = LeagueHelpers::GetGameEraForTrigger();
 			LeagueSpecialSessionTypes eSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
+			LeagueSpecialSessionTypes eLastSpecialSession = pLeague->GetLastSpecialSession();
 			
 			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 			{
+				if ((LeagueSpecialSessionTypes)i == eLastSpecialSession)
+					continue;
+
 				CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo((LeagueSpecialSessionTypes)i);
 				if (pInfo != NULL)
 				{
 					EraTypes eEraTrigger = pInfo->GetEraTrigger();
 					BuildingTypes eBuildingTrigger = pInfo->GetBuildingTrigger();
 
-					// one of these must be provided
-					if (eEraTrigger == NO_ERA && eBuildingTrigger == NO_BUILDING)
-						continue;
-
-					if (eEraTrigger != NO_ERA && eGameEra > GetLastEraTrigger() && eEraTrigger <= eGameEra && eEraTrigger > GetLastEraTrigger())
+					if (eGameEra > GetLastEraTrigger() && eEraTrigger <= eGameEra && eEraTrigger > GetLastEraTrigger())
 					{
 						if (eBuildingTrigger == NO_BUILDING || (eBuildingTrigger != NO_BUILDING && LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger)))
 						{
@@ -9263,8 +9267,6 @@ void CvGameLeagues::DoTurn()
 				}
 			}
 
-			CvLeague* pLeague = GetActiveLeague();
-			CvAssert(pLeague != NULL);
 			if (pLeague != NULL)
 			{
 				// We want to trigger a special session
@@ -9278,7 +9280,7 @@ void CvGameLeagues::DoTurn()
 						// Flag this era as the last era we did a special session
 						CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(eSpecialSession);
 						CvAssert(pInfo != NULL);
-						if (pInfo != NULL && pInfo->GetEraTrigger() != NO_ERA)
+						if (pInfo != NULL)
 						{
 							SetLastEraTrigger(pInfo->GetEraTrigger());
 						}
@@ -9448,9 +9450,6 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 				CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo((LeagueSpecialSessionTypes)i);
 				if (pInfo != NULL)
 				{
-					if (pInfo->GetEraTrigger() == NO_ERA)
-						continue;
-
 					if (eEarliestEraTrigger == NO_ERA || (int)pInfo->GetEraTrigger() < (int)eEarliestEraTrigger)
 					{
 						eEarliestEraTrigger = pInfo->GetEraTrigger();
@@ -9477,18 +9476,14 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 					EraTypes eEraTrigger = pInfo->GetEraTrigger();
 					BuildingTypes eBuildingTrigger = pInfo->GetBuildingTrigger();
 
-					// one of these must be provided
-					if (eEraTrigger == NO_ERA && eBuildingTrigger == NO_BUILDING)
-						continue;
-
 					// special session provided by a building?
-					if (eBuildingTrigger != NO_BUILDING && LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger) && (eEraTrigger == NO_ERA || eEraTrigger <= (int)LeagueHelpers::GetGameEraForTrigger()))
+					if (eBuildingTrigger != NO_BUILDING && LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger) && eEraTrigger <= (int)LeagueHelpers::GetGameEraForTrigger())
 					{
 						eGoverningSpecialSession = e;
 						bBeginAsUnitedNations = pInfo->IsUnitedNations();
 						break;
 					}
-					else if (eEraTrigger == NO_ERA || (eEraTrigger != NO_ERA && eEraTrigger == eGoverningEraTrigger))
+					else if (eEraTrigger == eGoverningEraTrigger)
 					{
 						eGoverningSpecialSession = e;
 						bBeginAsUnitedNations = pInfo->IsUnitedNations();
@@ -9972,14 +9967,11 @@ void CvGameLeagues::LogSpecialSession(LeagueSpecialSessionTypes eSpecialSession)
 		CvAssert(pSpecialSessionInfo);
 		if (pSpecialSessionInfo)
 		{
-			if (pSpecialSessionInfo->GetEraTrigger() != NO_ERA)
+			CvEraInfo* pEraInfo = GC.getEraInfo(pSpecialSessionInfo->GetEraTrigger());
+			if (pEraInfo)
 			{
-				CvEraInfo* pEraInfo = GC.getEraInfo(pSpecialSessionInfo->GetEraTrigger());
-				if (pEraInfo)
-				{
-					sMessage += ", ";
-					sMessage += pEraInfo->GetDescription();
-				}
+				sMessage += ", ";
+				sMessage += pEraInfo->GetDescription();
 			}
 			if (pSpecialSessionInfo->GetBuildingTrigger() != NO_BUILDING)
 			{

@@ -1013,6 +1013,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\ActionInfoPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\CoreLua\badeventdefaultbackground.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1053,7 +1057,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-	<Content Include="Core Files\CoreLua\EnemyUnitPanel.xml">
+    <Content Include="Core Files\CoreLua\EnemyUnitPanel.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1168,10 +1172,6 @@
     <Content Include="Core Files\CoreLua\PlayerEventsInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\CoreLua\PuppetCityPopup.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\CoreLua\ReplayViewer.lua">
       <SubType>Lua</SubType>
@@ -1410,10 +1410,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CvGameCore_Expansion2.dll">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\ActionInfoPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

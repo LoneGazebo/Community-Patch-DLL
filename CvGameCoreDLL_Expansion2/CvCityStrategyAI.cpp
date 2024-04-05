@@ -3201,7 +3201,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 									}
 								}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 								// Mod for civs keeping their pantheon belief forever
 								if (MOD_RELIGION_PERMANENT_PANTHEON)
 								{
@@ -3233,28 +3232,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						if(iNumPuppets > 0)
 						{
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
-						}
-					}
-#endif
-					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsDiplomaticMarriage())
-					{
-						int iNumMarried = 0;
-						// Loop through all minors and get the total number we've met.
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-						{
-							PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-							{
-								if (!GET_PLAYER(eMinor).IsAtWarWith(pCity->GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
-								{
-									iNumMarried++;
-								}
-							}
-						}
-						if(iNumMarried > 0)
-						{
-							iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 						}
 					}
 
