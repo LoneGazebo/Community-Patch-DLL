@@ -140,12 +140,12 @@ VALUES
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 1, 20),
 	('HISTORIC_EVENT_GOLDEN_AGE', 1, 300), -- 3x Gold for Golden Ages
 	('HISTORIC_EVENT_WORLD_WONDER', 1, 300), -- 3x Gold for World Wonders
-	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 0, 20), -- 0.2x Gold for killing a major civ unit
-	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 10), -- 0.1x other yields for killing a major civ unit
-	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 0, 20), -- 0.2x Gold for killing a City-State unit
-	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 10), -- 0.1x other yields for killing a City-State unit
-	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 0, 10), -- 0.1x Gold for killing a Barbarian unit
-	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 1, 5); -- 0.05x other yields for killing a Barbarian unit
+	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 20), -- 0.2x Gold for killing a major civ unit
+	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 0, 10), -- 0.1x other yields for killing a major civ unit
+	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 20), -- 0.2x Gold for killing a City-State unit
+	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 0, 10), -- 0.1x other yields for killing a City-State unit
+	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 1, 10), -- 0.1x Gold for killing a Barbarian unit
+	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 0, 5); -- 0.05x other yields for killing a Barbarian unit
 
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 1) / 100
