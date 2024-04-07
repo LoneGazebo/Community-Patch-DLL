@@ -29,7 +29,7 @@ function Locale.LookupLanguage(langType, textKey, ...) end
 --- -- Example
 --- Locale.Compare('a', 'a') -- 0
 --- Locale.Compare('a', 'abc') -- -1
---- Localge.Compare('abc', 'a') -- 1
+--- Locale.Compare('abc', 'a') -- 1
 --- ```
 --- @param a string
 --- @param b string
