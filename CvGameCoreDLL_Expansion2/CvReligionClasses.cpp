@@ -7726,6 +7726,10 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 {
 	CvWeightedVector<int> viPlotList; 
 
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
+	if (!pCapital)
+		return viPlotList;
+
 	int x_max = 0; int x_min = GC.getMap().getGridWidth();
 	int y_max = 0; int y_min = GC.getMap().getGridHeight();
 
@@ -7778,8 +7782,6 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 		//strTemp.Format("%s, Exploration Range: %d", m_pPlayer->getName(), iExplorationRange);
 		//pLog->Msg(strTemp);
 	}
-	
-	CvCity* pCapital = m_pPlayer->getCapitalCity();
 
 	// find all cities of players that we know that are close to us
 	vector<CvCity*>vKnownCitiesWithinReach;

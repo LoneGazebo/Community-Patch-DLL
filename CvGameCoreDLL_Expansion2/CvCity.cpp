@@ -31129,7 +31129,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	bool bIsPurchased = (eReason == REASON_BUY || eReason == REASON_FAITH_BUY);
 
-	addProductionExperience(pUnit, false, bIsPurchased);
+	addProductionExperience(pUnit, false, (eReason == REASON_BUY));
 
 	if ( !bIsPurchased || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();
@@ -32154,6 +32154,10 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 		pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
 
 		kPlayer.ChangeFaith(-iFaithCost);
+		if (iFaithCost > 0)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_FAITH_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, iFaithCost, false, NO_PLAYER, NULL, false, this);
+		}
 
 		UnitClassTypes eUnitClass = pUnit->getUnitClassType();
 		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
