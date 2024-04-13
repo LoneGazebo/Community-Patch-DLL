@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/30/2023 12:08:52 PM -->
+<GameData>
+
+    <Language_en_US>
+        <Row Tag="TXT_KEY_SQUADS">
+            <Text>Squads</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_TITLE">
+            <Text>Squads for VP</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MANAGE_SQUAD">
+            <Text>Manage Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVE_SQUAD">
+            <Text>Move Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_RECALL_SQUAD">
+            <Text>Recall Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_RESET_SQUAD">
+            <Text>Reset Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_NAME">
+            <Text>Squad Name</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_CHANGE_HOME_BASE">
+            <Text>Change Home Base</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_View_HOME_BASE">
+            <Text>View Home Base</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTIONS">
+            <Text>Options</Text>
+        </Row>
+
+        <Row Tag="TXT_KEY_SQUADS_OPTION_HIGHLIGHT">
+            <Text>Highlight Squad Units</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER">
+            <Text>Display Squad Number on Unit Flags</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE">
+            <Text>Squad Movement End Behavior:</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL">
+            <Text>Alert on Arrival</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_UNIT_ARRIVAL">
+            <Text>Wake on Each Unit Arrival</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_SQUAD_ARRIVAL">
+            <Text>Wake on Squad Arrival</Text>
+        </Row>
+    </Language_en_US>
+  
+</GameData>
