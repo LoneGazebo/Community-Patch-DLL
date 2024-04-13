@@ -8,13 +8,11 @@
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
     <Teaser>(4.6) RTS Style Control Groups and Group Movement</Teaser>
-    <Description>
-QoL mod for organizing and moving groups of units at once.
+    <Description>QoL mod for organizing and moving groups of units at once.
 Squads is used in two modes: [COLOR_GREEN]Management Mode[ENDCOLOR] and [COLOR_GREEN]Movement Mode[ENDCOLOR].[NEWLINE][NEWLINE]
-In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added.[COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
-In [COLOR_GREEN]Movement Mode[ENDCOLOR], left clicking on a plot will issue move orders to all units in that squad to move to that area.[COLOR_GREEN]Movement Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Move Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]NUM+NUM[ENDCOLOR] (double tapping key) where num is the squad number key.[NEWLINE][NEWLINE]
-The Squads UI allows renaming of squads, removing all units from a squad, removing individual units from the unit list using [COLOR_YELLOW]RCLICK[ENDCOLOR], and configuration for display and movement completion settings.
-    </Description>
+In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. [COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
+In [COLOR_GREEN]Movement Mode[ENDCOLOR], left clicking on a plot will issue move orders to all units in that squad to move to that area. [COLOR_GREEN]Movement Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Move Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]NUM+NUM[ENDCOLOR] (double tapping key) where num is the squad number key.[NEWLINE][NEWLINE]
+The Squads UI allows renaming of squads, removing all units from a squad, removing individual units from the unit list using [COLOR_YELLOW]RCLICK[ENDCOLOR], and configuration for display and movement completion settings.</Description>
     <Authors>Vern</Authors>
     <SpecialThanks>Gwennog</SpecialThanks>
     <AffectsSavedGames>false</AffectsSavedGames>
