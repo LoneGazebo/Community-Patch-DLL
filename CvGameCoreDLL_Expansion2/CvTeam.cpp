@@ -4392,7 +4392,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 								!pPotentialCaptureUnit->isEmbarked() &&
 								!pPotentialCaptureUnit->isDelayedDeath()) //can only capture once!
 							{
-								if (pPotentialCaptureUnit->getCaptureUnitType(GET_PLAYER(pPotentialCaptureUnit->getOwner()).getCivilizationType()) != NO_UNIT)
+								if (pPotentialCaptureUnit->getCaptureUnitType(pPotentialCaptureUnit->getOwner()) != NO_UNIT)
 								{
 									CvUnitCaptureDefinition kCaptureDef;
 									if (pPotentialCaptureUnit->getCaptureDefinition(&kCaptureDef, kPlayer.GetID()))
@@ -6273,7 +6273,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								TechTypes eTechReveal = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 								{
 									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
@@ -6282,7 +6281,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										eTechReveal = eAltTech;
 									}
 								}
-#endif
 								if ((ePolicyReveal == NO_POLICY || (ePolicyReveal != NO_POLICY && pPlayer->HasPolicy(ePolicyReveal))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 								{
 									bRevealed = true;
@@ -6309,6 +6307,21 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										if(!pLoopPlot->IsResourceForceReveal(GetID()))
 										{
 											pLoopPlot->setLayoutDirty(true);
+										}
+
+										for (int iI = 0; iI < MAX_PLAYERS; iI++)
+										{
+											const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+											CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+											if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+											{
+												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+												{
+													// revealed resources are unimproved unless this tech also makes the resource improvable, which is checked later
+													kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot);
+												}
+											}
 										}
 
 										// Notify the player that owns this Plot
@@ -6351,6 +6364,92 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 					}
+					else
+					{
+						TechTypes eDefaultTech = (TechTypes)pResourceInfo->getTechReveal();
+						PolicyTypes ePolicyReveal = (PolicyTypes)pResourceInfo->getPolicyReveal();
+						bool bWasRevealed = false;
+
+						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+						{
+							const PlayerTypes ePlayer = (PlayerTypes)*iI;
+							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+							if (pPlayer && pPlayer->isAlive())
+							{
+								TechTypes eTechReveal = eDefaultTech;
+
+								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+								{
+									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+									if (eAltTech != NO_TECH)
+									{
+										eTechReveal = eAltTech;
+									}
+								}
+								if ((ePolicyReveal == NO_POLICY || (ePolicyReveal != NO_POLICY && pPlayer->HasPolicy(ePolicyReveal))) && (eTechReveal == NO_TECH || eTechReveal == eIndex || GetTeamTechs()->HasTech(eTechReveal)))
+								{
+									bWasRevealed = true;
+									break;
+								}
+							}
+						}
+
+						bool bResourceNowUnrevealed = true;
+						// is the resource now unrevealed?
+						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+						{
+							const PlayerTypes ePlayer = (PlayerTypes)*iI;
+							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+							if (pPlayer && pPlayer->isAlive())
+							{
+								TechTypes eTechReveal = eDefaultTech;
+
+								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
+								{
+									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
+									if (eAltTech != NO_TECH)
+									{
+										eTechReveal = eAltTech;
+									}
+								}
+								if ((ePolicyReveal == NO_POLICY || (ePolicyReveal != NO_POLICY && pPlayer->HasPolicy(ePolicyReveal))) && (eTechReveal == NO_TECH || GetTeamTechs()->HasTech(eTechReveal)))
+								{
+									bResourceNowUnrevealed = false;
+									break;
+								}
+							}
+						}
+
+						// Unreveal Resource
+						if (bResourceNowUnrevealed && bWasRevealed)
+						{
+							// update the resources
+							if (pLoopPlot->isRevealed(m_eID))
+							{
+								if (pLoopPlot->getResourceType() != NO_RESOURCE)
+								{
+									// Only update for active team
+									if (bIsActiveTeam)
+									{
+										for (int iI = 0; iI < MAX_PLAYERS; iI++)
+										{
+											const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+											CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+											if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+											{
+												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+												{
+													kLoopPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 					// Resource Connection
 					if(pLoopPlot->getTeam() == GetID())
 					{
@@ -6381,15 +6480,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 						if(!bResourceUnlocked && bUnlocksResource)
 						{
-							bool bResourceImproved = false;
-							// Appropriate Improvement on this Plot?
-							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eResource)))
-							{
-								if (!pLoopPlot->IsImprovementPillaged())
-								{
-									bResourceImproved = true;
-								}
-							}
 							for (int iI = 0; iI < MAX_PLAYERS; iI++)
 							{
 								const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
@@ -6402,19 +6492,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
 										if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 										{
-											if (bResourceImproved)
+											if (pLoopPlot->IsResourceImprovedForOwner())
 											{
-												kLoopPlayer.connectResourcesOnPlot(pLoopPlot, true);
-
-												// Reconnect resource link
-												if (pLoopPlot->getEffectiveOwningCity() != NULL)
-												{
-													pLoopPlot->SetResourceLinkedCityActive(true);
-												}
-											}
-											else
-											{
-												kLoopPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, true);
+												// the resource is now improved
+												kLoopPlayer.addResourcesOnPlotToTotal(pLoopPlot);
+												kLoopPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot);
 											}
 										}
 
@@ -6422,17 +6504,14 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									// Removing Tech
 									else
 									{
-										if (bResourceImproved)
+										if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 										{
-											kLoopPlayer.connectResourcesOnPlot(pLoopPlot, false);
-
-											// Disconnect resource link
-											if (pLoopPlot->getEffectiveOwningCity() != NULL)
-												pLoopPlot->SetResourceLinkedCityActive(false);
-										}
-										else
-										{
-											kLoopPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, false);
+											if (pLoopPlot->IsResourceImprovedForOwner(/*bIgnoreTechPrereqs*/ true))
+											{
+												// the resource was previously improved
+												kLoopPlayer.removeResourcesOnPlotFromTotal(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
+												kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
+											}
 										}
 									}
 								}
@@ -6469,7 +6548,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					{
 						TechTypes eTechReveal = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 						if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 						{
 							TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eArtifactResource).m_eTechReveal;
@@ -6478,7 +6556,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								eTechReveal = eAltTech;
 							}
 						}
-#endif
+
 						if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 						{
 							bArtifactRevealed = true;
@@ -6508,7 +6586,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					{
 						TechTypes eTechReveal = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 						if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 						{
 							TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eHiddenArtifactResource).m_eTechReveal;
@@ -6517,7 +6594,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								eTechReveal = eAltTech;
 							}
 						}
-#endif
+
 						if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 						{
 							bHiddenArtifactRevealed = true;
@@ -6602,7 +6679,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					GC.getGame().UpdateGameEra();
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				if(!bNoBonus)
 				{
 					for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -6690,9 +6767,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						}
 					}
 				}
-#endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-				if(!bNoBonus)
+
+				if(MOD_BALANCE_CORE_BELIEFS && !bNoBonus)
 				{
 					for(int iI = 0; iI < MAX_PLAYERS; iI++)
 					{
@@ -6704,7 +6780,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						}
 					}
 				}
-#endif
+
 				if (!bNoBonus && GetNumVassals() > 0)
 				{
 					// Check all players on this team
@@ -6758,7 +6834,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								GC.getGame().UpdateGameEra();
 							}
-#if defined(MOD_BALANCE_CORE)
+
 							if(!bNoBonus)
 							{
 								for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -6846,9 +6922,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									}
 								}
 							}
-#endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-							if(!bNoBonus)
+
+							if(MOD_BALANCE_CORE_BELIEFS && !bNoBonus)
 							{
 								for(int iI = 0; iI < MAX_PLAYERS; iI++)
 								{
@@ -6860,7 +6935,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									}
 								}
 							}
-#endif
+
 							if (!bNoBonus && GetNumVassals() > 0)
 							{
 								// Check all players on this team

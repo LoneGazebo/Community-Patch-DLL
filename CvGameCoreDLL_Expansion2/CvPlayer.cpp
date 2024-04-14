@@ -38954,7 +38954,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	UnitTypes eNewUnitType = pUnit->getUnitType();
 
 	if(!bReturn)
-		eNewUnitType = pUnit->getCaptureUnitType(getCivilizationType());
+		eNewUnitType = pUnit->getCaptureUnitType(GetID());
 
 	int iX = pUnit->getX();
 	int iY = pUnit->getY();
@@ -39668,15 +39668,50 @@ void CvPlayer::setPlayable(bool bNewValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::connectResourcesOnPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources)
+void CvPlayer::addResourcesOnPlotToTotal(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
 {
-	int iMultiplier = bAdd ? 1 : -1;
+	changeNumResourceTotal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), true);
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceTotal(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), false), false);
+		changeNumResourceTotal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), false);
+		// activate the resource link
+		pPlot->SetResourceLinkedCityActive(true);
 	}
-	changeNumResourceTotal(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), true), true);
+	
+	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	if (pOwningCity)
+	{
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ false);
+		if (!bOnlyExtraResources)
+		{
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ false);
+		}
+	}
 }
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::removeResourcesOnPlotFromTotal(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
+{
+	changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), true);
+	if (!bOnlyExtraResources)
+	{
+		changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), false);
+		// if we removed both regular and extra resources, deactivate the resource link
+		pPlot->SetResourceLinkedCityActive(false);
+	}
+
+	CvCity* pOwningCity = pPlot->getOwningCity();
+	if (pOwningCity)
+	{
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ false);
+		if (!bOnlyExtraResources)
+		{
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ false);
+			
+		}	
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceUnimproved(ResourceTypes eIndex) const
 {
@@ -39698,15 +39733,45 @@ void CvPlayer::changeNumResourceUnimproved(ResourceTypes eIndex, int iChange)
 	CvAssert(m_paiNumResourceUnimproved[eIndex] >= 0);
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeNumResourceUnimprovedPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources)
+void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
 {
-	int iMultiplier = bAdd ? 1 : -1;
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), false));
+		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), true));
+	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+
+	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	if (pOwningCity)
+	{
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		if (!bOnlyExtraResources)
+		{
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		}
+	}
 }
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
+{
+	if (!bOnlyExtraResources)
+	{
+		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+	}
+	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+
+	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	if (pOwningCity)
+	{
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		if (!bOnlyExtraResources)
+		{
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 {
@@ -39862,7 +39927,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	return iTotalNumResource;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool /*bIgnoreResourceWarning*/)
+void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool /*bIgnoreResourceWarning*/)
 {
 	CvAssert(eIndex >= 0);
 	CvAssert(eIndex < GC.getNumResourceInfos());
@@ -39880,7 +39945,7 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 			CvAssert(m_paiNumResourceFromBuildings[eIndex] >= 0);
 		}
 
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(bCheckForMonopoly && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
 			CheckForMonopoly(eIndex);
 		}
