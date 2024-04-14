@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.6.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -833,7 +833,7 @@
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">Core Files/Overrides/NaturalWonderPopup.lua</File>
     <File md5="37A831378B37D512F4A0234BEEE438E7" import="1">Core Files/Overrides/NaturalWondersCustomMethods.lua</File>
     <File md5="81A8490920511D423A43F8FE2717F745" import="1">Core Files/Overrides/PlotMouseoverInclude.lua</File>
-    <File md5="9A65A3AF08EE7842D2A6AE11BC1A625B" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
+    <File md5="436C6938752A01A67ADF66581988C193" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
     <File md5="46DBB55FAD37A04B27DAA5E6CC7C51FB" import="1">Core Files/Overrides/ReligionOverview.lua</File>
     <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/Overrides/ReligionOverview.xml</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/Overrides/ResourceTooltipGenerator.lua</File>
@@ -951,7 +951,7 @@
     <File md5="9053CF957542871FF4A1718612485AFF" import="0">Database Changes/Concepts/NewConcepts.xml</File>
     <File md5="B36D6796F45A6189AE8AD57BDA38CC1D" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
     <File md5="4E2C899778F093B9F18667EFB45971AC" import="0">Database Changes/Corporations/NewCorporations.xml</File>
-    <File md5="63DE981219B5411A0643854452252A6B" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
+    <File md5="B404DBF4A54D34CEACF76479377B80DD" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
     <File md5="C51EDFF046E7013ABF030EB289B9C063" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
     <File md5="06C7BCDE2F6591FD8371AD4330E804E5" import="0">Database Changes/Difficulty/PreDifficultyChanges.sql</File>
     <File md5="F6240D317BDEF21DA4E6FF11B725F515" import="0">Database Changes/Espionage/SpyPassiveBonuses.xml</File>
@@ -1059,7 +1059,7 @@
     <File md5="EE98D8AA49B16FB1622E2E8CD7AB2A7E" import="0">Database Changes/Units/UnitCostSweeps.sql</File>
     <File md5="2FBEAB5D38682D75AE353D7DBB83B0F2" import="0">Database Changes/Units/UnitStatChanges.sql</File>
     <File md5="836D2694492C25AFFB131370A4F8D8A3" import="0">Database Changes/Units/UnitSweeps.sql</File>
-    <File md5="3C66D28DBD29078B9E986E05C290BE84" import="0">Database Changes/WorldCongress/CongressChanges.sql</File>
+    <File md5="EB48BDBEF745B90628FD07F0FF26C01E" import="0">Database Changes/WorldCongress/CongressChanges.sql</File>
     <File md5="7B1580A29FE07D0722BEDD0616D7C960" import="0">Database Changes/WorldCongress/NewProjects.xml</File>
     <File md5="3084FA4EAD7A63D2D24F226B6A90F21A" import="0">Database Changes/WorldCongress/NewResolutions.xml</File>
     <File md5="E691C0C930D425C1F92D8B4E21688A39" import="0">Database Changes/WorldCongress/ProjectChanges.sql</File>
@@ -1081,7 +1081,7 @@
     <File md5="B739AFBE05789F3DC4069EFAD9EC75E2" import="0">Database Changes/WorldMap/Resources/ResourceChanges.sql</File>
     <File md5="036E280C234B1D479DDB6DA05E77F0ED" import="0">Database Changes/WorldMap/Resources/PreResourceChanges.sql</File>
     <File md5="8A253E65A1566FCE2606F0BAE03062C0" import="0">Database Changes/WorldMap/Resources/ResourceSweeps.sql</File>
-    <File md5="AFFAF3F4CFA1DAE486392BA68FF614EC" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="A5386D97EBBC0FC212266605B5273880" import="1">LUA/CityBannerManager.lua</File>
     <File md5="089677F458B193D320D220E277DA1FFF" import="1">LUA/CityBannerManager.xml</File>
     <File md5="3BB9104CFB84874B37F29193670B1BBD" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="1E7CE276A4B2B9A80A6DD9535468A09F" import="1">LUA/CityStateDiploPopup.xml</File>

@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="128">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.6) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.6.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -135,6 +135,7 @@
     <File md5="51CBE465E42FA27457401A9EB2A0E0B5" import="1">Core Files/Core Values/TechAwardPopup.lua</File>
     <File md5="3AEA3154A06B8B69762F22A642C8ED1D" import="1">Core Files/Core Values/TechAwardPopup.xml</File>
     <File md5="6D03B1D6144D8FD8423633A009E0E5B0" import="1">Core Files/Core Values/TechHelpInclude.lua</File>
+    <File md5="EF335289B8AA94703BFFFE012CDFB931" import="1">Core Files/CoreLua/ActionInfoPanel.lua</File>
     <File md5="99B415476E11B1F8F55897D5E407805E" import="1">Core Files/CoreLua/badeventdefaultbackground.dds</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">Core Files/CoreLua/Bombardment.lua</File>
     <File md5="24FBC9EFC39D58899C510986127E523F" import="1">Core Files/CoreLua/cityeventdefaultbackground.dds</File>
@@ -146,6 +147,7 @@
     <File md5="F101066874ED5BEDE778EE71E4BB4D4A" import="1">Core Files/CoreLua/CityRecentEventsInfo.xml</File>
     <File md5="9B953C801BFFA5277EEA69A385A6434B" import="1">Core Files/CoreLua/EnemyUnitPanel.lua</File>
     <File md5="77C539014E863414A8F59B62E2CFB7BB" import="1">Core Files/CoreLua/EnemyUnitPanel.xml</File>
+    <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/CoreLua/EnemyUnitPanel_small.xml</File>
     <File md5="D3B55C6D6224C3204FB57D3FE19C80D9" import="1">Core Files/CoreLua/EventArt/AirBalloon.dds</File>
     <File md5="9E7761E30571871032525344A0968D9B" import="1">Core Files/CoreLua/EventArt/CounterSpy.dds</File>
     <File md5="99618C8CE11438AAE41475DE0929CD11" import="1">Core Files/CoreLua/EventArt/FireWorks.dds</File>
@@ -174,7 +176,6 @@
     <File md5="D189054DBC0B89454E00137394C4CB1A" import="1">Core Files/CoreLua/playereventdefaultbackground.dds</File>
     <File md5="47D9492129F0335754825A2AFCDE425F" import="1">Core Files/CoreLua/PlayerEventsInfo.xml</File>
     <File md5="A5F8A30B9629E6251072B6A406124856" import="1">Core Files/CoreLua/PlayerEventsInfo.lua</File>
-    <File md5="DD70DA9434998D5B7F836AFDF07FCC07" import="0">Core Files/CoreLua/PuppetCityPopup.lua</File>
     <File md5="C16A95DB183F4BD7D3236CFDA63855AD" import="1">Core Files/CoreLua/ReplayViewer.lua</File>
     <File md5="56E38F28084CA596462B0C6390936D80" import="1">Core Files/CoreLua/ReplayViewer.xml</File>
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/CoreLua/SaveMenu.lua</File>
@@ -234,10 +235,9 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="1D8A1196F05E54C0BD2E519EE2780077" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="212ADD0C0D0D68CAD92420A59A3BEF60" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="FE91143BE1D6121437330E4C300DE2B8" import="1">CvGameCore_Expansion2.dll</File>
-    <File md5="EF335289B8AA94703BFFFE012CDFB931" import="1">LUA/ActionInfoPanel.lua</File>
+    <File md5="A516D84CC098CBB6F70AE76D1B2C926C" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
-    <File md5="C8B496161BB3FB312794527939F439E9" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="8DD2E86E1078C1C39E6CF59B78AE761F" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="4E0C99D18951BE4A2BC61E02EDD06DA1" import="1">LUA/CityStateStatusHelper.lua</File>
@@ -267,7 +267,7 @@
     <File md5="372493C23E5E290ED50D148809915718" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
     <File md5="C38367BBCCB57DA25034B0E9C1124763" import="1">LUA/ProductionPopup.lua</File>
-    <File md5="57F2BF1A7564BFE0F332599B9DBF4B79" import="1">LUA/PuppetCityPopup.lua</File>
+    <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">LUA/PuppetCityPopup.lua</File>
     <File md5="7D73FAAE45A92670C2C6C52BCA912E58" import="1">LUA/ReligionOverview.lua</File>
     <File md5="710424C27FAC6C807302F68A7C729370" import="1">LUA/SimpleDiploTrade.xml</File>
     <File md5="32E0A8436F69C27FB13E8357226EE897" import="1">LUA/TopPanel.lua</File>
