@@ -58,3 +58,7 @@ DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_WORKBOAT';
 -- Readd one entry
 INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor) VALUES 
 ('UNIT_WORKBOAT', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 20);
+
+-- Fix England UA promotion because of column rework
+-- ExtraNavalMovement gives embarked movement only
+UPDATE UnitPromotions SET MovesChange = 2, ExtraNavalMovement = 0 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
