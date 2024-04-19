@@ -1945,9 +1945,6 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pFromPlot,*pToPlot) > data.iMaxTurns)
-		return FALSE;
-
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
 	{
@@ -2038,9 +2035,6 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	if (!pOrigin || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pOrigin,*pToPlot) > data.iMaxTurns)
-		return FALSE;
-
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
 	{
@@ -2076,8 +2070,8 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
 	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
-		//we only care about water connections here because they are not normal routes
-		if (it->second & CvCityConnections::CONNECTION_HARBOR)
+		//we only care about water and air connections here because they are not normal routes
+		if (it->second & (CvCityConnections::CONNECTION_HARBOR | CvCityConnections::CONNECTION_AIRPORT))
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
 			if (pSecondCity && !pSecondCity->IsRazing())
@@ -2189,9 +2183,6 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	if (!MOD_BALANCE_VP)
 		return 0;
 
-	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
-		return 0;
-
 	// If we have a town or village here, give a big bonus
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
@@ -2200,19 +2191,28 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 
 		if (pkImprovementInfo != NULL)
 		{
+			int iYieldChangeTotal = 0;
 			for (int iI = 0; iI <= YIELD_FAITH; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-
-				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 3;
+				int iYieldChanges = pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
+				if (iYieldChanges > 0)
+				{
+					iYieldChangeTotal += iYieldChanges;
+				}
 			}
-		}
 
-		// If this is a great person improvement, we don't want to replace it (unless it's a town)
-		if (pkImprovementInfo->IsCreatedByGreatPerson())
-			return 0;
+			if (iYieldChangeTotal > 0)
+				return 70 + iYieldChangeTotal;
+
+			// If this is a great person improvement, we don't want to replace it (unless it's a town)
+			if (pkImprovementInfo->IsCreatedByGreatPerson())
+				return 0;
+		}
 	}
+
+	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
+		return 0;
 
 	// Villages and towns can be built pretty much anywhere
 	return 2;
@@ -2236,7 +2236,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_SHORTCUT);
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_CONNECT_CAPITAL));
-	int iVillageBonus = data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL || data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
+	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT && !bGetSameRouteBenefitFromTrait && !bPlannedShortcutRoute ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD)
 	{
@@ -2244,36 +2244,41 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 
 	// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
-	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedCapitalRoute)
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
 	{
-		if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
-			iCost = 5;
-		else
-			iCost = 6;
+		if (bPlannedCapitalRoute)
+		{
+			if (bGetSameRouteBenefitFromTrait)
+				return 0;
+			else if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
+				return 1;
+			else
+				return 5;
+		}
+		if (bPlannedShortcutRoute)
+		{
+			return 20;
+		}
 	}
-	else if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedShortcutRoute)
-	{
-		iCost = 7;
-	}
-	else if (bGetSameRouteBenefitFromTrait)
+	if (bGetSameRouteBenefitFromTrait)
 	{
 		iCost = PATH_BASE_COST / 3;
 	}
 	else if (bPlannedShortcutRoute)
 	{
 		// if we are planning to build a road here, provide a discount
-		iCost = (PATH_BASE_COST * 7) / 12;
+		iCost = (PATH_BASE_COST * 5) / 12;
 	}
-	else if (pPlot->getRouteType() >= eRoute)
+	else if (pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 	{
 		// if there is already a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 2;
+		iCost = (PATH_BASE_COST * 8) / 12;
 	}
 	else if (pPlot->getBuildProgress(eBuild) > 0) {
 		// if we are currently building a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 2;
+		iCost = (PATH_BASE_COST * 8) / 12;
 	}
-	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
+	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) || pPlot->IsRoutePillaged())
 	{
 		// if there is already any kind of road here, provide a smaller discount
 		iCost = PATH_BASE_COST - 1;
@@ -2286,10 +2291,6 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	if (!bGetSameRouteBenefitFromTrait && !pPlayer->IsPlotSafeForRoute(pPlot, false /*bIncludeAdjacent*/))
 	{
 		if (pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam(), false, false, true, true))
-		{
-			iCost += 10;
-		}
-		else
 		{
 			iCost += 1;
 		}
@@ -2327,6 +2328,9 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		return FALSE;
 
 	if(!pNewPlot->isValidMovePlot(ePlayer))
+		return FALSE;
+
+	if (pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
 		return FALSE;
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();

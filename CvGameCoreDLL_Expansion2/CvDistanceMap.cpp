@@ -15,15 +15,16 @@
 struct SCityTiebreak : public STiebreakGenerator
 {
 	//return 1 if B wins, -1 if A wins
-	int operator()(int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const
+	int operator()(int iPlotIndex, int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const
 	{
 		CvPlayer& kPlayerA = GET_PLAYER((PlayerTypes)iOwnerA);
 		CvPlayer& kPlayerB = GET_PLAYER((PlayerTypes)iOwnerB);
 
-		//major players always have precedence over minors
-		if (kPlayerA.isMinorCiv() && !kPlayerB.isMinorCiv())
+		//first look at ownership
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotIndex);
+		if (pPlot->getOwner()==iOwnerA)
 			return 1;
-		else if (!kPlayerA.isMinorCiv() && kPlayerB.isMinorCiv())
+		if (pPlot->getOwner() == iOwnerB)
 			return -1;
 
 		//it can happen that there is no current city if the plot has never been updated because it's very remote
@@ -34,7 +35,7 @@ struct SCityTiebreak : public STiebreakGenerator
 		else if (!pB)
 			return -1;
 
-		//now look at the founding dates
+		//finally look at the founding dates
 		if (pA->getGameTurnFounded() < pB->getGameTurnFounded())
 			return -1;
 		if (pA->getGameTurnFounded() > pB->getGameTurnFounded())
@@ -73,7 +74,7 @@ int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 {
 	if ((size_t)plot.GetPlotIndex() < m_vData.size())
-		return int( m_vData[ plot.GetPlotIndex() ].feature );
+		return m_vData[ plot.GetPlotIndex() ].feature;
 
 	return -1;
 }
@@ -101,7 +102,7 @@ bool CvDistanceMap::UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, i
 		}
 		else if (iDistance == m_vData[iPlotIndex].distance)
 		{
-			int result = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature, iOwner, iID);
+			int result = tiebreak(iPlotIndex, m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature, iOwner, iID);
 			if (result > 0)
 			{
 				m_vData[iPlotIndex] = SContent(iDistance,iOwner,iID);

@@ -283,6 +283,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bExtraLuxuries(false),
 	m_bDiplomaticVoting(false),
 	m_bAllowsWaterRoutes(false),
+	m_bAllowsAirRoutes(false),
 	m_bCityWall(false),
 	m_bUnlockedByBelief(false),
 	m_bUnlockedByLeague(false),
@@ -637,6 +638,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bExtraLuxuries = kResults.GetBool("ExtraLuxuries");
 	m_bDiplomaticVoting = kResults.GetBool("DiplomaticVoting");
 	m_bAllowsWaterRoutes = kResults.GetBool("AllowsWaterRoutes");
+	m_bAllowsAirRoutes = kResults.GetBool("AllowsAirRoutes");
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iFaithCost = kResults.GetInt("FaithCost");
 	m_iLeagueCost = kResults.GetInt("LeagueCost");
@@ -1797,7 +1799,7 @@ YieldTypes CvBuildingEntry::GetGreatWorkYieldType() const
 /// How many great works are allowed by this Building
 int CvBuildingEntry::GetGreatWorkCount() const
 {
-	return m_iGreatWorkCount;
+	return max(0, m_iGreatWorkCount); // protect against modders using negative values
 }
 
 /// Does this building come with a built-in Great Work?
@@ -2918,6 +2920,12 @@ bool CvBuildingEntry::IsDiplomaticVoting() const
 bool CvBuildingEntry::AllowsWaterRoutes() const
 {
 	return m_bAllowsWaterRoutes;
+}
+
+/// Does the building allow routes through the air
+bool CvBuildingEntry::AllowsAirRoutes() const
+{
+	return m_bAllowsAirRoutes;
 }
 
 /// Derive property: is this considered a science building?
@@ -6643,7 +6651,7 @@ void BuildingArrayHelpers::Write(FDataStream& kStream, int* paiBuildingArray, in
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }

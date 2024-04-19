@@ -2601,11 +2601,11 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 			{
 				if (GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
 				{
-					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
+					GET_PLAYER(kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
 				}
 				else
 				{
-					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
+					GET_PLAYER(kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
 				}
 
 				if (iPlotTeam == iI) 
@@ -2805,9 +2805,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkUnit->kill(false, eAttackerOwner);
 				}
 
-				if (GET_PLAYER((PlayerTypes)kEntry.GetPlayer()).isMajorCiv() && GET_PLAYER((PlayerTypes)kEntry.GetPlayer()).isAlive())
+				if (GET_PLAYER(kEntry.GetPlayer()).isMajorCiv() && GET_PLAYER(kEntry.GetPlayer()).isAlive())
 				{
-					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), (PlayerTypes)kEntry.GetPlayer()) == vAffectedPlayers.end())
+					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), kEntry.GetPlayer()) == vAffectedPlayers.end())
 						vAffectedPlayers.push_back(kEntry.GetPlayer());
 				}
 			}

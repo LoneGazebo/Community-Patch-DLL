@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v127 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 127)
+#define MOD_DLL_NAME "Community Patch v128 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 128)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -485,6 +485,8 @@
 #define MOD_NOTIFICATION_SETTINGS					gCustomMods.isNOTIFICATION_SETTINGS()
 // Full map state logging
 #define MOD_LOG_MAP_STATE							gCustomMods.isLOG_MAP_STATE()
+// Route Planner modmod
+#define MOD_ROUTE_PLANNER							gCustomMods.isROUTE_PLANNER()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1565,6 +1567,7 @@ public:
 	MOD_OPT_DECL(NOT_FOR_SALE);
 	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(LOG_MAP_STATE);
+	MOD_OPT_DECL(ROUTE_PLANNER);
 
 protected:
 	bool m_bInit;

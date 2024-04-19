@@ -1899,9 +1899,8 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
 			CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
-			if(!pCity || pCity == NULL || pCity->getOwner() != m_ePlayer)
+			if (!pCity)
 			{
-				pCity->SetEventActive(eCityEvent, false);
 				return true;
 			}
 

@@ -1329,7 +1329,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 			continue;
 
 		// No ships on land, no land on water, no air units
-		if (eDomain != (DomainTypes)pkUnitInfo->GetDomainType())
+		if (eDomain != pkUnitInfo->GetDomainType())
 			continue;
 
 		// No civilians

@@ -1461,6 +1461,7 @@ int* CvImprovementEntry::GetAdjacentResourceYieldChangesArray(int i)
 	return m_ppiAdjacentResourceYieldChanges[i];
 }
 
+/// How much bonus yields an improvement gives to adjacent tiles with a certain terrain
 int CvImprovementEntry::GetAdjacentTerrainYieldChanges(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -1475,6 +1476,7 @@ int* CvImprovementEntry::GetAdjacentTerrainYieldChangesArray(int i)
 	return m_ppiAdjacentTerrainYieldChanges[i];
 }
 
+/// How much an improvement yields if built next to a feature
 int CvImprovementEntry::GetAdjacentFeatureYieldChanges(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
@@ -1755,7 +1757,7 @@ void ImprovementArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiIm
 	{
 		int iHash = 0;
 		kStream >> iHash;
-		if(iHash != (int)0)
+		if(iHash != 0)
 		{
 			int iType = GC.getInfoTypeForHash(iHash);
 			if(iType != -1)
@@ -1801,7 +1803,7 @@ void ImprovementArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiI
 		}
 		else
 		{
-			kStream << (int)0;
+			kStream << 0;
 		}
 	}
 }

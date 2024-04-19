@@ -353,7 +353,7 @@ void CvPlayerContracts::SetActiveContract(ContractTypes eContract, bool bValue)
 //Found a contract - this is the core starter for contracts.
 void CvPlayerContracts::StartContract(ContractTypes eContract)
 {
-	CvContractEntry* pContract = GC.getContractInfo((ContractTypes)eContract);
+	CvContractEntry* pContract = GC.getContractInfo(eContract);
 	if(pContract)
 	{
 		int iTurns = pContract->GetTurns();

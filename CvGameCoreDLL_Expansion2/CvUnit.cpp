@@ -885,7 +885,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
-		kPlayer.changeNumMilitaryUnits(1, (DomainTypes)getUnitInfo().GetDomainType());
+		kPlayer.changeNumMilitaryUnits(1, getUnitInfo().GetDomainType());
 	}
 
 	// Free Promotions from Unit XML
@@ -2749,7 +2749,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if(getUnitInfo().IsMilitarySupport())
 	{
 #if defined(MOD_BATTLE_ROYALE)
-		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1, (DomainTypes)getUnitInfo().GetDomainType());
+		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1, getUnitInfo().GetDomainType());
 #else
 		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1);
 #endif
@@ -3934,7 +3934,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		}
 		//Improvement that provides free promotion? Only if player owns them.
 		ImprovementTypes eNeededImprovement = pNewPlot->getImprovementType();
-		if(eNeededImprovement != NO_IMPROVEMENT)
+		if(eNeededImprovement != NO_IMPROVEMENT && !pNewPlot->IsImprovementPillaged())
 		{
 			//Only check for it to be owned by the player if that's valid!
 			if (!GC.getImprovementInfo(eNeededImprovement)->IsOwnerOnly() || pNewPlot->getOwner() == getOwner())
@@ -4772,12 +4772,19 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
+	// most common case, moving in our own territory
+	if (kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
 		return true;
 
+	// Barbarians have special restrictions early in the game (do this before the isEnemy check!)
+	if (isBarbarian() && eTeam != BARBARIAN_TEAM && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		return false;
+
+	// Are we at war?
 	if(isEnemy(eTeam))
 		return true;
 
+	// Special abilities
 	if(isRivalTerritory() || isTrade())
 		return true;
 
@@ -5144,16 +5151,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		return true;
 	}
 	*/
-
-	// Barbarians have special restrictions early in the game
-	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
-	{
-		//do not capture settlers early in the game ...
-		if (plot.isOwned() || plot.getFirstUnitOfAITypeOtherTeam(BARBARIAN_TEAM, UNITAI_SETTLE) != NULL)
-		{
-			return false;
-		}
-	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && !IsCivilianUnit())
@@ -6009,7 +6006,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::scrap()
+void CvUnit::scrap(bool bDelay)
 {
 	VALIDATE_OBJECT
 	if(!canScrap())
@@ -6023,7 +6020,7 @@ void CvUnit::scrap()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 	}
 
-	kill(true);
+	kill(bDelay);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15345,7 +15342,7 @@ bool CvUnit::canEndTurnAtPlot(const CvPlot * pPlot) const
 DomainTypes CvUnit::getDomainType() const
 {
 	VALIDATE_OBJECT
-	return (DomainTypes) m_pUnitInfo->GetDomainType();
+	return m_pUnitInfo->GetDomainType();
 }
 
 //	---------------------------------------------------------------------------
@@ -15974,6 +15971,11 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	{
 		if (pLoopUnit->canMoveInto(*pDestPlot))
 		{
+			// If this unit is going to move later, clear its path cache. Otherwise, due to the 
+			// use of MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT it can try to continue on its old path
+			// instead of calculating a new route to the destination plot
+			pLoopUnit->ClearMissionQueue(false);
+
 			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
 			{
 				stackingUnits.push_back(pLoopUnit);
@@ -17421,20 +17423,15 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 	if (pOtherUnit->getOwner() == NO_PLAYER)
 		return 0;
 
-	if (pOtherUnit->isBarbarian() || isBarbarian())
-		return 0;
-
-	if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
-		return 0;
-
 	// No bonus if we're attacking in their territory
 	if (plot()->getOwner() == pOtherUnit->getOwner())
 		return 0;
 
+	// Will always be zero for non-majors
 	int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
 
 	// Not our territory?
-	if (!plot()->IsFriendlyTerritory(getOwner()))
+	if (iResistance && !plot()->IsFriendlyTerritory(getOwner()))
 		iResistance /= 2;
 
 	return iResistance;
@@ -17813,7 +17810,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			int iTempModifier = unitCombatModifier(eUnitCombat);
 			if (pOtherUnit->getUnitInfo().IsMounted())
 			{
-				UnitCombatTypes eMountedCombat = (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true);
+				static UnitCombatTypes eMountedCombat = (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true);
 				if (eMountedCombat != eUnitCombat)
 					iTempModifier += unitCombatModifier(eMountedCombat);
 			}
@@ -20604,7 +20601,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 
 			int iUnitListSize = (int) oldUnitList.size();
-			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+			for(int iVectorLoop = 0; iVectorLoop < iUnitListSize; ++iVectorLoop)
 			{
 				pLoopUnit = ::GetPlayerUnit(oldUnitList[iVectorLoop]);
 				{
@@ -20612,6 +20609,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					{
 						if(isEnemy(pLoopUnit->getTeam(), pNewPlot) || pLoopUnit->isEnemy(eOurTeam))
 						{
+							//make sure the AI does not ignore their units being sniped
+							if (!GET_PLAYER(pLoopUnit->getOwner()).isHuman())
+								GET_PLAYER(pLoopUnit->getOwner()).AddKnownAttacker(this);
+
 							if(!pLoopUnit->canCoexistWithEnemyUnit(eOurTeam))
 							{
 								// Unit somehow ended up on top of an enemy combat unit
@@ -20865,7 +20866,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					if (pkUnitType != NULL)
 					{
 						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, REASON_CONVERT, true, true, 0, 0, NO_CONTRACT, false);
 						kill(true, NO_PLAYER);
 						pNewUnit->finishMoves();
@@ -20991,7 +20992,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 
-					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
+					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false, false); // will delete the pointer
 					pNewCity = NULL;
 
 					//it might happen that we liberate the city right after acquiring it
@@ -24824,7 +24825,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
 					if(pkUnitType != NULL)
 					{
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
 						pNewUnit->convert(this, true);
 						pNewUnit->finishMoves();
@@ -24844,7 +24845,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
 					if (pkUnitType != NULL)
 					{
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
 						pNewUnit->convert(this, true);
 						pNewUnit->finishMoves();
@@ -26040,7 +26041,7 @@ CvUnitEntry& CvUnit::getUnitInfo() const
 
 bool CvUnit::isUnitAI(UnitAITypes eType) const
 {
-	return (UnitAITypes)m_pUnitInfo->GetDefaultUnitAIType() == eType;
+	return m_pUnitInfo->GetDefaultUnitAIType() == eType;
 }
 
 //	--------------------------------------------------------------------------------
@@ -27776,10 +27777,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
 		return;
 
+	CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
 	if (isHasPromotion(eIndex) != bNewValue)
 	{
-		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
-
 		if (bNewValue && MOD_GLOBAL_CANNOT_EMBARK && getUnitInfo().CannotEmbark())
 		{
 			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater())
@@ -27986,27 +27986,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 		ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
 		ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
-		if(thisPromotion.PromotionDuration() != 0)
-		{
-			if(bNewValue)
-			{
-				//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
-				ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
-				if(getPromotionDuration(eIndex) > 0)
-				{
-					SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
-				}
-			}
-			else
-			{
-				ChangePromotionDuration(NO_PROMOTION, 0);
-			}
-		}
 		if(thisPromotion.NegatesPromotion() != NO_PROMOTION)
 		{
 			if(bNewValue)
 			{
-				SetNegatorPromotion((int)thisPromotion.NegatesPromotion());
+				SetNegatorPromotion(thisPromotion.NegatesPromotion());
 			}
 			else
 			{
@@ -28263,6 +28247,24 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		//promotion changes may invalidate some caches
 		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
 	}
+
+	//top up the duration, also if we already had the promotion
+	if (thisPromotion.PromotionDuration() != 0)
+	{
+		if (bNewValue)
+		{
+			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
+			ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
+			if (getPromotionDuration(eIndex) > 0)
+			{
+				SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+			}
+		}
+		else
+		{
+			ChangePromotionDuration(NO_PROMOTION, 0);
+		}
+	}
 }
 
 
@@ -28325,7 +28327,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 	pUnitNode = pushPlot.headUnitNode();
 	while (pUnitNode != NULL)
 	{
-		pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pushPlot.nextUnitNode(pUnitNode);
 
 		//this should be the blocking unit
@@ -28447,7 +28449,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 						pUnitNode = swapPlot.headUnitNode();
 						while (pUnitNode != NULL)
 						{
-							pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
+							pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
 							// A unit can't swap with itself (slewis)
@@ -31184,7 +31186,7 @@ bool CvUnit::IsCanDefend() const
 bool CvUnit::IsCivilianUnit() const
 {
 	//aircraft are not combat units but can attack ranged ...
-	return !IsCombatUnit() && !IsCanAttackRanged();
+	return !IsCombatUnit() && !IsCanAttackRanged() && !canNuke();
 }
 
 // Combat eligibility routines

@@ -28,12 +28,13 @@ struct SPrecomputedExpensiveNumbers
 	int iAmountForIlliteracyReductionTimes100;
 	int iAmountForBoredomReductionTimes100;
 	int iReligiousUnrest;
+	int iGlobalHappiness;
 	bool bWantArt;
 	bool bWantScience;
 	bool bWantDiplo;
 
-	vector<vector<int>> bonusForXTerrain;
-	vector<vector<int>> bonusForXFeature;
+	vector<vector<int>> bonusForXTerrain; //updated on demand only
+	vector<vector<int>> bonusForXFeature; //updated on demand only
 
 	SPrecomputedExpensiveNumbers();
 	void update(CvCity* pCity);
@@ -79,8 +80,7 @@ public:
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
 	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
-	int GetYieldModifierTimes100(YieldTypes eYield);
-	void UpdateCache() const;
+	int GetYieldModifierTimes100(YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache);
 	bool CityShouldEmphasizeFood(int iAssumedExcessFood) const;
 	bool CityShouldEmphasizeProduction() const;
 
@@ -97,12 +97,12 @@ public:
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
-	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, const SPrecomputedExpensiveNumbers& cache);
 
 	// Specialist AI
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, bool bWantBest);
-	int GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers& cache);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;

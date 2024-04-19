@@ -245,7 +245,7 @@ void CvCityCitizens::DoTurn()
 		{
 			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
 		}
-		else if (m_pCity->getProductionProcess() != NO_PROCESS || m_pCity->getProductionProject() != NO_PROJECT)
+		else if (m_pCity->GetCityCitizens()->CityShouldEmphasizeProduction())
 		{
 			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 		}
@@ -487,7 +487,6 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	//we always want to be growing a little bit
 	//we might fall under the threshold if we stop working a given plot, so take that into account
 	bool bEmphasizeFood = CityShouldEmphasizeFood(bIsWorking ? cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)*100 : cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -524,7 +523,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 					iYield100 /= 20;
 			}
 
-			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
 			iValue += iYield100*max(1,iYieldMod);
 		}
@@ -533,20 +532,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	return iValue;
 }
 
-void CvCityCitizens::UpdateCache() const
+int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield, const SPrecomputedExpensiveNumbers& cache)
 {
-	gCachedNumbers.update(m_pCity);
-}
-
-int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
-{
-	const SPrecomputedExpensiveNumbers cache = gCachedNumbers;
-
 	CityAIFocusTypes eFocus = GetFocusType();
 	bool bAvoidGrowth = IsAvoidGrowth();
 
 	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	//Simplification - errata yields not worth considering.
 	if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
@@ -566,7 +557,8 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
 			iModifierTimes100 /= 20;
 	}
 
-	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+
+	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
 	if (iYieldMod > 0)
 		return (iModifierTimes100 * iYieldMod) / 10;
@@ -588,9 +580,45 @@ bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 
 bool CvCityCitizens::CityShouldEmphasizeProduction() const
 {
-	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
-	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
-	return (bCityFoodProduction || bCityWonderProduction);
+	if (GET_PLAYER(GetOwner()).isHuman() || m_pCity->getPopulation() <= 3)
+		return false;
+
+	//settler
+	if (m_pCity->isFoodProduction())
+		return true;
+
+	// world wonder
+	if (m_pCity->IsBuildingWorldWonder())
+		return true;
+
+	// league project
+	ProcessTypes eProcess = m_pCity->getProductionProcess();
+	if (eProcess != NO_PROCESS && m_pCity->IsProcessInternationalProject(eProcess))
+		return true;
+
+	// one-time project
+	ProjectTypes eProject = m_pCity->getProductionProject();
+	if (eProject != NO_PROJECT)
+	{
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		if (!pkProjectInfo->IsRepeatable())
+		{
+			return true;
+		}
+	}
+
+	// spaceship part
+	UnitTypes eUnit = m_pCity->getProductionUnit();
+	if (eUnit != NO_UNIT)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != -1)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /// Are this City's Citizens under automation?
@@ -696,7 +724,7 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 	return false;
 }
 
-int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
+int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, const SPrecomputedExpensiveNumbers& cache)
 {
 	int iDefaultValue = 0;
 	switch (eYield)
@@ -742,10 +770,6 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	}
 	else if (eYield == YIELD_PRODUCTION)
 	{
-		//building a wonder or project, give it a boost but not so much that we start starving
-		if (bEmphasizeProduction)
-			iYieldMod += iDefaultValue;
-
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 
@@ -918,14 +942,13 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 }
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPrecomputedExpensiveNumbers& cache)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers& cache)
 {
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pSpecialistInfo == NULL)
 		return 0;
 
 	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
-	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
 
 	///////
 	// Bonuses
@@ -981,7 +1004,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 
 		if (iYield100 != 0)
 		{
-			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, cache);
 
 			//prefer to even out yields
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
@@ -1086,28 +1109,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		if (iNumPuppets > 0)
 		{
 			iGPPRateMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
-		}
-	}
-
-	if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
-	{
-		int iNumMarried = 0;
-		// Loop through all minors and get the total number we've met.
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
-
-			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-			{
-				if (!GET_PLAYER(eMinor).IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
-				{
-					iNumMarried++;
-				}
-			}
-		}
-		if (iNumMarried > 0)
-		{
-			iGPPRateMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 		}
 	}
 
@@ -1228,7 +1229,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	if (MOD_BALANCE_VP)
 	{
 		int iCityHappiness = 0;
-		int iGlobalHappiness = 0;
 		int iValuePercent = 100;
 		//if the specialist would cause urbanization, reduce specialist value depending on local and global unhappiness
 		if ((m_pCity->GetCityCitizens()->GetTotalSpecialistCount() + 1 - m_pCity->GetNumFreeSpecialists()) > 0)
@@ -1241,21 +1241,24 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			else
 			{
 				iCityHappiness = m_pCity->getHappinessDelta();
-				iGlobalHappiness = (GetPlayer()->GetHappinessFromCitizenNeeds()*10/11) - GetPlayer()->GetUnhappinessFromCitizenNeeds();
+
 				//iGlobalHappiness == 0 corresponds to a happiness level of 55%. We don't want to assign too many specialists when close to the 50% threshold
-				if (iGlobalHappiness <= 0 && iCityHappiness <= 0)
+				if (cache.iGlobalHappiness==INT_MAX) //update on demand
+					cache.iGlobalHappiness = pPlayer->GetHappinessFromCitizenNeeds() * 10 / 11 - pPlayer->GetUnhappinessFromCitizenNeeds();
+
+				if (cache.iGlobalHappiness <= 0 && iCityHappiness <= 0)
 				{
 					// unhappy both globally and locally
-					iValuePercent = max(10, 65 + (iGlobalHappiness + iCityHappiness - 2) * 5);
+					iValuePercent = max(10, 65 + (cache.iGlobalHappiness + iCityHappiness - 2) * 5);
 				}
-				if (iGlobalHappiness <= 0 || iCityHappiness <= 0)
+				if (cache.iGlobalHappiness <= 0 || iCityHappiness <= 0)
 				{
-					iValuePercent = max(10, 65 + min(iGlobalHappiness - 1, iCityHappiness - 1) * 5);
+					iValuePercent = max(10, 65 + min(cache.iGlobalHappiness - 1, iCityHappiness - 1) * 5);
 				}
 				else
 				{
 					// we're happy
-					iValuePercent = min(100, 90 + min(iGlobalHappiness, iCityHappiness) * 2);
+					iValuePercent = min(100, 90 + min(cache.iGlobalHappiness, iCityHappiness) * 2);
 				}
 			}
 		}
@@ -1605,6 +1608,9 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	gCachedNumbers.update(m_pCity);
 	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), gCachedNumbers);
 
+	vector<CvPlot*> justAddedPlot; //avoid touching a plot multiple times, should not happen but it does
+	vector<BuildingTypes> justAddedBuildings;
+
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation() / 2)
 	{
@@ -1617,6 +1623,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		//where do we have potential for improvement?
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, eWORST_WORKED_UNFORCED);
 		BuildingTypes eWorstSpecialistBuilding = GetAIBestSpecialistCurrentlyInBuilding(iWorstSpecialistValue, false);
+
+		//check whether we are turning in circles ...
+		if (std::find(justAddedPlot.begin(), justAddedPlot.end(), pWorstWorkedPlot) != justAddedPlot.end())
+			pWorstWorkedPlot = NULL;
+		if (std::find(justAddedBuildings.begin(), justAddedBuildings.end(), eWorstSpecialistBuilding) != justAddedBuildings.end())
+			eWorstSpecialistBuilding = NO_BUILDING;
 
 		bool bReleaseLaborer = (GetNumDefaultSpecialists() > GetNumForcedDefaultSpecialists()) && (iWorstSpecialistValue > iLaborerValue);
 		if (bReleaseLaborer)
@@ -1691,19 +1703,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				pBestFreePlot->setOwningCityOverride(m_pCity);
 
 			SetWorkingPlot(pBestFreePlot, true, CvCity::YIELD_UPDATE_GLOBAL);
-
-			//new plot is same as old plot, we're done
-			if (pBestFreePlot == pWorstWorkedPlot)
-			{
-				if (pLog)
-				{
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
-					CvString strOutBuf;
-					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
-					pLog->Msg(strOutBuf);
-				}
-				break;
-			}
+			justAddedPlot.push_back(pBestFreePlot);
 
 			if (pLog)
 			{
@@ -1729,6 +1729,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eBestSpecialistBuilding);
 
 				if (pLog)
 				{
@@ -1752,13 +1753,18 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			{
 				//add the citizen back to the original plot
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedPlot.push_back(pWorstWorkedPlot);
 				break;
 			}
 			else if (eWorstSpecialistBuilding != NO_BUILDING)
 			{
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
+				justAddedBuildings.push_back(eWorstSpecialistBuilding);
 			}
+			else
+				//if nothing else works, create a laborer
+				ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_LOCAL);
 		}
 
 		iCount++;
@@ -2562,28 +2568,6 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					if (eGreatPerson != NO_GREATPERSON)
 					{
 						iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
-					}
-				}
-
-				if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
-				{
-					int iNumMarried = 0;
-					// Loop through all minors and get the total number we've met.
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-					{
-						PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
-
-						if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-						{
-							if (!GET_PLAYER(eMinor).IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
-							{
-								iNumMarried++;
-							}
-						}
-					}
-					if (iNumMarried > 0)
-					{
-						iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 					}
 				}
 
@@ -3706,6 +3690,8 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 
 void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 {
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+
 	iFamine = pCity->GetUnhappinessFromFamine();
 	iDistress = pCity->GetDistress(false);
 	iPoverty = pCity->GetPoverty(false);
@@ -3714,6 +3700,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	iReligiousUnrest = pCity->GetUnhappinessFromReligiousUnrest();
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
+
+	//this is so expensive, put a marker and it will be updated on demand
+	iGlobalHappiness = INT_MAX;
 
 	if (pCity->IsPuppet())
 	{
@@ -3739,7 +3728,6 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
 			bonusForXTerrain[i][j] = INT_MAX;
 
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	if (kPlayer.isHuman())
 	{
 		bWantArt = false;

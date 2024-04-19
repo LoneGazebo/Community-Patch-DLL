@@ -3314,7 +3314,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 		if (pLoopUnit->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
 			continue;
 
-		if (pLoopPlot->getOwner()!=ePlayer && GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopPlot)>4) 
+		if (pLoopPlot->getOwner()!=ePlayer && GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopPlot)>6) 
 			continue;
 
 		//a single unit is too volatile, check for a whole cluster

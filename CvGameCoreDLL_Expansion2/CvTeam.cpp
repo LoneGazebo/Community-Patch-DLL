@@ -1301,12 +1301,12 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	// anyone who WANTED to declare war becomes aggressive now
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (GET_PLAYER(eLoopPlayer).getTeam() == m_eID && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			for (int iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 			{
-				PlayerTypes eLoopTarget = (PlayerTypes) iTargetLoop;
+				PlayerTypes eLoopTarget = (PlayerTypes)iTargetLoop;
 				if (GET_PLAYER(eLoopTarget).getTeam() == eTeam && GET_PLAYER(eLoopTarget).isAlive())
 				{
 					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -1448,7 +1448,14 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && (GET_PLAYER(eLoopPlayer).getTeam() == GetID() || GET_PLAYER(eLoopPlayer).getTeam() == eTeam))
+		{
+			GC.getMap().verifyUnitValidPlot(eLoopPlayer);
+		}
+	}
 #endif
 
 	// Set initial war counters for all players
@@ -4773,16 +4780,16 @@ bool CvTeam::IsAllowsOpenBordersToTeam(TeamTypes eIndex) const
 {
 	if (eIndex < 0 || eIndex >= MAX_TEAMS) return false;
 
+	// We always have open borders with ourselves
+	if (GetID() == eIndex)
+		return true;
+
 	// Did we resurrect them?
 	if (GetLiberatedByTeam() == eIndex && !isAtWar(eIndex))
 		return true;
 
 	// Are we their master?
 	if (GetMaster() == eIndex)
-		return true;
-
-	// We always have open borders with ourselves
-	if (GetID() == eIndex)
 		return true;
 
 	return m_abOpenBorders[eIndex];
@@ -4797,7 +4804,14 @@ void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 	{
 		m_abOpenBorders[eIndex] = bNewValue;
 
-		GC.getMap().verifyUnitValidPlot();
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eIndex)
+			{
+				GC.getMap().verifyUnitValidPlot(eLoopPlayer);
+			}
+		}
 
 		if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
 		{
@@ -6918,7 +6932,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
-								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
+								eFreeUnit = (GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass()));
 
 								if (eFreeUnit != NO_UNIT)
 								{
@@ -9328,7 +9342,7 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary)
 	if(eIndex==GetID())
 		return;
 
-	m_eMaster = bNewValue ? (TeamTypes) eIndex : NO_TEAM;
+	m_eMaster = bNewValue ? eIndex : NO_TEAM;
 	m_bIsVoluntaryVassal = bNewValue ? bVoluntary : false;
 }
 
@@ -10325,7 +10339,7 @@ void CvTeam::SetTradeTech(TechTypes eTech, bool bValue)
 	m_pabTradeTech[eTech] = bValue;
 }
 
-int CvTeam::GetSSProjectCount()
+int CvTeam::GetSSProjectCount(bool bIncludeApollo)
 {
 	ProjectTypes ApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
 	ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
@@ -10334,11 +10348,11 @@ int CvTeam::GetSSProjectCount()
 	ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 	int iTotal = 0;
-	iTotal += getProjectCount((ProjectTypes)ApolloProgram) + getProjectMaking((ProjectTypes)ApolloProgram);
-	iTotal += getProjectCount((ProjectTypes)capsuleID) + getProjectMaking((ProjectTypes)capsuleID);
-	iTotal += getProjectCount((ProjectTypes)boosterID) + getProjectMaking((ProjectTypes)boosterID);
-	iTotal += getProjectCount((ProjectTypes)stasisID) + getProjectMaking((ProjectTypes)stasisID);
-	iTotal += getProjectCount((ProjectTypes)engineID) + getProjectMaking((ProjectTypes)engineID);
+	iTotal += bIncludeApollo ? getProjectCount(ApolloProgram) + getProjectMaking(ApolloProgram) : 0;
+	iTotal += getProjectCount(capsuleID) + getProjectMaking(capsuleID);
+	iTotal += getProjectCount(boosterID) + getProjectMaking(boosterID);
+	iTotal += getProjectCount(stasisID) + getProjectMaking(stasisID);
+	iTotal += getProjectCount(engineID) + getProjectMaking(engineID);
 
 	return iTotal;
 }

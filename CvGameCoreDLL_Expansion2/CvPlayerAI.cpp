@@ -701,7 +701,7 @@ void CvPlayerAI::AI_considerAnnex()
 		{
 			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
 			{
-				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
+				eCourthouseType = buildingInfo->GetBuildingClassType();
 				break;
 			}
 		}
@@ -2049,6 +2049,355 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	return NULL;
 }
 
+//	--------------------------------------------------------------------------------
+/// planner for AI spaceship production: returns the cities in which the currently available spaceship parts should be built in order to achieve SV as early as possible
+vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
+{
+	if (GC.getGame().getGameTurn() == m_iCitiesForSpaceshipPartsUpdateTurn)
+	{
+		return m_vCitiesForSpaceshipParts;
+	}
+
+	m_iCitiesForSpaceshipPartsUpdateTurn = GC.getGame().getGameTurn();
+	m_vCitiesForSpaceshipParts.clear();
+
+	CvCity* pCapital = getCapitalCity();
+	if (!pCapital)
+		return m_vCitiesForSpaceshipParts;
+
+	int iNumSpaceshipPartsStillNeeded = 6 - GET_TEAM(getTeam()).GetSSProjectCount(/*bIncludeApollo*/ false);
+	int iNumSpaceshipPartsBuildableNow = GetNumSpaceshipPartsBuildableNow(/*bIncludeCurrentlyInProduction*/ true);
+
+	if (iNumSpaceshipPartsStillNeeded == 0 || iNumSpaceshipPartsBuildableNow == 0)
+		return m_vCitiesForSpaceshipParts;
+
+	// get unit type for one of the spaceship parts
+	UnitTypes eSpaceshipUnit = NO_UNIT;
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(static_cast<UnitTypes>(iUnitLoop));
+		if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+		{
+			eSpaceshipUnit = static_cast<UnitTypes>(iUnitLoop);
+			break;
+		}
+	}
+
+	CvString logMsg;
+	// pre-selection: get cities we consider for spaceship part production
+	vector<CvCity*> vCitiesToConsider;
+	VictoryTypes eCultureVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		if (pLoopCity->isUnderSiege())
+			continue;
+
+		// city too far away?
+		if (!(pLoopCity->CanAirlift() && pCapital->CanAirlift()) && plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) > 40)
+			continue;
+
+		// building a world wonder?
+		if (pLoopCity->IsBuildingWorldWonder())
+			continue;
+
+		// building utopia project?
+		if (pLoopCity->getProductionProject() != NO_PROJECT)
+		{
+			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(pLoopCity->getProductionProject());
+			if (pkProjectInfo && pkProjectInfo->GetVictoryPrereq() == eCultureVictory && eCultureVictory != NO_VICTORY)
+			{
+				continue;
+			}
+		}
+
+		vCitiesToConsider.push_back(pLoopCity);
+	}
+
+	int iNumCitiesToConsider = vCitiesToConsider.size();
+	if (iNumCitiesToConsider == 0)
+		return m_vCitiesForSpaceshipParts;
+
+	// we want to assign spaceship part to cities in such a way that the total number of turns to bring all spaceship parts to the capital is minimized
+	// to do this, we loop through the spaceship parts we still need and assign each of it to the best city. one city can be considered for multiple parts.
+	// the total number of production turns needed for each city will be stored in vTotalTurns
+
+	// first, we get some production data for all the cities we're considering
+	vector<int>vProductionTurnsForNewSpaceshipPart(iNumCitiesToConsider, 0); // turns for building a spaceship part that we haven't started yet
+	vector<int>vTransportTurnsToCapital(iNumCitiesToConsider, 0); // estimated number of turns we need to get a spaceship part to the capital
+	vector<int>vExistingProgress(iNumCitiesToConsider, 0); // how many turns of progress towards a spaceship part do we have?
+	vector<int>vIsProducingSpaceshipPart(iNumCitiesToConsider, false); // are we currently producing a spaceship part?
+	vector<int>vTotalTurns(iNumCitiesToConsider, 0);
+
+	for (int i = 0; i < iNumCitiesToConsider; i++)
+	{
+		CvCity* pLoopCity = vCitiesToConsider[i];
+
+		// temporarily change city focus to production before calculating unit production turns
+		CityAIFocusTypes eCurrentFocus = pLoopCity->GetCityCitizens()->GetFocusType();
+		pLoopCity->GetCityCitizens()->SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION, true);
+		vProductionTurnsForNewSpaceshipPart[i] = pLoopCity->getUnitTotalProductionTurns(eSpaceshipUnit);
+		// change city focus back to what it was before
+		pLoopCity->GetCityCitizens()->SetFocusType(eCurrentFocus, true);
+
+		int iTransportTurns = 0;
+		if (!pLoopCity->isCapital())
+		{
+			// rough approximation
+			iTransportTurns = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) / 15;
+			if (!pLoopCity->HasAccessToLandmass(pCapital->plot()->getLandmass()))
+			{
+				iTransportTurns += 2;
+			}
+			if (pLoopCity->CanAirlift() && pCapital->CanAirlift())
+			{
+				iTransportTurns = min(iTransportTurns, 1);
+			}
+		}
+		vTransportTurnsToCapital[i] = iTransportTurns;
+
+		int iTurnsExistingProgress = 0;
+		for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+		{
+			UnitTypes eUnitLoop = (UnitTypes)iUnitLoop;
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitLoop);
+			if (pkUnitInfo && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+			{
+				if (pLoopCity->getUnitProduction(eUnitLoop) > 0)
+				{
+					iTurnsExistingProgress = max(iTurnsExistingProgress, vProductionTurnsForNewSpaceshipPart[i] - pLoopCity->getProductionTurnsLeft(eUnitLoop, 0));
+					if (pLoopCity->getProductionUnit() == eUnitLoop)
+					{
+						vIsProducingSpaceshipPart[i] = true;
+					}
+				}
+			}
+		}
+		vExistingProgress[i] = iTurnsExistingProgress;
+		// if we have existing progress towards a spaceship part in the city, we set vTotalTurns initially to minus that value
+		// this will ensure that the existing progress is counted towards the first spaceship part built in the city, but not towards any future ones
+		vTotalTurns[i] = -iTurnsExistingProgress;
+	}
+
+	if (GC.getLogging())
+	{
+		logMsg.Format("Spaceship planning. Parts needed: %d, Parts we can build currently: %d", iNumSpaceshipPartsStillNeeded, iNumSpaceshipPartsBuildableNow);
+		LogSpaceshipPlanMessage(logMsg);
+		logMsg.Format("Considering the following cities:");
+		LogSpaceshipPlanMessage(logMsg);
+		for (int i = 0; i < iNumCitiesToConsider; i++)
+		{
+			if (vIsProducingSpaceshipPart[i])
+			{
+				logMsg.Format(" *%s: Turns per SS part: %d, Existing progress: %d, Transport turns: %d", vCitiesToConsider[i]->getName().GetCString(), vProductionTurnsForNewSpaceshipPart[i], -vTotalTurns[i], vTransportTurnsToCapital[i]);
+			}
+			else
+			{
+				logMsg.Format("  %s: Turns per SS part: %d, Existing progress: %d, Transport turns: %d", vCitiesToConsider[i]->getName().GetCString(), vProductionTurnsForNewSpaceshipPart[i], -vTotalTurns[i], vTransportTurnsToCapital[i]);
+			}
+			LogSpaceshipPlanMessage(logMsg);
+		}
+	}
+
+	for (int j = 0; j < iNumSpaceshipPartsStillNeeded; j++)
+	{
+		// at this point, vTurnsTotal contains for all cities the number of turns needed for the other spaceship parts
+		// we want to find the city such that, if we added the spaceship part we're considering right now to the city queue, the number of turns we need until all parts are produced would be as low as possible
+		int iBestCity = -1;
+		int iNumberOfTurnsIfBestCityUsed = INT_MAX;
+		for (int i = 0; i < iNumCitiesToConsider; i++)
+		{
+			// how long would it take if we used this city for the spaceship part?
+			// add up turns for other spaceship parts we want to produce in this city and turns of the newly added spaceship part
+			int iNumberOfTurnsIfThisCityUsed = vTotalTurns[i] + vProductionTurnsForNewSpaceshipPart[i];
+			// add transport costs for the last item
+			iNumberOfTurnsIfThisCityUsed += vTransportTurnsToCapital[i];
+			// is this city better than the ones considered previously?
+			if (iNumberOfTurnsIfThisCityUsed < iNumberOfTurnsIfBestCityUsed)
+			{
+				iBestCity = i;
+				iNumberOfTurnsIfBestCityUsed = iNumberOfTurnsIfThisCityUsed;
+			}
+		}
+		// add production turns to vTotalTurns for the city we've chosen
+		vTotalTurns[iBestCity] += vProductionTurnsForNewSpaceshipPart[iBestCity];
+
+		if (GC.getLogging())
+		{
+			logMsg.Format("Choosing city for part #%d: %s. Total turns until part finished: %d", j + 1, vCitiesToConsider[iBestCity]->getName().GetCString(), vTotalTurns[iBestCity]);
+			LogSpaceshipPlanMessage(logMsg);
+		}
+	}
+
+	// after having assigned all spaceship parts to cities, the cities we want to use for spaceship parts are the ones for which vTotalTurns is positive. spaceship parts will only be built in those
+	// for the parts we can build right now, we choose only the cities with the *highest* number of turns. this will make sure the better cities won't be blocked when the other parts will become available later
+	// existing progress is added to the weights and cities that are already producing a spaceship part get an additional bonus, this prevents the AI from switching back and forth between cities too often
+	CvWeightedVector<CvCity*> vCitiesSortedByTurns;
+	for (int i = 0; i < iNumCitiesToConsider; i++)
+	{
+		if (vTotalTurns[i] > 0)
+		{
+			vCitiesSortedByTurns.push_back(vCitiesToConsider[i], vTotalTurns[i] + vExistingProgress[i] + (vIsProducingSpaceshipPart[i] ? 2 : 0));
+		}
+	}
+	vCitiesSortedByTurns.StableSortItems();
+
+	// for the parts we can produce right now, choose the worst cities.
+	for (int k = 0; k < min(vCitiesSortedByTurns.size(), iNumSpaceshipPartsBuildableNow); k++)
+	{
+		m_vCitiesForSpaceshipParts.push_back(vCitiesSortedByTurns.GetElement(k));
+	}
+
+	if (GC.getLogging())
+	{
+		logMsg.Format("All spaceship parts assigned to cities. Cities selected:  ( '***': for currently available parts)");
+		LogSpaceshipPlanMessage(logMsg);
+		for (int k = 0; k < vCitiesSortedByTurns.size(); k++)
+		{
+			if (k < iNumSpaceshipPartsBuildableNow)
+			{
+				logMsg.Format("  ***  %s, Weight: %d", vCitiesSortedByTurns.GetElement(k)->getName().GetCString(), vCitiesSortedByTurns.GetWeight(k));
+			}
+			else
+			{
+				logMsg.Format("  %s, Weight: %d", vCitiesSortedByTurns.GetElement(k)->getName().GetCString(), vCitiesSortedByTurns.GetWeight(k));
+			}
+			LogSpaceshipPlanMessage(logMsg);
+		}
+	}
+
+	return m_vCitiesForSpaceshipParts;
+}
+
+//	--------------------------------------------------------------------------------
+/// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
+void CvPlayerAI::AI_doSpaceshipProduction()
+{
+	if (isHuman() || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return;
+
+	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
+		return;
+
+
+	// calculate cities to build spaceship parts in
+	vector<CvCity*> vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
+
+	// cancel spaceship part production in cities that are not considered the best cities (have to do this first to make the parts available)
+	CvString strOutBuf;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->isProductionSpaceshipPart())
+		{
+			if (find(vBestCitiesForSpaceshipParts.begin(), vBestCitiesForSpaceshipParts.end(), pLoopCity) == vBestCitiesForSpaceshipParts.end())
+			{
+				// cancel current production
+				pLoopCity->clearOrderQueue();
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					strOutBuf.Format("%s, NOT BEST CITY, CANCELING SPACESHIP PRODUCTION", pLoopCity->getName().GetCString());
+					LogSpaceshipPlanMessage(strOutBuf);
+				}
+			}
+		}
+	}
+
+	// which of the best cities are not building spaceship parts?
+	vector<CvCity*> vCitiesForAvailableSpaceshipParts;
+	int iLoop2 = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop2); pLoopCity != NULL; pLoopCity = nextCity(&iLoop2))
+	{
+		if (find(vBestCitiesForSpaceshipParts.begin(), vBestCitiesForSpaceshipParts.end(), pLoopCity) != vBestCitiesForSpaceshipParts.end())
+		{
+			// is the city producing a spaceship unit? continue doing so
+			// otherwise, cancel whatever it is the city is producing
+			if (!pLoopCity->isProductionSpaceshipPart())
+			{
+				pLoopCity->clearOrderQueue();
+				vCitiesForAvailableSpaceshipParts.push_back(pLoopCity);
+			}
+		}
+	}
+
+	if (vCitiesForAvailableSpaceshipParts.size() == 0)
+		return;
+
+	// if a city has existing progress towards a spaceship part, it should build that part
+	for (size_t iLoopAvailable = 0; iLoopAvailable < vCitiesForAvailableSpaceshipParts.size(); iLoopAvailable++)
+	{
+		CvCity* pLoopCity = vCitiesForAvailableSpaceshipParts[iLoopAvailable];
+		UnitTypes ePreferredUnit = NO_UNIT;
+		UnitAITypes ePreferredUnitAI = NO_UNITAI;
+		for (int iLoopUnit = 0; iLoopUnit < GC.GetGameUnits()->GetNumUnits(); iLoopUnit++)
+		{
+			UnitTypes eLoopUnit = (UnitTypes)iLoopUnit;
+			CvUnitEntry* pkLoopUnitInfo = GC.getUnitInfo(eLoopUnit);
+			if (pkLoopUnitInfo && pkLoopUnitInfo->GetSpaceshipProject() != NO_PROJECT && pLoopCity->canTrain(eLoopUnit))
+			{
+				if (pLoopCity->getUnitProduction(eLoopUnit) > 0)
+				{
+					ePreferredUnit = eLoopUnit;
+					ePreferredUnitAI = pkLoopUnitInfo->GetDefaultUnitAIType();
+					break;
+				}
+			}
+		}
+		if (ePreferredUnit != NO_UNIT)
+		{
+			pLoopCity->pushOrder(ORDER_TRAIN, ePreferredUnit, ePreferredUnitAI, false, true, false, false);
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvCityBuildable buildable;
+				buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
+				buildable.m_iIndex = ePreferredUnit;
+				buildable.m_iTurnsToConstruct = pLoopCity->getProductionTurnsLeft(ePreferredUnit, 0);
+				pLoopCity->GetCityStrategyAI()->LogCityProduction(buildable, false);
+				
+				strOutBuf.Format("%s, CONTINUING INTERRUPTED SPACESHIP PART CONSTRUCTION - Started %s, Turns: %d", pLoopCity->getName().GetCString(), GC.getUnitInfo(ePreferredUnit)->GetDescription(), buildable.m_iTurnsToConstruct);
+				LogSpaceshipPlanMessage(strOutBuf);
+			}
+		}
+	}
+
+	// assign any remaining spaceship parts to the other cities
+	for (size_t iLoopAvailable = 0; iLoopAvailable < vCitiesForAvailableSpaceshipParts.size(); iLoopAvailable++)
+	{
+		CvCity* pLoopCity = vCitiesForAvailableSpaceshipParts[iLoopAvailable];
+		if (pLoopCity->getProductionUnit() != NO_UNIT)
+			continue;
+
+		for (int iLoopUnit = 0; iLoopUnit < GC.GetGameUnits()->GetNumUnits(); iLoopUnit++)
+		{
+			UnitTypes eLoopUnit = (UnitTypes)iLoopUnit;
+			CvUnitEntry* pkLoopUnitInfo = GC.getUnitInfo(eLoopUnit);
+			if (pkLoopUnitInfo && pkLoopUnitInfo->GetSpaceshipProject() != NO_PROJECT && pLoopCity->canTrain(eLoopUnit))
+			{
+				pLoopCity->pushOrder(ORDER_TRAIN, eLoopUnit, pkLoopUnitInfo->GetDefaultUnitAIType(), false, true, false, false);
+
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvCityBuildable buildable;
+					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
+					buildable.m_iIndex = eLoopUnit;
+					buildable.m_iTurnsToConstruct = pLoopCity->getProductionTurnsLeft(eLoopUnit, 0);
+
+					pLoopCity->GetCityStrategyAI()->LogCityProduction(buildable, false);
+
+					strOutBuf.Format("%s, STARTING SPACESHIP PART CONSTRUCTION - Started %s, Turns: %d", pLoopCity->getName().GetCString(), pkLoopUnitInfo->GetDescription(), buildable.m_iTurnsToConstruct);
+					LogSpaceshipPlanMessage(strOutBuf);
+				}
+
+				break;
+			}
+		}
+	}
+}
+
 CvPlot* CvPlayerAI::FindBestDiplomatTargetPlot(CvUnit* pUnit)
 {
 	if (!pUnit)
@@ -2134,7 +2483,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 
 	return NULL;
 }	
-	
+
 int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 {
 	//First, the exclusions!
@@ -2658,7 +3007,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			}
 
 			//don't remove existing great people improvements
-			ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
+			ImprovementTypes eExistingImprovement = pAdjacentPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
@@ -2718,7 +3067,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// don't build next to existing bombs
 			if (iRange == 1)
 			{
-				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
+				ImprovementTypes eExistingImprovement = pAdjacentPlot->getImprovementType();
 				if (eExistingImprovement != NO_IMPROVEMENT)
 				{
 					CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);

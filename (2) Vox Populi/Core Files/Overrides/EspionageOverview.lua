@@ -378,7 +378,7 @@ Controls.TabButtonIntrigue:RegisterCallback( Mouse.eLClick, function() TabSelect
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-Controls.CancelButton:RegisterCallback(Mouse.eLClick, function() Refresh(); end);
+Controls.CancelRelocationButton:RegisterCallback(Mouse.eLClick, function() Refresh(); end);
 function RelocateAgent(agentID, city)
 	local activePlayer = Players[Game.GetActivePlayer()];
 	local availableCitiesToRelocate = activePlayer:GetAvailableSpyRelocationCities(agentID);
@@ -715,7 +715,7 @@ function RefreshAgents()
 
 				if (v.TurnsLeft >= 0) then
 					agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_STR_TURNS", v.TurnsLeft);
-				elseif (v.SpyFocus >= 0) then
+				elseif (v.SpyFocus >= 0 and GameInfo.CityEventChoices[v.SpyFocus].MissionTooltip) then
 					local pMissionInfo = GameInfo.CityEventChoices[v.SpyFocus];
 					agentEntry.AgentProgress:LocalizeAndSetText(pMissionInfo.MissionTooltip);
 				elseif (v.NetworkPointsStored >= 0) then
@@ -747,7 +747,7 @@ function RefreshAgents()
 						
 						local count = PopulateSelectionList(Controls.MissionSelectionStack, Game.GetActivePlayer(), city, v);
 							
-						if(countpassive > 0 and count > 0) then					
+						if(countpassive > 0 or count > 0) then					
 							Controls.ConfirmMissionSelectionButton:SetDisabled(true);
 							Controls.ConfirmMissionSelectionButton:RegisterCallback(Mouse.eLClick, function()
 								CommitMissionSelection(SelectedItems, Game.GetActivePlayer(), city, v.AgentID);
@@ -2027,14 +2027,14 @@ PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
 	return count;
 end
 
-CommitCounterspyFocus = function(selection, playerID, city, spyID)
-	if(city ~= nil) then
+CommitCounterspyFocus = function(selection, playerID, pCity, spyID)
+	if(pCity ~= nil) then
 		for i,v in ipairs(selection) do
 			local eventChoiceType = v[1];
 			local eventChoice = GameInfo.CityEventChoices[eventChoiceType];
 			if(eventChoice ~= nil) then
 				local pPlayer = Players[playerID];
-				pPlayer:ChangeCounterspyMission(spyID, eventChoice.ID);
+				pCity:DoCityEventChoice(eventChoice.ID, spyID, playerID);
 				break;
 			end
 		end

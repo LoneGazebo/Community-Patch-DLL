@@ -8,7 +8,7 @@
 struct STiebreakGenerator
 {
 	//return 1 if B wins, -1 if A wins
-	virtual int operator()(int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const = 0;
+	virtual int operator()(int iPlotIndex, int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const = 0;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

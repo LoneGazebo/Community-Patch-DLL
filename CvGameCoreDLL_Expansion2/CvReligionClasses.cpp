@@ -570,7 +570,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
 {
 	EraTypes eGPEra = /*INDUSTRIAL*/ (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
-	EraTypes eSpecialEra = pPlayer ? (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
+	EraTypes eSpecialEra = pPlayer ? pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
 	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
 	{
 		return eSpecialEra;
@@ -724,7 +724,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, eReligion);
 					if (pCity)
 					{
-						pCity->Purchase(eUnit, NO_BUILDING, NO_PROJECT, YIELD_FAITH);
+						pCity->PurchaseUnit(eUnit, YIELD_FAITH);
 
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if(pNotifications)
@@ -762,7 +762,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithBuildingPurchase(kPlayer, eBuilding, eReligion);
 					if (pCity)
 					{
-						pCity->Purchase(NO_UNIT, eBuilding, NO_PROJECT, YIELD_FAITH);
+						pCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
 
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if(pNotifications)
@@ -7112,7 +7112,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					{
 						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitTypeForArmy(pCity))
 						{
-							pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
 							if (GC.getLogging())
 							{
 								CvString strFaith;
@@ -7124,7 +7124,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 						}
 						else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType(), false) <= iPurchaseAmount)
 						{
-							pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
 							if (GC.getLogging())
 							{
 								CvString strFaith;
@@ -7186,7 +7186,7 @@ bool CvReligionAI::DoReligionDefenseInCities()
 							strLogString.Format("Buying an emergency inquisitor in %s", pLoopCity->getName().c_str());
 							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
-						pLoopCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+						pLoopCity->PurchaseUnit(eInquisitor, YIELD_FAITH);
 						bResult = true;
 						break;
 					}
@@ -7541,7 +7541,7 @@ bool CvReligionAI::BuyMissionary(ReligionTypes eReligion)
 					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 
-				pBestCity->Purchase(eMissionary, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+				pBestCity->PurchaseUnit(eMissionary, YIELD_FAITH);
 				return true;
 			}
 		}
@@ -7570,7 +7570,7 @@ bool CvReligionAI::BuyInquisitor(ReligionTypes eReligion)
 					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 
-				pBestCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+				pBestCity->PurchaseUnit(eInquisitor, YIELD_FAITH);
 				return true;
 			}
 		}
@@ -7589,7 +7589,7 @@ bool CvReligionAI::BuyGreatPerson(UnitTypes eUnit, ReligionTypes eReligion)
 			int iCost = pBestCity->GetFaithPurchaseCost(eUnit, true /*bIncludeBeliefDiscounts*/);
 			if (iCost <= m_pPlayer->GetFaith())
 			{
-				pBestCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+				pBestCity->PurchaseUnit(eUnit, YIELD_FAITH);
 				return true;
 			}
 		}
@@ -7605,7 +7605,7 @@ bool CvReligionAI::BuyFaithBuilding(CvCity* pCity, BuildingTypes eBuilding)
 	int iBuildingCost = pCity->GetFaithPurchaseCost(eBuilding);
 	if (iBuildingCost <= kPlayer.GetFaith())
 	{
-		pCity->Purchase((UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH);
+		pCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
 		return true;
 	}
 
@@ -7638,7 +7638,7 @@ bool CvReligionAI::BuyAnyAvailableNonFaithUnit()
 					{
 						if((m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 0) && (m_pPlayer->GetNumUnitsOutOfSupply() <= 0))
 						{
-							pLoopCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+							pLoopCity->PurchaseUnit(eUnit, YIELD_FAITH);
 							bPurchased = true;
 						}	
 					}
@@ -7666,15 +7666,11 @@ bool CvReligionAI::BuyAnyAvailableNonFaithBuilding()
 				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
 
 				// Check to make sure this isn't a Faith-generating building
-#if defined(MOD_BALANCE_CORE)
 				if(pBuildingEntry && pBuildingEntry->GetFaithCost() > 0 && pBuildingEntry->GetReligiousPressureModifier() <= 0)
-#else
-				if(pBuildingEntry && pBuildingEntry->GetYieldChange(YIELD_FAITH) == 0)
-#endif
 				{
 					if(pLoopCity->IsCanPurchase(true, true, (UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH))
 					{
-						pLoopCity->Purchase((UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH);
+						pLoopCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
 						return true;
 					}
 				}
@@ -7684,7 +7680,7 @@ bool CvReligionAI::BuyAnyAvailableNonFaithBuilding()
 				{
 					if(pLoopCity->IsCanPurchase(true, true, (UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH))
 					{
-						pLoopCity->Purchase((UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH);
+						pLoopCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
 						return true;
 					}
 				}
@@ -7715,7 +7711,7 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 				{
 					if(pLoopCity->IsCanPurchase(true, true, (UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH))
 					{
-						pLoopCity->Purchase((UnitTypes)-1, eBuilding, (ProjectTypes)-1, YIELD_FAITH);
+						pLoopCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
 						return true;
 					}
 				}
@@ -7729,6 +7725,10 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool bConsiderExpansion) const
 {
 	CvWeightedVector<int> viPlotList; 
+
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
+	if (!pCapital)
+		return viPlotList;
 
 	int x_max = 0; int x_min = GC.getMap().getGridWidth();
 	int y_max = 0; int y_min = GC.getMap().getGridHeight();
@@ -7782,8 +7782,6 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 		//strTemp.Format("%s, Exploration Range: %d", m_pPlayer->getName(), iExplorationRange);
 		//pLog->Msg(strTemp);
 	}
-	
-	CvCity* pCapital = m_pPlayer->getCapitalCity();
 
 	// find all cities of players that we know that are close to us
 	vector<CvCity*>vKnownCitiesWithinReach;
@@ -8147,7 +8145,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 							if (pkImprovementInfo->IsSpecificCivRequired())
 							{
 								CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-								if (eRequiredCiv != m_pPlayer->GetID())
+								if (eRequiredCiv != m_pPlayer->getCivilizationType())
 									continue;
 							}
 
@@ -8312,7 +8310,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 				if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsConnectsResource(eResource)))
 					continue;
 
-				int iImprovementChange = pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI);
+				int iImprovementChange = pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, iI);
 				if (iImprovementChange > 0)
 				{
 					// modify value based on how much time we still need to build the improvement
@@ -8327,7 +8325,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 						if (pkImprovementInfo->IsSpecificCivRequired())
 						{
 							CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-							if (eRequiredCiv != m_pPlayer->GetID())
+							if (eRequiredCiv != m_pPlayer->getCivilizationType())
 								continue;
 						}
 
@@ -8381,7 +8379,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 		//only look at the current improvement
 		if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
-			iRtnValue += (pEntry->GetImprovementYieldChange(pPlot->getImprovementType(), (YieldTypes)iI)) * 100;
+			iRtnValue += (pEntry->GetImprovementYieldChange(pPlot->getImprovementType(), iI)) * 100;
 		}
 	}
 

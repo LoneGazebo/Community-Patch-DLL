@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" >
+
+
+
+
+    <!-- Combat Info Label Instances -->
+    <Instance Name="UsCombatInfo" >
+        <Label Anchor="R,C" Offset="52.0" String=" " Font="TwCenMT14" WrapWidth="170" LeadingOffset="-6" ID="Text" >
+            <Label Anchor="R,C" AnchorSide="O.I" Offset="4.0" Font="TwCenMT14" ID="Value" />
+        </Label>
+    </Instance>
+
+    <Instance Name="ThemCombatInfo" >
+        <Label Anchor="L,C" Offset="52.0" Font="TwCenMT14" ID="Text" WrapWidth="170" LeadingOffset="-6" >
+            <Label Anchor="L,C" AnchorSide="O.I" Offset="4.0" Font="TwCenMT14" ID="Value" />
+        </Label>
+    </Instance>
+
+
+    <!-- Stacks for Combat Result Info -->
+    <Grid Anchor="L,B" Offset="109,160" Size="520,160" Padding="0,26" Style="Grid9FrameBlack" Hidden="0" ID="DetailsGrid" >
+
+        <Box  Anchor="C,C" AnchorSide="o,o" Offset="0,0" Size="2,160" Color="255,255,200,32" HideBox="0" ID="DetailsSeperator" >
+
+            <Stack Anchor="L,T" AnchorSide="o,i" Offset="25,24" Padding="6" StackGrowth="Bottom" ID="MyCombatResultsStack" >
+                <Label ID="MyDamage" String="TXT_KEY_EUPANEL_UNIT_YOUR_APPROXIMATE_DAMAGE" Anchor="R,T" Offset="40,0" Font="TwCenMT16">
+                    <Label ID="MyDamageValue" AnchorSide="O.I" Anchor="R,C" Offset="6,0" Font="TwCenMT16"/>
+                </Label>
+                <Label ID="MyStrength" String="TXT_KEY_EUPANEL_UNIT_YOUR_STRENGTH" Anchor="R,T" Offset="40,0" Font="TwCenMT16">
+                    <Label ID="MyStrengthValue" AnchorSide="O.I" Anchor="R,C" Offset="6,0" Font="TwCenMT16"/>
+                </Label>
+            </Stack>
+
+            <Stack Anchor="R,T" AnchorSide="o,i" Offset="24,24" Padding="6" StackGrowth="Bottom" ID="TheirCombatResultsStack" >
+                <Label ID="TheirDamage" String="TXT_KEY_EUPANEL_UNIT_THEIR_APPROXIMATE_DAMAGE" Anchor="L,T" Offset="40,0" Font="TwCenMT16">
+                    <Label ID="TheirDamageValue" AnchorSide="O.I" Anchor="L,C" Offset="6,0" Font="TwCenMT16"/>
+                </Label>
+                <Label ID="TheirStrength" String="TXT_KEY_EUPANEL_UNIT_THEIR_STRENGTH" Anchor="L,T" Offset="40,0" Font="TwCenMT16">
+                    <Label ID="TheirStrengthValue" AnchorSide="O.I" Anchor="L,C" Offset="6,0" Font="TwCenMT16"/>
+                </Label>
+            </Stack>
+            
+        </Box>
+
+
+        <Container Anchor="C,T" Size="12,125" Offset="0,24" >
+            <!-- Health Bars  -->
+            <Box Anchor="C,T" AnchorSide="I.I" Size="12,165" Offset="-12,0" Color="0,0,0,200" Hidden="0">
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarGreen.dds" Size="8.55" Hidden="0" ID="MyGreenBar"/>
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarYellow.dds" Size="8.50" Hidden="1" ID="MyYellowBar"/>
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.50" Hidden="1" ID="MyRedBar"/>
+                <Image Anchor="C,B"  Offset="0,0" Color="255.255.255.0" Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.30" Hidden="0" ID="MyDeltaBar">
+                    <AlphaAnim Anchor="R,B"  Offset="0,0"  Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.30"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="0.05" AlphaEnd="0.99" ID="MyDeltaBarFlash"/>
+                </Image>
+            </Box>
+
+            <Box Anchor="C,T" AnchorSide="I.I" Size="12,165" Offset="12,0" Color="0,0,0,200"  Hidden="0">
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarGreen.dds" Size="8.35" Hidden="0" ID="TheirGreenBar"/>
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarYellow.dds" Size="8.50" Hidden="1" ID="TheirYellowBar"/>
+                <Image Anchor="C,B"  Offset="0,2"  Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.50" Hidden="1" ID="TheirRedBar"/>
+                <Image Anchor="C,B"  Offset="0,0" Color="255.255.255.0" Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.20" Hidden="0" ID="TheirDeltaBar">
+                    <AlphaAnim Anchor="R,B"  Offset="0,0"  Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="8.20"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="0.05" AlphaEnd="0.99" ID="TheirDeltaBarFlash"/>
+                </Image>
+            </Box>
+        </Container>
+
+        <!-- Ranged Attack -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="0" ID="RangedAttackIndicator">
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Green8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label ID="RangedAttackButtonLabel" Anchor="C,C" Offset="0,-2" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Safe Attack -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="0" ID="SafeAttackIndicator">
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Green8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_SAFE_ATTACK"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Risky Attack -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="1" ID="RiskyAttackIndicator" >
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Red8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_RISKY_ATTACK"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Total Victory -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="0" ID="TotalVictoryIndicator">
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Green8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_TOTAL_VICTORY"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Major Victory -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="0" ID="MajorVictoryIndicator">
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Green8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_MAJOR_VICTORY"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Minor Victory -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="0" ID="SmallVictoryIndicator">
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Green8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_MINOR_VICTORY"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Minor Defeat -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="1" ID="SmallDefeatIndicator" >
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Red8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_MINOR_DEFEAT"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Major Victory -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="1" ID="MajorDefeatIndicator" >
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Red8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_MAJOR_DEFEAT"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Total Defeat -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="1" ID="TotalDefeatIndicator" >
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Red8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_MAJOR_DEFEAT"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+        <!-- Stalemate -->
+        <Grid Anchor="C,T" Offset="0,-18" Size="320,36" Padding="0,0" Style="GridBlack8" Hidden="1" ID="StalemateIndicator" >
+            <AlphaAnim   Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".99" >
+                <Grid Anchor="C,C" Offset="0,0" Size="320,36" Padding="0,0" Style="Grid9Yellow8" Hidden="0" />
+            </AlphaAnim>
+            <Grid Anchor="C,C" Offset="0,0" Size="324,40" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+            <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_EUPANEL_STALEMATE"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow" />
+        </Grid>
+
+    </Grid>
+
+
+
+
+
+    <Box Anchor="L,B" Size="166,128" Offset="244,0" Color="PlayerColor2,200" Hidden="1" />
+
+
+
+
+    <!-- Unit Portrait -->
+
+    <Grid Anchor="L,B" Offset="370,-39" Size="316,208"  Padding="0,0" Style="Grid9DetailFive140" Hidden="0" >
+
+        <Stack Anchor="L,C" Offset="18,0"  Padding="0" Size="0,0" StackGrowth="Bottom">
+
+
+            <!-- Promotions -->
+            <Box Anchor="R,T" Size="280,26" Offset="0,0" Color="White,0" HideBox="0">
+                <Stack Anchor="L,T"  Offset="-2,-4" Padding="-7"  StackGrowth="Right">
+                    <Image Size="32,32"  TextureOffset="0,0" Texture="Promotions256.dds" ID="UnitPromotion1"  />
+                    <Image Size="32,32"  TextureOffset="32,0" Texture="Promotions256.dds" ID="UnitPromotion2" />
+                    <Image Size="32,32"  TextureOffset="64,0" Texture="Promotions256.dds" ID="UnitPromotion3" />
+                    <Image Size="32,32"  TextureOffset="96,0" Texture="Promotions256.dds" ID="UnitPromotion4"  />
+                    <Image Size="32,32"  TextureOffset="0,32" Texture="Promotions256.dds" ID="UnitPromotion5"  />
+                    <Image Size="32,32"  TextureOffset="32,32" Texture="Promotions256.dds" ID="UnitPromotion6" />
+                    <Image Size="32,32"  TextureOffset="32,32" Texture="Promotions256.dds" ID="UnitPromotion7" />
+                </Stack>
+
+            </Box>
+
+            <!-- XP METER -->
+            <Grid Anchor="R,C" Offset="0,0" Size="280,12" Padding="0,0" Style="Grid9FrameTurns" >
+                <Image Anchor="L,T"  Offset="3,2"  Texture="assets/UI/Art/UnitPanel/XPmeter.dds" Size="269,7" Hidden="1" ID=""/>
+            </Grid>
+
+
+            <Grid Anchor="R,C" Offset="0,0" Size="280,27" Padding="0,0" Style="Grid9FrameTurns"  ID="UnitMovementBox">
+                <Label Anchor="L,C" String="000" ID="UnitStatMovement"  Offset="10,0" />
+                <Label Anchor="L,C" Offset="90,-1"  String="TXT_KEY_EUPANEL_MOVEMENT" ID="UnitStatNameMovement"  />
+            </Grid>
+
+            <Grid Anchor="R,C" Offset="0,0" Size="280,27" Padding="0,0" Style="Grid9FrameTurns"  ID="UnitStrengthBox">
+                <Label Anchor="L,C" String="000" ID="UnitStatStrength" Offset="10,0" />
+                <Label Anchor="L,C" Offset="90,-1" String="TXT_KEY_EUPANEL_LOWER_STRENGTH" ID="UnitStatNameStrength" />
+            </Grid>
+
+            <Grid Anchor="R,C" Offset="0,0" Size="280,27" Padding="0,0" Style="Grid9FrameTurns"  ID="UnitRangedAttackBox">
+                <Label Anchor="L,C" String="000" ID="UnitStatRangedAttack"  Offset="10,0" />
+                <Label Anchor="L,C" Offset="90,-1"  String="TXT_KEY_EUPANEL_RANGED_ATTACK" ID="UnitStatNameRangedAttack" />
+            </Grid>
+
+        </Stack>
+
+
+
+        <Box Anchor="L,T" Size="230,24" Offset="32,15" Color="0,0,0,0" >
+    		<Label ID="UnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+    		<Label ID="LongUnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+    		<Label ID="ReallyLongUnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT" WrapWidth="235"/>
+        </Box>
+
+        <Image Anchor="R,T" Offset="-6,-0" Texture="assets\UI\Art\UnitPanel\IconFrame64.dds" Size="64.64" Hidden="0" >
+
+
+            <Image Anchor="C,C" Offset="0,0" Size="64,64" Texture="UnitPortraitsAncientMedieval512.dds" ID="UnitPortrait" Hidden="0"/>
+
+            <Image Size="54,54" Offset="-24,-24" Anchor="L,B" Texture="Assets/UI/Art/UnitPanel/UnitTypeFrame.dds" >
+                <Image Size="38,38" Offset="0,0" Anchor="C,C" Color="PlayerColor2,255"  Texture="Assets/UI/Art/UnitPanel/unitbackteamcolor.dds" ID="UnitBackColor"/>
+                <Image Size="38,38" TextureOffset="0,39" Anchor="C,C"  Texture="Assets/UI/Art/UnitPanel/unitbackteamcolor.dds" />
+                <Image Size="32,32" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds" Color="Black,128" ID="UnitIconShadow" />
+                <Image Size="32,32" Offset="-1,-1" Anchor="C,C" Color="PlayerColor1"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds"  ID="UnitIcon" />
+            </Image>
+
+        </Image>
+    </Grid>
+
+
+
+
+
+
+
+
+    <!-- Next/Prev Unit -->
+    <Box Anchor="R,B" Size="274,22" Offset="216,125" Color="0,0,0,0" >
+
+        <!-- Upgrades -->
+
+
+
+        <Label Anchor="C,C" String="TXT_KEY_EUPANEL_CURRENT_STATUS" Offset="0,30" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  Hidden="1" />
+    </Box>
+
+
+
+
+
+
+
+</Context>

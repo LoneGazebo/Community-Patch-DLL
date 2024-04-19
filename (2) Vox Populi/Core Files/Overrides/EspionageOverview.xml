@@ -534,7 +534,7 @@
 					<GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="20,10" StateOffsetIncrement="0,0" ID="UnassignButton">
 						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_MOVE_SPY_HIDEOUT_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 					</GridButton>
-					<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="5,10" StateOffsetIncrement="0,0" ID="CancelButton">
+					<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="5,10" StateOffsetIncrement="0,0" ID="CancelRelocationButton">
 						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CANCEL_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 					</GridButton>
 				</Box>

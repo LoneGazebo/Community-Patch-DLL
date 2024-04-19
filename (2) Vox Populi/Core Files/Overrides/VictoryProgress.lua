@@ -517,11 +517,11 @@ function PopulateSpaceRace()
 				SetProjectValue("PROJECT_SS_ENGINE", iTeam, Controls, "Engine");
 			else
 				-- Vox Populi reworked to avoid recursive calls
-				local techsToComplete = Players[ Game.GetActivePlayer() ]:FindPathLength(eApolloTech, false)
-				techsToComplete = math.min(10, techsToComplete)
+				local techsToComplete = Players[ Game.GetActivePlayer() ]:FindTechPathLength(eApolloTech)
+				techsToComplete = math.min(20, techsToComplete)
 				Controls.TechProgress:SetHide(false)
 				if techsToComplete > 0 then
-					Controls.TechProgress:SetPercent((10-techsToComplete)/10)
+					Controls.TechProgress:SetPercent((20-techsToComplete)/20)
 					Controls.BubblesAnim:SetHide(false)
 				else
 					Controls.TechProgress:SetPercent(1)

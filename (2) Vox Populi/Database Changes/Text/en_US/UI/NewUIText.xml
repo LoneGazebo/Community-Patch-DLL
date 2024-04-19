@@ -365,7 +365,7 @@
 			<Text>They want you to liberate the city of {1_CityName:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL">
-			<Text>Protect them from a barbarian horde!</Text>
+			<Text>Protect them from a barbarian horde! If there are barbarians next to the city when the quest ends, the city will be [COLOR_NEGATIVE_TEXT]sacked[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
 			<Text>A revolution against their ally is occurring!</Text>
@@ -3215,13 +3215,13 @@
 			<Text>[NEWLINE] [ICON_BULLET] Event choice already active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ACTIVE">
-			<Text>[NEWLINE] [ICON_BULLET] Mission recently conducted here</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Mission recently conducted here (blocked for {1_Num} more {1_Num: plural 1?turn; other?turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_ACTIVE_RELATED">
 			<Text>[NEWLINE] [ICON_BULLET] Related event choice already active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ACTIVE_RELATED">
-			<Text>[NEWLINE] [ICON_BULLET] Related mission recently conducted here</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Related mission recently conducted here (blocked for {1_Num} more {1_Num: plural 1?turn; other?turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event that is not currently active</Text>

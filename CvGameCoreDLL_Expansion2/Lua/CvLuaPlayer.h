@@ -986,7 +986,7 @@ protected:
 
 	static int lGetSpecialistExtraYield(lua_State* L);
 
-	static int lFindPathLength(lua_State* L);
+	static int lFindTechPathLength(lua_State* L);
 
 	static int lGetQueuePosition(lua_State* L);
 	static int lClearResearchQueue(lua_State* L);
@@ -1297,7 +1297,6 @@ protected:
 	static int lCanSpyStageCoup(lua_State* L);
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
 	static int lCanMoveSpyTo(lua_State* L);
-	static int lChangeCounterspyMission(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
 	static int lGetIntrigueMessages(lua_State* L);
 	static int lHasRecentIntrigueAbout(lua_State* L);
@@ -1513,10 +1512,6 @@ protected:
 	static int lGetMilitaryAirMight(lua_State* L);
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
-
-	static int lGetMainRouteTiles(lua_State* L);
-	static int lGetShortcutRouteTiles(lua_State* L);
-	static int lGetStrategicRouteTiles(lua_State* L);
 
 	LUAAPIEXTN(IsResourceNotForSale, bool, eResource);
 	LUAAPIEXTN(SetResourceAvailable, void, eResource);

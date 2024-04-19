@@ -1267,6 +1267,9 @@ void CvPlayerTechs::SetLocalePriorities()
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerTechs::SetGSPriorities()
 {
+	if (m_pPlayer->isMinorCiv())
+		return;
+
 	for(int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
 		m_piGSTechPriority[iI] = 1;
@@ -1706,7 +1709,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 
 		}
 
-		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount((TechTypes)m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount(m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
 		{
 			return;
 		}
@@ -2338,7 +2341,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 	{
 		// Write out an array of all the active tech's hash types so we can re-map on loading if need be.
 		int iNumTechs = m_pTechs->GetNumTechs();
-		kStream << (int)iNumTechs;
+		kStream << iNumTechs;
 
 		for(int i = 0; i < iNumTechs; ++i)
 			CvInfosSerializationHelper::WriteHashed(kStream, m_pTechs->GetEntry(i));
@@ -2353,7 +2356,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 	}
 	else
 	{
-		kStream << (int)0;
+		kStream << 0;
 	}
 }
 
@@ -2666,6 +2669,135 @@ int CvTeamTechs::GetResearchLeft(TechTypes eTech) const
 CvTechXMLEntries* CvTeamTechs::GetTechs() const
 {
 	return m_pTechs;
+}
+
+set<TechTypes> CvTeamTechs::GetTechsToResearchFor(TechTypes eTech, int iMaxSearchDepth) const
+{
+	set<TechTypes> result;
+
+	//trivial case
+	if (HasTech(eTech) || iMaxSearchDepth==0)
+		return result;
+
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if (pkTechInfo == NULL)
+		return result; //really an error but ignore silently
+
+	//need to research at least the tech in question
+	result.insert(eTech);
+
+	//now look at potential prerequisites
+	//todo: do we need to check CanEverResearch()?
+
+	//AND condition is easy, we need all of them
+	for (int i = 0; i < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqAndTechs(i);
+		if (ePreReq == NO_TECH)
+			break;
+
+		if (!HasTech(ePreReq))
+		{
+			set<TechTypes> prevGen = GetTechsToResearchFor(ePreReq, iMaxSearchDepth-1);
+			result.insert(prevGen.begin(), prevGen.end());
+		}
+	}
+
+	//OR condition is tricky, need to pick one
+	set<TechTypes> currentBest;
+	for (int i = 0; i < /*6*/ GD_INT_GET(NUM_OR_TECH_PREREQS); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqOrTechs(i);
+		if (ePreReq == NO_TECH)
+			break;
+
+		if (!HasTech(ePreReq))
+		{
+			set<TechTypes> prevGen = GetTechsToResearchFor(ePreReq, iMaxSearchDepth-1);
+			if (i == 0 || prevGen.size() < currentBest.size())
+				currentBest = prevGen;
+		}
+	}
+	//store only the easiest option
+	if (!currentBest.empty())
+		result.insert(currentBest.begin(), currentBest.end());
+
+	return result;
+}
+
+bool CvTeamTechs::HasPrereqTechs(TechTypes eTech, const vector<TechTypes>& extraTech) const
+{
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if (pkTechInfo == NULL)
+		return false;
+
+	//if we have all AND prereqs
+	bool bAndCondition = true;
+	for (int i = 0; i < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqAndTechs(i);
+		if (ePreReq == NO_TECH)
+			break;
+		
+		if (!HasTech(ePreReq) && std::find(extraTech.begin(),extraTech.end(),ePreReq)==extraTech.end())
+		{
+			bAndCondition = false;
+			break;
+		}
+	}
+
+	//if we have one OR prereqs
+	bool bOrCondition = false;
+	for (int i = 0; i < /*6*/ GD_INT_GET(NUM_OR_TECH_PREREQS); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqOrTechs(i);
+		if (ePreReq == NO_TECH)
+			break;
+
+		if (HasTech(ePreReq) || std::find(extraTech.begin(), extraTech.end(), ePreReq) != extraTech.end())
+		{
+			bOrCondition = true;
+			break;
+		}
+	}
+
+	return bAndCondition || bOrCondition;
+}
+
+vector<TechTypes> CvTeamTechs::GetTechFrontier() const
+{
+	vector<TechTypes> l1, l2;
+
+	//first pass yields "level 1" frontier
+	for (int i = 0; i < GC.getNumTechInfos(); i++)
+	{
+		TechTypes eTech = (TechTypes)i;
+		//skip known techs
+		if (HasTech(eTech))
+			continue;
+		if (HasPrereqTechs(eTech, l2)) //l2 still empty, just a dummy
+			l1.push_back(eTech);
+	}
+	//second pass yields "level 2" frontier
+	for (int i = 0; i < GC.getNumTechInfos(); i++)
+	{
+		TechTypes eTech = (TechTypes)i;
+		//skip known and level 1 techs
+		if (HasTech(eTech) || std::find(l1.begin(),l1.end(),eTech)!=l1.end())
+			continue;
+		if (HasPrereqTechs(eTech, l1))
+			l2.push_back(eTech);
+	}
+
+	vector<TechTypes> result;
+	result.insert(result.end(), l1.begin(), l1.end());
+	result.insert(result.end(), l2.begin(), l2.end());
+
+	//remove duplicates (just in case)
+	std::stable_sort(result.begin(), result.end());
+	result.erase(std::unique(result.begin(), result.end()), result.end());
+
+	return result;
 }
 
 /// Add an increment of research to a tech

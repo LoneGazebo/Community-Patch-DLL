@@ -646,6 +646,8 @@ int CvTacticalAnalysisMap::GetNumZones()
 /// Add data for this cell into dominance zone information
 void CvTacticalAnalysisMap::CreateDominanceZones()
 {
+	int iMaxZoneRadius = GetMaxZoneRadius();
+
 	//important, set this first so that lookups don't get us into an infinite loop
 	m_iLastUpdate = GC.getGame().getGameTurn();
 	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), 0 );
@@ -659,9 +661,6 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 
 	//not all plots belong to a city
 	std::set<CvPlot*, PrSortByPlotIndex> nonCityZonePlots;
-
-	//don't make our zones too large
-	int iMaxRange = 4;
 
 	TeamTypes eOurTeam = GET_PLAYER(m_ePlayer).getTeam();
 	CvTacticalDominanceZone* pCurrentZone = NULL;
@@ -679,30 +678,16 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 
 		//is this plot close to a city?
 		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
-		if (iCityDistance > iMaxRange)
+		CvCity* pZoneCity = GC.getGame().GetClosestCityByPlots(pPlot);
+		if (iCityDistance > iMaxZoneRadius || !pZoneCity)
 		{
 			//figure those out later
 			nonCityZonePlots.insert(pPlot);
 			continue;
 		}
 
-		//which city should this belong to?
-		CvCity* pZoneCity = NULL;
-		if (iCityDistance < 3)
-			pZoneCity = GC.getGame().GetClosestCityByPlots(pPlot);
-		else if ( pPlot->isOwned() )
-			pZoneCity = pPlot->getOwningCity();
-		else
-			pZoneCity = GC.getGame().GetClosestCityByPathLength(pPlot);
-
-		//should not happen
-		if (!pZoneCity)
-		{
-			nonCityZonePlots.insert(pPlot);
-			continue;
-		}
-
-		//now it gets interesting
+		//now it gets interesting. a city can have 2 zones, one land one water.
+		//water zone has the same id as the land zone but negative
 		int iZoneID = pZoneCity->GetID();
 		if (pPlot->isWater())
 			iZoneID *= -1;
@@ -1020,7 +1005,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				int iDamage = pZoneCity->getDamage();
 				if (iDamage > (pZoneCity->GetMaxHitPoints() / iMaxDamageMultiplier))
 				{
-					iBaseValue *= (int)((iDamage + 1) * 10 / pZoneCity->GetMaxHitPoints());
+					iBaseValue *= ((iDamage + 1) * 10 / pZoneCity->GetMaxHitPoints());
 				}
 			}
 
