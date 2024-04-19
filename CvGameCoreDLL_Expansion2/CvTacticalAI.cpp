@@ -654,7 +654,7 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... defensive bastion?
-				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
+				if (m_pPlayer->GetID() == pLoopPlot->getOwner() && pLoopPlot->getDomain()==DOMAIN_LAND &&
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint()) &&
 					(!vUnfriendlyMajors.empty() && pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyMajors))
 					)
@@ -1194,92 +1194,54 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 		FindUnitsWithinStrikingDistance(targets[i].pPlot);
 		FindCitiesWithinStrikingDistance(targets[i].pPlot);
 
-		if(!bMustBeAbleToKill)
+		//update this, some units might already have been used for other targets
+		int iExpectedDamage = ComputeTotalExpectedDamage(*targets[i].pTarget) + ComputeTotalExpectedCityBombardDamage(pDefender);
+		if (bMustBeAbleToKill)
 		{
-			// Put in any attacks where we'll inflict at least equal damage
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-
-				CvString strPlayerName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
-
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pDefender->getUnitType());
-				CvString strTemp = (pkUnitInfo != NULL)? pkUnitInfo->GetDescription() : "Unknown Unit Type";
-
-				switch(targetType)
-				{
-				case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging high priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
-							            pDefender->getX(), pDefender->getY());
-					break;
-				case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging medium priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
-							            pDefender->getX(), pDefender->getY());
-					break;
-				case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-					strLogString.Format("Looking at damaging low priority %s, X: %d, Y: %d, ", strTemp.GetCString(),
-							            pDefender->getX(), pDefender->getY());
-					break;
-				default:
-					UNREACHABLE(); // Unsupported `targetType`.
-				}
-				strLogString += strPlayerName;
-				LogTacticalMessage(strLogString);
-			}
-
-			//mark the target no matter if the attack succeeds
-			targets[i].pTarget->SetLastAggLvl(aggLvl);
-
-			//return true if target was killed
-			if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
+			if (iExpectedDamage < pDefender->GetCurrHitPoints())
 				continue;
-
-			ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
 		}
-		// Do we have enough firepower to destroy it?
 		else
 		{
-			if(targets[i].score1>0) //score1 is the overkill number
-			{
-				// If so, execute enough moves to destroy it
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					CvString strPlayerName;
-					strPlayerName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
-					strTemp = GC.getUnitInfo(pDefender->getUnitType())->GetDescription();
-					switch(targetType)
-					{
-					case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing high priority %s, id %d, X: %d, Y: %d, ", strTemp.GetCString(),
-							pDefender->GetID(), pDefender->getX(), pDefender->getY());
-						break;
-					case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing medium priority %s, id %d, X: %d, Y: %d ,", strTemp.GetCString(),
-							pDefender->GetID(), pDefender->getX(), pDefender->getY());
-						break;
-					case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing low priority %s, id %d, X: %d, Y: %d, ", strTemp.GetCString(),
-							pDefender->GetID(), pDefender->getX(), pDefender->getY());
-						break;
-					default:
-						UNREACHABLE(); // Unsupported `targetType`.
-					}
-					strLogString += strPlayerName;
-					LogTacticalMessage(strLogString);
-				}
-
-				//mark the target no matter if the attack succeeds
-				targets[i].pTarget->SetLastAggLvl(aggLvl);
-
-				//return true if target was killed
-				if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
-					continue;
-
-				ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
-			}
+			if (iExpectedDamage == 0)
+				continue;
 		}
+
+		// Put in any attacks where we'll inflict at least equal damage
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			const char* task = bMustBeAbleToKill ? "killing" : "damaging";
+			CvString strLogString;
+			CvString strPlayerName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pDefender->getUnitType());
+			CvString strTemp = (pkUnitInfo != NULL) ? pkUnitInfo->GetDescription() : "Unknown Unit Type";
+
+			switch (targetType)
+			{
+			case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
+				strLogString.Format("Looking at %s high priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				break;
+			case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
+				strLogString.Format("Looking at %s medium priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				break;
+			case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
+				strLogString.Format("Looking at %s low priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				break;
+			default:
+				UNREACHABLE(); // Unsupported `targetType`.
+			}
+			strLogString += strPlayerName;
+			LogTacticalMessage(strLogString);
+		}
+
+		//mark the target no matter if the attack succeeds
+		targets[i].pTarget->SetLastAggLvl(aggLvl);
+
+		//return true if target was killed
+		if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
+			continue;
+
+		ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
 	}
 }
 
@@ -7678,15 +7640,6 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 		if (!bIsFrontlineCitadelOrCity)
 			return INT_MAX;
 
-	//extra careful with siege units / carriers
-	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-	{
-		if (iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
-			return INT_MAX;
-		if (iNumAdjFriendlies == 0 && iDanger > 3*pUnit->GetMaxHitPoints())
-			return INT_MAX;
-	}
-
 	//can happen with garrisons, catch this case as it messes up the math
 	if (iDanger == INT_MAX)
 		iDanger = 10 * pUnit->GetMaxHitPoints();
@@ -7717,7 +7670,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 			int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
 
 			//the minimum amount of hitpoint we want a standalone unit to have for the expected counterattacks
-			int iMagicNumber = (eLastAssignment == A_MELEEKILL || eLastAssignment == A_MELEEKILL_NO_ADVANCE || eLastAssignment == A_RANGEKILL) ? 23 : 37;
+			int iMagicNumber = (eLastAssignment == A_MELEEKILL || eLastAssignment == A_MELEEKILL_NO_ADVANCE || eLastAssignment == A_RANGEKILL) ? 23 : 42;
 
 			//this is a bit cryptic to avoid integer truncation. consider danger/hp is the overkill factor.
 			//if the overkill factor is high, we need more hitpoints
@@ -7726,7 +7679,17 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 			//if there is nothing we would cover or that covers us or we are low on health, don't do it
 			if (iRemainingHP*max(iNumAdjFriendlies,1) < iLowHealthThreshold)
 				return INT_MAX;
+
+			//extra careful with siege units / carriers
+			if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+			{
+				if (iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
+					return INT_MAX;
+				if (iNumAdjFriendlies == 0 && iDanger > pUnit->GetMaxHitPoints())
+					return INT_MAX;
+			}
 		}
+
 
 		//if we have friends around assume they will absorb some damage
 		//of course the enemy will tend to focus fire, but then raw danger does not consider ZoC
@@ -8958,7 +8921,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	//get the best move for each unit
 	gOverAllChoices.clear();
 	bool bHaveSupport = false;
-	for (size_t i = 0; i < availableUnits.size(); i++)
+	for (size_t i = 0; i < availableUnits.size() && iMaxUnitsToKeep>0; i++)
 	{
 		//this always returns at least one move
 		getPreferredAssignmentsForUnit(availableUnits[i], 1);
@@ -11084,7 +11047,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_FINISH:
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//this is the difference to a blocked unit, we prevent anyone else from moving it unless we want it to heal
-			if (!pUnit->shouldHeal(false) || pUnit->getMoves()==0)
+			if (!pUnit->shouldHeal(false) || pUnit->getMoves()==0 || pUnit->isBarbarian()) //barbarians don't heal
 				//important ... this allows civilian units to use this one as cover!
 				GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
 			bPrecondition = true;
