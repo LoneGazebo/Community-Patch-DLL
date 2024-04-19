@@ -146,4 +146,15 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_VIEW_CITY");
 	strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_VIEW_CITY_DETAILS");
 	AddButton(buttonText, OnViewCityClicked, strToolTip, true);	-- true is bPreventClose
+	
+	Controls.CloseButton:SetHide( false );
+end
+
+PopupInputHandlers[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function( uiMsg, wParam, lParam )
+    if uiMsg == KeyEvents.KeyDown then
+        if( wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN ) then
+			HideWindow();
+            return true;
+        end
+    end
 end

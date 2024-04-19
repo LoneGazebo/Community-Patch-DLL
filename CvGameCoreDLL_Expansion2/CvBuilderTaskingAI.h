@@ -89,13 +89,14 @@ public:
 
 	bool CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective);
 	int GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, int iMaxDistance=INT_MAX);
-	int GetTurnsToBuild(CvUnit* pUnit, BuilderDirective eDirective, CvPlot* pPlot);
+	int GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const;
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
 	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
 	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	void AddRouteOrRepairDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue, RoutePurpose ePurpose);
+	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
 	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 	void AddRepairImprovementDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
@@ -105,7 +106,7 @@ public:
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
-	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
+	int GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes, int> GetBestRouteTypeAndValue(const CvPlot* pPlot) const;
@@ -115,8 +116,9 @@ public:
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
+	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
-	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
+	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
@@ -129,9 +131,9 @@ public:
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
 
-	set<int> GetMainRoutePlots() const;
-	set<int> GetShortcutRoutePlots() const;
-	set<int> GetStrategicRoutePlots() const;
+	bool IsMainRoutePlot(const CvPlot* pPlot) const;
+	bool IsShortcutRoutePlot(const CvPlot* pPlot) const;
+	bool IsStrategicRoutePlot(const CvPlot* pPlot) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -153,11 +155,14 @@ protected:
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 
-	set<int> GetRoutePlotsForPurpose(RoutePurpose ePurpose) const;
-	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, SPath path, RoutePurpose ePurpose);
+	bool IsPlannedRouteForPurpose(const CvPlot* pPlot, RoutePurpose ePurpose) const;
+	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose);
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
-	void GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
+	void GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
+
+	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
+	bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const;
 
 	void UpdateCanalPlots();
 
@@ -167,12 +172,14 @@ protected:
 	bool m_bLogging;
 
 	typedef pair<RouteTypes,int> RoutePlot;
-	map<PlannedRoute, int> m_plannedRouteAdditiveValues; //serialized
-	map<PlannedRoute, int> m_plannedRouteNonAdditiveValues; //serialized
-	map<PlannedRoute, vector<int>> m_plannedRoutePlots; //serialized
-	map<PlannedRoute, set<RoutePurpose>> m_plannedRoutePurposes; //serialized
-	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned; //serialized
+	map<PlannedRoute, int> m_plannedRouteAdditiveValues;
+	map<PlannedRoute, int> m_plannedRouteNonAdditiveValues;
+	map<PlannedRoute, vector<int>> m_plannedRoutePlots;
+	map<PlannedRoute, RoutePurpose> m_plannedRoutePurposes;
+	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned;
 	map<int, RoutePlot> m_bestRouteTypeAndValue; //serialized
+	map<int, RoutePurpose> m_plotRoutePurposes; //serialized
+	map<int, PlannedRoute> m_bestRouteForPlot;
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;

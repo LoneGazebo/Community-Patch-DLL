@@ -147,7 +147,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if (controls.CityBannerBGRightHL ~= nil) then
 			controls.CityBannerBGRightHL:SetColor( backgroundColor );
 		end
-		if (controls.CityBannerRightBackground ~= nill) then
+		if (controls.CityBannerRightBackground ~= nil) then
 			controls.CityBannerRightBackground:SetColor( backgroundColor );
 		end
 		if (controls.CityBannerLeftBackground ~= nil) then
@@ -209,9 +209,11 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_ALWAYS_AT_WAR_WITH_CITY");
 		elseif (player:IsMinorCiv()) then
 			local strStatusTT = GetCityStateStatusToolTip(iActivePlayer, cityBanner.playerID, false);
-			strToolTip = strToolTip .. strStatusTT;	
-			controls.StatusIconBG:SetToolTipString(strStatusTT);
-			controls.StatusIcon:SetToolTipString(strStatusTT);
+			strToolTip = strToolTip .. strStatusTT;
+			if(PreGame.GetSlotStatus( Game.GetActivePlayer() ) ~= SlotStatus.SS_OBSERVER) then
+				controls.StatusIconBG:SetToolTipString(strStatusTT);
+				controls.StatusIcon:SetToolTipString(strStatusTT);
+			end
 		elseif (not Teams[Game.GetActiveTeam()]:IsHasMet(player:GetTeam())) then
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_HAVENT_MET");
 		else
@@ -492,7 +494,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if(controls.CityGrowth) then
 			local cityGrowth = city:GetFoodTurnsLeft();
 			
-			if (city:IsFoodProduction() or city:FoodDifferenceTimes100() == 0) then
+			if (city:FoodDifferenceTimes100() == 0) then
 				cityGrowth = "-";
 				controls.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
 			elseif city:FoodDifferenceTimes100() < 0 then
@@ -588,7 +590,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 				end	
 			end
 		end
-	
+		
 		-- Update Production icon
 		if controls.CityBannerProductionImage then
 			local unitProduction = city:GetProductionUnit();
@@ -750,7 +752,7 @@ function OnCityCreated( hexPos, playerID, cityID, cultureType, eraType, continen
     local gridPosX, gridPosY = ToGridFromHex( hexPos.x, hexPos.y );
 		
 	local isActiveType = false;
-	if(iActiveTeam ~= team) then
+	if(iActiveTeam ~= team and PreGame.GetSlotStatus( Game.GetActivePlayer() ) ~= SlotStatus.SS_OBSERVER) then
 	    controlTable = g_OtherIM:GetInstance();
 	    controlTable.BannerButton:RegisterCallback( Mouse.eLClick, OnBannerClick );
 	    controlTable.BannerButton:SetVoid1( gridPosX );

@@ -48,6 +48,10 @@ WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT
 
 -- Cities
 
+UPDATE Language_en_US	
+SET Text = '[NEWLINE]Requires {TXT_KEY_GRAMMAR_A_AN << {1_BuildingName:textkey}} in this City.'
+WHERE Tag = 'TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING';
+
 -- Razing
 UPDATE Language_en_US	
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
@@ -1968,7 +1972,13 @@ UPDATE Language_en_US
 SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_FORMAL} So far, the leader has {1_LeaderScore}  {1_LeaderScore: plural 1?Technology; other?Technologies;} and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL';
 
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_TOURISM] Tourism from {2_Num} [ICON_GREAT_WORK] {2_Num: plural 1?Great Work; other?Great Works;}'
+WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS';
 
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_TOURISM] Tourism from buildings purchased with [ICON_PEACE] Faith'
+WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS';
 
 
 

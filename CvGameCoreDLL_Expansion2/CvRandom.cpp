@@ -11,7 +11,7 @@
 #include "CvGlobals.h"
 #include "FCallStack.h"
 #include "FStlContainerSerialization.h"
-#include "stackwalker\StackWalker.h"
+#include "stackwalker/StackWalker.h"
 
 // include this after all other headers!
 #include "LintFree.h"

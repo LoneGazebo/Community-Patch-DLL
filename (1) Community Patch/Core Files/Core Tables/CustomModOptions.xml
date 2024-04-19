@@ -460,6 +460,8 @@
    <Row Class="4" Name="GP_ERA_SCALING" Value="0"/>
    <!-- Enables support for squads modmod -->
    <Row Class="5" Name="SQUADS" Value="0"/>
+  <!-- Enables support for route planner modmod -->
+  <Row Class="5" Name="ROUTE_PLANNER" Value="0"/>
    <!-- Enables support for NotificationSettings modmod -->
    <Row Class="4" Name="NOTIFICATION_SETTINGS" Value="0"/>
    <!-- Enables support for notforsale modmod -->

@@ -1312,7 +1312,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	// Are we close to winning?
 	if (iVotesControlled >= iVotesNeededToWin)
 	{
-		return 1000;
+		iPriority *= 15;
 	}
 	else if (iVotesControlled >= ((iVotesNeededToWin * 3) / 4))
 	{

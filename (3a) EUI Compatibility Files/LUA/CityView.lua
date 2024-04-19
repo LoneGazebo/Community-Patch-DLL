@@ -953,9 +953,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 						+ city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
 						+ cityOwner:GetPolicyBuildingClassYieldChange(buildingClassID, yieldID)
 
-			if GameInfo.Yields[yieldID].Type == "YIELD_CULTURE" then
-				buildingCultureRate = buildingCultureRate + city:GetBuildingClassCultureChange(buildingClassID )
-			end
 			-- Yield modifiers from the building
 			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
@@ -2485,7 +2482,7 @@ local function UpdateCityViewNow()
 					buildings = specialistBuildings
 				elseif greatWorkCount > 0 then
 					buildings = greatWorkBuildings
-				elseif greatWorkCount == 0 then		-- compatibility with Firaxis code exploit for invisibility
+				elseif greatWorkCount == 0 and building.IsDummy == 0 then		-- compatibility with Firaxis code exploit for invisibility
 					buildings = otherBuildings
 				end
 				if buildings then
@@ -2689,7 +2686,7 @@ local function UpdateCityViewNow()
 
 		local cityGrowth = city:GetFoodTurnsLeft()
 		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
-		if city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
+		if foodPerTurnTimes100 == 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
 		elseif foodPerTurnTimes100 < 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STARVATION_TEXT" )

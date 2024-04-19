@@ -115,7 +115,7 @@ public:
 
 	void updateCenterUnit();
 
-	void verifyUnitValidPlot(bool bWakeUp=false);
+	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER, bool bWakeUp = false);
 
 	void nukeExplosion(int iDamageLevel, CvUnit* pNukeUnit = NULL);
 
@@ -666,6 +666,8 @@ public:
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
 	bool IsResourceForceReveal(TeamTypes eTeam) const;
 	void SetResourceForceReveal(TeamTypes eTeam, bool bValue);
+	RoutePlanTypes GetPlannedRouteState(PlayerTypes ePlayer) const;
+	void SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType);
 	void ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, int iRange, DirectionTypes eFacingDirection);
 	int GetKnownVisibilityCount(TeamTypes eTeam) const;
 	bool IsKnownVisibleToEnemy(PlayerTypes ePlayer) const;
@@ -946,6 +948,7 @@ protected:
 	char *m_aeRevealedImprovementType;
 	char *m_aeRevealedRouteType;
 	bool* m_abResourceForceReveal;
+	char* m_aeHumanPlannedRouteState;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;

@@ -389,6 +389,35 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	if (pkBuildingInfo->AllowsAirRoutes())
+	{
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		int iLocalBonus = 0;
+		if (m_pCity->IsRouteToCapitalConnected())
+		{
+			iLocalBonus -= 50;
+		}
+		else if (pCapital != NULL && !pCapital->HasSharedAreaWith(m_pCity, true, true))
+		{
+			iLocalBonus += 10 * max(1, m_pCity->getPopulation());
+		}
+		else
+		{
+			iLocalBonus += 5 * max(1, m_pCity->getPopulation());
+		}
+
+		int iUnhappyConnection = m_pCity->GetUnhappinessFromIsolation();
+		if (iUnhappyConnection > 0)
+		{
+			iLocalBonus += (iUnhappyConnection * 10);
+			bGoodforHappiness = true;
+			bGoodforGPT = true;
+		}
+
+		if (iLocalBonus > 0)
+			iBonus += iLocalBonus;
+	}
+
 	//bonus to sea trade
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
 	{
@@ -412,6 +441,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	///Resources check
 	int iLuxuries = 0;
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -422,6 +452,30 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
 			{
 				return SR_STRATEGY;
+			}
+
+			// the building needs aluminum? check if we'd still have enough for the spaceship
+			if (eResource == eAluminum && pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0)
+			{
+				vector<CvCity*> vCitiesForSpaceshipParts = kPlayer.GetCoreCitiesForSpaceshipProduction();
+				if (std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), m_pCity) == vCitiesForSpaceshipParts.end())
+				{
+					// this is not one of the core cities for spaceship parts. only build something if we'd still have enough aluminum for spaceship parts and for buildings in the core cities
+					int iNumAluminumWeCanUse = kPlayer.getNumResourceAvailable(eResource, false) - kPlayer.GetNumAluminumStillNeededForSpaceship() - kPlayer.GetNumAluminumStillNeededForCoreCities();
+					if (pkBuildingInfo->GetResourceQuantityRequirement(eResource) > iNumAluminumWeCanUse)
+					{
+						return SR_STRATEGY;
+					}
+				}
+				else
+				{
+					// in the core cities we do want to build the building, unless we need the aluminum for the spaceship parts
+					int iNumAluminumWeCanUse = kPlayer.getNumResourceAvailable(eResource, false) - kPlayer.GetNumAluminumStillNeededForSpaceship();
+					if (pkBuildingInfo->GetResourceQuantityRequirement(eResource) > iNumAluminumWeCanUse)
+					{
+						return SR_STRATEGY;
+					}
+				}
 			}
 
 			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)
@@ -482,7 +536,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
 				{
-					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 25);
+					iBonus += (kPlayer.getBuildingClassCount(pkLoopBuilding->GetBuildingClassType()) * 25);
 					bGoodforHappiness = true;
 				}
 			}
@@ -689,7 +743,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreSituational)
 	{
 		//Virtually force this.
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+		const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 		if(m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
 			iBonus += 1000;

@@ -1668,7 +1668,7 @@ function OnCityViewUpdate()
 	
 
 		local cityGrowth = pCity:GetFoodTurnsLeft();			
-		if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
+		if (pCity:FoodDifferenceTimes100() == 0) then
 			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STAGNATION_TEXT"));
 		elseif pCity:FoodDifference() < 0 then
 			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STARVATION_TEXT"));

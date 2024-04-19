@@ -784,6 +784,7 @@ void CvEconomicAI::DoTurn()
 		DisbandUselessSettlers();
 		DisbandExtraWorkboats();
 		DisbandMiscUnits();
+		DisbandUnitsToFreeSpaceshipResources();
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		YieldTypes eFocusYield = NO_YIELD;
@@ -1310,7 +1311,7 @@ void CvEconomicAI::LogMonitor(void)
 
 	int iInternationalTradeGPT = pTreasury->GetGoldFromCitiesTimes100(false) - pTreasury->GetGoldFromCitiesTimes100(true);
 	AppendToLog(strHeader, strLog, "Gold From Cities", pTreasury->GetGoldFromCitiesTimes100(true) / 100);
-	AppendToLog(strHeader, strLog, "Gold From Trade Routes", (int)(iInternationalTradeGPT / 100));
+	AppendToLog(strHeader, strLog, "Gold From Trade Routes", (iInternationalTradeGPT / 100));
 	AppendToLog(strHeader, strLog, "Treasury", pTreasury->GetGold());
 	AppendToLog(strHeader, strLog, "GPT - Connects", pTreasury->GetCityConnectionGold());
 	AppendToLog(strHeader, strLog, "GPT - Diplo", pTreasury->GetGoldPerTurnFromDiplomacy());
@@ -1322,7 +1323,7 @@ void CvEconomicAI::LogMonitor(void)
 	int iGoldFromCityConnect = pTreasury->GetCityConnectionGoldTimes100() / 100;
 	int iGPTFromReligion = pTreasury->GetGoldPerTurnFromReligion();
 	int iGPTFromTraits = pTreasury->GetGoldPerTurnFromTraits();
-	int iTradeRouteGold = (int)(iInternationalTradeGPT / 100);
+	int iTradeRouteGold = (iInternationalTradeGPT / 100);
 	int iTotalIncome = iGoldFromCitiesMinusTR + iGPTFromDiplomacy + iGoldFromCityConnect + iGPTFromReligion + iGPTFromTraits + iTradeRouteGold;
 	AppendToLog(strHeader, strLog, "Total Income", iTotalIncome);
 
@@ -1799,6 +1800,43 @@ void CvEconomicAI::DoHurry()
 				int iGoldCost = pSelectedCity->GetPurchaseCost(eUnitType);
 				if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
 				{
+					// Resource requirement
+					bool bMissingResource = false;
+					if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+					{
+						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
+						{
+							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+							int iNumResource = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+							if (iNumResource > 0)
+							{
+								//Don't use all of our Aluminum, keep some for spaceship parts
+								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+								if (eResource == eAluminumResource)
+								{
+									iNumResource += (m_pPlayer->GetNumAluminumStillNeededForSpaceship() + m_pPlayer->GetNumAluminumStillNeededForCoreCities());
+								}
+
+								if (m_pPlayer->getNumResourceAvailable(eResource) < iNumResource)
+								{
+									bMissingResource = true;
+								}
+
+								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+								{
+									int iResourceTotal = pkUnitInfo->GetResourceQuantityTotal(eResource);
+									if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) < 0)
+									{
+										bMissingResource = true;
+									}
+								}
+							}
+						}
+					}
+
+					if (bMissingResource)
+						continue;
+
 					//Log it
 					if (GC.getLogging() && GC.getAILogging())
 					{
@@ -1907,7 +1945,7 @@ void CvEconomicAI::DoHurry()
 						//and build it!
 						if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 						{
-							const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+							const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
 						}
 						else
@@ -2317,6 +2355,173 @@ void CvEconomicAI::DisbandMiscUnits()
 			{
 				pLoopUnit->scrap();
 				LogScrapUnit(pLoopUnit, 0, 0, -1, 0);
+			}
+		}
+	}
+}
+
+/// Disband units that require aluminum if we want to build spaceship parts and don't have enough aluminum to do so
+void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
+{
+	if (!m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		return;
+
+	int iNumTotalAluminumNeededForSpaceship = m_pPlayer->GetNumAluminumStillNeededForSpaceship();
+	int iNumTotalAluminumNeededForCoreCities = m_pPlayer->GetNumAluminumStillNeededForCoreCities();
+
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+	int iNumAluminumWeNeed = max(0, iNumTotalAluminumNeededForSpaceship + iNumTotalAluminumNeededForCoreCities - m_pPlayer->getNumResourceAvailable(eAluminum, true));
+
+	vector<CvCity*> vCoreCities = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogString;
+		strLogString.Format("");
+		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
+		if (vCoreCities.size() > 0)
+		{
+			strLogString.Format("Core Cities: ");
+			for (size_t i = 0; i < vCoreCities.size(); i++)
+			{
+				strLogString += vCoreCities[i]->getName();
+				strLogString += ", ";
+			}
+		}
+		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
+		strLogString.Format("Aluminum still needed for spaceship parts: %d. Aluminum still needed for core cities: %d. Currently available: %d", iNumTotalAluminumNeededForSpaceship, iNumTotalAluminumNeededForCoreCities, m_pPlayer->getNumResourceAvailable(eAluminum, true));
+		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
+	}
+
+	// create a weighted list of all units that require aluminum and that we could disband
+	CvWeightedVector<int> vUnitsDisband;
+	int iValue = 0;
+	if (iNumAluminumWeNeed > 0)
+	{
+		int iUnitLoop = 0;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		{
+			if (!pLoopUnit)
+				continue;
+
+			if (!pLoopUnit->canScrap())
+				continue;
+
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+			if (!pkUnitInfo)
+				continue;
+
+			if (pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+				continue;
+
+			int iNumResourceInUnit = pkUnitInfo->GetResourceQuantityRequirement(eAluminum);
+			if (iNumResourceInUnit > 0)
+			{
+				// value based on unit strength
+				iValue = pkUnitInfo->GetPower() / iNumResourceInUnit;
+				// higher value for units currently in an operation
+				if (pLoopUnit->getArmyID() != -1)
+				{
+					iValue *= 3;
+					iValue /= 2;
+				}
+				// higher value for units with many promotions
+				iValue *= (100 + 20 * pLoopUnit->getLevel());
+				iValue /= 100;
+				vUnitsDisband.push_back(pLoopUnit->GetID(), iValue);
+			}
+		}
+
+		if (vUnitsDisband.size() > 0)
+		{
+			// go through the list of units and disband the ones with the lowest value until we have enough aluminum
+			vUnitsDisband.StableSortItems();
+			for (int i = vUnitsDisband.size() - 1; i >= 0; i--)
+			{
+				CvUnit* pDisbandUnit = m_pPlayer->getUnit(vUnitsDisband.GetElement(i));
+				int iNumUnitResources = GC.getUnitInfo(pDisbandUnit->getUnitType())->GetResourceQuantityRequirement(eAluminum);
+				pDisbandUnit->scrap(false);
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", pDisbandUnit->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+					m_pPlayer->LogSpaceshipPlanMessage(strLogString);
+				}
+
+				iNumAluminumWeNeed -= iNumUnitResources;
+				if (iNumAluminumWeNeed <= 0)
+				{
+					return;
+				}
+			}
+		}
+
+		// still need aluminum? try to sell buildings with resource requirements
+		if (iNumAluminumWeNeed > 0)
+		{
+			// sort cities by economic value, cities in which we want to build spaceship parts are extra valuable
+			CvWeightedVector<CvCity*> vCityEconomicWeights;
+			vector<CvCity*> vCitiesForSpaceshipParts = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
+			int iLoopCity = 0;
+			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+			{
+				// can't sell anything in this city?
+				if (pLoopCity->IsPuppet() || pLoopCity->IsResistance() || pLoopCity->GetCityBuildings()->IsSoldBuildingThisTurn() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+					continue;
+
+				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());
+				if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity) != vCitiesForSpaceshipParts.end()))
+				{
+					iWeight *= 2;
+				}
+				vCityEconomicWeights.push_back(pLoopCity, iWeight);
+			}
+			if (vCityEconomicWeights.size() > 0)
+			{
+				vCityEconomicWeights.StableSortItems();
+				// start selling buildings in the worst cities
+				for (int i = vCityEconomicWeights.size() - 1; i >= 0; i--)
+				{
+					CvCity* pLoopCity = vCityEconomicWeights.GetElement(i);
+					BuildingTypes eBestBuilding = NO_BUILDING;
+					int iNumAluminumInBuilding = 0;
+					int iWorstRefund = INT_MAX;
+					// sell the building with the lowest refund, which is probably the least important one
+					for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+					{
+						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+						if (pkBuildingInfo && pkBuildingInfo->GetResourceQuantityRequirement(eAluminum) > 0)
+						{
+							// Has this Building
+							if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && pLoopCity->GetCityBuildings()->IsBuildingSellable(*pkBuildingInfo))
+							{
+								int iRefund = pLoopCity->GetCityBuildings()->GetSellBuildingRefund(eBuilding);
+								if (iRefund < iWorstRefund)
+								{
+									iWorstRefund = iRefund;
+									eBestBuilding = eBuilding;
+									iNumAluminumInBuilding = pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
+								}
+							}
+						}
+					}
+					if (eBestBuilding != NO_BUILDING)
+					{
+						pLoopCity->GetCityBuildings()->DoSellBuilding(eBestBuilding);
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Selling building %s in %s to get aluminum for spaceship.  Aluminum available after disbanding: %d", GC.getBuildingInfo(eBestBuilding)->GetText(), pLoopCity->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+							m_pPlayer->LogSpaceshipPlanMessage(strLogString);
+						}
+						iNumAluminumWeNeed -= iNumAluminumInBuilding;
+						if (iNumAluminumWeNeed <= 0)
+						{
+							return;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2763,8 +2968,12 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 		if (iScore <= 0)
 			return;
 
-		if (!bAllowShallowWater && pPlayer->getCapitalCity() && !pPlayer->getCapitalCity()->HasAccessToArea(pPlot->getArea()))
-			return;
+		if (!MOD_BALANCE_VP && !bAllowShallowWater)
+		{
+			CvCity* pCapital = pPlayer->getCapitalCity();
+			if (pCapital && !pCapital->HasAccessToArea(pPlot->getArea()))
+				return;
+		}
 
 		// add an entry for this plot
 		landTargets.push_back(SPlotWithScore(pPlot, iScore));
@@ -3002,7 +3211,7 @@ void CvEconomicAI::LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue)
 	}
 }
 
-/// Log that a strategy is being turned on or off
+/// Log that a unit is disbanded
 void CvEconomicAI::LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots)
 {
 	if(!GC.getLogging() || !GC.getAILogging())
@@ -3011,11 +3220,7 @@ void CvEconomicAI::LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, 
 	}
 
 	CvString strLogString;
-#if defined(MOD_BALANCE_CORE)
 	strLogString.Format("Disbanding %s, X: %d, Y: %d, iNumWorkers: %d, iNumCities: %d, improved/valid plots: %d/%d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
-#else
-	strLogString.Format("Disbanding worker. %s, X: %d, Y: %d, iNumWorkers: %d, iNumCities: %d, improved/valid plots: %d/%d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
-#endif
 	m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 }
 

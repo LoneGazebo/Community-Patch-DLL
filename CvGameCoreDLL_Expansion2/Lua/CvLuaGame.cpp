@@ -171,6 +171,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetAIAutoPlay);
 	Method(SetAIAutoPlay);
+	Method(ChangeActivePlayer);
 
 	Method(IsScoreDirty);
 	Method(SetScoreDirty);
@@ -1239,6 +1240,18 @@ int CvLuaGame::lGetAIAutoPlay(lua_State* L)
 int CvLuaGame::lSetAIAutoPlay(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::setAIAutoPlay);
+}
+int CvLuaGame::lChangeActivePlayer(lua_State* L)
+{
+	const PlayerTypes eNewPlayer = toValue<PlayerTypes>(L, 2);
+	PlayerTypes eActivePlayer = CvPreGame::activePlayer();
+	if (eNewPlayer != eActivePlayer)
+	{
+		CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+		CvPreGame::setSlotStatus(eNewPlayer, SS_TAKEN);
+		GC.getGame().setActivePlayer(eNewPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+	}
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isScoreDirty();

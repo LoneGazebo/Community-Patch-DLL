@@ -885,7 +885,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
-		kPlayer.changeNumMilitaryUnits(1, (DomainTypes)getUnitInfo().GetDomainType());
+		kPlayer.changeNumMilitaryUnits(1, getUnitInfo().GetDomainType());
 	}
 
 	// Free Promotions from Unit XML
@@ -2749,7 +2749,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if(getUnitInfo().IsMilitarySupport())
 	{
 #if defined(MOD_BATTLE_ROYALE)
-		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1, (DomainTypes)getUnitInfo().GetDomainType());
+		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1, getUnitInfo().GetDomainType());
 #else
 		GET_PLAYER(eUnitOwner).changeNumMilitaryUnits(-1);
 #endif
@@ -6009,7 +6009,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::scrap()
+void CvUnit::scrap(bool bDelay)
 {
 	VALIDATE_OBJECT
 	if(!canScrap())
@@ -6023,7 +6023,7 @@ void CvUnit::scrap()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 	}
 
-	kill(true);
+	kill(bDelay);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15345,7 +15345,7 @@ bool CvUnit::canEndTurnAtPlot(const CvPlot * pPlot) const
 DomainTypes CvUnit::getDomainType() const
 {
 	VALIDATE_OBJECT
-	return (DomainTypes) m_pUnitInfo->GetDomainType();
+	return m_pUnitInfo->GetDomainType();
 }
 
 //	---------------------------------------------------------------------------
@@ -15974,6 +15974,11 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	{
 		if (pLoopUnit->canMoveInto(*pDestPlot))
 		{
+			// If this unit is going to move later, clear its path cache. Otherwise, due to the 
+			// use of MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT it can try to continue on its old path
+			// instead of calculating a new route to the destination plot
+			pLoopUnit->ClearMissionQueue(false);
+
 			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
 			{
 				stackingUnits.push_back(pLoopUnit);
@@ -20604,7 +20609,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 
 			int iUnitListSize = (int) oldUnitList.size();
-			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+			for(int iVectorLoop = 0; iVectorLoop < iUnitListSize; ++iVectorLoop)
 			{
 				pLoopUnit = ::GetPlayerUnit(oldUnitList[iVectorLoop]);
 				{
@@ -20865,7 +20870,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					if (pkUnitType != NULL)
 					{
 						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, REASON_CONVERT, true, true, 0, 0, NO_CONTRACT, false);
 						kill(true, NO_PLAYER);
 						pNewUnit->finishMoves();
@@ -20991,7 +20996,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 
-					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
+					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false, false); // will delete the pointer
 					pNewCity = NULL;
 
 					//it might happen that we liberate the city right after acquiring it
@@ -24824,7 +24829,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
 					if(pkUnitType != NULL)
 					{
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
 						pNewUnit->convert(this, true);
 						pNewUnit->finishMoves();
@@ -24844,7 +24849,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
 					if (pkUnitType != NULL)
 					{
-						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
 						pNewUnit->convert(this, true);
 						pNewUnit->finishMoves();
@@ -26040,7 +26045,7 @@ CvUnitEntry& CvUnit::getUnitInfo() const
 
 bool CvUnit::isUnitAI(UnitAITypes eType) const
 {
-	return (UnitAITypes)m_pUnitInfo->GetDefaultUnitAIType() == eType;
+	return m_pUnitInfo->GetDefaultUnitAIType() == eType;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28006,7 +28011,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			if(bNewValue)
 			{
-				SetNegatorPromotion((int)thisPromotion.NegatesPromotion());
+				SetNegatorPromotion(thisPromotion.NegatesPromotion());
 			}
 			else
 			{
@@ -28325,7 +28330,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 	pUnitNode = pushPlot.headUnitNode();
 	while (pUnitNode != NULL)
 	{
-		pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pushPlot.nextUnitNode(pUnitNode);
 
 		//this should be the blocking unit
@@ -28447,7 +28452,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 						pUnitNode = swapPlot.headUnitNode();
 						while (pUnitNode != NULL)
 						{
-							pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
+							pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
 							// A unit can't swap with itself (slewis)
@@ -31184,7 +31189,7 @@ bool CvUnit::IsCanDefend() const
 bool CvUnit::IsCivilianUnit() const
 {
 	//aircraft are not combat units but can attack ranged ...
-	return !IsCombatUnit() && !IsCanAttackRanged();
+	return !IsCombatUnit() && !IsCanAttackRanged() && !canNuke();
 }
 
 // Combat eligibility routines

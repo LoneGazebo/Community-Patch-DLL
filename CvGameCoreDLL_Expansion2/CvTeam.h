@@ -475,7 +475,7 @@ public:
 	void SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange);
 
-	int GetSSProjectCount();
+	int GetSSProjectCount(bool bIncludeApollo = true);
 
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);

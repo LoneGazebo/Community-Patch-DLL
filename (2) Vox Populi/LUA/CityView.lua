@@ -737,51 +737,6 @@ function AddBuildingButton( pCity, building )
 			--end
 		--end
 		
-		if (iNumAssignedSpecialists > 0) then
-			if(building.SpecialistType) then
-				local pSpecialistInfo = GameInfo.Specialists[building.SpecialistType];
-				local iSpecialistID = pSpecialistInfo.ID;
-				
-				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
-					
-				local yields = {};
-				
-				-- Culture
-				local iCultureFromSpecialist = 0; 
-				
-				-- Yield
-				for pYieldInfo in GameInfo.Yields() do
-					local iYieldID = pYieldInfo.ID;
--- CBP
-					if(iYieldID == YieldTypes.YIELD_CULTURE)then
-						iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID) + pCity:GetSpecialistYield( iSpecialistID, YieldTypes.YIELD_CULTURE ) + pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE);
-						if(iCultureFromSpecialist > 0) then
-							table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
-						end
---END
-					elseif(iYieldID ~= YieldTypes.YIELD_CULTURE)then
-						local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
--- CBP
-						if(iYieldAmount > 0) then
-							local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
-							iYieldAmount = (iYieldAmount + iExtraYield);
-						end
--- End
-					
-						if (iYieldAmount > 0) then
-							table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
-						end
-					end
-				end
-				
-				local strYield = table.concat(yields, " ");
-				
-				local str = Locale.Lookup("TXT_KEY_CITYVIEW_BUILDING_SPECIALIST_YIELD", iNumAssignedSpecialists, pSpecialistInfo.Description, strYield);
-				
-				strToolTip = strToolTip .. str;
-			end				
-		end
-		
 		-- Can we sell this thing?
 		if (pCity:IsBuildingSellable(buildingID) and not pCity:IsPuppet()) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_CLICK_TO_SELL" );
@@ -1542,20 +1497,15 @@ function OnCityViewUpdate()
 
 		local freeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if(freeSpecialists > 0) then
-			print("Free specialists!")
 			local freeSpecialtxt = tostring(freeSpecialists);
-			print(freeSpecialtxt);
 			Controls.FreeSpecialistLabel:SetText(freeSpecialtxt);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists );
 		else
-			print("No free specialists...")
 			local defSpecialist = tostring((GameDefines.UNHAPPINESS_PER_SPECIALIST / 100));
 			Controls.FreeSpecialistLabel:SetText(defSpecialist);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
-			print(defSpecialist);
-			print("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
 		end
 
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT);
@@ -1792,7 +1742,7 @@ function OnCityViewUpdate()
 				if not (building.IsCorporation == 1) then
 					local buildingID= building.ID;
 					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0 and GameInfo.Buildings[buildingID].IsDummy == 0) then
 							numBuildingsInThisCity = numBuildingsInThisCity + 1;
 							local element = {};
 							local name = Locale.ConvertTextKey( building.Description )
@@ -2009,7 +1959,7 @@ function OnCityViewUpdate()
 		-- END
 
 		local cityGrowth = pCity:GetFoodTurnsLeft();			
-		if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
+		if (pCity:FoodDifferenceTimes100() == 0) then
 			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STAGNATION_TEXT"));
 		elseif pCity:FoodDifference() < 0 then
 			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STARVATION_TEXT"));

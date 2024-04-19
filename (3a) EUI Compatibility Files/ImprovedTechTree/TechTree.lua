@@ -170,15 +170,15 @@ local function AddTechPipes( AddNewPipeIcon, techPairs )
 			local y1 = prereq.GridY*g_blockSpacingY
 			local y2 = tech.GridY*g_blockSpacingY
 
-			if y1 < y2 then -- elbow case ¯¯¯¯¯¯|__
+			if y1 < y2 then -- elbow case ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½|__
 
-				AddElbowPipe( x + g_branchOffsetX2, y1 + g_branchOffsetY1, 72, 0 )	--topRightTexture  ¯|
+				AddElbowPipe( x + g_branchOffsetX2, y1 + g_branchOffsetY1, 72, 0 )	--topRightTexture  ï¿½|
 				AddElbowPipe( x + g_branchOffsetX1, y2 + g_branchOffsetY2 , 0, 72 )	--bottomLeftTexture |_
 
-			elseif y1 > y2 then -- elbow case ______|¯¯
+			elseif y1 > y2 then -- elbow case ______|ï¿½ï¿½
 
 				AddElbowPipe( x + g_branchOffsetX2, y1 + g_branchOffsetY2, 72, 72 )	--bottomRightTexture _|
-				AddElbowPipe( x + g_branchOffsetX1, y2 + g_branchOffsetY1, 0, 0 )	--topLeftTexture |¯
+				AddElbowPipe( x + g_branchOffsetX1, y2 + g_branchOffsetY1, 0, 0 )	--topLeftTexture |ï¿½
 			end
 		end
 	end
@@ -214,7 +214,7 @@ local function TechPedia( techID )
 end
 
 local function setTechToolTip( techID, _, button )
-	button:SetToolTipString( GetHelpTextForTech( techID, g_activePlayer:CanResearch( techID ) and not g_EspionageViewMode, g_activePlayerID ) )
+	button:SetToolTipString( GetHelpTextForTech( techID, g_EspionageViewMode, g_activePlayerID ) )
 end
 
 -------------------------------------------------

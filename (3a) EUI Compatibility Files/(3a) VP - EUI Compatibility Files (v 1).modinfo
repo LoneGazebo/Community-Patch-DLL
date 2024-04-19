@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.5) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.6.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="127" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="128" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -36,13 +36,13 @@
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="4FF2C3858ADD42E1185E68D7C38B55D3" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="317A5D19C2F6B29CB44EFC7965B333C5" import="1">LUA/CityView.lua</File>
+    <File md5="417EB5CFDACE144F1218CC3CCD56191C" import="1">LUA/CityView.lua</File>
     <File md5="860188FCCA7F8B1B42030D9933E4524D" import="1">LUA/CityView.xml</File>
     <File md5="68C68B8C5441AD7C6CAFB51C37474C0B" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
     <File md5="A2BE6F77C58D6709F4BD747AFBBF20FE" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="C7FC150DD0066447C211BD328D7A2B1A" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="0C03658998ED856439EF8F347F6FDA1B" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="2DBCB1D09BC585A25935F60FBF864244" import="1">LUA/LeaderHeadRoot.lua</File>
@@ -51,14 +51,14 @@
     <File md5="DDFA8E7A86D2D0FE975610B0E6A1BD60" import="1">LUA/LoadScreen.lua</File>
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">LUA/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
-    <File md5="2620554658D992F722A24E1BBCA530B2" import="1">LUA/NotificationPanel.lua</File>
+    <File md5="A87ADB40348735E120B60ECF9CE8BB2D" import="1">LUA/NotificationPanel.lua</File>
     <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
     <File md5="1FD517A49FB42275FAE2E57A3DBBEF7F" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="A96E1CBCE39C50FB82E40C64BFD03270" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="6E49A0D32531F2F121FD579F817C271B" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="58E69641AAE63640268F4DA8477FE810" import="1">LUA/TradeLogic.lua</File>
-    <File md5="00E86BAC557105A7B54F9E76FD0B600C" import="1">LUA/UnitFlagManager.lua</File>
+    <File md5="696E8650D1F9BE443920CEFF170D4CDF" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="2210687A9BE38D71A3B3473374E1B994" import="1">LUA/UnitPanel.lua</File>
     <File md5="42911908162E0D88373F6CB90EC56F5A" import="1">LUA/UnitPanel.xml</File>
@@ -71,7 +71,7 @@
     <File md5="1A8A4DFA0F16258CEADCEFD7417C3876" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="A832E556B1146BB64409DD813B700ECF" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="4BE1E2639D5F76C8CAF9994C12C89E58" import="0">ImprovedTechTree/IconChanges.sql</File>
-    <File md5="D45298044D14C36B41B85E4B0F8C9217" import="1">ImprovedTechTree/TechTree.lua</File>
+    <File md5="34713F10091ED79C3EC1B1E438A1FB4B" import="1">ImprovedTechTree/TechTree.lua</File>
     <File md5="5AAAC1FD52775AF649A6EEC04A6BE0C7" import="1">ImprovedTechTree/TechTree.xml</File>
   </Files>
   <Actions>

@@ -20,6 +20,7 @@
 #include "CvLuaCity.h"
 #include "CvLuaPlot.h"
 #include "CvLuaUnit.h"
+#include "CvLuaPlayer.h"
 #include "../CvGameCoreUtils.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
@@ -307,6 +308,13 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetCityPurchaseID);
 	Method(SetCityPurchaseID);
 	Method(GetAirUnitsTooltip);
+
+	Method(GetPlannedRouteState);
+	Method(SetPlannedRouteState);
+
+	Method(IsMainRoutePlan);
+	Method(IsShortcutRoutePlan);
+	Method(IsStrategicRoutePlan);
 
 	Method(AddMessage);
 	Method(AddPopupMessage);
@@ -2264,6 +2272,56 @@ int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)
 	}
 
 	lua_pushstring(L, AirTT.c_str());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void GetPlannedRouteState(PlayerTypes ePlayer);
+int CvLuaPlot::lGetPlannedRouteState(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::GetPlannedRouteState);
+}
+
+//------------------------------------------------------------------------------
+//void SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType);
+int CvLuaPlot::lSetPlannedRouteState(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::SetPlannedRouteState);
+}
+
+//------------------------------------------------------------------------------
+//bool IsMainRouteTile(PlayerTypes ePlayer);
+int CvLuaPlot::lIsMainRoutePlan(lua_State* L)
+{
+	CvPlot* pPlot = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsMainRoutePlot(pPlot);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool IsShortcutRouteTile(PlayerTypes ePlayer);
+int CvLuaPlot::lIsShortcutRoutePlan(lua_State* L)
+{
+	CvPlot* pPlot = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsShortcutRoutePlot(pPlot);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool IsStrategicRouteTile(PlayerTypes ePlayer);
+int CvLuaPlot::lIsStrategicRoutePlan(lua_State* L)
+{
+	CvPlot* pPlot = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsStrategicRoutePlot(pPlot);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 

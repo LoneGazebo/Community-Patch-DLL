@@ -49,6 +49,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetActivePath);
 	Method(GetWaypointPath);
 	Method(GeneratePathToNextWaypoint);
+	Method(GetMeleeAttackFromPlot);
 
 	Method(CanEnterTerritory);
 	Method(GetDeclareWarRangeStrike);
@@ -966,6 +967,31 @@ int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
 
 	return 1;
 }
+
+//-------------------------------------------------------------------------------------------
+// Returns the estimated "from" plot when this unit melee attacks a unit on the given plot
+int CvLuaUnit::lGetMeleeAttackFromPlot(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	CvPlot* pToPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pFromPlot = pUnit->plot();
+
+	if (pUnit->GeneratePath(pToPlot))
+	{
+		CvPathNodeArray path = pUnit->GetLastPath();
+		if (path.size() >= 2)
+		{
+			CvPathNode secondLastNode = path.at(path.size() - 2);
+			CvPlot* pEnd = GC.getMap().plot(secondLastNode.m_iX, secondLastNode.m_iY);
+			if (pEnd)
+				pFromPlot = pEnd;
+		}
+	}
+
+	CvLuaPlot::Push(L, pFromPlot);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //bool canEnterTerritory(int /*TeamTypes*/ eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false);
 int CvLuaUnit::lCanEnterTerritory(lua_State* L)
@@ -3063,14 +3089,6 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 4, false);
 	bool bFromRangedAttack = luaL_optbool(L, 5, false);
 	const int iAssumeExtraDamage = luaL_optint(L, 6, 0);
-
-	if (pkAttacker->GeneratePath(pInPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
-	{
-		//this  must be the same moveflags as above so we can reuse the path next turn
-		CvPlot* pEnd = pkAttacker->GetPathLastPlot();
-		if (pEnd)
-			pFromPlot = pEnd;
-	}
 
 	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack, false, iAssumeExtraDamage);
 	lua_pushinteger(L, iResult);

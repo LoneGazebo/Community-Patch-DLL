@@ -570,7 +570,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
 {
 	EraTypes eGPEra = /*INDUSTRIAL*/ (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
-	EraTypes eSpecialEra = pPlayer ? (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
+	EraTypes eSpecialEra = pPlayer ? pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
 	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
 	{
 		return eSpecialEra;
@@ -7726,6 +7726,10 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 {
 	CvWeightedVector<int> viPlotList; 
 
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
+	if (!pCapital)
+		return viPlotList;
+
 	int x_max = 0; int x_min = GC.getMap().getGridWidth();
 	int y_max = 0; int y_min = GC.getMap().getGridHeight();
 
@@ -7778,8 +7782,6 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 		//strTemp.Format("%s, Exploration Range: %d", m_pPlayer->getName(), iExplorationRange);
 		//pLog->Msg(strTemp);
 	}
-	
-	CvCity* pCapital = m_pPlayer->getCapitalCity();
 
 	// find all cities of players that we know that are close to us
 	vector<CvCity*>vKnownCitiesWithinReach;
@@ -8143,7 +8145,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 							if (pkImprovementInfo->IsSpecificCivRequired())
 							{
 								CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-								if (eRequiredCiv != m_pPlayer->GetID())
+								if (eRequiredCiv != m_pPlayer->getCivilizationType())
 									continue;
 							}
 
@@ -8308,7 +8310,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 				if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsConnectsResource(eResource)))
 					continue;
 
-				int iImprovementChange = pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI);
+				int iImprovementChange = pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, iI);
 				if (iImprovementChange > 0)
 				{
 					// modify value based on how much time we still need to build the improvement
@@ -8323,7 +8325,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 						if (pkImprovementInfo->IsSpecificCivRequired())
 						{
 							CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-							if (eRequiredCiv != m_pPlayer->GetID())
+							if (eRequiredCiv != m_pPlayer->getCivilizationType())
 								continue;
 						}
 
@@ -8377,7 +8379,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 		//only look at the current improvement
 		if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
-			iRtnValue += (pEntry->GetImprovementYieldChange(pPlot->getImprovementType(), (YieldTypes)iI)) * 100;
+			iRtnValue += (pEntry->GetImprovementYieldChange(pPlot->getImprovementType(), iI)) * 100;
 		}
 	}
 

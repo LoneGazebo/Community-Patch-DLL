@@ -397,6 +397,7 @@ public:
 	const char* getProductionNameKey() const;
 	int getGeneralProductionTurnsLeft() const;
 
+	bool isProductionSpaceshipPart() const;
 	bool isFoodProduction() const;
 	int getFirstUnitOrder(UnitTypes eUnit) const;
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
@@ -413,6 +414,7 @@ public:
 	int getProductionNeeded(ProjectTypes eProject) const;
 	int getProductionNeeded(SpecialistTypes eSpecialist) const;
 	int getProductionTurnsLeft() const;
+	int getUnitTotalProductionTurns(UnitTypes eUnit) const;
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
@@ -2220,7 +2222,6 @@ protected:
 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
 
-protected:
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
 	friend class CvCityGarrisonOverride;

@@ -223,6 +223,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(AI_CITIZEN_VALUE_CULTURE, 16),
 	GD_INT_INIT(AI_CITIZEN_VALUE_FAITH, 12),
 	GD_INT_INIT(AI_CITIZEN_VALUE_GPP, 4),
+	GD_INT_INIT(AI_NUM_CORE_CITIES_FOR_SPACESHIP, 4),
 	GD_INT_INIT(AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION, 70),
 	GD_INT_INIT(AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE, 40),
 	GD_INT_INIT(AI_TACTICAL_MAP_TEMP_ZONE_TURNS, 5),
@@ -2723,7 +2724,7 @@ void CvGlobals::uninit()
 //------------------------------------------------------------------------------
 CvCity* CvGlobals::UnwrapCityPointer(ICvCity1* pCity)
 {
-	return (NULL != pCity)? dynamic_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
+	return (NULL != pCity)? static_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
@@ -2733,7 +2734,7 @@ CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
 //------------------------------------------------------------------------------
 CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
 {
-	return (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	return (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
@@ -2743,7 +2744,7 @@ CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
 //------------------------------------------------------------------------------
 CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
 {
-	return (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	return (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
@@ -2753,7 +2754,7 @@ CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
 //------------------------------------------------------------------------------
 CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
 {
-	return (NULL != pRandom)? dynamic_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
+	return (NULL != pRandom)? static_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
@@ -2768,7 +2769,7 @@ CvInterfacePtr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
 //------------------------------------------------------------------------------
 CvUnit* CvGlobals::UnwrapUnitPointer(ICvUnit1* pUnit)
 {
-	return (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	return (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvGlobals& CvGlobals::getInstance()
@@ -5040,6 +5041,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(AI_CITIZEN_VALUE_CULTURE);
 	GD_INT_CACHE(AI_CITIZEN_VALUE_FAITH);
 	GD_INT_CACHE(AI_CITIZEN_VALUE_GPP);
+	GD_INT_CACHE(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
 	GD_INT_CACHE(AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION);
 	GD_INT_CACHE(AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE);
 	GD_INT_CACHE(AI_TACTICAL_MAP_TEMP_ZONE_TURNS);

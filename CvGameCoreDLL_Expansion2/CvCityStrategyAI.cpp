@@ -779,6 +779,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		// Make sure this unit can be built now
 		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
+			// Automated cities won't build units except workers and work boats, or any other civilian with a work rate
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
+			if (m_pCity->isHumanAutomated())
+				if (!MOD_BALANCE_VP || pUnitEntry->GetWorkRate() == 0 || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0)
+					continue;
+
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
@@ -1193,7 +1199,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForOperation = m_pCity->GetUnitForOperation();
 		if (eUnitForOperation != NO_UNIT)
 		{
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitForOperation);
 			if (pUnitEntry)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
@@ -1220,7 +1226,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitForArmy);
 			if (pUnitEntry)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
@@ -3195,7 +3201,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 									}
 								}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 								// Mod for civs keeping their pantheon belief forever
 								if (MOD_RELIGION_PERMANENT_PANTHEON)
 								{
@@ -3227,28 +3232,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						if(iNumPuppets > 0)
 						{
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
-						}
-					}
-#endif
-					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsDiplomaticMarriage())
-					{
-						int iNumMarried = 0;
-						// Loop through all minors and get the total number we've met.
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-						{
-							PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-							{
-								if (!GET_PLAYER(eMinor).IsAtWarWith(pCity->GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
-								{
-									iNumMarried++;
-								}
-							}
-						}
-						if(iNumMarried > 0)
-						{
-							iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 						}
 					}
 
@@ -3656,7 +3639,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iFlatYield += (pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities());
 
-			if (pCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) > 0)
+			if (pCity->GetCityBuildings()->GetNumBuildingClass(pkLoopBuilding->GetBuildingClassType()) > 0)
 			{
 				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
 			}
