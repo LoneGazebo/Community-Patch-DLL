@@ -2921,7 +2921,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	else if(isBarbarian() || (kCaptureDef.eCapturingPlayer != NO_PLAYER && GET_PLAYER(kCaptureDef.eCapturingPlayer).isBarbarian()))
 	{
 		// Must be able to capture this unit normally... don't want the barbs picking up Workboats, Generals, etc.
-		if(kCaptureDef.eCapturingPlayer != NO_PLAYER && getCaptureUnitType(GET_PLAYER(kCaptureDef.eCapturingPlayer).getCivilizationType()) != NO_UNIT)
+		if(kCaptureDef.eCapturingPlayer != NO_PLAYER && getCaptureUnitType(kCaptureDef.eCapturingPlayer) != NO_UNIT)
 			// Unit type is the same as what it was
 			kCaptureDef.eCaptureUnitType = getUnitType();
 	}
@@ -2930,7 +2930,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	else
 	{
 		if(kCaptureDef.eCapturingPlayer != NO_PLAYER)
-			kCaptureDef.eCaptureUnitType = getCaptureUnitType(GET_PLAYER(kCaptureDef.eCapturingPlayer).getCivilizationType());
+			kCaptureDef.eCaptureUnitType = getCaptureUnitType(kCaptureDef.eCapturingPlayer);
 	}
 
 	CvPlot* pkPlot = plot();
@@ -15200,9 +15200,13 @@ bool CvUnit::IsGreatPerson() const
 }
 
 //	--------------------------------------------------------------------------------
-UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
+UnitTypes CvUnit::getCaptureUnitType(PlayerTypes eCapturingPlayer) const
 {
 	VALIDATE_OBJECT
+	if (eCapturingPlayer == NO_PLAYER)
+		return NO_UNIT;
+
+	CivilizationTypes eCivilization = GET_PLAYER(eCapturingPlayer).getCivilizationType();
 	CvAssert(eCivilization != NO_CIVILIZATION);
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCivilization);
 	if(pkCivilizationInfo == NULL)
@@ -15212,7 +15216,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 	
 	if (MOD_EVENTS_UNIT_CAPTURE) {
 		int iValue = 0;
-		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
+		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, eCapturingPlayer, GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
 			if (iValue >= NO_UNIT && GC.getUnitInfo((UnitTypes) iValue) != NULL) {
 				return (UnitTypes) iValue;
@@ -15220,7 +15224,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		}
 	}
 
-	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
+	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(eCapturingPlayer).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
 }
 
 
@@ -20676,7 +20680,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 										// Some units can't capture civilians. Embarked units are also not captured, they're simply killed. And some aren't a type that gets captured.
 										if( (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && 
-											pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT && 
+											pLoopUnit->getCaptureUnitType(getOwner()) != NO_UNIT && 
 											!bDoEvade )
 										{
 											bDoCapture = true;
@@ -20703,10 +20707,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										}
 										if (!bDoEvade)
 										{
-											CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
-											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
-											if (MOD_WH_MILITARY_LOG)
-												MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), pLoopUnit->getOwner());
+											if (!bDoCapture)
+											{
+												CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
+												DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+												if (MOD_WH_MILITARY_LOG)
+													MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), pLoopUnit->getOwner());
+											}
 
 											kPlayer.DoYieldsFromKill(this, pLoopUnit);
 											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());

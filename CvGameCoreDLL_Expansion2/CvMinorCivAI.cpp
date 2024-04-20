@@ -18050,7 +18050,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 				else if(eProximity == PLAYER_PROXIMITY_CLOSE)
 					iChance += /*50*/ GD_INT_GET(PERMANENT_WAR_OTHER_WARMONGER_CHANCE_CLOSE);
 				else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-					iChance += /*60*/ GD_INT_GET(PERMANENT_WAR_OTHER_WARMONGER_CHANCE_DISTANT);
+					iChance += /*60*/ GD_INT_GET(PERMANENT_WAR_OTHER_WARMONGER_CHANCE_NEIGHBORS);
 			}
 			// Aggressor
 			else

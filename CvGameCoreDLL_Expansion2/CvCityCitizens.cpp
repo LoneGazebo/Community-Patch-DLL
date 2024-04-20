@@ -2119,6 +2119,10 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 		if (pPlot != NULL)
 		{
+			// can't work the the center tile of another city
+			if (pPlot->isCity())
+				return;
+
 			if (IsCanWork(pPlot))
 			{
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist

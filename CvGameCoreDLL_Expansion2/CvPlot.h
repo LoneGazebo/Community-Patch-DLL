@@ -395,6 +395,7 @@ public:
 
 	bool isPotentialCityWork() const;
 	bool isPotentialCityWorkForArea(CvArea* pArea) const;
+	bool IsResourceImprovedForOwner(bool bIgnoreTechPrereqs = false, bool bFoundingCity = false);
 	void updatePotentialCityWork();
 
 
@@ -403,7 +404,7 @@ public:
 		return (PlayerTypes)m_eOwner;
 	}
 
-	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
+	void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true, bool bFoundingCity = false);
 
 	bool IsCloseToCity(PlayerTypes ePlayer) const;
 
@@ -471,13 +472,13 @@ public:
 	bool IsNaturalWonder(bool orPseudoNatural = false) const;
 #endif
 
-	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM) const;
+	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM, bool bIgnoreTechPrereq = false) const;
 	ResourceTypes getNonObsoleteResourceType(TeamTypes eTeam = NO_TEAM) const;
 	void setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot = false);
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
-	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources) const;
+	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq = false) const;
 	void removeMinorResources();
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);

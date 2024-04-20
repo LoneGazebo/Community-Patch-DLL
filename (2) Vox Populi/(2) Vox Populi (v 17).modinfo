@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.6.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.6.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -881,7 +881,7 @@
     <File md5="77BDAC6B9E9BF99BE5C0CB9F01A1E5B3" import="0">Database Changes/Art/NewUnitArts.xml</File>
     <File md5="B3845C7481F51EB6365441268184946B" import="0">Database Changes/Art/ResourceArtChanges.sql</File>
     <File md5="879E97F60D5EC8A8E3C8A15AA48090AB" import="0">Database Changes/Art/UnitArtChanges.sql</File>
-    <File md5="839C01A48970384969F5633D8B738543" import="0">Database Changes/Barbarians/BarbarianSweeps.sql</File>
+    <File md5="91BB37F29D641CBA13B397D7F341FA36" import="0">Database Changes/Barbarians/BarbarianSweeps.sql</File>
     <File md5="AB5B767767DD2BC1341D82188E67C506" import="0">Database Changes/Beliefs/EnhancerChanges.sql</File>
     <File md5="0A4B5D03685AD0B80EB5682A5AC4B04E" import="0">Database Changes/Beliefs/FollowerChanges.sql</File>
     <File md5="EF5507D9115DF0C6698908928E91C73A" import="0">Database Changes/Beliefs/FounderChanges.sql</File>
@@ -952,7 +952,7 @@
     <File md5="B36D6796F45A6189AE8AD57BDA38CC1D" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
     <File md5="4E2C899778F093B9F18667EFB45971AC" import="0">Database Changes/Corporations/NewCorporations.xml</File>
     <File md5="B404DBF4A54D34CEACF76479377B80DD" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
-    <File md5="C51EDFF046E7013ABF030EB289B9C063" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
+    <File md5="ECE51D91E322D9448B0644E08235599C" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
     <File md5="06C7BCDE2F6591FD8371AD4330E804E5" import="0">Database Changes/Difficulty/PreDifficultyChanges.sql</File>
     <File md5="F6240D317BDEF21DA4E6FF11B725F515" import="0">Database Changes/Espionage/SpyPassiveBonuses.xml</File>
     <File md5="8331D156F833EADE9534347EEE77FC3D" import="0">Database Changes/Espionage/SpyPassiveBonusesDiplomat.xml</File>

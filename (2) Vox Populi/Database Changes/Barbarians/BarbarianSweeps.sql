@@ -40,8 +40,7 @@ WHERE Type IN (
 	'UNITCLASS_PIONEER',
 	'UNITCLASS_COLONIST',
 	'UNITCLASS_ARCHAEOLOGIST',
-	'UNITCLASS_MISSIONARY',
-	-- The civilian units below also cannot be captured from Barbarians (Capture = NULL)
+	-- The civilian units below also cannot be captured by Barbarians (Capture = NULL)
 	'UNITCLASS_WORKBOAT',
 	'UNITCLASS_CARAVAN',
 	'UNITCLASS_CARGO_SHIP',
