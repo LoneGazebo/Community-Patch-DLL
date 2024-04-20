@@ -388,7 +388,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 						iTheirDamageInflicted = pTheirCity:GetAirStrikeDefenseDamage(pMyUnit, false);
 					end
 				end
-				iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);
+				iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, false, true);
 				bInterceptPossible = true;
 			end
 		else
