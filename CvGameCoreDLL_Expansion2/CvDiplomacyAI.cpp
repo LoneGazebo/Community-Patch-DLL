@@ -16821,34 +16821,27 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
+	// Always want an opportunity attack if we have a coop war planned.
 	if (IsLockedIntoCoopWar(ePlayer))
 	{
 		bWantsOpportunityAttack = true;
-		bModerateAggressiveDesire = false;
 	}
-	else
+	// No opportunity attacks if we're doing terribly already, unless things are dire.
+	else if (!GetPlayer()->IsNoNewWars() || IsEndgameAggressiveTo(ePlayer) || bEverCapturedKeyCity || bTheyAreCloseToWorldConquest)
 	{
-		// No opportunity attacks if we're doing terribly already!
-		if (GetPlayer()->IsNoNewWars() && !IsEndgameAggressiveTo(ePlayer) && !bEverCapturedKeyCity && !bTheyAreCloseToWorldConquest)
+		// Don't be aggressive towards our friends or distant players without a good reason.
+		if (bModerateAggressiveDesire)
 		{
-			bModerateAggressiveDesire = true;
+			bWantsOpportunityAttack = bCloseToWorldConquest || bProvokedUs || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest || GC.getGame().IsAIAggressiveMode();
 		}
 		else
 		{
-			// Don't be aggressive towards our friends or distant players without a good reason.
-			if (bModerateAggressiveDesire)
-			{
-				bWantsOpportunityAttack = bCloseToWorldConquest || bProvokedUs || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest || GC.getGame().IsAIAggressiveMode();
-			}
-			else
-			{
-				bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer) || GC.getGame().IsAIAggressiveMode();
+			bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer) || GC.getGame().IsAIAggressiveMode();
 
-				// If they're nearby, more reasons are valid to want to attack them!
-				if (eOurProximity >= PLAYER_PROXIMITY_CLOSE)
-				{
-					bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= CIV_OPINION_COMPETITOR) || eOpinion <= CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer);
-				}
+			// If they're nearby, more reasons are valid to want to attack them!
+			if (eOurProximity >= PLAYER_PROXIMITY_CLOSE)
+			{
+				bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= CIV_OPINION_COMPETITOR) || eOpinion <= CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer);
 			}
 		}
 	}
