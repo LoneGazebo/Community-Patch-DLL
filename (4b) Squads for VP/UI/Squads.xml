@@ -104,16 +104,6 @@
                   </Box>
                 </Box>
 
-                <!-- Home Base Edit -->
-                <GridButton Anchor="C,T" Style="SmallButton" Size="150,32" Offset="0,70" StateOffsetIncrement="0,0" ID="ChangeHomeBaseButton">
-                    <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_CHANGE_HOME_BASE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-                </GridButton>
-
-                <!-- Home Base View -->
-                <GridButton Anchor="C,T" Style="SmallButton" Size="150,32" Offset="0,115" StateOffsetIncrement="0,0" ID="ViewHomeBaseButton">
-                    <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_View_HOME_BASE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-                </GridButton>
-
             </Box>
 
             
@@ -149,13 +139,8 @@
                 <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_MOVE_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             </GridButton>
 
-            <!-- Recall Squad Button -->
-            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="555,0" StateOffsetIncrement="0,0" ID="RecallSquadButton">
-                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_RECALL_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-            </GridButton>
-
             <!-- Reset Squad Button -->
-            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="735,0" StateOffsetIncrement="0,0" ID="ResetSquadButton">
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="555,0" StateOffsetIncrement="0,0" ID="ResetSquadButton">
                 <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_RESET_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             </GridButton>
 

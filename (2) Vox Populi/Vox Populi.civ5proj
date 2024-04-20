@@ -1290,6 +1290,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Squads for VP</Name>
+        <Id>59c70c09-d8ec-4856-b012-33b43b4f98fc</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>

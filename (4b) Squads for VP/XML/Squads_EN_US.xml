@@ -15,25 +15,15 @@
         <Row Tag="TXT_KEY_SQUADS_MOVE_SQUAD">
             <Text>Move Squad</Text>
         </Row>
-        <Row Tag="TXT_KEY_SQUADS_RECALL_SQUAD">
-            <Text>Recall Squad</Text>
-        </Row>
         <Row Tag="TXT_KEY_SQUADS_RESET_SQUAD">
             <Text>Reset Squad</Text>
         </Row>
         <Row Tag="TXT_KEY_SQUADS_NAME">
             <Text>Squad Name</Text>
         </Row>
-        <Row Tag="TXT_KEY_SQUADS_CHANGE_HOME_BASE">
-            <Text>Change Home Base</Text>
-        </Row>
-        <Row Tag="TXT_KEY_SQUADS_View_HOME_BASE">
-            <Text>View Home Base</Text>
-        </Row>
         <Row Tag="TXT_KEY_SQUADS_OPTIONS">
             <Text>Options</Text>
         </Row>
-
         <Row Tag="TXT_KEY_SQUADS_OPTION_HIGHLIGHT">
             <Text>Highlight Squad Units</Text>
         </Row>

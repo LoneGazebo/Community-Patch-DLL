@@ -9,7 +9,6 @@ include( "PlotIterators.lua" );
 
 -- project
 include( "SquadsUtil.lua" );
-include( "SquadBases.lua" );
 include( "SquadNames.lua" );
 
 
@@ -19,8 +18,6 @@ local SquadsEndMovementType = 0;
 SQUADS_MODE_NONE = 0;
 SQUADS_MODE_MOVE = 1;
 SQUADS_MODE_UNIT_MANAGEMENT = 2;
-SQUADS_MODE_BASE_MANAGEMENT = 3;
-
 
 local currentPlot = nil;
 local currentSquadNumber = 1;
@@ -67,16 +64,6 @@ function SetSquadsMode(mode)
         end
         Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
         UpdateMouse();
-
-        -- HighlightSquadUnits(pPlayer, currentSquadNumber);
-
-    elseif mode == SQUADS_MODE_BASE_MANAGEMENT then
-        if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID then
-            UI.SetInterfaceMode(GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID);
-        end
-        Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
-        UpdateMouse();
-        -- HighlightSquadUnits(pPlayer, currentSquadNumber);
 
     elseif mode == SQUADS_MODE_MOVE then
         if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID then
@@ -140,23 +127,6 @@ function UpdateMouse(gridX, gridY)
             end
         end
 
-
-        
-    elseif currentMode == SQUADS_MODE_BASE_MANAGEMENT then
-        local iPlayer = Game.GetActivePlayer();
-        local pPlayer = Players[ iPlayer ];
-
-        Events.ClearHexHighlights();
-        
-        if plot ~= nil then
-            if GetSquadBasePlot(currentSquadNumber) == plot then
-                HighlightPlot(plot, nil, "SquadsHomeBaseRemove");
-            else
-                HighlightSquadBase(pPlayer, currentSquadNumber);
-                HighlightPlot(plot, nil, "SquadsHomeBasePlace");
-            end
-        end
-
     elseif currentMode == SQUADS_MODE_MOVE then
         local iPlayer = Game.GetActivePlayer();
         local pPlayer = Players[ iPlayer ];
@@ -189,26 +159,6 @@ function HandlePressMoveSquadButton ()
   OnClose();
 end
 Controls.MoveSquadButton:RegisterCallback(Mouse.eLClick, HandlePressMoveSquadButton);
-
-function HandleRecallSquadButton ()
-    local squadBasePlot = GetSquadBasePlot(currentSquadNumber);
-    if squadBasePlot == nil then print("warning: no base plot - should be greyed out in UI");return; end
-    print("handle recall squad button clicked");
-    -- TODO: refactor this with copy pasted from section below
-    local iPlayer = Game.GetActivePlayer();
-    local pPlayer = Players[ iPlayer ];
-
-    local bMovedSquad = false;
-    for unit in getSquadUnits(pPlayer, currentSquadNumber) do
-        unit:SetSquadEndMovementType(SquadsEndMovementType);
-        unit:DoSquadMovement(squadBasePlot);
-        bMovedSquad = true;
-        break;
-    end
-
-    OnClose();
-end
-Controls.RecallSquadButton:RegisterCallback(Mouse.eLClick, HandleRecallSquadButton);
 
 function HandleResetSquadButton ()
     print("handle reset squad button clicked");
@@ -329,21 +279,6 @@ end
 LuaEvents.SQUADS_MANAGE_UNITS_MODE_RIGHT_CLICK_DOWN.Add(HandleRightClickDown);
 
 
-function HandleToggleHomeBase(wParam, lParam)
-    if currentPlot ~= nil then
-        if GetSquadBasePlot(currentSquadNumber) == currentPlot then
-            ResetSquadBasePlot(currentSquadNumber);
-        else
-            SetSquadBasePlot(currentSquadNumber, currentPlot);
-        end
-        Events.ClearHexHighlightStyle("SquadsHomeBasePlace");
-        Events.ClearHexHighlightStyle("SquadsHomeBaseRemove");
-        Events.ClearHexHighlightStyle("SquadsHomeBaseInvalid");
-        HighlightSquadBase(pPlayer, squadNumber);
-    end
-end
-LuaEvents.SQUADS_MANAGE_BASE_MODE_LEFT_CLICK.Add(HandleToggleHomeBase);
-
 function HandleRightClickUp(wParam, lParam)
     bUnitsSelected = DoBoxSelect()
     
@@ -354,7 +289,6 @@ function HandleRightClickUp(wParam, lParam)
     end
 end
 LuaEvents.SQUADS_MANAGE_UNITS_MODE_RIGHT_CLICK_UP.Add(HandleRightClickUp);
-LuaEvents.SQUADS_MANAGE_BASE_MODE_RIGHT_CLICK_UP.Add(function() SetSquadsMode(SQUADS_MODE_NONE) end);
 
 
 -- ========== Hotkey Handler ===========
@@ -474,15 +408,13 @@ function HighlightSquadUnits(pPlayer, squadNumber)
 end
 
 function _highlightSquadUnits(pPlayer, squadNumber, clearOldHighlights)
-    if not bHighlightSquadUnits and currentMode ~= SQUADS_MODE_UNIT_MANAGEMENT and currentMode ~= SQUADS_MODE_BASE_MANAGEMENT then return end 
+    if not bHighlightSquadUnits and currentMode ~= SQUADS_MODE_UNIT_MANAGEMENT then return end
     if clearOldHighlights then Events.ClearHexHighlights() end
     if squadNumber == -1 then return end
     for unit in getSquadUnits(pPlayer, squadNumber)
     do
         Events.SerialEventHexHighlight(ToHexFromGrid(Vector2(unit:GetX(), unit:GetY())), true, Vector4(1, 1, 1, 1));
     end
-
-    HighlightSquadBase(pPlayer, squadNumber);
 end
 
 function HighlightAllSquadStatus(pPlayer)
@@ -499,20 +431,6 @@ function HighlightAllSquadStatus(pPlayer)
         end
     end
 end
-
-function HighlightSquadBase(pPlayer, squadNumber)
-    Events.ClearHexHighlightStyle("SquadsHomeBase");
-    -- Events.ClearHexHighlightStyle("SquadsHomeBasePlace");
-    -- Events.ClearHexHighlightStyle("SquadsHomeBaseRemove");
-    -- Events.ClearHexHighlightStyle("SquadsHomeBaseInvalid");
-
-    if squadNumber == -1 then return end
-    local basePlot = GetSquadBasePlot(squadNumber);
-    if basePlot ~= nil then
-        HighlightPlot(basePlot, nil, "SquadsHomeBase");
-    end
-end
-
 
 -- ================ Util ================
 
@@ -578,22 +496,6 @@ function Validate(sValue, control, bFire)
     end
 end
 Controls.SquadNameInput:RegisterCallback(Validate);
-
--- Change Home Base
-function HandlePressChangeHomeBaseButton ()
-
-  SetSquadsMode(SQUADS_MODE_BASE_MANAGEMENT);
-  OnClose();
-end
-Controls.ChangeHomeBaseButton:RegisterCallback(Mouse.eLClick, HandlePressChangeHomeBaseButton);
-
--- View Home Base
-function HandlePressViewHomeBaseButton()
-
-  UI.LookAt(GetSquadBasePlot(currentSquadNumber))
-  
-end
-Controls.ViewHomeBaseButton:RegisterCallback(Mouse.eLClick, HandlePressViewHomeBaseButton);
 
 
 -- from military overview
