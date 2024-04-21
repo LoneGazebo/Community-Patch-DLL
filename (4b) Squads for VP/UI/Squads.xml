@@ -130,17 +130,17 @@
             </GridButton>
 
             <!-- Manage Squad Button -->
-            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="195,0" StateOffsetIncrement="0,0" ID="AddToSquadButton">
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="195,0" StateOffsetIncrement="0,0" ID="AddToSquadButton" ToolTip="TXT_KEY_SQUADS_TT_MANAGE_SQUAD">
                 <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_MANAGE_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             </GridButton>
 
             <!-- Move Squad Button -->
-            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="375,0" StateOffsetIncrement="0,0" ID="MoveSquadButton">
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="375,0" StateOffsetIncrement="0,0" ID="MoveSquadButton" ToolTip="TXT_KEY_SQUADS_TT_MOVE_SQUAD">
                 <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_MOVE_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             </GridButton>
 
             <!-- Reset Squad Button -->
-            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="555,0" StateOffsetIncrement="0,0" ID="ResetSquadButton">
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="555,0" StateOffsetIncrement="0,0" ID="ResetSquadButton" ToolTip="TXT_KEY_SQUADS_TT_RESET_SQUAD">
                 <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_RESET_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             </GridButton>
 
