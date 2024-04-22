@@ -238,7 +238,7 @@ function UpdateData()
 					iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
 					iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
 					
-					if (iNumUsed > 0) then
+					if (iNumTotal > 0 or iNumUsed > 0) then
 						bShowResource = true;
 					end
 							

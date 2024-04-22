@@ -2257,7 +2257,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		args->Push(GetID());  // unit being killed
 
 		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "CanSaveUnit", args.get(), bResult))
+		if(LuaSupport::CallTestAny(pkScriptSystem, "CanSaveUnit", args.get(), bResult))
 		{
 			// Check the result.
 			if(bResult)
