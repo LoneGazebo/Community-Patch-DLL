@@ -591,7 +591,7 @@ public:
 	const char* getVisualCivAdjective(TeamTypes eForTeam) const;
 	SpecialUnitTypes getSpecialUnitType() const;
 	bool IsGreatPerson() const;
-	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;
+	UnitTypes getCaptureUnitType(PlayerTypes eCapturingPlayer) const;
 	int getUnitCombatType() const;
 	void setUnitCombatType(UnitCombatTypes eCombat);
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)

@@ -388,7 +388,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 						iTheirDamageInflicted = pTheirCity:GetAirStrikeDefenseDamage(pMyUnit, false);
 					end
 				end
-				iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);
+				iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, false, true);
 				bInterceptPossible = true;
 			end
 		else
@@ -592,7 +592,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 		nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_REVERSE_GG_NEAR", nBonus, iMiscModifier, true, true);
 
 		-- Attacking blockaded city
-		if pMyCity and pMyCity:IsBlockadedTest() then
+		if pTheirCity and pTheirCity:IsBlockadedTest() then
 			iModifier = GameDefines.BLOCKADED_CITY_ATTACK_MODIFIER;
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CITY_BLOCKADED", nBonus, iMiscModifier, true, true);
 		end

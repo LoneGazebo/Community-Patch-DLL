@@ -1401,7 +1401,13 @@ int CvLuaPlot::lGetOwner(lua_State* L)
 //void setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits = true, bool bUpdateResources = true);
 int CvLuaPlot::lSetOwner(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::setOwner);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const PlayerTypes eNewValue = (PlayerTypes)lua_tointeger(L, 2);
+	const int iAcquiringCityID = lua_tointeger(L, 3);
+	const bool bCheckUnits = luaL_optbool(L, 4, true);
+
+	pkPlot->setOwner(eNewValue, iAcquiringCityID, bCheckUnits);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //PlotTypes getPlotType();

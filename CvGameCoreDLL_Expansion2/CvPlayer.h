@@ -2180,17 +2180,20 @@ public:
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
 
-	void connectResourcesOnPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources = false);
+	void addResourcesOnPlotToTotal(CvPlot* pPlot, bool bOnlyExtraResources = false, bool bIgnoreTechPrereq = false);
+	void removeResourcesOnPlotFromTotal(CvPlot* pPlot, bool bOnlyExtraResources = false, bool bIgnoreTechPrereq = false);
+
 	int getNumResourceUnimproved(ResourceTypes eIndex) const;
 	void changeNumResourceUnimproved(ResourceTypes eIndex, int iChange);
-	void changeNumResourceUnimprovedPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources = false);
+	void addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraResources = false, bool bIgnoreTechPrereq = false);
+	void removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtraResources = false, bool bIgnoreTechPrereq = false);
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 
-	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bIgnoreResourceWarning = false);
+	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
 	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);

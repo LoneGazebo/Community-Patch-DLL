@@ -586,7 +586,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	// Plot Ownership
-	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+	pPlot->setOwner(getOwner(), m_iID, bBumpUnits, true, true);
 
 	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
 	// remove the resource allocation from the current owner.  This would result in double resource points because
@@ -903,15 +903,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			// Free Culture-per-turn in every City from Policies
 			ChangeJONSCulturePerTurnFromPolicies(GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
-		}
-	}
-
-	// Add Resource Quantity to total
-	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
-	{
-		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType(getTeam())))
-		{
-			owningPlayer.connectResourcesOnPlot(plot(), true);
 		}
 	}
 
@@ -9803,14 +9794,15 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 	{
 		bool bOldHasResource = IsHasResourceLocal(eResource, /*bTestVisible*/ false);
 
-		//unimproved is just here for the cache.
 		if (bUnimproved)
 		{
-			m_paiNumUnimprovedResourcesLocal[eResource] = max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
+			m_paiNumUnimprovedResourcesLocal[eResource] = m_paiNumUnimprovedResourcesLocal[eResource] + iChange;
 			return;
 		}
 		else
-			m_paiNumResourcesLocal[eResource] = max(0, m_paiNumResourcesLocal[eResource] + iChange);
+		{
+			m_paiNumResourcesLocal[eResource] = m_paiNumResourcesLocal[eResource] + iChange;
+		}
 
 		if (bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
@@ -9824,23 +9816,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 				int iWonderMod = pkResource->getWonderProductionMod();
 				if (iWonderMod != 0)
 				{
-#if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
-					if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
-					{
-						if (GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
-						{
-							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-							if (pNotifications)
-							{
-								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-								strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-								strSummary << getNameKey() << pkResource->GetTextKey();
-								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
-							}
-						}
-					}
-					else if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+					if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 					{
 						if (GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 						{
@@ -9857,7 +9833,6 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					}
 					else
 					{
-#endif
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
@@ -9867,12 +9842,8 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 							strSummary << getNameKey() << pkResource->GetTextKey();
 							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 						}
-#if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
 					}
-#endif
 				}
-
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 
 				// Notification letting player know his city gets a production cost modifier
 				if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
@@ -9968,7 +9939,6 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 						}
 					}
 				}
-#endif
 			}
 			else
 			{
@@ -10002,12 +9972,10 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 
 					ChangeBaseYieldRateFromBuildings(YIELD_FAITH, iFaith * iChange);
 
-#if defined(MOD_BALANCE_CORE)
 					int iHappiness = pkBuildingInfo->GetResourceHappiness(eResource);
 					if (iHappiness != 0)
 						iHappiness *= GetCityBuildings()->GetNumBuilding(eBuilding);
 					ChangeBaseHappinessFromBuildings(iHappiness * iChange);
-#endif
 				}
 			}
 		}
@@ -15964,17 +15932,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
 									iNumResourcePlotsGiven++;
-									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
-									{
-										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
-										if (ImprovementEntry)
-										{
-											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
-											{
-												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
-											}
-										}
-									}
+
 									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 									{
 										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
@@ -16065,15 +16023,26 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.IsResourceImproveable(eLoopResource))
+						if (pLoopPlot->IsResourceImprovedForOwner())
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource) && !pLoopPlot->IsImprovementPillaged()))
+							if (iChange > 0)
 							{
-								owningPlayer.connectResourcesOnPlot(pLoopPlot, iChange > 0, true);
+								owningPlayer.addResourcesOnPlotToTotal(pLoopPlot, true);
 							}
 							else
 							{
-								owningPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, iChange > 0, true);
+								owningPlayer.removeResourcesOnPlotFromTotal(pLoopPlot, true);
+							}
+						}
+						else
+						{
+							if (iChange > 0)
+							{
+								owningPlayer.addResourcesOnPlotToUnimproved(pLoopPlot, true);
+							}
+							else
+							{
+								owningPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot, true);
 							}
 						}
 					}

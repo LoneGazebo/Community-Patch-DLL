@@ -196,10 +196,10 @@
 	VictoryBlockMod: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled). Default 0.
 	WonderBlockPercent: Controls how aggressive the AI is about World Wonder spamming (100 = normal aggression). Default 100.
 	WonderBlockMod: Added to the threshold at which the AI will consider another player to be World Wonder spamming. Default 0.
+	TechBlockPercent: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled; 100 = normal aggression). Default 100.
+	TechBlockMod: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled). Default 0.
 	PolicyBlockPercent: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled; 100 = normal aggression). Default 100.
 	PolicyBlockMod: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled). Default 0.
-	PolicyBlockPercent: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled; 100 = normal aggression). Default 100.
-	PolicyBlockMod: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled). Default 0.
 	PeaceTreatyDampenerTurns: Controls for how many turns after a Peace Treaty is signed the AI will be docile for, but also unwilling to make Declarations of Friendship or Defensive Pacts. Default 20.
 	AggressionIncrease: A value which, if above 0, increases AI's desire to expand and its diplomatic aggression towards players that it has an unfavorable Opinion of. Default 0.
 	HumanStrengthPerceptionMod: % modifier to the strength perception of human players. If the human is doing poorly enough, this modifier may only be partially applied, or not at all. Default 0.

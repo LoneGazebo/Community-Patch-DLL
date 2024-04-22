@@ -2336,8 +2336,19 @@ int CvLuaUnit::lGetCaptureUnitType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const CivilizationTypes eCivilization = (CivilizationTypes)lua_tointeger(L, 2);
+	
+	// for modmod compatibility, the lua function takes an argument of type CivilizationTypes. The c++ function needs an argument of type PlayerTypes
+	PlayerTypes ePlayer = NO_PLAYER;
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (GET_PLAYER((PlayerTypes)i).getCivilizationType() == eCivilization)
+		{
+			ePlayer = (PlayerTypes)i;
+			break;
+		}
+	}
 
-	const UnitTypes eResult = pkUnit->getCaptureUnitType(eCivilization);
+	const UnitTypes eResult = pkUnit->getCaptureUnitType(ePlayer);
 	lua_pushinteger(L, eResult);
 	return 1;
 }

@@ -9186,6 +9186,12 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			continue;
 		}
 
+		CvCity* pMinorCapital = GET_PLAYER(eTargetPlayer).getCapitalCity();
+		if (pMinorCapital == NULL)
+		{
+			continue;
+		}
+
 		// if we haven't met the civ, ignore
 		if(!GET_TEAM(m_pPlayer->getTeam()).isHasMet((GET_PLAYER(eTargetPlayer).getTeam())))
 		{
@@ -9198,7 +9204,20 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			continue;
 		}
 
+		if (!pEspionage->CanEverMoveSpyTo(pMinorCapital))
+			continue;
+
 		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eTargetPlayer).GetMinorCivAI();
+
+		if (pMinorCivAI->IsNoAlly())
+			continue;
+
+		if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+			continue;
+
+		if (pMinorCapital->IsRazing())
+			continue;
+
 		CivApproachTypes eApproach = pDiploAI->GetCivApproach(eTargetPlayer);
 
 		// how much influence for rigging an election (not taking into account streaks)
@@ -9236,20 +9255,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 				}
 			}
 		}
-		
-		CvCity* pMinorCapital = GET_PLAYER(eTargetPlayer).getCapitalCity();
-		if(!pEspionage->CanEverMoveSpyTo(pMinorCapital))
-			continue;
-
-		if (pMinorCivAI->IsNoAlly())
-			continue;
-
-		if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
-			continue;
-
-		if (pMinorCapital->IsRazing())
-			continue;
-
+	
 		ScoreCityEntry kEntry;
 		kEntry.m_pCity = pMinorCapital;
 
