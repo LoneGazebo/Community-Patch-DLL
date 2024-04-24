@@ -4808,8 +4808,6 @@ void CvPlayerEspionage::ProcessSpyMessages()
 ///                      same event by the same spy
 void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, PlayerTypes eDiplomacyPlayer, BuildingTypes eBuilding, ProjectTypes eProject, UnitTypes eUnit, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification)
 {
-	CvAssertMsg(GetNumSpies() > 0, "How can you add an intrigue message when there are no spies?");
-
 	int iCityX = -1;
 	int iCityY = -1;
 	if(pCity)
@@ -4856,7 +4854,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 	{
 		if (eIntrigueType != INTRIGUE_TYPE_CONSTRUCTING_WONDER)
 		{
-			LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
+			// only add XP if we've discovered the intrigue ourselves, not if another player is sharing an intrigue they have discovered with us
+			if (m_pPlayer->GetID() == eDiscoveringPlayer)
+			{
+				GET_PLAYER(eDiscoveringPlayer).GetEspionage()->LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
+			}
 		}
 	}
 	if (eTargetPlayer == m_pPlayer->GetID())
@@ -4880,11 +4882,14 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 	kMessage.m_iTurnNum = GC.getGame().getGameTurn();
 	kMessage.m_strSpyName = "";
 	kMessage.iSpyID = uiSpyIndex;
+
+	const char* strDiscoveringSpyRank = GetSpyRankName(GET_PLAYER(eDiscoveringPlayer).GetEspionage()->m_aSpyList[uiSpyIndex].m_eRank);
+	const char* strDiscoveringSpyName = GET_PLAYER(eDiscoveringPlayer).GetEspionage()->m_aSpyList[uiSpyIndex].GetSpyName(&GET_PLAYER(eDiscoveringPlayer));
 	if (eDiscoveringPlayer == m_pPlayer->GetID())
 	{
 		Localization::String str = Localization::Lookup("TXT_KEY_SPY_FULL_NAME");
-		str << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-		str << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+		str << strDiscoveringSpyRank;
+		str << strDiscoveringSpyName;
 		kMessage.m_strSpyName = str.toUTF8();
 	}
 	kMessage.m_bShared = false;
@@ -4918,8 +4923,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					}
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_YOU");
-					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strNotification << strDiscoveringSpyRank;
+					strNotification << strDiscoveringSpyName;
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -4947,8 +4952,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					}
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_UNKNOWN");
-					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strNotification << strDiscoveringSpyRank;
+					strNotification << strDiscoveringSpyName;
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -4985,8 +4990,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					}
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_KNOWN");
-					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strNotification << strDiscoveringSpyRank;
+					strNotification << strDiscoveringSpyName;
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -5029,8 +5034,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BUILDING_ARMY");
-				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strNotification << strDiscoveringSpyRank;
+				strNotification << strDiscoveringSpyName;
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -5059,8 +5064,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BUILDING_AMPHIBIOUS_ARMY");
-				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strNotification << strDiscoveringSpyRank;
+				strNotification << strDiscoveringSpyName;
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -5090,8 +5095,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_MILITARY_MIGHT_RISEN");
-				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strNotification << strDiscoveringSpyRank;
+				strNotification << strDiscoveringSpyName;
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -5129,8 +5134,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << pCity->getNameKey();
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_KNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
 					}
@@ -5148,8 +5153,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						}
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_UNKNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 					}
 				}
@@ -5171,8 +5176,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << pCity->getNameKey();
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_KNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
@@ -5200,8 +5205,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						}
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationDescriptionKey();
 					}
@@ -5231,8 +5236,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
 					}
 
-					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strNotification << strDiscoveringSpyRank;
+					strNotification << strDiscoveringSpyName;
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 				}
 
@@ -5263,8 +5268,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << pCity->getNameKey();
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_KNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
 					}
@@ -5282,8 +5287,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						}
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_UNKNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 					}
 				}
@@ -5305,8 +5310,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << pCity->getNameKey();
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
@@ -5334,8 +5339,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						}
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN");
-						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+						strNotification << strDiscoveringSpyRank;
+						strNotification << strDiscoveringSpyName;
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationDescriptionKey();
 					}
@@ -5366,8 +5371,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
 					}
 
-					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strNotification << strDiscoveringSpyRank;
+					strNotification << strDiscoveringSpyName;
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 				}
 
@@ -5379,8 +5384,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR");
-					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strText << strDiscoveringSpyRank;
+					strText << strDiscoveringSpyName;
 					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 					{
 						strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5411,8 +5416,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER");
-					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strText << strDiscoveringSpyRank;
+					strText << strDiscoveringSpyName;
 					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 					{
 						strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5463,8 +5468,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR");
-					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strText << strDiscoveringSpyRank;
+					strText << strDiscoveringSpyName;
 					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 					{
 						strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5503,8 +5508,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_OTHER");
-					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					strText << strDiscoveringSpyRank;
+					strText << strDiscoveringSpyName;
 					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 					{
 						strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5561,8 +5566,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 		case INTRIGUE_TYPE_BOUGHT_VOTES:
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES");
-				strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strText << strDiscoveringSpyRank;
+				strText << strDiscoveringSpyName;
 				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 				{
 					strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5603,8 +5608,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 		case INTRIGUE_TYPE_SOLD_VOTES:
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES");
-				strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strText << strDiscoveringSpyRank;
+				strText << strDiscoveringSpyName;
 				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
 				{
 					strText << GET_PLAYER(eSourcePlayer).getNickName();
@@ -5674,8 +5679,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCT_WONDER");
-				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strNotification << strDiscoveringSpyRank;
+				strNotification << strDiscoveringSpyName;
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -5753,8 +5758,8 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY");
-				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
-				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				strNotification << strDiscoveringSpyRank;
+				strNotification << strDiscoveringSpyName;
 				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
