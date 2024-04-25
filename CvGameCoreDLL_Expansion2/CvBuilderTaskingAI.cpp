@@ -444,9 +444,12 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 					{
 						CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 
-						ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
-						if (eImprovement == eAdjacentImprovement)
-							continue;
+						if (pAdjacentPlot)
+						{
+							ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+							if (eImprovement == eAdjacentImprovement)
+								continue;
+						}
 					}
 				}
 
