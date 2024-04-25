@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{e819a499-969f-462a-a66c-1ebbed7f7d4e}</ProjectGuid>
-    <Name>(4b) Squads for VP</Name>
+    <Name>(4a) Squads for VP</Name>
     <Guid>3645dbca-bdfb-4d86-bdc5-46cb5a426cc2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
