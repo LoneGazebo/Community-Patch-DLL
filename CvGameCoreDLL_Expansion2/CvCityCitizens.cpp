@@ -1648,9 +1648,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		}
 		else if (bReleaseLaborer)
 		{
-			if (iWorstWorkedPlotValue < iLaborerValue)
+			if (pWorstWorkedPlot && iWorstWorkedPlotValue < iLaborerValue)
+			{
 				//plot should be released
+				bReleaseLaborer = false;
 				SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+			}
 			else
 			{
 				//laborer should be released
@@ -1763,8 +1766,13 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				justAddedBuildings.push_back(eWorstSpecialistBuilding);
 			}
 			else
+			{
 				//if nothing else works, create a laborer
 				ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_LOCAL);
+				// if we have just released a laborer, we're turning in circles.
+				if (bReleaseLaborer)
+					break;
+			}
 		}
 
 		iCount++;
