@@ -416,7 +416,7 @@ VALUES
 INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 5);
+	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 3);
 
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield, IsEraScaling)
