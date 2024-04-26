@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ConsumeMouse="1" ConsumeMouseButton="1" ConsumeMouseOver="1">
+    <Box Style="BGBlock_ClearTopBar"/>
+    <Grid Size="1060,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" >
+        <!-- Upper Treatment -->
+        <Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+            <Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds"/>
+            <Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="0,0" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+            <Image ID="Icon" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+        </Image>
+
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    
+        <!-- Panel Header Text -->
+        <Label Style="MenuTitleCaption" String="TXT_KEY_SQUADS_TITLE" ID="Title" />
+        <!-- Main Container -->
+        <Box Offset="18,43" Anchor="L,T" Size="805,565" Color="255.255.200.0">
+            <!-- Column Headers -->
+            <Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+                <Box Anchor="C,C" Size="300,24" Offset="0.-3" String="TXT_KEY_SQUADS" Color="White.0">
+                    <Label Anchor="C,C" String="TXT_KEY_SQUADS"/>
+                    <Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5.24"/>
+                    <Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5.500"/>
+                </Box>
+
+                <Button Anchor="C,C" Size="175,24" Offset="0.-3" String="TXT_KEY_NAME" ToolTip="TXT_KEY_MO_SORT_NAME" ID="SortName"> <!--Infixo/changed-->
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="220,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="195,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/> <!--Infixo/changed-->
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                </Button>
+                <Button Anchor="C,C" Size="270,24" Offset="0.-3" String="TXT_KEY_STATUS" ToolTip="TXT_KEY_MO_SORT_STATUS" ID="SortStatus"> <!--Infixo/changed-->
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="320,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="290,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/> <!--Infixo/changed-->
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                </Button>
+                <!--Infixo/new-->
+                <Button Anchor="C,C" Size="55,24" Offset="0.-3" String="TXT_KEY_XP" ToolTip="TXT_KEY_MO_SORT_XP" ID="SortXP">
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="220,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="75,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                </Button>
+                <!--Infixo/end-->
+                <Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_MOVEMENT" ID="SortMovement">
+                    <Image Anchor="C,C" Offset="0,0" Texture="assets/UI/Art/Icons/MarcPips.dds" TextureOffset="0.96" Size="32.32"/>
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                </Button>
+                <Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_MAX_MOVES" ID="SortMoves">
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                    <Label Anchor="C.C" Offset="0,-1" String="[ICON_MOVES]"/>
+                </Button>
+                <Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_STRENGTH" ID="SortStrength">
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                    <Label Anchor="C.C" Offset="0,-1" String="[ICON_STRENGTH]"/>
+                </Button>
+                <Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_RANGED" ID="SortRanged">
+                    <ShowOnMouseOver>
+                        <AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                            <Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                        </AlphaAnim>
+                    </ShowOnMouseOver>
+                    <Label Anchor="C.C" Offset="0,-1" String="[ICON_RANGE_STRENGTH]"/>
+                </Button>
+            </Stack>
+
+            <!-- Squad Information -->
+            <Stack Growth="Bottom" Offset="0,29" Padding="1" ID="SquadStack">
+
+            </Stack>
+
+            <!-- Seperator between squads list and controls -->
+            <Image Anchor="L,T" Offset="0,340" Texture="HorizontalTrim.dds" Size="300"/>
+
+            <!-- Squad Controls -->
+            <Box Anchor="L,T" Offset="0,343" Size="297,157" Color="255,255,255,0">
+
+                <Label Anchor="C,T" Offset="0,10"
+                        ColorSet="Beige_Black_Alpha" FontStyle="Shadow"
+                        String="TXT_KEY_SQUADS_NAME" />
+
+                <!-- Name Edit -->
+                <Box ID="SquadNameInputBorder" Anchor="C,T" Offset="0,35" Size="292,24" Color="Beige,255">
+                  <Box Anchor="C,C" Size="288,22" Color="Black,255" >
+                  <EditBox CallOnChar="1" EditMode="1" Size="284,22" Anchor="C,C" ID="SquadNameInput" Font="TwCenMT20" MaxLength="40"/>
+                  </Box>
+                </Box>
+
+            </Box>
+
+            
+            <!-- Unit Information -->
+            <ScrollPanel Anchor="L,T" Offset="300,29" Size="724,474" Vertical="1" ID="ScrollPanel">
+                <ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="434" ID="ScrollBar"/>
+                <UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="UpButton"/>
+                <DownButton Offset="0,452" Style="ScrollBarDown" Anchor="R,T" ID="DownButton"/>
+                <Stack Anchor="L,T" StackGrowth="B" Padding="0" ID="MainStack">
+                    <Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="MilitaryStack">
+                    </Stack>
+                    <Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1" ID="CivilianSeperator"/>
+                    <Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="CivilianStack">
+                    </Stack>
+                </Stack>
+            </ScrollPanel>
+        </Box>
+
+        <!-- Bottom Button Group -->
+        <Box Anchor="C,B" AnchorSide="I.I" Offset="0,40" Size="1027,70" Color="255,255,255,0">
+            <!-- Close Button  -->
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="15,0" StateOffsetIncrement="0,0" ID="CloseButton">
+                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            </GridButton>
+
+            <!-- Manage Squad Button -->
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="195,0" StateOffsetIncrement="0,0" ID="AddToSquadButton" ToolTip="TXT_KEY_SQUADS_TT_MANAGE_SQUAD">
+                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_MANAGE_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            </GridButton>
+
+            <!-- Move Squad Button -->
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="375,0" StateOffsetIncrement="0,0" ID="MoveSquadButton" ToolTip="TXT_KEY_SQUADS_TT_MOVE_SQUAD">
+                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_MOVE_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            </GridButton>
+
+            <!-- Reset Squad Button -->
+            <GridButton Anchor="L,C" Style="SmallButton" Size="150,32" Offset="555,0" StateOffsetIncrement="0,0" ID="ResetSquadButton" ToolTip="TXT_KEY_SQUADS_TT_RESET_SQUAD">
+                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_RESET_SQUAD" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            </GridButton>
+
+            <!-- Options Button -->
+            <GridButton Anchor="L,C" Style="SmallButton" Size="100,32" Offset="915,0" StateOffsetIncrement="0,0" ID="SquadsOptionsButton">
+                <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_SQUADS_OPTIONS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+            </GridButton>
+        </Box>
+
+
+        <Image Anchor="C,T" Offset="0,66" Texture="HorizontalTrim.dds" Size="1027.5"/>
+        <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="1027.5"/>
+
+        <!-- Options Panel -->
+        <Grid ID="OptionsPanel" Anchor="R,C" Size="350,300" Color="White.256" Style="Grid9DetailSix140" Padding="5,10" Offset="-338,0" Hidden="true" ConsumeMouse="1" >
+            <Stack Anchor="C,C" Padding="0" Offset="0,5" StackGrowth="Bottom" ID="MainStack" >
+                <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="HighlightSquadUnitsCheckBox" String="TXT_KEY_SQUADS_OPTION_HIGHLIGHT" />
+                <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="FlagsNumberCheckBox" String="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER" />
+                <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String=" " />
+                <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE" />
+                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="1" ID="AlertOnArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL" />
+                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnUnitArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_UNIT_ARRIVAL" />
+                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnSquadArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_SQUAD_ARRIVAL" />
+                <Box Anchor="C,T" Size="210,1" Color="0,0,0,0" />
+            </Stack>
+        </Grid>
+    </Grid>
+
+
+
+    <Instance Name="UnitInstance">
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="564,24" ID="Root">
+            <Button Size="564,24" Anchor="L,C" ID="Button">
+                <!-- Selected State -->
+                <Grid Anchor="L,C" Size="724,24" Style="Grid9FrameTurns" ID="SelectionFrame" Hidden="1"/>
+                <ShowOnMouseOver>
+                    <AlphaAnim Anchor="l,C" Offset="0,0" Size="724,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                        <Grid Size="724,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                </ShowOnMouseOver>
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="200,24">
+                    <!-- PromotionIndicator -->
+                    <Box Anchor="L,C" Size="24,24" Color="0.0.0.0">
+                        <AlphaAnim Anchor="C,C" Size="24,24" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".3" Hidden="0" ID="PromotionIndicator">
+                            <Image Texture="assets/UI/Art/Icons/Promotions24Gold.dds" Size="24,24"/>
+                        </AlphaAnim>
+                    </Box>
+                    <!-- HealthBar -->
+                    <Box Anchor="L,B" Offset="26,1" Size="140,5" Color="0,0,0,0" Hidden="1" ID="HealthBar">
+                            <Image ID="GreenBar" Anchor="L,B" Offset="0,0" Texture="HealthBarGreen.dds" Size="138,3" Hidden="1"/>
+                            <Image ID="YellowBar" Anchor="L,B" Offset="0,0" Texture="HealthBarYellow.dds" Size="138,3" Hidden="1"/>
+                            <Image ID="RedBar" Anchor="L,B" Offset="0,0" Color="255.255.255.100" Texture="HealthBarRed.dds" Size="138,3" Hidden="1">
+                                <AlphaAnim ID="RedAnim" Anchor="L,B" Texture="HealthBarRed.dds" Size="138,3" Pause="0" Cycle="Bounce" Speed="2" AlphaStart=".5" AlphaEnd="1"/>
+                            </Image>
+                    </Box>
+                    <Label Anchor="L,C" ID="UnitName" Offset="24,0" String="Unit Name" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+                </Box>
+            </Button>
+            <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="175,24"> <!--Infixo/changed-->
+                </Box>
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="270,24"> <!--Infixo/changed-->
+                    <Label Anchor="C,C" Hidden="1" ID="Status"/>
+                </Box>
+                <!--Infixo/new-->
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="55,24">
+                    <Label Anchor="C,C" ID="UnitXP"/>
+                </Box>
+                <!--Infixo/end-->
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+                    <Image Anchor="C,C" Texture="assets/UI/Art/Icons/MarcPips.dds" Size="32.32" ID="MovementPip"/>
+                </Box>
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+                    <Label Anchor="C,C" ID="Movement"/>
+                </Box>
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+                    <Label Anchor="C,C" ID="Strength"/>
+                </Box>
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+                    <Label Anchor="C,C" ID="RangedAttack"/>
+                </Box>
+            </Stack>
+        </Box>
+    </Instance>
+
+    <Instance Name="SquadInstance">
+        <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="300,30" ID="Root">
+            <Button Size="300,30" Anchor="L,C" ID="Button">
+
+                <!-- Selected State -->
+                <Grid Anchor="L,C" Size="300,30" Style="Grid9FrameTurns" ID="SelectionFrame" Hidden="1"/>
+                <ShowOnMouseOver>
+                    <AlphaAnim Anchor="l,C" Offset="0,0" Size="300,33" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                        <Grid Size="300,33" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                    </AlphaAnim>
+                </ShowOnMouseOver>
+            </Button>
+
+             <!-- Squad Display/Control Row -->
+            <Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+                <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="270,24">
+                    <Label Anchor="C,C" Hidden="0" ID="SquadName"/>
+                </Box>
+            </Stack>
+        </Box>
+    </Instance>
+
+
+
+
+
+</Context>

@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <ProjectGuid>{e819a499-969f-462a-a66c-1ebbed7f7d4e}</ProjectGuid>
+    <Name>(4a) Squads for VP</Name>
+    <Guid>3645dbca-bdfb-4d86-bdc5-46cb5a426cc2</Guid>
+    <ModVersion>1</ModVersion>
+    <Stability>Stable</Stability>
+    <Teaser>(4.7) RTS Style Control Groups and Group Movement</Teaser>
+    <Description>QoL mod for organizing and moving groups of units at once.
+Squads is used in two modes: [COLOR_GREEN]Management Mode[ENDCOLOR] and [COLOR_GREEN]Movement Mode[ENDCOLOR].[NEWLINE][NEWLINE]
+In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. [COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
+In [COLOR_GREEN]Movement Mode[ENDCOLOR], [COLOR_YELLOW]RCLICK[ENDCOLOR] on a plot will issue move orders to all units in that squad to move to that area. [COLOR_GREEN]Movement Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Move Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]NUM+NUM[ENDCOLOR] (double tapping key) where num is the squad number key.[NEWLINE][NEWLINE]
+The Squads UI allows renaming of squads, removing all units from a squad, removing individual units from the unit list using [COLOR_YELLOW]RCLICK[ENDCOLOR], and configuration for display and movement completion settings.</Description>
+    <Authors>Vern</Authors>
+    <SpecialThanks>Gwennog</SpecialThanks>
+    <AffectsSavedGames>false</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>true</SupportsSinglePlayer>
+    <SupportsMultiplayer>true</SupportsMultiplayer>
+    <SupportsHotSeat>true</SupportsHotSeat>
+    <SupportsMac>true</SupportsMac>
+    <AssemblyName>Squads</AssemblyName>
+    <RootNamespace>Squads</RootNamespace>
+    <ModReferences>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(2) Vox Populi</Name>
+        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModReferences>
+    <ModContent>
+      <Content xmlns="">
+        <Type>InGameUIAddin</Type>
+        <Name>Squads</Name>
+        <Description>Squads for VP</Description>
+        <FileName>UI/Squads.xml</FileName>
+      </Content>
+    </ModContent>
+    <ModProperties />
+    <ModActions>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Squads_EN_US.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>DB/Squads.sql</FileName>
+      </Action>
+    </ModActions>
+    <ModDependencies>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(1) Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
+    <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Linked and Group Unit Movement for VP-noEUI </Name>
+        <Id>24923240-e4fb-4bf6-link-6e5b6cf4d3c2</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Linked and Group Unit Movement for VP-EUI </Name>
+        <Id>24923240-e4fb-4bf6-link-6e5b6cf4d3c2</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Squads for VP</Name>
+        <Id>59c70c09-d8ec-4856-b012-33b43b4f98fc</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModBlockers>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Package Only' ">
+    <PackageMod>true</PackageMod>
+    <DeployMod>false</DeployMod>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Deploy Only' ">
+    <PackageMod>false</PackageMod>
+    <DeployMod>true</DeployMod>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Art" />
+    <Folder Include="DB" />
+    <Folder Include="ThirdParty" />
+    <Folder Include="XML" />
+    <Folder Include="UI" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Art\SquadsIcon.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="DB\Squads.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="ThirdParty\PlotIterators.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="ThirdParty\TableSaverLoader.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\SquadNames.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\Squads.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\Squads.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\SquadsOptions.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\SquadsUtil.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Squads_EN_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
+</Project>
