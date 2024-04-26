@@ -471,7 +471,7 @@ local function UpdateTopPanelNow()
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if not resource.HideInTopPanel then
-			if numResourceUsed > 0 or numResourceTotal > 0 or
+			if numResourceUsed > 0 or numResourceTotal > 0
 				or ( g_activePlayer:IsResourceRevealed(resourceID)
 				and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
 			then
