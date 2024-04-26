@@ -465,7 +465,7 @@ VALUES
 	('BELIEF_CERNUNNOS', 'FEATURE_JUNGLE', 'YIELD_PRODUCTION', 1);
 
 -- Lugh, the Skilled One
-UPDATE Beliefs SET ProductionModifier = 10 WHERE Type = 'BELIEF_LUGH';
+UPDATE Beliefs SET WonderProductionModifier = 10 WHERE Type = 'BELIEF_LUGH';
 
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
