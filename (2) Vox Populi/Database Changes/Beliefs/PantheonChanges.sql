@@ -389,13 +389,13 @@ VALUES
 	('BELIEF_RHIANNON', 'BUILDINGCLASS_CIRCUS', 'YIELD_GOLDEN_AGE_POINTS', 5),
 	('BELIEF_MANANNAN', 'BUILDINGCLASS_CIRCUS', 'YIELD_GREAT_ADMIRAL_POINTS', 2),
 	('BELIEF_OGMA', 'BUILDINGCLASS_CIRCUS', 'YIELD_SCIENCE', 5),
-	('BELIEF_BRAN', 'BUILDINGCLASS_CIRCUS', 'YIELD_FOOD', 5),
+	('BELIEF_DAGDA', 'BUILDINGCLASS_CIRCUS', 'YIELD_FOOD', 5),
 	('BELIEF_CAILLEACH', 'BUILDINGCLASS_CIRCUS', 'YIELD_TOURISM', 5);
 
 INSERT INTO Belief_BuildingClassHappiness
 	(BeliefType, BuildingClassType, Happiness)
 VALUES
-	('BELIEF_DAGDA', 'BUILDINGCLASS_CIRCUS', 2);
+	('BELIEF_BRAN', 'BUILDINGCLASS_CIRCUS', 2);
 
 -- Morrigan, the Harbinger
 INSERT INTO Belief_YieldFromKills
@@ -421,9 +421,10 @@ VALUES
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_EPONA', 'YIELD_FOOD', 10, 1),
-	('BELIEF_EPONA', 'YIELD_SCIENCE', 10, 1),
-	('BELIEF_EPONA', 'YIELD_CULTURE', 10, 1);
+	('BELIEF_EPONA', 'YIELD_FOOD', 8, 1),	
+	('BELIEF_EPONA', 'YIELD_PRODUCTION', 8, 1),
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 8, 1),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 8, 1);
 
 -- Nuada, the Silver-Handed
 INSERT INTO Belief_YieldFromWLTKD
@@ -464,7 +465,7 @@ VALUES
 	('BELIEF_CERNUNNOS', 'FEATURE_JUNGLE', 'YIELD_PRODUCTION', 1);
 
 -- Lugh, the Skilled One
-UPDATE Beliefs SET WonderProductionModifier = 15 WHERE Type = 'BELIEF_LUGH';
+UPDATE Beliefs SET ProductionModifier = 10 WHERE Type = 'BELIEF_LUGH';
 
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
@@ -473,6 +474,13 @@ VALUES
 	('BELIEF_LUGH', 'YIELD_GOLD', 2),
 	('BELIEF_LUGH', 'YIELD_SCIENCE', 2),
 	('BELIEF_LUGH', 'YIELD_CULTURE', 2);
+
+INSERT INTO Belief_YieldChangeWorldWonder
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_LUGH', 'YIELD_CULTURE', 2),
+	('BELIEF_LUGH', 'YIELD_TOURISM', 2);
+
 
 -- Rhiannon, the Sovereign
 INSERT INTO Belief_YieldPerFollowingCity
@@ -540,7 +548,7 @@ INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_OGMA', 'YIELD_SCIENCE', 1),
-	('BELIEF_OGMA', 'YIELD_PRODUCTION', 1);
+	('BELIEF_OGMA', 'YIELD_CULTURE', 1);
 
 INSERT INTO Belief_GreatPersonPoints
 	(BeliefType, GreatPersonType, Value)
@@ -548,42 +556,42 @@ VALUES
 	('BELIEF_OGMA', 'GREATPERSON_ARTIST', 3),
 	('BELIEF_OGMA', 'GREATPERSON_SCIENTIST', 3);
 
--- Bran, the Sleeping Guardian
+-- Dagda, the All-Father
 UPDATE Beliefs
 SET
 	CityGrowthModifier = 25,
 	HappinessPerCity = 1
-WHERE Type = 'BELIEF_BRAN';
+WHERE Type = 'BELIEF_DAGDA';
 
 INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_BRAN', 'YIELD_GOLD', 10),
-	('BELIEF_BRAN', 'YIELD_PRODUCTION', 10),
-	('BELIEF_BRAN', 'YIELD_CULTURE', 10);
+	('BELIEF_DAGDA', 'YIELD_GOLD', 12),
+	('BELIEF_DAGDA', 'YIELD_PRODUCTION', 12),
+	('BELIEF_DAGDA', 'YIELD_CULTURE', 12);
 
--- Dagda, the All-Father
+-- Bran, the Sleeping Guardian
 UPDATE Beliefs 
 SET 
 	FriendlyHealChange = 10,
 	CityRangeStrikeModifier = 25
-WHERE Type = 'BELIEF_DAGDA';
+WHERE Type = 'BELIEF_BRAN';
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_DAGDA', 'BUILDINGCLASS_PALACE', 'YIELD_PRODUCTION', 1),
-	('BELIEF_DAGDA', 'BUILDINGCLASS_PALACE', 'YIELD_GOLD', 1),
-	('BELIEF_DAGDA', 'BUILDINGCLASS_PALACE', 'YIELD_SCIENCE', 1),
-	('BELIEF_DAGDA', 'BUILDINGCLASS_PALACE', 'YIELD_CULTURE', 1);
+	('BELIEF_BRAN', 'BUILDINGCLASS_PALACE', 'YIELD_PRODUCTION', 1),
+	('BELIEF_BRAN', 'BUILDINGCLASS_PALACE', 'YIELD_GOLD', 1),
+	('BELIEF_BRAN', 'BUILDINGCLASS_PALACE', 'YIELD_SCIENCE', 1),
+	('BELIEF_BRAN', 'BUILDINGCLASS_PALACE', 'YIELD_CULTURE', 1);
 
 INSERT INTO Belief_YieldPerXFollowers
 	(BeliefType, YieldType, PerXFollowers)
 VALUES
-	('BELIEF_DAGDA', 'YIELD_PRODUCTION', 4),
-	('BELIEF_DAGDA', 'YIELD_GOLD', 4),
-	('BELIEF_DAGDA', 'YIELD_SCIENCE', 4),
-	('BELIEF_DAGDA', 'YIELD_CULTURE', 4);
+	('BELIEF_BRAN', 'YIELD_PRODUCTION', 4),
+	('BELIEF_BRAN', 'YIELD_GOLD', 4),
+	('BELIEF_BRAN', 'YIELD_SCIENCE', 4),
+	('BELIEF_BRAN', 'YIELD_CULTURE', 4);
 
 -- Cailleach, the Winter Queen (congress 6)
 UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_CAILLEACH';
