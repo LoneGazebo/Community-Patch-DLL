@@ -72,6 +72,14 @@
 			<Pantheon>true</Pantheon>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
+		<!-- Congress 6 -->
+		<Row>
+			<Type>BELIEF_CAILLEACH</Type>
+			<Description>TXT_KEY_BELIEF_CAILLEACH</Description>
+			<ShortDescription>TXT_KEY_BELIEF_CAILLEACH_SHORT</ShortDescription>
+			<Pantheon>true</Pantheon>
+			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
+		</Row>
 		<!-- New follower beliefs -->
 		<Row>
 			<Type>BELIEF_GURDWARA</Type>

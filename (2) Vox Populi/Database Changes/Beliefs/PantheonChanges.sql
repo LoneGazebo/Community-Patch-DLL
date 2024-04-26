@@ -389,7 +389,8 @@ VALUES
 	('BELIEF_RHIANNON', 'BUILDINGCLASS_CIRCUS', 'YIELD_GOLDEN_AGE_POINTS', 5),
 	('BELIEF_MANANNAN', 'BUILDINGCLASS_CIRCUS', 'YIELD_GREAT_ADMIRAL_POINTS', 2),
 	('BELIEF_OGMA', 'BUILDINGCLASS_CIRCUS', 'YIELD_SCIENCE', 5),
-	('BELIEF_BRAN', 'BUILDINGCLASS_CIRCUS', 'YIELD_FOOD', 5);
+	('BELIEF_BRAN', 'BUILDINGCLASS_CIRCUS', 'YIELD_FOOD', 5),
+	('BELIEF_CAILLEACH', 'BUILDINGCLASS_CIRCUS', 'YIELD_TOURISM', 5);
 
 INSERT INTO Belief_BuildingClassHappiness
 	(BeliefType, BuildingClassType, Happiness)
@@ -415,7 +416,7 @@ VALUES
 INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 3);
+	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 5);
 
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield, IsEraScaling)
@@ -463,7 +464,7 @@ VALUES
 	('BELIEF_CERNUNNOS', 'FEATURE_JUNGLE', 'YIELD_PRODUCTION', 1);
 
 -- Lugh, the Skilled One
-UPDATE Beliefs SET WonderProductionModifier = 10 WHERE Type = 'BELIEF_LUGH';
+UPDATE Beliefs SET WonderProductionModifier = 15 WHERE Type = 'BELIEF_LUGH';
 
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
@@ -512,13 +513,16 @@ VALUES
 	('BELIEF_MANANNAN', 'YIELD_PRODUCTION', 3),
 	('BELIEF_MANANNAN', 'YIELD_GOLD', 3);
 
-INSERT INTO Belief_CityYieldPerXTerrainTimes100
+INSERT INTO Belief_TerrainYieldChanges
 	(BeliefType, TerrainType, YieldType, Yield)
 VALUES
-	('BELIEF_MANANNAN', 'TERRAIN_COAST', 'YIELD_PRODUCTION', 50),
-	('BELIEF_MANANNAN', 'TERRAIN_COAST', 'YIELD_GOLD', 50),
-	('BELIEF_MANANNAN', 'TERRAIN_OCEAN', 'YIELD_PRODUCTION', 50),
-	('BELIEF_MANANNAN', 'TERRAIN_OCEAN', 'YIELD_GOLD', 50);
+	('BELIEF_MANANNAN', 'TERRAIN_COAST', 'YIELD_PRODUCTION', 1),
+	('BELIEF_MANANNAN', 'TERRAIN_OCEAN', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Belief_ImprovementYieldChanges
+	(BeliefType, ImprovementType, YieldType, Yield)
+VALUES
+	('BELIEF_MANANNAN', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_GOLD', 1);
 
 -- Ogma, the Learned
 INSERT INTO Belief_YieldPerPop
@@ -535,6 +539,7 @@ VALUES
 INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
+	('BELIEF_OGMA', 'YIELD_SCIENCE', 1),
 	('BELIEF_OGMA', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Belief_GreatPersonPoints
@@ -546,7 +551,6 @@ VALUES
 -- Bran, the Sleeping Guardian
 UPDATE Beliefs
 SET
-	CityRangeStrikeModifier = 25,
 	CityGrowthModifier = 25,
 	HappinessPerCity = 1
 WHERE Type = 'BELIEF_BRAN';
@@ -554,11 +558,16 @@ WHERE Type = 'BELIEF_BRAN';
 INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_BRAN', 'YIELD_GOLD', 15),
-	('BELIEF_BRAN', 'YIELD_CULTURE', 15);
+	('BELIEF_BRAN', 'YIELD_GOLD', 10),
+	('BELIEF_BRAN', 'YIELD_PRODUCTION', 10),
+	('BELIEF_BRAN', 'YIELD_CULTURE', 10);
 
 -- Dagda, the All-Father
-UPDATE Beliefs SET FriendlyHealChange = 5 WHERE Type = 'BELIEF_DAGDA';
+UPDATE Beliefs 
+SET 
+	FriendlyHealChange = 10,
+	CityRangeStrikeModifier = 25
+WHERE Type = 'BELIEF_DAGDA';
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
@@ -575,3 +584,32 @@ VALUES
 	('BELIEF_DAGDA', 'YIELD_GOLD', 4),
 	('BELIEF_DAGDA', 'YIELD_SCIENCE', 4),
 	('BELIEF_DAGDA', 'YIELD_CULTURE', 4);
+
+-- Cailleach, the Winter Queen (congress 6)
+UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_CAILLEACH';
+-- Note: if you have the RequiresResources flag set, the Times100 table ignores it for tundra, but the YieldChanges table obeys it
+INSERT INTO Belief_CityYieldPerXTerrainTimes100
+	(BeliefType, TerrainType, YieldType, Yield)
+VALUES
+	('BELIEF_CAILLEACH', 'TERRAIN_TUNDRA', 'YIELD_PRODUCTION', 50),
+	('BELIEF_CAILLEACH', 'TERRAIN_TUNDRA', 'YIELD_FOOD', 50);
+
+INSERT INTO Belief_TerrainYieldChanges
+	(BeliefType, TerrainType, YieldType, Yield)
+VALUES
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),	
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_PRODUCTION', 1),		
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1),
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_CULTURE', 1);
+
+
+INSERT INTO Belief_ImprovementYieldChanges
+	(BeliefType, ImprovementType, YieldType, Yield)
+VALUES
+	('BELIEF_CAILLEACH', 'IMPROVEMENT_QUARRY', 'YIELD_GOLD', 1),
+	('BELIEF_CAILLEACH', 'IMPROVEMENT_QUARRY', 'YIELD_CULTURE', 1),
+	('BELIEF_CAILLEACH', 'IMPROVEMENT_MINE', 'YIELD_GOLD', 1),
+	('BELIEF_CAILLEACH', 'IMPROVEMENT_MINE', 'YIELD_CULTURE', 1);
+
+
+
