@@ -24,7 +24,7 @@ SET Text = 'When you perform a Concert Tour, your [ICON_TOURISM] Tourism with th
 WHERE Tag = 'TXT_KEY_MISSION_ONE_SHOT_TOURISM_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unit must be in a tile owned by another major Civilization that you are not at war with.'
+SET Text = 'Unit must be in a tile owned by another major Civilization that you are not at war with and that you are not Influential over.'
 WHERE Tag = 'TXT_KEY_MISSION_ONE_SHOT_TOURISM_DISABLED_HELP';
 
 -- Discover Technology
