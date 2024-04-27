@@ -28669,7 +28669,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
+				iValue -= (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
 			}
 		}
 
