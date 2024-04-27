@@ -5473,6 +5473,8 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 8;
 			}
+			break;
+
 			// CLOSE: Elevated if they're an aggressor, critical if we're at war
 		case PLAYER_PROXIMITY_CLOSE:
 			if(pTeam->IsMinorCivAggressor())
@@ -17595,6 +17597,10 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
 		return NULL;
 	}
+
+	// city-state's status must not be critical
+	if (GetStatus() == MINOR_CIV_STATUS_CRITICAL)
+		return NULL;
 
 	// Must have enough gold
 	const int iCost = GetGiftTileImprovementCost(eMajor);

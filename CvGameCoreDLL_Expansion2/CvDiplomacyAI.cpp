@@ -33672,7 +33672,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			MinorGoldGiftInfo sGift = veMinorsToGiveGold.GetElement(i);
 
 			//Interception! Let's do a tile improvement if we can (and we'll benefit from it)
-			if (sGift.eMinor != NO_PLAYER && GET_PLAYER(sGift.eMinor).GetMinorCivAI()->IsFriends(GetID()))
+			if (sGift.eMinor != NO_PLAYER && GET_PLAYER(sGift.eMinor).GetMinorCivAI()->IsAllies(GetID()))
 			{
 				CvPlot* pImprovementPlot = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetMajorGiftTileImprovement(GetID());
 				if (pImprovementPlot != NULL)
