@@ -5682,7 +5682,7 @@ bool CvPlayer::IsEventFired(EventTypes eEvent) const
 
 	return m_abEventFired[eEvent];
 }
-void CvPlayer::DoEvents()
+void CvPlayer::DoEvents(bool bEspionageOnly)
 {
 	//Minors? Barbs? Get out!
 	if (!isMajorCiv())
@@ -5725,6 +5725,9 @@ void CvPlayer::DoEvents()
 			}
 		}
 	}
+
+	if (bEspionageOnly)
+		return;
 
 	if (GetPlayerEventCooldown() > 0)
 	{
@@ -11702,6 +11705,10 @@ void CvPlayer::doTurnPostDiplomacy()
 		if (GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
 			DoEvents();
+		}
+		else
+		{
+			DoEvents(/*EspionageOnly*/ true);
 		}
 	}
 
