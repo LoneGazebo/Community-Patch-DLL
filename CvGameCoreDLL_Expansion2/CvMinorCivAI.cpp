@@ -15301,9 +15301,17 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	{
 		if (bJuggernaut)
 		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			// Add free promotions here. Bonus XP is handled in CvMinorCivQuest::DoRewards() because it's easier.
 			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(JUGGERNAUT_PROMOTION), true);
-			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_PROMOTION), true);
+			if (pkUnitInfo->IsMounted())
+			{
+				pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_SKIRMISHER_PROMOTION), true);
+			}
+			else
+			{
+				pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_PROMOTION), true);
+			}
 			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MORALE_PROMOTION), true);
 		}
 		else
