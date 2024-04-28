@@ -593,7 +593,7 @@ VALUES
 	('BELIEF_BRAN', 'YIELD_SCIENCE', 4),
 	('BELIEF_BRAN', 'YIELD_CULTURE', 4);
 
--- Cailleach, the Winter Queen (congress 6)
+-- Cailleach, the Queen of Winter
 UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_CAILLEACH';
 -- Note: if you have the RequiresResources flag set, the Times100 table ignores it for tundra, but the YieldChanges table obeys it
 INSERT INTO Belief_CityYieldPerXTerrainTimes100

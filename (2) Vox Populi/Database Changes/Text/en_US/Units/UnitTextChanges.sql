@@ -190,7 +190,7 @@ WHERE Tag = 'TXT_KEY_UNIT_INFANTRY_STRATEGY';
 
 -- Pathfinder
 UPDATE Language_en_US
-SET Text = '{TXT_KEY_UNITCOMBAT_RECON} such as this one are usually the only units allowed to uncover the hidden secrets of [COLOR_POSITIVE_TEXT]{TXT_KEY_ANTIQUITY_LEGEND_GOODY_HUT}[ENDCOLOR]. Be wary of using them to fend off barbarians, however, as they are meant for exploring!'
+SET Text = '{TXT_KEY_UNITCOMBAT_RECON} such as this one are usually the only units allowed to uncover the hidden secrets of [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR]. Be wary of using them to fend off barbarians, however, as they are meant for exploring!'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_PATHFINDER';
 
 UPDATE Language_en_US
