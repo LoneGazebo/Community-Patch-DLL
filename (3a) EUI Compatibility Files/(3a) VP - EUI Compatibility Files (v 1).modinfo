@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.7) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.7.2) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -68,7 +68,7 @@
     <File md5="CBF5CA4731D74890572CF98197BD1301" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>
     <File md5="1CD7B823DB2D56628A876DA93FA1AEF2" import="1">ImprovedTopPanel/FontIconsITP.dds</File>
     <File md5="4422D10FF5171FD8FD620535E7A62AE0" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="A5574B7F4817C089B97E47F483982FCC" import="1">ImprovedTopPanel/TopPanel.lua</File>
+    <File md5="8C798B25B75452DCA2573871E99E5D50" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="A832E556B1146BB64409DD813B700ECF" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="4BE1E2639D5F76C8CAF9994C12C89E58" import="0">ImprovedTechTree/IconChanges.sql</File>
     <File md5="34713F10091ED79C3EC1B1E438A1FB4B" import="1">ImprovedTechTree/TechTree.lua</File>
