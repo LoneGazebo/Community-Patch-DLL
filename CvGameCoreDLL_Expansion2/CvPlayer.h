@@ -136,7 +136,7 @@ public:
 	void processCorporations(CorporationTypes eCorporation, int iChange);
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	void DoEvents();
+	void DoEvents(bool bEspionageOnly = false);
 	void DoCancelEventChoice(EventChoiceTypes eChosenEventChoice);
 	void CheckActivePlayerEvents(CvCity* pCity);
 	bool IsEventValid(EventTypes eEvent);
