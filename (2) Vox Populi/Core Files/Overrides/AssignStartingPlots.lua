@@ -2350,9 +2350,9 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- MOD.Barathor: These are the minimum values
 		local desert_percent = 0.20;
 		local tundra_percent = 0.20;
-		local jungle_percent = 0.20;
-		local forest_percent = 0.25;
-		local hills_percent = 0.30;
+		local jungle_percent = 0.28;
+		local forest_percent = 0.28;
+		local hills_percent = 0.37;
 		local plains_percent = 0.30;
 		local grass_percent = 0.30;
 
@@ -2382,8 +2382,8 @@ function AssignStartingPlots:DetermineRegionTypes()
 				print("Region #", this_region, " has been defined as a JUNGLE Region.");
 				found_region = true;
 
-			-- Forest check.
-			elseif forestCount >= regionPlots * (forest_percent + adjustment) and tundraCount < regionPlots * tundra_percent then
+			-- Forest check. Can't have too much tundra.
+			elseif forestCount >= regionPlots * (forest_percent + adjustment) and tundraCount < regionPlots * (tundra_percent + adjustment) * 0.5 then
 				table.insert(self.regionTypes, RegionTypes.REGION_FOREST);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a FOREST Region.");
@@ -2422,9 +2422,9 @@ function AssignStartingPlots:DetermineRegionTypes()
 			end
 		end
 
-		--[[ MOD.Barathor: New data for very useful debug printouts.
+		---[[ MOD.Barathor: New data for very useful debug printouts.
 		print("Threshold Values:");
-		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desert_percent, tundra_percent, jungle_percent, forest_percent, hills_percent, plains_percent, grass_percent));
+		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desert_percent + adjustment, tundra_percent + adjustment, jungle_percent + adjustment, forest_percent + adjustment, hills_percent + adjustment, plains_percent + adjustment, grass_percent + adjustment));
 		print("Region Values:");
 		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / regionPlots, tundraCount / regionPlots, jungleCount / regionPlots, forestCount / regionPlots, hillsCount / regionPlots, plainsCount / regionPlots, grassCount / regionPlots));
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
@@ -9050,7 +9050,10 @@ function AssignStartingPlots:GenerateLuxuryPlotListsInRegion(region_number)
 					end
 				end
 			elseif plotType ~= PlotTypes.PLOT_MOUNTAIN and not plot:IsNaturalWonder(true) and featureType ~= FeatureTypes.FEATURE_OASIS then
-				if iAreaID ~= -1 then
+				if iAreaID == -1 then
+					-- Always ok!
+					table.insert(plotList, plotIndex);
+				else
 					-- Need to check whether the plot is in/adjacent to the correct area/landmass
 					if self.bArea and (plot:GetArea() == iAreaID or plot:IsAdjacentToArea(region_area_object)) then
 						table.insert(plotList, plotIndex);
@@ -9669,7 +9672,7 @@ function AssignStartingPlots:PlaceLuxuries(args)
 		for _, index in ipairs(tList) do
 			local shuf_list = luxury_plot_lists[index];
 			if iNumLeftToPlace > 0 and index > 0 then
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
 			end
 			if iNumLeftToPlace <= 0 then
 				break;
