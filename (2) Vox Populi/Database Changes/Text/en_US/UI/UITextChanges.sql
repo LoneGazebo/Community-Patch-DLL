@@ -55,6 +55,8 @@ WHERE Tag = 'TXT_KEY_EUPANEL_IMPROVEMENT_NEAR';
 ------------------------------------------------
 -- Top panel
 ------------------------------------------------
+
+-- Date
 UPDATE Language_en_US
 SET Text = 'Your scientists and theologians have introduced the wonders of the Maya calendar. When the current b''ak''tun ends, you will receive your choice of Great Person as part of the celebration.[NEWLINE][NEWLINE]The current Maya Long Count date is:[NEWLINE]{1_LongMayaCalendarString}[NEWLINE][NEWLINE]A b''ak''tun begins at Turn 33 and restarts at Turn 42/52/62/72/86/101/117/133/152/183/234/432 at Standard game speed.[NEWLINE][NEWLINE]({2_TraditionalDateString} in the rest of the world).'
 WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
