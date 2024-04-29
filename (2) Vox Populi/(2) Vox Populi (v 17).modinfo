@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.7.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.7.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -791,7 +791,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="916ED76DBF666B0828BDD456FFF1642B" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
-    <File md5="C53D53505ECC43A6FD9D3CA9AE55E697" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
+    <File md5="EFE21722668B4A9F5319CC8D17422D7E" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="8F9687C985560D7DB4A8972058E706DD" import="1">Core Files/Overrides/ChooseMayaBonus.lua</File>
@@ -992,7 +992,7 @@
     <File md5="047A3DCB5C0C1E8538B01457FAD296D6" import="0">Database Changes/Text/en_US/Beliefs/BeliefTextChanges.sql</File>
     <File md5="795EEBF869AA3827097F502A9A00C311" import="0">Database Changes/Text/en_US/Beliefs/NewBeliefText.xml</File>
     <File md5="07BFD406570060D94511B6153CD06045" import="0">Database Changes/Text/en_US/City/BuildingTextChanges.sql</File>
-    <File md5="EFF719DF3697B1B7537FAD0A58384B42" import="0">Database Changes/Text/en_US/City/NewBuildingText.xml</File>
+    <File md5="A43D50A67B926EF82E47368772C52D43" import="0">Database Changes/Text/en_US/City/NewBuildingText.xml</File>
     <File md5="4F6F1F2ED3F7659DBC5C6621701F1987" import="0">Database Changes/Text/en_US/City/NewGreatWorkText.xml</File>
     <File md5="7FA3131749B2713CE6A883C63134F9C9" import="0">Database Changes/Text/en_US/City/NewProcessText.xml</File>
     <File md5="DF25F72D6D7BD09B19EA6DB786B264B1" import="0">Database Changes/Text/en_US/City/NewProjectText.xml</File>
@@ -1018,7 +1018,7 @@
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
     <File md5="E6BD739CF28102CCCCAF3757ACB61126" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
     <File md5="86FA0B4C25F571AECA0FD8A25FB75CAD" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
-    <File md5="B8FFE441F3D1E1A14A5EE4BE1B92A6F0" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
+    <File md5="68BD20D24283326927E30849FA750A3B" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="A5B3226E4742836FD8EAF6344ABC1F1F" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="F452D8BAD1EFE65500C5366FC0D58F48" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
     <File md5="E44B069F8ED6698D11B89240DCAC6F38" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
