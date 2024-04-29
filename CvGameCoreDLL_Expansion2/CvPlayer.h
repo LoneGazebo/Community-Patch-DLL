@@ -2422,6 +2422,8 @@ public:
 
 	bool removeFromArmy(int iArmyID, int iID);
 
+	int findPathLengthNew(TechTypes eTech, int pTechs[] = NULL) const;
+	int findPathLength(TechTypes eTech, bool bCost) const;
 	int findTechPathLength(TechTypes eTech);
 	int getQueuePosition(TechTypes eTech) const;
 	void clearResearchQueue();
