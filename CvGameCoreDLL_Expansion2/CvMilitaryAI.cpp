@@ -530,7 +530,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 /// Spend money to quickly add a unit to a city
 CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 {
-	// No units in puppet cities or automated citites except for Venice!
+	// No units in puppet cities or automated cities except for Venice!
 	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pCity) || pCity->isHumanAutomated())
 	{
 		return NULL;
