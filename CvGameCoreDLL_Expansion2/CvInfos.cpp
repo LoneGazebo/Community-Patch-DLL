@@ -10740,8 +10740,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 			pEventNotificationInfo.m_strShortDescription = pEventChoiceTypes->GetText("ShortDescription");
 			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("IsWorldEvent");
 			pEventNotificationInfo.m_bNeedPlayerID = pEventChoiceTypes->GetBool("NeedPlayerID");
-			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetBool("Variable1");
-			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetBool("Variable2");
+			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetInt("Variable1");
+			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetInt("Variable2");
 			idx++;
 		}
 
