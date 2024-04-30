@@ -986,6 +986,7 @@ protected:
 
 	static int lGetSpecialistExtraYield(lua_State* L);
 
+	static int lFindPathLength(lua_State* L);
 	static int lFindTechPathLength(lua_State* L);
 
 	static int lGetQueuePosition(lua_State* L);

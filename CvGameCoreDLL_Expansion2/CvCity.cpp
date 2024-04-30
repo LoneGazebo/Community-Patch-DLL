@@ -8845,7 +8845,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 
 	// Puppets cannot build units (except workers and work boats, or any other civilian with a work rate)
 	// Automated cities handled in CvCityStrategyAI to avoid messing with the UI
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this) || (isHumanAutomated() && !bWillPurchase))
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 	{
 		if ( !MOD_BALANCE_VP || pkUnitEntry->GetWorkRate()==0 || pkUnitEntry->GetCombat()>0 || pkUnitEntry->GetRangedCombat() > 0 )
 			return false;
@@ -28669,7 +28669,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
+				iValue -= (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
 			}
 		}
 

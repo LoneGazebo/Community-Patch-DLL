@@ -5473,6 +5473,8 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 8;
 			}
+			break;
+
 			// CLOSE: Elevated if they're an aggressor, critical if we're at war
 		case PLAYER_PROXIMITY_CLOSE:
 			if(pTeam->IsMinorCivAggressor())
@@ -15299,9 +15301,17 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	{
 		if (bJuggernaut)
 		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			// Add free promotions here. Bonus XP is handled in CvMinorCivQuest::DoRewards() because it's easier.
 			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(JUGGERNAUT_PROMOTION), true);
-			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_PROMOTION), true);
+			if (pkUnitInfo->IsMounted())
+			{
+				pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_SKIRMISHER_PROMOTION), true);
+			}
+			else
+			{
+				pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_PROMOTION), true);
+			}
 			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MORALE_PROMOTION), true);
 		}
 		else
@@ -17595,6 +17605,10 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
 		return NULL;
 	}
+
+	// city-state's status must not be critical
+	if (GetStatus() == MINOR_CIV_STATUS_CRITICAL)
+		return NULL;
 
 	// Must have enough gold
 	const int iCost = GetGiftTileImprovementCost(eMajor);

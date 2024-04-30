@@ -391,6 +391,15 @@ UPDATE Language_en_US
 SET Text = '+15 [ICON_SPY] City Security. When you identify a foreign Spy in this City, gain 25 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture,  scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_HELP';
 
+-- Monastery
+UPDATE Language_en_US
+SET Text = 'Religious building purchased with [ICON_PEACE] Faith.[NEWLINE][NEWLINE]Requires the adoption of the [COLOR_MAGENTA]{TXT_KEY_POLICY_BRANCH_PIETY}[ENDCOLOR] Policy Branch.'
+WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output. Can only be built if you have adopted the Fealty Policy Branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
+WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_STRATEGY';
+
 -- Musicians' Guild
 UPDATE Language_en_US
 SET Text = 'Provides 5 [ICON_GREAT_PEOPLE] Great Person Points (GPP) towards a [ICON_GREAT_MUSICIAN] Great Musician. Add up to 2 Specialists to this Building to gain [ICON_CULTURE] Culture and increase the rate of [ICON_GREAT_MUSICIAN] Great Musician acquisition.[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Maximum of 3 of these Buildings in your Empire.'

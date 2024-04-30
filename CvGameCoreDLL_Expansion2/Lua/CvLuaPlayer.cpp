@@ -903,6 +903,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetSpecialistExtraYield);
 
+	Method(FindPathLength);
 	Method(FindTechPathLength);
 
 	Method(GetQueuePosition);
@@ -10201,6 +10202,20 @@ int CvLuaPlayer::lGetSpecialistExtraYield(lua_State* L)
 
 	const int iResult = pkPlayer->getSpecialistExtraYield(eIndex1, eIndex2) +
 	                    pkPlayer->GetPlayerTraits()->GetSpecialistYieldChange(eIndex1, eIndex2);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int findPathLength(TechTypes  eTech, bool bCost);
+// If bCost is false, then it returns number of techs that need to be researched to acquire eTech
+// If bCost is true, then it returns the cost of a currently researched tech
+// DEPRECATED, findTechPathLength() is the newer version; kept for backwards compatibility with modmods (for now)
+int CvLuaPlayer::lFindPathLength(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	const bool bCost = luaL_optbool(L, 3, true);
+	const int iResult = pkPlayer->findPathLength(eTech, bCost);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

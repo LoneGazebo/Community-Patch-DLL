@@ -166,9 +166,6 @@
 		<Row Tag="TXT_KEY_EO_ACTIVE_TRADE_DEALS">
 			<Text>Active Trade Deals</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER">
-			<Text>Diplomat present: +{1_Num}%</Text>
-		</Row>
 		<!-- City Security -->
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BASE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Base Security: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
@@ -804,6 +801,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_FOOD">
 			<Text>+{1_Num}% [ICON_FOOD] Food from Policies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER">
+			<Text>Diplomat present: +{1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
 			<Text>Corporation [ICON_RESEARCH] Science Bonus: +{1_Num}%</Text>

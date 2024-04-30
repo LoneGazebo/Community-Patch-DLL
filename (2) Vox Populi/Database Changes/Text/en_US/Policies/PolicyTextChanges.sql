@@ -296,14 +296,6 @@ UPDATE Language_en_US
 SET Text = 'Serfdom is the status of many peasants under feudalism, specifically relating to manorialism. It was a condition of bondage, which developed primarily during the High Middle Ages in Europe and lasted in some countries until the mid-19th century. Serfs who occupied a plot of land were required to work for the lord of the manor who owned that land. In return they were entitled to protection, justice, and the right to cultivate certain fields within the manor to maintain their own subsistence. Serfs were often required not only to work on the lord''s fields, but also in his mines and forests and to labor to maintain roads. The manor formed the basic unit of feudal society, and the lord of the manor and the villeins, and to a certain extent serfs, were bound legally: by taxation in the case of the former, and economically and socially in the latter.'
 WHERE Tag = 'TXT_KEY_POLICY_FREERELIGION_TEXT';
 
-UPDATE Language_en_US
-SET Text = 'Religious building purchased with [ICON_PEACE] Faith.[NEWLINE][NEWLINE]Requires the adoption of the [COLOR_MAGENTA]{TXT_KEY_POLICY_BRANCH_PIETY}[ENDCOLOR] Policy Branch.'
-WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output. Can only be built if you have adopted the Fealty Policy Branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
-WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_STRATEGY';
-
 --------------------
 -- Statecraft
 --------------------
