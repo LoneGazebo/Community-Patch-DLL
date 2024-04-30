@@ -28287,15 +28287,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if (bNewValue)
 		{
 			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
-			ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
-			if (getPromotionDuration(eIndex) > 0)
-			{
-				SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
-			}
-		}
-		else
-		{
-			ChangePromotionDuration(NO_PROMOTION, 0);
+			SetPromotionDuration(eIndex, thisPromotion.PromotionDuration());
+			SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
 		}
 	}
 }
