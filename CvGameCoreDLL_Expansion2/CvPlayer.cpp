@@ -39763,7 +39763,7 @@ void CvPlayer::addResourcesOnPlotToTotal(CvPlot* pPlot, bool bOnlyExtraResources
 		pPlot->SetResourceLinkedCityActive(true);
 	}
 	
-	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
 		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ false);
@@ -39826,7 +39826,7 @@ void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraReso
 	}
 	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
 
-	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
 		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
@@ -39846,7 +39846,7 @@ void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtr
 	}
 	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
 
-	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
 		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
