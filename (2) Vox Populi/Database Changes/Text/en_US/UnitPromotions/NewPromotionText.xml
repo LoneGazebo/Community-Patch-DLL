@@ -51,13 +51,10 @@
 			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR].</Text>
 		</Row>
 
-		<Replace Tag="TXT_KEY_PROMOTION_ANTI_FIGHTER">
-			<Text>Eagle Hunter</Text>
-		</Replace>
-
-		<Replace Tag="TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP">
+		<!-- Eagle Hunter -->
+		<Row Tag="TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP">
 			<Text>+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Fighter Units[ENDCOLOR].</Text>
-		</Replace>
+		</Row>
 
 		<!-- Can See Submarine -->
 		<Row Tag="TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE_HELP">

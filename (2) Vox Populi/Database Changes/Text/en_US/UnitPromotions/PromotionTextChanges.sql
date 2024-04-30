@@ -418,6 +418,10 @@ UPDATE Language_en_US
 SET Text = 'Air Supremacy II'
 WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II';
 
+UPDATE Language_en_US
+SET Text = 'Eagle Hunter'
+WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER';
+
 -- Buffalo Chest
 UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25 Hit Points.'
