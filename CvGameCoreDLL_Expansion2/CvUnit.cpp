@@ -134,6 +134,7 @@ CvUnit::CvUnit() :
 	, m_iX()
 	, m_iY()
 	, m_iLastMoveTurn()
+	, m_iCycleOrder()
 	, m_iDeployFromOperationTurn()
 	, m_iReconX()
 	, m_iReconY()
@@ -1230,6 +1231,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(getOwner() == GC.getGame().getActivePlayer())
 	{
 		DLLUI->setDirty(GameData_DIRTY_BIT, true);
+		kPlayer.GetUnitCycler().AddUnit(GetID());
 	}
 
 	// Message for World Unit being born
@@ -1389,6 +1391,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iX = INVALID_PLOT_COORD;
 	m_iY = INVALID_PLOT_COORD;
 	m_iLastMoveTurn = 0;
+	m_iCycleOrder = -1;
 	m_iDeployFromOperationTurn = -100;
 	m_iReconX = INVALID_PLOT_COORD;
 	m_iReconY = INVALID_PLOT_COORD;
@@ -2693,6 +2696,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	DLLUI->RemoveFromSelectionList(pDllThisUnit.get());
+	GET_PLAYER(getOwner()).GetUnitCycler().RemoveUnit(GetID());
 
 	// Killing a unit while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a unit.
@@ -21632,6 +21636,21 @@ void CvUnit::setLastMoveTurn(int iNewValue)
 	CvAssert(getLastMoveTurn() >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCycleOrder() const
+{
+	VALIDATE_OBJECT
+	return m_iCycleOrder;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCycleOrder(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iCycleOrder = iNewValue;
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsRecentlyDeployedFromOperation() const
@@ -28528,6 +28547,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iHotKeyNumber);
 	visitor(unit.m_iDeployFromOperationTurn);
 	visitor(unit.m_iLastMoveTurn);
+	visitor(unit.m_iCycleOrder);
 	visitor(unit.m_iReconX);
 	visitor(unit.m_iReconY);
 	visitor(unit.m_iReconCount);

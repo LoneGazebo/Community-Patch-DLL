@@ -983,6 +983,8 @@ void CvGame::DoGameStarted()
 			pBuilding->UpdateUnitTypesUnlocked();
 	}
 
+	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
+
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerManager::Refresh(false);
 #endif

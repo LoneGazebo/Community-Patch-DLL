@@ -470,6 +470,7 @@ CvPlayer::CvPlayer() :
 #pragma warning(push)
 #pragma warning(disable:4355 )
 , m_kPlayerAchievements(*this)
+, m_kUnitCycle(*this)
 #pragma warning(pop)
 , m_neededUnitAITypes()
 , m_aiCityYieldModFromMonopoly()
@@ -35485,6 +35486,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if(GetID() == kGame.getActivePlayer())
 			{
+				GetUnitCycler().Rebuild();
 				if(DLLUI->GetLengthSelectionList() == 0)
 				{
 					DLLUI->setCycleSelectionCounter(1);
@@ -48836,6 +48838,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	visitor(player.m_strEmbarkedGraphicOverride);
 	visitor(player.m_kPlayerAchievements);
+	visitor(player.m_kUnitCycle);
 
 	// Diplomacy requests
 	if (player.GetID() < MAX_MAJOR_CIVS)
