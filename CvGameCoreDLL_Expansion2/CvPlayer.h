@@ -2418,7 +2418,7 @@ public:
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	CvUnitCycler& GetUnitCycler() { return m_UnitCycle; };
+	CvUnitCycler& GetUnitCycler() { return m_kUnitCycle; };
 
 	bool removeFromArmy(int iArmyID, int iID);
 
@@ -3752,7 +3752,7 @@ protected:
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
 
-	CvUnitCycler	m_UnitCycle;	
+	CvUnitCycler	m_kUnitCycle;	
 
 	// slewis's tutorial variables!
 	bool m_bEverPoppedGoody;
