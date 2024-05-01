@@ -481,13 +481,17 @@ UPDATE Language_en_US
 SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, 2 [ICON_RES_HORSE] Horses, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. The City must have an Arena before it can construct the Circus Maximus.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY';
 
--- East India Company
+-- Chartered Company
+UPDATE Language_en_US
+SET Text = 'Chartered Company'
+WHERE Tag = 'TXT_KEY_BUILDING_EAST_INDIA';
+
 UPDATE Language_en_US
 SET Text = 'Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner. Resource Diversity Modifier for Trade Routes from this City increases by 25%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'The {TXT_KEY_BUILDING_EAST_INDIA} increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with a {TXT_KEY_BUILDING_EAST_INDIA} will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY';
 
 -- Ironworks
