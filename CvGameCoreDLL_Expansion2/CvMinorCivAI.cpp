@@ -17952,17 +17952,14 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		{
 			bOthersDontUpdateWariness = true;
 		}
-
-		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
 		SetFriendshipWithMajor(eEnemyMajorLoop, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR), false, true);
-#if defined(MOD_BALANCE_CORE)
+		SetRestingPointChange(eEnemyMajorLoop, 0); // Remove any liberation / Great Diplomat bonuses to resting Influence
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
-		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
+		if (GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
 		{
 			EndAllActiveQuestsForPlayer(eEnemyMajorLoop, true);
 		}
-#endif
 	}
 
 	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War
@@ -18293,6 +18290,13 @@ void CvMinorCivAI::ChangeRestingPointChange(PlayerTypes ePlayer, int iChange)
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
 	m_aiRestingPointChange[ePlayer] += iChange;
+}
+
+void CvMinorCivAI::SetRestingPointChange(PlayerTypes ePlayer, int iValue)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiRestingPointChange[ePlayer] = iValue;
 }
 
 

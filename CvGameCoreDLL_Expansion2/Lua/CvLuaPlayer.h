@@ -795,6 +795,7 @@ protected:
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetRestingPointChange(lua_State* L);
 	static int lChangeRestingPointChange(lua_State* L);
+	static int lSetRestingPointChange(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
 	static int lIsMinorCivActiveQuestForPlayer(lua_State* L);
 	static int lSetMinorCivActiveQuestForPlayer(lua_State* L);

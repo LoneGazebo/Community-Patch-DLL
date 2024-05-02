@@ -3416,6 +3416,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				if (pOldOwnerDiploAI->GetCoopWarScore(GetID()) > 0)
 					pOldOwnerDiploAI->SetCoopWarScore(GetID(), 0);
 			}
+			else if (GET_PLAYER(eOldOwner).isMinorCiv())
+			{
+				// Remove any liberation / Great Diplomat bonuses to resting Influence
+				vector<PlayerTypes> vMyTeam = GET_TEAM(getTeam()).getPlayers();
+				for (size_t i=0; i<vMyTeam.size(); i++)
+				{
+					GET_PLAYER(eOldOwner).GetMinorCivAI()->SetRestingPointChange(vMyTeam[i], 0);
+				}
+			}
 
 			// Warmonger calculations
 			bool bDoWarmonger = true;
