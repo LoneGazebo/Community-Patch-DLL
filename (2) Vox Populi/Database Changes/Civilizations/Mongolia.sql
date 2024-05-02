@@ -34,7 +34,9 @@ WHERE Type = 'UNIT_MONGOLIAN_KHAN';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_GENERAL');
+	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_GENERAL'),
+	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC'),
+	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_II');
 
 ----------------------------------------------------------
 -- Unique Improvement: Ordo
