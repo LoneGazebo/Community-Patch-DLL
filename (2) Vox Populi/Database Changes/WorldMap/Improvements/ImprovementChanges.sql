@@ -73,7 +73,12 @@ VALUES
 	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 1);
 
 UPDATE Improvements
-SET NoTwoAdjacent = 1, OutsideBorders = 0, BuildableOnResources = 0, MakesPassable = 1
+SET
+	NoTwoAdjacent = 1,
+	OutsideBorders = 0,
+	BuildableOnResources = 0,
+	MakesPassable = 1,
+	DestroyedWhenPillaged = 0
 WHERE Type = 'IMPROVEMENT_FORT';
 
 -- Citadel
