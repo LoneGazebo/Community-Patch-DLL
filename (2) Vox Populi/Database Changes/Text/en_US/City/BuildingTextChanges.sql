@@ -507,15 +507,23 @@ UPDATE Language_en_US
 SET Text = 'The Ironworks National Wonder provides 2 [ICON_RES_IRON] Iron, increases [ICON_PRODUCTION] Production in a City by 10, and generates [ICON_RESEARCH] Science every time you construct a building. The City must have a Forge before it can construct an Ironworks.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY';
 
--- Oxford University
+-- Imperial College
+UPDATE Language_en_US
+SET Text = 'Imperial College'
+WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY';
+	
 UPDATE Language_en_US
 SET Text = 'A [ICON_GREAT_SCIENTIST] Great Scientist appears near the City. +50 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for [ICON_VP_GREATWRITING] Great Works of Writing. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The City must have a University before it can construct Oxford University.'
+SET Text = 'The {TXT_KEY_BUILDING_OXFORD_UNIVERSITY} National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The City must have a University before it can construct the {TXT_KEY_BUILDING_OXFORD_UNIVERSITY}.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY';
 
+UPDATE Language_en_US
+SET Text = 'In the medieval period, higher education evolved in various regions, each with its own distinct institutions and traditions. In Europe, the development of cathedral schools and later universities marked significant milestones in intellectual advancement. Cathedral schools, initially focused on training clergy, expanded to offer a broader curriculum encompassing liberal arts, theology, and law. These schools laid the foundation for the emergence of universities, autonomous centers of learning that flourished in cities like Bologna (1088), Oxford (1096), Paris (1150), Cambridge (1209), Salamanca (1218), Padua (1222), Naples (1224). Meanwhile, in the Islamic world, institutions such as madrasas and the House of Wisdom in Baghdad (established in the late 8th century) played vital roles in preserving and advancing knowledge, spanning fields from theology to medicine. [NEWLINE][NEWLINE]Outside of Europe and the Islamic world, East Asia saw the rise of educational centers like the Imperial Academy in China (founded in 3 AD under Emperor Ping of Han as Taixue, then renamed Guozijian after the Sui dynasty) and the National Confucian Academy in Korea (Sungkyunkwan, 1398), which emphasized Confucian teachings and governmental administration. The Imperial Examination system in China further democratized access to education by selecting officials based on merit rather than birthright, fostering social mobility and intellectual development. These diverse educational systems in medieval times contributed to the spread of knowledge, cultural exchange, and societal progress, leaving a lasting impact on the intellectual landscape of their respective regions.'
+WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_PEDIA';
+	
 -- National Intelligence Agency
 UPDATE Language_en_US
 SET Text = '+10 [ICON_SPY] City Security and +100 [ICON_VP_SPY_POINTS] Spy Points. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you identify, capture, or kill a foreign [ICON_SPY] Spy, or when you complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era. +25 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully rig an election in a [ICON_CITY_STATE] City-State, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
