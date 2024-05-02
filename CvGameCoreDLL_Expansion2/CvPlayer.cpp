@@ -169,6 +169,7 @@ CvPlayer::CvPlayer() :
 	, m_iSpySecurityModifier()
 	, m_iEspionageNetworkPoints()
 	, m_iRigElectionInfluenceModifier()
+	, m_iPassiveEspionageBonusModifier()
 	, m_iSpyPoints()
 	, m_iSpyPointsTotal()
 	, m_iSpyStartingRank()
@@ -1335,6 +1336,7 @@ void CvPlayer::uninit()
 	m_iSpySecurityModifier = 0;
 	m_iEspionageNetworkPoints = 0;
 	m_iRigElectionInfluenceModifier = 0;
+	m_iPassiveEspionageBonusModifier = 0;
 	m_iSpyPoints = 0;
 	m_iSpyPointsTotal = 0;
 	m_iSpyStartingRank = 0;
@@ -24465,17 +24467,31 @@ void CvPlayer::ChangeEspionageNetworkPoints(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Get the global additional network points per turn
+/// Get the modifier for influence when rigging an election
 int CvPlayer::GetRigElectionInfluenceModifier() const
 {
 	return m_iRigElectionInfluenceModifier;
 }
 
 //	--------------------------------------------------------------------------------
-/// Change the global additional network points per turn
+/// Change the modifier for influence when rigging an election
 void CvPlayer::ChangeRigElectionInfluenceModifier(int iChange)
 {
 	m_iRigElectionInfluenceModifier = (m_iRigElectionInfluenceModifier + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+/// Get the modifier for bonuses from passive spy missions
+int CvPlayer::GetPassiveEspionageBonusModifier() const
+{
+	return m_iPassiveEspionageBonusModifier;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the modifier for bonuses from passive spy missions
+void CvPlayer::ChangePassiveEspionageBonusModifier(int iChange)
+{
+	m_iPassiveEspionageBonusModifier = (m_iPassiveEspionageBonusModifier + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -36792,6 +36808,9 @@ int CvPlayer::GetSciencePerTurnFromPassiveSpyBonusesTimes100() const
 		}
 	}
 
+	iResult *= 100 + GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
+	iResult /= 100;
+
 	return iResult;
 }
 
@@ -46067,6 +46086,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeRigElectionInfluenceModifier(pPolicy->GetRigElectionInfluenceModifier() * iChange);
 	}
+	if (pPolicy->GetPassiveEspionageBonusModifier() != 0)
+	{
+		ChangePassiveEspionageBonusModifier(pPolicy->GetPassiveEspionageBonusModifier() * iChange);
+	}
 	ChangeGreatScientistBeakerMod(pPolicy->GetGreatScientistBeakerModifier() * iChange);
 	ChangeGreatEngineerHurryMod(pPolicy->GetGreatEngineerHurryModifier() * iChange);
 	ChangeTechCostXCitiesModifier(pPolicy->GetTechCostXCitiesMod() * iChange);
@@ -48212,6 +48235,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSpySecurityModifier);
 	visitor(player.m_iEspionageNetworkPoints);
 	visitor(player.m_iRigElectionInfluenceModifier);
+	visitor(player.m_iPassiveEspionageBonusModifier);
 	visitor(player.m_iSpyPoints);
 	visitor(player.m_iSpyPointsTotal);
 	visitor(player.m_iSpyStartingRank);

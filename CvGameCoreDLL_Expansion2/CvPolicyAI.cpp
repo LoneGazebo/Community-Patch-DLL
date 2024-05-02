@@ -2269,6 +2269,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += PolicyInfo->GetRigElectionInfluenceModifier();
 		}
 	}
+	if (PolicyInfo->GetPassiveEspionageBonusModifier() != 0)
+	{
+		yield[YIELD_SCIENCE] += PolicyInfo->GetRigElectionInfluenceModifier() / 10;
+	}
 	if (PolicyInfo->GetMilitaryUnitGiftExtraInfluence() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
