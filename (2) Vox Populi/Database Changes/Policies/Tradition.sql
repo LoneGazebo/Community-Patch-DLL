@@ -1,16 +1,38 @@
 -- Tree structure
 UPDATE Policies
-SET GridX = 2
+SET GridX = 1, GridY = 1
+WHERE Type = 'POLICY_LEGALISM';
+
+UPDATE Policies
+SET GridX = 3, GridY = 1
 WHERE Type = 'POLICY_ARISTOCRACY';
 
 UPDATE Policies
-SET GridX = 4
+SET GridX = 5, GridY = 1
 WHERE Type = 'POLICY_OLIGARCHY';
+
+UPDATE Policies
+SET GridX = 2, GridY = 2
+WHERE Type = 'POLICY_LANDED_ELITE';
+
+UPDATE Policies
+SET GridX = 4, GridY = 2
+WHERE Type = 'POLICY_MONARCHY';
+
+DELETE FROM Policy_PrereqPolicies
+WHERE PolicyType IN (
+	'POLICY_LANDED_ELITE',
+	'POLICY_MONARCHY',
+	'POLICY_LEGALISM'
+);
 
 INSERT INTO Policy_PrereqPolicies
 	(PolicyType, PrereqPolicy)
 VALUES
-	('POLICY_LEGALISM', 'POLICY_ARISTOCRACY');
+	('POLICY_MONARCHY', 'POLICY_ARISTOCRACY'),	
+	('POLICY_MONARCHY', 'POLICY_OLIGARCHY'),
+	('POLICY_LANDED_ELITE', 'POLICY_ARISTOCRACY'),
+	('POLICY_LANDED_ELITE', 'POLICY_LEGALISM');
 
 -- Opener
 DELETE FROM Policy_BuildingClassCultureChanges
