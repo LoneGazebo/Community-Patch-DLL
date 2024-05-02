@@ -8611,6 +8611,26 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 				}
 			}
 		}
+		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
+		{
+			YieldTypes eYield = (YieldTypes)iYield;
+			// Simplification - errata yields not worth considering.
+			if (eYield > YIELD_GOLDEN_AGE_POINTS)
+				break;
+
+			int iSiphonYield = pkMissionInfo->getYieldSiphon(eYield);
+			if (iSiphonYield <= 0)
+				continue;
+
+			int iCityYield = pCity->getYieldRate(eYield, false);
+			iCityYield *= iSiphonYield;
+			iCityYield /= 100;
+			iCityYield *= pkMissionInfo->getEventDuration();
+			// the value of yields decreases with era
+			iCityYield /= max(1, (int)GET_PLAYER(ePlayer).GetCurrentEra());
+
+			iScore += iCityYield / 25;
+		}
 		iScore += GD_INT_GET(ESPIONAGE_XP_PER_TURN_OFFENSIVE);
 
 		int iTotalScore = iScore;
