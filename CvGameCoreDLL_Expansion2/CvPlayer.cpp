@@ -3422,7 +3422,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				vector<PlayerTypes> vMyTeam = GET_TEAM(getTeam()).getPlayers();
 				for (size_t i=0; i<vMyTeam.size(); i++)
 				{
-					GET_PLAYER(eOldOwner).GetMinorCivAI()->SetRestingPointChange(vMyTeam[i], 0);
+					if (GET_PLAYER(vMyTeam[i]).isMajorCiv())
+						GET_PLAYER(eOldOwner).GetMinorCivAI()->SetRestingPointChange(vMyTeam[i], 0);
 				}
 			}
 
