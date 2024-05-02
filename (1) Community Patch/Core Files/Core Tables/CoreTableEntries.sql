@@ -1401,8 +1401,8 @@ ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 
 
 -- City Security against Spies
 ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
--- City Security against Spies per Population
-ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifierPerPop' INTEGER DEFAULT 0;
+-- City Security against Spies per X Population, where X = ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER
+ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifierPerXPop' INTEGER DEFAULT 0;
 -- City Security against Spies in all Cities
 ALTER TABLE Buildings ADD COLUMN 'GlobalSpySecurityModifier' INTEGER DEFAULT 0;
 

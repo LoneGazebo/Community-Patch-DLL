@@ -775,8 +775,8 @@ public:
 	int GetSpySecurityModifier() const;
 	void ChangeSpySecurityModifier(int iChange);
 
-	int GetSpySecurityModifierPerPop() const;
-	void ChangeSpySecurityModifierPerPop(int iChange);
+	int GetSpySecurityModifierPerXPop() const;
+	void ChangeSpySecurityModifierPerXPop(int iChange);
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
@@ -1909,7 +1909,7 @@ protected:
 	int m_iCheapestPlotInfluenceDistance;
 	int m_iEspionageModifier;
 	int m_iSpySecurityModifier;
-	int m_iSpySecurityModifierPerPop;
+	int m_iSpySecurityModifierPerXPop;
 	int m_iNumPreviousSpyMissions;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
@@ -2316,7 +2316,7 @@ SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
-SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifierPerPop)
+SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifierPerXPop)
 SYNC_ARCHIVE_VAR(int, m_iNumPreviousSpyMissions)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
