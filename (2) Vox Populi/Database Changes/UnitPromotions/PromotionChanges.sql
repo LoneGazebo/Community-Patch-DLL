@@ -446,12 +446,12 @@ VALUES
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 20);
+	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 33);
 
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 20);
+	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 33);
 
 UPDATE UnitPromotions SET RangeChange = 2 WHERE Type = 'PROMOTION_AIR_RANGE';
 
