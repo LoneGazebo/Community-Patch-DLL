@@ -19,8 +19,7 @@ SET
 				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_COMPOSITE_BOWMAN'
 			)
 		)
-	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_COMPOSITE_BOWMAN') + 1
+	)
 WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 
 INSERT INTO Unit_FreePromotions
