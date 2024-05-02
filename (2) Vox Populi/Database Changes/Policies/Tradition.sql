@@ -41,14 +41,13 @@ WHERE PolicyType = 'POLICY_TRADITION';
 UPDATE Policies
 SET
 	PlotCultureExponentModifier = 0,
-	CityGrowthMod = 5,
 	FreePopulationCapital = 2
 WHERE Type = 'POLICY_TRADITION';
 
 INSERT INTO Policy_CapitalYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_TRADITION', 'YIELD_FOOD', 2);
+	('POLICY_TRADITION', 'YIELD_FOOD', 3);
 
 INSERT INTO Policy_CapitalYieldPerPopChanges
 	(PolicyType, YieldType, Yield)
@@ -211,6 +210,8 @@ SELECT
 FROM Policies
 WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';
 
-UPDATE Policies
-SET CityGrowthMod = 3
+INSERT INTO Policy_CityYieldChanges
+	(PolicyType, YieldType, Yield)
+SELECT Type, 'YIELD_FOOD', 1
+FROM Policies
 WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';
