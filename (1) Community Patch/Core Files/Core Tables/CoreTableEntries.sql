@@ -548,6 +548,9 @@ ALTER TABLE Policies ADD COLUMN 'UpgradeCSVassalTerritory' BOOLEAN DEFAULT 0;
 -- Spies gain additional Network Points per Turn
 ALTER TABLE Policies ADD COLUMN 'EspionageNetworkPoints' INTEGER DEFAULT 0;
 
+-- Modifies passive bonuses for Spies
+ALTER TABLE Policies ADD COLUMN 'PassiveEspionageBonusModifier' INTEGER DEFAULT 0;
+
 -- Modifies influence gained/lost when rigging elections
 ALTER TABLE Policies ADD COLUMN 'RigElectionInfluenceModifier' INTEGER DEFAULT 0;
 
