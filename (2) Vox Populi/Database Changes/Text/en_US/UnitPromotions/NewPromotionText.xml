@@ -383,14 +383,14 @@
 			<Text>Aerial Torpedo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
 			<Text>Bomb Rack</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FROGMAN">
