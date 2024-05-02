@@ -306,7 +306,7 @@ VALUES
 INSERT INTO CityEventChoice_YieldSiphon
 	(CityEventChoiceType, YieldType, Yield)
 VALUES
-	('ESPIONAGE_EVENT_CHOICE_STEAL_FAITH', 'YIELD_FAITH', 50);
+	('ESPIONAGE_EVENT_CHOICE_STEAL_FAITH', 'YIELD_FAITH', 100);
 
 INSERT INTO CityEventChoice_YieldOnSpyCaught
 	(CityEventChoiceType, YieldType, Yield)
