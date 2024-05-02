@@ -811,6 +811,8 @@ public:
 	void ChangeEspionageNetworkPoints(int iChange);
 	int GetRigElectionInfluenceModifier() const;
 	void ChangeRigElectionInfluenceModifier(int iChange);
+	int GetPassiveEspionageBonusModifier() const;
+	void ChangePassiveEspionageBonusModifier(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
 	int GetSpyPoints(bool bTotal) const;
@@ -3160,6 +3162,7 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
+	int m_iPassiveEspionageBonusModifier;
 	int m_iSpyPoints;
 	int m_iSpyPointsTotal;
 	int m_iSpyStartingRank;
@@ -4023,6 +4026,7 @@ SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iEspionageNetworkPoints)
 SYNC_ARCHIVE_VAR(int, m_iRigElectionInfluenceModifier)
+SYNC_ARCHIVE_VAR(int, m_iPassiveEspionageBonusModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
 SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)

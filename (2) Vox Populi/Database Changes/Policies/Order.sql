@@ -99,7 +99,7 @@ SET
 	Level = 2,
 	NumFreeTechs = 1,
 	OneShot = 1,
-	StealTechFasterModifier = 100
+	PassiveEspionageBonusModifier = 100
 WHERE Type = 'POLICY_YOUNG_PIONEERS';
 
 INSERT INTO Policy_YieldFromNonSpecialistCitizens

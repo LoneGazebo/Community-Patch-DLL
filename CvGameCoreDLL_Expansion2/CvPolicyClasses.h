@@ -113,6 +113,7 @@ public:
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageNetworkPoints() const;
 	int GetRigElectionInfluenceModifier() const;
+	int GetPassiveEspionageBonusModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
@@ -820,6 +821,7 @@ private:
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
+	int m_iPassiveEspionageBonusModifier;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
@@ -1036,6 +1038,7 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE,
 	POLICYMOD_RIGGING_ELECTION_MODIFIER,
 	POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER,
+	POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER,
 	POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE,
 	POLICYMOD_PROTECTED_MINOR_INFLUENCE,
 	POLICYMOD_AFRAID_INFLUENCE,

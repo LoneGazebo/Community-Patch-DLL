@@ -104,6 +104,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageNetworkPoints(0),
 	m_iRigElectionInfluenceModifier(0),
+	m_iPassiveEspionageBonusModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
@@ -586,6 +587,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageNetworkPoints = kResults.GetInt("EspionageNetworkPoints");
 	m_iRigElectionInfluenceModifier = kResults.GetInt("RigElectionInfluenceModifier");
+	m_iPassiveEspionageBonusModifier = kResults.GetInt("PassiveEspionageBonusModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
@@ -1849,6 +1851,10 @@ int CvPolicyEntry::GetEspionageNetworkPoints() const
 int CvPolicyEntry::GetRigElectionInfluenceModifier() const
 {
 	return m_iRigElectionInfluenceModifier;
+}
+int CvPolicyEntry::GetPassiveEspionageBonusModifier() const
+{
+	return m_iPassiveEspionageBonusModifier;
 }
 int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
@@ -4676,6 +4682,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetRigElectionInfluenceModifier();
+				break;
+			case POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPassiveEspionageBonusModifier();
 				break;
 			case POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetMilitaryUnitGiftExtraInfluence();

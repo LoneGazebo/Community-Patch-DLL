@@ -5043,6 +5043,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		{
 			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 		}
+		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
+		{
+			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
+		}
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
 		{

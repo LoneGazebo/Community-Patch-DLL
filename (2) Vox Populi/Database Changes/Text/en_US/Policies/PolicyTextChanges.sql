@@ -833,7 +833,7 @@ SET Text = 'Great Leap Forward'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive a free Technology. Spies gain Network Points at double the normal rate. +1 [ICON_RESEARCH] Science in Cities for every 3 non-Specialist [ICON_CITIZEN] Citizens.'
+SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive a free Technology. Spies gain +100% [ICON_RESEARCH] Science. +1 [ICON_RESEARCH] Science in Cities for every 3 non-Specialist [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_HELP';
 
 UPDATE Language_en_US
