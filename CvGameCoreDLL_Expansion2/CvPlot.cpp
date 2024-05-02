@@ -3062,11 +3062,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 //	--------------------------------------------------------------------------------
 int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 {
-	int iTime = 0;
+	if (MOD_CIV6_WORKER)
+	{
+		return 0;
+	}
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	iTime = GC.getBuildInfo(eBuild)->getTime();
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	int iTime = pkBuildInfo->getTime();
 	if (ePlayer != NO_PLAYER)
 	{
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
@@ -3075,52 +3079,63 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 			iTime += GET_TEAM(eTeam).getBuildTimeChange(eBuild);
 		}
 	}
-	// Repair is either 3 turns or the original build time, whichever is shorter
-	if(GC.getBuildInfo(eBuild)->isRepair())
-	{
-		RouteTypes eRoute = getRouteType();
-
-		if(eRoute != NO_ROUTE)
-		{
-			for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
-			{
-				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iBuildLoop);
-				if(!pkBuildInfo)
-				{
-					continue;
-				}
-
-				if(pkBuildInfo->getRoute() == eRoute)
-				{
-					if(pkBuildInfo->getTime() < iTime)
-					{
-						iTime = pkBuildInfo->getTime();
-					}
-				}
-			}
-		}
-	}
-	// End Repair time mod
 
 	if(getFeatureType() != NO_FEATURE)
 	{
-		iTime += GC.getBuildInfo(eBuild)->getFeatureTime(getFeatureType());
+		iTime += pkBuildInfo->getFeatureTime(getFeatureType());
+	}
+
+	// If repair, take the shorter time of repair and improve
+	// We keep track of the improve time first, then compare at the end after all multipliers
+	if (pkBuildInfo->isRepair())
+	{
+		int iImproveTime = -1;
+		RouteTypes eRoute = getRouteType();
+		ImprovementTypes eImprovement = getImprovementType();
+
+		for (int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
+		{
+			CvBuildInfo* pkBuildInfoLoop = GC.getBuildInfo(static_cast<BuildTypes>(iBuildLoop));
+			if (!pkBuildInfoLoop)
+				continue;
+
+			if (IsImprovementPillaged())
+			{
+				if (pkBuildInfoLoop->getImprovement() == eImprovement)
+				{
+					iImproveTime = pkBuildInfoLoop->getTime();
+				}
+			}
+			else if (IsRoutePillaged())
+			{
+				if (pkBuildInfoLoop->getRoute() == eRoute)
+				{
+					iImproveTime = pkBuildInfoLoop->getTime();
+				}
+			}
+		}
+
+		if (iImproveTime != -1)
+		{
+			// Repair action is not affected by game speed, but improve does
+			iImproveTime *= GC.getGame().getGameSpeedInfo().getBuildPercent();
+			iImproveTime /= 100;
+
+			iTime = min(iTime, iImproveTime);
+		}
+	}
+	else
+	{
+		iTime *= GC.getGame().getGameSpeedInfo().getBuildPercent();
+		iTime /= 100;
 	}
 
 	iTime *= std::max(0, (GC.getTerrainInfo(getTerrainType())->getBuildModifier() + 100));
 	iTime /= 100;
 
-	iTime *= GC.getGame().getGameSpeedInfo().getBuildPercent();
-	iTime /= 100;
-
 	iTime *= GC.getGame().getStartEraInfo().getBuildPercent();
 	iTime /= 100;
-#if defined(MOD_CIV6_WORKER)
-	if (MOD_CIV6_WORKER)
-	{
-		iTime = 0;
-	}
-#endif
+
 	return iTime;
 }
 
