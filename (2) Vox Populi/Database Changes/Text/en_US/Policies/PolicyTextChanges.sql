@@ -91,7 +91,7 @@ SET Text = 'Organization'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production in every City.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward Workers and Trade Units.[NEWLINE][ICON_BULLET]+1 [ICON_MOVES] Movement for Workers.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production in every City.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward Workers and Trade Units.[NEWLINE][ICON_BULLET]+1 [ICON_MOVES] Movement for Workers.'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE_HELP';
 
 UPDATE Language_en_US
@@ -103,7 +103,7 @@ SET Text = 'Liberty'
 WHERE Tag = 'TXT_KEY_POLICY_CITIZENSHIP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_GOLD] Gold in every City.[NEWLINE][ICON_BULLET]+25% Tile improvement rate.[NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Worker[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold in every City.[NEWLINE][ICON_BULLET]+25% Tile improvement rate.[NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Worker[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_CITIZENSHIP_HELP';
 
 UPDATE Language_en_US
