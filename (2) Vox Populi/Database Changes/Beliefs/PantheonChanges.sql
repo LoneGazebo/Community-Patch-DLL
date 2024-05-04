@@ -143,13 +143,15 @@ UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_SUN_GOD';
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 VALUES
-	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 3);
+	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FAITH', 1),
+	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_SCIENCE', 1),
+	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
 	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_GOLD', 2),
-	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_FAITH', 3);
+	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_FAITH', 2);
 
 -- God of War
 UPDATE Beliefs
