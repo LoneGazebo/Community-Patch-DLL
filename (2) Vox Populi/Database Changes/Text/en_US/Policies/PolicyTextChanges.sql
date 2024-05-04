@@ -944,15 +944,15 @@ SET Text = '[COLOR_POSITIVE_TEXT]Total War[ENDCOLOR]: +25% [ICON_PRODUCTION] Pro
 WHERE Tag = 'TXT_KEY_POLICY_TOTAL_WAR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Tyranny'
+SET Text = 'Co-Prosperity Sphere'
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tyranny[ENDCOLOR]: Bullying [ICON_CITY_STATE] City-States no longer reduces [ICON_INFLUENCE] Influence, revokes Quests, or cancels Pledges of Protection. Doing so decreases the [ICON_INFLUENCE] Influence of all other Civs with the bullied City-State by 10%, and increases your [ICON_INFLUENCE] Influence by 10%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Co-Prosperity Sphere[ENDCOLOR]: Bullying [ICON_CITY_STATE] City-States no longer reduces [ICON_INFLUENCE] Influence, revokes Quests, or cancels Pledges of Protection. Doing so decreases the [ICON_INFLUENCE] Influence of all other Civs with the bullied City-State by 10%, and increases your [ICON_INFLUENCE] Influence by 10%.'
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A tyrant, in the modern English usage of the word, is an absolute ruler unrestrained by law or person, or one who has usurped legitimate sovereignty. Often described as a cruel character, a tyrant defends his position by oppressive means, tending to control almost everything in the state. The original Greek term, however, merely meant an authoritarian sovereign without reference to character, bearing no pejorative connotation during the Archaic and early Classical periods. However, it was clearly a negative word to Plato, a Greek philosopher, and on account of the decisive influence of philosophy on politics, its negative connotations only increased, continuing into the Hellenistic period.'
+SET Text = 'The Greater East Asia Co-Prosperity Sphere was an economic bloc consisting of Japan and its Asian allies, and the occupied states which they controlled. The purported goal of this organization was East Asian cooperation, self-sufficiency, and resistance against western colonialism. In reality, the Co-Prosperity Sphere was a propaganda tool to solidify Japanese Imperial conquests. Mobilizing anti-western sentiment worked to disguise the hegemonic aims of the Japanese, and facilitated their expansion into the Dutch East Indies, where the Japanese were initially welcomed as liberators. With the conclusion of World War II, Japanese lost control of its vassals, and even today the idea of an East Asian economic union is met with skepticism.'
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY_TEXT';
 
 UPDATE Language_en_US
