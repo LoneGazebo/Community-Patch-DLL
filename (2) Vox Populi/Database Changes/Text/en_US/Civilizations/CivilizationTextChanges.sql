@@ -640,7 +640,7 @@ SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% 
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
-SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, boosts healing of adjacent friendly Units by +10, and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
+SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR], and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_HELP';
 
 UPDATE Language_en_US
