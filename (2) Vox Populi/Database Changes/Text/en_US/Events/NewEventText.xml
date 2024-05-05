@@ -1315,10 +1315,10 @@
 			<Text>[ICON_PRODUCTION] Sabotage City Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
-			<Text>Remove {8_Num} Turns of [ICON_PRODUCTION] Production from the City's current production progress.</Text>
+			<Text>City is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
-			<Text>{8_Num} Turns of the current [ICON_PRODUCTION] Production progress have been lost.</Text>
+			<Text>The city is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
 			<Text>[ICON_PEACE] Pilfer Religious Relics</Text>

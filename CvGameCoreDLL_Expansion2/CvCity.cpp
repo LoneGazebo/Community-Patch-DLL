@@ -497,6 +497,7 @@ CvCity::CvCity() :
 	, m_iPlagueCounter()
 	, m_iPlagueTurns()
 	, m_iSappedTurns()
+	, m_iBuildingProductionBlockedTurns()
 	, m_iNoTourismTurns()
 	, m_iPlagueType()
 	, m_iLoyaltyCounter()
@@ -1725,6 +1726,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iPlagueCounter = 0;
 	m_iPlagueTurns = -1;
 	m_iSappedTurns = 0;
+	m_iBuildingProductionBlockedTurns = 0;
 	m_iNoTourismTurns = 0;
 	m_iPlagueType = -1;
 	m_iLoyaltyCounter = 0;
@@ -2416,6 +2418,9 @@ void CvCity::doTurn()
 
 	if (GetSappedTurns() > 0)
 		ChangeSappedTurns(-1);
+
+	if (GetBuildingProductionBlockedTurns() > 0)
+		ChangeBuildingProductionBlockedTurns(-1);
 
 	UpdateEventGPPFromSpecialistsCounters();
 
@@ -4407,12 +4412,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			return false;
 	}
 
-	if (pkEventInfo->getRemoveTurnsOfProductionProgress() > 0)
-	{
-		if (getProductionTimes100() == 0 || getProductionTurnsLeft() == INT_MAX)
-			return false;
-	}
-
 	if (pkEventInfo->getPillageResourceTilesChance() > 0)
 	{
 		int iX = getX();
@@ -5304,9 +5303,9 @@ CvString CvCity::GetScaledSpyEffectText(CityEventChoiceTypes eEventChoice, bool 
 	}
 
 	int iNumberTip = 0;
-	if (pkEventChoiceInfo->getRemoveTurnsOfProductionProgress() > 0)
+	if (pkEventChoiceInfo->getBlockBuildingTurns() > 0)
 	{
-		iNumberTip = pkEventChoiceInfo->getRemoveTurnsOfProductionProgress();
+		iNumberTip = pkEventChoiceInfo->getBlockBuildingTurns();
 	}
 	else if (pkEventChoiceInfo->getNoTourismTurns() > 0)
 	{
@@ -5607,9 +5606,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 			}
 		}
-		if (pkEventChoiceInfo->getRemoveTurnsOfProductionProgress() > 0)
+		if (pkEventChoiceInfo->getBlockBuildingTurns() > 0)
 		{
-			iNumberTip = pkEventChoiceInfo->getRemoveTurnsOfProductionProgress();
+			iNumberTip = pkEventChoiceInfo->getBlockBuildingTurns();
 		}
 		else if (pkEventChoiceInfo->getNoTourismTurns() > 0)
 		{
@@ -6229,23 +6228,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			if (!GetCityReligions()->IsHolyCityAnyReligion())
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_HOLY_CITY_LOCAL");
-				DisabledTT += localizedDurationText.toUTF8();
-			}
-		}
-	}
-
-	if (pkEventInfo->getRemoveTurnsOfProductionProgress() > 0)
-	{
-		if (getProductionTimes100() == 0 || getProductionTurnsLeft() == INT_MAX)
-		{
-			if (isProductionProcess())
-			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_PRODUCTION_NO_PROCESS");
-				DisabledTT += localizedDurationText.toUTF8();
-			}
-			else
-			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_PRODUCE_SOMETHING");
 				DisabledTT += localizedDurationText.toUTF8();
 			}
 		}
@@ -7442,17 +7424,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
-			int iRemoveTurnsOfProductionProgress = pkEventChoiceInfo->getRemoveTurnsOfProductionProgress();
-			if (iRemoveTurnsOfProductionProgress > 0)
+			int iBlockBuildingTurns = pkEventChoiceInfo->getBlockBuildingTurns();
+			if (iBlockBuildingTurns > 0)
 			{
-				if (getProductionTimes100() > 0 && getProductionTurnsLeft() != INT_MAX)
-				{
-					int iProduction = getBaseYieldRate(YIELD_PRODUCTION) * iRemoveTurnsOfProductionProgress;
-					if (iProduction > 0)
-					{
-						changeProduction(-iProduction);
-					}
-				}
+				ChangeBuildingProductionBlockedTurns(iBlockBuildingTurns);
 			}
 			for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 			{
@@ -9325,6 +9300,13 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 #if defined(MOD_BALANCE_CORE)
 	if (!bTestVisible) // Test visible check here is so that the buildings will show up in the build list, but can't be selected (for every other city!)
 	{
+		if (GetBuildingProductionBlockedTurns() > 0)
+		{
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_SPY_BLOCKED", pkBuildingInfo->GetTextKey(), "",  GetBuildingProductionBlockedTurns());
+			if (toolTipSink == NULL)
+				return false;
+		}
+
 		// Check if it's a Corporation headquarters
 		if (pkBuildingInfo->GetBuildingClassInfo().IsHeadquarters())
 		{
@@ -9403,6 +9385,11 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible)
 
 	//no projects in puppets except venice
 	if (eProject == NO_PROJECT || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+	{
+		return false;
+	}
+
+	if (GetBuildingProductionBlockedTurns() > 0)
 	{
 		return false;
 	}
@@ -33424,6 +33411,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iPlagueTurns);
 	visitor(city.m_iPlagueType);
 	visitor(city.m_iSappedTurns);
+	visitor(city.m_iBuildingProductionBlockedTurns);
 	visitor(city.m_iNoTourismTurns);
 	visitor(city.m_iLoyaltyCounter);
 	visitor(city.m_iDisloyaltyCounter);
@@ -36243,6 +36231,19 @@ void CvCity::ChangeSappedTurns(int iValue) //Set in city::doturn
 {
 	m_iSappedTurns += iValue;
 	updateStrengthValue();
+}
+
+int CvCity::GetBuildingProductionBlockedTurns() const
+{
+	return m_iBuildingProductionBlockedTurns;
+}
+void CvCity::SetBuildingProductionBlockedTurns(int iValue)
+{
+	m_iBuildingProductionBlockedTurns = iValue;
+}
+void CvCity::ChangeBuildingProductionBlockedTurns(int iValue) //Set in city::doturn
+{
+	m_iBuildingProductionBlockedTurns += iValue;
 }
 
 int CvCity::GetNoTourismTurns() const

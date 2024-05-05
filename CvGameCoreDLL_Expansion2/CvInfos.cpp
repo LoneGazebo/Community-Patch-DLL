@@ -11662,7 +11662,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iPillageRoadsChance(0),
 	 m_iPillageFortificationsChance(0),
 	 m_iMutuallyExclusiveGroup(0),
-	 m_iRemoveTurnsOfProductionProgress(0),
+	 m_iBlockBuildingTurns(0),
 	 m_iEventPromotion(0),
 	 m_iCityHappiness(0),
 	 m_iReligiousPressureModifier(0),
@@ -12040,9 +12040,9 @@ int CvModEventCityChoiceInfo::getMutuallyExclusiveGroup() const
 	return m_iMutuallyExclusiveGroup;
 }
 
-int CvModEventCityChoiceInfo::getRemoveTurnsOfProductionProgress() const
+int CvModEventCityChoiceInfo::getBlockBuildingTurns() const
 {
-	return m_iRemoveTurnsOfProductionProgress;
+	return m_iBlockBuildingTurns;
 }
 
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
@@ -12553,7 +12553,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iPillageRoadsChance = kResults.GetInt("PillageRoadsChance");
 	m_iPillageFortificationsChance = kResults.GetInt("PillageFortificationsChance");
 	m_iMutuallyExclusiveGroup = kResults.GetInt("MutuallyExclusiveGroup");
-	m_iRemoveTurnsOfProductionProgress = kResults.GetInt("RemoveTurnsOfProductionProgress");
+	m_iBlockBuildingTurns = kResults.GetInt("BlockBuildingTurns");
 
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
