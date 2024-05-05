@@ -682,8 +682,16 @@ SET Text = '[COLOR_POSITIVE_TEXT]Media Culture[ENDCOLOR]: +25% [ICON_TOURISM] To
 WHERE Tag = 'TXT_KEY_POLICY_MEDIA_CULTURE_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Treaty Organization[ENDCOLOR]: [ICON_INTERNATIONAL_TRADE] Trade Routes to City-States generate +2 [ICON_INFLUENCE] Influence per turn (with the target City-State) per each owned City-State Trade Route (up to +10). +1 [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [ICON_CITY_STATE] City-States originally in the World.'
+SET Text = 'Containment'
+WHERE Tag = 'TXT_KEY_POLICY_TREATY_ORGANIZATION';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Containment[ENDCOLOR]: [ICON_INTERNATIONAL_TRADE] Trade Routes to City-States generate +2 [ICON_INFLUENCE] Influence per turn (with the target City-State) per each owned City-State Trade Route (up to +10). +1 [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [ICON_CITY_STATE] City-States originally in the World.'
 WHERE Tag = 'TXT_KEY_POLICY_TREATY_ORGANIZATION_HELP';
+
+UPDATE Language_en_US
+SET Text = 'In the Cold War era, competing ideologies to liberalism were conceived of as similar to diseases whose spread must be curtailed for the safety of global order. As a foreign policy doctrine, Containment was most adamantly adhered to by the United States in their attempts to prevent the spread of Communism, acting as the guiding principle behind the generous aid and clemency for post-war Europe and Japan, but also took the form of violent coups and repression in Latin America. The use of policies was determined by whatever could most effectively limit the capacity of Communism to project power and influence in the world.'
+WHERE Tag = 'TXT_KEY_POLICY_TREATY_ORGANIZATION_TEXT';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Their Finest Hour[ENDCOLOR]: All cities get +2 Air Unit Slots. Each Air Unit stationed in a city increases the City''s [ICON_STRENGTH] Defense by 3. Can build [COLOR_YELLOW]B17 Bombers[ENDCOLOR].'
