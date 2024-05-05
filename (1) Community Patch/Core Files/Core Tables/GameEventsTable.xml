@@ -989,8 +989,15 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 	
-	<!-- Counterspy missions only! When mission active, gain instant yields when catching a spy -->
-	<Table name="CityEventChoice_YieldOnSpyCaught">
+	<!-- Counterspy missions only! When mission active, gain instant yields when identifying a spy -->
+	<Table name="CityEventChoice_YieldOnSpyIdentified">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<!-- Counterspy missions only! When mission active, gain instant yields when killing a spy -->
+	<Table name="CityEventChoice_YieldOnSpyKilled">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>

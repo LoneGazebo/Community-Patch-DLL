@@ -1194,21 +1194,6 @@ SET
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_CULTURE');
-
-INSERT INTO Building_YieldFromSpyIdentify
-	(BuildingType, YieldType, Yield)
-SELECT
-	a.Type, b.YieldType, 25
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_CONSTABLE';
-
-DELETE FROM Helper;
-
 -- Police Station
 UPDATE Buildings
 SET
@@ -1221,21 +1206,6 @@ SET
 	IlliteracyFlatReduction = 1,
 	BoredomFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_POLICE_STATION';
-
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_CULTURE');
-
-INSERT INTO Building_YieldFromSpyDefense
-	(BuildingType, YieldType, Yield)
-SELECT
-	a.Type, b.YieldType, 100
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_POLICE_STATION';
-
-DELETE FROM Helper;
 
 ----------------------------------------------------------------------------
 -- Tourism line
