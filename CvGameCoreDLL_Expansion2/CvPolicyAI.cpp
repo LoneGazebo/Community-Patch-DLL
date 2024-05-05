@@ -4590,6 +4590,27 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetYieldFromDelegateCount(eYield) * 5;
 			}
 		}
+		if (PolicyInfo->GetYieldFromXMilitaryUnits(eYield) != 0)
+		{
+			// count units
+			int iCount = 0;
+			int iLoop = 0;
+			for (const CvUnit* pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
+			{
+				if (pLoopUnit->IsCivilianUnit() || pLoopUnit->isDelayedDeath())
+					continue;
+
+				iCount++;
+			}
+			if (pPlayerTraits->IsWarmonger())
+			{
+				yield[eYield] += iNumCities * (iCount / PolicyInfo->GetYieldFromXMilitaryUnits(eYield)) * 2;
+			}
+			else
+			{
+				yield[eYield] += iNumCities * (iCount / PolicyInfo->GetYieldFromXMilitaryUnits(eYield));
+			}
+		}
 	}
 	
 	if (yield.size() != 0)

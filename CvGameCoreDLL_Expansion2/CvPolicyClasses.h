@@ -429,6 +429,9 @@ public:
 	int GetYieldFromDelegateCount(int i) const;
 	int* GetYieldFromDelegateCountArray() const;
 
+	int GetYieldFromXMilitaryUnits(int i) const;
+	int* GetYieldFromXMilitaryUnitsArray() const;
+
 	int GetMissionInfluenceModifier() const;
 
 	bool IsCSResourcesForMonopolies() const;
@@ -878,6 +881,7 @@ private:
 	int* m_piYieldModifierFromGreatWorks;
 	int* m_piYieldModifierFromActiveSpies;
 	int* m_piYieldFromDelegateCount;
+	int* m_piYieldFromXMilitaryUnits;
 	int m_iMissionInfluenceModifier;
 	int m_iHappinessPerActiveTradeRoute;
 	bool m_bCSResourcesForMonopolies;
