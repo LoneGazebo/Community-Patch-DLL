@@ -13,6 +13,7 @@ VALUES
 	('promoVP_atlas_00', 4, 'PROMOTION_ANTI_SUBMARINE_II'),
 	('promoVP_atlas_00', 5, 'PROMOTION_ANTI_TANK'),
 	('promoVP_atlas_00', 6, 'PROMOTION_NAVAL_BONUS'),
+	('promoVP_atlas_00', 6, 'PROMOTION_COASTAL_ARTILLERY'),
 	('promoVP_atlas_00', 6, 'PROMOTION_AERIAL_TORPEDO'),
 	('promoVP_atlas_00', 7, 'PROMOTION_ANTI_HELICOPTER'),
 	-- 2nd row
