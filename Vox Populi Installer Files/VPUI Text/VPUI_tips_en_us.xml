@@ -88,7 +88,7 @@
 			<Text>For each 1 damage taken, Units lose 0.3% Combat Strength when attacking (or defending against melee attacks). Soften your enemy's units with ranged attacks before attacking with your melee units.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_19">
-			<Text>Melee Units garrisoning a city, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
+			<Text>Melee Units garrisoning a City, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_20">
 			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Modifier. Don't expand your empire without sizable surplus happiness.</Text>

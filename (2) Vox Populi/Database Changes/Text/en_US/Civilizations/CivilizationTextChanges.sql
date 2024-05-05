@@ -277,7 +277,7 @@ SET Text = 'Perfidious Albion'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and operate one Rank higher than normal. Starts with a [ICON_SPY] Spy.'
+SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger when stationed in a foreign city. Starts with a [ICON_SPY] Spy.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US

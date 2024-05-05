@@ -847,8 +847,8 @@
 		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
 		<!-- Chance to be identified on a spy mission-->
 		<Column name="SpyIDChance" type="integer" default="0"/>
-		<!-- Chance to be captured on a spy mission-->
-		<Column name="SpyCaptureChance" type="integer" default="0"/>
+		<!-- Chance to be killed on a spy mission-->
+		<Column name="SpyKillChance" type="integer" default="0"/>
 		<!-- Minimum Spy Level -->
 		<Column name="SpyLevelRequired" type="integer" default="0"/>
 		<!-- Prevents city healing for x turns -->
@@ -865,12 +865,6 @@
 		<Column name="CityDefenseModifierBase" type="integer" default="0"/>
 		<!-- Counterspy affects city ranged strength, scaling with counterspy level-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
-		<!-- All enemy spies are identified -->
-		<Column name="IsAlwaysIDSpies" type="boolean" default="false"/>
-		<!-- Caught spies are killed -->
-		<Column name="IsKillCaughtSpies" type="boolean" default="false"/>
-		<!-- Start of counterspy mission is not announced to players who have a spy in the city -->
-		<Column name="IsSecretMission" type="boolean" default="false"/>
 		<!-- Checks if empire of the targeted civ is unhappy -->
 		<Column name="IsEnemyUnhappy" type="boolean" default="false"/>
 		<Column name="IsEnemySuperUnhappy" type="boolean" default="false"/>

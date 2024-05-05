@@ -200,7 +200,7 @@ public:
 	int GetWLTKDGATimer() const;
 	int GetWLTKDUnhappinessNeedsMod() const;
 	int GetStartingSpies() const;
-	int GetStartingSpyRank() const;
+	int GetSpyOffensiveStrengthModifier() const;
 	int GetSpyMoveRateBonus() const;
 	int GetSpySecurityModifier() const;
 	int GetSpyExtraRankBonus() const;
@@ -639,7 +639,7 @@ protected:
 	int m_iWLTKDGATimer;
 	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
-	int m_iStartingSpyRank;
+	int m_iSpyOffensiveStrengthModifier;
 	int m_iSpyMoveRateBonus;
 	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
@@ -1277,9 +1277,9 @@ public:
 	{
 		return m_iStartingSpies;
 	};
-	int GetStartingSpyRank() const
+	int GetSpyOffensiveStrengthModifier() const
 	{
-		return m_iStartingSpyRank;
+		return m_iSpyOffensiveStrengthModifier;
 	};
 	int GetSpyMoveRateBonus() const
 	{
@@ -2205,7 +2205,7 @@ private:
 	int m_iWLTKDGATimer;
 	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
-	int m_iStartingSpyRank;
+	int m_iSpyOffensiveStrengthModifier;
 	int m_iSpyMoveRateBonus;
 	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;

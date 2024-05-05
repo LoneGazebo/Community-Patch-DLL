@@ -9,7 +9,7 @@ SET
 	NavalUnitMaintenanceModifier = -25,
 	SpySecurityModifier = 15,
 	SpyMoveRateModifier = 3,
-	SpyExtraRankBonus = 1
+	SpyOffensiveStrengthModifier = 25
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
 
 ----------------------------------------------------------
