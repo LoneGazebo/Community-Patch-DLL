@@ -16398,20 +16398,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldPerXFeatureFromBuildingsTimes100(((FeatureTypes)iJ), eYield, (pBuildingInfo->GetYieldPerXFeature(iJ, eYield) * iChange));
 			}
 
-			// Research agreements are not active, therefore this building now increases science yield by 25%
-			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
-			{
-				if (pBuildingInfo->GetMedianTechPercentChange() > 0)
-				{
-					if (eYield == YIELD_SCIENCE)
-					{
-						int iChange = pBuildingInfo->GetMedianTechPercentChange(); //default 25
-
-						changeYieldRateModifier(eYield, iChange);
-					}
-				}
-			}
-
 			if (pBuildingInfo->GetEnhancedYieldTech() != NO_TECH)
 			{
 				if (owningTeam.GetTeamTechs()->HasTech((TechTypes)pBuildingInfo->GetEnhancedYieldTech()))
