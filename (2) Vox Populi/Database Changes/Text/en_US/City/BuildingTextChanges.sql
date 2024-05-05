@@ -696,7 +696,7 @@ WHERE Tag = 'TXT_KEY_WONDER_LEANING_TOWER_HELP';
 
 -- Porcelain Tower
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST] Great Scientist. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in this City.'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST] Great Scientist. +10% [ICON_RESEARCH] Science in the City in which it is built. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP';
 
 -- Brandenburg Gate
