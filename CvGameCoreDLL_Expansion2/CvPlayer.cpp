@@ -28785,7 +28785,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 
 				//And now notifications.
-				if(GetID() == GC.getGame().getActivePlayer() && iValue > 0)
+				if(iValue > 0)
 				{
 					char text[256] = {0};
 					
@@ -28868,7 +28868,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		totalyieldString += citynameString;
 	}
 	CvNotifications* pNotifications = GetNotifications();
-	if(!bSuppress && GetID() == GC.getGame().getActivePlayer() && pNotifications && !totalyieldString.empty())
+	if(!bSuppress && pNotifications && !totalyieldString.empty())
 	{
 		if (!MOD_NOTIFICATION_SETTINGS || !IsInstantYieldNotificationDisabled(iType))
 		{

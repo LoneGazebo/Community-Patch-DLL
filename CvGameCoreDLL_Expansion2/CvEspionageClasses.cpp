@@ -811,7 +811,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
 							if (pkEventChoiceInfo)
 							{
-								const char* szMissionText = pkEventChoiceInfo->GetHelp();
+								const char* szMissionText = pkEventChoiceInfo->getSpyMissionEffect();
 								CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 								if (pNotifications)
 								{
@@ -1535,10 +1535,21 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 			if (eYield == NO_YIELD)
 				continue;
 
-			int iYield = pkCounterspyFocusInfo->getYieldOnSpyCaught(eYield);
-			if (iYield > 0)
+			if (bIdentified)
 			{
-				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCity, false, true, false, eYield);
+				int iYield = pkCounterspyFocusInfo->getYieldOnSpyIdentified(eYield);
+				if (iYield > 0)
+				{
+					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_IDENTIFY, false, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCity, false, true, false, eYield);
+				}
+			}
+			if (bKilled)
+			{
+				int iYield = pkCounterspyFocusInfo->getYieldOnSpyKilled(eYield);
+				if (iYield > 0)
+				{
+					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCity, false, true, false, eYield);
+				}
 			}
 		}
 	}
@@ -1665,7 +1676,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_KILLED");
 				strNotification << GetSpyRankName(pSpy->m_eRank);
 				strNotification << pSpy->GetSpyName(m_pPlayer);
-				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getAdjectiveKey();
+				strNotification << GET_PLAYER(eCityOwner).getNameKey();
 			}
 			else
 			{
@@ -1675,7 +1686,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_KILLED");
 				strNotification << GetSpyRankName(pSpy->m_eRank);
 				strNotification << pSpy->GetSpyName(m_pPlayer);
-				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getAdjectiveKey();
+				strNotification << GET_PLAYER(eCityOwner).getNameKey();
 			}
 		}
 		else

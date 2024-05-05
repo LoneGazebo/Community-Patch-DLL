@@ -3741,7 +3741,8 @@ public:
 	int getCityYield(int i) const;
 	int getCityYieldModifier(int i) const;
 	int getYieldSiphon(int i) const;
-	int getYieldOnSpyCaught(int i) const;
+	int getYieldOnSpyIdentified(int i) const;
+	int getYieldOnSpyKilled(int i) const;
 	int getBuildingClassYield(int i, int j) const;
 	int getBuildingClassYieldModifier(int i, int j) const;
 	int getTerrainYield(int i, int j) const;
@@ -3892,7 +3893,8 @@ protected:
 	int m_iReligiousUnrestModifier;
 	int* m_piResourceChange;
 	int* m_piYieldSiphon;
-	int* m_piYieldOnSpyCaught;
+	int* m_piYieldOnSpyIdentified;
+	int* m_piYieldOnSpyKilled;
 	CvString m_strDisabledTooltip;
 	CvString m_strSpyMissionEffect;
 	int m_iConvertsCityToPlayerReligion;

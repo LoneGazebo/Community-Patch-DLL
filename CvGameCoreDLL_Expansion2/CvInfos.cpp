@@ -11640,7 +11640,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piCityYield(NULL),
 	 m_piCityYieldModifier(NULL),
 	 m_piYieldSiphon(NULL),
-	 m_piYieldOnSpyCaught(NULL),
+	 m_piYieldOnSpyIdentified(NULL),
+	 m_piYieldOnSpyKilled(NULL),
 	 m_iNearbyFeature(-1),
 	 m_iNearbyTerrain(-1),
 	 m_iMaximumPopulation(0),
@@ -11716,7 +11717,8 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piCityYield);
 	SAFE_DELETE_ARRAY(m_piCityYieldModifier);
 	SAFE_DELETE_ARRAY(m_piYieldSiphon);
-	SAFE_DELETE_ARRAY(m_piYieldOnSpyCaught);
+	SAFE_DELETE_ARRAY(m_piYieldOnSpyIdentified);
+	SAFE_DELETE_ARRAY(m_piYieldOnSpyKilled);
 	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	SAFE_DELETE_ARRAY(m_piResourceChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
@@ -12093,12 +12095,19 @@ int CvModEventCityChoiceInfo::getYieldSiphon(int i) const
 	return m_piYieldSiphon ? m_piYieldSiphon[i] : -1;
 }
 
-int CvModEventCityChoiceInfo::getYieldOnSpyCaught(int i) const
+int CvModEventCityChoiceInfo::getYieldOnSpyIdentified(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldOnSpyCaught ? m_piYieldOnSpyCaught[i] : -1;
+	return m_piYieldOnSpyIdentified ? m_piYieldOnSpyIdentified[i] : -1;
 }
+int CvModEventCityChoiceInfo::getYieldOnSpyKilled(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldOnSpyKilled ? m_piYieldOnSpyKilled[i] : -1;
+}
+
 /// Yield change for a specific BuildingClass by yield type
 int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
 {
@@ -12517,7 +12526,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	kUtility.SetYields(m_piCityYieldModifier, "CityEventChoice_CityYieldModifier", "CityEventChoiceType", szEventType);
 
 	kUtility.SetYields(m_piYieldSiphon, "CityEventChoice_YieldSiphon", "CityEventChoiceType", szEventType);
-	kUtility.SetYields(m_piYieldOnSpyCaught, "CityEventChoice_YieldOnSpyCaught", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piYieldOnSpyIdentified, "CityEventChoice_YieldOnSpyIdentified", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piYieldOnSpyKilled, "CityEventChoice_YieldOnSpyKilled", "CityEventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piGPChange, "Specialists", "CityEventChoice_GreatPersonPoints", "SpecialistType", "CityEventChoiceType", szEventType, "Points");
 	kUtility.PopulateArrayByValue(m_piDestroyImprovement, "Improvements", "CityEventChoice_ImprovementDestructionRandom", "ImprovementType", "CityEventChoiceType", szEventType, "Number");
