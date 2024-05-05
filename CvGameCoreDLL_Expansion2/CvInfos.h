@@ -3760,7 +3760,7 @@ public:
 	//espionage
 	int GetNetworkPointsNeededScaled() const;
 	int GetSpyIdentificationChance() const;
-	int GetSpyCaptureChance() const;
+	int GetSpyKillChance() const;
 	int GetSpyLevelRequired() const;
 	int getStealTech() const;
 	int getStealGW() const;
@@ -3776,9 +3776,6 @@ public:
 	bool isCounterspyBlockSapCity() const;
 	int getCityDefenseModifierBase() const;
 	int getCityDefenseModifier() const;
-	bool isAlwaysIDSpies() const;
-	bool isKillCaughtSpies() const;
-	bool isSecretMission() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
@@ -3906,7 +3903,7 @@ protected:
 	int m_iNetworkPointsNeeded;
 	int m_bNetworkPointsScaling; 
 	int m_iSpyIdentificationChance;
-	int m_iSpyCaptureChance;
+	int m_iSpyKillChance;
 	int m_iSpyLevelRequired;
 	bool m_bIsEspionageMission;
 	int m_iStealTech;
@@ -3920,9 +3917,6 @@ protected:
 	bool m_bCounterspyBlockSapCity;
 	int m_iCityDefenseModifierBase;
 	int m_iCityDefenseModifier;
-	bool m_bIsAlwaysIDSpies;
-	bool m_bIsKillCaughtSpies;
-	bool m_bIsSecretMission;
 
 	//Filters
 	int m_iPrereqTech;

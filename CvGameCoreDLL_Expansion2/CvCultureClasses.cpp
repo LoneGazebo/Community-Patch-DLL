@@ -4779,7 +4779,7 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 
-		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		if (MOD_BALANCE_VP)
 		{
 			switch (eLevel)
 			{

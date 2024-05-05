@@ -726,9 +726,7 @@ CvPlayer::CvPlayer() :
 	, m_iTradeReligionModifier()
 	, m_iCityStateCombatModifier()
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	, m_iMaxAirUnits()
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	, m_iInvestmentModifier()
 	, m_iMissionInfluenceModifier()
@@ -1029,10 +1027,6 @@ void CvPlayer::init(PlayerTypes eID)
 		if(GetPlayerTraits()->GetEventTourismBoost() > 0)
 		{
 			ChangeEventTourism(GetPlayerTraits()->GetEventTourismBoost());
-		}
-		if(GetPlayerTraits()->GetStartingSpyRank() > 0)
-		{
-			ChangeStartingSpyRank(GetPlayerTraits()->GetStartingSpyRank());
 		}
 		if(GetPlayerTraits()->GetQuestYieldModifier() > 0)
 		{
@@ -1615,9 +1609,7 @@ void CvPlayer::uninit()
 	m_iCityCaptureHealGlobal = 0;
 	m_iCityCaptureHealLocal = 0;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	m_iMaxAirUnits = 0;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
 	m_bAllowsProductionTradeRoutesGlobal = false;
@@ -37493,7 +37485,6 @@ void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int i
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 void CvPlayer::changeMaxAirUnits(int iChange)
 {
 	if (iChange != 0)
@@ -37535,7 +37526,6 @@ void CvPlayer::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldT
 		updateYield();
 	}
 }
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetInvestmentModifier() const

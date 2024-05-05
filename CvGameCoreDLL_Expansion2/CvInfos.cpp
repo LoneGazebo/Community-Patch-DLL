@@ -11672,7 +11672,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iNetworkPointsNeeded(0),
 	 m_bNetworkPointsScaling(false),
 	 m_iSpyIdentificationChance(0),
-	 m_iSpyCaptureChance(0),
+	 m_iSpyKillChance(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
@@ -11690,9 +11690,6 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCounterspyBlockSapCity(false),
 	 m_iCityDefenseModifierBase(0),
 	 m_iCityDefenseModifier(0),
-	 m_bIsAlwaysIDSpies(false),
-	 m_bIsKillCaughtSpies(false),
-	 m_bIsSecretMission(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0),
 	 m_iBasicNeedsMedianModifier(0),
@@ -11788,9 +11785,9 @@ int CvModEventCityChoiceInfo::GetSpyIdentificationChance() const
 {
 	return m_iSpyIdentificationChance;
 }
-int CvModEventCityChoiceInfo::GetSpyCaptureChance() const
+int CvModEventCityChoiceInfo::GetSpyKillChance() const
 {
-	return m_iSpyCaptureChance;
+	return m_iSpyKillChance;
 }
 int CvModEventCityChoiceInfo::GetSpyLevelRequired() const
 {
@@ -11842,18 +11839,6 @@ int CvModEventCityChoiceInfo::getCityDefenseModifierBase() const
 int CvModEventCityChoiceInfo::getCityDefenseModifier() const
 {
 	return m_iCityDefenseModifier;
-}
-bool CvModEventCityChoiceInfo::isAlwaysIDSpies() const
-{
-	return m_bIsAlwaysIDSpies;
-}
-bool CvModEventCityChoiceInfo::isKillCaughtSpies() const
-{
-	return m_bIsKillCaughtSpies;
-}
-bool CvModEventCityChoiceInfo::isSecretMission() const
-{
-	return m_bIsSecretMission;
 }
 
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
@@ -12486,7 +12471,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
 	m_bNetworkPointsScaling = kResults.GetBool("NetworkPointsScaling");
 	m_iSpyIdentificationChance = kResults.GetInt("SpyIDChance");
-	m_iSpyCaptureChance = kResults.GetInt("SpyCaptureChance");
+	m_iSpyKillChance = kResults.GetInt("SpyKillChance");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
 	m_iStealTech = kResults.GetInt("StealNumTechs");
 	m_iStealGW = kResults.GetInt("StealNumGW");
@@ -12498,9 +12483,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCounterspyBlockSapCity = kResults.GetBool("CounterspyBlockSapCity");
 	m_iCityDefenseModifierBase = kResults.GetInt("CityDefenseModifierBase");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
-	m_bIsAlwaysIDSpies = kResults.GetBool("IsAlwaysIDSpies");
-	m_bIsKillCaughtSpies = kResults.GetBool("IsKillCaughtSpies");
-	m_bIsSecretMission = kResults.GetBool("IsSecretMission");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");

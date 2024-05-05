@@ -52,6 +52,7 @@
 		<Column name="RevealMilitaryUnitCount" type="boolean" default="false"/>
 		<Column name="RevealTradeDeals" type="boolean" default="false"/>
 		<Column name="RevealTrueApproaches" type="boolean" default="false"/>
+		<Column name="VoteTradePercent" type="int" default="0"/>
 	</Table>
 	<Table name="GreatPersons">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
