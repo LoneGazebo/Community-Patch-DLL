@@ -15,7 +15,7 @@ WHERE BuildingClass IN (
 	WHERE MaxPlayerInstances <> -1
 );
 
--- Instant benefit buildings, courthouse, offices, franchises and mission should never be retained
+-- Instant benefit buildings, courthouse, offices, and franchises should never be retained
 UPDATE Buildings SET ConquestProb = 0, NeverCapture = 1
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_COURTHOUSE',
@@ -36,9 +36,7 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_TWOKAY_FOODS',
 	'BUILDINGCLASS_TWOKAY_FOODS_FRANCHISE',
 	'BUILDINGCLASS_CIVILIZED_JEWELERS',
-	'BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE',
-	'BUILDINGCLASS_D_FOR_SPAIN_MISSION',
-	'BUILDINGCLASS_SPAIN_MISSION'
+	'BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE'
 );
 
 -- Defensive, military and policy-exclusive buildings cannot be captured normally
