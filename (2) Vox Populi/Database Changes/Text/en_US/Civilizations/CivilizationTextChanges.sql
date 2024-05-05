@@ -178,7 +178,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+125 [ICON_GOLD] Gold when founding Cities, scaling with Era. Owned Coastal Cities receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse. [ICON_INTERNATIONAL_TRADE] Trade Route Resource Diversity modifier doubled.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your ownership of a Luxury Resource increases, scaling with Era. +5 Experience to Military Units purchased with [ICON_GOLD] Gold, Scaling with Era. [ICON_INTERNATIONAL_TRADE] Trade Route Resource Diversity modifier doubled.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
