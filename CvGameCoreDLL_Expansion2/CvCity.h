@@ -945,6 +945,9 @@ public:
 	int GetEventGPPFromSpecialists() const;
 	void ChangeEventGPPFromSpecialists(int iValue);
 
+	void AddEventGPPFromSpecialistsCounter(int iExpiryTurn, int iGPP);
+	void UpdateEventGPPFromSpecialistsCounters();
+
 	int GetGrowthFromTourism() const;
 	void SetGrowthFromTourism(int iValue);
 	void ChangeGrowthFromTourism(int iValue);
@@ -2102,6 +2105,7 @@ protected:
 	int m_iPillagedPlots;
 	int m_iGrowthEvent;
 	int m_iEventGPPFromSpecialists;
+	std::vector<int> m_vEventGPPFromSpecialistsExpiryTurns;
 	int m_iGrowthFromTourism;
 	int m_iBuildingClassHappiness;
 	int m_iReligionHappiness;
@@ -2484,6 +2488,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessDelta)
 SYNC_ARCHIVE_VAR(int, m_iPillagedPlots)
 SYNC_ARCHIVE_VAR(int, m_iGrowthEvent)
 SYNC_ARCHIVE_VAR(int, m_iEventGPPFromSpecialists)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_vEventGPPFromSpecialistsExpiryTurns)
 SYNC_ARCHIVE_VAR(int, m_iGrowthFromTourism)
 SYNC_ARCHIVE_VAR(int, m_iBuildingClassHappiness)
 SYNC_ARCHIVE_VAR(int, m_iReligionHappiness)

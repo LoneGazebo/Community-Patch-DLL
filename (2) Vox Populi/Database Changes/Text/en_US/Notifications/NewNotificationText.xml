@@ -693,6 +693,12 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED">
 			<Text>The rebellion in {1_City} caused by foreign Spies has ended. The city now generates Tourism again.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED_S">
+			<Text>Espionage Effect ended</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED">
+			<Text>The effects of a Spy Mission have ended: Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED_S">
 			<Text>Counterspy in {1_City}!</Text>
 		</Row>

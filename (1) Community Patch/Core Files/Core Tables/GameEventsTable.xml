@@ -933,6 +933,7 @@
 		<Column name="RequiresRazing" type="boolean" default="false"/>
 		<Column name="HasAnyReligion" type="boolean" default="false"/>
 		<Column name="RequiresPuppet" type="boolean" default="false"/>
+		<Column name="RequiresNotPuppet" type="boolean" default="false"/>
 		<Column name="HasMetAMajorCiv" type="boolean" default="false"/>
 		<!-- Checks if city majority is a Pantheon -->
 		<Column name="RequiresPantheon" type="boolean" default="false"/>

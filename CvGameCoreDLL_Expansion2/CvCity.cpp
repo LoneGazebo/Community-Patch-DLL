@@ -299,6 +299,7 @@ CvCity::CvCity() :
 	, m_iGrowthFromTourism()
 	, m_iGrowthEvent()
 	, m_iEventGPPFromSpecialists()
+	, m_vEventGPPFromSpecialistsExpiryTurns()
 	, m_iBuildingClassHappiness()
 	, m_iReligionHappiness()
 #endif
@@ -1655,6 +1656,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iGrowthFromTourism = 0;
 	m_iGrowthEvent = 0;
 	m_iEventGPPFromSpecialists = 0;
+	m_vEventGPPFromSpecialistsExpiryTurns.clear();
 	m_iBuildingClassHappiness = 0;
 	m_iReligionHappiness = 0;
 	m_aiYieldChangeFromCorporationFranchises.resize(NUM_YIELD_TYPES);
@@ -2414,6 +2416,8 @@ void CvCity::doTurn()
 
 	if (GetSappedTurns() > 0)
 		ChangeSappedTurns(-1);
+
+	UpdateEventGPPFromSpecialistsCounters();
 
 	if (GetNoTourismTurns() > 0)
 	{
@@ -4379,6 +4383,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isPuppet() && !IsPuppet())
 		return false;
 
+	if (pkEventInfo->isNotPuppet() && IsPuppet())
+		return false;
+
 	if (pkEventInfo->isRazing() && !IsRazing())
 		return false;
 
@@ -6067,6 +6074,12 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (pkEventInfo->isPuppet() && !IsPuppet())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_PUPPET");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if (pkEventInfo->isNotPuppet() && IsPuppet())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_MUST_NOT_BE_PUPPET");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
@@ -22577,6 +22590,48 @@ void CvCity::ChangeEventGPPFromSpecialists(int iValue)
 	m_iEventGPPFromSpecialists += iValue;
 }
 
+// as we can have multiple events that change "EventGPPFromSpecialists", we keep track of their expiry dates. this function is called when a new event is started
+void CvCity::AddEventGPPFromSpecialistsCounter(int iExpiryTurn, int iGPP)
+{
+	// hack: if iGPP > 1, just add multiple items to the list
+	for (int i = 0; i < iGPP; i++)
+	{
+		m_vEventGPPFromSpecialistsExpiryTurns.push_back(iExpiryTurn);
+		ChangeEventGPPFromSpecialists(1);
+	}
+}
+
+// as we can have multiple events that change "EventGPPFromSpecialists", we keep track of their expiry dates. this function is called every turn, updates turn times and cancels all events that have expired
+void CvCity::UpdateEventGPPFromSpecialistsCounters()
+{
+	for (std::vector<int>::iterator it = m_vEventGPPFromSpecialistsExpiryTurns.begin(); it != m_vEventGPPFromSpecialistsExpiryTurns.end(); )
+	{
+		int iTurnsLeft= (*it);
+		iTurnsLeft--;
+		(*it) = iTurnsLeft;
+		if (iTurnsLeft == 0)
+		{
+			// remove element from list
+			it = m_vEventGPPFromSpecialistsExpiryTurns.erase(it);
+			ChangeEventGPPFromSpecialists(-1);
+			CvNotifications* pNotifications = GET_PLAYER(m_eOwner).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED");
+				strText << getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED_S");
+				strSummary << getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+			}
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
+
 
 int CvCity::GetGrowthFromTourism() const
 {
@@ -33338,6 +33393,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iPillagedPlots);
 	visitor(city.m_iGrowthEvent);
 	visitor(city.m_iEventGPPFromSpecialists);
+	visitor(city.m_vEventGPPFromSpecialistsExpiryTurns);
 	visitor(city.m_iGrowthFromTourism);
 	visitor(city.m_iBuildingClassHappiness);
 	visitor(city.m_iReligionHappiness);

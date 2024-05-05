@@ -1059,7 +1059,7 @@
 			<SpyKillChance>10</SpyKillChance>
 			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
 			<Expires>true</Expires>
-			<CapitalOnly>true</CapitalOnly>
+			<RequiresNotPuppet>true</RequiresNotPuppet>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 		</Row>
 		<!-- Steal From Treasury -->

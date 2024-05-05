@@ -3178,6 +3178,9 @@
 		<Row Tag="TXT_KEY_NEED_BE_PUPPET">
 			<Text>[NEWLINE] [ICON_BULLET] City must be a Puppet</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MUST_NOT_BE_PUPPET">
+			<Text>[NEWLINE] [ICON_BULLET] City must not be a Puppet</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_WLTKD">
 			<Text>[NEWLINE] [ICON_BULLET] City must be experiencing [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]</Text>
 		</Row>

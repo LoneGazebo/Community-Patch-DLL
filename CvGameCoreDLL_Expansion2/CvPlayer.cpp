@@ -7230,24 +7230,6 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 				ChangeReligiousUnrestModifierGlobal(pkEventChoiceInfo->getReligiousUnrestModifierGlobal() * -1);
 				bChanged = true;
 			}
-			if (pkEventChoiceInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
-			{
-				int iChange = pkEventChoiceInfo->getSpecialistsGreatPersonPointsPerTurn();
-
-				int iLoop = 0;
-				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if (pLoopCity != NULL)
-					{
-						if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-						{
-							continue;
-						}
-
-						pLoopCity->ChangeEventGPPFromSpecialists(-iChange);
-					}
-				}
-			}
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
@@ -8886,15 +8868,12 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				pLog->Msg(strBaseString);
 			}
 			bool bAlreadyActive = false;
-			//Set the cooldown for all events.
-			if(pkEventChoiceInfo->getEventDuration() > 0)
+			// Set the cooldown for all events.
+			// Espionage events expire in a special way
+			if(pkEventChoiceInfo->getEventDuration() > 0 && !bEspionage)
 			{
-				//already active? Apply the extended duration, but don't duplicate the yield effect.
-				if (bEspionage && GetEventChoiceDuration(eEventChoice) > 0)
-					bAlreadyActive = true;
-
-				//Gamespeed.
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
+				// Gamespeed
 				if (pkEventChoiceInfo->isEventDurationScaling())
 				{
 					iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -9432,7 +9411,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 							continue;
 						}
 
-						pLoopCity->ChangeEventGPPFromSpecialists(iChange);
+						// this event is caused by an espionage mission, so we can have more than one of it active at the same time
+						pLoopCity->AddEventGPPFromSpecialistsCounter(pkEventChoiceInfo->getEventDuration(), iChange);
 					}
 				}
 			}

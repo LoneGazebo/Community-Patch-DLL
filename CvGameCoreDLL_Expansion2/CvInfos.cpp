@@ -11629,6 +11629,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bIsRazing(false),
 	 m_bHasAnyReligion(false),
 	 m_bIsPuppet(false),
+	 m_bIsNotPuppet(false),
 	 m_bTradeConnection(false),
 	 m_bCityConnection(false),
 	 m_ppiBuildingClassYield(NULL),
@@ -12319,6 +12320,11 @@ bool CvModEventCityChoiceInfo::isPuppet() const
 	return m_bIsPuppet;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNotPuppet() const
+{
+	return m_bIsNotPuppet;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::hasTradeConnection() const
 {
 	return m_bTradeConnection;
@@ -12853,6 +12859,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bIsRazing = kResults.GetBool("RequiresRazing");
 	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");
 	m_bIsPuppet = kResults.GetBool("RequiresPuppet");
+	m_bIsNotPuppet = kResults.GetBool("RequiresNotPuppet");
 	m_bTradeConnection = kResults.GetBool("HasTradeConnection");
 	m_bCityConnection = kResults.GetBool("HasCityConnection");
 

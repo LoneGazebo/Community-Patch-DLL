@@ -3812,6 +3812,7 @@ public:
 	bool isRazing() const;
 	bool hasAnyReligion() const;
 	bool isPuppet() const;
+	bool isNotPuppet() const;
 	bool hasTradeConnection() const;
 	bool hasCityConnection() const;
 	bool isNearNaturalWonder() const;
@@ -3954,6 +3955,7 @@ protected:
 	bool m_bIsRazing;
 	bool m_bHasAnyReligion;
 	bool m_bIsPuppet;
+	bool m_bIsNotPuppet;
 	bool m_bTradeConnection;
 	bool m_bCityConnection;
 	bool m_bNearNaturalWonder;
