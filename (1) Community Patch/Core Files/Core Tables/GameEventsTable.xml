@@ -818,8 +818,8 @@
 		<Column name="PillageRoadsChance" type="integer" default="0"/>
 		<!-- Pillages each Fortification (Fort, Citadel) with a given % chance --> 
 		<Column name="PillageFortificationsChance" type="integer" default="0"/>
-		<!-- Remove x turns of the current production progress --> 
-		<Column name="RemoveTurnsOfProductionProgress" type="integer" default="0"/>
+		<!-- Blocks production of buildings in city for X turns --> 
+		<Column name="BlockBuildingTurns" type="integer" default="0"/>
 		<!-- Modifier to religious pressure emitted by the city --> 
 		<Column name="ReligiousPressureModifier" type="integer" default="0"/>
 		

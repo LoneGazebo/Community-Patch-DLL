@@ -3717,7 +3717,7 @@ public:
 	int getPillageRoadsChance() const;
 	int getPillageFortificationsChance() const;
 	int getMutuallyExclusiveGroup() const;
-	int getRemoveTurnsOfProductionProgress() const;
+	int getBlockBuildingTurns() const;
 	int getFlavorValue(int i) const;
 	int getWLTKD() const;
 	int getGrowthMod() const;
@@ -3884,7 +3884,7 @@ protected:
 	int m_iPillageRoadsChance;
 	int m_iPillageFortificationsChance;
 	int m_iMutuallyExclusiveGroup;
-	int m_iRemoveTurnsOfProductionProgress;
+	int m_iBlockBuildingTurns;
 	int m_iCityHappiness;
 	int m_iReligiousPressureModifier;
 	int m_iBasicNeedsMedianModifier;

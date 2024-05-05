@@ -1769,6 +1769,10 @@ public:
 	void SetSappedTurns(int iValue);
 	void ChangeSappedTurns(int iValue);
 
+	int GetBuildingProductionBlockedTurns() const;
+	void SetBuildingProductionBlockedTurns(int iValue);
+	void ChangeBuildingProductionBlockedTurns(int iValue);
+
 	int GetNoTourismTurns() const;
 	void SetNoTourismTurns(int iValue);
 	void ChangeNoTourismTurns(int iValue);
@@ -2155,6 +2159,7 @@ protected:
 	int m_iPlagueTurns;
 	int m_iPlagueType;
 	int m_iSappedTurns;
+	int m_iBuildingProductionBlockedTurns;
 	int m_iNoTourismTurns;
 	int m_iLoyaltyCounter;
 	int m_iDisloyaltyCounter;
@@ -2519,6 +2524,7 @@ SYNC_ARCHIVE_VAR(int, m_iPlagueCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueTurns)
 SYNC_ARCHIVE_VAR(int, m_iPlagueType)
 SYNC_ARCHIVE_VAR(int, m_iSappedTurns)
+SYNC_ARCHIVE_VAR(int, m_iBuildingProductionBlockedTurns)
 SYNC_ARCHIVE_VAR(int, m_iLoyaltyCounter)
 SYNC_ARCHIVE_VAR(int, m_iDisloyaltyCounter)
 SYNC_ARCHIVE_VAR(int, m_iLoyaltyStateType)

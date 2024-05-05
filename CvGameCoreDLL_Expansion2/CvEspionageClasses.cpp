@@ -8524,7 +8524,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 				}
 			}
 		}
-		if (pkMissionInfo->getRemoveTurnsOfProductionProgress() > 0)
+		if (pkMissionInfo->getBlockBuildingTurns() > 0)
 		{
 			// only check while we're in the city
 			if (iSpyIndex >= 0 && pCity->GetCityEspionage()->GetRevealCityScreen(ePlayer))
