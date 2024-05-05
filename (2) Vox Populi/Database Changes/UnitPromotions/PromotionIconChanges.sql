@@ -276,6 +276,7 @@ VALUES
 	('promoVP_atlas_03', 35, 'PROMOTION_BREACHER'),
 	('promoVP_atlas_03', 36, 'PROMOTION_ENCIRCLEMENT'),
 	('promoVP_atlas_03', 37, 'PROMOTION_NAVAL_SIEGE'),
+	('promoVP_atlas_03', 37, 'PROMOTION_MARE_NOSTRUM'),
 	('promoVP_atlas_03', 38, 'PROMOTION_COASTAL_TERROR'),
 	('promoVP_atlas_03', 39, 'PROMOTION_PIRACY'),
 	-- 6th row
