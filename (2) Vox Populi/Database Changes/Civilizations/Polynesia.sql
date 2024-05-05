@@ -35,25 +35,24 @@ WHERE CombatClass = 'UNITCOMBAT_MELEE' OR CombatClass = 'UNITCOMBAT_GUN';
 ----------------------------------------------------------
 -- Unique Unit: Maori Warrior (Longswordsman)
 ----------------------------------------------------------
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_LONGSWORDSMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_SCOUT' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 UPDATE Units
 SET
-	PrereqTech = 'TECH_CHIVALRY',
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
-				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_LONGSWORDSMAN'
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_SCOUT'
 			)
 		)
-	)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SCOUT') + 3
 WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
-
-DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
+	('UNIT_POLYNESIAN_MAORI_WARRIOR', 'PROMOTION_AMPHIBIOUS'),
 	('UNIT_POLYNESIAN_MAORI_WARRIOR', 'PROMOTION_HAKA_WAR_DANCE');
 
 ----------------------------------------------------------

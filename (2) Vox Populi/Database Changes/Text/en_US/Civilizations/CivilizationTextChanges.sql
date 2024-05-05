@@ -770,15 +770,15 @@ WHERE Tag = 'TXT_KEY_UNIT_POLISH_WINGED_HUSSAR_STRATEGY';
 -- Polynesia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_FOOD] Food from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
+SET Text = '+2 [ICON_VP_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
-SET Text = 'Unique Polynesian {TXT_KEY_UNIT_LONGSWORDSMAN} that weakens adjacent enemy Units and does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}.'
+SET Text = 'Unique Polynesian {TXT_KEY_UNIT_SCOUT} that weakens adjacent enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_POLYNESIAN_MAORI_WARRIOR} is the Polynesian unique unit, replacing the {TXT_KEY_UNIT_LONGSWORDSMAN}. It has a unique debuffing aura that decreases the [ICON_STRENGTH] Combat Strength of adjacent enemies. It is a lot cheaper and does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON} to be trained. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_CHIVALRY_TITLE}[ENDCOLOR] instead of [COLOR_CYAN]{TXT_KEY_TECH_STEEL_TITLE}[ENDCOLOR].'
+SET Text = 'The {TXT_KEY_UNIT_POLYNESIAN_MAORI_WARRIOR} is the Polynesian unique unit, replacing the {TXT_KEY_UNIT_SCOUT}. It is more powerful, and can attack accross rivers and from embarkation with no penalty. It also has a unique debuffing aura that decreases the [ICON_STRENGTH] Combat Strength of adjacent enemies.'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_STRATEGY';
 
 UPDATE Language_en_US
