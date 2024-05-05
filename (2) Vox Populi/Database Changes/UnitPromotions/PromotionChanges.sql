@@ -557,6 +557,8 @@ INSERT INTO UnitPromotions_YieldFromKills
 VALUES
 	('PROMOTION_PRIZE_RULES', 'YIELD_GOLD', 300);
 
+UPDATE UnitPromotions SET FriendlyHealChange = 5, CityAttack = 25 WHERE Type = 'PROMOTION_MARE_NOSTRUM';
+
 --------------------------------------------
 -- Tech free promotions
 --------------------------------------------

@@ -514,6 +514,13 @@
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PRIZE_RULES</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_MARE_NOSTRUM</Type>
+			<Description>TXT_KEY_PROMOTION_MARE_NOSTRUM</Description>
+			<Help>TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP</Help>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARE_NOSTRUM</PediaEntry>
+		</Row>
 		<!-- Tech -->
 		<Row>
 			<Type>PROMOTION_ICE_BREAKERS</Type>

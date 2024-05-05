@@ -547,6 +547,13 @@
 			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM">
+			<Text>Mare Nostrum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS">
 			<Text>Engineering Corp</Text>
 		</Row>

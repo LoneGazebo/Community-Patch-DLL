@@ -920,15 +920,15 @@ SET Text = 'The military–industrial complex, or military–industrial–congre
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Commerce Raiders'
+SET Text = 'Mare Nostrum'
 WHERE Tag = 'TXT_KEY_POLICY_NATIONALISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Commerce Raiders[ENDCOLOR]: +10% [ICON_PRODUCTION] Production from Seaports. +1 [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every City-State Alliance. Submarines and Naval Melee Units gain the [COLOR_POSITIVE_TEXT]Prize Rules[ENDCOLOR] Promotion.'
+SET Text = '[COLOR_POSITIVE_TEXT]Mare Nostrum[ENDCOLOR]: +1 [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every City-State Alliance. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture to Atolls, Fishing Boats, and Offshore Oil Platforms. Naval Ranged Units gain the [COLOR_POSITIVE_TEXT]Mare Nostrum[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_POLICY_NATIONALISM_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Commerce raiding is a form of naval warfare used to destroy or disrupt logistics of the enemy on the open sea by attacking its merchant shipping, rather than engaging its combatants or enforcing a blockade against them. It is also known, in French, as guerre de course (literally, ''war of the chase'') and, in German, Handelskrieg (''trade war''), from the nations most heavily committed to it historically as a strategy.'
+SET Text = 'Mare Nostrum, meaning "Our Sea", refers to the Roman Empire''s control of the entire Mediterranean Basin. Following Italian Unification, the term became a rallying cry for Italian expansion and reconquest, as befitting the true successors of the Roman Empire.'
 WHERE Tag = 'TXT_KEY_POLICY_NATIONALISM_TEXT';
 
 UPDATE Language_en_US
