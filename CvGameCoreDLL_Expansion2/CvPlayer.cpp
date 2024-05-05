@@ -696,6 +696,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldModifierFromGreatWorks()
 	, m_aiYieldModifierFromActiveSpies()
 	, m_aiYieldFromDelegateCount()
+	, m_aiYieldFromXMilitaryUnits()
 	, m_aiYieldForSpyID()
 	, m_aiYieldForLiberation()
 	, m_iInfluenceForLiberation()
@@ -1882,6 +1883,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromDelegateCount.clear();
 	m_aiYieldFromDelegateCount.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldFromXMilitaryUnits.clear();
+	m_aiYieldFromXMilitaryUnits.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldForSpyID.clear();
 	m_aiYieldForSpyID.resize(NUM_YIELD_TYPES, 0);
@@ -31653,8 +31657,10 @@ int CvPlayer::GetHappinessFromMilitaryUnits() const
 
 int CvPlayer::GetYieldFromMilitaryUnits(YieldTypes eIndex) const
 {
-	int iYieldPerXUnits = GetPlayerTraits()->GetYieldFromXMilitaryUnits(eIndex);
-	if (iYieldPerXUnits <= 0)
+	int iTotal = 0;
+	int iYieldPerXUnitsTraits = GetPlayerTraits()->GetYieldFromXMilitaryUnits(eIndex);
+	int iYieldPerXUnitsPolicies = getYieldFromXMilitaryUnits(eIndex);
+	if (iYieldPerXUnitsTraits <= 0 && iYieldPerXUnitsPolicies <= 0)
 		return 0;
 
 	int iLoop = 0;
@@ -31667,7 +31673,16 @@ int CvPlayer::GetYieldFromMilitaryUnits(YieldTypes eIndex) const
 		iCount++;
 	}
 
-	return iCount / iYieldPerXUnits;
+	if (iYieldPerXUnitsPolicies > 0)
+	{
+		iTotal += iCount / iYieldPerXUnitsPolicies;
+	}
+	if (iYieldPerXUnitsTraits > 0)
+	{
+		iTotal += iCount / iYieldPerXUnitsTraits;
+	}
+
+	return iTotal;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36926,6 +36941,34 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromXMilitaryUnits(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromXMilitaryUnits[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromXMilitaryUnits[eIndex] = m_aiYieldFromXMilitaryUnits[eIndex] + iChange;
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
@@ -46379,6 +46422,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldModifierFromGreatWorks(eYield, (pPolicy->GetYieldModifierFromGreatWorks(iI) * iChange));
 		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
 		changeYieldFromDelegateCount(eYield, (pPolicy->GetYieldFromDelegateCount(iI) * iChange));
+		changeYieldFromXMilitaryUnits(eYield, (pPolicy->GetYieldFromXMilitaryUnits(iI) * iChange));
 
 		changeYieldForLiberation(eYield, (pPolicy->GetYieldForLiberation(iI) * iChange));
 		changeYieldForSpyID(eYield, (pPolicy->GetYieldForSpyID(iI) * iChange));
@@ -48604,6 +48648,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldModifierFromGreatWorks);
 	visitor(player.m_aiYieldModifierFromActiveSpies);
 	visitor(player.m_aiYieldFromDelegateCount);
+	visitor(player.m_aiYieldFromXMilitaryUnits);
 	visitor(player.m_aiYieldForSpyID);
 	visitor(player.m_aiYieldForLiberation);
 	visitor(player.m_iInfluenceForLiberation);

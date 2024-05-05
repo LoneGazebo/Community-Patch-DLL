@@ -380,6 +380,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
+	m_piYieldFromXMilitaryUnits(NULL),
 	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
@@ -483,6 +484,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
+	SAFE_DELETE_ARRAY(m_piYieldFromXMilitaryUnits);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -1202,6 +1204,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromXMilitaryUnits, "Policy_YieldFromXMilitaryUnits", "PolicyType", szPolicyType);
 
 	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
 
@@ -3582,6 +3585,18 @@ int CvPolicyEntry::GetYieldFromDelegateCount(int i) const
 int* CvPolicyEntry::GetYieldFromDelegateCountArray() const
 {
 	return m_piYieldFromDelegateCount;
+}
+
+int CvPolicyEntry::GetYieldFromXMilitaryUnits(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromXMilitaryUnits ? m_piYieldFromXMilitaryUnits[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromXMilitaryUnitsArray() const
+{
+	return m_piYieldFromXMilitaryUnits;
 }
 
 int CvPolicyEntry::GetMissionInfluenceModifier() const

@@ -27,9 +27,19 @@ VALUES
 UPDATE Policies
 SET
 	CultureFromBarbarianKills = 0,
-	CultureFromKills = 100,
+	CultureFromKills = 50,
 	BarbarianCombatBonus = 25
 WHERE Type = 'POLICY_HONOR';
+
+INSERT INTO Policy_CityYieldChanges
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_HONOR', 'YIELD_PRODUCTION', 1);
+	
+INSERT INTO Policy_YieldFromKills
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_HONOR', 'YIELD_SCIENCE', 50);
 
 INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
@@ -92,10 +102,10 @@ SET
 	ExtraSupplyPerPopulation = 10
 WHERE Type = 'POLICY_MILITARY_TRADITION';
 
-INSERT INTO Policy_YieldFromKills
+INSERT INTO Policy_YieldFromXMilitaryUnits
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_MILITARY_TRADITION', 'YIELD_SCIENCE', 100);
+	('POLICY_MILITARY_TRADITION', 'YIELD_PRODUCTION', 10);
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
@@ -154,9 +164,12 @@ VALUES
 	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 -- Scaler
-INSERT INTO Policy_CityYieldChanges
+INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_PRODUCTION', 1
+SELECT Type, 'YIELD_SCIENCE', 10
 FROM Policies
+WHERE PolicyBranchType = 'POLICY_BRANCH_HONOR';
+
+UPDATE Policies
+SET CultureFromKills = 10
 WHERE PolicyBranchType = 'POLICY_BRANCH_HONOR';
