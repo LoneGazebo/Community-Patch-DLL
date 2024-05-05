@@ -1410,10 +1410,10 @@
 			<Text>[ICON_SPY] Establish a counter-espionage network.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP">
-			<Text>Foreign [ICON_SPY] Spies generate -10 Network Points per turn, scaling with Counterspy Level.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate -20 Network Points per turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-10 Network Points[ENDCOLOR] per turn, scaling with Counterspy Level.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-20 Network Points[ENDCOLOR] per turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION">
 			<Text>Establish Network</Text>
@@ -1422,25 +1422,13 @@
 			<Text>[ICON_STRENGTH] Strengthen City Defenses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 20% stronger, and an additional 10% for every Counterspy Level. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_EFFECTS">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
 			<Text>Strenghen Defense</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE">
-			<Text>[ICON_PIRATE] Chase down foreign Spies.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_HELP">
-			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed. Gain 50 [ICON_RESEARCH] Science when you kill a foreign Spy, scaling with Era and Counterspy Level.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_MISSION">
-			<Text>Chase Spies</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

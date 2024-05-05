@@ -77,20 +77,11 @@
 			<Text>You need to have collected at least {1_Num} Network Points to view the city screen.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_MISSIONS_HELP">
-			<Text>You can have your spy conduct a Spy Mission if the mission requirements are met. Conducting a mission [COLOR_NEGATIVE_TEXT]costs Network Points[ENDCOLOR], and there is a chance that your spy is [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR], resulting in worsened diplomatic relations. The spy can also be [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR], in which case the mission is still carried out, but the spy is then imprisoned for some time before returning to the hideout.</Text>
+			<Text>You can have your spy conduct a Spy Mission if the mission requirements are met. Conducting a mission [COLOR_NEGATIVE_TEXT]costs Network Points[ENDCOLOR], and there is a chance that your spy is [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR], resulting in worsened diplomatic relations. The spy can also be [COLOR_NEGATIVE_TEXT]killed[ENDCOLOR], in which case the mission is still carried out, but it will take some time before a replacement spy is recruited.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_SPY_IMPRISONED_TT">
-			<Text>{1_RankName} {2_SpyName} is currently imprisoned.[NEWLINE][NEWLINE]When they are released, they will return to the hideout and can be send on missions again.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_STATE_IMPRISONED">
-			<Text>Imprisoned</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_IMPRISONED">
-			<Text>Imprisoned for {1_Turns} {1_Turns: plural 1?turn; other?turns;}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_ID_CAPTURE_CHANCE">
+		<Row Tag="TXT_KEY_EO_ID_KILL_CHANCE">
 			<Text>Chance to be [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR]: {1_IDChance}%
-			[NEWLINE]Chance to be [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR]: {2_CaptureChance}%</Text>
+			[NEWLINE]Chance to be [COLOR_NEGATIVE_TEXT]killed[ENDCOLOR]: {2_KillChance}%</Text>
 		</Row>
 		<!-- Counterspies -->
 		<Row Tag="TXT_KEY_EO_COUNTERSPY">
@@ -218,6 +209,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT">
 			<Text>[NEWLINE][ICON_BULLET]Policy Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_TRAIT_MOD_TT">
+			<Text>[NEWLINE][ICON_BULLET]Player Traits Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT">
 			<Text>[NEWLINE]Total NP per Turn before Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>

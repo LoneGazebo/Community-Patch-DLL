@@ -1340,11 +1340,9 @@
 			<PrereqTech>TECH_COMPUTERS</PrereqTech>
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
-			<GlobalSpySecurityModifier>10</GlobalSpySecurityModifier>
+			<GlobalSpySecurityModifier>20</GlobalSpySecurityModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
-			<SpyRankChange>1</SpyRankChange>
-			<InstantSpyRankChange>1</InstantSpyRankChange>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>44</PortraitIndex>

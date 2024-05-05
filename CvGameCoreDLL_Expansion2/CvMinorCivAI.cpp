@@ -17124,7 +17124,7 @@ void CvMinorCivAI::DoElection()
 
 			apSpy[ui] = &(pPlayerEspionage->m_aSpyList[iSpyID]);
 
-			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+			iVotes = pCityEspionage->GetAmount(eEspionagePlayer);
 
 			// now that votes are counted, remove the progress from the spy
 			pCityEspionage->ResetProgress(eEspionagePlayer);
@@ -17145,7 +17145,7 @@ void CvMinorCivAI::DoElection()
 	{
 		wvVotes.StableSortItems();
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(CvSeeder::fromRaw(0xfead5338).mix(GetPlayer()->GetID()));
-		int iInfluenceModifier = GET_PLAYER(eElectionWinner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
+		int iInfluenceModifier = GET_PLAYER(eElectionWinner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) + GET_PLAYER(eElectionWinner).GetPlayerTraits()->GetSpyOffensiveStrengthModifier();
 
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
@@ -17228,10 +17228,13 @@ void CvMinorCivAI::DoElection()
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
 
-				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+				if (MOD_BALANCE_VP)
 				{
 					GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
-					GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20*/ GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS));
+					if (GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS) > 0)
+					{
+						GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS));
+					}
 				}
 			}
 			else
@@ -17249,7 +17252,7 @@ void CvMinorCivAI::DoElection()
 					iDiminishAmount = /*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100;
 					iDiminishAmount *= 100 + iInfluenceModifier;
 					iDiminishAmount /= 100;
-					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+					if (MOD_BALANCE_VP)
 					{
 						iDiminishAmount *= GC.getGame().getCurrentEra();
 					}

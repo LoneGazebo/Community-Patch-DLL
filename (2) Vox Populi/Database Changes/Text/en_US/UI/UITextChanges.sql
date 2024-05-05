@@ -315,6 +315,15 @@ WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_DOMINANT';
 -- Espionage overview
 ------------------------------------------------
 UPDATE Language_en_US
+SET Text = 'Name'
+WHERE Tag = 'TXT_KEY_EO_NAME_RANK';
+
+-- no ranks anymore in VP, so every Recruit is now an Agent
+UPDATE Language_en_US
+SET Text = 'Agent'
+WHERE Tag = 'TXT_KEY_SPY_RANK_0';
+
+UPDATE Language_en_US
 SET Text = 'Security Level'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
 
@@ -790,11 +799,11 @@ WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT';
 -- Trade screen
 ------------------------------------------------
 UPDATE Language_en_US
-SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes}[ENDCOLOR] {1_NumVotes: plural 1?Delegate; other?Delegates;} currently controlled by this player will support {2_ChoiceText} on the proposal to [COLOR_POSITIVE_TEXT]enact[ENDCOLOR] these changes:[NEWLINE][NEWLINE]{3_ProposalText}[NEWLINE][NEWLINE]The number of delegates above is based on the number of delegates this player controls, and the Rank of your [ICON_DIPLOMAT] Diplomat. Higher ranks allow you to trade for more delegates.'
+SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes}[ENDCOLOR] {1_NumVotes: plural 1?Delegate; other?Delegates;} currently controlled by this player will support {2_ChoiceText} on the proposal to [COLOR_POSITIVE_TEXT]enact[ENDCOLOR] these changes:[NEWLINE][NEWLINE]{3_ProposalText}[NEWLINE][NEWLINE]The number of delegates above is based on the number of delegates this player controls and the number of Network Points your [ICON_DIPLOMAT] Diplomat has gathered.'
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_ENACT_TT';
 
 UPDATE Language_en_US
-SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes}[ENDCOLOR] {1_NumVotes: plural 1?Delegate; other?Delegates;} currently controlled by this player will support {2_ChoiceText} on the proposal to [COLOR_WARNING_TEXT]repeal[ENDCOLOR] these effects:[NEWLINE][NEWLINE]{3_ProposalText}[NEWLINE][NEWLINE]The number of delegates above is based on the number of delegates this player controls, and the rank of your [ICON_DIPLOMAT] Diplomat. Higher ranks allow you to trade for more delegates.'
+SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes}[ENDCOLOR] {1_NumVotes: plural 1?Delegate; other?Delegates;} currently controlled by this player will support {2_ChoiceText} on the proposal to [COLOR_WARNING_TEXT]repeal[ENDCOLOR] these effects:[NEWLINE][NEWLINE]{3_ProposalText}[NEWLINE][NEWLINE]The number of delegates above is based on the number of delegates this player controls and the number of Network Points your [ICON_DIPLOMAT] Diplomat has gathered.'
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_REPEAL_TT';
 
 UPDATE Language_en_US

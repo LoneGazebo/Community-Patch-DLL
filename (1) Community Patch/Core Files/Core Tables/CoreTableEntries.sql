@@ -1355,8 +1355,8 @@ ALTER TABLE Traits ADD COLUMN 'WLTKDUnhappinessNeedsMod' INTEGER DEFAULT 0;
 -- Start game with x number of spies
 ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
 
--- Spies begin at x rank
-ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
+-- Modifier to offensive strength of spies
+ALTER TABLE Traits ADD COLUMN 'SpyOffensiveStrengthModifier' INTEGER DEFAULT 0;
 
 -- Boost CS Quest Value
 ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;

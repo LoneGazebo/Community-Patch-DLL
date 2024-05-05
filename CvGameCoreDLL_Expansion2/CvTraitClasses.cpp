@@ -124,7 +124,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWLTKDGATimer(0),
 	m_iWLTKDUnhappinessNeedsMod(0),
 	m_iStartingSpies(0),
-	m_iStartingSpyRank(0),
+	m_iSpyOffensiveStrengthModifier(0),
 	m_iSpyMoveRateBonus(0),
 	m_iSpySecurityModifier(0),
 	m_iSpyExtraRankBonus(0),
@@ -839,9 +839,9 @@ int CvTraitEntry::GetStartingSpies() const
 {
 	return m_iStartingSpies;
 }
-int CvTraitEntry::GetStartingSpyRank() const
+int CvTraitEntry::GetSpyOffensiveStrengthModifier() const
 {
-	return m_iStartingSpyRank;
+	return m_iSpyOffensiveStrengthModifier;
 }
 int CvTraitEntry::GetSpySecurityModifier() const
 {
@@ -2411,7 +2411,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
 	m_iWLTKDUnhappinessNeedsMod				= kResults.GetInt("WLTKDUnhappinessNeedsMod");
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
-	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
+	m_iSpyOffensiveStrengthModifier			= kResults.GetInt("SpyOffensiveStrengthModifier");
 	m_iSpyMoveRateBonus						= kResults.GetInt("SpyMoveRateModifier");
 	m_iSpySecurityModifier					= kResults.GetInt("SpySecurityModifier");
 	m_iSpyExtraRankBonus					= kResults.GetInt("SpyExtraRankBonus");
@@ -4517,7 +4517,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iWLTKDGATimer += trait->GetWLTKDGATimer();
 			m_iWLTKDUnhappinessNeedsMod += trait->GetWLTKDUnhappinessNeedsMod();
 			m_iStartingSpies += trait->GetStartingSpies();
-			m_iStartingSpyRank += trait->GetStartingSpyRank();
+			m_iSpyOffensiveStrengthModifier += trait->GetSpyOffensiveStrengthModifier();
 			m_iSpyMoveRateBonus += trait->GetSpyMoveRateBonus();
 			m_iSpySecurityModifier += trait->GetSpySecurityModifier();
 			m_iSpyExtraRankBonus += trait->GetSpyExtraRankBonus();
@@ -5314,7 +5314,7 @@ void CvPlayerTraits::Reset()
 	m_iWLTKDGATimer = 0;
 	m_iWLTKDUnhappinessNeedsMod = 0;
 	m_iStartingSpies = 0;
-	m_iStartingSpyRank = 0;
+	m_iSpyOffensiveStrengthModifier = 0;
 	m_iSpyMoveRateBonus = 0;
 	m_iSpySecurityModifier = 0;
 	m_iSpyExtraRankBonus = 0;
@@ -7546,7 +7546,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iWLTKDGATimer);
 	visitor(playerTraits.m_iWLTKDUnhappinessNeedsMod);
 	visitor(playerTraits.m_iStartingSpies);
-	visitor(playerTraits.m_iStartingSpyRank);
+	visitor(playerTraits.m_iSpyOffensiveStrengthModifier);
 	visitor(playerTraits.m_iSpyMoveRateBonus);
 	visitor(playerTraits.m_iSpySecurityModifier);
 	visitor(playerTraits.m_iSpyExtraRankBonus);
