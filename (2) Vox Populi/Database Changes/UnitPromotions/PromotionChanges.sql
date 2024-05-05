@@ -519,7 +519,7 @@ VALUES
 	('PROMOTION_VIKING', 'YIELD_GOLD', 30),
 	('PROMOTION_LONGBOAT', 'YIELD_GOLD', 60);
 
-UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
+UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
 UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 

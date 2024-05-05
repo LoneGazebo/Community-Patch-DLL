@@ -439,7 +439,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+1 [ICON_VP_VISION] Embarked Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VP_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Naval Movement

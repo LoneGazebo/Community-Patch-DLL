@@ -18,12 +18,12 @@ VALUES
 INSERT INTO Trait_ImprovementYieldChanges
 	(TraitType, ImprovementType, YieldType, Yield)
 VALUES
-	('TRAIT_WAYFINDING', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_FOOD', 2);
+	('TRAIT_WAYFINDING', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Trait_FeatureYieldChanges
 	(TraitType, FeatureType, YieldType, Yield)
 VALUES
-	('TRAIT_WAYFINDING', 'FEATURE_ATOLL', 'YIELD_FOOD', 2);
+	('TRAIT_WAYFINDING', 'FEATURE_ATOLL', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Trait_BuildsUnitClasses
 	(TraitType, UnitClassType, BuildType)
