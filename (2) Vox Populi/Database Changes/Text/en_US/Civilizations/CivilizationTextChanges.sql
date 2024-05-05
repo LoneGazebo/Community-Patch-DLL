@@ -460,7 +460,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. Claim adjacent unowned land tiles when Cities claim a tile of the same type.'
+SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 2 damage dealt to enemy Cities, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
@@ -897,7 +897,7 @@ WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'Cities claim up to 8 tiles on Founding and 4 tiles on Conquest. All Recon Units can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 3 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
+SET Text = 'Cities claim up to 4 additional tiles when acquired, and claim adjacent unowned tiles when their borders expand to a land tile of the same type. All Recon Units can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 
 UPDATE Language_en_US
