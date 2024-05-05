@@ -418,6 +418,10 @@ UPDATE Language_en_US
 SET Text = 'Air Supremacy II'
 WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II';
 
+UPDATE Language_en_US
+SET Text = 'Eagle Hunter'
+WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER';
+
 -- Buffalo Chest
 UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25 Hit Points.'
@@ -662,7 +666,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
 -- Enhanced Medic
 UPDATE Language_en_US
-SET Text = '+10 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] for Units [COLOR_POSITIVE_TEXT]on or adjacent to this tile[ENDCOLOR].[NEWLINE]Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
+SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 -- Quick Study

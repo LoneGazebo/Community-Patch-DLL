@@ -698,6 +698,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivFriendshipLevelWithMajor);
 	Method(GetRestingPointChange);
 	Method(ChangeRestingPointChange);
+	Method(SetRestingPointChange);
 	Method(GetActiveQuestForPlayer);
 	Method(IsMinorCivActiveQuestForPlayer);
 	Method(SetMinorCivActiveQuestForPlayer);
@@ -8597,6 +8598,16 @@ int CvLuaPlayer::lChangeRestingPointChange(lua_State* L)
 	int iChange = lua_tointeger(L, 3);
 
 	pkPlayer->GetMinorCivAI()->ChangeRestingPointChange(ePlayer, iChange);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetRestingPointChange(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->GetMinorCivAI()->SetRestingPointChange(ePlayer, iValue);
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -274,10 +274,11 @@ VALUES
 	('TECH_FERTILIZER', 'FLAVOR_GOLD', 10),
 	('TECH_FERTILIZER', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
-	('TECH_INDUSTRIALIZATION', 'FLAVOR_PRODUCTION', 25), -- Units: Diplomat, Ironclad, Buildings: Factory, Wonders: Westminster, Yields: Laborer +1G, Eng. +1P
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_PRODUCTION', 25), -- Units: Diplomat, Ironclad, Buildings: Factory, Wonders: Westminster, Reveals: Aluminum, Yields: Laborer +1G, Eng. +1P
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_WONDER', 5),
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_DIPLOMACY', 15),
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_NAVAL', 15),
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
 	('TECH_DYNAMITE', 'FLAVOR_RANGED', 10), -- Units: GatlingGun, Cruiser, Wonders: Eiffel, Yields: Quarry +2P
 	('TECH_DYNAMITE', 'FLAVOR_NAVAL', 15),
@@ -295,9 +296,8 @@ VALUES
 	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 25), -- Buildings: Hospital, International Finance Center, Wonders: StatueofLiberty, Improvement: Faster Chop
 	('TECH_BIOLOGY', 'FLAVOR_WONDER', 5),
 
-	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Reveals: Aluminum, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Ability: +1 TR
 	('TECH_ELECTRICITY', 'FLAVOR_WONDER', 10),
-	('TECH_ELECTRICITY', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
 	('TECH_CORPORATIONS', 'FLAVOR_GOLD', 30), -- Buildings: Corporations // Not changing this, it's supposed to be rushed I guess
 	('TECH_CORPORATIONS', 'FLAVOR_GROWTH', 30),

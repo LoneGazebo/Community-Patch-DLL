@@ -1094,6 +1094,9 @@ public:
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
 
+	int GetCycleOrder() const;
+	void SetCycleOrder(int iNewValue);
+
 	bool IsRecentlyDeployedFromOperation() const;
 	void SetDeployFromOperationTurn(int iTurn)
 	{
@@ -2076,6 +2079,7 @@ protected:
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
 	int m_iLastMoveTurn;
+	int m_iCycleOrder;
 	int m_iReconX;
 	int m_iReconY;
 	int m_iReconCount;
@@ -2533,6 +2537,7 @@ SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)
 SYNC_ARCHIVE_VAR(int, m_iHotKeyNumber)
 SYNC_ARCHIVE_VAR(int, m_iDeployFromOperationTurn)
 SYNC_ARCHIVE_VAR(int, m_iLastMoveTurn)
+SYNC_ARCHIVE_VAR(int, m_iCycleOrder)
 SYNC_ARCHIVE_VAR(int, m_iReconX)
 SYNC_ARCHIVE_VAR(int, m_iReconY)
 SYNC_ARCHIVE_VAR(int, m_iReconCount)

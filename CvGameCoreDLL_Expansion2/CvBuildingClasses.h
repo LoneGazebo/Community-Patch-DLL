@@ -289,7 +289,7 @@ public:
 	int GetEspionageModifier() const;
 	int GetGlobalEspionageModifier() const;
 	int GetSpySecurityModifier() const;
-	int GetSpySecurityModifierPerPop() const;
+	int GetSpySecurityModifierPerXPop() const;
 	int GetGlobalSpySecurityModifier() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
@@ -798,7 +798,7 @@ private:
 	int m_iEspionageModifier;
 	int m_iGlobalEspionageModifier;
 	int m_iSpySecurityModifier;
-	int m_iSpySecurityModifierPerPop;
+	int m_iSpySecurityModifierPerXPop;
 	int m_iGlobalSpySecurityModifier;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;

@@ -838,6 +838,7 @@ public:
 
 	int GetRestingPointChange(PlayerTypes ePlayer) const;
 	void ChangeRestingPointChange(PlayerTypes ePlayer, int iChange);
+	void SetRestingPointChange(PlayerTypes ePlayer, int iValue);
 
 	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);

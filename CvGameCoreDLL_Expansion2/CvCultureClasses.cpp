@@ -5143,12 +5143,10 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		int iMod = /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();
 		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
-
-		iMod = min(90, iMod);
 
 		if (iMod != 0)
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod, iNumCities) + "[ENDCOLOR]";
@@ -6677,18 +6675,17 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		int iMod = /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();
 		iMod -= kCityPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
 
-
-		iMultiplier -= min(90, iMod);
+		iMultiplier -= iMod;
 	}
 #endif
 	// LATER add top science city and research agreement with this player???
 
-	return iMultiplier;
+	return max(-100, iMultiplier);
 }
 
 /// What is the tooltip describing the tourism output?

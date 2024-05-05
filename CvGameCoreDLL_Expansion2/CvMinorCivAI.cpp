@@ -1616,10 +1616,10 @@ bool CvMinorCivQuest::IsComplete()
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
 		PlayerTypes eTargetMajor = (PlayerTypes)m_iData1;
-		int iNumThefts = m_iData2;
+		int iNumMissionsRequired = m_iData2;
 
 		// Stole from the target X times?
-		return pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(eTargetMajor) >= iNumThefts;
+		return pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(eTargetMajor) >= iNumMissionsRequired;
 	}
 	case MINOR_CIV_QUEST_COUP:
 	{
@@ -2955,16 +2955,14 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestSpyTarget(m_eAssignedPlayer, false);
-		int iActionAmount = GC.getGame().randRangeInclusive(1, 3, pCity->plot()->GetPseudoRandomSeed());
 
 		m_iData1 = pCity->getOwner();
-		m_iData2 = iActionAmount + pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(pCity->getOwner());
+		m_iData2 = pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(pCity->getOwner()) + 1;
 
 		const char* strTargetNameKey = GET_PLAYER(pCity->getOwner()).getNameKey();
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR");
 		strMessage << strTargetNameKey;
-		strMessage << (m_iData2 - pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(pCity->getOwner()));
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR");
 		break;
 	}
@@ -17957,17 +17955,14 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		{
 			bOthersDontUpdateWariness = true;
 		}
-
-		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
 		SetFriendshipWithMajor(eEnemyMajorLoop, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR), false, true);
-#if defined(MOD_BALANCE_CORE)
+		SetRestingPointChange(eEnemyMajorLoop, 0); // Remove any liberation / Great Diplomat bonuses to resting Influence
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
-		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
+		if (GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
 		{
 			EndAllActiveQuestsForPlayer(eEnemyMajorLoop, true);
 		}
-#endif
 	}
 
 	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War
@@ -18298,6 +18293,13 @@ void CvMinorCivAI::ChangeRestingPointChange(PlayerTypes ePlayer, int iChange)
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
 	m_aiRestingPointChange[ePlayer] += iChange;
+}
+
+void CvMinorCivAI::SetRestingPointChange(PlayerTypes ePlayer, int iValue)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiRestingPointChange[ePlayer] = iValue;
 }
 
 
