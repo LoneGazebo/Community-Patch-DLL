@@ -55,7 +55,7 @@ WHERE Type = 'POLICY_COLLECTIVE_RULE';
 INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_COLLECTIVE_RULE', 'YIELD_PRODUCTION', 3);
+	('POLICY_COLLECTIVE_RULE', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Policy_UnitClassProductionModifiers
 	(PolicyType, UnitClassType, ProductionModifier)
@@ -77,7 +77,7 @@ WHERE Type = 'POLICY_CITIZENSHIP';
 INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_CITIZENSHIP', 'YIELD_GOLD', 3);
+	('POLICY_CITIZENSHIP', 'YIELD_GOLD', 2);
 
 -- Republic (now Expertise)
 DELETE FROM Policy_CityYieldChanges

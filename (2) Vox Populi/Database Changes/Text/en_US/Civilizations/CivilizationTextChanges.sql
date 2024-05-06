@@ -640,7 +640,7 @@ SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% 
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
-SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, boosts healing of adjacent friendly Units by +10, and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
+SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR], and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_HELP';
 
 UPDATE Language_en_US
@@ -916,7 +916,7 @@ SET Text = 'Yields, Resources, [ICON_HAPPINESS_1] Happiness and Unit Gift freque
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+20 [ICON_SPY] City Security. When you identify a foreign Spy in this City, gain 25 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City. When you identify a foreign Spy in this City, gain 25 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US

@@ -848,6 +848,7 @@ INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_BASE', 10; -- Base 
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES', 1000; -- Security if not all players have a Spy
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS', 2; -- Security for each previous Spy Mission completed in the City
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_POPULATION', -2; -- Security per Population in City
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER', 2; -- +1 Security per X Population in city for each SpySecurityModifierPerXPop provided by buildings
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_TRADE_ROUTE', -1; -- Security per Trade Route to/from City
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_EXCESS_UNHAPPINESS', -4; -- Security per Excess Unhappiness in City
 

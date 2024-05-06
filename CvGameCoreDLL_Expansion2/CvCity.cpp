@@ -237,7 +237,7 @@ CvCity::CvCity() :
 	, m_iCheapestPlotInfluenceDistance()
 	, m_iEspionageModifier()
 	, m_iSpySecurityModifier()
-	, m_iSpySecurityModifierPerPop()
+	, m_iSpySecurityModifierPerXPop()
 	, m_iTradeRouteRecipientBonus()
 	, m_iTradeRouteSeaGoldBonus()
 	, m_iTradeRouteLandGoldBonus()
@@ -1306,7 +1306,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iHealRate = 0;
 	m_iEspionageModifier = 0;
 	m_iSpySecurityModifier = 0;
-	m_iSpySecurityModifierPerPop = 0;
+	m_iSpySecurityModifierPerXPop = 0;
 	m_iNumPreviousSpyMissions = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
@@ -15844,7 +15844,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeCapturePlunderModifier(pBuildingInfo->GetCapturePlunderModifier() * iChange);
 		ChangeEspionageModifier(pBuildingInfo->GetEspionageModifier() * iChange);
 		ChangeSpySecurityModifier(pBuildingInfo->GetSpySecurityModifier() * iChange);
-		ChangeSpySecurityModifierPerPop(pBuildingInfo->GetSpySecurityModifierPerPop() * iChange);
+		ChangeSpySecurityModifierPerXPop(pBuildingInfo->GetSpySecurityModifierPerXPop() * iChange);
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 		ChangeConversionModifier(pBuildingInfo->GetConversionModifier() * iChange);
 		owningPlayer.ChangeConversionModifier(pBuildingInfo->GetGlobalConversionModifier() * iChange);
@@ -20972,17 +20972,17 @@ void CvCity::ChangeSpySecurityModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetSpySecurityModifierPerPop() const
+int CvCity::GetSpySecurityModifierPerXPop() const
 {
 	VALIDATE_OBJECT
-	return m_iSpySecurityModifierPerPop;
+	return m_iSpySecurityModifierPerXPop;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::ChangeSpySecurityModifierPerPop(int iChange)
+void CvCity::ChangeSpySecurityModifierPerXPop(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iSpySecurityModifierPerPop = (m_iSpySecurityModifierPerPop + iChange);
+	m_iSpySecurityModifierPerXPop = (m_iSpySecurityModifierPerXPop + iChange);
 }
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -27306,7 +27306,8 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	}
 
 	// Local Buildings
-	iTempMod = GetSpySecurityModifier() + getPopulation() * GetSpySecurityModifierPerPop();
+	iTempMod = GetSpySecurityModifier();
+	iTempMod += GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) != 0 ? getPopulation() * GetSpySecurityModifierPerXPop() / /*2*/ GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) : 0;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_BUILDINGS_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
@@ -33175,7 +33176,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCheapestPlotInfluenceDistance);
 	visitor(city.m_iEspionageModifier);
 	visitor(city.m_iSpySecurityModifier);
-	visitor(city.m_iSpySecurityModifierPerPop);
+	visitor(city.m_iSpySecurityModifierPerXPop);
 	visitor(city.m_iNumPreviousSpyMissions);
 	visitor(city.m_iConversionModifier);
 	visitor(city.m_bNeverLost);

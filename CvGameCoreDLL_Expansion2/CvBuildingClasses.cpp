@@ -152,7 +152,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iEspionageModifier(0),
 	m_iGlobalEspionageModifier(0),
 	m_iSpySecurityModifier(0),
-	m_iSpySecurityModifierPerPop(0),
+	m_iSpySecurityModifierPerXPop(0),
 	m_iGlobalSpySecurityModifier(0),
 	m_iExtraSpies(0),
 	m_iSpyRankChange(0),
@@ -741,7 +741,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iGlobalEspionageModifier = kResults.GetInt("GlobalEspionageModifier");
 	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
-	m_iSpySecurityModifierPerPop = kResults.GetInt("SpySecurityModifierPerPop");
+	m_iSpySecurityModifierPerXPop = kResults.GetInt("SpySecurityModifierPerXPop");
 	m_iGlobalSpySecurityModifier = kResults.GetInt("GlobalSpySecurityModifier");
 	m_iExtraSpies = kResults.GetInt("ExtraSpies");
 	m_iSpyRankChange = kResults.GetInt("SpyRankChange");
@@ -2405,10 +2405,10 @@ int CvBuildingEntry::GetSpySecurityModifier() const
 	return m_iSpySecurityModifier;
 }
 
-/// Modifier to Security against espionage per population
-int CvBuildingEntry::GetSpySecurityModifierPerPop() const
+/// Modifier to Security against espionage per ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER population
+int CvBuildingEntry::GetSpySecurityModifierPerXPop() const
 {
-	return m_iSpySecurityModifierPerPop;
+	return m_iSpySecurityModifierPerXPop;
 }
 
 /// Modifier to Security against espionage in all cities

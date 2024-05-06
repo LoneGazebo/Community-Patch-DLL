@@ -446,12 +446,12 @@ VALUES
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 20);
+	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 33);
 
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 20);
+	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 33);
 
 UPDATE UnitPromotions SET RangeChange = 2 WHERE Type = 'PROMOTION_AIR_RANGE';
 
@@ -875,7 +875,7 @@ UPDATE UnitPromotions SET NearbyEnemyCombatMod = -10, NearbyEnemyCombatRange = 1
 UPDATE UnitPromotions SET NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 1 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
 -- Khan: Enhanced Medic
-UPDATE UnitPromotions SET SameTileHealChange = 10, AdjacentTileHealChange = 10, NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
+UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
 
 -- Samurai: Quick Study
 UPDATE UnitPromotions SET ExperiencePercent = 50 WHERE Type = 'PROMOTION_GAIN_EXPERIENCE';

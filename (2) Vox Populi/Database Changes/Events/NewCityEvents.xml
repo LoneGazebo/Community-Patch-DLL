@@ -1039,10 +1039,10 @@
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
+			<NetworkPointsNeeded>750</NetworkPointsNeeded>
 			<SpyIDChance>20</SpyIDChance>
 			<SpyCaptureChance>10</SpyCaptureChance>
-			<ReligiousPressureModifier>-50</ReligiousPressureModifier>
+			<ReligiousPressureModifier>-100</ReligiousPressureModifier>
 			<Expires>true</Expires>
 		</Row>
 		<!-- Kidnap Specialists in the City -->

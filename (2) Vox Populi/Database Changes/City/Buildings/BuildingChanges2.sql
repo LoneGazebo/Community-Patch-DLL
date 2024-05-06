@@ -195,11 +195,6 @@ INSERT INTO Building_YieldFromUnitProduction
 VALUES
 	('BUILDING_ORDER', 'YIELD_FAITH', 10);
 
-INSERT INTO Building_YieldFromFaithPurchase
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_ORDER', 'YIELD_PRODUCTION', 10);
-
 -- Teocalli
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

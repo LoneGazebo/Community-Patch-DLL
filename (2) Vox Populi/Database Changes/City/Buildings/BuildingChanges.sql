@@ -1189,7 +1189,8 @@ WHERE BuildingClass = 'BUILDINGCLASS_STADIUM';
 UPDATE Buildings
 SET
 	EspionageModifier = 0,
-	SpySecurityModifier = 15,
+	SpySecurityModifier = 20,
+	SpySecurityModifierPerXPop = 1,
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1214,7 +1215,7 @@ SET
 	PrereqTech = 'TECH_ELECTRONICS',
 	EspionageModifier = 0,
 	SpySecurityModifier = 10,
-	SpySecurityModifierPerPop = 1,
+	SpySecurityModifierPerXPop = 1,
 	DistressFlatReduction = 1,
 	PovertyFlatReduction = 1,
 	IlliteracyFlatReduction = 1,

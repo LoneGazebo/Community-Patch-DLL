@@ -70,7 +70,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on Resources.'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, +1 [ICON_RESEARCH] Science and +1 [ICON_FOOD] Food from Farms on Resources.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
