@@ -37,7 +37,7 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 	if (pkStartUnit == NULL)
 	{
 		// If no unit supplied, use the selected unit.
-		auto_ptr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
+		CvInterfacePtr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
 		pkStartUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 		if (pkStartUnit && pkStartUnit->getOwner() != m_pkPlayer->GetID())
