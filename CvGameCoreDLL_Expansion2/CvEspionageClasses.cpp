@@ -1828,7 +1828,8 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 					iEra = 1;
 				}
 				iRiggingInfluence *= iEra;
-				iRiggingInfluence *= (1 + GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetNumConsecutiveSuccessfulRiggings(m_pPlayer->GetID()));
+				iRiggingInfluence *= 100 + GD_INT_GET(ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER) * GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetNumConsecutiveSuccessfulRiggings(m_pPlayer->GetID());
+				iRiggingInfluence /= 100;
 			}
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey(), iRiggingInfluence);
 		}
@@ -9295,7 +9296,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		else
 		{
 			iBaseValue = 40;
-			iBaseValue += min(60, 20 * pMinorCivAI->GetNumConsecutiveSuccessfulRiggings(m_pPlayer->GetID()));
+			iBaseValue += min(60, 40 * pMinorCivAI->GetNumConsecutiveSuccessfulRiggings(m_pPlayer->GetID()) * GD_INT_GET(ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER) / 100);
 		}
 
 		int iValue = iBaseValue;
