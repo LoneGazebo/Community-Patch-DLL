@@ -201,6 +201,9 @@ ALTER TABLE Buildings ADD COLUMN 'FoodBonusPerCityMajorityFollower' INTEGER DEFA
 ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
+-- Allows industrial city connections via water
+ALTER TABLE Buildings ADD AllowsIndustrialWaterRoutes BOOLEAN DEFAULT 0;
+
 -- Allows city connections via the air
 ALTER TABLE Buildings ADD AllowsAirRoutes BOOLEAN DEFAULT 0;
 
@@ -1004,8 +1007,8 @@ ALTER TABLE Buildings ADD COLUMN 'FinishSeaTRTourism' INTEGER DEFAULT 0;
 -- WC vote per GPT - GPT / x (value below) = votes
 ALTER TABLE Buildings ADD COLUMN 'VotesPerGPT' INTEGER DEFAULT 0;
 
--- Requires Rail Connection to be built
-ALTER TABLE Buildings ADD COLUMN 'RequiresRail' BOOLEAN DEFAULT 0;
+-- Requires an Industrial City Connection to be built
+ALTER TABLE Buildings ADD COLUMN 'RequiresIndustrialCityConnection' BOOLEAN DEFAULT 0;
 
 -- Civ-specific building (but not necessarily a UB!)
 ALTER TABLE Buildings ADD COLUMN 'CivilizationRequired' TEXT DEFAULT NULL;

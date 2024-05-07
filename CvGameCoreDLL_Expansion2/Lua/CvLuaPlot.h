@@ -158,6 +158,7 @@ protected:
 
 	static int lIsRoute(lua_State* L);
 	static int lIsTradeRoute(lua_State* L);
+	LUAAPIEXTN(IsCityConnection, bool, ePlayer = NO_PLAYER, bIndustrial = false);
 	static int lIsImpassable(lua_State* L);
 
 	static int lGetX(lua_State* L);

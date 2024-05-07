@@ -977,7 +977,7 @@
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Text/en_US/Corporations/NewCorporationText.xml</FileName>
       </Action>
-	  <Action>
+      <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Text/en_US/Espionage/NewEspionageText.xml</FileName>
@@ -1599,7 +1599,7 @@
     <Folder Include="Database Changes\Text\en_US\Concepts\" />
     <Folder Include="Database Changes\Text\en_US\Corporations\" />
     <Folder Include="Database Changes\Text\en_US\Difficulty\" />
-	<Folder Include="Database Changes\Text\en_US\Espionage\" />
+    <Folder Include="Database Changes\Text\en_US\Espionage\" />
     <Folder Include="Database Changes\Text\en_US\Events\" />
     <Folder Include="Database Changes\Text\en_US\Notifications\" />
     <Folder Include="Database Changes\Text\en_US\Policies\" />
@@ -4087,7 +4087,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-	<Content Include="Assets\Units\Icons\khanflag.dds">
+    <Content Include="Assets\Units\Icons\khanflag.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4147,7 +4147,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-	<Content Include="Assets\Units\Icons\sv_khan.dds">
+    <Content Include="Assets\Units\Icons\sv_khan.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5294,7 +5294,7 @@
     <Content Include="Database Changes\Espionage\SpyPassiveBonusesDiplomat.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>	
+    </Content>
     <Content Include="Database Changes\Events\CityEventChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -5495,7 +5495,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-	 <Content Include="Database Changes\Text\en_US\Espionage\NewEspionageText.xml">
+    <Content Include="Database Changes\Text\en_US\Espionage\NewEspionageText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -5874,6 +5874,10 @@
     <Content Include="LUA\NotificationPanel.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\PlotHelpManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\ProductionPopup.lua">
       <SubType>Lua</SubType>

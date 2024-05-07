@@ -1674,6 +1674,7 @@ public:
 	bool HasWorkedResource(ResourceTypes iResourceType) const;
 	//just an alias for lua
 	bool IsConnectedToCapital() const { return IsRouteToCapitalConnected(); }
+	bool IsIndustrialConnectedToCapital() const { return IsIndustrialRouteToCapitalConnected(); }
 	bool IsConnectedTo(CvCity* pCity) const;
 	bool HasSpecialistSlot(SpecialistTypes iSpecialistType) const;
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
@@ -1722,6 +1723,7 @@ public:
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
 	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
+	int GetConnectionGoldTimes100() const;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);

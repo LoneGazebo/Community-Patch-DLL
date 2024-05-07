@@ -305,8 +305,8 @@ public:
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
 
-	void SetCityConnection(PlayerTypes ePlayer, bool bActive);
-	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER) const;
+	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
+	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void SetTradeUnitRoute(bool bActive);

@@ -119,6 +119,7 @@
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
 				<Label ID="CityIsConnected" String="[ICON_CONNECTED]"/>
+				<Label ID="CityIsIndustrialConnected" String="[ICON_INDUSTRIAL_CONNECTED]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>
 				<Label ID="CityIsOccupied" String="[ICON_OCCUPIED]"/>
 				<Label ID="CityIsCityState" String="[ICON_CITY_STATE]" Hidden="1"/>

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION">
-			<Text>Train Station</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION">
+			<Text>Coaling Station</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_STRATEGY">
-			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection, with railroad tiles, to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_STRATEGY">
+			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires an Industrial City Connection (see Concepts for more details).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
-			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires a [ICON_CONNECTED] Connection via Railroad tiles or by sea to the [ICON_CAPITAL] Capital, or to a City connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a [COLOR_NEGATIVE_TEXT]Seaport[ENDCOLOR] in the City.</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_HELP">
+			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT">
-			<Text>A train station, railway station, railroad station, or depot (see below) is a railway facility where trains regularly stop to load or unload passengers or freight. It generally consists of at least one track-side platform and a station building (depot) providing such ancillary services as ticket sales and waiting rooms. If a station is on a single-track line, it often has a passing loop to facilitate traffic movements. The smallest stations are most often referred to as "stops" or, in some parts of the world, as "halts" (flag stops). Stations may be at ground level, underground, or elevated. Connections may be available to intersecting rail lines or other transport modes such as buses, trams or other rapid transit systems.</Text>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COALING_STATION_TEXT">
+			<Text>In the age of steam, people harnessed fossil fuels to transport goods and people in quantities that were impossible with earlier methods. So much commercial activity demanded the creation of fueling depots where coal for steam-powered ships and trains could be stored. These coaling stations were positioned strategically along major maritime and railway hubs, ensuring efficient transportation throughout the world.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_BATH">

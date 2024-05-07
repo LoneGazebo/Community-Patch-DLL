@@ -29,20 +29,20 @@
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
     <File md5="9AE69E7FD299CA9C0CD4E574C5D2DE3B" import="1">EUI/DC45_UnitPromotions.dds</File>
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
-    <File md5="3A0B0E0A309271C02291308B83E008AF" import="0">EUI/EUI_text_en_us.xml</File>
+    <File md5="8338C80D226B371AC67ADF6072052753" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="611263EA9A6139BF3C0A25E5418ACE58" import="0">EUI/NeededText.xml</File>
-    <File md5="0E6313ACC315EC875A97AE4AE6DEAFD7" import="1">LUA/CityBannerManager.lua</File>
-    <File md5="0C5091C2C4024A25B35991433972A704" import="1">LUA/CityBannerManager.xml</File>
+    <File md5="B4CB2BBE87AF1677EF3CD97FA0CA0380" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="ADBA6340D1EB08FDDB285979E58B56F2" import="1">LUA/CityBannerManager.xml</File>
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="4FF2C3858ADD42E1185E68D7C38B55D3" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="417EB5CFDACE144F1218CC3CCD56191C" import="1">LUA/CityView.lua</File>
-    <File md5="860188FCCA7F8B1B42030D9933E4524D" import="1">LUA/CityView.xml</File>
-    <File md5="68C68B8C5441AD7C6CAFB51C37474C0B" import="1">LUA/CityView_small.xml</File>
+    <File md5="3E618C7E482C03A3D91FC32DC9A4FE13" import="1">LUA/CityView.lua</File>
+    <File md5="F5FCDE73448EC1391CE1C06B10630AAD" import="1">LUA/CityView.xml</File>
+    <File md5="D25BC7DE8ED5F24CD827D75E5B498069" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
     <File md5="A2BE6F77C58D6709F4BD747AFBBF20FE" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="0C03658998ED856439EF8F347F6FDA1B" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="E2170B48D12F59765340A8C76DB1A42B" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="2DBCB1D09BC585A25935F60FBF864244" import="1">LUA/LeaderHeadRoot.lua</File>
@@ -53,15 +53,15 @@
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
     <File md5="A87ADB40348735E120B60ECF9CE8BB2D" import="1">LUA/NotificationPanel.lua</File>
     <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
-    <File md5="1FD517A49FB42275FAE2E57A3DBBEF7F" import="1">LUA/PlotHelpManager.lua</File>
+    <File md5="DBBE408637561A84B7BBAC7D312A278E" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="A96E1CBCE39C50FB82E40C64BFD03270" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="6E49A0D32531F2F121FD579F817C271B" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="58E69641AAE63640268F4DA8477FE810" import="1">LUA/TradeLogic.lua</File>
     <File md5="696E8650D1F9BE443920CEFF170D4CDF" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="2210687A9BE38D71A3B3473374E1B994" import="1">LUA/UnitPanel.lua</File>
-    <File md5="42911908162E0D88373F6CB90EC56F5A" import="1">LUA/UnitPanel.xml</File>
+    <File md5="99B31813275001E935824B00277F5631" import="1">LUA/UnitPanel.lua</File>
+    <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>
     <File md5="E2EB22365D80AD1BA0E01143870CD2C0" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="C5086E6289D8DC365D343C7BE312D802" import="1">LUA/YieldIconManager.lua</File>
     <File md5="645B31579AD0E8018CAA2CA895C9B299" import="0">ImprovedTopPanel/FontIconsITP.xml</File>
