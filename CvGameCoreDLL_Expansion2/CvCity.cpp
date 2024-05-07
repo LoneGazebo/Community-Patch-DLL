@@ -21876,6 +21876,12 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 		iTotalHappiness += iHappinessPerGarrison;
 	}
 
+	int iHappinessPerCityOverStrengthThreshold = kPlayer.GetHappinessPerCityOverStrengthThreshold();
+	if (iHappinessPerCityOverStrengthThreshold > 0 && getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
+	{
+		iTotalHappiness += iHappinessPerCityOverStrengthThreshold;
+	}
+
 	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
 	{
 		int iGW = GetCityBuildings()->GetNumGreatWorks();
@@ -28634,7 +28640,22 @@ void CvCity::updateStrengthValue()
 	//finally
 	if (iStrengthValue != m_iStrengthValue)
 	{
+		// update bonuses from city strength
+		bool bHadBonusesBefore = (m_iStrengthValue >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100);
+		bool bHasBonusesNow = (iStrengthValue >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100);
+
+		// set new strength value
 		m_iStrengthValue = iStrengthValue;
+
+		if (bHadBonusesBefore != bHasBonusesNow)
+		{
+			// update happiness
+			GET_PLAYER(getOwner()).CalculateNetHappiness();
+			updateNetHappiness();
+			// update yields
+			updateYield();
+		}
+
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 }

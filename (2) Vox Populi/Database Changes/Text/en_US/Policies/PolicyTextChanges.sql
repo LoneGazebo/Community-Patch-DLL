@@ -192,27 +192,27 @@ SET Text = 'Imperium is a Latin word which, in a broad sense, translates roughly
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Dominance'
+SET Text = 'Militarism'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_TRADITION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Dominance[ENDCOLOR][NEWLINE][ICON_BULLET]All Melee Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_KILL_HEAL}[ENDCOLOR] Promotion (Heal 15 HP after defeating an Enemy Unit).[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in every City for every 10 Military Units in Empire.[NEWLINE][ICON_BULLET]+10% [ICON_SILVER_FIST] Military Supply from [ICON_CITIZEN] Population.'
+SET Text = '[COLOR_POSITIVE_TEXT]Militarism[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +2 [ICON_CULTURE] Culture in Cities with at least 10 Strength.[NEWLINE][ICON_BULLET]-15% [ICON_GOLD] Unit Maintenance.[NEWLINE][ICON_BULLET]-50% [ICON_GOLD] Route Maintenance.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_TRADITION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Power - or dominance - is the ability to influence behavior, and may not be fully assessable until it is challenged with equal force. Unlike power, which can be latent, dominance is a manifest condition characterized by individual, situational and relationship patterns in which attempts to control another party or parties may or may not be accepted.'
+SET Text = 'Militarism is defined as "the belief or desire of a government or people that the nation maintain a strong military capability and be prepared to use it aggressively." Militarism has been a significant element of policy in most imperialistic or expansionist nations throughout history, from Ancient Assyria and Sparta to Nazi Germany. This philosophy has many components that include: glorification of the military and of the ideals of a professional military class, idealizing personal military accomplishments, and government policies that devote a significant portion of the nation''s resources to supporting and expanding its military forces.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARYTRADITION_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Militarism'
+SET Text = 'Dominance'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Militarism[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +2 [ICON_CULTURE] Culture from Barracks.[NEWLINE][ICON_BULLET]-15% [ICON_GOLD] Unit Maintenance.[NEWLINE][ICON_BULLET]-50% [ICON_GOLD] Route Maintenance.'
+SET Text = '[COLOR_POSITIVE_TEXT]Dominance[ENDCOLOR][NEWLINE][ICON_BULLET]All Melee Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_KILL_HEAL}[ENDCOLOR] Promotion (Heal 15 HP after defeating an Enemy Unit).[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in every City for every 10 Military Units in Empire.[NEWLINE][ICON_BULLET]+10% [ICON_SILVER_FIST] Military Supply from [ICON_CITIZEN] Population.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Militarism is defined as "the belief or desire of a government or people that the nation maintain a strong military capability and be prepared to use it aggressively." Militarism has been a significant element of policy in most imperialistic or expansionist nations throughout history, from Ancient Assyria and Sparta to Nazi Germany. This philosophy has many components that include: glorification of the military and of the ideals of a professional military class, idealizing personal military accomplishments, and government policies that devote a significant portion of the nation''s resources to supporting and expanding its military forces.'
+SET Text = 'Power - or dominance - is the ability to influence behavior, and may not be fully assessable until it is challenged with equal force. Unlike power, which can be latent, dominance is a manifest condition characterized by individual, situational and relationship patterns in which attempts to control another party or parties may or may not be accepted.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARYCASTE_TEXT';
 
 UPDATE Language_en_US

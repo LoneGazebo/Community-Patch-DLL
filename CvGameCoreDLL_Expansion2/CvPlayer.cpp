@@ -512,6 +512,7 @@ CvPlayer::CvPlayer() :
 , m_iIdeologyPoint()
 , m_iNoXPLossUnitPurchase()
 , m_iXCSAlliesLowersPolicyNeedWonders()
+, m_iHappinessPerCityOverStrengthThreshold()
 , m_iHappinessFromMinorCivs()
 , m_iPositiveWarScoreTourismMod()
 , m_iIsNoCSDecayAtWar()
@@ -697,6 +698,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldModifierFromActiveSpies()
 	, m_aiYieldFromDelegateCount()
 	, m_aiYieldFromXMilitaryUnits()
+	, m_aiYieldPerCityOverStrengthThreshold()
 	, m_aiYieldForSpyID()
 	, m_aiYieldForLiberation()
 	, m_iInfluenceForLiberation()
@@ -1315,6 +1317,7 @@ void CvPlayer::uninit()
 	m_iIdeologyPoint = 0;
 	m_iNoXPLossUnitPurchase = 0;
 	m_iXCSAlliesLowersPolicyNeedWonders = 0;
+	m_iHappinessPerCityOverStrengthThreshold= 0;
 	m_iHappinessFromMinorCivs = 0;
 	m_iPositiveWarScoreTourismMod = 0;
 	m_iIsNoCSDecayAtWar = 0;
@@ -1886,6 +1889,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromXMilitaryUnits.clear();
 	m_aiYieldFromXMilitaryUnits.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldPerCityOverStrengthThreshold.clear();
+	m_aiYieldPerCityOverStrengthThreshold.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldForSpyID.clear();
 	m_aiYieldForSpyID.resize(NUM_YIELD_TYPES, 0);
@@ -24351,6 +24357,20 @@ void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+/// Happiness in cities with strengh at least CITY_STRENGTH_THRESHOLD_FOR_BONUSES
+int CvPlayer::GetHappinessPerCityOverStrengthThreshold() const
+{
+	return m_iHappinessPerCityOverStrengthThreshold;
+}
+
+//	--------------------------------------------------------------------------------
+/// Happiness in cities with strength at least CITY_STRENGTH_THRESHOLD_FOR_BONUSES
+void CvPlayer::ChangeHappinessPerCityOverStrengthThreshold(int iChange)
+{
+	m_iHappinessPerCityOverStrengthThreshold += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 /// Happiness from Minors
 int CvPlayer::GetHappinessFromMinorCivs() const
 {
@@ -36997,6 +37017,32 @@ void CvPlayer::changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldPerCityOverStrengthThreshold(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldPerCityOverStrengthThreshold[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldPerCityOverStrengthThreshold(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldPerCityOverStrengthThreshold[eIndex] = m_aiYieldPerCityOverStrengthThreshold[eIndex] + iChange;
+
+		updateYield();
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
@@ -46029,6 +46075,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeExtraSupplyPerPopulation(pPolicy->GetExtraSupplyPerPopulation() * iChange);
 	ChangeExtraSupplyFlat(pPolicy->GetExtraSupplyFlat() * iChange);
 	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
+	ChangeHappinessPerCityOverStrengthThreshold(pPolicy->GetHappinessPerCityOverStrengthThreshold() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
 	ChangeNoXPLossUnitPurchase(pPolicy->IsNoXPLossUnitPurchase() * iChange);
@@ -46456,6 +46503,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
 		changeYieldFromDelegateCount(eYield, (pPolicy->GetYieldFromDelegateCount(iI) * iChange));
 		changeYieldFromXMilitaryUnits(eYield, (pPolicy->GetYieldFromXMilitaryUnits(iI) * iChange));
+		changeYieldPerCityOverStrengthThreshold(eYield, (pPolicy->GetYieldPerCityOverStrengthThreshold(iI) * iChange));
 
 		changeYieldForLiberation(eYield, (pPolicy->GetYieldForLiberation(iI) * iChange));
 		changeYieldForSpyID(eYield, (pPolicy->GetYieldForSpyID(iI) * iChange));
@@ -47816,6 +47864,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			pLoopCity2->UpdateReligion(pLoopCity2->GetCityReligions()->GetReligiousMajority());		
 			pLoopCity2->UpdateHappinessFromBuildingClasses();
+			pLoopCity2->updateNetHappiness();
 		}
 	}
 #endif
@@ -48259,6 +48308,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iIdeologyPoint);
 	visitor(player.m_iNoXPLossUnitPurchase);
 	visitor(player.m_iXCSAlliesLowersPolicyNeedWonders);
+	visitor(player.m_iHappinessPerCityOverStrengthThreshold);
 	visitor(player.m_iHappinessFromMinorCivs);
 	visitor(player.m_iPositiveWarScoreTourismMod);
 	visitor(player.m_iIsNoCSDecayAtWar);
@@ -48682,6 +48732,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldModifierFromActiveSpies);
 	visitor(player.m_aiYieldFromDelegateCount);
 	visitor(player.m_aiYieldFromXMilitaryUnits);
+	visitor(player.m_aiYieldPerCityOverStrengthThreshold);
 	visitor(player.m_aiYieldForSpyID);
 	visitor(player.m_aiYieldForLiberation);
 	visitor(player.m_iInfluenceForLiberation);

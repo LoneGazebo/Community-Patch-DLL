@@ -240,6 +240,9 @@ ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovementFeature' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DEFAULT 0;
 
+-- Policy - increases happiness in every city for which city strength is at least the define value 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES'
+ALTER TABLE Policies ADD COLUMN 'HappinessPerCityOverStrengthThreshold' INTEGER DEFAULT 0;
+
 -- Policy - increases potency of beakers for GSs
 ALTER TABLE Policies ADD COLUMN 'GreatScientistBeakerModifier' INTEGER DEFAULT 0;
 -- and GE hurry

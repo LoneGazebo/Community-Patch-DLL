@@ -1502,6 +1502,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"></Column>
 		<Column name="Yield" type="integer" default="0"></Column>
 	</Table>
+	
+	<!-- POLICY: Provides yields in every city for which the city strength is at least the define value 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES' -->
+	<Table name="Policy_YieldPerCityOverStrengthThreshold">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"></Column>
+		<Column name="YieldType" type="text" reference="Yields(Type)"></Column>
+		<Column name="Yield" type="integer" default="0"></Column>
+	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
 	Yield here is maximum yield for mountain clusters. All mountains have a minimum of 1 yield from the value below, so the yield will be somewhere between 1 and x, where x is the maximum value or # of adjacent mountains. -->

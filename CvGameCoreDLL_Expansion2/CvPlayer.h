@@ -1922,6 +1922,9 @@ public:
 	int getYieldFromXMilitaryUnits(YieldTypes eIndex)	const;
 	void changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange);
 
+	int getYieldPerCityOverStrengthThreshold(YieldTypes eIndex) const;
+	void changeYieldPerCityOverStrengthThreshold(YieldTypes eIndex, int iChange);
+
 	int getYieldForLiberation(YieldTypes eIndex)	const;
 	void changeYieldForLiberation(YieldTypes eIndex, int iChange);
 
@@ -2029,6 +2032,8 @@ public:
 	void ChangeNoXPLossUnitPurchase(int iChange);
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iChange);
+	int GetHappinessPerCityOverStrengthThreshold() const;
+	void ChangeHappinessPerCityOverStrengthThreshold(int iChange);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
 
 	void ChangePositiveWarScoreTourismMod(int iChange);
@@ -3141,6 +3146,7 @@ protected:
 	int m_iIdeologyPoint;
 	int m_iNoXPLossUnitPurchase;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
+	int m_iHappinessPerCityOverStrengthThreshold;
 	int m_iHappinessFromMinorCivs;
 	int m_iPositiveWarScoreTourismMod;
 	int m_iIsNoCSDecayAtWar;
@@ -3625,6 +3631,7 @@ protected:
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
 	std::vector<int> m_aiYieldFromXMilitaryUnits;
+	std::vector<int> m_aiYieldPerCityOverStrengthThreshold;
 	std::vector<int> m_aiYieldForSpyID;
 	std::vector<int> m_aiYieldForLiberation;
 	std::vector<int> m_aiBuildingClassInLiberatedCities;
@@ -4007,6 +4014,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPopulationGlobal)
 SYNC_ARCHIVE_VAR(int, m_iIdeologyPoint)
 SYNC_ARCHIVE_VAR(int, m_iNoXPLossUnitPurchase)
 SYNC_ARCHIVE_VAR(int, m_iXCSAlliesLowersPolicyNeedWonders)
+SYNC_ARCHIVE_VAR(int, m_iHappinessPerCityOverStrengthThreshold)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromMinorCivs)
 SYNC_ARCHIVE_VAR(int, m_iPositiveWarScoreTourismMod)
 SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
@@ -4432,6 +4440,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromXMilitaryUnits)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerCityOverStrengthThreshold)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCulture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperiencePerGreatWorkGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldModFromMonopoly)

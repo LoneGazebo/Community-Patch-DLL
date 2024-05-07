@@ -27,6 +27,9 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
 
+-- City strength threshold used for some policy bonuses (VP)
+INSERT INTO Defines(Name, Value) SELECT 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES', 10;
+
 -- Minimum war duration for aggressively attacked City-States (scales with game speed)
 INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 2;
 

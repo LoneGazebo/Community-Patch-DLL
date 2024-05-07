@@ -9790,6 +9790,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 
 		}
 
+		if (pOwningCity->getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
+		{
+			iYield += GET_PLAYER(ePlayer).getYieldPerCityOverStrengthThreshold(eYield);
+		}
+
 		if (MOD_BALANCE_YIELD_SCALE_ERA)
 		{
 			//Flatland City Fresh Water yields
