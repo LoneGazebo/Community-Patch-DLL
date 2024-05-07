@@ -106,6 +106,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iRigElectionInfluenceModifier(0),
 	m_iPassiveEspionageBonusModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
+	m_iHappinessPerCityOverStrengthThreshold(0),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
 	m_iHappinessPerXPolicies(0),
@@ -381,6 +382,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
 	m_piYieldFromXMilitaryUnits(NULL),
+	m_piYieldPerCityOverStrengthThreshold(NULL),
 	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
@@ -485,6 +487,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
 	SAFE_DELETE_ARRAY(m_piYieldFromXMilitaryUnits);
+	SAFE_DELETE_ARRAY(m_piYieldPerCityOverStrengthThreshold);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -591,6 +594,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRigElectionInfluenceModifier = kResults.GetInt("RigElectionInfluenceModifier");
 	m_iPassiveEspionageBonusModifier = kResults.GetInt("PassiveEspionageBonusModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
+	m_iHappinessPerCityOverStrengthThreshold  = kResults.GetInt("HappinessPerCityOverStrengthThreshold");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -1205,6 +1209,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromXMilitaryUnits, "Policy_YieldFromXMilitaryUnits", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldPerCityOverStrengthThreshold, "Policy_YieldPerCityOverStrengthThreshold", "PolicyType", szPolicyType);
 
 	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
 
@@ -1862,6 +1867,10 @@ int CvPolicyEntry::GetPassiveEspionageBonusModifier() const
 int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
 	return m_iXCSAlliesLowersPolicyNeedWonders;
+}
+int CvPolicyEntry::GetHappinessPerCityOverStrengthThreshold() const
+{
+	return m_iHappinessPerCityOverStrengthThreshold;
 }
 
 int CvPolicyEntry::GetTRVisionBoost() const
@@ -3597,6 +3606,18 @@ int CvPolicyEntry::GetYieldFromXMilitaryUnits(int i) const
 int* CvPolicyEntry::GetYieldFromXMilitaryUnitsArray() const
 {
 	return m_piYieldFromXMilitaryUnits;
+}
+
+int CvPolicyEntry::GetYieldPerCityOverStrengthThreshold(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerCityOverStrengthThreshold ? m_piYieldPerCityOverStrengthThreshold[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldPerCityOverStrengthThresholdArray() const
+{
+	return m_piYieldPerCityOverStrengthThreshold;
 }
 
 int CvPolicyEntry::GetMissionInfluenceModifier() const
