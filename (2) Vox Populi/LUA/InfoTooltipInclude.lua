@@ -907,6 +907,9 @@ function GetProductionTooltip(pCity)
 		
 		iBaseProductionPT = iBaseProductionPT + iYieldPerPopInEmpire;
 	end
+	if pCity:IsIndustrialConnectedToCapital() then
+		iBaseProductionPT = iBaseProductionPT + pCity:GetConnectionGoldTimes100() / 100
+	end
 	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
 	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
 	
@@ -1463,6 +1466,10 @@ function GetYieldTooltipHelper(pCity, iYieldType, strIcon)
 		
 		iBaseYield = iBaseYield + iYieldPerPopInEmpire;
 	end
+	
+	if iYieldType == YieldTypes.YIELD_PRODUCTION and pCity:IsIndustrialConnectedToCapital() then
+		iBaseYield = iBaseYield + pCity:GetConnectionGoldTimes100() / 100
+	end
 
 	-- Total Yield
 	local iTotalYield;
@@ -1569,6 +1576,15 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		iYieldFromPopInEmpire = iYieldFromPopInEmpire / 100;
 		
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA", iYieldFromPopInEmpire, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+	
+	-- Base Yield from Industrial City Connection
+	if iYieldType == YieldTypes.YIELD_PRODUCTION and pCity:IsIndustrialConnectedToCapital() then
+		local iYieldFromIndustrialCityConnection = pCity:GetConnectionGoldTimes100();
+		iYieldFromIndustrialCityConnection = iYieldFromIndustrialCityConnection / 100
+		
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION", iYieldFromIndustrialCityConnection, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 	

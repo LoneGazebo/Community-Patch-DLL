@@ -109,6 +109,7 @@ protected:
 	static int lSetNumWondersBeatenTo(lua_State* L);
 
 	static int lIsCapitalConnectedToCity(lua_State* L);
+	static int lIsCapitalIndustrialConnectedToCity(lua_State* L);
 	static int lIsPlotConnectedToPlot(lua_State* L);
 
 	static int lIsTurnActive(lua_State* L);

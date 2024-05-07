@@ -97,11 +97,11 @@
 			<DefaultBuilding>BUILDING_INTERPRETIVE_CENTER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
 		</Row>
-		<!-- Train Station -->
+		<!-- Coaling Station -->
 		<Row>
-			<Type>BUILDINGCLASS_TRAINSTATION</Type>
-			<DefaultBuilding>BUILDING_TRAINSTATION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
+			<Type>BUILDINGCLASS_COALING_STATION</Type>
+			<DefaultBuilding>BUILDING_COALING_STATION</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_COALING_STATION</Description>
 		</Row>
 		<!-- Gallery -->
 		<Row>
@@ -745,16 +745,16 @@
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<PortraitIndex>1</PortraitIndex>
 		</Row>
-		<!-- Train Station -->
+		<!-- Coaling Station -->
 		<Row>
-			<Type>BUILDING_TRAINSTATION</Type>
-			<BuildingClass>BUILDINGCLASS_TRAINSTATION</BuildingClass>
-			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_TRAINSTATION_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_TRAINSTATION_STRATEGY</Strategy>
+			<Type>BUILDING_COALING_STATION</Type>
+			<BuildingClass>BUILDINGCLASS_COALING_STATION</BuildingClass>
+			<Description>TXT_KEY_BUILDING_COALING_STATION</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COALING_STATION_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_COALING_STATION_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_COALING_STATION_STRATEGY</Strategy>
 			<PrereqTech>TECH_RAILROAD</PrereqTech>
-			<RequiresRail>true</RequiresRail>
+			<RequiresIndustrialCityConnection>true</RequiresIndustrialCityConnection>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>

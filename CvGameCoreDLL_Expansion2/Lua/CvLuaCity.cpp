@@ -654,7 +654,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HasResource);
 	Method(HasWorkedResource);
 	Method(IsConnectedToCapital);
+	Method(IsIndustrialConnectedToCapital);
 	Method(IsConnectedTo);
+	Method(GetConnectionGoldTimes100);
 	Method(HasSpecialistSlot);
 	Method(HasSpecialist);
 	Method(HasTerrain);
@@ -6249,7 +6251,9 @@ LUAAPIIMPL(City, HasReligion)
 LUAAPIIMPL(City, HasResource)
 LUAAPIIMPL(City, HasWorkedResource)
 LUAAPIIMPL(City, IsConnectedToCapital)
+LUAAPIIMPL(City, IsIndustrialConnectedToCapital)
 LUAAPIIMPL(City, IsConnectedTo)
+LUAAPIIMPL(City, GetConnectionGoldTimes100)
 LUAAPIIMPL(City, HasSpecialistSlot)
 LUAAPIIMPL(City, HasSpecialist)
 LUAAPIIMPL(City, HasTerrain)

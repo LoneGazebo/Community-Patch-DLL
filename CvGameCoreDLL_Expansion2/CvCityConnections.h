@@ -46,8 +46,11 @@ public:
 		CONNECTION_RAILROAD = 2,
 		CONNECTION_ANY_LAND = 3,
 		CONNECTION_HARBOR = 4,
-		CONNECTION_AIRPORT = 8,
-		CONNECTION_ANY = 15
+		CONNECTION_INDUSTRIAL_HARBOR = 8,
+		CONNECTION_ANY_WATER = 12,
+		CONNECTION_AIRPORT = 16,
+		CONNECTION_ANY_INDIRECT = 28,
+		CONNECTION_ANY = 31
 	};
 
 	//cities may be connected to other players as well, so we store a pair of owner and id
@@ -63,14 +66,16 @@ protected:
 
 	void UpdatePlotsToConnect(void);
 	void UpdateRouteInfo(void);
-	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
+	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState, bool bIndustrial);
 	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
 	bool ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer);
 
 	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;
+	PlotIndexStore m_plotsWithIndustrialConnectionToCapital;
 	PlotIndexStore m_plotIdsToConnect;
 	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes; //this is not about trade routes but city connections
+	std::vector<BuildingTypes> m_aBuildingsAllowIndustrialWaterRoutes; //this is not about trade routes but city connections
 	std::vector<BuildingTypes> m_aBuildingsAllowAirRoutes;
 	CvPlayer* m_pPlayer;
 	bool m_bDirty;

@@ -4368,6 +4368,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("GoldenAge");
 		AnalyzeBuilding("MapCentering");
 		AnalyzeBuilding("AllowsWaterRoutes");
+		AnalyzeBuilding("AllowsIndustrialWaterRoutes");
 		AnalyzeBuilding("AllowsAirRoutes");
 		AnalyzeBuilding("ExtraLuxuries");
 		AnalyzeBuilding("DiplomaticVoting");
@@ -4526,7 +4527,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("FinishLandTRTourism", "[ICON_TOURISM]");
 		AnalyzeBuilding("FinishSeaTRTourism", "[ICON_TOURISM]");
 		AnalyzeBuilding("VotesPerGPT", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
-		AnalyzeBuilding("RequiresRail", "");
+		AnalyzeBuilding("RequiresIndustrialCityConnection", "");
 		AnalyzeBuilding("CivilizationRequired");
 		AnalyzeBuilding("PurchaseCooldown");
 		AnalyzeBuilding("CityAirStrikeDefense", "[ICON_STRENGTH]");

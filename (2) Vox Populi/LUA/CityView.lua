@@ -894,11 +894,20 @@ function OnCityViewUpdate()
 		
 		-- Connected to capital?
 		if (isActiveTeamCity) then
-			if (not isCapital and pPlayer:IsCapitalConnectedToCity(pCity) and not pCity:IsBlockaded()) then
-				Controls.ConnectedIcon:SetHide(false);
-				Controls.ConnectedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_CONNECTED");
+			if (not isCapital and not pCity:IsBlockaded()) then
+				if (pCity:IsIndustrialConnectedToCapital()) then
+					Controls.IndustrialConnectedIcon:SetHide(false);
+					Controls.ConnectedIcon:SetHide(true);
+				elseif (pCity:IsConnectedToCapital()) then
+					Controls.ConnectedIcon:SetHide(false);
+					Controls.IndustrialConnectedIcon:SetHide(true);
+				else
+					Controls.ConnectedIcon:SetHide(true);
+					Controls.IndustrialConnectedIcon:SetHide(true);
+				end
 			else
 				Controls.ConnectedIcon:SetHide(true);
+				Controls.IndustrialConnectedIcon:SetHide(true);
 			end
 		end
 			

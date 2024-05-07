@@ -5306,12 +5306,12 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
+void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial)
 {
 	if (ePlayer == NO_PLAYER)
 		return;
 
-	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive) )
+	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive,bIndustrial) )
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -5331,7 +5331,7 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
+bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 {
 	if (ePlayer == NO_PLAYER)
 		ePlayer = getOwner();
@@ -5340,7 +5340,7 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
 	if (ePlayer == NO_PLAYER)
 		return false;
 
-	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this);
+	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -10360,34 +10360,24 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 				}
 			}
 
-			if (eRoute != NO_ROUTE || getRouteType() != NO_ROUTE)
+			if (eRoute != NO_ROUTE)
 			{
-				if (MOD_BALANCE_YIELD_SCALE_ERA)
+				if (!bIgnoreCityConnection)
 				{
-					if (IsCityConnection(ePlayer) && !bIgnoreCityConnection)
+					if (IsCityConnection(ePlayer, true /*bIndustrial*/) && MOD_BALANCE_YIELD_SCALE_ERA)
 					{
-						if (eRoute == ROUTE_RAILROAD)
-						{
-							iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
-						else if (eRoute == ROUTE_ROAD)
-						{
-							iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
+						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 					}
-				}
-				else
-				{
-					iYield += pkImprovementInfo->GetRouteYieldChanges(eRoute != NO_ROUTE ? eRoute : getRouteType(), eYield);
+					else if (IsCityConnection(ePlayer, false /*bIndustrial*/))
+					{
+						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 				}
 
-				if (eRoute != NO_ROUTE)
+				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+				if (pkRouteInfo)
 				{
-					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-					if (pkRouteInfo)
-					{
-						iYield += pkRouteInfo->getYieldChange(eYield);
-					}
+					iYield += pkRouteInfo->getYieldChange(eYield);
 				}
 			}
 		}
@@ -13642,11 +13632,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		}
 	}
 
-	// If we're not changing the route that's here, use the improvement that's here already
+	// If we're not changing the route that's here, and we are not removing the route, use the improvement that's here already
 	RouteTypes eNewRoute = (RouteTypes)pkBuildInfo->getRoute();
 	if (eNewRoute == NO_ROUTE)
 	{
-		if (!IsRoutePillaged() || (GC.getBuildInfo(eBuild)->isRepair() && !IsImprovementPillaged()))
+		if (!GC.getBuildInfo(eBuild)->IsRemoveRoute() && (!IsRoutePillaged() || (GC.getBuildInfo(eBuild)->isRepair() && !IsImprovementPillaged())))
 		{
 			eNewRoute = getRouteType();
 		}

@@ -1007,11 +1007,9 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_HARBOR';
 
 -- Seaport
-INSERT INTO Building_ResourceQuantityRequirements
-	(BuildingType, ResourceType, Cost)
-SELECT
-	Type, 'RESOURCE_COAL', 1
-FROM Buildings
+UPDATE Buildings
+SET
+  AllowsIndustrialWaterRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 UPDATE Buildings
@@ -1041,13 +1039,6 @@ FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 DELETE FROM Helper;
-
-INSERT INTO Building_YieldModifiers
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_PRODUCTION', 25
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 -- Mine Field
 INSERT INTO Building_ResourceQuantityRequirements
@@ -1775,18 +1766,18 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_BATH';
 
--- Train Station
+-- Coaling Station
 INSERT INTO Building_ResourceQuantityRequirements
 	(BuildingType, ResourceType, Cost)
 SELECT
 	Type, 'RESOURCE_COAL', 1
 FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_TRAINSTATION';
+WHERE BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
-	('YIELD_PRODUCTION', 25),
+	('YIELD_PRODUCTION', 20),
 	('YIELD_GOLD', 10);
 
 INSERT INTO Building_YieldModifiers
@@ -1794,7 +1785,7 @@ INSERT INTO Building_YieldModifiers
 SELECT
 	a.Type, b.YieldType, b.Yield
 FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_TRAINSTATION';
+WHERE a.BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 DELETE FROM Helper;
 
@@ -2259,7 +2250,7 @@ INSERT INTO Helper
 	(BuildingClassType, YieldType, Yield)
 VALUES
 	('BUILDINGCLASS_LIGHTHOUSE', 'YIELD_FOOD', 4),
-	('BUILDINGCLASS_TRAINSTATION', 'YIELD_FOOD', 6),
+	('BUILDINGCLASS_COALING_STATION', 'YIELD_FOOD', 6),
 	('BUILDINGCLASS_STABLE', 'YIELD_PRODUCTION', 2),
 	('BUILDINGCLASS_WORKSHOP', 'YIELD_PRODUCTION', 4);
 

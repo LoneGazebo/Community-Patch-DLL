@@ -1216,6 +1216,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
 			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION">
+			<Text>{1_Num} {2_IconString} from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
 			<Text>Corporations</Text>
 		</Row>
@@ -1258,6 +1261,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
 			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_INDUSTRIAL_CONNECTED">
+			<Text>City has an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection with the [ICON_CAPITAL] Capital!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICEHQ_TT">
 			<Text>[ICON_CAPITAL] Headquarters of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
