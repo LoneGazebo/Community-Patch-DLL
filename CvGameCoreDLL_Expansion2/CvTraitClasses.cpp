@@ -261,6 +261,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromCSFriend(NULL),
 	m_piYieldFromSettle(NULL),
 	m_piYieldFromConquest(NULL),
+	m_piYieldFromCityDamageTimes100(NULL),
 	m_iVotePerXCSAlliance(0),
 	m_iVotePerXCSFollowingFollowingYourReligion(0),
 	m_iChanceToConvertReligiousUnits(0),
@@ -1634,6 +1635,10 @@ int CvTraitEntry::GetYieldFromSettle(int i) const
 int CvTraitEntry::GetYieldFromConquest(int i) const
 {
 	return m_piYieldFromConquest ? m_piYieldFromConquest[i] : -1;
+}
+int CvTraitEntry::GetYieldFromCityDamageTimes100(int i) const
+{
+	return m_piYieldFromCityDamageTimes100 ? m_piYieldFromCityDamageTimes100[i] : -1;
 }
 int CvTraitEntry::GetVotePerXCSAlliance() const
 {
@@ -3310,6 +3315,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromCSFriend, "Trait_YieldFromCSFriend", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromCityDamageTimes100, "Trait_YieldFromCityDamageTimes100", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
 	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
@@ -3870,8 +3876,9 @@ void CvPlayerTraits::SetIsWarmonger()
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldFromLevelUp(eYield) != 0 ||
-			GetYieldFromConquest(eYield) != 0)
+		if (GetYieldFromLevelUp(eYield) > 0 ||
+			GetYieldFromConquest(eYield) > 0 ||
+			GetYieldFromCityDamageTimes100(eYield) > 0)
 		{
 			m_bIsWarmonger = true;
 			return;
@@ -4262,30 +4269,31 @@ void CvPlayerTraits::SetIsReligious()
 		}
 	}
 
-	if (GetYieldFromHistoricEvent(YIELD_FAITH) != 0 ||
-		GetYieldFromLevelUp(YIELD_FAITH) != 0 ||
-		GetYieldFromConquest(YIELD_FAITH) != 0 ||
-		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
-		GetYieldFromCSAlly(YIELD_FAITH) != 0 ||
-		GetYieldFromCSFriend(YIELD_FAITH) != 0 ||
-		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
-		GetYieldFromTilePurchase(YIELD_FAITH) != 0 ||
-		GetYieldFromTileEarn(YIELD_FAITH) != 0 ||
-		GetYieldFromSettle(YIELD_FAITH) != 0 ||
-		GetYieldChangeWorldWonder(YIELD_FAITH) != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
+	if (GetYieldFromHistoricEvent(YIELD_FAITH) > 0 ||
+		GetYieldFromLevelUp(YIELD_FAITH) > 0 ||
+		GetYieldFromConquest(YIELD_FAITH) > 0 ||
+		GetYieldFromCityDamageTimes100(YIELD_FAITH) > 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
+		GetYieldFromCSAlly(YIELD_FAITH) > 0 ||
+		GetYieldFromCSFriend(YIELD_FAITH) > 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
+		GetYieldFromTilePurchase(YIELD_FAITH) > 0 ||
+		GetYieldFromTileEarn(YIELD_FAITH) > 0 ||
+		GetYieldFromSettle(YIELD_FAITH) > 0 ||
+		GetYieldChangeWorldWonder(YIELD_FAITH) > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) > 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetExtraMissionaryStrength() > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0 ||
 		GetYieldFromBarbarianCampClear(YIELD_FAITH, true) > 0 ||
 		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0 ||
-		GetYieldFromXMilitaryUnits(YIELD_FAITH) != 0)
+		GetYieldFromXMilitaryUnits(YIELD_FAITH) > 0)
 	{
 		m_bIsReligious = true;
 		return;
 	}
 
-	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)
+	if (GetTradeReligionModifier() > 0 || GetGPFaithPurchaseEra() != NO_ERA || GetFaithCostModifier() > 0 || GetFaithFromKills() > 0)
 	{
 		m_bIsReligious = true;
 		return;
@@ -4903,6 +4911,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
+				m_iYieldFromCityDamageTimes100[iYield] = trait->GetYieldFromCityDamageTimes100(iYield);
 				m_pbiYieldFromBarbarianCampClear[iYield][true] = trait->GetYieldFromBarbarianCampClear((YieldTypes)iYield, true);
 				m_pbiYieldFromBarbarianCampClear[iYield][false] = trait->GetYieldFromBarbarianCampClear((YieldTypes)iYield, false);
 				if (trait->GetGoldenAgeYieldModifier(iYield) != 0)
@@ -5538,6 +5547,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromTileEarn[iYield] = 0;
 		m_iYieldFromSettle[iYield] = 0;
 		m_iYieldFromConquest[iYield] = 0;
+		m_iYieldFromCityDamageTimes100[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
 		m_aiGoldenAgeYieldModifier.erase(iYield);
@@ -7704,6 +7714,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromTileEarn);
 	visitor(playerTraits.m_iYieldFromSettle);
 	visitor(playerTraits.m_iYieldFromConquest);
+	visitor(playerTraits.m_iYieldFromCityDamageTimes100);
 	visitor(playerTraits.m_iYieldFromCSAlly);
 	visitor(playerTraits.m_iYieldFromCSFriend);
 	visitor(playerTraits.m_iGAPToYield);

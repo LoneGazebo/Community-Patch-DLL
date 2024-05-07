@@ -12,6 +12,12 @@ WHERE Type = 'TRAIT_RAZE_AND_HORSES';
 DELETE FROM Civilization_FreeTechs WHERE CivilizationType = 'CIVILIZATION_HUNS' AND TechType = 'TECH_ANIMAL_HUSBANDRY';
 DELETE FROM Trait_ImprovementYieldChanges WHERE TraitType = 'TRAIT_RAZE_AND_HORSES';
 
+INSERT INTO Trait_YieldFromCityDamageTimes100
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 50),
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 50);
+
 ----------------------------------------------------------
 -- Unique Unit: Horse Archer (Skirmisher)
 ----------------------------------------------------------

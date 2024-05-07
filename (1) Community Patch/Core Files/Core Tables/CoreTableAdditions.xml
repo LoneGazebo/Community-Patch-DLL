@@ -1767,7 +1767,14 @@
 		<Column name="TechReveal" type="text" reference="Technologies(Type)"/>
 		<Column name="TechCityTrade" type="text" reference="Technologies(Type)"/>
 	</Table>
-	
+
+	<!-- TRAIT: Instant yields for every hitpoint of damage dealt to enemy cities, times 100 -->
+	<Table name="Trait_YieldFromCityDamageTimes100">
+		<Column name="TraitType" type="text" reference="Traits(Type)" />
+		<Column name="YieldType" type="text" reference="Yields(Type)" />
+		<Column name="Yield" type="integer" notnull="true" />
+	</Table>
+
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
