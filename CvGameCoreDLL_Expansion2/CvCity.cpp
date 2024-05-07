@@ -10565,7 +10565,7 @@ void CvCity::DoPickResourceDemanded()
 		ChangeWeLoveTheKingDayCounter(iWLTKD);
 
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if (pNotifications)
+		if (pNotifications && !MOD_CORE_REDUCE_NOTIFICATIONS)
 		{
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
 			{
@@ -10657,7 +10657,7 @@ void CvCity::DoTestResourceDemanded()
 				ChangeWeLoveTheKingDayCounter(iWLTKD);
 
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-				if (pNotifications)
+				if (pNotifications && !MOD_CORE_REDUCE_NOTIFICATIONS)
 				{
 					if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
 					{
