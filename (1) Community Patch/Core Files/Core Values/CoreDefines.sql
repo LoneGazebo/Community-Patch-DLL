@@ -834,6 +834,8 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPL
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MIN', 33;  -- VP
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MAX', 100;  -- VP
 	
+-- Influence modifier for each successfully rigged election
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER', 40;
 
 -- Calculation of Network Points (VP Espionage System)
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_BASE', 30;  -- Base Network Points generated per Turn

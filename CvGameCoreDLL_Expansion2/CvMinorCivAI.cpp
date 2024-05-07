@@ -17165,7 +17165,8 @@ void CvMinorCivAI::DoElection()
 						iEra = 1;
 					}
 					iValue *= iEra;
-					iValue *= (1 + GetNumConsecutiveSuccessfulRiggings(ePlayer));
+					iValue *= 100 + GD_INT_GET(ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER) * GetNumConsecutiveSuccessfulRiggings(ePlayer);
+					iValue /= 100;
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
