@@ -3842,32 +3842,48 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 
 void CvPlayerTraits::SetIsWarmonger()
 {
-	if (GetGreatGeneralRateModifier() != 0 ||
-		GetGreatGeneralExtraBonus() != 0 ||
-		GetLevelExperienceModifier() != 0 ||
-		GetCityStateCombatModifier() != 0 ||
-		GetLandBarbarianConversionPercent() != 0 ||
-		GetLandBarbarianConversionExtraUnits() != 0 ||
-		GetSeaBarbarianConversionPercent() != 0 ||
-		GetCultureFromKills() != 0 ||
-		GetFaithFromKills() != 0 ||
-		GetPlunderModifier() != 0 ||
-		GetGoldenAgeMoveChange() != 0 ||
-		GetGoldenAgeCombatModifier() != 0 ||
-		GetExtraEmbarkMoves() != 0 ||
-		GetBullyMilitaryStrengthModifier() != 0 ||
-		GetInspirationalLeader() != 0 ||
-		GetBullyValueModifier() != 0 ||
-		GetMultipleAttackBonus() != 0 ||
-		GetCityConquestGWAM() != 0 ||
-		GetLandUnitMaintenanceModifier() != 0 ||
-		GetNavalUnitMaintenanceModifier() != 0 ||
-		GetProductionBonusModifierConquest() != 0 ||
+	if (GetGreatGeneralRateModifier() > 0 ||
+		GetGreatGeneralExtraBonus() > 0 ||
+		GetLevelExperienceModifier() < 0 ||
+		GetCityStateCombatModifier() > 0 ||
+		GetLandBarbarianConversionPercent() > 0 ||
+		GetLandBarbarianConversionExtraUnits() > 0 ||
+		GetSeaBarbarianConversionPercent() > 0 ||
+		GetCultureFromKills() > 0 ||
+		GetFaithFromKills() > 0 ||
+		GetPlunderModifier() > 0 ||
+		GetGoldenAgeMoveChange() > 0 ||
+		GetGoldenAgeCombatModifier() > 0 ||
+		GetExtraEmbarkMoves() > 0 ||
+		GetBullyMilitaryStrengthModifier() > 0 ||
+		GetInspirationalLeader() > 0 ||
+		GetBullyValueModifier() > 0 ||
+		GetMultipleAttackBonus() > 0 ||
+		GetCityConquestGWAM() > 0 ||
+		GetLandUnitMaintenanceModifier() < 0 ||
+		GetNavalUnitMaintenanceModifier() < 0 ||
+		GetProductionBonusModifierConquest() > 0 ||
 		GetGoldenAgeFromVictory() > 0 ||
-		GetWarWearinessModifier() != 0 ||
-		GetEnemyWarWearinessModifier() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
+		GetWarWearinessModifier() > 0 ||
+		GetEnemyWarWearinessModifier() > 0 ||
+		GetBullyYieldMultiplierAnnex() > 0 ||
+		(GetPuppetPenaltyReduction() > 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"))) > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))) > 0)
+	{
+		m_bIsWarmonger = true;
+		return;
+	}
+
+	if (IsReconquista() ||
+		IsKeepConqueredBuildings() ||
+		IsCanPurchaseNavalUnitsFaith() ||
+		IsBullyAnnex() ||
+		IgnoreBullyPenalties() ||
+		IsAnnexedCityStatesGiveYields() ||
+		IsFightWellDamaged() ||
+		IsEmbarkedToLandFlatCost() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsWarmonger = true;
 		return;
@@ -3931,7 +3947,6 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
 	{
 		UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
@@ -3951,30 +3966,14 @@ void CvPlayerTraits::SetIsWarmonger()
 			return;
 		}
 	}
-#endif
-
-	if (IsReconquista() ||
-		IsKeepConqueredBuildings() ||
-		IsCanPurchaseNavalUnitsFaith() ||
-		IsBullyAnnex() ||
-		IgnoreBullyPenalties() ||
-		IsAnnexedCityStatesGiveYields() ||
-		GetBullyYieldMultiplierAnnex() != 0 ||
-		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
-		IsFightWellDamaged() ||
-		IsEmbarkedToLandFlatCost() ||
-		IsRandomGreatPersonProgressFromKills())
-	{
-		m_bIsWarmonger = true;
-		return;
-	}
 }
+
 void CvPlayerTraits::SetIsNerd()
 {
-	if (GetGreatScientistRateModifier() != 0 ||
-		GetInvestmentModifier() != 0 ||
-		GetFreePolicyPerXTechs() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0 ||
+	if (GetGreatScientistRateModifier() > 0 ||
+		GetInvestmentModifier() < 0 ||
+		GetFreePolicyPerXTechs() > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"))) > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		m_bIsNerd = true;
@@ -4000,31 +3999,32 @@ void CvPlayerTraits::SetIsNerd()
 		}
 	}
 }
+
 void CvPlayerTraits::SetIsTourism()
 {
-	if (GetGreatPeopleRateModifier() != 0 ||
-		GetGreatPersonGiftInfluence() != 0 ||
-		GetCityCultureBonus() != 0 ||
-		GetCapitalThemingBonusModifier() != 0 ||
-		GetPolicyCostModifier() != 0 ||
-		GetWonderProductionModifier() != 0 ||
-		GetGoldenAgeTourismModifier() != 0 ||
-		GetGoldenAgeGreatArtistRateModifier() != 0 ||
-		GetGoldenAgeGreatMusicianRateModifier() != 0 ||
-		GetGoldenAgeGreatWriterRateModifier() != 0 ||
-		GetTourismGABonus() != 0 ||
-		GetTourismToGAP() != 0 ||
-		GetGoldToGAP() != 0 ||
-		GetEventTourismBoost() != 0 ||
-		GetEventGP() != 0 ||
-		GetWLTKDCulture() != 0 ||
-		GetExtraConqueredCityTerritoryClaimRange() != 0 ||
-		GetExtraTenetsFirstAdoption() != 0 ||
-		GetFreeSocialPoliciesPerEra() != 0 ||
-		GetCultureBonusModifierConquest() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"))) != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))) != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"))) != 0 ||
+	if (GetGreatPeopleRateModifier() > 0 ||
+		GetGreatPersonGiftInfluence() > 0 ||
+		GetCityCultureBonus() > 0 ||
+		GetCapitalThemingBonusModifier() > 0 ||
+		GetPolicyCostModifier() < 0 ||
+		GetWonderProductionModifier() > 0 ||
+		GetGoldenAgeTourismModifier() > 0 ||
+		GetGoldenAgeGreatArtistRateModifier() > 0 ||
+		GetGoldenAgeGreatMusicianRateModifier() > 0 ||
+		GetGoldenAgeGreatWriterRateModifier() > 0 ||
+		GetTourismGABonus() > 0 ||
+		GetTourismToGAP() > 0 ||
+		GetGoldToGAP() > 0 ||
+		GetEventTourismBoost() > 0 ||
+		GetEventGP() > 0 ||
+		GetWLTKDCulture() > 0 ||
+		GetExtraConqueredCityTerritoryClaimRange() > 0 ||
+		GetExtraTenetsFirstAdoption() > 0 ||
+		GetFreeSocialPoliciesPerEra() > 0 ||
+		GetCultureBonusModifierConquest() > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"))) > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))) > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"))) > 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_TOURISM) > 0)
 	{
@@ -4032,57 +4032,43 @@ void CvPlayerTraits::SetIsTourism()
 		return;
 	}
 
-	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-	{
-		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldFromHistoricEvent(eYield) != 0)
-		{
-			m_bIsTourism = true;
-			return;
-		}
-	}
-
-	if(IsGPWLTKD() ||
+	if (IsGPWLTKD() ||
 		IsGreatWorkWLTKD())
 	{
 		m_bIsTourism = true;
 		return;
 	}
 
-}
-void CvPlayerTraits::SetIsDiplomat()
-{
-	if (GetCityStateBonusModifier() != 0 ||
-		GetCityStateFriendshipModifier() != 0 ||
-		GetAllianceCSDefense() != 0 ||
-		GetAllianceCSStrength() != 0 ||
-		GetInfluenceMeetCS() != 0 ||
-		GetStartingSpies() != 0 ||
-		GetNumTradeRoutesModifier() != 0 ||
-		GetLandTradeRouteRangeBonus() != 0 ||
-		GetSeaTradeRouteRangeBonus() != 0 ||
-		GetQuestYieldModifier() != 0 ||
-		GetLuxuryHappinessRetention() != 0 ||
-		GetTradeBuildingModifier() != 0 ||
-		GetVotePerXCSAlliance() != 0 ||
-		GetMinorInfluencePerGiftedUnit() > 0 ||
-		(MOD_BALANCE_VP && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
-		)
-	{
-		m_bIsDiplomat = true;
-		return;
-	}
-
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldChangePerTradePartner(eYield) != 0 ||
-			GetYieldFromCSAlly(eYield) != 0 ||
-			GetYieldFromCSFriend(eYield) != 0)
+		if (GetYieldFromHistoricEvent(eYield) > 0)
 		{
-			m_bIsDiplomat = true;
+			m_bIsTourism = true;
 			return;
 		}
+	}
+}
+void CvPlayerTraits::SetIsDiplomat()
+{
+	if (GetCityStateBonusModifier() > 0 ||
+		GetCityStateFriendshipModifier() > 0 ||
+		GetAllianceCSDefense() > 0 ||
+		GetAllianceCSStrength() > 0 ||
+		GetInfluenceMeetCS() > 0 ||
+		GetStartingSpies() > 0 ||
+		GetNumTradeRoutesModifier() > 0 ||
+		GetLandTradeRouteRangeBonus() > 0 ||
+		GetSeaTradeRouteRangeBonus() > 0 ||
+		GetQuestYieldModifier() > 0 ||
+		GetLuxuryHappinessRetention() > 0 ||
+		GetTradeBuildingModifier() > 0 ||
+		GetVotePerXCSAlliance() > 0 ||
+		GetMinorInfluencePerGiftedUnit() > 0 ||
+		(MOD_BALANCE_VP && GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"))) > 0))
+	{
+		m_bIsDiplomat = true;
+		return;
 	}
 
 	if (IsImportsCountTowardsMonopolies() ||
@@ -4094,17 +4080,41 @@ void CvPlayerTraits::SetIsDiplomat()
 		m_bIsDiplomat = true;
 		return;
 	}
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldChangePerTradePartner(eYield) > 0 ||
+			GetYieldFromCSAlly(eYield) > 0 ||
+			GetYieldFromCSFriend(eYield) > 0)
+		{
+			m_bIsDiplomat = true;
+			return;
+		}
+	}
 }
 void CvPlayerTraits::SetIsSmaller()
 {
-	if (GetGreatScientistRateModifier() != 0 ||
-		GetFreePolicyPerXTechs() != 0 ||
-		GetGreatPeopleRateModifier() != 0 ||
-		GetCapitalThemingBonusModifier() != 0 ||
-		GetPolicyCostModifier() != 0 ||
-		GetWonderProductionModifier() != 0 ||
-		GetEventTourismBoost() != 0 ||
-		GetEventGP() != 0)
+	if (GetGreatScientistRateModifier() > 0 ||
+		GetFreePolicyPerXTechs() > 0 ||
+		GetGreatPeopleRateModifier() > 0 ||
+		GetCapitalThemingBonusModifier() > 0 ||
+		GetPolicyCostModifier() < 0 ||
+		GetWonderProductionModifier() > 0 ||
+		GetEventTourismBoost() > 0 ||
+		GetEventGP() > 0)
+	{
+		m_bIsSmaller = true;
+		return;
+	}
+
+	if (IsImportsCountTowardsMonopolies() ||
+		IsAdoptionFreeTech() ||
+		IsPopulationBoostReligion() ||
+		IsProphetFervor() ||
+		IsNoAnnexing() ||
+		IsTechBoostFromCapitalScienceBuildings() ||
+		IsRandomGreatPersonProgressFromKills())
 	{
 		m_bIsSmaller = true;
 		return;
@@ -4123,9 +4133,9 @@ void CvPlayerTraits::SetIsSmaller()
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldChangePerTradePartner(eYield) != 0 ||
-			GetYieldFromCSAlly(eYield) != 0 ||
-			GetYieldFromCSFriend(eYield) != 0 ||
+		if (GetYieldChangePerTradePartner(eYield) > 0 ||
+			GetYieldFromCSAlly(eYield) > 0 ||
+			GetYieldFromCSFriend(eYield) > 0 ||
 			GetYieldChangeWorldWonder(eYield) > 0)
 		{
 			m_bIsSmaller = true;
@@ -4153,18 +4163,6 @@ void CvPlayerTraits::SetIsSmaller()
 		}
 	}
 
-	if (IsImportsCountTowardsMonopolies() ||
-		IsAdoptionFreeTech() ||
-		IsPopulationBoostReligion() ||
-		IsProphetFervor() ||
-		IsNoAnnexing() ||
-		IsTechBoostFromCapitalScienceBuildings() ||
-		IsRandomGreatPersonProgressFromKills())
-	{
-		m_bIsSmaller = true;
-		return;
-	}
-
 	if (GC.getGame().getGameTurn() / 2 > GC.getGame().getEstimateEndTurn())
 	{
 		if (m_pPlayer->getNumCities() < 4)
@@ -4174,21 +4172,35 @@ void CvPlayerTraits::SetIsSmaller()
 		}
 	}
 }
+
 void CvPlayerTraits::SetIsExpansionist()
 {
-	if (GetPlotBuyCostModifier() != 0 ||
-		GetCityWorkingChange() != 0 ||
-		GetPlotCultureCostModifier() != 0 ||
-		GetNaturalWonderFirstFinderGold() != 0 ||
-		GetNaturalWonderSubsequentFinderGold() != 0 ||
-		GetNaturalWonderYieldModifier() != 0 ||
-		GetNaturalWonderHappinessModifier() != 0 ||
+	if (GetPlotBuyCostModifier() < 0 ||
+		GetCityWorkingChange() > 0 ||
+		GetPlotCultureCostModifier() < 0 ||
+		GetNaturalWonderFirstFinderGold() > 0 ||
+		GetNaturalWonderSubsequentFinderGold() > 0 ||
+		GetNaturalWonderYieldModifier() > 0 ||
+		GetNaturalWonderHappinessModifier() > 0 ||
 		GetGrowthBoon() > 0 ||
-		GetWLTKDUnhappinessNeedsMod() != 0 ||
-		GetUniqueLuxuryCities() != 0 ||
-		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
-		GetPolicyGEorGM() != 0 ||
+		GetWLTKDUnhappinessNeedsMod() < 0 ||
+		GetUniqueLuxuryCities() > 0 ||
+		GetExtraFoundedCityTerritoryClaimRange() > 0 ||
+		GetPolicyGEorGM() > 0 ||
 		GetNonSpecialistFoodChange() > 0)
+	{
+		m_bIsExpansionist = true;
+		return;
+	}
+
+	if (IsBuyOwnedTiles() ||
+		IsExpansionWLTKD() ||
+		IsWoodlandMovementBonus() ||
+		IsRiverMovementBonus() ||
+		IsFasterInHills() ||
+		IsEmbarkedAllWater() ||
+		IsRiverTradeRoad() ||
+		IsNoConnectionUnhappiness())
 	{
 		m_bIsExpansionist = true;
 		return;
@@ -4197,10 +4209,10 @@ void CvPlayerTraits::SetIsExpansionist()
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldFromTilePurchase(eYield) != 0 ||
-			GetYieldFromTileEarn(eYield) != 0 ||
-			GetYieldFromSettle(eYield) != 0 ||
-			GetGoldenAgeYieldModifier(eYield) != 0)
+		if (GetYieldFromTilePurchase(eYield) > 0 ||
+			GetYieldFromTileEarn(eYield) > 0 ||
+			GetYieldFromSettle(eYield) > 0 ||
+			GetGoldenAgeYieldModifier(eYield) > 0)
 		{
 			m_bIsExpansionist = true;
 			return;
@@ -4209,7 +4221,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
 		{
 			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
-			if (GetYieldChangePerImprovementBuilt(eImprovement, eYield) != 0)
+			if (GetYieldChangePerImprovementBuilt(eImprovement, eYield) > 0)
 			{
 				m_bIsExpansionist = true;
 				return;
@@ -4228,23 +4240,38 @@ void CvPlayerTraits::SetIsExpansionist()
 			}
 		}
 	}
-
-	if (IsBuyOwnedTiles() ||
-		IsExpansionWLTKD() ||
-		IsWoodlandMovementBonus() ||
-		IsRiverMovementBonus() ||
-		IsFasterInHills() ||
-		IsEmbarkedAllWater() ||
-		IsRiverTradeRoad() ||
-		IsNoConnectionUnhappiness())
-	{
-		m_bIsExpansionist = true;
-		return;
-	}
 }
 
 void CvPlayerTraits::SetIsReligious()
 {
+	if (GetYieldFromHistoricEvent(YIELD_FAITH) > 0 ||
+		GetYieldFromLevelUp(YIELD_FAITH) > 0 ||
+		GetYieldFromConquest(YIELD_FAITH) > 0 ||
+		GetYieldFromCityDamageTimes100(YIELD_FAITH) > 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
+		GetYieldFromCSAlly(YIELD_FAITH) > 0 ||
+		GetYieldFromCSFriend(YIELD_FAITH) > 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
+		GetYieldFromTilePurchase(YIELD_FAITH) > 0 ||
+		GetYieldFromTileEarn(YIELD_FAITH) > 0 ||
+		GetYieldFromSettle(YIELD_FAITH) > 0 ||
+		GetYieldChangeWorldWonder(YIELD_FAITH) > 0 ||
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_PROPHET"))) > 0 ||
+		GetSharedReligionTourismModifier() > 0 ||
+		GetExtraMissionaryStrength() > 0 ||
+		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0 ||
+		GetYieldFromBarbarianCampClear(YIELD_FAITH, true) > 0 ||
+		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0 ||
+		GetYieldFromXMilitaryUnits(YIELD_FAITH) > 0 ||
+		GetTradeReligionModifier() > 0 ||
+		GetGPFaithPurchaseEra() != NO_ERA ||
+		GetFaithCostModifier() > 0 ||
+		GetFaithFromKills() > 0)
+	{
+		m_bIsReligious = true;
+		return;
+	}
+
 	if (IsForeignReligionSpreadImmune() ||
 		IsNoNaturalReligionSpread() ||
 		IsFaithFromUnimprovedForest() ||
@@ -4262,43 +4289,12 @@ void CvPlayerTraits::SetIsReligious()
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (GetYieldFromOwnPantheon(eYield) != 0)
+		if (GetYieldFromOwnPantheon(eYield) > 0)
 		{
 			m_bIsReligious = true;
 			return;
 		}
 	}
-
-	if (GetYieldFromHistoricEvent(YIELD_FAITH) > 0 ||
-		GetYieldFromLevelUp(YIELD_FAITH) > 0 ||
-		GetYieldFromConquest(YIELD_FAITH) > 0 ||
-		GetYieldFromCityDamageTimes100(YIELD_FAITH) > 0 ||
-		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
-		GetYieldFromCSAlly(YIELD_FAITH) > 0 ||
-		GetYieldFromCSFriend(YIELD_FAITH) > 0 ||
-		GetYieldChangePerTradePartner(YIELD_FAITH) > 0 ||
-		GetYieldFromTilePurchase(YIELD_FAITH) > 0 ||
-		GetYieldFromTileEarn(YIELD_FAITH) > 0 ||
-		GetYieldFromSettle(YIELD_FAITH) > 0 ||
-		GetYieldChangeWorldWonder(YIELD_FAITH) > 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) > 0 ||
-		GetSharedReligionTourismModifier() > 0 ||
-		GetExtraMissionaryStrength() > 0 ||
-		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0 ||
-		GetYieldFromBarbarianCampClear(YIELD_FAITH, true) > 0 ||
-		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0 ||
-		GetYieldFromXMilitaryUnits(YIELD_FAITH) > 0)
-	{
-		m_bIsReligious = true;
-		return;
-	}
-
-	if (GetTradeReligionModifier() > 0 || GetGPFaithPurchaseEra() != NO_ERA || GetFaithCostModifier() > 0 || GetFaithFromKills() > 0)
-	{
-		m_bIsReligious = true;
-		return;
-	}
-	
 
 	if (m_pPlayer->GetReligions()->GetStateReligion() != NO_RELIGION)
 	{
