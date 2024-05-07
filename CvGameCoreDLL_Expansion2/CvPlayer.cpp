@@ -28515,6 +28515,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					const std::pair<int, int> unitPillageYield = pUnit->getYieldFromPillage(eYield);
 					iValue += unitPillageYield.first;
 					iValue += unitPillageYield.second * iEra;
+
+					break;
 				}
 				case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
 				{
