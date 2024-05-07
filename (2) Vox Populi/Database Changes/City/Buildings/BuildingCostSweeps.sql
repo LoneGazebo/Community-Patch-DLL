@@ -200,14 +200,14 @@ UPDATE Buildings
 SET Cost = 800, GoldMaintenance = 4
 WHERE Type = 'BUILDING_SKOLA';
 
--- Train Station
+-- Coaling Station
 UPDATE Buildings
-SET Cost = 1250, GoldMaintenance = 7
-WHERE BuildingClass = 'BUILDINGCLASS_TRAINSTATION';
+SET Cost = 1000, GoldMaintenance = 5
+WHERE BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 -- Seaport
 UPDATE Buildings
-SET Cost = 1500, GoldMaintenance = 7
+SET Cost = 1000, GoldMaintenance = 5
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 -- Museum, Military Academy

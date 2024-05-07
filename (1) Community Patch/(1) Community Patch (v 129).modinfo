@@ -112,16 +112,16 @@
     <File md5="12A0F1F3F4AC7D09CBD28E06B17F8BF3" import="0">Core Files/Core Changes/NewArtists.xml</File>
     <File md5="CB0D23646583054BB940F97A907DBAA2" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Core Files/Core Changes/ConceptChanges.sql</File>
-    <File md5="6496EBEF90CB183D9126D1B438EA4572" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="010311AE7FE659BA407F4D65539B7F5C" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
-    <File md5="83F8F6D38949FE52924B5B0F69867815" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
+    <File md5="74798CC486B76BB4A46B4408BBDBFA2B" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
+    <File md5="437DDA37961436B1120A6FFEC92324C2" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="13CAB6AD98BFF79BE0BE7036EFC0AF8C" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="003722693A2ADD006F6DC245112BE897" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
     <File md5="B526A96B31DE4F8CBCDD738596C77BE6" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
-    <File md5="2857AF8B890E271249AB7BE736C47E0F" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
+    <File md5="B3190B691343A0D05D5B499B1DCA835E" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="B633132E41D9F212001CF0321312EEC0" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="A259AA8F7C84CBE0F900D3AF7C5C758B" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="4EABE2799438D63DF7BAFFF01A8EB7A4" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -234,7 +234,7 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="1D8A1196F05E54C0BD2E519EE2780077" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="EF8FD098C9B309F872E1753D04E2505A" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="212ADD0C0D0D68CAD92420A59A3BEF60" import="0">Core Files/Text/CoreText_en_US.sql</File>
     <File md5="37BE71DC40E4739F87A322BEE51E2EC0" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>

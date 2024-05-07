@@ -117,6 +117,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetNumWondersBeatenTo);
 
 	Method(IsCapitalConnectedToCity);
+	Method(IsCapitalIndustrialConnectedToCity);
 	Method(IsPlotConnectedToPlot);
 
 	Method(IsTurnActive);
@@ -2215,6 +2216,16 @@ int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 
 	const bool bResult = pkCity->IsConnectedToCapital();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsCapitalIndustrialConnectedToCity(lua_State* L)
+{
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+
+	const bool bResult = pkCity->IsIndustrialRouteToCapitalConnected();
 	lua_pushboolean(L, bResult);
 	return 1;
 }

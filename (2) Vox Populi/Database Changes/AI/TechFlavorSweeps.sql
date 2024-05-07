@@ -242,7 +242,7 @@ VALUES
 	('TECH_SCIENTIFIC_THEORY', 'FLAVOR_SCIENCE', 30), -- Buildings: Zoo, PublicSchool, Ability: TechTrade, Yields: Scientist +1S, Academy +3S
 	('TECH_SCIENTIFIC_THEORY', 'FLAVOR_CULTURE', 10),
 
-	('TECH_RAILROAD', 'FLAVOR_INFRASTRUCTURE', 10), -- Units: Colonist, Commando, Buildings: Hotel, TrainStation, Wonders: Neuschwanstein, Ability: +1TR, Yields: Town +3F, Village +1C
+	('TECH_RAILROAD', 'FLAVOR_INFRASTRUCTURE', 10), -- Units: Colonist, Commando, Buildings: Hotel, CoalingStation, Wonders: Neuschwanstein, Ability: +1TR, Yields: Town +3F, Village +1C
 	('TECH_RAILROAD', 'FLAVOR_MOBILE', 10),
 	('TECH_RAILROAD', 'FLAVOR_PRODUCTION', 15),
 	('TECH_RAILROAD', 'FLAVOR_GOLD', 10),

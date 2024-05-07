@@ -391,13 +391,6 @@ WHERE Type IN (
 );
 
 UPDATE Buildings
-SET MutuallyExclusiveGroup = 10
-WHERE Type IN (
-	'BUILDING_SEAPORT',
-	'BUILDING_TRAINSTATION'
-);
-
-UPDATE Buildings
 SET MutuallyExclusiveGroup = 50
 WHERE Type IN (
 	'BUILDING_RIALTO_DISTRICT',

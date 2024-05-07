@@ -214,6 +214,12 @@
 		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSWATERROUTES">
 			<Text>Allows Water Routes</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSINDUSTRIALWATERROUTES">
+			<Text>Allows Industrial Water Routes</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSAIRROUTES">
+			<Text>Allows Air Routes</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_EXTRALUXURIES">
 			<Text>Extra Luxuries</Text>
 		</Replace>

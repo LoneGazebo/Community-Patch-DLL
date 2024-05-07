@@ -9045,25 +9045,9 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	{
 		return false;
 	}
-	if (pkBuildingInfo->IsRequiresRail() && !GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	if (pkBuildingInfo->IsRequiresIndustrialCityConnection() && !IsIndustrialRouteToCapitalConnected())
 	{
-		//this flag is also set for water connection once railroad is available
-		if (!IsIndustrialRouteToCapitalConnected())
-			return false;
-
-		//therefore also check for an actual railroad here
-		bool bRailroad = false;
-		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
-			if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
-			{
-				bRailroad = true;
-				break;
-			}
-		}
-		if (!bRailroad)
-			return false;
+		return false;
 	}
 
 	if ((pkBuildingInfo->GetCivType() != NO_CIVILIZATION) && (getCivilizationType() != pkBuildingInfo->GetCivType()))
@@ -14022,6 +14006,11 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
 
+	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected())
+	{
+		iBaseProduction += GetConnectionGoldTimes100();
+	}
+
 	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
 	iModifiedProduction /= 10000;
 
@@ -14066,6 +14055,11 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
+
+	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected())
+	{
+		iBaseProduction += GetConnectionGoldTimes100();
+	}
 
 	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
 	iModifiedProduction /= 100;
@@ -25292,6 +25286,12 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	iBaseYield += (GetYieldPerPopTimes100(eIndex) * getPopulation());
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
 
+	// Yield from Industrial City Connections
+	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
+	{
+		iBaseYield += GetConnectionGoldTimes100();
+	}
+
 	// Player-level yield per religion
 	iBaseYield += GET_PLAYER(m_eOwner).GetYieldChangesPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers();
 
@@ -35342,6 +35342,11 @@ bool CvCity::HasWorkedResource(ResourceTypes iResourceType) const
 bool CvCity::IsConnectedTo(CvCity* pCity) const
 {
 	return GET_PLAYER(getOwner()).IsCityConnectedToCity((CvCity*)this, pCity);
+}
+
+int CvCity::GetConnectionGoldTimes100() const
+{
+	return GET_PLAYER(getOwner()).GetTreasury()->GetCityConnectionRouteGoldTimes100(this);
 }
 
 bool CvCity::HasSpecialistSlot(SpecialistTypes iSpecialistType) const

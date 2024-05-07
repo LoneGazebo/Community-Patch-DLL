@@ -1327,6 +1327,11 @@
 			<IconMapping>31</IconMapping>
 		</Row>
 		<Row>
+			<IconName>ICON_INDUSTRIAL_CONNECTED</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>33</IconMapping>
+		</Row>
+		<Row>
 			<IconName>ICON_RES_COFFEE</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
 			<IconMapping>2</IconMapping>

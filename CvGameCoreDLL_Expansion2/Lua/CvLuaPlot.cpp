@@ -148,6 +148,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsRoute);
 	Method(IsTradeRoute);
+	Method(IsCityConnection)
 	Method(IsImpassable);
 
 	Method(GetX);
@@ -1118,6 +1119,11 @@ int CvLuaPlot::lIsTradeRoute(lua_State* L)
 	bool bResult = pkPlot->IsCityConnection(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlot::lIsCityConnection(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::IsCityConnection);
 }
 
 //------------------------------------------------------------------------------
