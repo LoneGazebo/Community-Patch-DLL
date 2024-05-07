@@ -28537,7 +28537,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					break;
 				}
+				case INSTANT_YIELD_TYPE_CITY_DAMAGE:
+				{
+					ASSERT(pUnit != NULL && pCity != NULL);
+
+					iValue = iPassYield * GetPlayerTraits()->GetYieldFromCityDamageTimes100(eYield);
+					iValue /= 100;
+					break;
+				}
 			}
+
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
 			{
@@ -28767,7 +28776,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					
 					yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 					sprintf_s(text, yieldString, iValue);
-					SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(), text);
+					switch (iType)
+					{
+						case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+						case INSTANT_YIELD_TYPE_CITY_DAMAGE:
+						{
+							// Show on the unit
+							SHOW_PLOT_POPUP(pUnit->plot(), GetID(), text);
+							break;
+						}
+						default:
+							SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(), text);
+					}
 
 					if(citynameString.empty())
 					{
@@ -29522,6 +29542,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			// These yields intentionally have no notification.
 			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 			{
 				return;
 			}
@@ -44437,6 +44458,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
 			{
 				instantYieldName = "Unit Combat";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CITY_DAMAGE:
+			{
+				instantYieldName = "City Damage";
 				break;
 			}
 	}

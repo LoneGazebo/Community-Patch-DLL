@@ -391,6 +391,7 @@ public:
 	int GetYieldFromCSFriend(int i) const;
 	int GetYieldFromSettle(int i) const;
 	int GetYieldFromConquest(int i) const;
+	int GetYieldFromCityDamageTimes100(int i) const;
 	int GetVotePerXCSAlliance() const;
 	int GetVotePerXCSFollowingYourReligion() const;
 	int GetChanceToConvertReligiousUnits() const;
@@ -745,6 +746,7 @@ protected:
 	int* m_piYieldFromCSFriend;
 	int* m_piYieldFromSettle;
 	int* m_piYieldFromConquest;
+	int* m_piYieldFromCityDamageTimes100;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
@@ -1877,6 +1879,10 @@ public:
 	{
 		return m_iYieldFromConquest[(int)eYield];
 	};
+	int GetYieldFromCityDamageTimes100(YieldTypes eYield) const
+	{
+		return m_iYieldFromCityDamageTimes100[static_cast<int>(eYield)];
+	};
 	int GetVotePerXCSAlliance() const
 	{
 		return m_iVotePerXCSAlliance;
@@ -2391,6 +2397,7 @@ private:
 	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
+	int m_iYieldFromCityDamageTimes100[NUM_YIELD_TYPES];
 	std::map<int, int> m_aiGoldenAgeYieldModifier;
 	std::map<int, std::pair<int, bool>> m_aibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;
