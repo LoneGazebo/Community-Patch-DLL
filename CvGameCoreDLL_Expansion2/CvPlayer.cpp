@@ -28534,8 +28534,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if (iPassYield > 0)
 					{
-						iValue = iPassYield * pLoopCity->GetYieldFromCombatExperience(eYield);
-						iValue /= 100;
+						iValue = iPassYield * pLoopCity->GetYieldFromCombatExperienceTimes100(eYield);
+						iValue /= 10000;
 					}
 					break;
 				}

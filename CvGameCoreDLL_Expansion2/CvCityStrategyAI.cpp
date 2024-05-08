@@ -4015,19 +4015,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		}
 	}
 
-	if (pkBuildingInfo->GetYieldFromCombatExperience(eYield) > 0)
+	if (pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) > 0)
 	{
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_LAND) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_SEA) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_AIR) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 	}
 

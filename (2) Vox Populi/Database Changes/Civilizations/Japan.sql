@@ -76,8 +76,8 @@ UPDATE Building_DomainFreeExperiences
 SET Experience = (SELECT Experience FROM Building_DomainFreeExperiences WHERE BuildingType = 'BUILDING_ARMORY') + 5
 WHERE BuildingType = 'BUILDING_DOJO';
 
-INSERT INTO Building_YieldFromCombatExperience
+INSERT INTO Building_YieldFromCombatExperienceTimes100
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_DOJO', 'YIELD_CULTURE', 1),
-	('BUILDING_DOJO', 'YIELD_SCIENCE', 1);
+	('BUILDING_DOJO', 'YIELD_CULTURE', 140),
+	('BUILDING_DOJO', 'YIELD_SCIENCE', 140);

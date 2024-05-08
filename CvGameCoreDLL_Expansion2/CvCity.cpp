@@ -418,7 +418,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromPurchase()
 	, m_aiYieldFromFaithPurchase()
 	, m_aiYieldFromUnitLevelUp()
-	, m_aiYieldFromCombatExperience()
+	, m_aiYieldFromCombatExperienceTimes100()
 	, m_aiYieldPerAlly()
 	, m_aiYieldPerFriend()
 	, m_aiYieldFromInternalTREnd()
@@ -1449,7 +1449,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromPurchase.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromFaithPurchase.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
-	m_aiYieldFromCombatExperience.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
@@ -1533,7 +1533,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromPurchase[iI] = 0;
 		m_aiYieldFromFaithPurchase[iI] = 0;
 		m_aiYieldFromUnitLevelUp[iI] = 0;
-		m_aiYieldFromCombatExperience[iI] = 0;
+		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
 		m_aiYieldPerAlly[iI] = 0;
 		m_aiYieldPerFriend[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
@@ -16232,9 +16232,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromUnitLevelUp(eYield, pBuildingInfo->GetYieldFromUnitLevelUp(eYield) * iChange);
 			}
 
-			if ((pBuildingInfo->GetYieldFromCombatExperience(eYield) > 0))
+			if ((pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) > 0))
 			{
-				ChangeYieldFromCombatExperience(eYield, pBuildingInfo->GetYieldFromCombatExperience(eYield) * iChange);
+				ChangeYieldFromCombatExperienceTimes100(eYield, pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) * iChange);
 			}
 
 			ChangeYieldPerAlly(eYield, pBuildingInfo->GetYieldPerAlly(eYield) * iChange);
@@ -26080,17 +26080,17 @@ void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldFromCombatExperience(YieldTypes eIndex) const
+int CvCity::GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldFromCombatExperience[eIndex];
+	return m_aiYieldFromCombatExperienceTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldFromCombatExperience(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
@@ -26098,8 +26098,8 @@ void CvCity::ChangeYieldFromCombatExperience(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromCombatExperience[eIndex] = m_aiYieldFromCombatExperience[eIndex] + iChange;
-		CvAssert(GetYieldFromCombatExperience(eIndex) >= 0);
+		m_aiYieldFromCombatExperienceTimes100[eIndex] = m_aiYieldFromCombatExperienceTimes100[eIndex] + iChange;
+		CvAssert(GetYieldFromCombatExperienceTimes100(eIndex) >= 0);
 	}
 }
 
@@ -33233,7 +33233,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromPurchase);
 	visitor(city.m_aiYieldFromFaithPurchase);
 	visitor(city.m_aiYieldFromUnitLevelUp);
-	visitor(city.m_aiYieldFromCombatExperience);
+	visitor(city.m_aiYieldFromCombatExperienceTimes100);
 	visitor(city.m_aiYieldPerAlly);
 	visitor(city.m_aiYieldPerFriend);
 	visitor(city.m_aiYieldFromInternalTREnd);
