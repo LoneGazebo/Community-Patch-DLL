@@ -203,7 +203,6 @@
 	Various new tables and logics for improvements. Currently, this is required to activate:
 		- Column 'CreatesFeature' in 'Improvements'.
 		- Column 'RandResourceChance' in 'Improvements'.
-		- Column 'NewOwner' in 'Improvements'.
 		- Column 'RemoveWhenComplete' in 'Improvements'.
 		- Column 'QuantityRequirement' in 'Improvement_ResourceTypes'.
 	-->

@@ -2442,26 +2442,17 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	if(getFeatureType() != NO_FEATURE)
 	{
 		if (pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && getFeatureType() == pkImprovementInfo->GetCreatedFeature())
 		{
 			return false;
 		}
-		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
+		if (GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
 		{
 			return false;
 		}
 	}
-	if(getImprovementType() != NO_IMPROVEMENT)
-	{
-		if(pkImprovementInfo->IsNewOwner())
-		{
-			return false;
-		}
-	}
-#endif
 
 	bValid = false;
 
@@ -8380,7 +8371,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
-				if (MOD_IMPROVEMENTS_EXTENSIONS && newImprovementEntry.IsNewOwner())
+				if (newImprovementEntry.IsNewOwner())
 				{
 					int iBestCityID = -1;
 					int iBestCityDistance = -1;
