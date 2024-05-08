@@ -17125,14 +17125,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			iNewValue = pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains);
 			if(iNewValue > 0)
 			{
-				ChangeDomainFreeExperiencePerGreatWorkGlobal(eDomain, iNewValue);
+				ChangeDomainFreeExperiencePerGreatWorkGlobal(eDomain, iNewValue * iChange);
 			}
 			iNewValue = pBuildingInfo->GetDomainFreeExperienceGlobal(iDomains);
 			if (iNewValue > 0)
 			{
-				ChangeDomainFreeExperience(eDomain, iNewValue);
+				ChangeDomainFreeExperience(eDomain, iNewValue * iChange);
 			}
 		}
+	}
+
+	for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		changeUnitCombatProductionModifiers((UnitCombatTypes)iI, pBuildingInfo->GetUnitCombatProductionModifierGlobal(iI) * iChange);
 	}
 
 	ChangeReformationFollowerReduction(pBuildingInfo->GetReformationFollowerReduction() * iChange);
@@ -46509,8 +46514,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 	for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
-		changeUnitCombatProductionModifiers((UnitCombatTypes)iI, (pPolicy->GetUnitCombatProductionModifiers(iI) * iChange));
-		changeUnitCombatFreeExperiences((UnitCombatTypes)iI, (pPolicy->GetUnitCombatFreeExperiences(iI) * iChange));
+		changeUnitCombatProductionModifiers((UnitCombatTypes)iI, pPolicy->GetUnitCombatProductionModifiers(iI) * iChange);
+		changeUnitCombatFreeExperiences((UnitCombatTypes)iI, pPolicy->GetUnitCombatFreeExperiences(iI) * iChange);
 	}
 
 	for(iI = 0; iI < GC.getNumHurryInfos(); iI++)

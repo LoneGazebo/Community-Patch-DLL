@@ -544,6 +544,7 @@ public:
 	int GetFreeSpecialistCount(int i) const;
 	int GetUnitCombatFreeExperience(int i) const;
 	int GetUnitCombatProductionModifier(int i) const;
+	int GetUnitCombatProductionModifierGlobal(int i) const;
 	int GetDomainFreeExperience(int i) const;
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
 #if defined(MOD_BALANCE_CORE)
@@ -1015,6 +1016,7 @@ private:
 	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
+	int* m_piUnitCombatProductionModifiersGlobal;
 	int* m_piDomainFreeExperience;
 	int* m_piDomainFreeExperiencePerGreatWork;
 #if defined(MOD_BALANCE_CORE)

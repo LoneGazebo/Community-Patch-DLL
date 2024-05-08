@@ -462,7 +462,7 @@
 			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Boosts the potency of all Chancercies in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
-			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_NOBILITY}[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in all Cities. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_NOBILITY}[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT">
 			<Text>Built in stages during the late-Medieval and Early Modern periods, the Summer Palace was a large, splendid edifice to the power and might of the early Qing Dynasty and a counterpart to the Emperor's main palace in Beijing. Famous for its exquisite landscaping, lush gardens and spectacular vista, the Summer Palace remains an important symbol of the power of Early Modern China and a popular tourist destination.</Text>

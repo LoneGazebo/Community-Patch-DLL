@@ -870,6 +870,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass);
 				}
+				if(pkBuildingInfo->GetUnitCombatProductionModifierGlobal(eUnitCombatClass) > 0)
+				{
+					iTempBonus += kPlayer.getUnitCombatProductionModifiers(eUnitCombatClass) + m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifierGlobal(eUnitCombatClass);
+				}
 				if(pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
 					iTempBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass);

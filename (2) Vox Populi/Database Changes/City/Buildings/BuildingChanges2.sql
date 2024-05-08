@@ -868,7 +868,7 @@ INSERT INTO Building_ResourceQuantity
 VALUES
 	('BUILDING_SUMMER_PALACE', 'RESOURCE_PAPER', 1);
 
-INSERT INTO Building_UnitCombatProductionModifiers
+INSERT INTO Building_UnitCombatProductionModifiersGlobal
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_SUMMER_PALACE', 'UNITCOMBAT_DIPLOMACY', 20);

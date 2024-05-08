@@ -686,6 +686,12 @@
 		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="Experience" type="integer"/>
 	</Table>
+	<!-- BUILDING: Global version of Building_UnitCombatProductionModifiers -->
+	<Table name="Building_UnitCombatProductionModifiersGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
 	<!-- Allows you to define a yield that generates another yield for every x% you produce in that city. -->
 	<Table name="Building_YieldFromYieldPercent">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
