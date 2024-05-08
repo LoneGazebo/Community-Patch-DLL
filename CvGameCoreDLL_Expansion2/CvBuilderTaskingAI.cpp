@@ -2639,7 +2639,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	// If we are performing a culture bomb, find which city will be owning the plot
 	bool bIsCultureBomb = pkImprovementInfo ? pkImprovementInfo->GetCultureBombRadius() > 0 : false;
-	if (bIsCultureBomb && !pOwningCity)
+	bool bIsTileClaim = pkImprovementInfo ? pkImprovementInfo->IsNewOwner() : false;
+	if ((bIsCultureBomb || bIsTileClaim) && !pOwningCity)
 	{
 		int iBestCityDistance = INT_MAX;
 		CvCity* pLoopCity = NULL;
@@ -2661,6 +2662,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
+	}
+
+	// Give a small bonus for claiming tiles
+	if (bIsTileClaim && pPlot->getOwner() != m_pPlayer->GetID())
+	{
+		iSecondaryScore += 300;
 	}
 
 	const CvReligion* pCityReligion = pOwningCity ? pOwningCity->GetCityReligions()->GetMajorityReligion() : NULL;
