@@ -1769,13 +1769,15 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 
 	if (MOD_BALANCE_VP && pSpy->GetSpyState() != SPY_STATE_TERMINATED && pSpy->GetSpyState() != SPY_STATE_DEAD && pSpy->m_eRank < (NUM_SPY_RANKS - 1))
 	{
-		// are there any possible sources of experience?
-		if (GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_DIPLOMAT) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_OFFENSIVE) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_CITYSTATE) > 0 || GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS) > 0 || GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE) > 0 || GD_INT_GET(ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT) > 0)
+		// are there any possible sources of experience or is the spy above the first level?
+		if (GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_DIPLOMAT) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_OFFENSIVE) > 0 || GD_INT_GET(ESPIONAGE_XP_PER_TURN_CITYSTATE) > 0 || GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS) > 0 || GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE) > 0 || GD_INT_GET(ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT) > 0 || pSpy->GetSpyRank(m_pPlayer->GetID()) > SPY_RANK_RECRUIT)
 		{
 			int iExperienceDenominator = /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR);
 			iExperienceDenominator *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iExperienceDenominator /= 100;
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, iExperienceDenominator);
+			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_FULL_NAME", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
+			strSpyAtCity += "[NEWLINE]";
+			strSpyAtCity += GetLocalizedText("TXT_KEY_UNIT_EXPERIENCE_INFO", (int)pSpy->GetSpyRank(m_pPlayer->GetID()) + 1, pSpy->m_iExperience, iExperienceDenominator);
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 		}
 	}
