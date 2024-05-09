@@ -5393,7 +5393,7 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 			{
 				iBonus += 50;
 			}
-			if(kPlayer.GetPlayerTraits()->IsReconquista())
+			if(kPlayer.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion())
 			{
 				iBonus += 50;
 			}

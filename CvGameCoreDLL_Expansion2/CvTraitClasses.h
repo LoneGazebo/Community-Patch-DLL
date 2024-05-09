@@ -165,7 +165,7 @@ public:
 	int GetEnemyWarWearinessModifier() const;
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
-	bool IsReconquista() const;
+	bool IsNewCitiesStartWithCapitalReligion() const;
 	bool IsForeignReligionSpreadImmune() const;
 	int GetInspirationalLeader() const;
 	int GetBullyMilitaryStrengthModifier() const;
@@ -541,7 +541,7 @@ protected:
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
-	bool m_bReconquista;
+	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;
@@ -1139,9 +1139,9 @@ public:
 	{
 		return m_bBuyOwnedTiles;
 	};
-	bool IsReconquista() const
+	bool IsNewCitiesStartWithCapitalReligion() const
 	{
-		return m_bReconquista;
+		return m_bNewCitiesStartWithCapitalReligion;
 	};
 	bool IsForeignReligionSpreadImmune() const
 	{
@@ -2176,7 +2176,7 @@ private:
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
-	bool m_bReconquista;
+	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;

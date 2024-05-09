@@ -751,8 +751,8 @@ ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' INTEGER DEFAULT 0;
 -- New Traits - Can buy owned plots with gold
 ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' BOOLEAN DEFAULT 0;
 
--- New Traits - Converts citizens on conquest
-ALTER TABLE Traits ADD COLUMN 'Reconquista' BOOLEAN DEFAULT 0;
+-- New Traits - New Cities start with the religion of the capital
+ALTER TABLE Traits ADD COLUMN 'NewCitiesStartWithCapitalReligion' BOOLEAN DEFAULT 0;
 
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD COLUMN 'NoSpread' BOOLEAN DEFAULT 0;

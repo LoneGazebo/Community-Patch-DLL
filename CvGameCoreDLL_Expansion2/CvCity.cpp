@@ -1008,12 +1008,19 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	// Spread a pantheon here if one is active
 	CvPlayerReligions* pReligions = kPlayer.GetReligions();
-	if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
+	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
 	{
-		//pantheon strength depends on population?
+		const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
 		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, RELIGION_PANTHEON, iInitialPressure);
-		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_PANTHEON_FOUNDED);
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
+		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+	}
+	else if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
+	{
+		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
+		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
 	}
 
 	if (bInitialFounding) 
@@ -1116,14 +1123,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista() && bInitialFounding)
-	{
-		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
-		if (eReligion != NO_RELIGION)
-		{
-			GetCityReligions()->AdoptReligionFully(eReligion);
-		}
-	}
 	if (bInitialFounding)
 	{
 		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
