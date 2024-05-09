@@ -323,9 +323,6 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 -- Extra Wonder Production during Golden Ages.
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --
-ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
-
 -- TRAIT: Annexed City States continue to give yields. --
 ALTER TABLE Traits ADD COLUMN 'AnnexedCityStatesGiveYields' BOOLEAN DEFAULT 0;
 
@@ -850,6 +847,9 @@ ALTER TABLE Policies ADD COLUMN 'FreeTradeRoute' INTEGER DEFAULT 0;
 
 -- Free Spy
 ALTER TABLE Policies ADD COLUMN 'FreeSpy' INTEGER DEFAULT 0;
+
+-- City Security Modifier
+ALTER TABLE Policies ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 
 -- Gold from Internal Trade Routes
 ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' INTEGER DEFAULT 0;

@@ -91,10 +91,19 @@ UPDATE Policies
 SET
 	OneShot = 0,
 	MedianTechPercentChange = 0,
-	CityGrowthMod = 25,
-	SpecialistFoodChange = -1,
-	NonSpecialistFoodChange = -1
+	CityGrowthMod = 25
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
+
+INSERT INTO Policy_YieldFromNonSpecialistCitizens
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 100);
+	
+INSERT INTO Policy_SpecialistExtraYields
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 1);
+
 
 INSERT INTO Policy_YieldModifierFromGreatWorks
 	(PolicyType, YieldType, Yield)
@@ -110,7 +119,8 @@ SET
 	PovertyFlatReductionGlobal = 1,
 	IlliteracyFlatReductionGlobal = 1,
 	BoredomFlatReductionGlobal = 1,
-	ReligiousUnrestFlatReductionGlobal = 1
+	ReligiousUnrestFlatReductionGlobal = 1,
+	SpySecurityModifier = 12
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 
 -- Scaler

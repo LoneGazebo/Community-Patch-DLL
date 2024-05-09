@@ -3113,18 +3113,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 	}
 
-	if (PolicyInfo->GetNonSpecialistFoodChange() != 0)
-	{
-		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
-		{
-			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -2 * max(1, (iPopulation * 2 / 3));
-		}
-		else
-		{
-			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -1 * max(1, (iPopulation * 4 / 5));
-		}
-	}
-
 	if (PolicyInfo->GetWarWearinessModifier() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
@@ -3388,6 +3376,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		else
 		{
 			yield[YIELD_GOLD] += 400 / PolicyInfo->GetFreeWCVotes();
+		}
+	}
+	if (PolicyInfo->GetSpySecurityModifier() != 0)
+	{
+		if (pPlayerTraits->IsNerd())
+		{
+			yield[YIELD_SCIENCE] += PolicyInfo->GetSpySecurityModifier() * 2;
+		}
+		else
+		{
+			yield[YIELD_SCIENCE] += PolicyInfo->GetSpySecurityModifier();
 		}
 	}
 	if (PolicyInfo->GetInfluenceGPExpend() != 0)

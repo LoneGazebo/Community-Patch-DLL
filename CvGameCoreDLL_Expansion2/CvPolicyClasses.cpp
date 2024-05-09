@@ -258,7 +258,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iSpecialistFoodChange(0),
-	m_iNonSpecialistFoodChange(0),
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
@@ -315,6 +314,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPuppetProdMod(0),
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
+	m_iSpySecurityModifier(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
 	m_iFreeSpy(0),
@@ -745,7 +745,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iSpecialistFoodChange = kResults.GetInt("SpecialistFoodChange");
-	m_iNonSpecialistFoodChange = kResults.GetInt("NonSpecialistFoodChange");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
@@ -780,6 +779,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
+	m_iSpySecurityModifier= kResults.GetInt("SpySecurityModifier");
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
@@ -2643,10 +2643,6 @@ int CvPolicyEntry::GetSpecialistFoodChange() const
 {
 	return m_iSpecialistFoodChange;
 }
-int CvPolicyEntry::GetNonSpecialistFoodChange() const
-{
-	return m_iNonSpecialistFoodChange;
-}
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
@@ -3134,6 +3130,11 @@ int CvPolicyEntry::GetInternalTradeGold() const
 int CvPolicyEntry::GetFreeWCVotes() const
 {
 	return m_iFreeWCVotes;
+}
+//Modifier to City Security?
+int CvPolicyEntry::GetSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
 }
 //Influence from GP expenditure?
 int CvPolicyEntry::GetInfluenceGPExpend() const
