@@ -1202,6 +1202,11 @@ public:
 	int getHillsDoubleMoveCount() const;
 	bool isHillsDoubleMove() const;
 	void changeHillsDoubleMoveCount(int iChange);
+	
+	int getRiverDoubleMoveCount() const;
+	bool isRiverDoubleMove() const;
+	void changeRiverDoubleMoveCount(int iChange);
+
 #if defined(MOD_BALANCE_CORE)
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
@@ -2117,6 +2122,7 @@ protected:
 	int m_iAlwaysHealCount;
 	int m_iHealOutsideFriendlyCount;
 	int m_iHillsDoubleMoveCount;
+	int m_iRiverDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	int m_iMountainsDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
@@ -2573,6 +2579,7 @@ SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHealCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOutsideFriendlyCount)
 SYNC_ARCHIVE_VAR(int, m_iHillsDoubleMoveCount)
+SYNC_ARCHIVE_VAR(int, m_iRiverDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)

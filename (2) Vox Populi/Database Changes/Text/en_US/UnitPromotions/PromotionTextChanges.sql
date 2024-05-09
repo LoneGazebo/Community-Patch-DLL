@@ -632,6 +632,10 @@ SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking 
 WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP';
 
 UPDATE Language_en_US
+SET Text = 'Double [ICON_MOVES] Movement on Tiles with a River'
+WHERE Tag = 'TXT_KEY_PROMOTION_WAR_CANOES_HELP';
+
+UPDATE Language_en_US
 SET Text = 'Expeditionary Warfare'
 WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS';
 
