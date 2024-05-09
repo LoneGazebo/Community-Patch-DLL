@@ -161,6 +161,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bAlwaysHeal(false),
 	m_bHealOutsideFriendly(false),
 	m_bHillsDoubleMove(false),
+	m_bRiverDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
 	m_bIgnoreTerrainDamage(false),
 	m_bIgnoreFeatureDamage(false),
@@ -421,6 +422,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bAlwaysHeal = kResults.GetBool("AlwaysHeal");
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
 	m_bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
+	m_bRiverDoubleMove = kResults.GetBool("RiverDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
 	m_bIgnoreTerrainDamage = kResults.GetBool("IgnoreTerrainDamage");
 	m_bIgnoreFeatureDamage = kResults.GetBool("IgnoreFeatureDamage");
@@ -2130,6 +2132,12 @@ bool CvPromotionEntry::IsHealOutsideFriendly() const
 bool CvPromotionEntry::IsHillsDoubleMove() const
 {
 	return m_bHillsDoubleMove;
+}
+
+/// Accessor: Double movement when next to rivers
+bool CvPromotionEntry::IsRiverDoubleMove() const
+{
+	return m_bRiverDoubleMove;
 }
 
 /// Accessor: Ignores terrain movement penalties

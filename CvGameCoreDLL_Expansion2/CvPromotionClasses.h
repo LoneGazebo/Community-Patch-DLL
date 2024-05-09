@@ -209,6 +209,7 @@ public:
 	bool IsAlwaysHeal() const;
 	bool IsHealOutsideFriendly() const;
 	bool IsHillsDoubleMove() const;
+	bool IsRiverDoubleMove() const;
 
 	bool IsIgnoreTerrainCost() const;
 	bool IsIgnoreTerrainDamage() const;
@@ -509,6 +510,7 @@ protected:
 	bool m_bAlwaysHeal;
 	bool m_bHealOutsideFriendly;
 	bool m_bHillsDoubleMove;
+	bool m_bRiverDoubleMove;
 	bool m_bIgnoreTerrainCost;
 	bool m_bIgnoreTerrainDamage;
 	bool m_bIgnoreFeatureDamage;

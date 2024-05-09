@@ -1236,6 +1236,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFA
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 
+-- Double Movement when next to Rivers
+ALTER TABLE UnitPromotions ADD COLUMN 'RiverDoubleMove' BOOLEAN DEFAULT 0;
+
 -- Embarking Costs One Movement Point
 ALTER TABLE UnitPromotions ADD COLUMN 'EmbarkFlatCost' BOOLEAN DEFAULT 0;
 
