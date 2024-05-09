@@ -332,6 +332,7 @@ public:
 	int GetOccupiedProdMod() const;
 	int GetInternalTradeGold() const;
 	int GetFreeWCVotes() const;
+	int GetSpySecurityModifier() const;
 	int GetInfluenceGPExpend() const;
 	int GetFreeTradeRoute() const;
 	int GetFreeSpy() const;
@@ -486,7 +487,6 @@ public:
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	int GetSpecialistFoodChange() const;
-	int GetNonSpecialistFoodChange() const;
 
 	int GetWarWearinessModifier() const;
 	int GetWarScoreModifier() const;
@@ -718,7 +718,6 @@ private:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
-	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 
@@ -790,6 +789,7 @@ private:
 	int m_iCultureBombBoost;
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;
+	int m_iSpySecurityModifier;
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
