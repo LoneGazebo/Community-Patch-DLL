@@ -63,6 +63,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanTrain);
 	Method(CanConstructTooltip);
 	Method(CanConstruct);
+	Method(CanCreateTooltip);
 	Method(CanCreate);
 	Method(CanPrepare);
 	Method(CanMaintain);
@@ -1067,6 +1068,19 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+
+	lua_pushstring(L, toolTip.c_str());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCanCreateTooltip(lua_State* L)
+{
+	CvString toolTip;
+	CvCity* pkCity = GetInstance(L);
+	const ProjectTypes eProject = (ProjectTypes)lua_tointeger(L, 2);
+
+	// City Production Modifier
+	pkCity->canCreate(eProject, false, false, &toolTip);
 
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
