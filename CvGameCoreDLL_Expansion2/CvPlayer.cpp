@@ -4201,16 +4201,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	pNewCity->GetCityReligions()->Copy(&tempReligions);
 	pNewCity->GetCityReligions()->RemoveFormerPantheon();
 
-	// "Instant conversion" UA? Trigger it now.
-	if (GetPlayerTraits()->IsReconquista())
-	{
-		ReligionTypes eReligion = GetReligions()->GetStateReligion();
-		if (eReligion != NO_RELIGION)
-		{
-			pNewCity->GetCityReligions()->AdoptReligionFully(eReligion);
-		}
-	}
-
 	// Reacquired our Holy City?
 	if (bHolyCity && IsHasLostHolyCity() && pNewCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer()))
 	{
@@ -14823,15 +14813,7 @@ bool CvPlayer::canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCit
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce)
-#elif defined(MOD_BALANCE_CORE)
-void CvPlayer::foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
-#else
-void CvPlayer::foundCity(int iX, int iY)
-#endif
 {
 	if(!bForce && !canFoundCity(iX, iY))
 		return;
@@ -14843,13 +14825,7 @@ void CvPlayer::foundCity(int iX, int iY)
 	if (GetNumCitiesFounded() == 0 && isMajorCiv())
 		GC.getGame().NewCapitalFounded(getPlotFoundValue(iX, iY));
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
-#else
-	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
-#endif
 
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)

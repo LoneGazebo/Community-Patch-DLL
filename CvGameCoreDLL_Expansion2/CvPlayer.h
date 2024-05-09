@@ -326,15 +326,7 @@ public:
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFoundCity(int iX, int iY) const;
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
-#elif defined(MOD_BALANCE_CORE)
-	void foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#else
-	void foundCity(int iX, int iY);
-#endif
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;

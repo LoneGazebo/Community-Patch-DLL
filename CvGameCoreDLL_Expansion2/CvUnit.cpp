@@ -10844,30 +10844,9 @@ bool CvUnit::foundCity()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
-	} 
-	else 
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion());
-	}
-	else
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true);
-#elif defined(MOD_BALANCE_CORE)
-		kPlayer.foundCity(getX(), getY(), m_pUnitInfo);
-#else
-		kPlayer.foundCity(getX(), getY());
-#endif
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	}
-#endif
+	ReligionTypes eReligion = (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON) ? GetReligionData()->GetReligion() : NO_RELIGION;
+	bool bForce = MOD_GLOBAL_RELIGIOUS_SETTLERS && eReligion == NO_RELIGION;
+	kPlayer.foundCity(getX(), getY(), eReligion, bForce, m_pUnitInfo);
 
 	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
 	{

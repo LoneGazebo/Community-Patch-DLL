@@ -89,7 +89,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iEnemyWarWearinessModifier(0),
 	m_iCombatBonusVsHigherPop(0),
 	m_bBuyOwnedTiles(false),
-	m_bReconquista(false),
+	m_bNewCitiesStartWithCapitalReligion(false),
 	m_bNoSpread(false),
 	m_iInspirationalLeader(0),
 	m_iBullyMilitaryStrengthModifier(0),
@@ -692,9 +692,9 @@ bool CvTraitEntry::IsBuyOwnedTiles() const
 	return m_bBuyOwnedTiles;
 }
 
-bool CvTraitEntry::IsReconquista() const
+bool CvTraitEntry::IsNewCitiesStartWithCapitalReligion() const
 {
-	return m_bReconquista;
+	return m_bNewCitiesStartWithCapitalReligion;
 }
 
 bool CvTraitEntry::IsForeignReligionSpreadImmune() const
@@ -2376,7 +2376,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iEnemyWarWearinessModifier			= kResults.GetInt("EnemyWarWearinessModifier");
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
-	m_bReconquista							= kResults.GetBool("Reconquista");
+	m_bNewCitiesStartWithCapitalReligion	= kResults.GetBool("NewCitiesStartWithCapitalReligion");
 	m_bNoSpread								= kResults.GetBool("NoSpread");
 	m_iInspirationalLeader					= kResults.GetInt("XPBonusFromGGBirth");
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
@@ -3875,8 +3875,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		return;
 	}
 
-	if (IsReconquista() ||
-		IsKeepConqueredBuildings() ||
+	if (IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
 		IgnoreBullyPenalties() ||
@@ -4383,9 +4382,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBuyOwnedTiles = true;
 			}
-			if(trait->IsReconquista())
+			if(trait->IsNewCitiesStartWithCapitalReligion())
 			{
-				m_bReconquista = true;
+				m_bNewCitiesStartWithCapitalReligion = true;
 			}
 			if(trait->IsForeignReligionSpreadImmune())
 			{
@@ -5296,7 +5295,7 @@ void CvPlayerTraits::Reset()
 	m_iEnemyWarWearinessModifier = 0;
 	m_iCombatBonusVsHigherPop = 0;
 	m_bBuyOwnedTiles = false;
-	m_bReconquista = false;
+	m_bNewCitiesStartWithCapitalReligion = false;
 	m_bNoSpread = false;
 	m_iInspirationalLeader = 0;
 	m_iBullyMilitaryStrengthModifier = 0;
@@ -7511,7 +7510,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iEnemyWarWearinessModifier);
 	visitor(playerTraits.m_iCombatBonusVsHigherPop);
 	visitor(playerTraits.m_bBuyOwnedTiles);
-	visitor(playerTraits.m_bReconquista);
+	visitor(playerTraits.m_bNewCitiesStartWithCapitalReligion);
 	visitor(playerTraits.m_bNoSpread);
 	visitor(playerTraits.m_iInspirationalLeader);
 	visitor(playerTraits.m_iBullyMilitaryStrengthModifier);

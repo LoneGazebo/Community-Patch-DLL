@@ -7,7 +7,8 @@ SET
 	NaturalWonderSubsequentFinderGold = 0,
 	NaturalWonderYieldModifier = 0,
 	NaturalWonderHappinessModifier = 0,
-	CanPurchaseNavalUnitsFaith = 1
+	CanPurchaseNavalUnitsFaith = 1,
+	NewCitiesStartWithCapitalReligion = 1
 WHERE Type = 'TRAIT_SEVEN_CITIES';
 
 CREATE TEMP TABLE Helper (
