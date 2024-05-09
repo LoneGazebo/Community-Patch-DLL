@@ -3277,9 +3277,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		// War damage calculations
 		if (!pCity->isBarbarian())
 		{
-			int iCityValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-			iCityValue += (iPopulation * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
-			iCityValue += (pCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
+			int iCityValue = pCity->GetWarValue();
 			int iWinnerProgressValue = /*100*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_CITY);
 			int iLoserProgressValue = /*-50*/ GD_INT_GET(WAR_PROGRESS_LOST_CITY);
 
@@ -3287,8 +3285,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			// Their original capital!
 			if (bOriginalCapital)
 			{
-				iCityValue *= 200;
-				iCityValue /= 100;
 				iWinnerProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_CAPITAL_MULTIPLIER);
 				iWinnerProgressValue /= 100;
 				iLoserProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_CAPITAL_MULTIPLIER);
@@ -3309,8 +3305,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			// Their Holy City!
 			else if (GET_PLAYER(eOldOwner).isMajorCiv() && bHolyCity && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eOldOwner).GetReligions()->GetOriginalReligionCreatedByPlayer()))
 			{
-				iCityValue *= 150;
-				iCityValue /= 100;
 				iWinnerProgressValue *= /*150*/ GD_INT_GET(WAR_PROGRESS_HOLY_CITY_MULTIPLIER);
 				iWinnerProgressValue /= 100;
 				iLoserProgressValue *= /*150*/ GD_INT_GET(WAR_PROGRESS_HOLY_CITY_MULTIPLIER);
@@ -3328,18 +3322,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 					GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetBackstabbedBy(GetID(), true, true);
 				}
 			}
-			// Another major's original capital
-			else if (pCity->IsOriginalMajorCapital())
-			{
-				iCityValue *= 150;
-				iCityValue /= 100;
-			}
-			// A City-State's capital
-			else if (pCity->IsOriginalMinorCapital())
-			{
-				iCityValue *= 115;
-				iCityValue /= 100;
-			}
 
 			// Dramatically reduce the value if conqueror has owned the city before
 			int iNumTimesOwned = pCity->GetNumTimesOwned(GetID());
@@ -3347,8 +3329,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				iCityValue /= iNumTimesOwned * 3;
 			}
-
-			ApplyWarDamage(eOldOwner, iCityValue);
 
 			// Update military rating for both players
 			if (isMajorCiv())
@@ -38455,31 +38435,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 	// City value
 	for (CvCity* pLoopCity = firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = nextCity(&iValueLoop))
 	{
-		int iCityValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-		iCityValue += pLoopCity->getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
-		iCityValue += pLoopCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
-
-		// Multipliers
-		// Our original capital!
-		if (pLoopCity->IsOriginalCapitalForPlayer(GetID()))
-		{
-			iCityValue *= 200;
-			iCityValue /= 100;
-		}
-		// Another major's original capital, or our Holy City
-		else if (pLoopCity->IsOriginalMajorCapital() || (isMajorCiv() && pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer())))
-		{
-			iCityValue *= 150;
-			iCityValue /= 100;
-		}
-		// A City-State's capital
-		else if (pLoopCity->IsOriginalMinorCapital())
-		{
-			iCityValue *= 115;
-			iCityValue /= 100;
-		}
-
-		iCurrentValue += iCityValue;
+		iCurrentValue += pLoopCity->GetWarValue();
 	}
 
 	// Unit value

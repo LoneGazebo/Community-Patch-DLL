@@ -4665,9 +4665,38 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 	// Instant yield when dealing damage to city
 	// Only pass in the attacker, its city, and the damage
 	CvCity* pOriginCity = pkAttacker->getOriginCity();
+	CvPlayer& kUnitOwner = GET_PLAYER(pkAttacker->getOwner());
 	if (!pOriginCity)
-		pOriginCity = GET_PLAYER(pkAttacker->getOwner()).getCapitalCity();
-	GET_PLAYER(pkAttacker->getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_DAMAGE, false, NO_GREATPERSON, NO_BUILDING, iAttackerDamageInflicted, true, NO_PLAYER, NULL, false, pOriginCity, false, true, false, NO_YIELD, pkAttacker);
+		pOriginCity = kUnitOwner.getCapitalCity();
+	kUnitOwner.doInstantYield(INSTANT_YIELD_TYPE_CITY_DAMAGE, false, NO_GREATPERSON, NO_BUILDING, iAttackerDamageInflicted, true, NO_PLAYER, NULL, false, pOriginCity, false, true, false, NO_YIELD, pkAttacker);
+
+	// Update war value
+	if (!pkDefender->isBarbarian())
+	{
+		int iCityValue = pkDefender->GetWarValue();
+
+		int iDamagePermyriad = pkDefender->GetDamagePermyriad(pkAttacker->getOwner());
+		int iNewPermyriad = iAttackerDamageInflicted * 10000 / pkDefender->GetMaxHitPoints();
+
+		// Cap damage at 10000 permyriad
+		if (iDamagePermyriad + iNewPermyriad > 10000)
+		{
+			iNewPermyriad = 10000 - iDamagePermyriad;
+		}
+
+		iCityValue *= iNewPermyriad;
+		iCityValue /= 10000;
+
+		// Dramatically reduce the value if attacker has owned the city before
+		int iNumTimesOwned = pkDefender->GetNumTimesOwned(pkAttacker->getOwner());
+		if (iNumTimesOwned > 0)
+		{
+			iCityValue /= iNumTimesOwned * 3;
+		}
+
+		pkDefender->ChangeDamagePermyriad(pkAttacker->getOwner(), iNewPermyriad);
+		kUnitOwner.ApplyWarDamage(pkDefender->getOwner(), iCityValue);
+	}
 }
 
 void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo & kCombatInfo, uint uiParentEventID)

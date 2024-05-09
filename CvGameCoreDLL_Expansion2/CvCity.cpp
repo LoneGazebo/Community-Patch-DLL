@@ -271,6 +271,7 @@ CvCity::CvCity() :
 	, m_aiYieldPerPop()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
+	, m_aiDamagePermyriad()
 #endif
 	, m_aiYieldPerReligion()
 	, m_aiPowerYieldRateModifier()
@@ -1490,6 +1491,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
 	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES);
+	m_aiDamagePermyriad.resize(MAX_CIV_PLAYERS);
+	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		m_aiDamagePermyriad[iI] = 0;
+	}
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
@@ -28872,6 +28878,71 @@ void CvCity::changeDamage(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+/// How many permyriads (1/10000th) of health have ePlayer dealt to this city?
+int CvCity::GetDamagePermyriad(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	return m_aiDamagePermyriad[ePlayer];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	m_aiDamagePermyriad[ePlayer] += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetDamagePermyriad(PlayerTypes ePlayer, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	m_aiDamagePermyriad[ePlayer] = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// How much war damage is generated if this city is damaged from full health to 0?
+int CvCity::GetWarValue() const
+{
+	int iCityValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
+	iCityValue += getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
+	iCityValue += getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
+
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	if (IsOriginalCapitalForPlayer(getOwner()))
+	{
+		// This is the original capital of the city owner
+		iCityValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_CAPITAL_MULTIPLIER);
+		iCityValue /= 100;
+	}
+	else if (kOwner.isMajorCiv() && GetCityReligions()->IsHolyCityForReligion(kOwner.GetReligions()->GetOriginalReligionCreatedByPlayer()))
+	{
+		// This is a holy city of a religion founded by the city owner
+		iCityValue *= /*150*/ GD_INT_GET(WAR_PROGRESS_HOLY_CITY_MULTIPLIER);
+		iCityValue /= 100;
+	}
+	else if (IsOriginalMajorCapital())
+	{
+		// This is the original capital of some major civ other than the city owner
+		iCityValue *= 150;
+		iCityValue /= 100;
+	}
+	else if (IsOriginalMinorCapital())
+	{
+		// This is the original capital of a City-State
+		iCityValue *= 115;
+		iCityValue /= 100;
+	}
+
+	return iCityValue;
+}
+
+//	--------------------------------------------------------------------------------
 /// Can a specific plot be bought for the city
 bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 {
@@ -29608,7 +29679,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		// If the players are at war, this counts for war value!
 		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 		{
-			GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+			GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue, true);
 
 			if (GET_PLAYER(getOwner()).isMajorCiv())
 			{
@@ -33354,6 +33425,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iResourceDiversityModifier);
 	visitor(city.m_iNoUnhappfromXSpecialists);
 	visitor(city.m_aiGreatWorkYieldChange);
+	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
 	visitor(city.m_aiYieldPerPop);
 	visitor(city.m_aiYieldPerReligion);
