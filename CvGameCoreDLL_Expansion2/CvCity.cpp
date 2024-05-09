@@ -9302,7 +9302,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	{
 		if (GetBuildingProductionBlockedTurns() > 0)
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_SPY_BLOCKED", pkBuildingInfo->GetTextKey(), "",  GetBuildingProductionBlockedTurns());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED", pkBuildingInfo->GetTextKey(), "",  GetBuildingProductionBlockedTurns());
 			if (toolTipSink == NULL)
 				return false;
 		}
@@ -9379,7 +9379,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible) const
+bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
 
@@ -9389,9 +9389,14 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible)
 		return false;
 	}
 
-	if (GetBuildingProductionBlockedTurns() > 0)
+	if (!bTestVisible) // Test visible check here is so that the buildings will show up in the build list, but can't be selected (for every other city!)
 	{
-		return false;
+		if (GetBuildingProductionBlockedTurns() > 0)
+		{
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED", "", "", GetBuildingProductionBlockedTurns());
+			if (toolTipSink == NULL)
+				return false;
+		}
 	}
 
 	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible)))

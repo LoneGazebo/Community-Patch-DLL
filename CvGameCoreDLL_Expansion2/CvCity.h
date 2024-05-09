@@ -264,7 +264,7 @@ public:
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
-	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
+	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoinCity() const;
