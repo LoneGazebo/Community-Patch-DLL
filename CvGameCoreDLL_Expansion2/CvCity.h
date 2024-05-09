@@ -1492,6 +1492,12 @@ public:
 	void setDamage(int iValue, bool noMessage = false);
 	void changeDamage(int iChange);
 
+	int GetDamagePermyriad(PlayerTypes ePlayer) const;
+	void ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange);
+	void SetDamagePermyriad(PlayerTypes ePlayer, int iValue);
+
+	int GetWarValue() const;
+
 	bool isMadeAttack() const;
 	void setMadeAttack(bool bNewValue);
 
@@ -2049,6 +2055,7 @@ protected:
 	int m_iResourceDiversityModifier;
 	int m_iNoUnhappfromXSpecialists;
 	std::vector<int> m_aiGreatWorkYieldChange;
+	std::vector<int> m_aiDamagePermyriad;
 #endif
 	std::vector<int> m_aiYieldRateModifier;
 	std::vector<int> m_aiYieldPerPop;
@@ -2448,6 +2455,7 @@ SYNC_ARCHIVE_VAR(int, m_iAlwaysHeal)
 SYNC_ARCHIVE_VAR(int, m_iResourceDiversityModifier)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDamagePermyriad)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)
