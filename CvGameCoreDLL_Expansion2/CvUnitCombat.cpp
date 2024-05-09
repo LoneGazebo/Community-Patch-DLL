@@ -1467,6 +1467,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
+			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 		}
 		// City conquest
 		else if(pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
@@ -1488,6 +1489,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 						MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 				}
 
+				ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 				pkAttacker->UnitMove(pkPlot, true, pkAttacker);
 			}
 		}
@@ -1508,9 +1510,9 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
+			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 			pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
 		}
-		ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//apply damage to garrison
