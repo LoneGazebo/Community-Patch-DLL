@@ -3976,6 +3976,11 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 						}
 					}
 				}
+				if (pNewPlot->IsRestoreMoves())
+				{
+					// Not using maxMoves() here since it shouldn't be affected by linked status and plot move changes (added below)
+					setMoves(baseMoves(isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR));
+				}
 				if (pNewPlot->GetPlotMovesChange() > 0)
 				{
 					setMoves(movesLeft() + (pNewPlot->GetPlotMovesChange() * GD_INT_GET(MOVE_DENOMINATOR)));
@@ -5536,7 +5541,8 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 	}
 
-	changeMoves(-iMoveCost);
+	if (!targetPlot.IsRestoreMoves())
+		changeMoves(-iMoveCost);
 }
 
 bool CvUnit::EmergencyRebase()

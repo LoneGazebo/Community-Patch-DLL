@@ -63,7 +63,7 @@ SET
 	CreatedByGreatPerson = 1,
 	CultureBombRadius = 1,
 	MakesPassable = 1,
-	MovesChange = 1,
+	RestoreMoves = 1,
 	DefenseModifier = 50,
 	NoFollowUp = 1
 WHERE Type = 'IMPROVEMENT_MONGOLIA_ORDO';

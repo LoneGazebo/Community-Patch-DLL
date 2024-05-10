@@ -212,6 +212,7 @@ void CvPlot::reset()
 	m_iUnitPlotExperience = 0;
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
+	m_iRestoreMoves = 0;
 #endif
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
@@ -6496,18 +6497,23 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
 						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
-					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
+					if (pImprovementInfo->GetUnitPlotExperience() > 0)
 					{
 						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience() * -1);
 					}
-					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0)
 					{
 						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0 && eBuilder != NO_PLAYER)
+					if (pImprovementInfo->GetMovesChange() > 0)
 					{
 						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
 					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(-1);
+					}
+
 					// Embassy extra vote in WC mod
 					if (pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
 					{
@@ -6691,17 +6697,21 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
-					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && getOwner() != eBuilder)
 					{
 						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && getOwner() != eBuilder)
 					{
 						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0 && eBuilder != NO_PLAYER)
+					if (pImprovementInfo->GetMovesChange() > 0)
 					{
 						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
+					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(1);
 					}
 
 					//Resource from improvement - change ownership if needed.
@@ -8045,6 +8055,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangePlotMovesChange(-1 * oldImprovementEntry.GetMovesChange());
 				}
+				if (oldImprovementEntry.IsRestoreMoves())
+				{
+					ChangeRestoreMovesCount(-1);
+				}
 
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)oldImprovementEntry.GetResourceFromImprovement();
@@ -8400,10 +8414,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeUnitPlotGAExperience(newImprovementEntry.GetGAUnitPlotExperience());
 				}
-				if (newImprovementEntry.GetMovesChange() > 0 && getOwner() == eBuilder)
+				if (newImprovementEntry.GetMovesChange() > 0)
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
 				}
+				if (newImprovementEntry.IsRestoreMoves())
+				{
+					ChangeRestoreMovesCount(1);
+				}
+
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement();
@@ -8929,47 +8948,45 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		}
 
 		// Quantified Resource changes for improvements
-		if(getImprovementType() != NO_IMPROVEMENT)
+		if (getImprovementType() != NO_IMPROVEMENT)
 		{
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+
 			//Resource from improvement - change ownership if needed.
-			ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(getImprovementType())->GetResourceFromImprovement();
-			int iQuantity = GC.getImprovementInfo(getImprovementType())->GetResourceQuantityFromImprovement();
-			if(iQuantity <= 0)
+			ResourceTypes eResourceFromImprovement = static_cast<ResourceTypes>(pImprovementInfo->GetResourceFromImprovement());
+			int iQuantity = pImprovementInfo->GetResourceQuantityFromImprovement();
+			if (iQuantity <= 0)
 			{
 				iQuantity = 1;
 			}
 
-			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
+			int iChange = bPillaged ? -1 : 1;
+			if (eResourceFromImprovement != NO_RESOURCE && getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
 			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), false, true, true);
-			}
-			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
-			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, false, true, true);
-			}
-			int iMoves = GC.getImprovementInfo(getImprovementType())->GetMovesChange();
-			if (bPillaged && GetPlotMovesChange() > 0)
-			{
-				ChangePlotMovesChange(iMoves * -1);
-			}
-			else if (!bPillaged && iMoves > 0 && getOwner() == getOwner())
-			{
-				ChangePlotMovesChange(iMoves);
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iChange * iQuantity, false, true, true);
 			}
 
-			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(getImprovementType());
+			int iMoves = pImprovementInfo->GetMovesChange();
+			ChangePlotMovesChange(iMoves * iChange);
+
+			if (pImprovementInfo->IsRestoreMoves())
+			{
+				ChangeRestoreMovesCount(iChange);
+			}
 
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+				YieldTypes eYield = static_cast<YieldTypes>(iI);
+
+				// Simplification - errata yields not worth considering.
+				if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 					break;
 
-				if (oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes)iI) > 0 || oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes)iI) > 0)
+				if (pImprovementInfo->GetYieldAdjacentSameType(eYield) > 0 || pImprovementInfo->GetYieldAdjacentTwoSameType(eYield) > 0)
 				{
 					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iJ));
 						if (pAdjacentPlot && pAdjacentPlot->getImprovementType() == getImprovementType())
 						{
 							pAdjacentPlot->updateYield();
@@ -12916,6 +12933,16 @@ void CvPlot::ChangePlotMovesChange(int iValue)
 	VALIDATE_OBJECT
 	m_iPlotChangeMoves += iValue;
 }
+bool CvPlot::IsRestoreMoves() const
+{
+	VALIDATE_OBJECT
+	return m_iRestoreMoves > 0;
+}
+void CvPlot::ChangeRestoreMovesCount(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iRestoreMoves += iValue;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
@@ -13327,6 +13354,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iUnitPlotExperience);
 	visitor(plot.m_iUnitPlotGAExperience);
 	visitor(plot.m_iPlotChangeMoves);
+	visitor(plot.m_iRestoreMoves);
 
 	visitor(plot.m_eOwner);
 	visitor(plot.m_ePlotType);
