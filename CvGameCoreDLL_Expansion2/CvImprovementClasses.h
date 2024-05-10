@@ -84,6 +84,7 @@ public:
 	int GetWonderProductionModifier() const;
 	int GetUnitPlotExperience() const;
 	int GetMovesChange() const;
+	bool IsRestoreMoves() const;
 	int GetGAUnitPlotExperience() const;
 	FeatureTypes GetCreatedFeature() const;
 	int GetRandomResourceChance() const;
@@ -264,6 +265,7 @@ protected:
 	bool m_bNewOwner;
 	bool m_bOwnerOnly;
 	int m_iMovesChange;
+	bool m_bRestoreMoves;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;

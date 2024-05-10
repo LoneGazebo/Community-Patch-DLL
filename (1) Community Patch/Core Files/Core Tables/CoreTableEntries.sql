@@ -449,6 +449,9 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 -- Improvement grants extra moves when unit is on this plot
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
+-- Improvement restores all moves when unit is on this plot
+ALTER TABLE Improvements ADD COLUMN 'RestoreMoves' boolean DEFAULT 0;
+
 -- Improvement requires fresh water, coast, or river adjacency to make valid.
 ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 

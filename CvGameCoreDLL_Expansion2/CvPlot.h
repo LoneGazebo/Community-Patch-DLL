@@ -734,6 +734,8 @@ public:
 	bool IsUnitPlotExperience() const;
 	int GetPlotMovesChange() const;
 	void ChangePlotMovesChange(int iValue);
+	bool IsRestoreMoves() const;
+	void ChangeRestoreMovesCount(int iValue);
 #endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
@@ -995,6 +997,7 @@ protected:
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
+	char m_iRestoreMoves;
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
