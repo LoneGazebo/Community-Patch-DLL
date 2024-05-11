@@ -470,7 +470,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 
 		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		{
-			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+			if (pPlot->getRouteType() != eRoute || pPlot->IsRoutePillaged())
 				iNumRoadsNeededToBuild++;
 		}
 	}
@@ -1164,7 +1164,7 @@ int CvBuilderTaskingAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective e
 }
 
 
-int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const
+int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, const CvPlot* pPlot) const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
@@ -1350,6 +1350,25 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
+	std::vector<OptionWithScore<int>> sortedPlots;
+	for (std::vector<int>::const_iterator it = plotsToConnect.begin(); it != plotsToConnect.end(); ++it)
+	{
+		int iValue = 0;
+		int iPlotIndex = *it;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotIndex);
+		CvCity* pCity = pPlot->getPlotCity();
+
+		if (pCity)
+		{
+			int iPop = pCity->getPopulation();
+			iValue = iPop;
+		}
+
+		sortedPlots.push_back(OptionWithScore<int>(iPlotIndex, iValue));
+	}
+
+	std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+
 	RouteTypes eBestRoute = m_pPlayer->getBestRoute();
 	if(eBestRoute == NO_ROUTE)
 	{
@@ -1390,12 +1409,12 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
+		for(std::vector<OptionWithScore<int>>::const_iterator it1 = sortedPlots.begin(); it1 != sortedPlots.end() - 1; ++it1)
 		{
-			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
+			for(std::vector<OptionWithScore<int>>::const_iterator it2 = it1 + 1; it2 != sortedPlots.end(); ++it2)
 			{
-				CvPlot* pFirstPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex]);
-				CvPlot* pSecondPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex]);
+				CvPlot* pFirstPlot = GC.getMap().plotByIndexUnchecked(it1->option);
+				CvPlot* pSecondPlot = GC.getMap().plotByIndexUnchecked(it2->option);
 
 				// get the two cities
 				CvCity* pFirstCity  = pFirstPlot->getPlotCity();
@@ -1518,8 +1537,8 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		}
 	}
 
-	map<PlannedRoute, pair<int, int>> bestRouteTypesAndValues;
-	map<PlannedRoute, int> bestRouteNegativeModifiers;
+	map<PlotPair, pair<int, int>> bestRouteValues;
+	map<PlotPair, RouteTypes> bestRouteType;
 
 	// Loop through each pair of terminal plots and find the best route type and build value for this particular plot pair
 	for (map<PlotPair, map<RouteTypes, pair<int, int>>>::const_iterator it = plannedRouteTypeValues.begin(); it != plannedRouteTypeValues.end(); ++it)
@@ -1532,6 +1551,10 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		int iRoadTotalMaintenance = 0;
 		if (iRoadValue > 0)
 		{
+			// If the road is completed, increase its value
+			if (IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
+				iRoadValue = (iRoadValue * 5) / 4;
+
 			int iRoadMaintenance = GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
 			vector<int> plannedRoadPlots = m_plannedRoutePlots[make_pair(plotPair, ROUTE_ROAD)];
@@ -1552,6 +1575,10 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		int iRailroadTotalMaintenance = 0;
 		if (iRailroadValue > 0)
 		{
+			// If the railroad is completed, increase its value
+			if (IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
+				iRailroadValue = (iRailroadValue * 5) / 4;
+
 			int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 			iRailroadTotalMaintenance = m_plannedRoutePlots[make_pair(plotPair, ROUTE_RAILROAD)].size() * iRailroadMaintenance;
 			iRailroadValue -= iRailroadTotalMaintenance;
@@ -1561,42 +1588,29 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		{
 			if (iRoadValue > iRailroadValue)
 			{
-				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_ROAD)] = plannedRouteTypeValues[plotPair][ROUTE_ROAD];
-
-				int iTotalNegativeModifier = iRoadTotalMaintenance;
-				if (iRailroadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
-					iTotalNegativeModifier += iRailroadValue;
-
-				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_ROAD)] = iTotalNegativeModifier;
+				bestRouteType[plotPair] = ROUTE_ROAD;
+				bestRouteValues[plotPair] = plannedRouteTypeValues[plotPair][ROUTE_ROAD];
 			}
 			else
 			{
-				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_RAILROAD)] = plannedRouteTypeValues[plotPair][ROUTE_RAILROAD];
-
-				int iTotalNegativeModifier = iRailroadTotalMaintenance;
-				if (iRoadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
-					iTotalNegativeModifier += iRoadValue;
-
-				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_RAILROAD)] = iTotalNegativeModifier;
+				bestRouteType[plotPair] = ROUTE_RAILROAD;
+				bestRouteValues[plotPair] = plannedRouteTypeValues[plotPair][ROUTE_RAILROAD];
 			}
 		}
 	}
 
 	map<CvPlot*, pair<int, int>> plotValues;
-	map<CvPlot*, int> plotCosts;
 	map<CvPlot*, RouteTypes> plotBestRouteType;
 	map<CvPlot*, PlannedRoute> plotShortestRoute;
 	map<CvPlot*, int> plotShortestRouteBuildTime;
 	map<CvPlot*, RoutePurpose> plotPurposes;
 	// Loop through all the best routes and give their respective plots the best value out of all possible paths
-	for (map<PlannedRoute, pair<int, int>>::const_iterator it = bestRouteTypesAndValues.begin(); it != bestRouteTypesAndValues.end(); ++it)
+	for (map<PlotPair, pair<int, int>>::const_iterator it = bestRouteValues.begin(); it != bestRouteValues.end(); ++it)
 	{
-		PlannedRoute plannedRoute = it->first;
+		PlotPair plotPair = it->first;
 		pair<int, int> newValues = it->second;
-
-		int iNegativeModifier = bestRouteNegativeModifiers[plannedRoute];
-
-		RouteTypes eRoute = it->first.second;
+		RouteTypes eRoute = bestRouteType[plotPair];
+		PlannedRoute plannedRoute = make_pair(plotPair, eRoute);
 
 		vector<int> plots = m_plannedRoutePlots.find(plannedRoute)->second;
 		RoutePurpose ePurpose = m_plannedRoutePurposes.find(plannedRoute)->second;
@@ -1611,27 +1625,20 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 
 			if (eRoute >= plotBestRouteType[pPlot])
 			{
-				int iShortestRouteLength = eRoute == plotBestRouteType[pPlot] && plotShortestRouteBuildTime.find(pPlot) != plotShortestRouteBuildTime.end() ? plotShortestRouteBuildTime[pPlot] : INT_MAX;
+				int iShortestRouteBuildTime = eRoute == plotBestRouteType[pPlot] && plotShortestRouteBuildTime.find(pPlot) != plotShortestRouteBuildTime.end() ? plotShortestRouteBuildTime[pPlot] : INT_MAX;
 				int iRouteBuildTime = GetRouteBuildTime(plannedRoute);
-				if (iRouteBuildTime < iShortestRouteLength)
+				if (iRouteBuildTime < iShortestRouteBuildTime || eRoute > plotBestRouteType[pPlot])
 				{
 					plotShortestRouteBuildTime[pPlot] = iRouteBuildTime;
+					plotBestRouteType[pPlot] = eRoute;
 					m_bestRouteForPlot[pPlot->GetPlotIndex()] = plannedRoute;
 				}
 			}
-
-			if (eRoute > plotBestRouteType[pPlot])
-				plotBestRouteType[pPlot] = eRoute;
 
 			pair<int, int> oldValues = plotValues[pPlot];
 
 			// Two routes going through the same plot, but with different destinations don't have additive value properties
 			plotValues[pPlot] = make_pair(max(newValues.first, oldValues.first), max(newValues.second, oldValues.second));
-			if (plotCosts.find(pPlot) == plotCosts.end())
-				// Directly insert the value with INT_MAX if the plot doesn't exist in plotCosts
-				plotCosts.insert(std::make_pair(pPlot, INT_MAX));
-			// Update the cost if the negative modifier is lower than the existing cost
-			plotCosts[pPlot] = std::min(plotCosts[pPlot], iNegativeModifier);
 		}
 	}
 
@@ -1639,7 +1646,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	for (map<CvPlot*, pair<int, int>>::const_iterator it = plotValues.begin(); it != plotValues.end(); ++it)
 	{
 		CvPlot* pPlot = it->first;
-		int iValue = it->second.first + it->second.second - plotCosts[it->first];
+		int iValue = it->second.first + it->second.second;
 		RouteTypes eRoute = plotBestRouteType[pPlot];
 
 		if (iValue <= 0)
@@ -2426,7 +2433,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 }
 
 /// Evaluates all the circumstances to determine if any builder should evaluate the given plot
-bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(CvPlot* pPlot)
+bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const
 {
 	if (!pPlot)
 		return false;
@@ -2440,25 +2447,6 @@ bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(CvPlot* pPlot)
 	//can't build in other major player's territory (unless they are our vassal)
 	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
 		return false;
-
-	//check if we could be captured
-	vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pPlot, m_pPlayer->getTeam());
-	bool bMayStay = vAttackers.empty() || (vAttackers.size() == 1 && pPlot->getBestDefender(m_pPlayer->GetID()) != NULL);
-	if (!bMayStay)
-	{
-		if (GC.getLogging() && GC.getAILogging() && m_bLogging)
-		{
-			CvString strLog;
-			strLog.Format(
-				"Bailing due to potential attackers,%d,%d,%d",
-				pPlot->getX(),
-				pPlot->getY(),
-				m_pPlayer->GetPlotDanger(*pPlot, true)
-			);
-			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
-		}
-		return false;
-	}
 
 	return true;
 }

@@ -89,7 +89,7 @@ public:
 
 	bool CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective);
 	int GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, int iMaxDistance=INT_MAX);
-	int GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const;
+	int GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, const CvPlot* pPlot) const;
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
@@ -103,7 +103,7 @@ public:
 	void AddRepairRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 
-	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
+	bool ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const;  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
 	int GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned=0);

@@ -323,7 +323,6 @@ void CvHomelandAI::FindHomelandTargets()
 	// Clear out target lists since we rebuild them each turn
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
-	m_TargetedNavalResources.clear();
 	m_TargetedAntiquitySites.clear();
 	m_TargetedNavalSentryPoints.clear();
 
@@ -356,47 +355,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetTargetY(pLoopPlot->getY());
 				newTarget.SetAuxIntData(pCity->getThreatValue());
 				m_TargetedCities.push_back(newTarget);
-			}
-			// ... naval resource?
-			if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-			{
-				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
-				if(eNonObsoleteResource != NO_RESOURCE)
-				{
-					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
-					{
-						// Find proper improvement
-						for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
-						{
-							BuildTypes eBuild = ((BuildTypes)iJ);
-							if (eBuild == NO_BUILD)
-								continue;
-
-							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-							if (!pkBuildInfo)
-								continue;
-
-							ImprovementTypes eNavalImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-							if (eNavalImprovement == NO_IMPROVEMENT)
-								continue;
-
-							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eNavalImprovement);
-							//sometimes we have different improvements for the same resource on land and water
-							if (!(pImprovement->IsWater() || pImprovement->IsCoastMakesValid()))
-								continue;
-
-							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType(eTeam)))
-							{
-								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
-								newTarget.SetTargetX(pLoopPlot->getX());
-								newTarget.SetTargetY(pLoopPlot->getY());
-								newTarget.SetAuxIntData(eBuild);
-								m_TargetedNavalResources.push_back(newTarget);
-								break;
-							}
-						}
-					}
-				}
 			}
 			// ... antiquity site?
 			bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
@@ -505,24 +463,18 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotFirstTurnSettlerMoves();
 
 	//most of these functions are very specific, so their order is not so important ...
-	PlotExplorerMoves();
-
 	//CS Quest Gift
 	ExecuteUnitGift();
 
 	//civilian and military
 	PlotHealMoves();
-	PlotMovesToSafety();
 
-	//military only
+	PlotExplorerMoves();
+
+	//military
 	PlotAircraftRebase();
-	PlotUpgradeMoves();
-	PlotGarrisonMoves();
-	PlotSentryMoves();
-	PlotSentryNavalMoves();
-	PlotPatrolMoves();
 
-	//civilians again
+	//civilians
 	PlotWriterMoves();
 	PlotArtistMoves();
 	PlotMusicianMoves();
@@ -533,9 +485,15 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotAdmiralMoves();
 	PlotProphetMoves();
 	PlotWorkerMoves();
-	PlotWorkerSeaMoves();
 	PlotMissionaryMoves();
 	PlotInquisitorMoves();
+
+	//military again
+	PlotUpgradeMoves();
+	PlotGarrisonMoves();
+	PlotSentryMoves();
+	PlotSentryNavalMoves();
+	PlotPatrolMoves();
 
 	//this is for embassies - diplomatic missions are handled via AI operation
 	PlotDiplomatMoves();
@@ -548,8 +506,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotArchaeologistMoves();
 
 	PlotOpportunisticSettlementMoves();
-	PlotWorkerMoves(true);
-	PlotWorkerSeaMoves(true);
 
 	ReviewUnassignedUnits();
 }
@@ -686,8 +642,8 @@ void CvHomelandAI::PlotHealMoves()
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
 		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt())
 		{
-			//sanity check, workers may get hurt while scrubbing fallout
-			if (pUnit->plot()->getFeatureType() == FEATURE_FALLOUT && pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
+			//workers may get hurt a bit
+			if (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
 				continue;
 
 			CvHomelandUnit unit;
@@ -709,55 +665,6 @@ void CvHomelandAI::PlotHealMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteHeals();
-	}
-}
-
-/// Moved endangered units to safe hexes
-void CvHomelandAI::PlotMovesToSafety()
-{
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TO_SAFETY);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit)
-			continue;
-
-		//allow some danger from fog etc
-		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel < pUnit->GetCurrHitPoints() / 5)
-			continue;
-
-		// civilian always ready to flee
-		if (pUnit->IsCivilianUnit())
-		{
-			//allow workers to clean fallout (at home)
-			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
-				pUnit->plot()->getFeatureType() == FEATURE_FALLOUT && 
-				iDangerLevel < pUnit->GetCurrHitPoints())
-				continue;
-		}
-		else
-		{
-			//military units flee only in mortal danger (if we even get here)
-			if (iDangerLevel < pUnit->GetCurrHitPoints())
-				continue;
-
-			//land barbarians don't flee
-			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
-				continue;
-		}
-
-		CvHomelandUnit unit;
-		unit.SetID(pUnit->GetID());
-		m_CurrentMoveUnits.push_back(unit);
-	}
-
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		ExecuteMovesToSafestPlot(pUnit);
 	}
 }
 
@@ -956,9 +863,9 @@ void CvHomelandAI::PlanImprovements()
 }
 
 /// Find something for all workers to do
-void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
+void CvHomelandAI::PlotWorkerMoves()
 {
-	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER);
+	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_WORKER);
 
 	// Loop through all recruited units
 	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
@@ -966,21 +873,15 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit)
 		{
-			bool bUsePrimaryUnit = pUnit->AI_getUnitAIType() == UNITAI_WORKER || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_BUILD);
-			bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER) || pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA)) && pUnit->getDomainType() == DOMAIN_LAND);
-			if (m_pPlayer->IsAtWar())
+			bool bUsePrimaryUnit = pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_BUILD);
+			bool bUseSecondaryUnit = false;
+			if (!bUsePrimaryUnit)
 			{
-				bSecondary = false;
-			}
-			if (!bUseSecondaryUnit && bSecondary)
-			{
-				if (pUnit->getUnitInfo().GetCombat() > 0 && pUnit->getDomainType() == DOMAIN_LAND)
+				if (pUnit->getUnitInfo().GetCombat() > 0)
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
-						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-
-						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+						if (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType()))
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -988,7 +889,7 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 					}
 				}
 			}
-			if ((!bSecondary && bUsePrimaryUnit) || (bSecondary && bUseSecondaryUnit))
+			if (bUsePrimaryUnit || bUseSecondaryUnit)
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1001,170 +902,6 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 	if(m_CurrentMoveUnits.size() > 0 || m_pPlayer->isHuman())
 	{
 		ExecuteWorkerMoves();
-	}
-}
-
-/// Send out work boats to harvest resources
-void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
-{
-	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER_SEA);
-
-	// Loop through all recruited units
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit)
-		{
-			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA  || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
-			else if (bSecondary && !m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
-			{
-				bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA) && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA));
-				if (!bUseSecondaryUnit)
-				{
-					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
-					{
-						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-					
-						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
-						{
-							bUseSecondaryUnit = true;
-							break;
-						}
-					}
-				}
-				if (bUseSecondaryUnit)
-				{
-					CvHomelandUnit unit;
-					unit.SetID(pUnit->GetID());
-					m_CurrentMoveUnits.push_back(unit);
-				}
-			}
-		}
-	}
-
-	for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
-		int iTargetIndex = -1;
-		int iBestTurns = MAX_INT;
-
-		// See how many moves of this type we can execute
-		for (unsigned int iI = 0; iI < m_TargetedNavalResources.size(); iI++)
-		{
-			// See what units we have who can reach target this turn
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
-
-			//boat may be in city so water area is only adjacent
-			if (!pTarget->shareAdjacentArea(pUnit->plot()))
-				continue;
-
-			//allow some fog danger
-			if (pUnit->GetDanger(pTarget)>20)
-				continue;
-
-			if (bSecondary)
-			{
-				if (pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
-				{
-					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-						continue;
-				}
-				else if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-				{
-					BuildTypes eBuildCheck1 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS");
-					if (eBuildCheck1 == (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData())
-					{
-						BuildTypes eBuildCheck2 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS_NO_KILL");
-						if (eBuildCheck2 != NO_BUILD)
-						{
-							m_TargetedNavalResources[iI].SetAuxIntData(eBuildCheck2);
-							if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-								continue;
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
-			}
-			else
-			{
-				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-					continue;
-			}
-
-			int iTurns = INT_MAX;
-			if (pUnit->GeneratePath(pTarget, 0, iBestTurns, &iTurns))
-			{
-				if (iTurns < iBestTurns)
-				{
-					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
-					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints())
-						continue;
-
-					iBestTurns = iTurns;
-					iTargetIndex = iI;
-				}
-			}
-		}
-
-		if (iTargetIndex != -1)
-		{
-			// Queue best one up to capture it
-			int iTargetX = m_TargetedNavalResources[iTargetIndex].GetTargetX();
-			int iTargetY = m_TargetedNavalResources[iTargetIndex].GetTargetY();
-			CvPlot* pTarget = GC.getMap().plot(iTargetX, iTargetY);
-
-			bool bResult = false;
-			if (pUnit->at(iTargetX, iTargetY))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, false, false, MISSIONAI_BUILD, pTarget);
-				bResult = true;
-			}
-			else
-			{
- 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iTargetX, iTargetY, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER|CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
-				if (pUnit->plot() == pTarget && pUnit->canMove())
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, false, false, MISSIONAI_BUILD, pTarget);
-					bResult = true;
-				}
-				else if (pUnit->canMove())
-					MoveCivilianToSafety(pUnit);
-
-				// Delete this unit from those we have to move
-				UnitProcessed(pUnit->GetID());
-			}
-		
-			if (bResult)
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Harvesting naval resource at, X: %d, Y: %d", m_TargetedNavalResources[iTargetIndex].GetTargetX(), m_TargetedNavalResources[iTargetIndex].GetTargetY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-			else
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Moving toward naval resource at, X: %d, Y: %d", m_TargetedNavalResources[iTargetIndex].GetTargetX(), m_TargetedNavalResources[iTargetIndex].GetTargetY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
 	}
 }
 
@@ -2934,7 +2671,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
 			continue;
 
-		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+		const CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
 		if (workedPlots.find(pDirectivePlot->GetPlotIndex()) != workedPlots.end())
 			continue;
@@ -2963,6 +2700,11 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 			if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective))
 				continue;
+
+			if (pUnit->GetDanger(pDirectivePlot) > pUnit->GetCurrHitPoints())
+			{
+				continue;
+			}
 
 			int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
 
@@ -3078,7 +2820,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 {
 	list<int> allWorkers;
 	set<int> processedWorkers;
-	set<int> nonAutomatedWorkers;
 
 	// Automated and AI controlled workers
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -3096,6 +2837,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		allWorkers.push_back(*it);
 	}
 
+	m_greatPeopleForImprovements.clear();
+
 	// Humans also have non-automated workers. Pretend they are automated as well to avoid going where they are.
 	// We also throw in all great people that can build anything here so they get recommendations as well.
 	if (m_pPlayer->isHuman())
@@ -3106,10 +2849,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			bool bIsBuilder = pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER   || pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL
 	                       || pLoopUnit->AI_getUnitAIType() == UNITAI_ENGINEER || pLoopUnit->AI_getUnitAIType() == UNITAI_SCIENTIST
 				           || pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT || pLoopUnit->AI_getUnitAIType() == UNITAI_PROPHET;
-			if (!pLoopUnit->TurnProcessed() && bIsBuilder && pLoopUnit->getDomainType() == DOMAIN_LAND && find(allWorkers.begin(), allWorkers.end(), pLoopUnit->GetID()) == allWorkers.end())
+			if (!pLoopUnit->TurnProcessed() && bIsBuilder && find(allWorkers.begin(), allWorkers.end(), pLoopUnit->GetID()) == allWorkers.end())
 			{
 				allWorkers.push_back(pLoopUnit->GetID());
-				nonAutomatedWorkers.insert(pLoopUnit->GetID());
 			}
 		}
 	}
@@ -3133,7 +2875,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (!pUnit)
 			continue;
 
-		bool bIsAutomated = !m_pPlayer->isHuman() || nonAutomatedWorkers.find(iUnitId) == nonAutomatedWorkers.end();
+		bool bIsAutomated = !m_pPlayer->isHuman() || pUnit->IsAutomated();
 
 		if (bIsAutomated)
 		{
@@ -3164,7 +2906,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iBuilderID = pBuilder->GetID();
 
 		bool bMoveExecuted = false;
-		bool bIsAutomated = !m_pPlayer->isHuman() || nonAutomatedWorkers.find(iBuilderID) == nonAutomatedWorkers.end();
+		bool bIsAutomated = !m_pPlayer->isHuman() || pBuilder->IsAutomated();
 		if (bIsAutomated)
 		{
 			if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
@@ -3425,7 +3167,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (!pUnit || pUnit->TurnProcessed())
+		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0)
 			continue;
 
 		//find the city which is most in need of workers
@@ -3640,6 +3382,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 								strLogString.Format("Could not find a target for Great Writer at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
+							MoveCivilianToSafety(pUnit);
 							UnitProcessed(pUnit->GetID());
 							continue;
 						}
@@ -3758,6 +3501,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 								strLogString.Format("Could not find a target for Great Artist at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
+							MoveCivilianToSafety(pUnit);
 							UnitProcessed(pUnit->GetID());
 							continue;
 						}
@@ -3876,6 +3620,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 								strLogString.Format("Could not find a target for Great Musician at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
+							MoveCivilianToSafety(pUnit);
 							UnitProcessed(pUnit->GetID());
 							continue;
 						}
