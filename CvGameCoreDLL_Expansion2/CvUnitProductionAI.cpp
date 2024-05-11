@@ -1136,6 +1136,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
+		if (kPlayer.GetPlayerTraits()->IsNoConnectionUnhappiness())
+			return SR_USELESS;
+
 		CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(m_pCity,true);
 		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return SR_STRATEGY;

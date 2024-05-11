@@ -9,12 +9,6 @@ SET
 	NoConnectionUnhappiness = 1
 WHERE Type = 'TRAIT_WAYFINDING';
 
--- Temporary patch until Polynesia AI is taught to build Work Boats: reduce Work Boat Production cost by 99%
-INSERT INTO Trait_UnitCombatProductionCostModifiers
-	(TraitType, UnitCombatType, CostModifier)
-VALUES
-	('TRAIT_WAYFINDING', 'UNITCOMBAT_WORKBOAT', -99);
-
 INSERT INTO Trait_ImprovementYieldChanges
 	(TraitType, ImprovementType, YieldType, Yield)
 VALUES
