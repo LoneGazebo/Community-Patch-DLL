@@ -11896,7 +11896,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			break;
 		default:
 			iTargetValueRatio *= /*2*/ max(GD_INT_GET(TARGET_DISTANT), 1);
-			iTargetValueRatio /= /*1*/ max(GD_INT_GET(TARGET_FAR_DIVISOR), 1);
+			iTargetValueRatio /= /*1*/ max(GD_INT_GET(TARGET_DISTANT_DIVISOR), 1);
 			break;
 		}
 
@@ -11938,7 +11938,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			break;
 		default:
 			iTargetValueRatio *= /*2*/ max(GD_INT_GET(TARGET_DISTANT), 1);
-			iTargetValueRatio /= /*1*/ max(GD_INT_GET(TARGET_FAR_DIVISOR), 1);
+			iTargetValueRatio /= /*1*/ max(GD_INT_GET(TARGET_DISTANT_DIVISOR), 1);
 			break;
 		}
 
