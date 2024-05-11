@@ -15598,6 +15598,16 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	// Threatening civs (unfriendly and/or powerful)
 	int iDefensiveValue = max(iNearbyThreat, iAdjacentThreat);
 
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (pkImprovementInfo && (pkImprovementInfo->GetDefenseModifier() > 0 || pkImprovementInfo->GetNearbyEnemyDamage() > 0))
+		{
+			iDefensiveValue *= 10;
+		}
+	}
+
 	// Targeted civs
 	int iOffensiveValue = iAdjacentUnowned > 1 ? max(iNearbyTarget, iAdjacentTarget) : 0;
 

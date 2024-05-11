@@ -3006,6 +3006,8 @@ public:
 	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 
+	bool NeedWorkerToImproveResource(ResourceTypes eResource) const;
+
 protected:
 	class ConqueredByBoolField
 	{

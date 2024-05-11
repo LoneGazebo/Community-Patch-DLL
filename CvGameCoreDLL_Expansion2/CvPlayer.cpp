@@ -43376,6 +43376,49 @@ bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) co
 }
 
 //	--------------------------------------------------------------------------------
+//Returns false if we can't improve the resource at all
+bool CvPlayer::NeedWorkerToImproveResource(ResourceTypes eResource) const
+{
+	bool bCanImproveWithWorker = false;
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = (BuildTypes)iI;
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+
+		if (!pkBuildInfo)
+			continue;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+		if (!pkImprovementInfo)
+			continue;
+
+		if (!pkImprovementInfo->IsConnectsResource(eResource))
+			continue;
+
+		if (pkImprovementInfo->IsCreatedByGreatPerson())
+			continue;
+
+		if (!canBuild(NULL, eBuild))
+			continue;
+
+		bCanImproveWithWorker = true;
+
+		int iLoopUnit = 0;
+		for (const CvUnit* pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit))
+		{
+			if (pLoopUnit->getUnitInfo().GetBuilds(eBuild) && GetPlayerTraits()->IsNoBuild(eBuild) || GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pLoopUnit->getUnitInfo().GetUnitClassType()))
+			{
+				// Can improve resource without a worker, so we don't need to build one
+				return false;
+			}
+		}
+	}
+	return bCanImproveWithWorker;
+}
+
+//	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {
 	int iLoop = 0;
