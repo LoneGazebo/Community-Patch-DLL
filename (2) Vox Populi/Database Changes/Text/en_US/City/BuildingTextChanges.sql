@@ -646,7 +646,7 @@ WHERE Tag = 'TXT_KEY_WONDER_HIMEJI_CASTLE_HELP';
 
 -- Machu Picchu
 UPDATE Language_en_US
-SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and +15% [ICON_PRODUCTION] from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
+SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and +15% [ICON_PRODUCTION] Production from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MACHU_PICHU_HELP';
 
 -- Forbidden Palace
