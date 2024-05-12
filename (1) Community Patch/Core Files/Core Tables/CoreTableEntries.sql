@@ -323,6 +323,9 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 -- Extra Wonder Production during Golden Ages.
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
+-- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --
+ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
+
 -- TRAIT: Annexed City States continue to give yields. --
 ALTER TABLE Traits ADD COLUMN 'AnnexedCityStatesGiveYields' BOOLEAN DEFAULT 0;
 
@@ -1476,7 +1479,6 @@ ALTER TABLE Policies ADD COLUMN 'HappinessPerXGreatWorks' INTEGER DEFAULT 0;
 
 -- Alters food consumption of specialists - use integer (is raised to 100s later)
 ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;

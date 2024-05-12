@@ -28763,7 +28763,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 
 				//And now notifications.
-				if(iValue > 0)
+				if(GetID() == GC.getGame().getActivePlayer() && iValue > 0)
 				{
 					char text[256] = {0};
 					
