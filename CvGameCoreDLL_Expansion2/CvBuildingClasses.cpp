@@ -59,7 +59,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iTRTurnModGlobal(0),
 	m_iTRTurnModLocal(0),
 	m_iVotesPerGPT(0),
-	m_bRequiresRail(false),
+	m_bRequiresIndustrialCityConnection(false),
 	m_bDummy(false),
 	m_iLandmarksTourismPercentGlobal(0),
 	m_iGreatWorksTourismModifierGlobal(0),
@@ -283,6 +283,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bExtraLuxuries(false),
 	m_bDiplomaticVoting(false),
 	m_bAllowsWaterRoutes(false),
+	m_bAllowsIndustrialWaterRoutes(false),
 	m_bAllowsAirRoutes(false),
 	m_bCityWall(false),
 	m_bUnlockedByBelief(false),
@@ -640,6 +641,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bExtraLuxuries = kResults.GetBool("ExtraLuxuries");
 	m_bDiplomaticVoting = kResults.GetBool("DiplomaticVoting");
 	m_bAllowsWaterRoutes = kResults.GetBool("AllowsWaterRoutes");
+	m_bAllowsIndustrialWaterRoutes = kResults.GetBool("AllowsIndustrialWaterRoutes");
 	m_bAllowsAirRoutes = kResults.GetBool("AllowsAirRoutes");
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iFaithCost = kResults.GetInt("FaithCost");
@@ -849,7 +851,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTRTurnModGlobal = kResults.GetInt("TRTurnModGlobal");
 	m_iTRTurnModLocal = kResults.GetInt("TRTurnModLocal");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
-	m_bRequiresRail = kResults.GetBool("RequiresRail");
+	m_bRequiresIndustrialCityConnection = kResults.GetBool("RequiresIndustrialCityConnection");
 	m_bDummy = kResults.GetBool("IsDummy");
 	m_iLandmarksTourismPercentGlobal = kResults.GetInt("GlobalLandmarksTourismPercent");
 	m_iGreatWorksTourismModifierGlobal = kResults.GetInt("GlobalGreatWorksTourismModifier");
@@ -1853,9 +1855,9 @@ int CvBuildingEntry::GetVotesPerGPT() const
 {
 	return m_iVotesPerGPT;
 }
-bool CvBuildingEntry::IsRequiresRail() const
+bool CvBuildingEntry::IsRequiresIndustrialCityConnection() const
 {
-	return m_bRequiresRail;
+	return m_bRequiresIndustrialCityConnection;
 }
 bool CvBuildingEntry::IsDummy() const
 {
@@ -2923,6 +2925,12 @@ bool CvBuildingEntry::IsDiplomaticVoting() const
 bool CvBuildingEntry::AllowsWaterRoutes() const
 {
 	return m_bAllowsWaterRoutes;
+}
+
+/// Does the building allow industrial routes over the water
+bool CvBuildingEntry::AllowsIndustrialWaterRoutes() const
+{
+	return m_bAllowsIndustrialWaterRoutes;
 }
 
 /// Does the building allow routes through the air

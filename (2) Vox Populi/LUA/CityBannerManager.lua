@@ -261,11 +261,20 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 		-- Connected to capital?
 		if (isActiveTeamCity) then
-			if (not city:IsCapital() and player:IsCapitalConnectedToCity(city) and not city:IsBlockaded()) then
-				controls.ConnectedIcon:SetHide(false);
-				controls.ConnectedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_CONNECTED"));
+			if (not city:IsCapital() and not city:IsBlockaded()) then
+				if (city:IsIndustrialConnectedToCapital()) then
+					controls.IndustrialConnectedIcon:SetHide(false);
+					controls.ConnectedIcon:SetHide(true);
+				elseif (city:IsConnectedToCapital()) then
+					controls.ConnectedIcon:SetHide(false);
+					controls.IndustrialConnectedIcon:SetHide(true);
+				else
+					controls.ConnectedIcon:SetHide(true);
+					controls.IndustrialConnectedIcon:SetHide(true);
+				end
 			else
 				controls.ConnectedIcon:SetHide(true);
+				controls.IndustrialConnectedIcon:SetHide(true);
 			end
 		end
 			

@@ -463,8 +463,8 @@ public:
 	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
-	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive);
-	bool IsCityConnectionPlot(const CvPlot* pPlot) const;
+	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive, bool bIndustrial);
+	bool IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const;
 
 	// Culture
 	int GetTotalJONSCulturePerTurn() const;
@@ -3915,6 +3915,7 @@ protected:
 #endif
 
 	std::vector<int> m_vCityConnectionPlots; //serialized
+	std::vector<int> m_vIndustrialCityConnectionPlots; //serialized
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);

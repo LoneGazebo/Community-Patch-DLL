@@ -149,7 +149,7 @@ public:
 	int GetTRTurnModGlobal() const;
 	int GetTRTurnModLocal() const;
 	int GetVotesPerGPT() const;
-	bool IsRequiresRail() const;
+	bool IsRequiresIndustrialCityConnection() const;
 	bool IsDummy() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
@@ -382,6 +382,7 @@ public:
 	bool IsExtraLuxuries() const;
 	bool IsDiplomaticVoting() const;
 	bool AllowsWaterRoutes() const;
+	bool AllowsIndustrialWaterRoutes() const;
 	bool AllowsAirRoutes() const;
 	bool IsScienceBuilding() const;
 	bool IsUnlockedByBelief() const;
@@ -686,7 +687,7 @@ private:
 	int m_iTRTurnModLocal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
-	bool m_bRequiresRail;
+	bool m_bRequiresIndustrialCityConnection;
 	bool m_bDummy;
 	int m_iLandmarksTourismPercentGlobal;
 	int m_iGreatWorksTourismModifierGlobal;
@@ -931,6 +932,7 @@ private:
 	bool m_bExtraLuxuries;
 	bool m_bDiplomaticVoting;
 	bool m_bAllowsWaterRoutes;
+	bool m_bAllowsIndustrialWaterRoutes;
 	bool m_bAllowsAirRoutes;
 	bool m_bCityWall;
 	bool m_bUnlockedByBelief;

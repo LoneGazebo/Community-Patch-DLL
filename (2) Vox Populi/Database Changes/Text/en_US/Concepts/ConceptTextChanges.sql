@@ -237,7 +237,7 @@ SET Text = '[COLOR_YELLOW]City Connections[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'If a City is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your Capital City (i.e. both cities have a Lighthouse), that City has a "trade route" with the Capital. Each trade route is worth a certain amount of gold each turn, the amount determined by the size of the two cities.'
+SET Text = 'If a City is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your Capital City (i.e. both cities have a Lighthouse), that City has a City Connection with the Capital. Each City Connection is worth a certain amount of gold each turn, the amount determined by the size of the two cities.[NEWLINE][NEWLINE]If a City is connected by a railroad and/or [COLOR_YELLOW]Seaport[ENDCOLOR] to your Capital City (i.e. both cities have a Seaport), that City has an Industrial City Connection with the Capital. An Industrial City Connection gives a production bonus to the targeted city, the amount determined by the size of the two cities. An Industrial City Connection also allows the construction of the [COLOR_YELLOW]Coaling Station[ENDCOLOR], an industrial era building which gives a massive production boost to the city.'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -247,14 +247,14 @@ UPDATE Language_en_US
 SET Text = 'Does the village provide gold?'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_ADV_QUEST';
 UPDATE Language_en_US
-SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold and production if placed on a Road or Railroad that connects two owned cities and/or if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
+SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold and production if placed on a Road or Railroad that connects two owned cities (that are both connected to the Capital) and/or if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_YELLOW]Roads and Trade Routes[ENDCOLOR]'
+SET Text = '[COLOR_YELLOW]Roads and City Connections[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'If there is a road between your capital and another of your cities, those cities have a "city connection." City connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. ([COLOR_YELLOW]Lighthouses[ENDCOLOR] can also create city connections between coastal cities.) See the section on City Connections for details.'
+SET Text = 'If there is a road between your Capital and another of your cities, those cities have a City Connection." City Connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. ([COLOR_YELLOW]Lighthouses[ENDCOLOR] can also create city connections between coastal cities.) See the section on City Connections for details.'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
 
 UPDATE Language_en_US

@@ -33,14 +33,15 @@
     <glyph ch="20" u="176" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="21" u="198" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="22" u="220" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="23" u="0" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="23" u="0" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="24" u="22" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="25" u="44" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="26" u="66" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="27" u="88" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="28" u="110" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="29" u="132" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="30" u="154" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="31" u="176" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="26" u="66" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="27" u="88" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="28" u="110" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="29" u="132" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="30" u="154" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="31" u="176" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="33" u="198" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
   </glyphs>
 </glyphgen>

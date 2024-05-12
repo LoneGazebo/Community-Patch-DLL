@@ -652,7 +652,9 @@ protected:
 	LUAAPIEXTN(HasResource, bool, iResourceType);
 	LUAAPIEXTN(HasWorkedResource, bool, iResourceType);
 	LUAAPIEXTN(IsConnectedToCapital, bool);
+	LUAAPIEXTN(IsIndustrialConnectedToCapital, bool);
 	LUAAPIEXTN(IsConnectedTo, bool, pCity);
+	LUAAPIEXTN(GetConnectionGoldTimes100, int);
 	LUAAPIEXTN(HasSpecialistSlot, bool, iSpecialistType);
 	LUAAPIEXTN(HasSpecialist, bool, iSpecialistType);
 	LUAAPIEXTN(HasTerrain, bool, iTerrainType);

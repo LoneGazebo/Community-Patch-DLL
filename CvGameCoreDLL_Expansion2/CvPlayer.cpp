@@ -1749,6 +1749,7 @@ void CvPlayer::uninit()
 #endif
 
 	m_vCityConnectionPlots.clear();
+	m_vIndustrialCityConnectionPlots.clear();
 	m_eID = NO_PLAYER;
 }
 
@@ -2360,6 +2361,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	}
 
 	m_vCityConnectionPlots.clear();
+	m_vIndustrialCityConnectionPlots.clear();
 	m_iNumUnitsSuppliedCached = -1;
 	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	m_bUnlockedGrowthAnywhereThisTurn = false;
@@ -24108,32 +24110,37 @@ void CvPlayer::DoUpdateCityConnectionHappiness()
 	m_iCityConnectionHappiness = iHappinessPerTradeRoute * iNumCities / 100;	// Bring it out of hundreds
 }
 
-bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive)
+bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive, bool bIndustrial)
 {
 	if (bActive)
 	{
-		if (IsCityConnectionPlot(pPlot))
+		if (IsCityConnectionPlot(pPlot, bIndustrial))
 			return false; //no update
 
 		//insert and sort
-		m_vCityConnectionPlots.push_back(pPlot->GetPlotIndex());
-		std::stable_sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
+		PlotIndexContainer& vPlotIndexContainer = bIndustrial ? m_vIndustrialCityConnectionPlots : m_vCityConnectionPlots;
+		vPlotIndexContainer.push_back(pPlot->GetPlotIndex());
+		std::stable_sort(vPlotIndexContainer.begin(), vPlotIndexContainer.end());
 		return true;
 	}
 	else
 	{
-		if (!IsCityConnectionPlot(pPlot))
+		if (!IsCityConnectionPlot(pPlot, bIndustrial))
 			return false; //no update
 
 		//just delete, no need to re-sort
-		m_vCityConnectionPlots.erase(std::remove(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex()), m_vCityConnectionPlots.end());
+		PlotIndexContainer& vPlotIndexContainer = bIndustrial ? m_vIndustrialCityConnectionPlots : m_vCityConnectionPlots;
+		vPlotIndexContainer.erase(std::remove(vPlotIndexContainer.begin(), vPlotIndexContainer.end(), pPlot->GetPlotIndex()), vPlotIndexContainer.end());
 		return true;
 	}
 }
 
-bool CvPlayer::IsCityConnectionPlot(const CvPlot * pPlot) const
+bool CvPlayer::IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const
 {
-	return std::binary_search(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex());
+	if (bIndustrial)
+		return std::binary_search(m_vIndustrialCityConnectionPlots.begin(), m_vIndustrialCityConnectionPlots.end(), pPlot->GetPlotIndex());
+	else
+		return std::binary_search(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex());
 }
 
 //	--------------------------------------------------------------------------------
@@ -48987,6 +48994,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_pabHasStrategicMonopoly);
 
 	visitor(player.m_vCityConnectionPlots);
+	visitor(player.m_vIndustrialCityConnectionPlots);
 
 	visitor(player.m_vResourcesNotForSale);
 	visitor(player.m_refuseOpenBordersTrade);

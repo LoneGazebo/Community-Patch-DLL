@@ -410,7 +410,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
 
 					if (iVillageYieldBonus != 0)
 					{
@@ -457,7 +457,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
 				}
 
 				if (iVillageYieldBonus != 0 && m_pPlayer->canBuild(pPlot, eBuild))
@@ -645,43 +645,49 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 		}
-		iConnectionValue += m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
+		int iCityConnectionFlatValueTimes100 = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
+		iConnectionValue += iCityConnectionFlatValueTimes100;
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
-			int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
+			int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
 			int iProductionYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
-			int iProductionYieldRateModifier = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+			int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
 
-			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
+			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
 
-#if defined(MOD_BALANCE_CORE)
-			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
-			int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);
-			int iGoldYieldRateModifier = 0;
-
-			// Target city would get a production and gold boost from a train station.
-			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
+			if (MOD_BALANCE_VP)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
-				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+				int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
+				int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);
+				int iGoldYieldRateModifierTimes100 = 0;
 
-				if (pkBuilding == NULL)
-					continue;
+				// Target city would get a flat production bonus from the Industrial City Connection
+				iConnectionValue += (iCityConnectionFlatValueTimes100 * iProductionYieldBaseModifierTimes100) / iGoldYieldBaseModifierTimes100;
 
-				if (!pkBuilding->IsRequiresRail())
-					continue;
+				// Target city would get a production and gold boost from a coaling station.
+				for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
+				{
+					BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
+					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
 
-				if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
-					continue;
+					if (pkBuilding == NULL)
+						continue;
 
-				iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
- 				iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
+					if (!pkBuilding->IsRequiresIndustrialCityConnection())
+						continue;
 
-				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
-				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 10000;
+					if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+						continue;
+
+					iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+					iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
+
+					// Assumes current modifiers are 0%, should do some proper calculations that account for bonuses being additive rather than multiplicative
+					iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+					iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifierTimes100 * iGoldYieldBaseModifierTimes100) / 10000;
+				}
 			}
-#endif
 		}
 	}
 
@@ -1655,44 +1661,6 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
 
-		// Upgrade roads to railroads if there is a village on this plot and it is a city connecting plot
-		if (eRoute == ROUTE_ROAD
-			&& pPlot->getOwner() == m_pPlayer->GetID()
-			&& pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot)
-			&& pPlot->IsCityConnection(m_pPlayer->GetID())
-			&& m_pPlayer->getBestRoute() > ROUTE_ROAD)
-		{
-			int iVillageYieldBonusFromRailroad = 0;
-
-			ImprovementTypes ePlotImprovement = pPlot->getImprovementType();
-			if (ePlotImprovement != NO_IMPROVEMENT)
-			{
-				CvImprovementEntry* pkPlotImprovementInfo = GC.getImprovementInfo(ePlotImprovement);
-				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
-				{
-					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
-					iVillageYieldBonus -= pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
-
-					if (iVillageYieldBonus != 0)
-					{
-						iVillageYieldBonusFromRailroad += iVillageYieldBonus;
-					}
-				}
-			}
-
-			if (iVillageYieldBonusFromRailroad > 0)
-			{
-				int iRoadMaintenance = m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) ? 0 : GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-				int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-				if (iVillageYieldBonusFromRailroad > iRailroadMaintenance - iRoadMaintenance)
-				{
-					eRoute = ROUTE_RAILROAD;
-					iValue += iVillageYieldBonusFromRailroad - (iRailroadMaintenance - iRoadMaintenance);
-				}
-			}
-		}
-
 		iValue /= 10;
 
 		AddRouteOrRepairDirective(aDirectives, pPlot, eRoute, iValue, plotPurposes[pPlot]);
@@ -2231,7 +2199,7 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 	//Don't cut down city connections!
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
-		if(pPlot->IsCityConnection(m_pPlayer->GetID()))
+		if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		{
 			return;
 		}

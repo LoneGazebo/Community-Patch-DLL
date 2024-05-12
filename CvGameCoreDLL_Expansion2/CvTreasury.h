@@ -52,7 +52,7 @@ public:
 	void ChangeGoldPerTurnFromDiplomacy(int iChange);
 
 	// City connections
-	int GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) const;
+	int GetCityConnectionRouteGoldTimes100(const CvCity* pNonCapitalCity) const;
 	int GetCityConnectionGold() const;
 	int GetCityConnectionGoldTimes100() const;
 	void DoUpdateCityConnectionGold();
