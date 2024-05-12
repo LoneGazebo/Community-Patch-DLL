@@ -591,7 +591,7 @@ function RefreshAgents()
 			agentEntry.Base:SetColorVal(0,0,0,0);
 			bTickTock = not bTickTock;
 
-			agentEntry.RelocateButton:setHide(true);
+			agentEntry.RelocateButton:SetHide(true);
 		else
 			agentEntry.AgentLocationActionsPanel:SetHide(false);
 			agentEntry.AgentActivityPanel:SetHide(false);
