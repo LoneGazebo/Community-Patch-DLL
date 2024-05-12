@@ -2072,7 +2072,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		return 0;
 
 	int iCityConnectionMask = CvCityConnections::CONNECTION_HARBOR;
-	if (MOD_BALANCE_CORE)
+	if (MOD_BALANCE_VP)
 	{
 		if (eRoute == ROUTE_ROAD || eRoute == ROUTE_ANY)
 		{

@@ -656,7 +656,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
 
-			if (MOD_BALANCE_CORE)
+			if (MOD_BALANCE_VP)
 			{
 				int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
 				int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);

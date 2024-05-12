@@ -14006,7 +14006,7 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
 
-	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected())
+	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
 	{
 		iBaseProduction += GetConnectionGoldTimes100();
 	}
@@ -14056,7 +14056,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
 
-	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected())
+	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
 	{
 		iBaseProduction += GetConnectionGoldTimes100();
 	}
@@ -25287,7 +25287,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
 
 	// Yield from Industrial City Connections
-	if (MOD_BALANCE_CORE && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
+	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
 	{
 		iBaseYield += GetConnectionGoldTimes100();
 	}

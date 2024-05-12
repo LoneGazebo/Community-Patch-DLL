@@ -884,7 +884,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
 #if defined(MOD_BALANCE_CORE)
 	iBaseYield += (GetCity()->GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(GetCity()->getOwner()).getTotalPopulation());
-	if (MOD_BALANCE_CORE && GetCity()->IsIndustrialRouteToCapitalConnected())
+	if (MOD_BALANCE_VP && GetCity()->IsIndustrialRouteToCapitalConnected())
 	{
 		iBaseYield += GetCity()->GetConnectionGoldTimes100();
 	}
