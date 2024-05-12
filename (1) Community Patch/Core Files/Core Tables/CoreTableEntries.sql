@@ -202,10 +202,10 @@ ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
 -- Allows industrial city connections via water
-ALTER TABLE Buildings ADD AllowsIndustrialWaterRoutes BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'AllowsIndustrialWaterRoutes' boolean DEFAULT 0;
 
 -- Allows city connections via the air
-ALTER TABLE Buildings ADD AllowsAirRoutes BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'AllowsAirRoutes' boolean DEFAULT 0;
 
 -- Building, Belief, UA
 -- Increase to border growth expansion rate
