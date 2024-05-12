@@ -811,7 +811,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
 							if (pkEventChoiceInfo)
 							{
-								const char* szMissionText = pkEventChoiceInfo->getSpyMissionEffect();
+								const char* szMissionText = pkEventChoiceInfo->GetHelp();
 								CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 								if (pNotifications)
 								{
