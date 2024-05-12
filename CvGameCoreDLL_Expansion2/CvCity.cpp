@@ -6731,7 +6731,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						GetCityEspionage()->SetPendingEvents(eSpyOwner, 0);
 
 						// notify other players
-						const char* szMissionText = pkEventChoiceInfo->getSpyMissionEffect();
+						const char* szMissionText = pkEventChoiceInfo->GetHelp();
 						for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 						{
 							const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(i);
