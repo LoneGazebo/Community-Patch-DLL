@@ -1015,9 +1015,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_STEAM_POWER',
-	CitySupplyModifier = 20,
-	SpecialistType = 'SPECIALIST_ENGINEER',
-	SpecialistCount = 1
+	CitySupplyModifier = 20
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 INSERT INTO Helper
