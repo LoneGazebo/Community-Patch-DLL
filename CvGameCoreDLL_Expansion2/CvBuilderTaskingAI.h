@@ -162,7 +162,7 @@ protected:
 	void GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
 
 	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
-	bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const;
+	int CvBuilderTaskingAI::GetRouteCompletionTimes100(PlannedRoute plannedRoute) const;
 
 	void UpdateCanalPlots();
 

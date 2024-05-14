@@ -2589,6 +2589,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 	int iNumUnimprovedWaterResources = 0;
 
 	CvPlot* pLoopPlot = NULL;
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
 	// Look at all Tiles this City could potentially work to see if there are any Water Resources that could be improved
 
@@ -2607,11 +2608,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 					{
 						// Does this Tile already have a Resource, and if so, is it already improved?
 #if defined(MOD_BALANCE_CORE)
-						if(pLoopPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
 #else
-						if(pLoopPlot->getResourceType() != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						ResourceTypes eResource = pLoopPlot->getResourceType();
 #endif
+						if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
+							if (!kPlayer.NeedWorkerToImproveResource(eResource))
+								continue;
+
 							iNumUnimprovedWaterResources++;
 						}
 					}

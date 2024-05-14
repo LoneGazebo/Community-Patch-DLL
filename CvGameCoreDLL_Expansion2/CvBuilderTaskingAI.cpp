@@ -576,6 +576,72 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 	}
 }
 
+static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteTypes eRoute)
+{
+	// Compute bonus for connecting city (or keeping connected)
+	int iConnectionValue = 0;
+
+	if (!pPlayer->GetPlayerTraits()->IsNoConnectionUnhappiness())
+	{
+		float fUnhappiness = 0.00f;
+		if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+		{
+			fUnhappiness += (float)pCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+		}
+		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
+
+		int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+
+		iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
+	}
+	int iCityConnectionFlatValueTimes100 = pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pCity);
+	iConnectionValue += iCityConnectionFlatValueTimes100;
+
+	if (GC.getGame().GetIndustrialRoute() == eRoute)
+	{
+		int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
+		int iProductionYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
+		int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+
+		iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+
+		if (MOD_BALANCE_VP)
+		{
+			int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
+			int iGoldYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_GOLD);
+			int iGoldYieldRateModifierTimes100 = 0;
+
+			// Target city would get a flat production bonus from the Industrial City Connection
+			iConnectionValue += (iCityConnectionFlatValueTimes100 * iProductionYieldBaseModifierTimes100) / iGoldYieldBaseModifierTimes100;
+
+			// Target city would get a production and gold boost from a coaling station.
+			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+
+				if (pkBuilding == NULL)
+					continue;
+
+				if (!pkBuilding->IsRequiresIndustrialCityConnection())
+					continue;
+
+				if (!pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+					continue;
+
+				iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+				iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
+
+				// Assumes current modifiers are 0%, should do some proper calculations that account for bonuses being additive rather than multiplicative
+				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifierTimes100 * iGoldYieldBaseModifierTimes100) / 10000;
+			}
+		}
+	}
+
+	return iConnectionValue;
+}
+
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
 	if(pTargetCity->IsRazing())
@@ -630,64 +696,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	else
 	{
 		// Compute bonus for connecting city (or keeping connected)
-
-		if (!m_pPlayer->GetPlayerTraits()->IsNoConnectionUnhappiness())
-		{
-			float fUnhappiness = 0.00f;
-			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
-			{
-				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
-			}
-			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
-
-			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
-
-			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
-		}
-		int iCityConnectionFlatValueTimes100 = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
-		iConnectionValue += iCityConnectionFlatValueTimes100;
-
-		if(GC.getGame().GetIndustrialRoute() == eRoute)
-		{
-			int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
-			int iProductionYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
-			int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
-
-			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
-
-			if (MOD_BALANCE_VP)
-			{
-				int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
-				int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);
-				int iGoldYieldRateModifierTimes100 = 0;
-
-				// Target city would get a flat production bonus from the Industrial City Connection
-				iConnectionValue += (iCityConnectionFlatValueTimes100 * iProductionYieldBaseModifierTimes100) / iGoldYieldBaseModifierTimes100;
-
-				// Target city would get a production and gold boost from a coaling station.
-				for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
-				{
-					BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
-					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-
-					if (pkBuilding == NULL)
-						continue;
-
-					if (!pkBuilding->IsRequiresIndustrialCityConnection())
-						continue;
-
-					if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
-						continue;
-
-					iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
-					iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
-
-					// Assumes current modifiers are 0%, should do some proper calculations that account for bonuses being additive rather than multiplicative
-					iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
-					iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifierTimes100 * iGoldYieldBaseModifierTimes100) / 10000;
-				}
-			}
-		}
+		iConnectionValue += GetCapitalConnectionValue(m_pPlayer, pTargetCity, eRoute);
 	}
 
 	iConnectionValue -= iNumRoadsNeededToBuild * 10;
@@ -736,6 +745,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		iVillageBonusesIfCityConnected = 0;
 
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
+
+	// Add a small part of the capital connection bonus, it's good to have some redundancy
+	iValue += GetCapitalConnectionValue(m_pPlayer, pCity1, eRoute) / 20;
+	iValue += GetCapitalConnectionValue(m_pPlayer, pCity2, eRoute) / 20;
 
 	iValue -= iNumRoadsNeededToBuild * 10;
 
@@ -919,17 +932,21 @@ int CvBuilderTaskingAI::GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot
 	return GetRouteBuildTime(it->second, pUnit);
 }
 
-bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
+int CvBuilderTaskingAI::GetRouteCompletionTimes100(PlannedRoute plannedRoute) const
 {
 	RouteTypes eRoute = plannedRoute.second;
 
 	map<PlannedRoute, vector<int>>::const_iterator it = m_plannedRoutePlots.find(plannedRoute);
 	if (it == m_plannedRoutePlots.end())
-		return false;
+		return 0;
+
+	int iLength = 0;
+	int iIncomplete = 0;
 
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
+		iLength++;
 
 		if (!pPlot)
 			continue;
@@ -940,10 +957,10 @@ bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
 		if (pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 			continue;
 
-		return false;
+		iIncomplete++;
 	}
 
-	return true;
+	return ((iLength - iIncomplete) * 100) / iLength;
 }
 
 bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const
@@ -1557,8 +1574,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (iRoadValue > 0)
 		{
 			// If the road is completed, increase its value
-			if (IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
-				iRoadValue = (iRoadValue * 5) / 4;
+			iRoadValue += (iRoadValue * GetRouteCompletionTimes100(make_pair(plotPair, ROUTE_ROAD))) / 400;
 
 			int iRoadMaintenance = GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
@@ -1581,8 +1597,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (iRailroadValue > 0)
 		{
 			// If the railroad is completed, increase its value
-			if (IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
-				iRailroadValue = (iRailroadValue * 5) / 4;
+			iRailroadValue += (iRailroadValue * GetRouteCompletionTimes100(make_pair(plotPair, ROUTE_RAILROAD))) / 400;
 
 			int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 			iRailroadTotalMaintenance = m_plannedRoutePlots[make_pair(plotPair, ROUTE_RAILROAD)].size() * iRailroadMaintenance;
