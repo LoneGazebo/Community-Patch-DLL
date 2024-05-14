@@ -2976,7 +2976,8 @@ int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTy
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = 0;
-		if ((int)eWonderEra < (int)pBeliefs->GetEntry(*it)->GetObsoleteEra())
+		EraTypes eObsoleteEra = pBeliefs->GetEntry(*it)->GetObsoleteEra();
+		if (eObsoleteEra == NO_ERA || eWonderEra < eObsoleteEra)
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetWonderProductionModifier();
 		}
@@ -4704,11 +4705,8 @@ int CvReligionBeliefs::GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTy
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iEra = (int)pBeliefs->GetEntry(*it)->GetObsoleteEra();
-		if (iEra <= 0)
-			iEra = GC.getNumEraInfos()+1;
-
-		if (pBeliefs->GetEntry(*it)->GetIgnorePolicyRequirementsAmount() && ((int)eEra < iEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		EraTypes eObsoleteEra = pBeliefs->GetEntry(*it)->GetObsoleteEra();
+		if (pBeliefs->GetEntry(*it)->GetIgnorePolicyRequirementsAmount() && (eObsoleteEra == NO_ERA || eEra < eObsoleteEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}
