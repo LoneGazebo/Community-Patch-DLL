@@ -255,8 +255,7 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	bool bRouteTo = eToPlotRoute != NO_ROUTE;
 	bool bRouteFrom = eFromPlotRoute != NO_ROUTE;
 
-	//ideally there'd be a check of the river direction to make sure it's the same river
-	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
+	bool bMovingAlongRiver = pFromPlot->IsAlongSameRiver(pToPlot);
 	bool bFakeRouteTo = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 	bool bFakeRouteFrom = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 

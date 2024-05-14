@@ -567,7 +567,7 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
-	else if (pUnit->isRiverDoubleMove() && pPlot->isRiver())
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		iModifier /= 2;
 	}
@@ -630,7 +630,7 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 	{
 		bIsFaster = true;
 	}
-	else if (pUnit->isRiverDoubleMove() && pPlot->isRiver())
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		bIsFaster = true;
 	}

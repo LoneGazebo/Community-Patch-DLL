@@ -147,6 +147,9 @@ public:
 	bool isRiverSide() const;
 	bool isRiverConnection(DirectionTypes eDirection) const;
 
+	bool IsRiverSide(DirectionTypes eDirection) const;
+	bool IsAlongSameRiver(const CvPlot* pToPlot) const;
+
 	CvPlot* getNeighboringPlot(DirectionTypes eDirection) const;
 	CvPlot* getNearestLandPlotInternal(int iDistance) const;
 	int getNearestLandArea() const;

@@ -1329,21 +1329,11 @@ bool CvPlot::isRiverSide() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 {
-#if defined(MOD_BALANCE_CORE)
 	switch(eDirection)
 	{
 	case NO_DIRECTION:
 		return false;
 		break;
-#else
-	if(eDirection == NO_DIRECTION)
-	{
-		return false;
-	}
-
-	switch(eDirection)
-	{
-#endif
 	case DIRECTION_NORTHEAST:
 		return (isRiverCrossing(DIRECTION_NORTHWEST) || isRiverCrossing(DIRECTION_EAST));
 		break;
@@ -1380,6 +1370,64 @@ bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 CvPlot* CvPlot::getNeighboringPlot(DirectionTypes eDirection) const
 {
 	return plotDirection(getX(), getY(), eDirection);
+}
+
+//	--------------------------------------------------------------------------------
+/// Is there a river on this side of the plot?
+bool CvPlot::IsRiverSide(DirectionTypes eDirection) const
+{
+	CvAssertMsg(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
+	CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+	switch (eDirection)
+	{
+		case DIRECTION_NORTHEAST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isNEOfRiver() : false;
+		}
+		case DIRECTION_EAST:
+		{
+			return isWOfRiver();
+		}
+		case DIRECTION_SOUTHEAST:
+		{
+			return isNWOfRiver();
+		}
+		case DIRECTION_SOUTHWEST:
+		{
+			return isNEOfRiver();
+		}
+		case DIRECTION_WEST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isWOfRiver() : false;
+		}
+		case DIRECTION_NORTHWEST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isNWOfRiver() : false;
+		}
+		default:
+			return false;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// We don't care about river flow or whether it crosses a river.
+/// As long as both plots are on the same side of a river system, it counts.
+bool CvPlot::IsAlongSameRiver(const CvPlot* pToPlot) const
+{
+	CvAssert(pToPlot);
+	DirectionTypes eDirection = directionXY(this, pToPlot);
+	DirectionTypes eNextDirection = static_cast<DirectionTypes>((eDirection + 1) % 6);
+	DirectionTypes ePrevDirection = static_cast<DirectionTypes>((eDirection + 5) % 6);
+	DirectionTypes eAdjNextDirection = static_cast<DirectionTypes>((eDirection + 4) % 6);
+	DirectionTypes eAdjPrevDirection = static_cast<DirectionTypes>((eDirection + 2) % 6);
+
+	if (IsRiverSide(eNextDirection) && pToPlot->IsRiverSide(eAdjPrevDirection))
+		return true;
+
+	if (IsRiverSide(ePrevDirection) && pToPlot->IsRiverSide(eAdjNextDirection))
+		return true;
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

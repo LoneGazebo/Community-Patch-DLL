@@ -3276,14 +3276,15 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
+	else if (pFromPlot->IsAlongSameRiver(pToPlot))
 	{
-		// Songhai ability
 		if (pCacheData->IsRiverTradeRoad())
 			iRouteDiscountTimes120 = 40;
 		else
 			bIgnoreTerrain = true;
 	}
+	else if (pToPlot->isCity())
+		bIgnoreTerrain = true;
 
 	if (iRouteDiscountTimes120 > 0)
 		bIgnoreTerrain = true;
