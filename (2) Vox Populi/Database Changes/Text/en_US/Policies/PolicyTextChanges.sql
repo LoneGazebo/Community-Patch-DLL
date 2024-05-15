@@ -245,7 +245,7 @@ SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] enhances your ability to defen
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]Emit +50% Pressure from Cities with your [COLOR_POSITIVE_TEXT]Primary Religion[ENDCOLOR] as your [ICON_RELIGION] Majority Religion to all nearby Cities without your [COLOR_POSITIVE_TEXT]Primary Religion[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 [ICON_PEACE] Faith from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]+25% Pressure from owned Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+1 [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from Shrines and Temples.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP';
 
 UPDATE Language_en_US
@@ -265,7 +265,7 @@ SET Text = 'Divine Right'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE][ICON_BULLET]25% of [ICON_HAPPINESS_1] Happiness produced in each City is added to the City''s [ICON_CULTURE] Culture per Turn.[NEWLINE][ICON_BULLET]-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE][ICON_BULLET]+33% Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]Completing an Internal [ICON_INTERNATIONAL_TRADE] Trade Route triggers a Historic Event as if completing an International [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY_HELP';
 
 UPDATE Language_en_US
@@ -289,7 +289,7 @@ SET Text = 'Serfdom'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_RELIGION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Serfdom[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture in Cities for every 4 non-Specialist [ICON_CITIZEN] Citizens.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from Pastures.[NEWLINE][ICON_BULLET]+33% Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Serfdom[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in Cities for every 4 non-Specialist [ICON_CITIZEN] Citizens.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from Pastures.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_RELIGION_HELP';
 
 UPDATE Language_en_US

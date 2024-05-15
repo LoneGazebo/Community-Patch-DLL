@@ -99,6 +99,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iLandmarksTourismPercent(0),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
+	m_bInternalTRTourism(false),
 	m_iExtraCultureandScienceTradeRoutes(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
@@ -315,6 +316,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
 	m_iSpySecurityModifier(0),
+	m_iVotesPerFollowingCityTimes100(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
 	m_iFreeSpy(0),
@@ -587,6 +589,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iLandmarksTourismPercent = kResults.GetInt("LandmarksTourismPercent");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
+	m_bInternalTRTourism = kResults.GetBool("InternalTRTourism");
 	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
@@ -780,6 +783,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
 	m_iSpySecurityModifier= kResults.GetInt("SpySecurityModifier");
+	m_iVotesPerFollowingCityTimes100 = kResults.GetInt("VotesPerFollowingCityTimes100");
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
@@ -1839,6 +1843,10 @@ int CvPolicyEntry::GetArchaeologicalDigTourism() const
 int CvPolicyEntry::GetGoldenAgeTourism() const
 {
 	return m_iGoldenAgeTourism;
+}
+bool CvPolicyEntry::IsInternalTRTourism() const
+{
+	return m_bInternalTRTourism;
 }
 int CvPolicyEntry::GetExtraCultureandScienceTradeRoutes() const
 {
@@ -3135,6 +3143,11 @@ int CvPolicyEntry::GetFreeWCVotes() const
 int CvPolicyEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
+}
+// Votes per city following your state religion, times 100
+int CvPolicyEntry::GetVotesPerFollowingCityTimes100() const
+{
+	return m_iVotesPerFollowingCityTimes100;
 }
 //Influence from GP expenditure?
 int CvPolicyEntry::GetInfluenceGPExpend() const

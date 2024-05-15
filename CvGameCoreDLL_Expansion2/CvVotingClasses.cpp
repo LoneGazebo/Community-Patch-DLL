@@ -4198,8 +4198,8 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	iVotes += iImprovementVotes;
 
 	// Religion Founder
-	int iFaithVotes = GET_PLAYER(ePlayer).GetFaithToVotes();
-	iVotes += iFaithVotes;
+	int iFaithVotes = GET_PLAYER(ePlayer).GetFaithToVotesTimes100();
+	iVotes += iFaithVotes / 100;
 
 	// Freedom Follower
 	int iGetDoFToVotes = GET_PLAYER(ePlayer).GetDoFToVotes();
@@ -4328,7 +4328,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		if (iFaithVotes > 0)
 		{
 			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_FAITH_VOTES");
-			sTemp << iFaithVotes;
+			sTemp << (iFaithVotes / 100);
 			thisMember->sVoteSources += sTemp.toUTF8();
 		}
 		if (iCapitalsToVotes > 0)

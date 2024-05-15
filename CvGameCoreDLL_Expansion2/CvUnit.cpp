@@ -13705,25 +13705,8 @@ bool CvUnit::blastTourism()
 	// Show tourism spread
 	if (iTourismBlastAfterModifier > 0 && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 	{
-		CvString strInfluenceText;
 		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-
-		if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-		else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-		else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-		else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-		else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-		else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
-
-		char text[256] = {0};
-		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlastAfterModifier, strInfluenceText.c_str());
-		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
+		SHOW_PLOT_POPUP(pPlot, getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourismBlastAfterModifier));
 	}
 
 	// Achievements

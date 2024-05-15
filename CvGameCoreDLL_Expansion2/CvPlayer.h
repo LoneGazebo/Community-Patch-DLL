@@ -835,9 +835,9 @@ public:
 	int GetExtraLeagueVotes() const;
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
-	int GetFaithToVotes() const;
-	void ChangeFaithToVotes(int iChange);
-	int TestFaithToVotes(int iChange);
+	int GetFaithToVotesTimes100() const;
+	void ChangeFaithToVotesTimes100(int iChange);
+	int TestFaithToVotesTimes100(int iChange);
 	int GetCapitalsToVotes() const;
 	void ChangeCapitalsToVotes(int iChange);
 	int TestCapitalsToVotes(int iChange);
@@ -1544,6 +1544,9 @@ public:
 	void ChangeGoldenAgeTourism(int iChange);
 	int GetGoldenAgeTourism() const;
 
+	void ChangeInternalTRTourism(int iChange);
+	bool IsInternalTRTourism() const;
+
 	void ChangeExtraCultureandScienceTradeRoutes(int iChange);
 	int GetExtraCultureandScienceTradeRoutes() const;
 
@@ -1986,6 +1989,9 @@ public:
 
 	int GetFreeWCVotes() const;
 	void changeFreeWCVotes(int iChange);
+
+	int GetVotesPerFollowingCityTimes100() const;
+	void ChangeVotesPerFollowingCityTimes100(int iChange);
 
 	int GetInfluenceGPExpend() const;
 	void changeInfluenceGPExpend(int iChange);
@@ -3304,6 +3310,7 @@ protected:
 	int m_iOccupiedProdMod;
 	int m_iGoldInternalTrade;
 	int m_iFreeWCVotes;
+	int m_iVotesPerFollowingCityTimes100;
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
@@ -3429,6 +3436,7 @@ protected:
 	int m_iJFDProsperity;
 	int m_iJFDCurrency;
 	int m_iGoldenAgeTourism;
+	int m_iInternalTRTourism;
 	int m_iExtraCultureandScienceTradeRoutes;
 	int m_iArchaeologicalDigTourism;
 	int m_iUpgradeCSVassalTerritory;
@@ -4159,6 +4167,7 @@ SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)
 SYNC_ARCHIVE_VAR(int, m_iOccupiedProdMod)
 SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)
 SYNC_ARCHIVE_VAR(int, m_iFreeWCVotes)
+SYNC_ARCHIVE_VAR(int, m_iVotesPerFollowingCityTimes100)
 SYNC_ARCHIVE_VAR(int, m_iInfluenceGPExpend)
 SYNC_ARCHIVE_VAR(int, m_iFreeTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpy)
@@ -4266,6 +4275,7 @@ SYNC_ARCHIVE_VAR(CvString, m_strJFDCurrencyName)
 SYNC_ARCHIVE_VAR(int, m_iJFDProsperity)
 SYNC_ARCHIVE_VAR(int, m_iJFDCurrency)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeTourism)
+SYNC_ARCHIVE_VAR(int, m_iInternalTRTourism)
 SYNC_ARCHIVE_VAR(int, m_iExtraCultureandScienceTradeRoutes)
 SYNC_ARCHIVE_VAR(int, m_iArchaeologicalDigTourism)
 SYNC_ARCHIVE_VAR(int, m_iUpgradeCSVassalTerritory)
