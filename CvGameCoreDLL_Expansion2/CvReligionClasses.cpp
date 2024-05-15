@@ -3017,12 +3017,10 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
 	if (iPolicyMod != 0)
 	{
-		//If the faith being spread is our founded faith, or our adopted faith...
+		//If the faith being spread is our founded faith, or our adopted faith, we get the bonus.
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
-			//...and the target city doesn't have our majority religion, we get the bonus.
-			if (pToCity->GetCityReligions()->GetReligiousMajority() != eReligion)
-				iPressureMod += iPolicyMod;
+			iPressureMod += iPolicyMod;
 		}
 	}
 

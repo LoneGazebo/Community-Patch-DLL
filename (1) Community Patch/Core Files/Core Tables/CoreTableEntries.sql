@@ -568,6 +568,9 @@ ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
 -- Adds event tourism from golden ages starting.
 ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' INTEGER DEFAULT 0;
 
+-- Gives event tourism when completing internal trade routes as if they are international.
+ALTER TABLE Policies ADD COLUMN 'InternalTRTourism' boolean DEFAULT 0;
+
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
@@ -848,6 +851,9 @@ ALTER TABLE Policies ADD COLUMN 'IncreasedQuestRewards' INTEGER DEFAULT 0;
 -- Extra vote in WC for every X City-States originally in the world
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
 
+-- Gives votes per city following your state religion
+ALTER TABLE Policies ADD COLUMN 'VotesPerFollowingCityTimes100' integer DEFAULT 0;
+
 -- GP Expend Influence Boost
 ALTER TABLE Policies ADD COLUMN 'InfluenceGPExpend' INTEGER DEFAULT 0;
 
@@ -875,7 +881,7 @@ ALTER TABLE Policies ADD COLUMN 'IdeologyPoint' INTEGER DEFAULT 0;
 -- Religious Distance Modifier (affects spread to owned cities based on distance)
 ALTER TABLE Policies ADD COLUMN 'ReligionDistance' INTEGER DEFAULT 0;
 
--- Religious Pressure Modifier (affects cities without a majority religion)
+-- Religious Pressure Modifier (only from cities following state religion)
 ALTER TABLE Policies ADD COLUMN 'PressureMod' INTEGER DEFAULT 0;
 
 -- New Beliefs

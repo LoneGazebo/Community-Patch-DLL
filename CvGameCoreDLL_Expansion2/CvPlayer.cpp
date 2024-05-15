@@ -615,6 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_iUpgradeCSVassalTerritory()
 	, m_iArchaeologicalDigTourism()
 	, m_iGoldenAgeTourism()
+	, m_iInternalTRTourism()
 	, m_iExtraCultureandScienceTradeRoutes()
 	, m_iRazingSpeedBonus()
 	, m_iNoPartisans()
@@ -722,6 +723,7 @@ CvPlayer::CvPlayer() :
 	, m_iOccupiedProdMod()
 	, m_iGoldInternalTrade()
 	, m_iFreeWCVotes()
+	, m_iVotesPerFollowingCityTimes100()
 	, m_iInfluenceGPExpend()
 	, m_iFreeTradeRoute()
 	, m_iFreeSpy()
@@ -1553,6 +1555,7 @@ void CvPlayer::uninit()
 	m_iUpgradeCSVassalTerritory = 0;
 	m_iArchaeologicalDigTourism = 0;
 	m_iGoldenAgeTourism = 0;
+	m_iInternalTRTourism = 0;
 	m_iExtraCultureandScienceTradeRoutes = 0;
 	m_iRazingSpeedBonus = 0;
 	m_iNoPartisans = 0;
@@ -1600,6 +1603,7 @@ void CvPlayer::uninit()
 	m_iOccupiedProdMod = 0;
 	m_iGoldInternalTrade = 0;
 	m_iFreeWCVotes = 0;
+	m_iVotesPerFollowingCityTimes100 = 0;
 	m_iInfluenceGPExpend = 0;
 	m_iFreeTradeRoute = 0;
 	m_iFreeSpy = 0;
@@ -24882,15 +24886,15 @@ void CvPlayer::ChangeExtraLeagueVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from faith
-int CvPlayer::GetFaithToVotes() const
+/// Extra league votes from faith, times 100
+int CvPlayer::GetFaithToVotesTimes100() const
 {
 	return m_iFaithToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from faith
-void CvPlayer::ChangeFaithToVotes(int iChange)
+/// Extra league votes from faith, times 100
+void CvPlayer::ChangeFaithToVotesTimes100(int iChange)
 {
 	m_iFaithToVotes = iChange;
 	CvAssert(m_iFaithToVotes >= 0);
@@ -24901,18 +24905,18 @@ void CvPlayer::ChangeFaithToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from faith
-int CvPlayer::TestFaithToVotes(int iChange)
+/// Extra league votes from faith, times 100
+int CvPlayer::TestFaithToVotesTimes100(int iChange)
 {
 	if (iChange <= 0)
 		return 0;
 
-	ReligionTypes eOwnedReligion = GetReligions()->GetOwnedReligion();
-	if (eOwnedReligion == NO_RELIGION)
+	ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
+	if (eStateReligion == NO_RELIGION)
 		return 0;
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	return pReligions->GetNumCitiesFollowing(eOwnedReligion) / iChange;
+	return pReligions->GetNumCitiesFollowing(eStateReligion) * 100 / iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25990,7 +25994,7 @@ void CvPlayer::DoProcessVotes()
 	{
 		return;
 	}
-	ChangeFaithToVotes(0);
+	ChangeFaithToVotesTimes100(0);
 	ChangeCapitalsToVotes(0);
 	ChangeDoFToVotes(0);
 	ChangeRAToVotes(0);
@@ -26018,7 +26022,7 @@ void CvPlayer::DoProcessVotes()
 				{
 					if(pkBuildingInfo->GetFaithToVotes() > 0)
 					{
-						iTestFaith += TestFaithToVotes(pkBuildingInfo->GetFaithToVotes());
+						iTestFaith += TestFaithToVotesTimes100(pkBuildingInfo->GetFaithToVotes());
 					}
 					if(pkBuildingInfo->GetCapitalsToVotes() > 0)
 					{
@@ -26043,11 +26047,18 @@ void CvPlayer::DoProcessVotes()
 				}
 			}
 		}
-		ChangeFaithToVotes(iTestFaith);
+		ChangeFaithToVotesTimes100(iTestFaith);
 		ChangeCapitalsToVotes(iTestCapital);
 		ChangeDoFToVotes(iTestDoF);
 		ChangeRAToVotes(iTestRA);
 		ChangeDefensePactsToVotes(iTestDP);
+
+		ReligionTypes eStateReligion = GetReligions()->GetStateReligion(false);
+		if (eStateReligion == NO_RELIGION)
+			return;
+
+		int iFollowingCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eStateReligion);
+		ChangeFaithToVotesTimes100(iFollowingCities * GetVotesPerFollowingCityTimes100());
 	}
 }
 
@@ -28648,35 +28659,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								// Show tourism spread
 								if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 								{
-									CvString strInfluenceText;
 									InfluenceLevelTypes eLevel = GetCulture()->GetInfluenceLevel(pPlot->getOwner());
-
-									switch (eLevel)
-									{
-									case NO_INFLUENCE_LEVEL:
-									case INFLUENCE_LEVEL_UNKNOWN:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_UNKNOWN");
-										break;
-									case INFLUENCE_LEVEL_EXOTIC:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_EXOTIC");
-										break;
-									case INFLUENCE_LEVEL_FAMILIAR:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_FAMILIAR");
-										break;
-									case INFLUENCE_LEVEL_POPULAR:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_POPULAR");
-										break;
-									case INFLUENCE_LEVEL_INFLUENTIAL:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_INFLUENTIAL");
-										break;
-									case INFLUENCE_LEVEL_DOMINANT:
-										strInfluenceText = GetLocalizedText("TXT_KEY_CO_DOMINANT");
-										break;
-									}
-
-									char text[256] = {0};
-									sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iValue, strInfluenceText.c_str());
-									SHOW_PLOT_POPUP(pPlot, GetID(), text);
+									SHOW_PLOT_POPUP(pPlot, GetID(), CultureHelpers::GetInfluenceText(eLevel, iValue));
 								}
 							}
 						}
@@ -32747,6 +32731,16 @@ void CvPlayer::ChangeGoldenAgeTourism(int iChange)
 {
 	m_iGoldenAgeTourism += iChange;
 }
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsInternalTRTourism() const
+{
+	return m_iInternalTRTourism > 0;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeInternalTRTourism(int iChange)
+{
+	m_iInternalTRTourism += iChange;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetExtraCultureandScienceTradeRoutes() const
@@ -33030,9 +33024,17 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 
-	if (getNumCities() > 0)
+	switch (eHistoricEvent)
 	{
-		DoDifficultyBonus(eHistoricEvent);
+		case HISTORIC_EVENT_TRADE_LAND:
+		case HISTORIC_EVENT_TRADE_SEA:
+			// Do these outside of this function
+			return;
+		default:
+			if (getNumCities() > 0)
+			{
+				DoDifficultyBonus(eHistoricEvent);
+			}
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -37467,6 +37469,16 @@ void CvPlayer::changeFreeWCVotes(int iChange)
 	// 1 vote per X City-States
 	if (iChange != 0)
 		m_iFreeWCVotes += GC.getGame().GetNumMinorCivsEver(true) / iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetVotesPerFollowingCityTimes100() const
+{
+	return m_iVotesPerFollowingCityTimes100;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeVotesPerFollowingCityTimes100(int iChange)
+{
+	m_iVotesPerFollowingCityTimes100 += iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetInfluenceGPExpend() const
@@ -46308,6 +46320,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
 		ChangeSpySecurityModifier(pPolicy->GetSpySecurityModifier() * iChange);
+		ChangeVotesPerFollowingCityTimes100(pPolicy->GetVotesPerFollowingCityTimes100() * iChange);
 		if (pPolicy->GetIncreasedQuestInfluence() != 0)
 		{
 			ChangeIncreasedQuestInfluence(pPolicy->GetIncreasedQuestInfluence() * iChange);
@@ -48424,6 +48437,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iOccupiedProdMod);
 	visitor(player.m_iGoldInternalTrade);
 	visitor(player.m_iFreeWCVotes);
+	visitor(player.m_iVotesPerFollowingCityTimes100);
 	visitor(player.m_iInfluenceGPExpend);
 	visitor(player.m_iFreeTradeRoute);
 	visitor(player.m_iFreeSpy);
@@ -48531,6 +48545,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iJFDProsperity);
 	visitor(player.m_iJFDCurrency);
 	visitor(player.m_iGoldenAgeTourism);
+	visitor(player.m_iInternalTRTourism);
 	visitor(player.m_iExtraCultureandScienceTradeRoutes);
 	visitor(player.m_iArchaeologicalDigTourism);
 	visitor(player.m_iUpgradeCSVassalTerritory);

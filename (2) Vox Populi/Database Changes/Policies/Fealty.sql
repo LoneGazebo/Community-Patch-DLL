@@ -60,21 +60,24 @@ DELETE FROM Policy_BuildingClassYieldModifiers
 WHERE PolicyType = 'POLICY_THEOCRACY';
 
 UPDATE Policies
-SET HappinessToCulture = 25, BoredomFlatReductionGlobal = 2
+SET
+	InternalTradeRouteYieldModifier = 33,
+	InternalTRTourism = 1,
+	BoredomFlatReductionGlobal = 1
 WHERE Type = 'POLICY_THEOCRACY';
 
 -- Religious Tolerance (now Serfdom)
 UPDATE Policies
 SET
 	SecondReligionPantheon = 0,
-	InternalTradeRouteYieldModifier = 33,
 	PortraitIndex = 46
 WHERE Type = 'POLICY_FREE_RELIGION';
 
 INSERT INTO Policy_YieldFromNonSpecialistCitizens
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_FREE_RELIGION', 'YIELD_CULTURE', 25);
+	('POLICY_FREE_RELIGION', 'YIELD_CULTURE', 25),
+	('POLICY_FREE_RELIGION', 'YIELD_FAITH', 25);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
@@ -87,13 +90,16 @@ DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_ORGANIZED_RELIGION';
 
 UPDATE Policies
-SET PressureMod = 50
+SET
+	PressureMod = 25,
+	VotesPerFollowingCityTimes100 = 10
 WHERE Type = 'POLICY_ORGANIZED_RELIGION';
 
-INSERT INTO Policy_SpecialistExtraYields
-	(PolicyType, YieldType, Yield)
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('POLICY_ORGANIZED_RELIGION', 'YIELD_FAITH', 1);
+	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_SHRINE', 'YIELD_CULTURE', 2),
+	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_TEMPLE', 'YIELD_CULTURE', 2);
 
 -- Reformation (now Fiefdoms)
 UPDATE Policies

@@ -8136,3 +8136,33 @@ void CultureHelpers::SendArtSwapNotification(GreatWorkSlotType eType, bool bArt,
 	}
 	GET_PLAYER(eReceipient).GetNotifications()->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, iWorkFromOriginator, kOriginator.GetID());
 }
+
+char* CultureHelpers::GetInfluenceText(InfluenceLevelTypes eLevel, int iTourism)
+{
+	CvString strInfluenceText;
+	switch (eLevel)
+	{
+	case NO_INFLUENCE_LEVEL:
+	case INFLUENCE_LEVEL_UNKNOWN:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_UNKNOWN");
+		break;
+	case INFLUENCE_LEVEL_EXOTIC:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_EXOTIC");
+		break;
+	case INFLUENCE_LEVEL_FAMILIAR:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_FAMILIAR");
+		break;
+	case INFLUENCE_LEVEL_POPULAR:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_POPULAR");
+		break;
+	case INFLUENCE_LEVEL_INFLUENTIAL:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_INFLUENTIAL");
+		break;
+	case INFLUENCE_LEVEL_DOMINANT:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_DOMINANT");
+		break;
+	}
+	char text[256] = {0};
+	sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
+	return text;
+}

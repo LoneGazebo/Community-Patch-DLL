@@ -108,6 +108,7 @@ public:
 	int GetLandmarksTourismPercent() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
+	bool IsInternalTRTourism() const;
 	int GetExtraCultureandScienceTradeRoutes() const;
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
@@ -333,6 +334,7 @@ public:
 	int GetInternalTradeGold() const;
 	int GetFreeWCVotes() const;
 	int GetSpySecurityModifier() const;
+	int GetVotesPerFollowingCityTimes100() const;
 	int GetInfluenceGPExpend() const;
 	int GetFreeTradeRoute() const;
 	int GetFreeSpy() const;
@@ -790,6 +792,7 @@ private:
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;
 	int m_iSpySecurityModifier;
+	int m_iVotesPerFollowingCityTimes100;
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
@@ -823,6 +826,7 @@ private:
 	int m_iLandmarksTourismPercent;
 	int m_iArchaeologicalDigTourism;
 	int m_iGoldenAgeTourism;
+	bool m_bInternalTRTourism;
 	int m_iExtraCultureandScienceTradeRoutes;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
