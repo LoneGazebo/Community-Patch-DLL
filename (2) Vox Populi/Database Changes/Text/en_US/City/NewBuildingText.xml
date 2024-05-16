@@ -241,7 +241,7 @@
 			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Allies increases the value of positive City-State relations during the mid-game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
-			<Text>+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SIGNET}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +2 [ICON_PRODUCTION] Production each.</Text>
+			<Text>+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SIGNET}[ENDCOLOR] for Diplomatic Units in the city in which it is built.[NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +2 [ICON_PRODUCTION] Production each.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT">
 			<Text>During the early medieval period, chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated chanceries into multiple, more specific bureaus. Thus, the chancery is the ancestor of the modern civil service.</Text>
@@ -254,7 +254,7 @@
 			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Friends and Allies increases the value of positive City-State relations during the late-game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EXPRESS}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science each.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EXPRESS}[ENDCOLOR] for Diplomatic Units in the city in which it is built.[NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science each.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT">
 			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
@@ -539,7 +539,7 @@
 			<Text>United Nations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UN_STRATEGY">
-			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age. [NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
+			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age.[NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UN_HELP">
 			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States originally in the World. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
@@ -1089,7 +1089,7 @@
 			<Text>KGAZ 89.5FM - Eclectic Radio Mix</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BROADCAST_TOWER_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era [NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
+			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria:[NEWLINE]1.) Both from the same Era[NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY">

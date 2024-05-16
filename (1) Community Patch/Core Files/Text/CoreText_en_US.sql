@@ -483,7 +483,7 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 -- Trade Deals
 UPDATE Language_en_US
-SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
+SET Text = 'Ends after:[NEWLINE]Turn {1_turn}'
 WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
 
 UPDATE Language_en_US

@@ -3,7 +3,7 @@ SET Text = 'Your counterspy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN
 WHERE Tag = 'TXT_KEY_NOTIFICATION_KILLED_A_SPY';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]killed[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened. It will take some time until a replacement spy is recruited for {1_SpyRank} {2_SpyName}.'
+SET Text = '{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]killed[ENDCOLOR] while conducting their mission! Diplomatic relations with {3_CivName} have worsened. It will take some time until a replacement spy is recruited for {1_SpyRank} {2_SpyName}.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_WAS_KILLED';
 
 UPDATE Language_en_US

@@ -40453,26 +40453,36 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION:
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
-			bool bHostile = (IsAtWar(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer));
-			bool bAcceptable = (!bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && !IsAtWar(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_ACCEPTED || IsShareOpinionAcceptable(eFromPlayer)));
+			bool bHostile = IsAtWar(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer);
+			bool bAcceptable = !bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_ACCEPTED || IsShareOpinionAcceptable(eFromPlayer));
 			bool bDiplomat = false;
-			if (MOD_BALANCE_VP && GET_PLAYER(eFromPlayer).GetEspionage() && GET_PLAYER(eFromPlayer).GetEspionage()->IsMyDiplomatVisitingThem(m_pPlayer->GetID()))
+			if (MOD_BALANCE_VP)
 			{
-				// has the diplomat collected enough network points?
-				CvCity* pCapital = GetPlayer()->getCapitalCity();
-				if (pCapital)
+				// Vassals always share their true feelings with their master.
+				if (IsVassal(eFromPlayer))
 				{
-					CvCityEspionage* pCapitalEspionage = pCapital->GetCityEspionage();
-					if (pCapitalEspionage && pCapitalEspionage->IsDiplomatRevealTrueApproaches(eFromPlayer))
+					bAcceptable = true;
+					bDiplomat = true;
+				}
+				// Has a Diplomat collected enough network points?
+				else if (GET_PLAYER(eFromPlayer).GetEspionage() && GET_PLAYER(eFromPlayer).GetEspionage()->IsMyDiplomatVisitingThem(m_pPlayer->GetID()))
+				{
+					CvCity* pCapital = GetPlayer()->getCapitalCity();
+					if (pCapital)
 					{
-						bDiplomat = true;
+						CvCityEspionage* pCapitalEspionage = pCapital->GetCityEspionage();
+						if (pCapitalEspionage && pCapitalEspionage->IsDiplomatRevealTrueApproaches(eFromPlayer))
+						{
+							bAcceptable = true;
+							bDiplomat = true;
+						}
 					}
 				}
 			}
-			bool bOverride = (IsAtWar(eTargetPlayer) || IsVassal(eFromPlayer) || GC.getGame().IsDiploDebugModeEnabled() || GET_PLAYER(eFromPlayer).isObserver());
+			bool bOverride = IsAtWar(eTargetPlayer) || GC.getGame().IsDiploDebugModeEnabled() || GET_PLAYER(eFromPlayer).isObserver();
 
 			// We refuse! Choose a hostile response.
-			if (bHostile && !bOverride && !bDiplomat)
+			if (bHostile && !bOverride)
 			{
 				if (bActivePlayer)
 				{
@@ -40491,13 +40501,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_REFUSED);
 			}
 			// We accepted! Share our approach towards this player with them.
-			else if (bAcceptable || bDiplomat || bOverride)
+			else if (bAcceptable || bOverride)
 			{
-				if (bAcceptable || bDiplomat)
+				if (bAcceptable)
 					SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_ACCEPTED);
 
-				bool bHonest = (GetCivApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY && GetCivOpinion(eFromPlayer) >= CIV_OPINION_FRIEND) || bDiplomat;
-				CivApproachTypes eTargetApproach = (bHonest || bOverride) ? GetCivApproach(eTargetPlayer) : GetSurfaceApproach(eTargetPlayer);
+				bool bHonest = bDiplomat || bOverride || (GetCivApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY && GetCivOpinion(eFromPlayer) >= CIV_OPINION_FRIEND);
+				CivApproachTypes eTargetApproach = bHonest ? GetCivApproach(eTargetPlayer) : GetSurfaceApproach(eTargetPlayer);
 
 				if (bActivePlayer)
 				{

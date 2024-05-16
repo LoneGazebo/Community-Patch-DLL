@@ -1114,16 +1114,23 @@ int CvLuaPlot::lIsRoute(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsTradeRoute(lua_State* L)
 {
+	// Duplicate of IsCityConnection() kept for backwards compatibility
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, -1);
-	bool bResult = pkPlot->IsCityConnection(ePlayer);
+	const bool bIndustrial = luaL_optbool(L, 3, false);
+	const bool bResult = pkPlot->IsCityConnection(ePlayer, bIndustrial);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsCityConnection(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::IsCityConnection);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, -1);
+	const bool bIndustrial = luaL_optbool(L, 3, false);
+	const bool bResult = pkPlot->IsCityConnection(ePlayer, bIndustrial);
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

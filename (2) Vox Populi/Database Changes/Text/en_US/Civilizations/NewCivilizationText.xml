@@ -191,13 +191,13 @@
 			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP">
-			<Text>Can only be built on flat land tiles without access to Fresh Water. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory. When completed, claims the tile beneath it if built in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR]</Text>
+			<Text>Can only be built on flat land tiles without access to Fresh Water. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory. When completed, claims the tile beneath it if built in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI">
 			<Text>Construct an [LINK=IMPROVEMENT_EKI]Eki[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 Ekis adjacent to this Eki. Can only be built on flat land tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.[NEWLINE][NEWLINE]Building in neutral territory instantly claims the tile for the Hunnic Empire.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 Ekis adjacent to this Eki. Can only be built on flat land tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.[NEWLINE][NEWLINE]Building it in neutral territory instantly claims the tile for the Hunnic Empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_REC">
 			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture. Removes any feature on the tile.[NEWLINE]Provides additional [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Ekis.</Text>
@@ -233,7 +233,7 @@
 			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dojos were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dojo only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dojo because of its close martial arts roots.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>+25 XP for all Units. +2 [ICON_WAR] Military Supply.[NEWLINE][NEWLINE]All Melee, Mounted Melee, Gunpowder, and Armored Units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]When Units created by this City gain Experience through combat, gain 140% of the gained Experience as [ICON_RESEARCH] Science and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>+25 XP for all Units. +2 [ICON_WAR] Military Supply.[NEWLINE][NEWLINE]All Melee, Mounted Melee, Gunpowder, and Armored Units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]When Units created by this City gain Experience through combat, receive 140% of the gained Experience as [ICON_RESEARCH] Science and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
 			<Text>Unique Japanese replacement for the {TXT_KEY_BUILDING_ARMORY}. In addition to the {TXT_KEY_BUILDING_ARMORY}'s bonuses, {TXT_KEY_BUILDING_DOJO} provides more training experience and more military supply; grants the {TXT_KEY_PROMOTION_BUSHIDO} promotion to all melee, gunpowder, mounted and armored units, which offers one of eight possible promotions to these unit types after their first combat and increases the unit's strength as it takes damage; and produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when units gain experience in combat.</Text>
@@ -300,7 +300,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_MONGOLIA_ORDO]Ordo[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_HELP">
-			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Culture borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. [NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. +1 [ICON_MOVES] Movement for any Unit starting its turn on, or moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
+			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Culture borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. +1 [ICON_MOVES] Movement for any Unit starting its turn on, or moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 
 		<!-- Netherlands -->
@@ -372,18 +372,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_SPAIN_INQUISITOR">
 			<Text>{TXT_KEY_UNIT_HELP_INQUISITOR}[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Nobody expects the Spanish Inquisition![ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_MISSION">
-			<Text>Mission</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT">
-			<Text>According to the Catholic Church, Missions are religious communities devoted to teaching, tending, and helping the local populace, thus supporting Christ’s ideals. In practice, however, the missions were devoted to converting the locals and then “civilizing” them through cultural assimilation. The Spanish missions serve as the traditional template, self-supporting enclaves with churches, dormitories, workrooms, and schools. In places these were even fortified, ready to defend themselves from opposition. Most of the missions in the Americas, Asia, and Africa were administered by religious orders such as the Franciscans, Jesuits, Dominicans, and Augustinians rather than the Church itself, but the effects were the same. Missions often served as a nucleus around which Spanish, French, and Portuguese colonizing efforts could coalesce.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>+1 [ICON_PEACE] Faith from Haciendas worked by this City. When built, instantly performs a Missionary spread action to convert this City to the Majority Religion of your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]Can only be Faith purchased in Cities settled by a Spanish Conquistador.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>A Mission is only available for [ICON_PEACE] Faith purchase in cities settled by a Spanish Conquistador. They give a small amount of Faith and Defense and boost the yields of nearby Haciendas. The Mission performs a missionary spread action when it is built, converting it to the Majority Religion of your Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA">
 			<Text>Hacienda</Text>

@@ -60,6 +60,17 @@ FROM Terrains a, Helper b;
 DROP TABLE Helper;
 
 ----------------------------------------------------------
+-- Unique Unit: Spanish Inquisitor
+-- Exactly the same as a regular Inquisitor except for different text. No effect on balance.
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_SPAIN', 'UNITCLASS_INQUISITOR', 'UNIT_SPAIN_INQUISITOR');
+
+UPDATE Units SET ShowInPedia = 0 WHERE Type = 'UNIT_SPAIN_INQUISITOR';
+
+----------------------------------------------------------
 -- Unique Unit: Conquistador (Explorer)
 ----------------------------------------------------------
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_EXPLORER' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
