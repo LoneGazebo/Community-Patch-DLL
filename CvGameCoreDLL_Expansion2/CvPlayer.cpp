@@ -21168,6 +21168,9 @@ void CvPlayer::DoHealLocal(int iHealPercent, CvPlot* pPlot)
 	for (int i = 0; i < RING3_PLOTS; i++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+		if (!pLoopPlot)
+			continue;
+
 		if (pLoopPlot->getUnits(&currentUnits) > 0)
 		{
 			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
