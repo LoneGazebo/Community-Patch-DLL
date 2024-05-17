@@ -139,7 +139,7 @@ public:
 protected:
 
 	typedef pair<int, int> PlotPair;
-	typedef pair<PlotPair, RouteTypes> PlannedRoute;
+	typedef pair<PlotPair, pair<RouteTypes, bool>> PlannedRoute;
 
 	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives);
 	void LogDirective(BuilderDirective directive, int iWeight, bool bChosen = false);
@@ -149,6 +149,8 @@ protected:
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute);
 	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute);
 
+	void ShortcutConnectionHelper(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute, int iPlotDistance, bool bUseRivers);
+
 	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
 	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
 
@@ -156,7 +158,7 @@ protected:
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 
 	bool IsPlannedRouteForPurpose(const CvPlot* pPlot, RoutePurpose ePurpose) const;
-	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose);
+	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose, bool bUseRivers);
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	void GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);

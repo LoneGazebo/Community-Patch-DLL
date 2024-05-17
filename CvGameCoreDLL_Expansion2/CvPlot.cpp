@@ -231,6 +231,12 @@ void CvPlot::reset()
 	m_owningCityOverride.reset();
 
 	m_vExtraYields.clear();
+	m_vRivers.clear();
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		m_vRivers.push_back(-1);
+	}
 
 	m_bfRevealed.ClearAll();
 
@@ -1407,6 +1413,15 @@ bool CvPlot::IsRiverSide(DirectionTypes eDirection) const
 		default:
 			return false;
 	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Is there a river on this side of the plot?
+bool CvPlot::IsLakeSide(DirectionTypes eDirection) const
+{
+	CvAssertMsg(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
+	CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+	return pAdjacentPlot && pAdjacentPlot->isLake();
 }
 
 //	--------------------------------------------------------------------------------
@@ -5563,6 +5578,44 @@ void CvPlot::setLandmass(int iNewValue)
 CvLandmass * CvPlot::landmass() const
 {
 	return GC.getMap().getLandmassById(m_iLandmass);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlot::GetRiverID(DirectionTypes eDirection) const
+{
+	return m_vRivers[eDirection];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetRiverID(DirectionTypes eDirection, int iRiverID)
+{
+	m_vRivers[eDirection] = iRiverID;
+}
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvPlot::GetRiver(DirectionTypes eDirection) const
+{
+	return GC.getMap().GetRiverById(m_vRivers[eDirection]);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::HasSharedRiver(const CvPlot* pOther) const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		int iRiverID = GetRiverID((DirectionTypes)iI);
+		if (iRiverID != -1)
+		{
+			for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+			{
+				if (pOther->GetRiverID((DirectionTypes)iJ) == iRiverID)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13206,6 +13259,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iRiverCrossingCount);
 	visitor(plot.m_iResourceNum);
 	visitor(plot.m_iLandmass);
+	visitor(plot.m_vRivers);
 
 	// Bit fields
 	{

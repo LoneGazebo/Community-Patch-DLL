@@ -34,6 +34,7 @@
 
 class CvArea;
 class CvLandmass;
+class CvRiver;
 class CvRoute;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
@@ -148,6 +149,7 @@ public:
 	bool isRiverConnection(DirectionTypes eDirection) const;
 
 	bool IsRiverSide(DirectionTypes eDirection) const;
+	bool IsLakeSide(DirectionTypes eDirection) const;
 	bool IsAlongSameRiver(const CvPlot* pToPlot) const;
 
 	CvPlot* getNeighboringPlot(DirectionTypes eDirection) const;
@@ -341,6 +343,11 @@ public:
 	CvLandmass* landmass() const;
 	std::vector<int> getAllAdjacentLandmasses() const;
 	bool hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
+
+	int GetRiverID(DirectionTypes eDirection) const;
+	void SetRiverID(DirectionTypes eDirection, int iRiverID);
+	CvRiver* GetRiver(DirectionTypes eDirection) const;
+	bool HasSharedRiver(const CvPlot* pOther) const;
 
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;
@@ -976,6 +983,8 @@ protected:
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
+
+	std::vector<int> m_vRivers;
 
 	SYNC_ARCHIVE_MEMBER(CvPlot)
 	char /*FeatureTypes*/ m_eFeatureType; 

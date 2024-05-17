@@ -43317,11 +43317,6 @@ bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRou
 		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
 			return true;
 	}
-	else if (GetPlayerTraits()->IsRiverTradeRoad())
-	{
-		if (pPlot->isRiver())
-			return true;
-	}
 
 	return false;
 }
