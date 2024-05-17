@@ -377,6 +377,7 @@ CvPlayer::CvPlayer() :
 	, m_bLostHolyCity()
 	, m_eHolyCityConqueror(NO_PLAYER)
 	, m_bHasAdoptedStateReligion()
+	, m_bWorkersIgnoreImpassable()
 	, m_eID()
 	, m_ePersonalityType()
 	, m_abInstantYieldNotificationsDisabled()
@@ -1736,6 +1737,7 @@ void CvPlayer::uninit()
 	m_bLostHolyCity = false;
 	m_eHolyCityConqueror = NO_PLAYER;
 	m_bHasAdoptedStateReligion = false;
+	m_bWorkersIgnoreImpassable = false;
 	m_lastGameTurnInitialAIProcessed = -1;
 	m_bVassalLevy = false;
 	m_iVassalGoldMaintenanceMod = 0;
@@ -43317,11 +43319,6 @@ bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRou
 		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
 			return true;
 	}
-	else if (GetPlayerTraits()->IsRiverTradeRoad())
-	{
-		if (pPlot->isRiver())
-			return true;
-	}
 
 	return false;
 }
@@ -48704,6 +48701,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bLostHolyCity);
 	visitor(player.m_eHolyCityConqueror);
 	visitor(player.m_bHasAdoptedStateReligion);
+	visitor(player.m_bWorkersIgnoreImpassable);
 	visitor(player.m_abInstantYieldNotificationsDisabled);
 	visitor(player.m_aiCityYieldChange);
 	visitor(player.m_aiCoastalCityYieldChange);
@@ -51646,6 +51644,21 @@ void CvPlayer::SetHasAdoptedStateReligion(bool bValue)
 	if(m_bHasAdoptedStateReligion != bValue)
 	{
 		m_bHasAdoptedStateReligion = bValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsWorkersIgnoreImpassable() const
+{
+	return m_bWorkersIgnoreImpassable;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetWorkersIgnoreImpassable(bool bValue)
+{
+	if (m_bWorkersIgnoreImpassable != bValue)
+	{
+		m_bWorkersIgnoreImpassable = bValue;
 	}
 }
 

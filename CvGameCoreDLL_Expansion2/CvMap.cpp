@@ -297,6 +297,92 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLandmass& writeTo)
 	return loadFrom;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// CvRiver
+//////////////////////////////////////////////////////////////////////////
+
+//	--------------------------------------------------------------------------------
+CvRiver::CvRiver()
+{
+	m_iID = -1;
+}
+
+//	--------------------------------------------------------------------------------
+CvRiver::~CvRiver()
+{
+
+}
+
+//	--------------------------------------------------------------------------------
+void CvRiver::init(int iID)
+{
+	m_iID = iID;
+}
+
+//	--------------------------------------------------------------------------------
+int CvRiver::GetID() const
+{
+	return m_iID;
+}
+
+//	--------------------------------------------------------------------------------
+void CvRiver::SetID(int iID)
+{
+	m_iID = iID;
+}
+
+//	--------------------------------------------------------------------------------
+void CvRiver::AddPlot(CvPlot* pPlot)
+{
+	if (std::find(m_vPlots.begin(), m_vPlots.end(), pPlot) != m_vPlots.end())
+		return;
+
+	m_vPlots.push_back(pPlot);
+}
+
+//	--------------------------------------------------------------------------------
+vector<CvPlot*> CvRiver::GetPlots() const
+{
+	return m_vPlots;
+}
+
+//	--------------------------------------------------------------------------------
+template<typename River, typename Visitor>
+void CvRiver::Serialize(River& river, Visitor& visitor)
+{
+	visitor(river.m_iID);
+
+	visitor(river.m_vPlots);
+}
+
+//	--------------------------------------------------------------------------------
+void CvRiver::read(FDataStream& kStream)
+{
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+//	--------------------------------------------------------------------------------
+void CvRiver::write(FDataStream& kStream) const
+{
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+//	--------------------------------------------------------------------------------
+FDataStream& operator<<(FDataStream& saveTo, const CvRiver& readFrom)
+{
+	readFrom.write(saveTo);
+	return saveTo;
+}
+
+//	--------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, CvRiver& writeTo)
+{
+	writeTo.read(loadFrom);
+	return loadFrom;
+}
+
 static uint sgCvMapInstanceCount = 0;
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1517,6 +1603,7 @@ void CvMap::recalculateAreas()
 {
 	calculateAreas();
 	recalculateLandmasses();
+	RecalculateRivers();
 }
 
 //	--------------------------------------------------------------------------------
@@ -1570,6 +1657,8 @@ void CvMap::Serialize(Map& map, Visitor& visitor)
 	visitor(map.m_areas);
 
 	visitor(map.m_landmasses);
+
+	visitor(map.m_rivers);
 
 	visitor(map.m_iAIMapHints);
 }
@@ -2408,6 +2497,173 @@ void CvMap::calculateLandmasses()
 	//		'lake' flag.  During recalculation, a neighboring plot's 'lake' flag may not be set yet because it is in a landmass that has yet to be calculated
 	//		resulting in the wrong yield being applied to a plot.
 	updateYield();
+}
+
+//	--------------------------------------------------------------------------------
+int CvMap::GetNumRivers()
+{
+	return m_rivers.GetCount();
+}
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvMap::GetRiverById(int iID)
+{
+	return m_rivers.Get(iID);
+}
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvMap::GetRiverByIndex(int iIndex)
+{
+	return m_rivers.GetAt(iIndex);
+}
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvMap::AddRiver()
+{
+	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	CvRiver* pNew = new CvRiver();
+	pNew->SetID(m_rivers.GetCount() + 1);
+	m_rivers.Load(pNew);
+	return pNew;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvMap::DeleteRiver(int iID)
+{
+	m_rivers.Remove(iID);
+}
+
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvMap::FirstRiver(int* pIterIdx, bool bRev)
+{
+	if (bRev)
+		*pIterIdx = m_rivers.GetCount() - 1;
+	else
+		*pIterIdx = 0;
+	return m_rivers.GetAt(*pIterIdx);
+}
+
+
+//	--------------------------------------------------------------------------------
+CvRiver* CvMap::NextRiver(int* pIterIdx, bool bRev)
+{
+	if (bRev)
+		(*pIterIdx)--;
+	else
+		(*pIterIdx)++;
+	return m_rivers.GetAt(*pIterIdx);
+}
+
+//	--------------------------------------------------------------------------------
+void CvMap::RecalculateRivers()
+{
+	int iNumPlots = numPlots();
+	for (int iI = 0; iI < iNumPlots; iI++)
+		for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+			plotByIndexUnchecked(iI)->SetRiverID((DirectionTypes)iJ, -1);
+
+	m_rivers.RemoveAll();
+
+	CalculateRivers();
+}
+
+//	--------------------------------------------------------------------------------
+void CvMap::CalculateRivers()
+{
+	// No need to calculate rivers for CP
+	if (!MOD_BALANCE_VP)
+		return;
+
+	CvPlot* pLoopPlot = NULL;
+	CvRiver* pRiver = NULL;
+
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		pLoopPlot = plotByIndexUnchecked(iI);
+
+		if (pLoopPlot->isLake())
+		{
+			if (pLoopPlot->GetRiverID(DIRECTION_NORTHEAST) == -1)
+			{
+				pRiver = AddRiver();
+				CreateRiverFrom(pLoopPlot, DIRECTION_NORTHEAST, pRiver);
+			}
+		}
+		else if (pLoopPlot->isFreshWater())
+		{
+			for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+			{
+				DirectionTypes eDirection = (DirectionTypes)iJ;
+				if (pLoopPlot->GetRiverID(eDirection) == -1 && (pLoopPlot->IsRiverSide(eDirection) || pLoopPlot->IsLakeSide(eDirection)))
+				{
+					pRiver = AddRiver();
+					CreateRiverFrom(pLoopPlot, eDirection, pRiver);
+				}
+			}
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+// Recursive function that creates a river starting at a given plot side
+void CvMap::CreateRiverFrom(CvPlot* pPlot, DirectionTypes eDirection, CvRiver* pRiver)
+{
+	int iRiverID = pRiver->GetID();
+
+	if (pPlot->GetRiverID(eDirection) != -1)
+	{
+		if (pPlot->GetRiverID(eDirection) != iRiverID)
+			UNREACHABLE();
+		else
+			return;
+	}
+
+	// Skip lake tiles that are not connected to any land tile
+	if (pPlot->isWater())
+	{
+		bool bIsLandAdjacent = false;
+
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+			if (!pAdjacentPlot)
+				continue;
+
+			if (!pAdjacentPlot->isWater())
+			{
+				bIsLandAdjacent = true;
+				break;
+			}
+		}
+
+		if (!bIsLandAdjacent)
+			return;
+	}
+
+	pPlot->SetRiverID(eDirection, iRiverID);
+	pRiver->AddPlot(pPlot);
+
+	bool bIsLake = pPlot->isLake();
+
+	// Propagate river within same plot clockwise
+	DirectionTypes eRightDirection = static_cast<DirectionTypes>((eDirection + 1) % 6);
+	if (bIsLake || pPlot->IsRiverSide(eRightDirection) || pPlot->IsLakeSide(eRightDirection))
+		CreateRiverFrom(pPlot, eRightDirection, pRiver);
+
+	// Propagate river within same plot counter-clockwise
+	DirectionTypes eLeftDirection = static_cast<DirectionTypes>((eDirection + 5) % 6);
+	if (bIsLake || pPlot->IsRiverSide(eLeftDirection) || pPlot->IsLakeSide(eLeftDirection))
+		CreateRiverFrom(pPlot, eLeftDirection, pRiver);
+
+	// Propagate river to tile across the river
+	CvPlot* pOppositePlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+	if (pOppositePlot)
+	{
+		DirectionTypes eOppositeDirection = static_cast<DirectionTypes>((eDirection + 3) % 6);
+		CreateRiverFrom(pOppositePlot, eOppositeDirection, pRiver);
+	}
 }
 
 //	---------------------------------------------------------------------------

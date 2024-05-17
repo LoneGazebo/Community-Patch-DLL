@@ -8049,6 +8049,12 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 							}
 						}
 					}
+
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if (pkPromotionInfo && pkPromotionInfo->IsCanMoveImpassable())
+					{
+						kPlayer.SetWorkersIgnoreImpassable(true);
+					}
 				}
 #else
 				if(pTech->IsFreePromotion(ePromotion))

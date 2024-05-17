@@ -141,7 +141,7 @@ struct SPathFinderUserData
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType); // PT_TRADE_WATER, PT_TRADE_LAND, PT_LANDMASS_CONNECTION, PT_CITY_CONNECTION_WATER
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iMaxTurns); // PT_AREA_CONNECTION (iMaxTurns is simple vs complex check (0/1)), PT_CITY_INFLUENCE
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, PlayerTypes eEnemy, int iMaxTurns); // PT_GENERIC_SAME_AREA, PT_GENERIC_SAME_AREA_WIDE, PT_ARMY_LAND, PT_ARMY_WATER, PT_ARMY_MIXED
-	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, BuildTypes eBuildType, RouteTypes eRouteType, RoutePurpose eRoutePurpose); // PT_BUILD_ROUTE, PT_BUILD_ROUTE_MIXED, PT_CITY_CONNECTION_LAND, PT_CITY_CONNECTION_MIXED
+	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, BuildTypes eBuildType, RouteTypes eRouteType, RoutePurpose eRoutePurpose, bool bUseRivers); // PT_BUILD_ROUTE, PT_BUILD_ROUTE_MIXED, PT_CITY_CONNECTION_LAND, PT_CITY_CONNECTION_MIXED
 
 	//do not compare max turns and max cost ...
 	bool operator==(const SPathFinderUserData& rhs) const 
@@ -152,6 +152,7 @@ struct SPathFinderUserData
 	RouteTypes			eRoute;
 	BuildTypes			eBuild;             //BuildType related to the RouteType
 	RoutePurpose		eRoutePurpose;
+	bool                bUseRivers;
 	int					iFlags;				//see CvUnit::MOVEFLAG*
 	PlayerTypes			ePlayer;			//optional
 	PlayerTypes			eEnemy;
