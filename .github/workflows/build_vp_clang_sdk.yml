@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ build_vp_clang_sdk ]
 
 jobs:
   build:
@@ -67,13 +67,25 @@ jobs:
           Start-Process -FilePath ".\SDK7.1\Setup\WinSDKNetFxTools\WinSDK_nfxtoolsm_x86.msi" -ArgumentList "/qn" -Wait
           echo "SDKs installation complete."
 
+      - name: Clang version check
+        run: |
+          clang --version
+
       - name: Run debug build
         run: |
           python build_vp_clang_sdk.py --config debug
 
+      - name: Display debug build log
+        run: |
+          cat clang-output/Debug/build.log
+
       - name: Run release build
         run: |
           python build_vp_clang_sdk.py --config release
+
+      - name: Display release build log
+        run: |
+          cat clang-output/Release/build.log
 
       - name: Create debug artifact
         uses: actions/upload-artifact@v4
