@@ -187,6 +187,12 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY">
+			<Text>Coastal Artillery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Melee[ENDCOLOR], [COLOR_POSITIVE_TEXT]Naval Ranged[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Carrier[ENDCOLOR] Units.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_1">
 			<Text>Splash Damage I</Text>
 		</Row>
@@ -545,6 +551,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
 			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM">
+			<Text>Mare Nostrum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS">

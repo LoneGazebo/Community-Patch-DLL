@@ -2001,6 +2001,10 @@ bool CvMinorCivQuest::IsExpired()
 		if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !pMinor->getCapitalCity()->isCoastal(10))
 			return true;
 
+		// Don't cancel the quest if a unit is currently on its way to the city-state
+		if (pMinor->GetMinorCivAI()->getIncomingUnitGift(m_eAssignedPlayer).getArrivalCountdown() > -1)
+			return false;
+
 		// Can we train the unit type this unit upgrades to?
 		bool bCanUpgrade = false;
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -2018,38 +2022,23 @@ bool CvMinorCivQuest::IsExpired()
 			}
 		}
 
-		// Are any versions of the original unit still around?
-		bool bAlreadyHasUnit = false;
-		int iLoop = 0;
-		for (CvUnit* pLoopUnit = GET_PLAYER(m_eAssignedPlayer).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(m_eAssignedPlayer).nextUnit(&iLoop))
+		// Can upgrade it? Invalidated!
+		if (bCanUpgrade)
+			return true;
+
+		// Make sure at least one of the player's cities can train this unit
+		bool bNoValidCity = true;
+		int iCityLoop = 0;
+		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
 		{
-			if (pLoopUnit->getUnitType() == eUnitType)
-			{
-				bAlreadyHasUnit = true;
-				break;
-			}
+			if (!pLoopCity->canTrain(eUnitType, false, false, false, false))
+				continue;
+
+			bNoValidCity = false;
+			break;
 		}
-
-		if (!bAlreadyHasUnit)
-		{
-			// Can upgrade it and don't already have it? Invalidated!
-			if (bCanUpgrade)
-				return true;
-
-			// Make sure at least one of the player's cities can train this unit
-			bool bNoValidCity = true;
-			int iCityLoop = 0;
-			for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
-			{
-				if (!pLoopCity->canTrain(eUnitType, false, false, false, false))
-					continue;
-
-				bNoValidCity = false;
-				break;
-			}
-			if (bNoValidCity)
-				return true;
-		}
+		if (bNoValidCity)
+			return true;
 
 		break;
 	}
@@ -17124,7 +17113,7 @@ void CvMinorCivAI::DoElection()
 
 			apSpy[ui] = &(pPlayerEspionage->m_aSpyList[iSpyID]);
 
-			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+			iVotes = pCityEspionage->GetAmount(eEspionagePlayer);
 
 			// now that votes are counted, remove the progress from the spy
 			pCityEspionage->ResetProgress(eEspionagePlayer);
@@ -17145,7 +17134,7 @@ void CvMinorCivAI::DoElection()
 	{
 		wvVotes.StableSortItems();
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(CvSeeder::fromRaw(0xfead5338).mix(GetPlayer()->GetID()));
-		int iInfluenceModifier = GET_PLAYER(eElectionWinner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
+		int iInfluenceModifier = GET_PLAYER(eElectionWinner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) + GET_PLAYER(eElectionWinner).GetPlayerTraits()->GetSpyOffensiveStrengthModifier();
 
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
@@ -17165,7 +17154,8 @@ void CvMinorCivAI::DoElection()
 						iEra = 1;
 					}
 					iValue *= iEra;
-					iValue *= (1 + GetNumConsecutiveSuccessfulRiggings(ePlayer));
+					iValue *= 100 + GD_INT_GET(ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER) * GetNumConsecutiveSuccessfulRiggings(ePlayer);
+					iValue /= 100;
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
@@ -17228,10 +17218,13 @@ void CvMinorCivAI::DoElection()
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
 
-				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+				if (MOD_BALANCE_VP)
 				{
 					GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
-					GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20*/ GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS));
+					if (GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS) > 0)
+					{
+						GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS));
+					}
 				}
 			}
 			else
@@ -17249,7 +17242,7 @@ void CvMinorCivAI::DoElection()
 					iDiminishAmount = /*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100;
 					iDiminishAmount *= 100 + iInfluenceModifier;
 					iDiminishAmount /= 100;
-					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+					if (MOD_BALANCE_VP)
 					{
 						iDiminishAmount *= GC.getGame().getCurrentEra();
 					}

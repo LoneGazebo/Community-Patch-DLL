@@ -27,6 +27,9 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
 
+-- City strength threshold used for some policy bonuses (VP)
+INSERT INTO Defines(Name, Value) SELECT 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES', 10;
+
 -- Minimum war duration for aggressively attacked City-States (scales with game speed)
 INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 2;
 
@@ -831,15 +834,15 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPL
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MIN', 33;  -- VP
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MAX', 100;  -- VP
 	
+-- Influence modifier for each successfully rigged election
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER', 40;
 
 -- Calculation of Network Points (VP Espionage System)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_BASE', 20;  -- Base Network Points generated per Turn
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_SPY_RANK', 10;  -- Additional Network Points per Spy Level
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_BASE', 30;  -- Base Network Points generated per Turn
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_SPY_RANK', 0;  -- Additional Network Points per Spy Level
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_CULTURAL_INFLUENCE', 10;  -- Additional Network Points for Cultural Influence
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND', 2;  -- Additional Network Points per Technology the Spy Owner does not have
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_MAX_NUM_TECH', 10;  -- Max Number of Techs taken into account (see previous line)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_COUNTERSPY_NETWORK', -10;  -- Reduction of Network Points from Enemy Counterspy Network 
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_COUNTERSPY_PER_RANK', -10;  -- Reduction of Network Points from Enemy Counterspy Rank, if Counterspy Network established
 
 -- Security (VP Espionage System)
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT', 160;  -- divided by 100: Percentage Reduction of Network Points per Security Point
@@ -854,17 +857,15 @@ INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_EXCESS_UNHAPPIN
 
 -- Spy XP (VP Espionage System)
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR', 100; -- XP needed to get to the next Level (scales with game speed)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_COUNTERSPY', 2; -- XP gained per Turn when active as Counterspy
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_DIPLOMAT', 1; -- XP gained per Turn when active as Diplomat
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_OFFENSIVE', 1; -- XP gained per Turn when active against another Major Civ
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_COUNTERSPY', 0; -- XP gained per Turn when active as Counterspy
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_DIPLOMAT', 0; -- XP gained per Turn when active as Diplomat
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_OFFENSIVE', 0; -- XP gained per Turn when active against another Major Civ
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_CITYSTATE', 0; -- XP gained per Turn when active in a City-State
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_RIGGING_SUCCESS', 20; -- XP gained when successfully rigging an Election
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_UNCOVER_INTRIGUE', 15; -- XP gained when uncovering an Intrigue
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_XP_MISSION_SUCCESS_DENOMINATOR', 50; -- When succesfully completing a Spy Mission, gain (NP Points needed for Mission) / ESPIONAGE_XP_MISSION_SUCESS_DENOMINATOR
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_RIGGING_SUCCESS', 0; -- XP gained when successfully rigging an Election
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_UNCOVER_INTRIGUE', 0; -- XP gained when uncovering an Intrigue
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT', 0; -- When successfully completing a Spy Mission, gain (NP Points needed for Mission) * ESPIONAGE_XP_MISSION_SUCESS_PERCENT / 100 XP
 
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN', 5; -- Cooldown between switching Counterspy Missions
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_IMPRISONMENT_COOLDOWN', 5; -- Number of turns after which an imprisoned spy is released
-
 
 -- Ideology Unlock via Policies
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', 3;

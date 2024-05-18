@@ -63,6 +63,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanTrain);
 	Method(CanConstructTooltip);
 	Method(CanConstruct);
+	Method(CanCreateTooltip);
 	Method(CanCreate);
 	Method(CanPrepare);
 	Method(CanMaintain);
@@ -654,7 +655,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HasResource);
 	Method(HasWorkedResource);
 	Method(IsConnectedToCapital);
+	Method(IsIndustrialConnectedToCapital);
 	Method(IsConnectedTo);
+	Method(GetConnectionGoldTimes100);
 	Method(HasSpecialistSlot);
 	Method(HasSpecialist);
 	Method(HasTerrain);
@@ -1067,6 +1070,19 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+
+	lua_pushstring(L, toolTip.c_str());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lCanCreateTooltip(lua_State* L)
+{
+	CvString toolTip;
+	CvCity* pkCity = GetInstance(L);
+	const ProjectTypes eProject = (ProjectTypes)lua_tointeger(L, 2);
+
+	// City Production Modifier
+	pkCity->canCreate(eProject, false, false, &toolTip);
 
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
@@ -6249,7 +6265,9 @@ LUAAPIIMPL(City, HasReligion)
 LUAAPIIMPL(City, HasResource)
 LUAAPIIMPL(City, HasWorkedResource)
 LUAAPIIMPL(City, IsConnectedToCapital)
+LUAAPIIMPL(City, IsIndustrialConnectedToCapital)
 LUAAPIIMPL(City, IsConnectedTo)
+LUAAPIIMPL(City, GetConnectionGoldTimes100)
 LUAAPIIMPL(City, HasSpecialistSlot)
 LUAAPIIMPL(City, HasSpecialist)
 LUAAPIIMPL(City, HasTerrain)

@@ -223,6 +223,7 @@
 				<Label ID="CityIsRazing" Anchor="C,C" String="[ICON_RAZING]" Hidden="1"/>
 				<Label ID="CityIsResistance" Anchor="C,C" String="[ICON_RESISTANCE]" Hidden="1"/>
 				<Label ID="CityIsConnected" Anchor="C,C" String="[ICON_CONNECTED]" ToolTip="TXT_KEY_CITY_CONNECTED" Hidden="1"/>
+				<Label ID="CityIsIndustrialConnected" Anchor="C,C" String="[ICON_INDUSTRIAL_CONNECTED]" ToolTip="TXT_KEY_CITY_INDUSTRIAL_CONNECTED" Hidden="1"/>
 				<Label ID="CityIsBlockaded" Anchor="C,C" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED" Hidden="1"/>
 				<Label ID="CityIsPuppet" Anchor="C,C" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET" Hidden="1"/>
 				<Label ID="CityIsOccupied" Anchor="C,C" String="[ICON_OCCUPIED]" ToolTip="TXT_KEY_CITY_OCCUPIED" Hidden="1"/>

@@ -567,6 +567,10 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
+	{
+		iModifier /= 2;
+	}
 	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier *= 2;
@@ -623,6 +627,10 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
 	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
+	{
+		bIsFaster = true;
+	}
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		bIsFaster = true;
 	}

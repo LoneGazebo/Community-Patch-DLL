@@ -12,14 +12,11 @@ WHERE Type = 'TRAIT_RAZE_AND_HORSES';
 DELETE FROM Civilization_FreeTechs WHERE CivilizationType = 'CIVILIZATION_HUNS' AND TechType = 'TECH_ANIMAL_HUSBANDRY';
 DELETE FROM Trait_ImprovementYieldChanges WHERE TraitType = 'TRAIT_RAZE_AND_HORSES';
 
-INSERT INTO Trait_TerrainClaimBoost
-	(TraitType, TerrainType)
+INSERT INTO Trait_YieldFromCityDamageTimes100
+	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_GRASS'),
-	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_PLAINS'),
-	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_DESERT'),
-	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_TUNDRA'),
-	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_SNOW');
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 50),
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 50);
 
 ----------------------------------------------------------
 -- Unique Unit: Horse Archer (Skirmisher)
@@ -51,7 +48,7 @@ VALUES
 UPDATE Builds
 SET
 	PrereqTech = 'TECH_ARCHERY', -- Military Strategy
-	Time = 400
+	Time = 600
 WHERE Type = 'BUILD_EKI';
 
 INSERT INTO Build_TechTimeChanges
@@ -75,7 +72,8 @@ UPDATE Improvements
 SET
 	RequiresFlatlands = 1,
 	NoFreshWater = 1,
-	InAdjacentFriendly = 1
+	InAdjacentFriendly = 1,
+	NewOwner = 1
 WHERE Type = 'IMPROVEMENT_EKI';
 
 INSERT INTO Improvement_ValidTerrains

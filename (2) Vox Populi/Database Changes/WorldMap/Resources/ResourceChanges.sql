@@ -189,7 +189,7 @@ SET TechReveal = 'TECH_INDUSTRIALIZATION'
 WHERE Type = 'RESOURCE_ALUMINUM';
 
 UPDATE Resources
-SET TechReveal = 'TECH_COMBUSTION'
+SET TechReveal = 'TECH_DYNAMITE'
 WHERE Type = 'RESOURCE_OIL';
 
 -- Bonus and luxuries

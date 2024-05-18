@@ -3988,11 +3988,26 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 					CvEspionageSpy* pSpy = GET_PLAYER(ePlayer).GetEspionage()->GetSpyByID(iSpyIndex);
 					if (pSpy != NULL)
 					{
-						int iRank = pSpy->GetSpyRank(ePlayer);
-						iRank = (5 - iRank);
-						if (iRank > 0)
+						if (!MOD_BALANCE_VP)
 						{
-							iVotes /= iRank;
+							int iRank = pSpy->GetSpyRank(ePlayer);
+							iRank = (5 - iRank);
+							if (iRank > 0)
+							{
+								iVotes /= iRank;
+								if (iVotes <= 0)
+								{
+									iVotes = 1;
+								}
+								return iVotes;
+							}
+						}
+						else
+						{
+							CvCityEspionage* pCapitalEspionage = GET_PLAYER(eFromPlayer).getCapitalCity()->GetCityEspionage();
+							int iPercent = pCapitalEspionage->GetDiplomatVoteTradePercent(ePlayer);
+							iVotes *= iPercent;
+							iVotes /= 100;
 							if (iVotes <= 0)
 							{
 								iVotes = 1;
@@ -4005,8 +4020,9 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				// They are our vassal, so yes, we have a diplomat already
 				else if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
 				{
-					int iRank = 2;
-					iVotes /= iRank;
+					int iPercent = 25;
+					iVotes *= 100;
+					iVotes /= iPercent;
 					if (iVotes <= 0)
 					{
 						iVotes = 1;

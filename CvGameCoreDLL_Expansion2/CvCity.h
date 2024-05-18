@@ -264,7 +264,7 @@ public:
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
-	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
+	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoinCity() const;
@@ -945,6 +945,9 @@ public:
 	int GetEventGPPFromSpecialists() const;
 	void ChangeEventGPPFromSpecialists(int iValue);
 
+	void AddEventGPPFromSpecialistsCounter(int iExpiryTurn, int iGPP);
+	void UpdateEventGPPFromSpecialistsCounters();
+
 	int GetGrowthFromTourism() const;
 	void SetGrowthFromTourism(int iValue);
 	void ChangeGrowthFromTourism(int iValue);
@@ -1195,8 +1198,8 @@ public:
 	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
 
-	int GetYieldFromCombatExperience(YieldTypes eIndex) const;
-	void ChangeYieldFromCombatExperience(YieldTypes eIndex, int iChange);
+	int GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const;
+	void ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iChange);
 
 	int GetYieldPerAlly(YieldTypes eIndex) const;
 	void ChangeYieldPerAlly(YieldTypes eIndex, int iChange);
@@ -1671,6 +1674,7 @@ public:
 	bool HasWorkedResource(ResourceTypes iResourceType) const;
 	//just an alias for lua
 	bool IsConnectedToCapital() const { return IsRouteToCapitalConnected(); }
+	bool IsIndustrialConnectedToCapital() const { return IsIndustrialRouteToCapitalConnected(); }
 	bool IsConnectedTo(CvCity* pCity) const;
 	bool HasSpecialistSlot(SpecialistTypes iSpecialistType) const;
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
@@ -1719,6 +1723,7 @@ public:
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
 	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
+	int GetConnectionGoldTimes100() const;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);
@@ -1765,6 +1770,10 @@ public:
 	int GetSappedTurns() const;
 	void SetSappedTurns(int iValue);
 	void ChangeSappedTurns(int iValue);
+
+	int GetBuildingProductionBlockedTurns() const;
+	void SetBuildingProductionBlockedTurns(int iValue);
+	void ChangeBuildingProductionBlockedTurns(int iValue);
 
 	int GetNoTourismTurns() const;
 	void SetNoTourismTurns(int iValue);
@@ -1974,7 +1983,7 @@ protected:
 	std::vector<int> m_aiYieldFromPurchase;
 	std::vector<int> m_aiYieldFromFaithPurchase;
 	std::vector<int> m_aiYieldFromUnitLevelUp;
-	std::vector<int> m_aiYieldFromCombatExperience;
+	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
 	std::vector<int> m_aiYieldPerAlly;
 	std::vector<int> m_aiYieldPerFriend;
 	std::vector<int> m_aiYieldFromInternalTREnd;
@@ -2102,6 +2111,7 @@ protected:
 	int m_iPillagedPlots;
 	int m_iGrowthEvent;
 	int m_iEventGPPFromSpecialists;
+	std::vector<int> m_vEventGPPFromSpecialistsExpiryTurns;
 	int m_iGrowthFromTourism;
 	int m_iBuildingClassHappiness;
 	int m_iReligionHappiness;
@@ -2151,6 +2161,7 @@ protected:
 	int m_iPlagueTurns;
 	int m_iPlagueType;
 	int m_iSappedTurns;
+	int m_iBuildingProductionBlockedTurns;
 	int m_iNoTourismTurns;
 	int m_iLoyaltyCounter;
 	int m_iDisloyaltyCounter;
@@ -2373,7 +2384,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperience)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
@@ -2484,6 +2495,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessDelta)
 SYNC_ARCHIVE_VAR(int, m_iPillagedPlots)
 SYNC_ARCHIVE_VAR(int, m_iGrowthEvent)
 SYNC_ARCHIVE_VAR(int, m_iEventGPPFromSpecialists)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_vEventGPPFromSpecialistsExpiryTurns)
 SYNC_ARCHIVE_VAR(int, m_iGrowthFromTourism)
 SYNC_ARCHIVE_VAR(int, m_iBuildingClassHappiness)
 SYNC_ARCHIVE_VAR(int, m_iReligionHappiness)
@@ -2514,6 +2526,7 @@ SYNC_ARCHIVE_VAR(int, m_iPlagueCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueTurns)
 SYNC_ARCHIVE_VAR(int, m_iPlagueType)
 SYNC_ARCHIVE_VAR(int, m_iSappedTurns)
+SYNC_ARCHIVE_VAR(int, m_iBuildingProductionBlockedTurns)
 SYNC_ARCHIVE_VAR(int, m_iLoyaltyCounter)
 SYNC_ARCHIVE_VAR(int, m_iDisloyaltyCounter)
 SYNC_ARCHIVE_VAR(int, m_iLoyaltyStateType)

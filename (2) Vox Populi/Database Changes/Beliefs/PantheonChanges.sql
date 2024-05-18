@@ -184,7 +184,9 @@ VALUES
 
 -- Monuments to the Gods (now Goddess of Beauty)
 UPDATE Beliefs
-SET WonderProductionModifier = 0
+SET
+	WonderProductionModifier = 0,
+	ObsoleteEra = NULL
 WHERE Type = 'BELIEF_MONUMENT_GODS';
 
 INSERT INTO Belief_BuildingClassYieldChanges

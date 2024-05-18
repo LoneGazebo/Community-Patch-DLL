@@ -180,6 +180,7 @@ CvUnit::CvUnit() :
 	, m_iAlwaysHealCount()
 	, m_iHealOutsideFriendlyCount()
 	, m_iHillsDoubleMoveCount()
+	, m_iRiverDoubleMoveCount()
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount()
 	, m_iEmbarkFlatCostCount()
@@ -1443,6 +1444,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAlwaysHealCount = 0;
 	m_iHealOutsideFriendlyCount = 0;
 	m_iHillsDoubleMoveCount = 0;
+	m_iRiverDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
 	m_iEmbarkFlatCostCount = 0;
@@ -10844,30 +10846,9 @@ bool CvUnit::foundCity()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
-	} 
-	else 
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion());
-	}
-	else
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true);
-#elif defined(MOD_BALANCE_CORE)
-		kPlayer.foundCity(getX(), getY(), m_pUnitInfo);
-#else
-		kPlayer.foundCity(getX(), getY());
-#endif
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	}
-#endif
+	ReligionTypes eReligion = (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON) ? GetReligionData()->GetReligion() : NO_RELIGION;
+	bool bForce = MOD_GLOBAL_RELIGIOUS_SETTLERS && eReligion == NO_RELIGION;
+	kPlayer.foundCity(getX(), getY(), eReligion, bForce, m_pUnitInfo);
 
 	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
 	{
@@ -22726,6 +22707,31 @@ void CvUnit::changeHillsDoubleMoveCount(int iChange)
 	m_iHillsDoubleMoveCount = (m_iHillsDoubleMoveCount + iChange);
 	CvAssert(getHillsDoubleMoveCount() >= 0);
 }
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getRiverDoubleMoveCount() const
+{
+	VALIDATE_OBJECT
+		return m_iRiverDoubleMoveCount;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isRiverDoubleMove() const
+{
+	VALIDATE_OBJECT
+		return (getRiverDoubleMoveCount() > 0);
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeRiverDoubleMoveCount(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iRiverDoubleMoveCount = (m_iRiverDoubleMoveCount + iChange);
+	CvAssert(getRiverDoubleMoveCount() >= 0);
+}
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getMountainsDoubleMoveCount() const
@@ -27887,6 +27893,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
 		changeHillsDoubleMoveCount((thisPromotion.IsHillsDoubleMove()) ? iChange : 0);
+		changeRiverDoubleMoveCount((thisPromotion.IsRiverDoubleMove()) ? iChange : 0);
 		changeIgnoreTerrainCostCount((thisPromotion.IsIgnoreTerrainCost()) ? iChange : 0);
 		changeIgnoreTerrainDamageCount((thisPromotion.IsIgnoreTerrainDamage()) ? iChange : 0);
 		changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
@@ -28280,15 +28287,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if (bNewValue)
 		{
 			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
-			ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
-			if (getPromotionDuration(eIndex) > 0)
-			{
-				SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
-			}
-		}
-		else
-		{
-			ChangePromotionDuration(NO_PROMOTION, 0);
+			SetPromotionDuration(eIndex, thisPromotion.PromotionDuration());
+			SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
 		}
 	}
 }
@@ -28583,6 +28583,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAlwaysHealCount);
 	visitor(unit.m_iHealOutsideFriendlyCount);
 	visitor(unit.m_iHillsDoubleMoveCount);
+	visitor(unit.m_iRiverDoubleMoveCount);
 	visitor(unit.m_iMountainsDoubleMoveCount);
 	visitor(unit.m_iEmbarkFlatCostCount);
 	visitor(unit.m_iDisembarkFlatCostCount);

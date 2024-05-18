@@ -2067,11 +2067,28 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	if (pFirstCity->IsRazing())
 		return 0;
 
+	RouteTypes eRoute = finder->GetData().eRoute;
+	if (eRoute == NO_ROUTE)
+		return 0;
+
+	int iCityConnectionMask = CvCityConnections::CONNECTION_HARBOR;
+	if (MOD_BALANCE_VP)
+	{
+		if (eRoute == ROUTE_ROAD || eRoute == ROUTE_ANY)
+		{
+			iCityConnectionMask = CvCityConnections::CONNECTION_ANY_INDIRECT;
+		}
+		else if (eRoute == ROUTE_RAILROAD)
+		{
+			iCityConnectionMask = CvCityConnections::CONNECTION_INDUSTRIAL_HARBOR;
+		}
+	}
+
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
 	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
 		//we only care about water and air connections here because they are not normal routes
-		if (it->second & (CvCityConnections::CONNECTION_HARBOR | CvCityConnections::CONNECTION_AIRPORT))
+		if (it->second & iCityConnectionMask)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
 			if (pSecondCity && !pSecondCity->IsRazing())
@@ -2235,10 +2252,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_SHORTCUT);
+
+	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
+	{
+		bPlannedShortcutRoute = eBuilderTaskingAI->IsRoutePlanned(pPlot, ROUTE_RAILROAD, PURPOSE_SHORTCUT);
+	}
+
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_CONNECT_CAPITAL));
 	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT && !bGetSameRouteBenefitFromTrait && !bPlannedShortcutRoute ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
-	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD)
+	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD && data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
 	{
 		bPlannedCapitalRoute = eBuilderTaskingAI->IsRoutePlanned(pPlot, ROUTE_RAILROAD, PURPOSE_CONNECT_CAPITAL);
 	}
@@ -3253,14 +3276,15 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
+	else if (pFromPlot->IsAlongSameRiver(pToPlot))
 	{
-		// Songhai ability
 		if (pCacheData->IsRiverTradeRoad())
 			iRouteDiscountTimes120 = 40;
 		else
 			bIgnoreTerrain = true;
 	}
+	else if (pToPlot->isCity())
+		bIgnoreTerrain = true;
 
 	if (iRouteDiscountTimes120 > 0)
 		bIgnoreTerrain = true;

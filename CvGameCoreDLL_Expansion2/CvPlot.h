@@ -147,6 +147,9 @@ public:
 	bool isRiverSide() const;
 	bool isRiverConnection(DirectionTypes eDirection) const;
 
+	bool IsRiverSide(DirectionTypes eDirection) const;
+	bool IsAlongSameRiver(const CvPlot* pToPlot) const;
+
 	CvPlot* getNeighboringPlot(DirectionTypes eDirection) const;
 	CvPlot* getNearestLandPlotInternal(int iDistance) const;
 	int getNearestLandArea() const;
@@ -305,8 +308,8 @@ public:
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
 
-	void SetCityConnection(PlayerTypes ePlayer, bool bActive);
-	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER) const;
+	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
+	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void SetTradeUnitRoute(bool bActive);

@@ -113,7 +113,9 @@ public:
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageNetworkPoints() const;
 	int GetRigElectionInfluenceModifier() const;
+	int GetPassiveEspionageBonusModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
+	int GetHappinessPerCityOverStrengthThreshold() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
 	int GetHappinessPerXPolicies() const;
@@ -330,6 +332,7 @@ public:
 	int GetOccupiedProdMod() const;
 	int GetInternalTradeGold() const;
 	int GetFreeWCVotes() const;
+	int GetSpySecurityModifier() const;
 	int GetInfluenceGPExpend() const;
 	int GetFreeTradeRoute() const;
 	int GetFreeSpy() const;
@@ -428,6 +431,12 @@ public:
 	int GetYieldFromDelegateCount(int i) const;
 	int* GetYieldFromDelegateCountArray() const;
 
+	int GetYieldFromXMilitaryUnits(int i) const;
+	int* GetYieldFromXMilitaryUnitsArray() const;
+
+	int GetYieldPerCityOverStrengthThreshold(int i) const;
+	int* GetYieldPerCityOverStrengthThresholdArray() const;
+
 	int GetMissionInfluenceModifier() const;
 
 	bool IsCSResourcesForMonopolies() const;
@@ -478,7 +487,6 @@ public:
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	int GetSpecialistFoodChange() const;
-	int GetNonSpecialistFoodChange() const;
 
 	int GetWarWearinessModifier() const;
 	int GetWarScoreModifier() const;
@@ -710,7 +718,6 @@ private:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
-	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 
@@ -782,6 +789,7 @@ private:
 	int m_iCultureBombBoost;
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;
+	int m_iSpySecurityModifier;
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
@@ -820,12 +828,14 @@ private:
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
+	int m_iPassiveEspionageBonusModifier;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
+	int m_iHappinessPerCityOverStrengthThreshold;
 	int m_iTRSpeedBoost;
 	int m_iTRVisionBoost;
 	int m_iHappinessPerXPolicies;
@@ -876,6 +886,8 @@ private:
 	int* m_piYieldModifierFromGreatWorks;
 	int* m_piYieldModifierFromActiveSpies;
 	int* m_piYieldFromDelegateCount;
+	int* m_piYieldFromXMilitaryUnits;
+	int* m_piYieldPerCityOverStrengthThreshold;
 	int m_iMissionInfluenceModifier;
 	int m_iHappinessPerActiveTradeRoute;
 	bool m_bCSResourcesForMonopolies;
@@ -1036,6 +1048,7 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE,
 	POLICYMOD_RIGGING_ELECTION_MODIFIER,
 	POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER,
+	POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER,
 	POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE,
 	POLICYMOD_PROTECTED_MINOR_INFLUENCE,
 	POLICYMOD_AFRAID_INFLUENCE,

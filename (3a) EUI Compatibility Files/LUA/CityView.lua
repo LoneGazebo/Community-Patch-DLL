@@ -583,6 +583,9 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
 			strToolTip = GetHelpTextForProject( itemID, city, true )
+			if isDisabled then
+				strDisabledInfo = city:CanCreateTooltip(itemID)
+			end
 		elseif orderID == OrderTypes.ORDER_MAINTAIN then
 			itemInfo = GameInfo.Processes
 			strToolTip = GetHelpTextForProcess( itemID, true )
@@ -979,6 +982,9 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			end
 			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
 			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
+			if yieldID == YieldTypes.YIELD_PRODUCTION and city:IsIndustrialConnectedToCapital() then
+				cityYieldRate = cityYieldRate + city:GetConnectionGoldTimes100() / 100
+			end
 			-- Special culture case
 			if yieldID == YieldTypes.YIELD_CULTURE then
 				buildingYieldRate = buildingYieldRate + buildingCultureRate
@@ -2130,7 +2136,8 @@ local function UpdateCityViewNow()
 		Controls.CityCapitalIcon:SetHide( not isCapital )
 
 		-- Connected to capital?
-		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or cityOwner:IsCapitalIndustrialConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+		Controls.CityIsIndustrialConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalIndustrialConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
 
 		-- Blockaded ? / Sapped ?
 		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )

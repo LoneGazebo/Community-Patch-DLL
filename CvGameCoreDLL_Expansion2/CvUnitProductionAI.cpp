@@ -1133,6 +1133,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
+
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
@@ -1161,6 +1162,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
 					if (pkResourceInfo != NULL && pkResourceInfo->isTerrain(TERRAIN_COAST))
 					{
+						if (!kPlayer.NeedWorkerToImproveResource(eResourceLoop))
+							continue;
+
 						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop);
 					}
 				}

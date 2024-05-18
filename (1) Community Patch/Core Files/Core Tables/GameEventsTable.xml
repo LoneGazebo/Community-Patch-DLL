@@ -818,8 +818,8 @@
 		<Column name="PillageRoadsChance" type="integer" default="0"/>
 		<!-- Pillages each Fortification (Fort, Citadel) with a given % chance --> 
 		<Column name="PillageFortificationsChance" type="integer" default="0"/>
-		<!-- Remove x turns of the current production progress --> 
-		<Column name="RemoveTurnsOfProductionProgress" type="integer" default="0"/>
+		<!-- Blocks production of buildings in city for X turns --> 
+		<Column name="BlockBuildingTurns" type="integer" default="0"/>
 		<!-- Modifier to religious pressure emitted by the city --> 
 		<Column name="ReligiousPressureModifier" type="integer" default="0"/>
 		
@@ -847,8 +847,8 @@
 		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
 		<!-- Chance to be identified on a spy mission-->
 		<Column name="SpyIDChance" type="integer" default="0"/>
-		<!-- Chance to be captured on a spy mission-->
-		<Column name="SpyCaptureChance" type="integer" default="0"/>
+		<!-- Chance to be killed on a spy mission-->
+		<Column name="SpyKillChance" type="integer" default="0"/>
 		<!-- Minimum Spy Level -->
 		<Column name="SpyLevelRequired" type="integer" default="0"/>
 		<!-- Prevents city healing for x turns -->
@@ -865,12 +865,6 @@
 		<Column name="CityDefenseModifierBase" type="integer" default="0"/>
 		<!-- Counterspy affects city ranged strength, scaling with counterspy level-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
-		<!-- All enemy spies are identified -->
-		<Column name="IsAlwaysIDSpies" type="boolean" default="false"/>
-		<!-- Caught spies are killed -->
-		<Column name="IsKillCaughtSpies" type="boolean" default="false"/>
-		<!-- Start of counterspy mission is not announced to players who have a spy in the city -->
-		<Column name="IsSecretMission" type="boolean" default="false"/>
 		<!-- Checks if empire of the targeted civ is unhappy -->
 		<Column name="IsEnemyUnhappy" type="boolean" default="false"/>
 		<Column name="IsEnemySuperUnhappy" type="boolean" default="false"/>
@@ -939,6 +933,7 @@
 		<Column name="RequiresRazing" type="boolean" default="false"/>
 		<Column name="HasAnyReligion" type="boolean" default="false"/>
 		<Column name="RequiresPuppet" type="boolean" default="false"/>
+		<Column name="RequiresNotPuppet" type="boolean" default="false"/>
 		<Column name="HasMetAMajorCiv" type="boolean" default="false"/>
 		<!-- Checks if city majority is a Pantheon -->
 		<Column name="RequiresPantheon" type="boolean" default="false"/>
@@ -995,8 +990,15 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 	
-	<!-- Counterspy missions only! When mission active, gain instant yields when catching a spy -->
-	<Table name="CityEventChoice_YieldOnSpyCaught">
+	<!-- Counterspy missions only! When mission active, gain instant yields when identifying a spy -->
+	<Table name="CityEventChoice_YieldOnSpyIdentified">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<!-- Counterspy missions only! When mission active, gain instant yields when killing a spy -->
+	<Table name="CityEventChoice_YieldOnSpyKilled">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>

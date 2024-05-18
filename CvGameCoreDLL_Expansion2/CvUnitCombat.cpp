@@ -184,6 +184,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 		}
 
+		// Finally, cap the damage dealt to the city at its current health
+		iAttackerDamageInflicted = min(iAttackerDamageInflicted, pkCity->GetMaxHitPoints() - pkCity->getDamage());
+
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, iDefenderTotalDamageInflicted);
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iAttackerDamageInflicted);
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iAttackerTotalDamageInflicted);
@@ -1171,12 +1174,12 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 
-#if defined(MOD_BALANCE_CORE)
+					// City not already at 0 HP
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
 					{
 						ApplyPostCityCombatEffects(pkAttacker, pCity, iDamage);
 					}
-#endif
+
 					pCity->changeDamage(iDamage);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1464,6 +1467,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
+			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 		}
 		// City conquest
 		else if(pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
@@ -1485,6 +1489,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 						MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 				}
 
+				ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 				pkAttacker->UnitMove(pkPlot, true, pkAttacker);
 			}
 		}
@@ -1505,9 +1510,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
-			pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
-
 			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
+			pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -2142,6 +2146,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 							pkDLLInterface->AddMessage(uiParentEventID, pCity->getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 						}
 					}
+
+					ApplyPostCityCombatEffects(pkAttacker, pCity, iAttackerDamageInflicted);
 				}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -2889,6 +2895,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), pkCity->getOwner()) == vAffectedPlayers.end())
 						vAffectedPlayers.push_back(pkCity->getOwner());
 				}
+
+				// Putting this here, since the city may not exist later
+				ApplyPostCityCombatEffects(pkAttacker, pkCity, kEntry.GetDamage());
 
 				if(kEntry.GetFinalDamage() >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital())
 				{
@@ -4623,40 +4632,42 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 
 void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefender, int iAttackerDamageInflicted)
 {
-	CvString colorString;
 	int iPlunderModifier = pkAttacker->GetCityAttackPlunderModifier();
-	if(iPlunderModifier > 0)
+	if (iPlunderModifier > 0)
 	{
 		int iGoldPlundered = iAttackerDamageInflicted * iPlunderModifier;
 		iGoldPlundered /= 100;
 
-		if(iGoldPlundered > 0)
+		if (iGoldPlundered > 0)
 		{
-#if defined(MOD_BALANCE_CORE)
 			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iGoldPlundered /= 100;
 
-			if(iGoldPlundered > (pkDefender->getStrengthValue()/100) * 10)
-			{
-				iGoldPlundered = ((pkDefender->getStrengthValue()/100) * 10);
-			}
-#endif
+			iGoldPlundered = min(iGoldPlundered, (pkDefender->getStrengthValue() / 100) * 10);
+
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);
 
 			CvPlayer& kCityPlayer = GET_PLAYER(pkDefender->getOwner());
 			int iDeduction = min(iGoldPlundered, kCityPlayer.GetTreasury()->GetGold());
 			kCityPlayer.GetTreasury()->ChangeGold(-iDeduction);
 
-			if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())
+			if (pkAttacker->getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				colorString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
+				CvString colorString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
 				sprintf_s(text, colorString, iGoldPlundered);
 				SHOW_PLOT_POPUP(pkAttacker->plot(), pkAttacker->getOwner(), text);
 			}
 		}
 	}
 	pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
+
+	// Instant yield when dealing damage to city
+	// Only pass in the attacker, its city, and the damage
+	CvCity* pOriginCity = pkAttacker->getOriginCity();
+	if (!pOriginCity)
+		pOriginCity = GET_PLAYER(pkAttacker->getOwner()).getCapitalCity();
+	GET_PLAYER(pkAttacker->getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_DAMAGE, false, NO_GREATPERSON, NO_BUILDING, iAttackerDamageInflicted, true, NO_PLAYER, NULL, false, pOriginCity, false, true, false, NO_YIELD, pkAttacker);
 }
 
 void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo & kCombatInfo, uint uiParentEventID)

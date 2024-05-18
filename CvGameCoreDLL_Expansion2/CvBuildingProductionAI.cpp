@@ -389,6 +389,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	if (pkBuildingInfo->AllowsIndustrialWaterRoutes())
+	{
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if (m_pCity->GetTradePrioritySea() <= 0 && m_pCity->IsIndustrialRouteToCapitalConnected())
+		{
+			iBonus -= 50;
+		}
+		else if (pCapital != NULL && !pCapital->HasSharedAreaWith(m_pCity, true, true))
+		{
+			iBonus += 10 * max(1, m_pCity->getPopulation());
+		}
+		else
+		{
+			iBonus += 5 * max(1, m_pCity->getPopulation());
+		}
+
+		//Higher value the higher the number of routes.
+		if (kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
+		{
+			iBonus += m_pCity->GetTradePrioritySea() * 5;
+		}
+	}
+
 	if (pkBuildingInfo->AllowsAirRoutes())
 	{
 		CvCity* pCapital = kPlayer.getCapitalCity();
@@ -869,6 +892,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
 					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass);
+				}
+				if(pkBuildingInfo->GetUnitCombatProductionModifierGlobal(eUnitCombatClass) > 0)
+				{
+					iTempBonus += kPlayer.getUnitCombatProductionModifiers(eUnitCombatClass) + m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifierGlobal(eUnitCombatClass);
 				}
 				if(pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{

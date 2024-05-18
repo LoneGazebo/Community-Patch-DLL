@@ -3717,7 +3717,7 @@ public:
 	int getPillageRoadsChance() const;
 	int getPillageFortificationsChance() const;
 	int getMutuallyExclusiveGroup() const;
-	int getRemoveTurnsOfProductionProgress() const;
+	int getBlockBuildingTurns() const;
 	int getFlavorValue(int i) const;
 	int getWLTKD() const;
 	int getGrowthMod() const;
@@ -3741,7 +3741,8 @@ public:
 	int getCityYield(int i) const;
 	int getCityYieldModifier(int i) const;
 	int getYieldSiphon(int i) const;
-	int getYieldOnSpyCaught(int i) const;
+	int getYieldOnSpyIdentified(int i) const;
+	int getYieldOnSpyKilled(int i) const;
 	int getBuildingClassYield(int i, int j) const;
 	int getBuildingClassYieldModifier(int i, int j) const;
 	int getTerrainYield(int i, int j) const;
@@ -3760,7 +3761,7 @@ public:
 	//espionage
 	int GetNetworkPointsNeededScaled() const;
 	int GetSpyIdentificationChance() const;
-	int GetSpyCaptureChance() const;
+	int GetSpyKillChance() const;
 	int GetSpyLevelRequired() const;
 	int getStealTech() const;
 	int getStealGW() const;
@@ -3776,9 +3777,6 @@ public:
 	bool isCounterspyBlockSapCity() const;
 	int getCityDefenseModifierBase() const;
 	int getCityDefenseModifier() const;
-	bool isAlwaysIDSpies() const;
-	bool isKillCaughtSpies() const;
-	bool isSecretMission() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
@@ -3814,6 +3812,7 @@ public:
 	bool isRazing() const;
 	bool hasAnyReligion() const;
 	bool isPuppet() const;
+	bool isNotPuppet() const;
 	bool hasTradeConnection() const;
 	bool hasCityConnection() const;
 	bool isNearNaturalWonder() const;
@@ -3885,7 +3884,7 @@ protected:
 	int m_iPillageRoadsChance;
 	int m_iPillageFortificationsChance;
 	int m_iMutuallyExclusiveGroup;
-	int m_iRemoveTurnsOfProductionProgress;
+	int m_iBlockBuildingTurns;
 	int m_iCityHappiness;
 	int m_iReligiousPressureModifier;
 	int m_iBasicNeedsMedianModifier;
@@ -3895,7 +3894,8 @@ protected:
 	int m_iReligiousUnrestModifier;
 	int* m_piResourceChange;
 	int* m_piYieldSiphon;
-	int* m_piYieldOnSpyCaught;
+	int* m_piYieldOnSpyIdentified;
+	int* m_piYieldOnSpyKilled;
 	CvString m_strDisabledTooltip;
 	CvString m_strSpyMissionEffect;
 	int m_iConvertsCityToPlayerReligion;
@@ -3906,7 +3906,7 @@ protected:
 	int m_iNetworkPointsNeeded;
 	int m_bNetworkPointsScaling; 
 	int m_iSpyIdentificationChance;
-	int m_iSpyCaptureChance;
+	int m_iSpyKillChance;
 	int m_iSpyLevelRequired;
 	bool m_bIsEspionageMission;
 	int m_iStealTech;
@@ -3920,9 +3920,6 @@ protected:
 	bool m_bCounterspyBlockSapCity;
 	int m_iCityDefenseModifierBase;
 	int m_iCityDefenseModifier;
-	bool m_bIsAlwaysIDSpies;
-	bool m_bIsKillCaughtSpies;
-	bool m_bIsSecretMission;
 
 	//Filters
 	int m_iPrereqTech;
@@ -3958,6 +3955,7 @@ protected:
 	bool m_bIsRazing;
 	bool m_bHasAnyReligion;
 	bool m_bIsPuppet;
+	bool m_bIsNotPuppet;
 	bool m_bTradeConnection;
 	bool m_bCityConnection;
 	bool m_bNearNaturalWonder;

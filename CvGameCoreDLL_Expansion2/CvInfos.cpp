@@ -10740,8 +10740,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 			pEventNotificationInfo.m_strShortDescription = pEventChoiceTypes->GetText("ShortDescription");
 			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("IsWorldEvent");
 			pEventNotificationInfo.m_bNeedPlayerID = pEventChoiceTypes->GetBool("NeedPlayerID");
-			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetBool("Variable1");
-			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetBool("Variable2");
+			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetInt("Variable1");
+			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetInt("Variable2");
 			idx++;
 		}
 
@@ -11629,6 +11629,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bIsRazing(false),
 	 m_bHasAnyReligion(false),
 	 m_bIsPuppet(false),
+	 m_bIsNotPuppet(false),
 	 m_bTradeConnection(false),
 	 m_bCityConnection(false),
 	 m_ppiBuildingClassYield(NULL),
@@ -11640,7 +11641,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piCityYield(NULL),
 	 m_piCityYieldModifier(NULL),
 	 m_piYieldSiphon(NULL),
-	 m_piYieldOnSpyCaught(NULL),
+	 m_piYieldOnSpyIdentified(NULL),
+	 m_piYieldOnSpyKilled(NULL),
 	 m_iNearbyFeature(-1),
 	 m_iNearbyTerrain(-1),
 	 m_iMaximumPopulation(0),
@@ -11660,7 +11662,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iPillageRoadsChance(0),
 	 m_iPillageFortificationsChance(0),
 	 m_iMutuallyExclusiveGroup(0),
-	 m_iRemoveTurnsOfProductionProgress(0),
+	 m_iBlockBuildingTurns(0),
 	 m_iEventPromotion(0),
 	 m_iCityHappiness(0),
 	 m_iReligiousPressureModifier(0),
@@ -11672,7 +11674,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iNetworkPointsNeeded(0),
 	 m_bNetworkPointsScaling(false),
 	 m_iSpyIdentificationChance(0),
-	 m_iSpyCaptureChance(0),
+	 m_iSpyKillChance(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
@@ -11690,9 +11692,6 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCounterspyBlockSapCity(false),
 	 m_iCityDefenseModifierBase(0),
 	 m_iCityDefenseModifier(0),
-	 m_bIsAlwaysIDSpies(false),
-	 m_bIsKillCaughtSpies(false),
-	 m_bIsSecretMission(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0),
 	 m_iBasicNeedsMedianModifier(0),
@@ -11719,7 +11718,8 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piCityYield);
 	SAFE_DELETE_ARRAY(m_piCityYieldModifier);
 	SAFE_DELETE_ARRAY(m_piYieldSiphon);
-	SAFE_DELETE_ARRAY(m_piYieldOnSpyCaught);
+	SAFE_DELETE_ARRAY(m_piYieldOnSpyIdentified);
+	SAFE_DELETE_ARRAY(m_piYieldOnSpyKilled);
 	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	SAFE_DELETE_ARRAY(m_piResourceChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
@@ -11788,9 +11788,9 @@ int CvModEventCityChoiceInfo::GetSpyIdentificationChance() const
 {
 	return m_iSpyIdentificationChance;
 }
-int CvModEventCityChoiceInfo::GetSpyCaptureChance() const
+int CvModEventCityChoiceInfo::GetSpyKillChance() const
 {
-	return m_iSpyCaptureChance;
+	return m_iSpyKillChance;
 }
 int CvModEventCityChoiceInfo::GetSpyLevelRequired() const
 {
@@ -11842,18 +11842,6 @@ int CvModEventCityChoiceInfo::getCityDefenseModifierBase() const
 int CvModEventCityChoiceInfo::getCityDefenseModifier() const
 {
 	return m_iCityDefenseModifier;
-}
-bool CvModEventCityChoiceInfo::isAlwaysIDSpies() const
-{
-	return m_bIsAlwaysIDSpies;
-}
-bool CvModEventCityChoiceInfo::isKillCaughtSpies() const
-{
-	return m_bIsKillCaughtSpies;
-}
-bool CvModEventCityChoiceInfo::isSecretMission() const
-{
-	return m_bIsSecretMission;
 }
 
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
@@ -12052,9 +12040,9 @@ int CvModEventCityChoiceInfo::getMutuallyExclusiveGroup() const
 	return m_iMutuallyExclusiveGroup;
 }
 
-int CvModEventCityChoiceInfo::getRemoveTurnsOfProductionProgress() const
+int CvModEventCityChoiceInfo::getBlockBuildingTurns() const
 {
-	return m_iRemoveTurnsOfProductionProgress;
+	return m_iBlockBuildingTurns;
 }
 
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
@@ -12108,12 +12096,19 @@ int CvModEventCityChoiceInfo::getYieldSiphon(int i) const
 	return m_piYieldSiphon ? m_piYieldSiphon[i] : -1;
 }
 
-int CvModEventCityChoiceInfo::getYieldOnSpyCaught(int i) const
+int CvModEventCityChoiceInfo::getYieldOnSpyIdentified(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldOnSpyCaught ? m_piYieldOnSpyCaught[i] : -1;
+	return m_piYieldOnSpyIdentified ? m_piYieldOnSpyIdentified[i] : -1;
 }
+int CvModEventCityChoiceInfo::getYieldOnSpyKilled(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldOnSpyKilled ? m_piYieldOnSpyKilled[i] : -1;
+}
+
 /// Yield change for a specific BuildingClass by yield type
 int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
 {
@@ -12325,6 +12320,11 @@ bool CvModEventCityChoiceInfo::isPuppet() const
 	return m_bIsPuppet;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNotPuppet() const
+{
+	return m_bIsNotPuppet;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::hasTradeConnection() const
 {
 	return m_bTradeConnection;
@@ -12486,7 +12486,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
 	m_bNetworkPointsScaling = kResults.GetBool("NetworkPointsScaling");
 	m_iSpyIdentificationChance = kResults.GetInt("SpyIDChance");
-	m_iSpyCaptureChance = kResults.GetInt("SpyCaptureChance");
+	m_iSpyKillChance = kResults.GetInt("SpyKillChance");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
 	m_iStealTech = kResults.GetInt("StealNumTechs");
 	m_iStealGW = kResults.GetInt("StealNumGW");
@@ -12498,9 +12498,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCounterspyBlockSapCity = kResults.GetBool("CounterspyBlockSapCity");
 	m_iCityDefenseModifierBase = kResults.GetInt("CityDefenseModifierBase");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
-	m_bIsAlwaysIDSpies = kResults.GetBool("IsAlwaysIDSpies");
-	m_bIsKillCaughtSpies = kResults.GetBool("IsKillCaughtSpies");
-	m_bIsSecretMission = kResults.GetBool("IsSecretMission");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
@@ -12535,7 +12532,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	kUtility.SetYields(m_piCityYieldModifier, "CityEventChoice_CityYieldModifier", "CityEventChoiceType", szEventType);
 
 	kUtility.SetYields(m_piYieldSiphon, "CityEventChoice_YieldSiphon", "CityEventChoiceType", szEventType);
-	kUtility.SetYields(m_piYieldOnSpyCaught, "CityEventChoice_YieldOnSpyCaught", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piYieldOnSpyIdentified, "CityEventChoice_YieldOnSpyIdentified", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piYieldOnSpyKilled, "CityEventChoice_YieldOnSpyKilled", "CityEventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piGPChange, "Specialists", "CityEventChoice_GreatPersonPoints", "SpecialistType", "CityEventChoiceType", szEventType, "Points");
 	kUtility.PopulateArrayByValue(m_piDestroyImprovement, "Improvements", "CityEventChoice_ImprovementDestructionRandom", "ImprovementType", "CityEventChoiceType", szEventType, "Number");
@@ -12555,7 +12553,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iPillageRoadsChance = kResults.GetInt("PillageRoadsChance");
 	m_iPillageFortificationsChance = kResults.GetInt("PillageFortificationsChance");
 	m_iMutuallyExclusiveGroup = kResults.GetInt("MutuallyExclusiveGroup");
-	m_iRemoveTurnsOfProductionProgress = kResults.GetInt("RemoveTurnsOfProductionProgress");
+	m_iBlockBuildingTurns = kResults.GetInt("BlockBuildingTurns");
 
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
@@ -12861,6 +12859,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bIsRazing = kResults.GetBool("RequiresRazing");
 	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");
 	m_bIsPuppet = kResults.GetBool("RequiresPuppet");
+	m_bIsNotPuppet = kResults.GetBool("RequiresNotPuppet");
 	m_bTradeConnection = kResults.GetBool("HasTradeConnection");
 	m_bCityConnection = kResults.GetBool("HasCityConnection");
 

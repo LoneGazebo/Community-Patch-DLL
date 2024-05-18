@@ -97,11 +97,11 @@
 			<DefaultBuilding>BUILDING_INTERPRETIVE_CENTER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
 		</Row>
-		<!-- Train Station -->
+		<!-- Coaling Station -->
 		<Row>
-			<Type>BUILDINGCLASS_TRAINSTATION</Type>
-			<DefaultBuilding>BUILDING_TRAINSTATION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
+			<Type>BUILDINGCLASS_COALING_STATION</Type>
+			<DefaultBuilding>BUILDING_COALING_STATION</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_COALING_STATION</Description>
 		</Row>
 		<!-- Gallery -->
 		<Row>
@@ -120,18 +120,6 @@
 			<Type>BUILDINGCLASS_WIRE_SERVICE</Type>
 			<DefaultBuilding>BUILDING_WIRE_SERVICE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIRE_SERVICE</Description>
-		</Row>
-		<!-- Mission dummy -->
-		<Row>
-			<Type>BUILDINGCLASS_D_FOR_SPAIN_MISSION</Type>
-			<DefaultBuilding>BUILDING_D_FOR_SPAIN_MISSION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_MISSION</Description>
-		</Row>
-		<!-- Mission -->
-		<Row>
-			<Type>BUILDINGCLASS_SPAIN_MISSION</Type>
-			<DefaultBuilding>BUILDING_SPAIN_MISSION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_MISSION</Description>
 		</Row>
 		<!-- National Wonders -->
 		<!-- Scrivener's Office -->
@@ -757,16 +745,16 @@
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<PortraitIndex>1</PortraitIndex>
 		</Row>
-		<!-- Train Station -->
+		<!-- Coaling Station -->
 		<Row>
-			<Type>BUILDING_TRAINSTATION</Type>
-			<BuildingClass>BUILDINGCLASS_TRAINSTATION</BuildingClass>
-			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_TRAINSTATION_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_TRAINSTATION_STRATEGY</Strategy>
+			<Type>BUILDING_COALING_STATION</Type>
+			<BuildingClass>BUILDINGCLASS_COALING_STATION</BuildingClass>
+			<Description>TXT_KEY_BUILDING_COALING_STATION</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COALING_STATION_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_COALING_STATION_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_COALING_STATION_STRATEGY</Strategy>
 			<PrereqTech>TECH_RAILROAD</PrereqTech>
-			<RequiresRail>true</RequiresRail>
+			<RequiresIndustrialCityConnection>true</RequiresIndustrialCityConnection>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
@@ -969,29 +957,7 @@
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<!-- End of UB replacements -->
-		<!-- Mission dummy -->
-		<Row>
-			<Type>BUILDING_D_FOR_SPAIN_MISSION</Type>
-			<BuildingClass>BUILDINGCLASS_D_FOR_SPAIN_MISSION</BuildingClass>
-			<Description>TXT_KEY_BUILDING_MISSION</Description>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>16</PortraitIndex>
-			<IsDummy>1</IsDummy>
-			<ShowInPedia>0</ShowInPedia>
-		</Row>
-		<!-- Mission -->
-		<Row>
-			<Type>BUILDING_SPAIN_MISSION</Type>
-			<BuildingClass>BUILDINGCLASS_SPAIN_MISSION</BuildingClass>
-			<Description>TXT_KEY_BUILDING_MISSION</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
-			<InstantReligiousPressure>10000</InstantReligiousPressure>
-			<Defense>200</Defense>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>16</PortraitIndex>
-		</Row>
+
 		<!-- National Wonders -->
 		<!-- Scrivener's Office -->
 		<Row>
@@ -1374,11 +1340,9 @@
 			<PrereqTech>TECH_COMPUTERS</PrereqTech>
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
-			<GlobalSpySecurityModifier>10</GlobalSpySecurityModifier>
+			<GlobalSpySecurityModifier>20</GlobalSpySecurityModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
-			<SpyRankChange>1</SpyRankChange>
-			<InstantSpyRankChange>1</InstantSpyRankChange>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>44</PortraitIndex>

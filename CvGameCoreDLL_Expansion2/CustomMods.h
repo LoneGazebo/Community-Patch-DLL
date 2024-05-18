@@ -238,7 +238,6 @@
 #define MOD_CORE_DEBUGGING							(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DEBUGGING())
 #define MOD_BALANCE_CORE_YIELDS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_YIELDS())
 #define MOD_BALANCE_CORE_SPIES						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES())
-#define MOD_BALANCE_CORE_SPIES_ADVANCED				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES_ADVANCED())
 #define MOD_BALANCE_CORE_MILITARY					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY())
 #define MOD_BALANCE_CORE_SETTLER_ADVANCED			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SETTLER_ADVANCED())
 #define MOD_BALANCE_CORE_MINORS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MINORS())
@@ -439,7 +438,7 @@
 // Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60)
 #define MOD_RELIGION_ALLIED_INQUISITORS             gCustomMods.isRELIGION_ALLIED_INQUISITORS()
 // Send purchase notifications at every boundary and not just the first (v42)
-#define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY     gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()
+#define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY      gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()
 // Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53)
 #define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
@@ -451,10 +450,12 @@
 // Civilizations benefit from their pantheons even after converted to another religion
 #define MOD_RELIGION_PERMANENT_PANTHEON				gCustomMods.isRELIGION_PERMANENT_PANTHEON()
 
+// turns off some of the less important notifications
+#define MOD_CORE_REDUCE_NOTIFICATIONS				gCustomMods.isCORE_REDUCE_NOTIFICATIONS()
 // if true, only cities cannot do ranged strikes
 #define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
 // if true, units can pass through anyone's territory but still need open borders to stay there
-#define MOD_CORE_RELAXED_BORDER_CHECK			gCustomMods.isCORE_RELAXED_BORDER_CHECK()
+#define MOD_CORE_RELAXED_BORDER_CHECK				gCustomMods.isCORE_RELAXED_BORDER_CHECK()
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
@@ -1332,7 +1333,6 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE);
 	MOD_OPT_DECL(BALANCE_CORE_YIELDS);
 	MOD_OPT_DECL(BALANCE_CORE_SPIES);
-	MOD_OPT_DECL(BALANCE_CORE_SPIES_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY);
 	MOD_OPT_DECL(BALANCE_CORE_SETTLER_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MINORS);
@@ -1473,6 +1473,7 @@ public:
 	MOD_OPT_DECL(RELIGION_EXTENSIONS);
 	MOD_OPT_DECL(RELIGION_PERMANENT_PANTHEON);
 
+	MOD_OPT_DECL(CORE_REDUCE_NOTIFICATIONS);
 	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
 	MOD_OPT_DECL(CORE_RELAXED_BORDER_CHECK);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);

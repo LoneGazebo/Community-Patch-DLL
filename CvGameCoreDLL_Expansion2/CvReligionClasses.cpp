@@ -11360,9 +11360,6 @@ bool CvReligionAI::CanHaveInquisitors(ReligionTypes eReligion) const
 	if(eUnitClassInquisitor != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassInquisitor))
 		return false;
 
-	if (m_pPlayer->GetPlayerTraits()->IsReconquista() && m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune())
-		return false;
-
 	UnitTypes eInquisitor = m_pPlayer->GetSpecificUnitType("UNITCLASS_INQUISITOR");
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eInquisitor);
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());

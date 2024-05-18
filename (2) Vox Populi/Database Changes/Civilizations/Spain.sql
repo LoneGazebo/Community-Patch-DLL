@@ -7,8 +7,8 @@ SET
 	NaturalWonderSubsequentFinderGold = 0,
 	NaturalWonderYieldModifier = 0,
 	NaturalWonderHappinessModifier = 0,
-	FreeUnitOnConquest = 'UNIT_SPAIN_INQUISITOR',
-	CanPurchaseNavalUnitsFaith = 1
+	CanPurchaseNavalUnitsFaith = 1,
+	NewCitiesStartWithCapitalReligion = 1
 WHERE Type = 'TRAIT_SEVEN_CITIES';
 
 CREATE TEMP TABLE Helper (
@@ -61,18 +61,14 @@ DROP TABLE Helper;
 
 ----------------------------------------------------------
 -- Unique Unit: Spanish Inquisitor
+-- Exactly the same as a regular Inquisitor except for different text. No effect on balance.
 ----------------------------------------------------------
 INSERT INTO Civilization_UnitClassOverrides
 	(CivilizationType, UnitClassType, UnitType)
 VALUES
 	('CIVILIZATION_SPAIN', 'UNITCLASS_INQUISITOR', 'UNIT_SPAIN_INQUISITOR');
 
-UPDATE Units
-SET
-	ShowInPedia = 0,
-	RequiresEnhancedReligion = 0,
-	NoMaintenance = 1
-WHERE Type = 'UNIT_SPAIN_INQUISITOR';
+UPDATE Units SET ShowInPedia = 0 WHERE Type = 'UNIT_SPAIN_INQUISITOR';
 
 ----------------------------------------------------------
 -- Unique Unit: Conquistador (Explorer)
@@ -90,8 +86,7 @@ SET
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 6,
 	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
-	FoundMid = 1,
-	FoundAbroad = 1
+	FoundMid = 1
 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 
 INSERT INTO Unit_FreePromotions
@@ -111,35 +106,14 @@ INSERT INTO Unit_BuildOnFound
 	(UnitType, BuildingClassType)
 VALUES
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_LIGHTHOUSE'),
-	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_ARMORY'),
-	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_D_FOR_SPAIN_MISSION');
-
-----------------------------------------------------------
--- Unique Building: Mission
-----------------------------------------------------------
-
--- Need the dummy to build
-INSERT INTO Building_ClassesNeededInCity
-	(BuildingType, BuildingClassType)
-VALUES
-	('BUILDING_SPAIN_MISSION', 'BUILDINGCLASS_D_FOR_SPAIN_MISSION');
-
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_SPAIN_MISSION', 'YIELD_FAITH', 2);
-
-INSERT INTO Building_ImprovementYieldChanges
-	(BuildingType, ImprovementType, YieldType, Yield)
-VALUES
-	('BUILDING_SPAIN_MISSION', 'IMPROVEMENT_SPAIN_HACIENDA', 'YIELD_FAITH', 1);
+	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_ARMORY');
 
 ----------------------------------------------------------
 -- Unique Improvement: Hacienda
 ----------------------------------------------------------
 UPDATE Builds
 SET
-	PrereqTech = 'TECH_MACHINERY',
+	PrereqTech = 'TECH_STEEL',
 	Time = 700
 WHERE Type = 'BUILD_SPAIN_HACIENDA';
 

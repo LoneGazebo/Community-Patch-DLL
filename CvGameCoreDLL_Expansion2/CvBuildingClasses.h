@@ -149,7 +149,7 @@ public:
 	int GetTRTurnModGlobal() const;
 	int GetTRTurnModLocal() const;
 	int GetVotesPerGPT() const;
-	bool IsRequiresRail() const;
+	bool IsRequiresIndustrialCityConnection() const;
 	bool IsDummy() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
@@ -382,6 +382,7 @@ public:
 	bool IsExtraLuxuries() const;
 	bool IsDiplomaticVoting() const;
 	bool AllowsWaterRoutes() const;
+	bool AllowsIndustrialWaterRoutes() const;
 	bool AllowsAirRoutes() const;
 	bool IsScienceBuilding() const;
 	bool IsUnlockedByBelief() const;
@@ -478,8 +479,8 @@ public:
 	int GetYieldFromUnitLevelUp(int i) const;
 	int* GetYieldFromUnitLevelUpArray() const;
 
-	int GetYieldFromCombatExperience(int i) const;
-	int* GetYieldFromCombatExperienceArray() const;
+	int GetYieldFromCombatExperienceTimes100(int i) const;
+	int* GetYieldFromCombatExperienceTimes100Array() const;
 
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
@@ -544,6 +545,7 @@ public:
 	int GetFreeSpecialistCount(int i) const;
 	int GetUnitCombatFreeExperience(int i) const;
 	int GetUnitCombatProductionModifier(int i) const;
+	int GetUnitCombatProductionModifierGlobal(int i) const;
 	int GetDomainFreeExperience(int i) const;
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
 #if defined(MOD_BALANCE_CORE)
@@ -685,7 +687,7 @@ private:
 	int m_iTRTurnModLocal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
-	bool m_bRequiresRail;
+	bool m_bRequiresIndustrialCityConnection;
 	bool m_bDummy;
 	int m_iLandmarksTourismPercentGlobal;
 	int m_iGreatWorksTourismModifierGlobal;
@@ -930,6 +932,7 @@ private:
 	bool m_bExtraLuxuries;
 	bool m_bDiplomaticVoting;
 	bool m_bAllowsWaterRoutes;
+	bool m_bAllowsIndustrialWaterRoutes;
 	bool m_bAllowsAirRoutes;
 	bool m_bCityWall;
 	bool m_bUnlockedByBelief;
@@ -996,7 +999,7 @@ private:
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromUnitLevelUp;
-	int* m_piYieldFromCombatExperience;
+	int* m_piYieldFromCombatExperienceTimes100;
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;
@@ -1015,6 +1018,7 @@ private:
 	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
+	int* m_piUnitCombatProductionModifiersGlobal;
 	int* m_piDomainFreeExperience;
 	int* m_piDomainFreeExperiencePerGreatWork;
 #if defined(MOD_BALANCE_CORE)

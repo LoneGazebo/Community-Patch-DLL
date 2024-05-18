@@ -117,6 +117,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetNumWondersBeatenTo);
 
 	Method(IsCapitalConnectedToCity);
+	Method(IsCapitalIndustrialConnectedToCity);
 	Method(IsPlotConnectedToPlot);
 
 	Method(IsTurnActive);
@@ -2215,6 +2216,16 @@ int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 
 	const bool bResult = pkCity->IsConnectedToCapital();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsCapitalIndustrialConnectedToCity(lua_State* L)
+{
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+
+	const bool bResult = pkCity->IsIndustrialRouteToCapitalConnected();
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -16061,7 +16072,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 	int index = 1;
 	// first pass to get the largest base potential available
 	int iLargestBasePotential = 0;
-	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
+	if (!MOD_BALANCE_VP)
 	{
 		for (int i = 0; i < MAX_PLAYERS; ++i)
 		{
@@ -16257,9 +16268,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_TRAVELLING:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TRAVELLING");
 			break;
-		case SPY_STATE_IMPRISONED:
-			lua_pushstring(L, "TXT_KEY_SPY_STATE_IMPRISONED");
-			break;
 		case SPY_STATE_SURVEILLANCE:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_SURVEILLANCE");
 			break;
@@ -16320,9 +16328,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 
 		lua_pushinteger(L, pkPlayerEspionage->GetNumTurnsSpyMovementBlocked(uiSpy));
 		lua_setfield(L, t, "NumTurnsMovementBlocked");
-
-		lua_pushinteger(L, pkPlayerEspionage->GetNumTurnsSpyImprisoned(uiSpy));
-		lua_setfield(L, t, "NumTurnsImprisoned");
 
 		lua_pushinteger(L, pSpy->GetSpyFocus());
 		lua_setfield(L, t, "SpyFocus");

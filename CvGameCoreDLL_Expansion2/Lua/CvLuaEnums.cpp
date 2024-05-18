@@ -917,6 +917,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_IDENTIFY);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
+	RegisterEnum(INSTANT_YIELD_TYPE_CITY_DAMAGE);
 	RegisterEnum(NUM_INSTANT_YIELD_TYPES);
 	EnumEnd(L);
 

@@ -1329,21 +1329,11 @@ bool CvPlot::isRiverSide() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 {
-#if defined(MOD_BALANCE_CORE)
 	switch(eDirection)
 	{
 	case NO_DIRECTION:
 		return false;
 		break;
-#else
-	if(eDirection == NO_DIRECTION)
-	{
-		return false;
-	}
-
-	switch(eDirection)
-	{
-#endif
 	case DIRECTION_NORTHEAST:
 		return (isRiverCrossing(DIRECTION_NORTHWEST) || isRiverCrossing(DIRECTION_EAST));
 		break;
@@ -1380,6 +1370,64 @@ bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 CvPlot* CvPlot::getNeighboringPlot(DirectionTypes eDirection) const
 {
 	return plotDirection(getX(), getY(), eDirection);
+}
+
+//	--------------------------------------------------------------------------------
+/// Is there a river on this side of the plot?
+bool CvPlot::IsRiverSide(DirectionTypes eDirection) const
+{
+	CvAssertMsg(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
+	CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+	switch (eDirection)
+	{
+		case DIRECTION_NORTHEAST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isNEOfRiver() : false;
+		}
+		case DIRECTION_EAST:
+		{
+			return isWOfRiver();
+		}
+		case DIRECTION_SOUTHEAST:
+		{
+			return isNWOfRiver();
+		}
+		case DIRECTION_SOUTHWEST:
+		{
+			return isNEOfRiver();
+		}
+		case DIRECTION_WEST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isWOfRiver() : false;
+		}
+		case DIRECTION_NORTHWEST:
+		{
+			return pAdjacentPlot ? pAdjacentPlot->isNWOfRiver() : false;
+		}
+		default:
+			return false;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// We don't care about river flow or whether it crosses a river.
+/// As long as both plots are on the same side of a river system, it counts.
+bool CvPlot::IsAlongSameRiver(const CvPlot* pToPlot) const
+{
+	CvAssert(pToPlot);
+	DirectionTypes eDirection = directionXY(this, pToPlot);
+	DirectionTypes eNextDirection = static_cast<DirectionTypes>((eDirection + 1) % 6);
+	DirectionTypes ePrevDirection = static_cast<DirectionTypes>((eDirection + 5) % 6);
+	DirectionTypes eAdjNextDirection = static_cast<DirectionTypes>((eDirection + 4) % 6);
+	DirectionTypes eAdjPrevDirection = static_cast<DirectionTypes>((eDirection + 2) % 6);
+
+	if (IsRiverSide(eNextDirection) && pToPlot->IsRiverSide(eAdjPrevDirection))
+		return true;
+
+	if (IsRiverSide(ePrevDirection) && pToPlot->IsRiverSide(eAdjNextDirection))
+		return true;
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2442,26 +2490,17 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	if(getFeatureType() != NO_FEATURE)
 	{
 		if (pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && getFeatureType() == pkImprovementInfo->GetCreatedFeature())
 		{
 			return false;
 		}
-		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
+		if (GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
 		{
 			return false;
 		}
 	}
-	if(getImprovementType() != NO_IMPROVEMENT)
-	{
-		if(pkImprovementInfo->IsNewOwner())
-		{
-			return false;
-		}
-	}
-#endif
 
 	bValid = false;
 
@@ -5315,12 +5354,12 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
+void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial)
 {
 	if (ePlayer == NO_PLAYER)
 		return;
 
-	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive) )
+	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive,bIndustrial) )
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -5340,7 +5379,7 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
+bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 {
 	if (ePlayer == NO_PLAYER)
 		ePlayer = getOwner();
@@ -5349,7 +5388,7 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
 	if (ePlayer == NO_PLAYER)
 		return false;
 
-	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this);
+	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -8380,7 +8419,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
-				if (MOD_IMPROVEMENTS_EXTENSIONS && newImprovementEntry.IsNewOwner())
+				if (newImprovementEntry.IsNewOwner())
 				{
 					int iBestCityID = -1;
 					int iBestCityDistance = -1;
@@ -9799,6 +9838,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 
 		}
 
+		if (pOwningCity->getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
+		{
+			iYield += GET_PLAYER(ePlayer).getYieldPerCityOverStrengthThreshold(eYield);
+		}
+
 		if (MOD_BALANCE_YIELD_SCALE_ERA)
 		{
 			//Flatland City Fresh Water yields
@@ -10364,34 +10408,24 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 				}
 			}
 
-			if (eRoute != NO_ROUTE || getRouteType() != NO_ROUTE)
+			if (eRoute != NO_ROUTE)
 			{
-				if (MOD_BALANCE_YIELD_SCALE_ERA)
+				if (!bIgnoreCityConnection)
 				{
-					if (IsCityConnection(ePlayer) && !bIgnoreCityConnection)
+					if (IsCityConnection(ePlayer, true /*bIndustrial*/) && MOD_BALANCE_YIELD_SCALE_ERA)
 					{
-						if (eRoute == ROUTE_RAILROAD)
-						{
-							iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-						}
-						else if (eRoute == ROUTE_ROAD)
-						{
-							iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-						}
+						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 					}
-				}
-				else
-				{
-					iYield += pkImprovementInfo->GetRouteYieldChanges(eRoute != NO_ROUTE ? eRoute : getRouteType(), eYield);
+					else if (IsCityConnection(ePlayer, false /*bIndustrial*/))
+					{
+						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
 				}
 
-				if (eRoute != NO_ROUTE)
+				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+				if (pkRouteInfo)
 				{
-					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-					if (pkRouteInfo)
-					{
-						iYield += pkRouteInfo->getYieldChange(eYield);
-					}
+					iYield += pkRouteInfo->getYieldChange(eYield);
 				}
 			}
 		}
@@ -13646,11 +13680,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		}
 	}
 
-	// If we're not changing the route that's here, use the improvement that's here already
+	// If we're not changing the route that's here, and we are not removing the route, use the improvement that's here already
 	RouteTypes eNewRoute = (RouteTypes)pkBuildInfo->getRoute();
 	if (eNewRoute == NO_ROUTE)
 	{
-		if (!IsRoutePillaged() || (GC.getBuildInfo(eBuild)->isRepair() && !IsImprovementPillaged()))
+		if (!GC.getBuildInfo(eBuild)->IsRemoveRoute() && (!IsRoutePillaged() || (GC.getBuildInfo(eBuild)->isRepair() && !IsImprovementPillaged())))
 		{
 			eNewRoute = getRouteType();
 		}
@@ -15611,6 +15645,16 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	
 	// Threatening civs (unfriendly and/or powerful)
 	int iDefensiveValue = max(iNearbyThreat, iAdjacentThreat);
+
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (pkImprovementInfo && (pkImprovementInfo->GetDefenseModifier() > 0 || pkImprovementInfo->GetNearbyEnemyDamage() > 0))
+		{
+			iDefensiveValue *= 10;
+		}
+	}
 
 	// Targeted civs
 	int iOffensiveValue = iAdjacentUnowned > 1 ? max(iNearbyTarget, iAdjacentTarget) : 0;

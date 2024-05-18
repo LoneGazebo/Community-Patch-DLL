@@ -657,23 +657,29 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
 			<Text>Unknown foreign spies conducted a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR] in {1_City}: {2_MissionResult}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_CAUGHT_S">
-			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_KILLED_S">
+			<Text>{1_SpyRank} {2_SpyName} identified and killed!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_CAUGHT">
-			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught and identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened and {1_SpyRank} {2_SpyName} has been imprisoned. It will take some time until they are released and can be sent on a mission again.</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_KILLED">
+			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified and killed[ENDCOLOR] while conducting their mission! Diplomatic relations with {3_CivName} have worsened. It will take some time until a replacement spy is recruited for {1_SpyRank} {2_SpyName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_VP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy was killed in {2_CityName} after they completed a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR]: {3_MissionText}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_VP_S">
+			<Text>Killed {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CivAdj}} spy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_NOT_IDENTIFIED">
+			<Text>An unidentified foreign spy was killed in {1_CityName} after they completed a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR]: {2_MissionText}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_NOT_IDENTIFIED_S">
+			<Text>Killed a foreign spy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_S">
 			<Text>{1_SpyRank} {2_SpyName} identified!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED">
-			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened. {1_SpyRank} {2_SpyName} may stay in the city and gather intelligence for another mission.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT_S">
-			<Text>{1_SpyRank} {2_SpyName} caught!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT">
-			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR] while conducting their mission! It will take some time until they are released and can be sent on a mission again.</Text>
+			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR] while conducting their mission! Diplomatic relations with {3_CivName} have worsened. {1_SpyRank} {2_SpyName} may stay in the city and gather intelligence for another mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_NOT_DETECTED_S">
 			<Text>{1_SpyRank} {2_SpyName} not detected!</Text>
@@ -681,17 +687,17 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_NOT_DETECTED">
 			<Text>{1_SpyRank} {2_SpyName} has completed their mission and was [COLOR_POSITIVE_TEXT]not detected[ENDCOLOR]. They may stay in the city and gather intelligence for another mission.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_RELEASED_PRISON_S">
-			<Text>{1_SpyRank} {2_SpyName} released!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_RELEASED_PRISON">
-			<Text>{1_SpyRank} {2_SpyName} has been released from prison. You may now send the spy on a mission again.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED_S">
 			<Text>{1_City} generates Tourism again</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED">
 			<Text>The rebellion in {1_City} caused by foreign Spies has ended. The city now generates Tourism again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED_S">
+			<Text>Espionage Effect ended</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED">
+			<Text>The effects of a Spy Mission have ended: Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED_S">
 			<Text>Counterspy in {1_City}!</Text>

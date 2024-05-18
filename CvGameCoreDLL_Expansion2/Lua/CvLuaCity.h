@@ -58,6 +58,7 @@ protected:
 	static int lCanTrain(lua_State* L);
 	static int lCanConstructTooltip(lua_State* L);
 	static int lCanConstruct(lua_State* L);
+	static int lCanCreateTooltip(lua_State* L);
 	static int lCanCreate(lua_State* L);
 	static int lCanPrepare(lua_State* L);
 	static int lCanMaintain(lua_State* L);
@@ -651,7 +652,9 @@ protected:
 	LUAAPIEXTN(HasResource, bool, iResourceType);
 	LUAAPIEXTN(HasWorkedResource, bool, iResourceType);
 	LUAAPIEXTN(IsConnectedToCapital, bool);
+	LUAAPIEXTN(IsIndustrialConnectedToCapital, bool);
 	LUAAPIEXTN(IsConnectedTo, bool, pCity);
+	LUAAPIEXTN(GetConnectionGoldTimes100, int);
 	LUAAPIEXTN(HasSpecialistSlot, bool, iSpecialistType);
 	LUAAPIEXTN(HasSpecialist, bool, iSpecialistType);
 	LUAAPIEXTN(HasTerrain, bool, iTerrainType);

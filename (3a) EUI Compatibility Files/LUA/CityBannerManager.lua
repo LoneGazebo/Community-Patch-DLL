@@ -547,6 +547,18 @@ local g_cityToolTips = {
 		end
 		return connectionTip
 	end,
+	CityIsIndustrialConnected = function( city )
+		local connectionTip = L"TXT_KEY_CITY_INDUSTRIAL_CONNECTED"
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[ cityOwnerID ]
+		if not cityOwner then
+		elseif cityOwner.GetRouteGoldTimes100 then
+			connectionTip = connectionTip .. S(" (%+g[ICON_GOLD]/[ICON_PRODUCTION])", cityOwner:GetRouteGoldTimes100( city ) / 100 )
+		elseif cityOwner.GetCityConnectionRouteGoldTimes100 then
+			connectionTip = connectionTip .. S(" (%+g[ICON_GOLD]/[ICON_PRODUCTION])", cityOwner:GetCityConnectionRouteGoldTimes100( city ) / 100 )
+		end
+		return connectionTip
+	end,
 	CityIsBlockaded = function( city )
 		if (city:GetSappedTurns() > 0) then
 			return L("TXT_KEY_CITY_SAPPED", city:GetSappedTurns());
@@ -1243,7 +1255,8 @@ local function RefreshCityBannersNow()
 				instance.CityIsAutomated:SetHide(not isAutomated )
 
 				-- Connected to capital?
-				instance.CityIsConnected:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) )
+				instance.CityIsIndustrialConnected:SetHide( city:IsCapital() or not cityOwner:IsCapitalIndustrialConnectedToCity( city ) )
+				instance.CityIsConnected:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) or cityOwner:IsCapitalIndustrialConnectedToCity( city ) )
 
 				-- Demand resource / King day ?
 				local resource = GameInfo.Resources[ city:GetResourceDemanded() ]

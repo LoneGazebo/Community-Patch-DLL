@@ -798,13 +798,19 @@ VALUES
 UPDATE Buildings
 SET
 	PolicyBranchType = NULL,
-	IlliteracyFlatReduction = 1
+	IlliteracyFlatReduction = 1,
+	MedianTechPercentChange = 0	
 WHERE Type = 'BUILDING_PORCELAIN_TOWER';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_PORCELAIN_TOWER', 'YIELD_CULTURE', 1);
+	
+INSERT INTO Building_YieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PORCELAIN_TOWER', 'YIELD_SCIENCE', 10);
 
 -- Taj Mahal
 UPDATE Buildings
@@ -868,7 +874,7 @@ INSERT INTO Building_ResourceQuantity
 VALUES
 	('BUILDING_SUMMER_PALACE', 'RESOURCE_PAPER', 1);
 
-INSERT INTO Building_UnitCombatProductionModifiers
+INSERT INTO Building_UnitCombatProductionModifiersGlobal
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_SUMMER_PALACE', 'UNITCOMBAT_DIPLOMACY', 20);

@@ -37,7 +37,7 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 	if (pkStartUnit == NULL)
 	{
 		// If no unit supplied, use the selected unit.
-		auto_ptr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
+		CvInterfacePtr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
 		pkStartUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 		if (pkStartUnit && pkStartUnit->getOwner() != m_pkPlayer->GetID())
@@ -47,10 +47,12 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 		}
 	}
 
-	CvUnit* pLoopUnit;
-	int iLoop;
+	int iLoop = 0;
 	CvUnit* pkFirstUnit = m_pkPlayer->firstUnit(&iLoop);
-	for (pLoopUnit = pkFirstUnit; pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
+	if (!pkFirstUnit)
+		return;
+
+	for (CvUnit* pLoopUnit = pkFirstUnit; pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
 	{
 		// Reset cycle order (will be used later in this function)
 		pLoopUnit->SetCycleOrder(0);
@@ -67,52 +69,49 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 		pkStartUnit = pkFirstUnit;
 
 	// Add first unit to list
-	if (pkStartUnit)
+	m_kNodeList.insertAtEnd(pkStartUnit->GetID());
+
+	// Current unit is the first one
+	CvUnit* pCurrentUnit = pkStartUnit;
+	pCurrentUnit->SetCycleOrder(1);
+
+	// Loop through units until everyone is accounted for
+	int iNumUnits = m_pkPlayer->getNumUnits();
+	while (m_kNodeList.getLength() < iNumUnits)
 	{
-		m_kNodeList.insertAtEnd(pkStartUnit->GetID());
+		int iBestUnitScore = MAX_INT;
+		CvUnit* pBestUnit = NULL;
 
-		// Current unit is the first one
-		CvUnit* pCurrentUnit = pkStartUnit;
-		pCurrentUnit->SetCycleOrder(1);
-
-		// Loop through units until everyone is accounted for
-		int iNumUnits = m_pkPlayer->getNumUnits();
-		while (m_kNodeList.getLength() < iNumUnits)
+		int iX = pCurrentUnit->getX();
+		int iY = pCurrentUnit->getY();
+		for (CvUnit* pLoopUnit = m_pkPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
 		{
-			int iBestUnitScore = MAX_INT;
-			CvUnit* pBestUnit = NULL;
+			// If we've already added this unit to the cycle list, skip it
+			if (pLoopUnit->GetCycleOrder() == 1)
+				continue;
 
-			int iX = pCurrentUnit->getX();
-			int iY = pCurrentUnit->getY();
-			for (pLoopUnit = m_pkPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
+			int iScore = plotDistance(iX, iY, pLoopUnit->getX(), pLoopUnit->getY());
+
+			// Closest unit yet
+			if (iScore < iBestUnitScore)
 			{
-				// If we've already added this unit to the cycle list, skip it
-				if (pLoopUnit->GetCycleOrder() == 1)
-					continue;
-
-				int iScore = plotDistance(iX, iY, pLoopUnit->getX(), pLoopUnit->getY());
-
-				// Closest unit yet
-				if (iScore < iBestUnitScore)
-				{
-					iBestUnitScore = iScore;
-					pBestUnit = pLoopUnit;
-				}
+				iBestUnitScore = iScore;
+				pBestUnit = pLoopUnit;
 			}
-
-			CvAssertMsg(pBestUnit, "Didn't find a unit to add to cycle list.");
-
-			if (pBestUnit)
-			{
-				m_kNodeList.insertAtEnd(pBestUnit->GetID());
-
-				// Now have a new current unit
-				pCurrentUnit = pBestUnit;
-				pCurrentUnit->SetCycleOrder(1);
-			}
-			else
-				break;
 		}
+
+		CvAssertMsg(pBestUnit, "Didn't find a unit to add to cycle list.");
+
+		if (pBestUnit)
+		{
+			m_kNodeList.insertAtEnd(pBestUnit->GetID());
+
+			// Now have a new current unit
+			pCurrentUnit = pBestUnit;
+			pCurrentUnit->SetCycleOrder(1);
+		}
+		else
+			break;
 	}
 }
 
@@ -124,9 +123,7 @@ void CvUnitCycler::AddUnit(int iID)
 //	---------------------------------------------------------------------------
 void CvUnitCycler::RemoveUnit(int iID)
 {
-	CLLNode<int>* pUnitNode;
-
-	pUnitNode = HeadNode();
+	CLLNode<int>* pUnitNode = HeadNode();
 
 	while (pUnitNode != NULL)
 	{
@@ -146,16 +143,12 @@ void CvUnitCycler::RemoveUnit(int iID)
 // Returns the next unit in the cycle...
 CvUnit* CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
-	const CLLNode<int>* pUnitNode;
-	const CLLNode<int>* pFirstUnitNode;
-	CvUnit* pLoopUnit;
-
 	if (pbWrap != NULL)
 	{
 		*pbWrap = false;
 	}
 
-	pUnitNode = HeadNode();
+	const CLLNode<int>* pUnitNode = HeadNode();
 
 	if (pUnit != NULL)
 	{
@@ -189,70 +182,73 @@ CvUnit* CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 			pUnitNode = TailNode();
 		}
 
+		// Can't find anything? Abort!
+		if (pUnitNode == NULL)
+		{
+			return NULL;
+		}
+
 		if (pbWrap != NULL)
 		{
 			*pbWrap = true;
 		}
 	}
 
-	if (pUnitNode != NULL)
+	const CLLNode<int>* pFirstUnitNode = pUnitNode;
+
+	while (true)
 	{
-		pFirstUnitNode = pUnitNode;
+		CvUnit* pLoopUnit = m_pkPlayer->getUnit(pUnitNode->m_data);
+		CvAssertMsg(pLoopUnit, "LoopUnit is not assigned a valid value");
 
-		while (true)
+		if (pLoopUnit && pLoopUnit->ReadyToSelect())
 		{
-			pLoopUnit = m_pkPlayer->getUnit(pUnitNode->m_data);
-			CvAssertMsg(pLoopUnit, "LoopUnit is not assigned a valid value");
-
-			if (pLoopUnit && pLoopUnit->ReadyToSelect())
+			if (!bWorkers || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA)
 			{
-				if (!bWorkers || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA)
+				if (pUnit && pLoopUnit == pUnit)
 				{
-					if (pUnit && pLoopUnit == pUnit)
-					{
-						if (pbWrap != NULL)
-						{
-							*pbWrap = true;
-						}
-					}
-
-					return pLoopUnit;
-				}
-			}
-
-			if (bForward)
-			{
-				pUnitNode = NextNode(pUnitNode);
-
-				if (pUnitNode == NULL)
-				{
-					pUnitNode = HeadNode();
-
 					if (pbWrap != NULL)
 					{
 						*pbWrap = true;
 					}
 				}
+
+				return pLoopUnit;
 			}
-			else
+		}
+
+		if (bForward)
+		{
+			pUnitNode = NextNode(pUnitNode);
+
+			if (pUnitNode == NULL)
 			{
-				pUnitNode = PreviousNode(pUnitNode);
+				pUnitNode = HeadNode();
 
-				if (pUnitNode == NULL)
+				if (pbWrap != NULL)
 				{
-					pUnitNode = TailNode();
-
-					if (pbWrap != NULL)
-					{
-						*pbWrap = true;
-					}
+					*pbWrap = true;
 				}
 			}
+		}
+		else
+		{
+			pUnitNode = PreviousNode(pUnitNode);
 
-			if (pUnitNode == pFirstUnitNode)
+			if (pUnitNode == NULL)
 			{
-				break;
+				pUnitNode = TailNode();
+
+				if (pbWrap != NULL)
+				{
+					*pbWrap = true;
+				}
 			}
+		}
+
+		if (pUnitNode == pFirstUnitNode)
+		{
+			break;
 		}
 	}
 

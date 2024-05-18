@@ -178,7 +178,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+125 [ICON_GOLD] Gold when founding Cities, scaling with Era. Owned Coastal Cities receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse. [ICON_INTERNATIONAL_TRADE] Trade Route Resource Diversity modifier doubled.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your ownership of a Luxury Resource increases, scaling with Era. +5 Experience to Military Units purchased with [ICON_GOLD] Gold, scaling with Era. [ICON_INTERNATIONAL_TRADE] Trade Route Resource Diversity modifier doubled.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ SET Text = 'Perfidious Albion'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and operate one Rank higher than normal. Starts with a [ICON_SPY] Spy.'
+SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger when stationed in a foreign city. Starts with a [ICON_SPY] Spy.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
@@ -327,7 +327,7 @@ SET Text = 'Unique French {TXT_KEY_UNIT_SPANISH_TERCIO} that excels at deliverin
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSKETEER';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_FRENCH_MUSKETEER} is the French unique unit, replacing the {TXT_KEY_UNIT_SPANISH_TERCIO}. It is faster and significantly more powerful, and ignores Zone of Control.'
+SET Text = 'The {TXT_KEY_UNIT_FRENCH_MUSKETEER} is the French unique unit, replacing the {TXT_KEY_UNIT_SPANISH_TERCIO}. It is faster, significantly more powerful, and ignores Zone of Control.'
 WHERE Tag = 'TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY';
 
 UPDATE Language_en_US
@@ -460,7 +460,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. Claim adjacent unowned land tiles when Cities claim a tile of the same type.'
+SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 2 damage dealt to enemy Cities, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
@@ -770,15 +770,15 @@ WHERE Tag = 'TXT_KEY_UNIT_POLISH_WINGED_HUSSAR_STRATEGY';
 -- Polynesia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_FOOD] Food from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
+SET Text = '+2 [ICON_VP_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
-SET Text = 'Unique Polynesian {TXT_KEY_UNIT_LONGSWORDSMAN} that weakens adjacent enemy Units and does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}.'
+SET Text = 'Unique Polynesian {TXT_KEY_UNIT_SCOUT} that weakens adjacent enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_POLYNESIAN_MAORI_WARRIOR} is the Polynesian unique unit, replacing the {TXT_KEY_UNIT_LONGSWORDSMAN}. It has a unique debuffing aura that decreases the [ICON_STRENGTH] Combat Strength of adjacent enemies. It is a lot cheaper and does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON} to be trained. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_CHIVALRY_TITLE}[ENDCOLOR] instead of [COLOR_CYAN]{TXT_KEY_TECH_STEEL_TITLE}[ENDCOLOR].'
+SET Text = 'The {TXT_KEY_UNIT_POLYNESIAN_MAORI_WARRIOR} is the Polynesian unique unit, replacing the {TXT_KEY_UNIT_SCOUT}. It is more powerful, and can attack across rivers or from the sea with no penalty. It also has a unique debuffing aura that decreases the [ICON_STRENGTH] Combat Strength of adjacent enemies.'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_STRATEGY';
 
 UPDATE Language_en_US
@@ -878,26 +878,26 @@ WHERE Tag = 'TXT_KEY_UNIT_RUSSIAN_COSSACK_STRATEGY';
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Reconquista'
+SET Text = 'Plus Ultra'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+10 [ICON_GOLD] Gold and 4 [ICON_PEACE] Faith from gaining tiles, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier and do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor when conquering a City. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = '+10 [ICON_GOLD] Gold and 4 [ICON_PEACE] Faith from gaining tiles, scaling with Era. Newly founded Cities adopt the Majority Religion of your [ICON_CAPITAL] Capital. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
-SET Text = 'Unique Spanish {TXT_KEY_UNIT_EXPLORER} that specializes in conquest and settling advanced Cities overseas. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SHOCK_4}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COASTAL_TERROR}[ENDCOLOR].[NEWLINE][NEWLINE]Can be expended to found a City in any foreign landmass. Cities established by this Unit start with the same buildings as Cities established by a {TXT_KEY_UNIT_PIONEER} plus {TXT_KEY_BUILDING_LIGHTHOUSE} and {TXT_KEY_BUILDING_ARMORY}, and may purchase a [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MISSION}[ENDCOLOR] with [ICON_PEACE] Faith.'
+SET Text = 'Unique Spanish {TXT_KEY_UNIT_EXPLORER} that specializes in conquest and settling advanced Cities overseas. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SHOCK_4}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COASTAL_TERROR}[ENDCOLOR].[NEWLINE][NEWLINE]Can be expended to found a City in any foreign landmass. Cities established by this Unit start with the same buildings as Cities established by a {TXT_KEY_UNIT_PIONEER} plus {TXT_KEY_BUILDING_LIGHTHOUSE} and {TXT_KEY_BUILDING_ARMORY}.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GROVE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LODGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding![NEWLINE][NEWLINE]Cities built by Conquistador are able to purchase [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MISSION}[ENDCOLOR], a special religious and defensive building that can only be purchased with [ICON_PEACE] Faith.'
+SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GROVE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LODGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 --------------------
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'Cities claim up to 8 tiles on Founding and 4 tiles on Conquest. All Recon Units can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 3 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
+SET Text = 'Cities claim up to 4 additional tiles when acquired, and claim adjacent unowned tiles when their borders expand to a land tile of the same type. All Recon Units can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 
 UPDATE Language_en_US
@@ -916,7 +916,7 @@ SET Text = 'Yields, Resources, [ICON_HAPPINESS_1] Happiness and Unit Gift freque
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City. When you identify a foreign Spy in this City, gain 25 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
@@ -935,7 +935,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SIAMESE_WARELEPHANT_STRATEGY';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]Amphibious[ENDCOLOR] Promotion, and move along Rivers as if they were Roads. Rivers create [ICON_CONNECTED] City Connections.'
+SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]Amphibious[ENDCOLOR] Promotion, and have double movement when next to a river. Rivers create [ICON_CONNECTED] City Connections.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US

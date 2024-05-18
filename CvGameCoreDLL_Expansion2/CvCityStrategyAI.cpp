@@ -884,6 +884,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
 #if defined(MOD_BALANCE_CORE)
 	iBaseYield += (GetCity()->GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(GetCity()->getOwner()).getTotalPopulation());
+	if (MOD_BALANCE_VP && GetCity()->IsIndustrialRouteToCapitalConnected())
+	{
+		iBaseYield += GetCity()->GetConnectionGoldTimes100();
+	}
 #endif
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
 	iModifiedYield /= 10000;
@@ -2585,6 +2589,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 	int iNumUnimprovedWaterResources = 0;
 
 	CvPlot* pLoopPlot = NULL;
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
 	// Look at all Tiles this City could potentially work to see if there are any Water Resources that could be improved
 
@@ -2603,11 +2608,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 					{
 						// Does this Tile already have a Resource, and if so, is it already improved?
 #if defined(MOD_BALANCE_CORE)
-						if(pLoopPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
 #else
-						if(pLoopPlot->getResourceType() != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						ResourceTypes eResource = pLoopPlot->getResourceType();
 #endif
+						if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
+							if (!kPlayer.NeedWorkerToImproveResource(eResource))
+								continue;
+
 							iNumUnimprovedWaterResources++;
 						}
 					}
@@ -4015,19 +4024,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		}
 	}
 
-	if (pkBuildingInfo->GetYieldFromCombatExperience(eYield) > 0)
+	if (pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) > 0)
 	{
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_LAND) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_SEA) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 		if (kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_AIR) == pCity)
 		{
-			iInstant += pkBuildingInfo->GetYieldFromCombatExperience(eYield);
+			iInstant += pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) / 100;
 		}
 	}
 
@@ -5043,6 +5052,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		{
 			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 		}
+		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
+		{
+			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
+		}
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
 		{
@@ -5389,7 +5402,7 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 			{
 				iBonus += 50;
 			}
-			if(kPlayer.GetPlayerTraits()->IsReconquista())
+			if(kPlayer.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion())
 			{
 				iBonus += 50;
 			}

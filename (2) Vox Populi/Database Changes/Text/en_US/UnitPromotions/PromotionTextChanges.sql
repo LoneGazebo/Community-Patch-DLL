@@ -190,7 +190,7 @@ SET Text = 'Ace Pilot III'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3';
 
 UPDATE Language_en_US
-SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units. [NEWLINE]+1 operational range.'
+SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP';
 
 UPDATE Language_en_US
@@ -439,7 +439,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+1 [ICON_VP_VISION] Embarked Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VP_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Naval Movement
@@ -631,6 +631,11 @@ UPDATE Language_en_US
 SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP';
 
+-- War Canoes
+UPDATE Language_en_US
+SET Text = 'Double [ICON_MOVES] Movement when moving along Rivers.'
+WHERE Tag = 'TXT_KEY_PROMOTION_WAR_CANOES_HELP';
+
 UPDATE Language_en_US
 SET Text = 'Expeditionary Warfare'
 WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS';
@@ -661,10 +666,14 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP';
 
 -- Haka War Dance
 UPDATE Language_en_US
-SET Text = '-15% [ICON_STRENGTH] Combat Strength on [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].'
+SET Text = '-15% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
 -- Enhanced Medic
+UPDATE Language_en_US
+SET Text = 'Khaaaan!'
+WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
+
 UPDATE Language_en_US
 SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';

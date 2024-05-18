@@ -255,8 +255,7 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	bool bRouteTo = eToPlotRoute != NO_ROUTE;
 	bool bRouteFrom = eFromPlotRoute != NO_ROUTE;
 
-	//ideally there'd be a check of the river direction to make sure it's the same river
-	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
+	bool bMovingAlongRiver = pFromPlot->IsAlongSameRiver(pToPlot);
 	bool bFakeRouteTo = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 	bool bFakeRouteFrom = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 
@@ -410,7 +409,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
 
 					if (iVillageYieldBonus != 0)
 					{
@@ -457,7 +456,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
 				}
 
 				if (iVillageYieldBonus != 0 && m_pPlayer->canBuild(pPlot, eBuild))
@@ -470,7 +469,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 
 		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		{
-			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+			if (pPlot->getRouteType() != eRoute || pPlot->IsRoutePillaged())
 				iNumRoadsNeededToBuild++;
 		}
 	}
@@ -577,6 +576,72 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 	}
 }
 
+static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteTypes eRoute)
+{
+	// Compute bonus for connecting city (or keeping connected)
+	int iConnectionValue = 0;
+
+	if (!pPlayer->GetPlayerTraits()->IsNoConnectionUnhappiness())
+	{
+		float fUnhappiness = 0.00f;
+		if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+		{
+			fUnhappiness += (float)pCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+		}
+		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
+
+		int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+
+		iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
+	}
+	int iCityConnectionFlatValueTimes100 = pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pCity);
+	iConnectionValue += iCityConnectionFlatValueTimes100;
+
+	if (GC.getGame().GetIndustrialRoute() == eRoute)
+	{
+		int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
+		int iProductionYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
+		int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+
+		iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+
+		if (MOD_BALANCE_VP)
+		{
+			int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
+			int iGoldYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_GOLD);
+			int iGoldYieldRateModifierTimes100 = 0;
+
+			// Target city would get a flat production bonus from the Industrial City Connection
+			iConnectionValue += (iCityConnectionFlatValueTimes100 * iProductionYieldBaseModifierTimes100) / iGoldYieldBaseModifierTimes100;
+
+			// Target city would get a production and gold boost from a coaling station.
+			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+
+				if (pkBuilding == NULL)
+					continue;
+
+				if (!pkBuilding->IsRequiresIndustrialCityConnection())
+					continue;
+
+				if (!pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+					continue;
+
+				iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+				iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
+
+				// Assumes current modifiers are 0%, should do some proper calculations that account for bonuses being additive rather than multiplicative
+				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifierTimes100 * iGoldYieldBaseModifierTimes100) / 10000;
+			}
+		}
+	}
+
+	return iConnectionValue;
+}
+
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
 	if(pTargetCity->IsRazing())
@@ -631,58 +696,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	else
 	{
 		// Compute bonus for connecting city (or keeping connected)
-
-		if (!m_pPlayer->GetPlayerTraits()->IsNoConnectionUnhappiness())
-		{
-			float fUnhappiness = 0.00f;
-			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
-			{
-				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
-			}
-			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
-
-			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
-
-			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
-		}
-		iConnectionValue += m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
-
-		if(GC.getGame().GetIndustrialRoute() == eRoute)
-		{
-			int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
-			int iProductionYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
-			int iProductionYieldRateModifier = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
-
-			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
-
-#if defined(MOD_BALANCE_CORE)
-			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
-			int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);
-			int iGoldYieldRateModifier = 0;
-
-			// Target city would get a production and gold boost from a train station.
-			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
-			{
-				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
-				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-
-				if (pkBuilding == NULL)
-					continue;
-
-				if (!pkBuilding->IsRequiresRail())
-					continue;
-
-				if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
-					continue;
-
-				iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
- 				iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
-
-				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
-				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 10000;
-			}
-#endif
-		}
+		iConnectionValue += GetCapitalConnectionValue(m_pPlayer, pTargetCity, eRoute);
 	}
 
 	iConnectionValue -= iNumRoadsNeededToBuild * 10;
@@ -731,6 +745,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		iVillageBonusesIfCityConnected = 0;
 
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
+
+	// Add a small part of the capital connection bonus, it's good to have some redundancy
+	iValue += GetCapitalConnectionValue(m_pPlayer, pCity1, eRoute) / 20;
+	iValue += GetCapitalConnectionValue(m_pPlayer, pCity2, eRoute) / 20;
 
 	iValue -= iNumRoadsNeededToBuild * 10;
 
@@ -914,17 +932,21 @@ int CvBuilderTaskingAI::GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot
 	return GetRouteBuildTime(it->second, pUnit);
 }
 
-bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
+int CvBuilderTaskingAI::GetRouteCompletionTimes100(PlannedRoute plannedRoute) const
 {
 	RouteTypes eRoute = plannedRoute.second;
 
 	map<PlannedRoute, vector<int>>::const_iterator it = m_plannedRoutePlots.find(plannedRoute);
 	if (it == m_plannedRoutePlots.end())
-		return false;
+		return 0;
+
+	int iLength = 0;
+	int iIncomplete = 0;
 
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
+		iLength++;
 
 		if (!pPlot)
 			continue;
@@ -935,10 +957,10 @@ bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
 		if (pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 			continue;
 
-		return false;
+		iIncomplete++;
 	}
 
-	return true;
+	return ((iLength - iIncomplete) * 100) / iLength;
 }
 
 bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const
@@ -1164,7 +1186,7 @@ int CvBuilderTaskingAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective e
 }
 
 
-int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const
+int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, const CvPlot* pPlot) const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
@@ -1350,6 +1372,25 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
+	std::vector<OptionWithScore<int>> sortedPlots;
+	for (std::vector<int>::const_iterator it = plotsToConnect.begin(); it != plotsToConnect.end(); ++it)
+	{
+		int iValue = 0;
+		int iPlotIndex = *it;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotIndex);
+		CvCity* pCity = pPlot->getPlotCity();
+
+		if (pCity)
+		{
+			int iPop = pCity->getPopulation();
+			iValue = iPop;
+		}
+
+		sortedPlots.push_back(OptionWithScore<int>(iPlotIndex, iValue));
+	}
+
+	std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+
 	RouteTypes eBestRoute = m_pPlayer->getBestRoute();
 	if(eBestRoute == NO_ROUTE)
 	{
@@ -1390,12 +1431,12 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
+		for(std::vector<OptionWithScore<int>>::const_iterator it1 = sortedPlots.begin(); it1 != sortedPlots.end() - 1; ++it1)
 		{
-			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
+			for(std::vector<OptionWithScore<int>>::const_iterator it2 = it1 + 1; it2 != sortedPlots.end(); ++it2)
 			{
-				CvPlot* pFirstPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex]);
-				CvPlot* pSecondPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex]);
+				CvPlot* pFirstPlot = GC.getMap().plotByIndexUnchecked(it1->option);
+				CvPlot* pSecondPlot = GC.getMap().plotByIndexUnchecked(it2->option);
 
 				// get the two cities
 				CvCity* pFirstCity  = pFirstPlot->getPlotCity();
@@ -1518,8 +1559,8 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		}
 	}
 
-	map<PlannedRoute, pair<int, int>> bestRouteTypesAndValues;
-	map<PlannedRoute, int> bestRouteNegativeModifiers;
+	map<PlotPair, pair<int, int>> bestRouteValues;
+	map<PlotPair, RouteTypes> bestRouteType;
 
 	// Loop through each pair of terminal plots and find the best route type and build value for this particular plot pair
 	for (map<PlotPair, map<RouteTypes, pair<int, int>>>::const_iterator it = plannedRouteTypeValues.begin(); it != plannedRouteTypeValues.end(); ++it)
@@ -1532,6 +1573,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		int iRoadTotalMaintenance = 0;
 		if (iRoadValue > 0)
 		{
+			// If the road is completed, increase its value
+			iRoadValue += (iRoadValue * GetRouteCompletionTimes100(make_pair(plotPair, ROUTE_ROAD))) / 400;
+
 			int iRoadMaintenance = GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
 			vector<int> plannedRoadPlots = m_plannedRoutePlots[make_pair(plotPair, ROUTE_ROAD)];
@@ -1552,6 +1596,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		int iRailroadTotalMaintenance = 0;
 		if (iRailroadValue > 0)
 		{
+			// If the railroad is completed, increase its value
+			iRailroadValue += (iRailroadValue * GetRouteCompletionTimes100(make_pair(plotPair, ROUTE_RAILROAD))) / 400;
+
 			int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 			iRailroadTotalMaintenance = m_plannedRoutePlots[make_pair(plotPair, ROUTE_RAILROAD)].size() * iRailroadMaintenance;
 			iRailroadValue -= iRailroadTotalMaintenance;
@@ -1561,42 +1608,29 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		{
 			if (iRoadValue > iRailroadValue)
 			{
-				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_ROAD)] = plannedRouteTypeValues[plotPair][ROUTE_ROAD];
-
-				int iTotalNegativeModifier = iRoadTotalMaintenance;
-				if (iRailroadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
-					iTotalNegativeModifier += iRailroadValue;
-
-				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_ROAD)] = iTotalNegativeModifier;
+				bestRouteType[plotPair] = ROUTE_ROAD;
+				bestRouteValues[plotPair] = plannedRouteTypeValues[plotPair][ROUTE_ROAD];
 			}
 			else
 			{
-				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_RAILROAD)] = plannedRouteTypeValues[plotPair][ROUTE_RAILROAD];
-
-				int iTotalNegativeModifier = iRailroadTotalMaintenance;
-				if (iRoadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
-					iTotalNegativeModifier += iRoadValue;
-
-				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_RAILROAD)] = iTotalNegativeModifier;
+				bestRouteType[plotPair] = ROUTE_RAILROAD;
+				bestRouteValues[plotPair] = plannedRouteTypeValues[plotPair][ROUTE_RAILROAD];
 			}
 		}
 	}
 
 	map<CvPlot*, pair<int, int>> plotValues;
-	map<CvPlot*, int> plotCosts;
 	map<CvPlot*, RouteTypes> plotBestRouteType;
 	map<CvPlot*, PlannedRoute> plotShortestRoute;
 	map<CvPlot*, int> plotShortestRouteBuildTime;
 	map<CvPlot*, RoutePurpose> plotPurposes;
 	// Loop through all the best routes and give their respective plots the best value out of all possible paths
-	for (map<PlannedRoute, pair<int, int>>::const_iterator it = bestRouteTypesAndValues.begin(); it != bestRouteTypesAndValues.end(); ++it)
+	for (map<PlotPair, pair<int, int>>::const_iterator it = bestRouteValues.begin(); it != bestRouteValues.end(); ++it)
 	{
-		PlannedRoute plannedRoute = it->first;
+		PlotPair plotPair = it->first;
 		pair<int, int> newValues = it->second;
-
-		int iNegativeModifier = bestRouteNegativeModifiers[plannedRoute];
-
-		RouteTypes eRoute = it->first.second;
+		RouteTypes eRoute = bestRouteType[plotPair];
+		PlannedRoute plannedRoute = make_pair(plotPair, eRoute);
 
 		vector<int> plots = m_plannedRoutePlots.find(plannedRoute)->second;
 		RoutePurpose ePurpose = m_plannedRoutePurposes.find(plannedRoute)->second;
@@ -1611,27 +1645,20 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 
 			if (eRoute >= plotBestRouteType[pPlot])
 			{
-				int iShortestRouteLength = eRoute == plotBestRouteType[pPlot] && plotShortestRouteBuildTime.find(pPlot) != plotShortestRouteBuildTime.end() ? plotShortestRouteBuildTime[pPlot] : INT_MAX;
+				int iShortestRouteBuildTime = eRoute == plotBestRouteType[pPlot] && plotShortestRouteBuildTime.find(pPlot) != plotShortestRouteBuildTime.end() ? plotShortestRouteBuildTime[pPlot] : INT_MAX;
 				int iRouteBuildTime = GetRouteBuildTime(plannedRoute);
-				if (iRouteBuildTime < iShortestRouteLength)
+				if (iRouteBuildTime < iShortestRouteBuildTime || eRoute > plotBestRouteType[pPlot])
 				{
 					plotShortestRouteBuildTime[pPlot] = iRouteBuildTime;
+					plotBestRouteType[pPlot] = eRoute;
 					m_bestRouteForPlot[pPlot->GetPlotIndex()] = plannedRoute;
 				}
 			}
-
-			if (eRoute > plotBestRouteType[pPlot])
-				plotBestRouteType[pPlot] = eRoute;
 
 			pair<int, int> oldValues = plotValues[pPlot];
 
 			// Two routes going through the same plot, but with different destinations don't have additive value properties
 			plotValues[pPlot] = make_pair(max(newValues.first, oldValues.first), max(newValues.second, oldValues.second));
-			if (plotCosts.find(pPlot) == plotCosts.end())
-				// Directly insert the value with INT_MAX if the plot doesn't exist in plotCosts
-				plotCosts.insert(std::make_pair(pPlot, INT_MAX));
-			// Update the cost if the negative modifier is lower than the existing cost
-			plotCosts[pPlot] = std::min(plotCosts[pPlot], iNegativeModifier);
 		}
 	}
 
@@ -1639,7 +1666,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	for (map<CvPlot*, pair<int, int>>::const_iterator it = plotValues.begin(); it != plotValues.end(); ++it)
 	{
 		CvPlot* pPlot = it->first;
-		int iValue = it->second.first + it->second.second - plotCosts[it->first];
+		int iValue = it->second.first + it->second.second;
 		RouteTypes eRoute = plotBestRouteType[pPlot];
 
 		if (iValue <= 0)
@@ -1647,44 +1674,6 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
-
-		// Upgrade roads to railroads if there is a village on this plot and it is a city connecting plot
-		if (eRoute == ROUTE_ROAD
-			&& pPlot->getOwner() == m_pPlayer->GetID()
-			&& pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot)
-			&& pPlot->IsCityConnection(m_pPlayer->GetID())
-			&& m_pPlayer->getBestRoute() > ROUTE_ROAD)
-		{
-			int iVillageYieldBonusFromRailroad = 0;
-
-			ImprovementTypes ePlotImprovement = pPlot->getImprovementType();
-			if (ePlotImprovement != NO_IMPROVEMENT)
-			{
-				CvImprovementEntry* pkPlotImprovementInfo = GC.getImprovementInfo(ePlotImprovement);
-				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
-				{
-					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
-					iVillageYieldBonus -= pkPlotImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
-
-					if (iVillageYieldBonus != 0)
-					{
-						iVillageYieldBonusFromRailroad += iVillageYieldBonus;
-					}
-				}
-			}
-
-			if (iVillageYieldBonusFromRailroad > 0)
-			{
-				int iRoadMaintenance = m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) ? 0 : GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-				int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-				if (iVillageYieldBonusFromRailroad > iRailroadMaintenance - iRoadMaintenance)
-				{
-					eRoute = ROUTE_RAILROAD;
-					iValue += iVillageYieldBonusFromRailroad - (iRailroadMaintenance - iRoadMaintenance);
-				}
-			}
-		}
 
 		iValue /= 10;
 
@@ -2224,7 +2213,7 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 	//Don't cut down city connections!
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
-		if(pPlot->IsCityConnection(m_pPlayer->GetID()))
+		if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		{
 			return;
 		}
@@ -2426,7 +2415,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 }
 
 /// Evaluates all the circumstances to determine if any builder should evaluate the given plot
-bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(CvPlot* pPlot)
+bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const
 {
 	if (!pPlot)
 		return false;
@@ -2440,25 +2429,6 @@ bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(CvPlot* pPlot)
 	//can't build in other major player's territory (unless they are our vassal)
 	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
 		return false;
-
-	//check if we could be captured
-	vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pPlot, m_pPlayer->getTeam());
-	bool bMayStay = vAttackers.empty() || (vAttackers.size() == 1 && pPlot->getBestDefender(m_pPlayer->GetID()) != NULL);
-	if (!bMayStay)
-	{
-		if (GC.getLogging() && GC.getAILogging() && m_bLogging)
-		{
-			CvString strLog;
-			strLog.Format(
-				"Bailing due to potential attackers,%d,%d,%d",
-				pPlot->getX(),
-				pPlot->getY(),
-				m_pPlayer->GetPlotDanger(*pPlot, true)
-			);
-			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
-		}
-		return false;
-	}
 
 	return true;
 }
@@ -2639,7 +2609,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	// If we are performing a culture bomb, find which city will be owning the plot
 	bool bIsCultureBomb = pkImprovementInfo ? pkImprovementInfo->GetCultureBombRadius() > 0 : false;
-	if (bIsCultureBomb && !pOwningCity)
+	bool bIsTileClaim = pkImprovementInfo ? pkImprovementInfo->IsNewOwner() : false;
+	if ((bIsCultureBomb || bIsTileClaim) && !pOwningCity)
 	{
 		int iBestCityDistance = INT_MAX;
 		CvCity* pLoopCity = NULL;
@@ -2661,6 +2632,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
+	}
+
+	// Give a small bonus for claiming tiles
+	if (bIsTileClaim && pPlot->getOwner() != m_pPlayer->GetID())
+	{
+		iSecondaryScore += 300;
 	}
 
 	const CvReligion* pCityReligion = pOwningCity ? pOwningCity->GetCityReligions()->GetMajorityReligion() : NULL;
