@@ -74,6 +74,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsRiverSide);
 	Method(IsRiverConnection);
 	Method(IsRiverCrossingFlowClockwise);
+	Method(GetRiverID);
 
 	Method(GetNearestLandArea);
 	Method(SeeFromLevel);
@@ -631,6 +632,13 @@ int CvLuaPlot::lIsRiverCrossingFlowClockwise(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetRiverID();
+int CvLuaPlot::lGetRiverID(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::GetRiverID);
+}
+
 //------------------------------------------------------------------------------
 //int getNearestLandArea();
 int CvLuaPlot::lGetNearestLandArea(lua_State* L)

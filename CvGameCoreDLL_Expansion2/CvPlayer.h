@@ -2718,6 +2718,9 @@ public:
 	bool IsHasAdoptedStateReligion() const;
 	void SetHasAdoptedStateReligion(bool bValue);
 
+	bool IsWorkersIgnoreImpassable() const;
+	void SetWorkersIgnoreImpassable(bool bValue);
+
 	int GetNumCitiesWithStateReligion();
 
 	CvCity* GetHolyCity();
@@ -3578,6 +3581,7 @@ protected:
 	bool m_bLostHolyCity;
 	PlayerTypes m_eHolyCityConqueror;
 	bool m_bHasAdoptedStateReligion;
+	bool m_bWorkersIgnoreImpassable;
 
 	std::vector<int> m_aiCityYieldChange;
 	std::vector<int> m_aiCoastalCityYieldChange;

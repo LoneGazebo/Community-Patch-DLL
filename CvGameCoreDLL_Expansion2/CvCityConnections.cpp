@@ -284,7 +284,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		ReachablePlots roadPlots;
 		ReachablePlots railroadPlots;
 		ReachablePlots waterPlots;
-		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,NO_ROUTE_PURPOSE);
+		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,NO_ROUTE_PURPOSE,true);
 		if (!pStartCity->IsBlockaded(DOMAIN_LAND))
 		{
 			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
@@ -505,7 +505,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		//Let's check for road first (railroad also counts as road)
 		//Very important to set up m_connectionState for direct connections first!
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, NO_ROUTE_PURPOSE);
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, NO_ROUTE_PURPOSE, true);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
@@ -548,7 +548,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 			for (size_t j = i + 1; j < vConnectedCities.size(); j++)
 			{
 				//find the shortest path between any two connected cities
+				data.bUseRivers = false;
 				SPath path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
+				if (!path)
+				{
+					data.bUseRivers = true;
+					path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
+				}
 				for (int k = 0; k < path.length(); k++)
 				{
 					CvPlot* pPlot = path.get(k);
@@ -558,6 +564,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			}
 		}
 		data.eRoute = ROUTE_RAILROAD;
+		data.bUseRivers = false;
 		for (size_t i = 0; i < vIndustrialConnectedCities.size(); i++)
 		{
 			for (size_t j = i + 1; j < vIndustrialConnectedCities.size(); j++)
