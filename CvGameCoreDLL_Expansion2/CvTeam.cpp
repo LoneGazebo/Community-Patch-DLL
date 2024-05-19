@@ -9816,12 +9816,6 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 		return false;
 	}
 
-	// Human Vassalage isn't enabled...
-	if(!GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS) && isHuman())
-	{
-		return false;
-	}
-
 	// Have to have met eTeam
 	if(!isHasMet(eTeam))
 	{

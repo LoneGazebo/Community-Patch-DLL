@@ -29,13 +29,6 @@
 			<Text>Disables the Vassalage System. No vassals can be created.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS">
-			<Text>Allow Human Vassalage</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS_HELP">
-			<Text>Allows human players to become vassals of other civilizations.[NEWLINE][NEWLINE]Note: If "Disable Vassalage" Option is enabled, this does nothing.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">
 			<Text>Transparent Diplomacy</Text>
 		</Row>

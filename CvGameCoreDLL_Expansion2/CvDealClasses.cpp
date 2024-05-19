@@ -2301,17 +2301,6 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strTooltip;
 			}
 
-			// Human Vassalage not enabled
-			if (bFromHuman && !GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS))
-			{
-				strTooltip = strDivider;
-				strTooltip += strStartColor;
-				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED");
-				strTooltip += strReason;
-				strTooltip += strEndColor;
-				return strTooltip;
-			}
-
 			// Would-be master is a vassal
 			if (pToTeam->IsVassalOfSomeone())
 			{
