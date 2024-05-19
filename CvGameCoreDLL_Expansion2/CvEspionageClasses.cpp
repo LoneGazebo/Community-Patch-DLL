@@ -7999,13 +7999,7 @@ void CvEspionageAI::PerformSpyMissions()
 		if (!pCity)
 		{
 			// spies that are gathering intelligence should always be in a city
-			//UNREACHABLE();
-			//for version 4.4 only: In 4.4.0 and 4.4.1 there's a bug that spies are not reset when the city they're in is razed, so it can happen that spies are gathering intelligence without being in a city. To allow players to continue their started games, we reset those spies here. In the next version, the UNREACHABLE should be activated again
-			pSpy->m_iCityX = -1;
-			pSpy->m_iCityY = -1;
-			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpy, SPY_STATE_UNASSIGNED);
-			pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
-			continue;
+			UNREACHABLE();
 		}
 
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
@@ -8378,44 +8372,6 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		// low base value because of the XP counterspies get per turn
 		int iScore = GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY);
 
-		// if there are no offensive spy missions or we don't know any other players who have spies, counterspies have very little value
-		bool bNoOffensiveMissions = true;
-		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
-		{
-			CvModEventCityChoiceInfo* pkLoopMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
-			if (pkLoopMissionInfo->isEspionageMission())
-			{
-				bNoOffensiveMissions = false;
-				break;
-			}
-		}
-		if (bNoOffensiveMissions)
-			return iScore;
-
-		bool bNoForeignSpies = true;
-		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-		{
-			PlayerTypes eTargetPlayer = (PlayerTypes)i;
-			if (eTargetPlayer == ePlayer)
-			{
-				continue;
-			}
-
-			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
-				continue;
-
-			if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
-				continue;
-
-			if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
-			{
-				bNoForeignSpies = false;
-				break;
-			}
-		}
-		if (bNoForeignSpies)
-			return iScore;
-
 		if (pkMissionInfo->isCounterspyBlockSapCity())
 		{
 			// this is only interesting if we're under siege
@@ -8431,10 +8387,51 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			}
 		}
 		else
-		{
+		{		
 			// irrelevant unless in capital
 			if (pCity->isCapital())
 			{
+				// if there are no offensive spy missions or we don't know any other players who have spies, counterspies have very little value
+				bool bNoOffensiveMissions = true;
+				if (!GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE))
+				{
+					for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+					{
+						CvModEventCityChoiceInfo* pkLoopMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+						if (pkLoopMissionInfo->isEspionageMission())
+						{
+							bNoOffensiveMissions = false;
+							break;
+						}
+					}
+				}
+				if (bNoOffensiveMissions)
+					return iScore;
+
+				bool bNoForeignSpies = true;
+				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+				{
+					PlayerTypes eTargetPlayer = (PlayerTypes)i;
+					if (eTargetPlayer == ePlayer)
+					{
+						continue;
+					}
+
+					if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+						continue;
+
+					if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+						continue;
+
+					if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
+					{
+						bNoForeignSpies = false;
+						break;
+					}
+				}
+				if (bNoForeignSpies)
+					return iScore;
+
 				iScore += 15;
 				// how many spy actions have been performed against us?
 				int iTurnsOfEspionage = GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted;
@@ -8831,7 +8828,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 			}
 		}
 
-		int iTotalScore = iLeagueScore + iTourismScore;
+		int iTotalScore = (int)pDiploAI->GetCivApproach(eTargetPlayer) + iLeagueScore + iTourismScore;
+
 		// if we're friendly towards the other player, we are more likely to use a diplomat, so we use the negative diplo modifier here
 		int iDiploMod = -GetPlayerModifier(eTargetPlayer, /*bOnlyDiplo*/ true);
 		iTotalScore *= 100 + iDiploMod;
@@ -8846,7 +8844,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 		{
 			CvString strCiv = GET_PLAYER(pCapitalCity->getOwner()).getCivilizationShortDescription();
 			CvString strMsg;
-			strMsg.Format("%s (%s), Diplomat. Score: %d (League: %d. Tourism: %d. Diplo Mod: %d)", pCapitalCity->getName().c_str(), strCiv.c_str(), iTotalScore, iLeagueScore, iTourismScore, iDiploMod);
+			strMsg.Format("%s (%s), Diplomat. Score: %d (Base: %d. League: %d. Tourism: %d. Diplo Mod: %d)", pCapitalCity->getName().c_str(), strCiv.c_str(), iTotalScore, (int)pDiploAI->GetCivApproach(eTargetPlayer), iLeagueScore, iTourismScore, iDiploMod);
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
 		}
 	}
@@ -8860,6 +8858,11 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
+
+	std::vector<ScoreCityEntry> aCityScores;
+
+	if (GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE))
+		return aCityScores;
 
 	// for performance reasons, make a list of all the possible spy missions
 	std::vector<int> aSpyMissionList;
@@ -8875,7 +8878,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 		}
 	}
 
-	std::vector<ScoreCityEntry> aCityScores;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes)i;
@@ -9636,24 +9638,38 @@ void CvEspionageAI::EvaluateDiplomatSpies(void)
 
 		if (pSpy->m_bIsDiplomat)
 		{
-			if (pLeague && pLeague->GetTurnsUntilSession() > 5)
+			if (pLeague)
+			{
+				if (pLeague->GetTurnsUntilSession() > 5)
+				{
+					pSpy->m_bEvaluateReassignment = true;
+					if (GC.getLogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Re-eval: diplomat spy, %d,", ui);
+						strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+						pEspionage->LogEspionageMsg(strMsg);
+					}
+				}
+				else
+				{
+					pSpy->m_bEvaluateReassignment = false;
+					if (GC.getLogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Re-eval: diplomat spy, let's wait until session is over, %d,", ui);
+						strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+						pEspionage->LogEspionageMsg(strMsg);
+					}
+				}
+			}
+			else
 			{
 				pSpy->m_bEvaluateReassignment = true;
 				if (GC.getLogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Re-eval: diplomat spy, %d,", ui);
-					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
-					pEspionage->LogEspionageMsg(strMsg);
-				}
-			}
-			else
-			{
-				pSpy->m_bEvaluateReassignment = false;
-				if (GC.getLogging())
-				{
-					CvString strMsg;
-					strMsg.Format("Re-eval: diplomat spy, let's wait until session is over, %d,", ui);
+					strMsg.Format("Re-eval: diplomat spy, league not yet founded, %d,", ui);
 					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
 					pEspionage->LogEspionageMsg(strMsg);
 				}

@@ -4205,6 +4205,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
+	if (GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE) && pkEventInfo->isEspionageMission())
+		return false;
+
 	if (pkEventInfo->isCounterspyMission())
 	{
 		// check if a spy is already doing this
@@ -5676,6 +5679,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 
 	if (iSpyIndex != -1 && eSpyOwner != NO_PLAYER)
 	{
+		if (GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE))
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_SPY_MISSIONS_DISABLED");
+			DisabledTT += localizedDurationText.toUTF8();
+			return DisabledTT.c_str(); // don't show any other reasons
+		}
+
 		if (pkEventInfo->GetSpyLevelRequired() > 0)
 		{
 			CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
