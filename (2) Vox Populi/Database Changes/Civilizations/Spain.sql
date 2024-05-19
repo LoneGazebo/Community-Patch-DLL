@@ -60,7 +60,7 @@ FROM Terrains a, Helper b;
 DROP TABLE Helper;
 
 ----------------------------------------------------------
--- Unique Unit: Spanish Inquisitor
+-- Unique Unit: Spanish Inquisition (Inquisitor)
 -- Exactly the same as a regular Inquisitor except for different text. No effect on balance.
 ----------------------------------------------------------
 INSERT INTO Civilization_UnitClassOverrides

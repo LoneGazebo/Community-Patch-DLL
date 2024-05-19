@@ -36,10 +36,10 @@
 			<Text>Allows human players to become vassals of other civilizations.[NEWLINE][NEWLINE]Note: If "Disable Vassalage" Option is enabled, this does nothing.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY">
+		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">
 			<Text>Transparent Diplomacy</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
+		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY_HELP">
 			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
 		</Row>
 
@@ -54,7 +54,14 @@
 			<Text>Disable AI Endgame Aggression</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION_HELP">
-			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option does nothing if 'Disable AI Victory Competition' is enabled.</Text>
+			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option is redundant if 'Disable AI Victory Competition' is enabled.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_PASSIVE_ESPIONAGE">
+			<Text>Passive Espionage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_PASSIVE_ESPIONAGE_HELP">
+			<Text>Disables Advanced Spy Missions. Spies only provide their passive benefits while stationed in a City. NOTE: This option does nothing if 'No Espionage' is enabled.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

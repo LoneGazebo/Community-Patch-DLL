@@ -1,6 +1,6 @@
 DELETE FROM HandicapInfos;
 
--- This code is necessary to avoid a UI glitch, do not remove it
+-- This code is necessary to avoid a UI glitch where difficulty levels do not display properly on game creation, do not remove it
 CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
 INSERT INTO IDRemapper (Type) SELECT Type FROM HandicapInfos ORDER BY ID;
 UPDATE HandicapInfos SET ID = (SELECT IDRemapper.id-1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
