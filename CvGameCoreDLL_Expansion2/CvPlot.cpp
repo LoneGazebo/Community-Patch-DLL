@@ -15670,7 +15670,8 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 
 int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState) const
 {
-	TeamTypes eTeam = GET_PLAYER(eOwner).getTeam();
+	CvPlayer& kPlayer = GET_PLAYER(eOwner);
+	TeamTypes eTeam = kPlayer.getTeam();
 	if(eTeam == NO_TEAM)
 		return 0;
 
@@ -15682,7 +15683,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	int iImprovementDefenseModifier = pkImprovementInfo->GetDefenseModifier();
 	int iImprovementDamage = pkImprovementInfo->GetNearbyEnemyDamage();
 
-	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(eOwner).GetDiplomacyAI();
+	CvDiplomacyAI* pDiplomacyAI = kPlayer.GetDiplomacyAI();
 
 	// Evaluate based on surrounding plots
 	int iMaxAdjacentThreat = 0;
@@ -15814,16 +15815,33 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 	int iNewDefenseModifier = defenseModifier(eTeam, true, pkBuild && pkBuild->isFeatureRemove(getFeatureType())) + iImprovementDefenseModifier;
 
-	// Encampments provide a defensive buff in all owned tiles in a large radius, consider only adjacent tiles, since other encampments can provide the buff in further tiles
-	bool bIsEncampment = MOD_BALANCE_VP && pkImprovementInfo->IsSpecificCivRequired() && pkImprovementInfo->GetRequiredCivilization() == (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_SHOSHONE", true);
-	if (bIsEncampment)
-		iNewDefenseModifier += 20 * iAdjacentOwnedLand;
-
-	if (eOldImprovement != NO_IMPROVEMENT && pkOldImprovementInfo)
+	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
+	if (pTraits->GetCombatBonusImprovementType() == eImprovement)
 	{
-		bool bIsOldEncampment = MOD_BALANCE_VP && pkOldImprovementInfo->IsSpecificCivRequired() && pkOldImprovementInfo->GetRequiredCivilization() == (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_SHOSHONE", true);
-		if (bIsOldEncampment)
-			iOldDefenseModifier += 20 * iAdjacentOwnedLand;
+		int iBonusRange = pTraits->GetNearbyImprovementBonusRange();
+		int iCombatBonusValue = pTraits->GetNearbyImprovementCombatBonus();
+		if (iBonusRange > 0)
+		{
+			iNewDefenseModifier += iCombatBonusValue * (iAdjacentOwnedLand + 1);
+		}
+		else if (iBonusRange == 0)
+		{
+			iNewDefenseModifier += iCombatBonusValue;
+		}
+	}
+
+	if (eOldImprovement != NO_IMPROVEMENT && pTraits->GetCombatBonusImprovementType() == eOldImprovement)
+	{
+		int iBonusRange = pTraits->GetNearbyImprovementBonusRange();
+		int iCombatBonusValue = pTraits->GetNearbyImprovementCombatBonus();
+		if (iBonusRange > 0)
+		{
+			iOldDefenseModifier += iCombatBonusValue * (iAdjacentOwnedLand + 1);
+		}
+		else if (iBonusRange == 0)
+		{
+			iOldDefenseModifier += iCombatBonusValue;
+		}
 	}
 
 	// Scale defensive value by how much this fortification will increase the defense of the tile (and how much damage it will deal to enemy units)
