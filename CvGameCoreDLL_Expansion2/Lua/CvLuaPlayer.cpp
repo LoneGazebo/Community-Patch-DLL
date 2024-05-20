@@ -9769,8 +9769,12 @@ int CvLuaPlayer::lGetPlayerColor(lua_State* L)
 int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const PlayerColorTypes eColor = CvPreGame::playerColor(pkPlayer->GetID());
-
+	PlayerColorTypes eColor = CvPreGame::playerColor(pkPlayer->GetID());
+	if (eColor == NO_PLAYERCOLOR)
+	{
+		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(pkPlayer->getCivilizationType());
+		eColor = (PlayerColorTypes)pkCivilizationInfo->getDefaultPlayerColor();
+	}
 	CvPlayerColorInfo* pkPlayerColor = GC.GetPlayerColorInfo(eColor);
 
 	if(pkPlayerColor == NULL)
