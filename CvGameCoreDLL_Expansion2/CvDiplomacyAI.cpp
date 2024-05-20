@@ -50488,7 +50488,7 @@ std::vector<CvDeal*> CvDiplomacyAI::GetDealsToRenew(PlayerTypes eOtherPlayer, bo
 }
 
 /// Deal to renew
-void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging, CvDeal* pPassDeal, bool bOnlyCheckedDeals)
+void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging, CvDeal* pPassDeal, bool bOnlyCheckedDeals, bool bSendNetworkMessage)
 {
 	if (GetPlayer()->isHuman())
 		return;
@@ -50517,6 +50517,12 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 				//OutputDebugString("Cleared item from expired renewal deal \n");
 				//If we checked for renewal, we don't need to remove items, as we already did it.
 				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
+			}
+			// network message for multiplayer. we have to use sendNetDealAccepted because we don't have a specific function to send the information that a deal has not been renewed. see CvDllDealAI::DoAcceptedDeal
+			if (bSendNetworkMessage && GET_PLAYER(eOtherPlayer).isHuman())
+			{
+				CvInterfacePtr<ICvDeal1> pDllDeal = GC.WrapDealPointer(pRenewalDeal);
+				gDLL->sendNetDealAccepted(GetPlayer()->GetID(), eOtherPlayer, pDllDeal.get(), INT_MAX, INT_MAX, INT_MAX);
 			}
 		}
 		pRenewalDeal->m_bConsideringForRenewal = false;
