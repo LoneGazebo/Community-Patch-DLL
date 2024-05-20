@@ -3229,9 +3229,6 @@
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL">
 			<Text>They are already your vassal!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED">
-			<Text>"Enable Human Vassalage" Game Option is not enabled.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL">
 			<Text>You are a vassal of {1_PlayerName:textkey} and cannot adopt vassals of your own.</Text>
 		</Row>

@@ -8049,6 +8049,12 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 							}
 						}
 					}
+
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if (pkPromotionInfo && pkPromotionInfo->IsCanMoveImpassable())
+					{
+						kPlayer.SetWorkersIgnoreImpassable(true);
+					}
 				}
 #else
 				if(pTech->IsFreePromotion(ePromotion))
@@ -9806,12 +9812,6 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 
 	// Vassalage is disabled...
 	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
-	{
-		return false;
-	}
-
-	// Human Vassalage isn't enabled...
-	if(!GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS) && isHuman())
 	{
 		return false;
 	}

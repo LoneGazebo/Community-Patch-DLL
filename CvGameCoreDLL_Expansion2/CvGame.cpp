@@ -6375,7 +6375,7 @@ bool CvGame::IsNoFakeOpinionModifiers() const
 /// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
 bool CvGame::IsShowHiddenOpinionModifiers() const
 {
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
+	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
 		return true;
 
 	return GD_INT_GET(DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS) > 0;
@@ -6385,7 +6385,7 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 /// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
 bool CvGame::IsShowAllOpinionValues() const
 {
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
+	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
 		return true;
 
 	return GD_INT_GET(DIPLOAI_SHOW_ALL_OPINION_VALUES) > 0;
