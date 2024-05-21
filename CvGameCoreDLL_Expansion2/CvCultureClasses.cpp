@@ -3693,7 +3693,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 	}
-	else if (m_pPlayer->getNumCities() > 0)
+	else
 	{
 		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
 	}

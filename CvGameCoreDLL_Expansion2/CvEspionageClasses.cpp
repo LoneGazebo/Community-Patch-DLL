@@ -8387,7 +8387,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			}
 		}
 		else
-		{		
+		{
 			// irrelevant unless in capital
 			if (pCity->isCapital())
 			{

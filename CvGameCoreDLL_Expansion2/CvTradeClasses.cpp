@@ -2553,7 +2553,8 @@ void CvPlayerTrade::MoveUnits (void)
 										}
 									}
 
-									if (kOriginPlayer.getNumCities() > 0 && bInternational)
+									// The Difficulty Bonus trigger is decoupled from the general Historic Event code so it doesn't trigger on internal Trade Route completion.
+									if (bInternational)
 									{
 										kOriginPlayer.DoDifficultyBonus(eHistoricEvent);
 									}
@@ -2580,7 +2581,7 @@ void CvPlayerTrade::MoveUnits (void)
 											}
 										}
 									}
-									else if (kOriginPlayer.getNumCities() > 0)
+									else
 									{
 										kOriginPlayer.DoDifficultyBonus(HISTORIC_EVENT_TRADE_CS);
 									}

@@ -4867,7 +4867,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	}
 
 	// Possible difficulty bonus!
-	if (bFirstConquest && getNumCities() > 0)
+	if (bFirstConquest)
 		DoDifficultyBonus(DIFFICULTY_BONUS_CITY_CONQUEST);
 
 	// Minor Civ quest test
@@ -11251,7 +11251,7 @@ void CvPlayer::doTurn()
 	}
 
 	// Do we get periodic yields every X turns?
-	if (getNumCities() > 0 && GC.getGame().getElapsedGameTurns() > 0)
+	if (GC.getGame().getElapsedGameTurns() > 0)
 	{
 		int iTurnInterval = getHandicapInfo().getDifficultyBonusTurnInterval();
 		if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
@@ -19953,7 +19953,8 @@ void CvPlayer::DoWarVictoryBonuses()
 
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
-	if (!isAlive() || !isMajorCiv())
+	// Only living majors with cities can get difficulty bonuses.
+	if (!isAlive() || !isMajorCiv() || getNumCities() <= 0)
 		return;
 
 	int iDifficultyBonusPercent = GC.getGame().getGameSpeedInfo().getDifficultyBonusPercent();
@@ -26645,7 +26646,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 					}
 				}
 			}
-			else if (getNumCities() > 0)
+			else
 			{
 				DoDifficultyBonus(HISTORIC_EVENT_GOLDEN_AGE);
 			}
@@ -33028,13 +33029,10 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	{
 		case HISTORIC_EVENT_TRADE_LAND:
 		case HISTORIC_EVENT_TRADE_SEA:
-			// Do these outside of this function
+			// Handle the difficulty bonus in CvPlayerTrade::MoveUnits() to prevent it from triggering on internal Trade Route completion
 			return;
 		default:
-			if (getNumCities() > 0)
-			{
-				DoDifficultyBonus(eHistoricEvent);
-			}
+			DoDifficultyBonus(eHistoricEvent);
 	}
 }
 //	--------------------------------------------------------------------------------
