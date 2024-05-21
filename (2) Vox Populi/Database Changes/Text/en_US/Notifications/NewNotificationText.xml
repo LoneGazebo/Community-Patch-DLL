@@ -220,7 +220,7 @@
 			<Text>Vassal Tribute!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY">
-			<Text>Because you have entered a new Era, your Vassals have sent you {1_Num} {1_Num: plural 1?Unit; other?Units;} as part of their tribute.</Text>
+			<Text>Because you have entered a new Era, your Vassal {1_TeamName} has sent {2_Num} {2_Num: plural 1?Unit; other?Units;} to {3_CityName} as part of their tribute.</Text>
 		</Row>
 		<!-- Resurrection -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL">

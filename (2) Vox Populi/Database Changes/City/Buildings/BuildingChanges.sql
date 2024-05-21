@@ -33,7 +33,7 @@ UPDATE Buildings
 SET
 	EventTourism = 7,
 	NoUnhappfromXSpecialists = 1,
-	VassalLevyEra = 1
+	VassalLevyEra = 2
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 INSERT INTO Helper
