@@ -24,7 +24,7 @@ VALUES
 ----------------------------------------------------------
 UPDATE Units
 SET
-	PrereqTech = 'TECH_ASTRONOMY',
+	PrereqTech = 'TECH_NAVIGATION',
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
