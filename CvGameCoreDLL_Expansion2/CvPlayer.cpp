@@ -52966,93 +52966,202 @@ void CvPlayer::DoVassalLevy()
 	if (!m_bVassalLevy)
 		return;
 
-	// Look at all Cities
-	bool bMaster = false;
-	CvCity* pMasterCity = NULL;
-	int iSum = 0;
-	CvCity* pLoopCity = NULL;
-	int iLoop = 0;
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	// First loop through all cities to see if any of them provide levy
+	bool bVassalLevy = false;
+	int iCityLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
 	{
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		if (pLoopCity->GetVassalLevyEra() > 0)
 		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			bVassalLevy = true;
+			break;
+		}
+	}
 
-			if (pkBuildingInfo)
+	// No levy even though we have vassals...
+	if (!bVassalLevy)
+	{
+		m_bVassalLevy = false;
+		return;
+	}
+
+	TeamTypes eTeam = getTeam();
+	CvTeam& kTeam = GET_TEAM(eTeam);
+
+	// Loop through all teams
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eTeamLoop = static_cast<TeamTypes>(iTeamLoop);
+		CvTeam& kTeamLoop = GET_TEAM(eTeamLoop);
+		if (!kTeamLoop.IsVassal(eTeam))
+			continue;
+
+		// eTeamLoop is our vassal; we're going to receive levy units from them
+		// Now loop through all our cities and collect all eligible unit types for each
+		for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+		{
+			int iNumLevy = pLoopCity->GetVassalLevyEra();
+			if (iNumLevy <= 0)
+				continue;
+
+			std::set<UnitTypes> currentUnits;
+			std::set<UnitClassTypes> processedUnitClasses;
+			int iUnitLoop = 0;
+			for (CvUnit* pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
 			{
-				// Has this Building
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				if (pLoopUnit->IsCivilianUnit())
+					continue;
+
+				UnitClassTypes eUnitClass = pLoopUnit->getUnitClassType();
+
+				// Already processed, skip
+				if (processedUnitClasses.count(eUnitClass))
+					continue;
+				processedUnitClasses.insert(eUnitClass);
+
+				// Can't exceed game/team/player unit limit
+				if (GC.getGame().isUnitClassMaxedOut(eUnitClass) || kTeam.isUnitClassMaxedOut(eUnitClass) || isUnitClassMaxedOut(eUnitClass))
+					continue;
+
+				UnitTypes eUnit = pLoopUnit->getUnitType();
+
+				// Different vassal team members may have their own UU for this unit class; we need to check each
+				bool bHasUU = false;
+				for (std::vector<PlayerTypes>::const_iterator it = kTeamLoop.getPlayers().begin(); it != kTeamLoop.getPlayers().end(); ++it)
 				{
-					if (pkBuildingInfo->IsVassalLevyEra())
+					CvPlayer& kVassal = GET_PLAYER(*it);
+					UnitTypes eVassalUnit = kVassal.GetSpecificUnitType(eUnitClass);
+
+					// Not a UU
+					if (eVassalUnit == NO_UNIT || eVassalUnit == eUnit)
+						continue;
+
+					if (IsUnitValidForVassalLevy(eVassalUnit, kTeamLoop, pLoopCity))
 					{
-						bMaster = true;
-						pMasterCity = pLoopCity;
+						currentUnits.insert(eVassalUnit);
+						bHasUU = true;
+					}
+				}
+
+				// If no UU, check the base unit
+				if (!bHasUU)
+				{
+					UnitTypes eBaseUnit = static_cast<UnitTypes>(GC.getUnitClassInfo(eUnitClass)->getDefaultUnitIndex());
+					if (IsUnitValidForVassalLevy(eBaseUnit, kTeamLoop, pLoopCity))
+						currentUnits.insert(eUnit);
+				}
+			}
+
+			// No eligible units? Fall back to using units that the vassal can train
+			// All non-tech restrictions still need to be followed
+			if (currentUnits.empty())
+			{
+				for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+				{
+					UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+
+					// Can't exceed game/team/player unit limit
+					if (GC.getGame().isUnitClassMaxedOut(eUnitClass) || kTeam.isUnitClassMaxedOut(eUnitClass) || isUnitClassMaxedOut(eUnitClass))
+						continue;
+
+					for (std::vector<PlayerTypes>::const_iterator it = kTeamLoop.getPlayers().begin(); it != kTeamLoop.getPlayers().end(); ++it)
+					{
+						CvPlayer& kVassal = GET_PLAYER(*it);
+						UnitTypes eVassalUnit = kVassal.GetSpecificUnitType(eUnitClass);
+
+						if (eVassalUnit == NO_UNIT)
+							continue;
+
+						CvUnitEntry* pUnitInfo = GC.getUnitInfo(eVassalUnit);
+
+						// This is probably an unused unit class
+						if (pUnitInfo->GetUnitClassType() != eUnitClass)
+							continue;
+
+						// Must be combat unit
+						if (!(pUnitInfo->GetCombat() > 0 || pUnitInfo->GetRangedCombat() > 0))
+							continue;
+
+						if (IsUnitValidForVassalLevy(eVassalUnit, kTeamLoop, pLoopCity, false))
+							currentUnits.insert(eVassalUnit);
+					}
+				}
+			}
+
+			// In extreme cases, we just give up
+			if (currentUnits.empty())
+				continue;
+
+			// Actually give the units here
+			int iNumGiven = 0;
+			int iSeed = 0;
+			int iSetSize = currentUnits.size();
+			bool bNoAir = false;
+			while (iNumGiven < iNumLevy && !currentUnits.empty())
+			{
+				uint uUnit = GC.getGame().urandLimitExclusive(iSetSize, GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(iSeed));
+				std::set<UnitTypes>::iterator it = currentUnits.begin();
+				std::advance(it, uUnit);
+
+				CvUnitEntry* pUnitInfo = GC.getUnitInfo(*it);
+				bool bIsAir = (pUnitInfo->GetDomainType() == DOMAIN_AIR);
+				if (bNoAir && bIsAir)
+				{
+					currentUnits.erase(it);
+					iSetSize--;
+					iSeed++;
+					continue;
+				}
+
+				// Make sure we still have enough resources to take the unit
+				bool bNoResource = false;
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+					int iQuantity = pUnitInfo->GetResourceQuantityRequirement(iResourceLoop);
+					if (iQuantity > 0 && getNumResourceAvailable(eResource) < iQuantity)
+					{
+						bNoResource = true;
+						currentUnits.erase(it);
+						iSetSize--;
+						iSeed++;
 						break;
 					}
 				}
-			}
-		}
-	}
-	if (bMaster && pMasterCity != NULL)
-	{
-		std::vector<UnitTypes> aExtraUnits;
-		std::vector<UnitAITypes> aExtraUnitAITypes;
-		CvUnit* pLoopUnit = NULL;
-		int iLoop = 0;
-		for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-		{
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
-			{
-				UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
-				UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
+				if (bNoResource)
+					continue;
 
-				// check for duplicate unit
-				bool bAddUnit = true;
-				for (uint ui = 0; ui < aExtraUnits.size(); ui++)
-				{
-					if (aExtraUnits[ui] == eCurrentUnitType)
-					{
-						bAddUnit = false;
-					}
-				}
-
-				if (bAddUnit)
-				{
-					aExtraUnits.push_back(eCurrentUnitType);
-					aExtraUnitAITypes.push_back(eCurrentUnitAIType);
-				}
-			}
-		}
-		if (aExtraUnits.size() > 0)
-		{
-			int iTotal = GetNumVassals() * 2;
-			for (int iK = 0; iK < iTotal; iK++)
-			{
-				uint uUnit = GC.getGame().urandLimitExclusive(aExtraUnits.size(), GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(iK));
-				CvUnit* pNewUnit = initUnit(aExtraUnits[uUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[uUnit]);
+				CvUnit* pNewUnit = initUnit(*it, pLoopCity->getX(), pLoopCity->getY());
 				bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 				if (bJumpSuccess)
 				{
-					pMasterCity->addProductionExperience(pNewUnit);
-					iSum++;
+					pLoopCity->addProductionExperience(pNewUnit);
+					iNumGiven++;
 				}
-				if (!bJumpSuccess)
+				// Ban air units if there are no more air slots
+				else
 				{
 					pNewUnit->kill(false);
-					break;
+					if (bIsAir)
+						bNoAir = true;
+					currentUnits.erase(it);
+					iSetSize--;
 				}
+				iSeed++;
 			}
-			if (iSum > 0)
+
+			// Notification stuff
+			if (iNumGiven > 0)
 			{
 				CvNotifications* pNotifications = GetNotifications();
 				if (pNotifications && GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY");
-					strText << iSum;
+					strText << kTeamLoop.getName().GetCString();
+					strText << iNumGiven;
+					strText << pLoopCity->getName().GetCString();
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY");
-					strSummary << iSum;
-					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pMasterCity->getX(), pMasterCity->getY(), -1);
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
 				}
 			}
 		}
@@ -53065,6 +53174,59 @@ void CvPlayer::SetVassalLevy(bool bValue)
 {
 	if (m_bVassalLevy != bValue)
 		m_bVassalLevy = bValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Is eUnit valid to be received on era change?
+/// this: the master
+/// kTeam: the vassal's team
+/// pMasterCity: the city to be receiving the unit
+/// bCheckMasterTech: whether master's tech level needs to be checked (default true)
+bool CvPlayer::IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech) const
+{
+	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+
+	// Both vassal and master can't have the obsolete tech for the unit
+	TechTypes eObsoleteTech = static_cast<TechTypes>(pUnitInfo->GetObsoleteTech());
+	if (eObsoleteTech != NO_TECH)
+	{
+		if (kTeam.GetTeamTechs()->HasTech(eObsoleteTech))
+			return false;
+
+		if (bCheckMasterTech && HasTech(eObsoleteTech))
+			return false;
+	}
+
+	// Vassal must have the prereq tech for the unit
+	TechTypes ePrereqTech = static_cast<TechTypes>(pUnitInfo->GetPrereqAndTech());
+	if (ePrereqTech != NO_TECH && !kTeam.GetTeamTechs()->HasTech(ePrereqTech))
+		return false;
+
+	// No policy-unlocked units
+	if (pUnitInfo->GetPolicyType() != NO_POLICY)
+		return false;
+
+	// No City-State units
+	if (pUnitInfo->IsMinorCivGift())
+		return false;
+
+	// No recon units
+	if (pUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE || pUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+		return false;
+
+	// No missiles and nukes
+	if (pUnitInfo->GetDefaultUnitAIType() == UNITAI_MISSILE_AIR || pUnitInfo->GetDefaultUnitAIType() == UNITAI_ICBM)
+		return false;
+
+	// No settling units
+	if (pUnitInfo->IsFound() || pUnitInfo->IsFoundAbroad() || pUnitInfo->IsFoundMid() || pUnitInfo->IsFoundLate())
+		return false;
+
+	// Capital needs to be coastal to receive ships
+	if (pUnitInfo->GetDomainType() == DOMAIN_SEA && !pMasterCity->isCoastal())
+		return false;
+
+	return true;
 }
 
 //	--------------------------------------------------------------------------------

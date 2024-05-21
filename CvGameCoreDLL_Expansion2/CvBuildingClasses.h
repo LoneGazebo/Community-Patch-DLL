@@ -235,7 +235,7 @@ public:
 
 	int GetPurchaseCooldownReduction(bool bCivilian = false) const;
 #endif
-	bool IsVassalLevyEra() const;
+	int GetVassalLevyEra() const;
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int GetNationalPopulationRequired() const;
 	int GetLocalPopulationRequired() const;
@@ -890,7 +890,7 @@ private:
 	int m_iEventRequiredActive;
 	int m_iCityEventRequiredActive;
 #endif
-	bool m_bVassalLevyEra;
+	int m_iVassalLevyEra;
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int m_iNationalPopRequired;
 	int m_iLocalPopRequired;

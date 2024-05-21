@@ -516,6 +516,7 @@ CvCity::CvCity() :
 	, m_abTempCaptureData()
 	, m_bIsPendingCapture()
 #endif
+	, m_iVassalLevyEra()
 {
 	OBJECT_ALLOCATED
 		FSerialization::citiesToCheck.push_back(this);
@@ -1931,6 +1932,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		}
 #endif
 	}
+
+	m_iVassalLevyEra = 0;
 }
 
 
@@ -15866,7 +15869,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeTradeRouteRecipientBonus(pBuildingInfo->GetTradeRouteRecipientBonus() * iChange);
 		ChangeNumTradeRouteBonus(pBuildingInfo->GetTradeRouteLandGoldBonus() * iChange);
 		ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteGoldModifier() * iChange);
-
+		ChangeVassalLevyEra(pBuildingInfo->GetVassalLevyEra() * iChange);
 
 		if (pBuildingInfo->AffectSpiesNow() && iChange > 0)
 		{
@@ -33534,6 +33537,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abBuildingConstructed);
 	visitor(city.m_abIsBuildingHidden);
 	visitor(city.m_inumHiddenBuildings);
+	visitor(city.m_iVassalLevyEra);
 
 	visitor(*city.m_pCityBuildings);
 
@@ -36545,6 +36549,16 @@ int CvCity::GetYieldFromDevelopment(YieldTypes eYield) const
 	return m_aiYieldFromDevelopment[eYield];
 }
 #endif
+
+void CvCity::ChangeVassalLevyEra(int iChange)
+{
+	m_iVassalLevyEra += iChange;
+}
+
+int CvCity::GetVassalLevyEra() const
+{
+	return m_iVassalLevyEra;
+}
 
 
 FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)

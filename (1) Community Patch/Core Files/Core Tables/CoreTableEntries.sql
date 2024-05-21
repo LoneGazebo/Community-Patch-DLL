@@ -1432,7 +1432,7 @@ ALTER TABLE Buildings ADD COLUMN 'GlobalSpySecurityModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 
-ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' integer DEFAULT 0;
 
 -- Processes
 

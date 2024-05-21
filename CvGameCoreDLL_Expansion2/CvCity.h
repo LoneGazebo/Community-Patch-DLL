@@ -1825,6 +1825,9 @@ public:
 	int GetYieldFromDevelopment(YieldTypes eYield) const;
 #endif
 
+	void ChangeVassalLevyEra(int iChange);
+	int GetVassalLevyEra() const;
+
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
@@ -2212,6 +2215,8 @@ protected:
 	std::vector<int> m_aiUnitCostInvestmentReduction;
 	std::vector<bool> m_abBuildingConstructed;
 #endif
+
+	int m_iVassalLevyEra;
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
 	mutable vector<int> m_GwYieldCache; //not serialized

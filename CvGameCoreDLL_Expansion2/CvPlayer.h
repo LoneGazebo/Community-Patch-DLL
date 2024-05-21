@@ -3000,6 +3000,7 @@ public:
 
 	void DoVassalLevy();
 	void SetVassalLevy(bool bValue);
+	bool IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech = true) const;
 
 	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
