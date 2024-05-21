@@ -674,8 +674,21 @@ void CvGame::InitPlayers()
 		else if (iI < MAX_MAJOR_CIVS)
 		{
 			const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-			CvPreGame::setPlayerColor(eLoopPlayer, aePlayerColors[iI]);
-
+			PlayerColorTypes ePlayerColor = aePlayerColors[iI];
+			if (ePlayerColor == NO_PLAYERCOLOR)
+			{
+				// search for an unused player color
+				for (int iK = 0; iK < GC.GetNumPlayerColorInfos(); iK++)
+				{
+					if (std::find(vColorsAlreadyUsed.begin(), vColorsAlreadyUsed.end(), (PlayerColorTypes)iK) == vColorsAlreadyUsed.end())
+					{
+						ePlayerColor = (PlayerColorTypes)iK;
+						vColorsAlreadyUsed.push_back(ePlayerColor);
+						break;
+					}
+				}
+			}
+			CvPreGame::setPlayerColor(eLoopPlayer, ePlayerColor);
 			// Make sure the AI has the proper handicap.
 			if (CvPreGame::slotStatus(eLoopPlayer) == SS_COMPUTER)
 				CvPreGame::setHandicap(eLoopPlayer, eAIHandicap);
