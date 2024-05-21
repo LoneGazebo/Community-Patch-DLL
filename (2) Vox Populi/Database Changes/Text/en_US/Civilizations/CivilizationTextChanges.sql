@@ -178,7 +178,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your ownership of a Luxury Resource increases, scaling with Era. +5 Experience to Military Units purchased with [ICON_GOLD] Gold, scaling with Era. [ICON_INTERNATIONAL_TRADE] Trade Route Resource Diversity modifier doubled.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when the number of Luxury Resources connected to your trade network increases, scaling with Era. +5 Experience to Military Units purchased with [ICON_GOLD] Gold, scaling with Era. +100% Resource Diversity modifier for [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -935,7 +935,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SIAMESE_WARELEPHANT_STRATEGY';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]Amphibious[ENDCOLOR] Promotion, and have double movement when next to a river. Rivers create [ICON_CONNECTED] City Connections.'
+SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WAR_CANOES}[ENDCOLOR] Promotions.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US

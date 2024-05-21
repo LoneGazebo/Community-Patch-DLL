@@ -237,7 +237,7 @@ SET Text = '[COLOR_YELLOW]City Connections[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'If a City is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your Capital City (i.e. both cities have a Lighthouse), that City has a City Connection with the Capital. Each City Connection is worth a certain amount of gold each turn, the amount determined by the size of the two cities.[NEWLINE][NEWLINE]If a City is connected by a railroad and/or [COLOR_YELLOW]Seaport[ENDCOLOR] to your Capital City (i.e. both cities have a Seaport), that City has an Industrial City Connection with the Capital. An Industrial City Connection gives a production bonus to the targeted city, the amount determined by the size of the two cities. An Industrial City Connection also allows the construction of the [COLOR_YELLOW]Coaling Station[ENDCOLOR], an industrial era building which gives a massive production boost to the city.'
+SET Text = 'If a City is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your Capital City (i.e. both cities have a Lighthouse), that City has a City Connection with the Capital. Each City Connection is worth a certain amount of gold each turn, the amount determined by the size of the two cities.[NEWLINE][NEWLINE][COLOR_GREEN]If a City is connected by a railroad and/or Seaport to your Capital City (i.e. both cities have a Seaport), that City has an Industrial City Connection with the Capital. An Industrial City Connection gives a production bonus to the targeted city, the amount determined by the size of the two cities. An Industrial City Connection also allows the construction of the Coaling Station, an industrial era building which gives a massive production boost to the city.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -254,7 +254,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Roads and City Connections[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'If there is a road between your Capital and another of your cities, those cities have a City Connection." City Connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. ([COLOR_YELLOW]Lighthouses[ENDCOLOR] can also create city connections between coastal cities.) See the section on City Connections for details.'
+SET Text = 'If there is a road between your Capital and another of your cities, those cities have a City Connection. City Connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. ([COLOR_YELLOW]Lighthouses[ENDCOLOR] can also create city connections between coastal cities.) See the section on City Connections for details.'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
 
 UPDATE Language_en_US

@@ -164,6 +164,7 @@ VALUES
 	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_NAVALMELEE', 50),
 	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_NAVALRANGED', 50),
 	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_CARRIER', 50);
+
 ----------------------------------------------------------------------------------------------------------------------------
 -- Recon promotion tree drawn using ASCIIFlow
 --
@@ -558,12 +559,6 @@ UPDATE UnitPromotions SET NearbyCityCombatMod = 20, NearbyRange = 1 WHERE Type =
 UPDATE UnitPromotions SET MovesChange = 3 WHERE Type = 'PROMOTION_FAST_GENERAL';
 UPDATE UnitPromotions SET AttackMod = 15, IgnoreZOC = 1 WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_GUN';
 UPDATE UnitPromotions SET AttackMod = 15, MovesChange = 1 WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_ARMOR';
-
-UPDATE UnitPromotions SET AttackBelowEqual50HealthMod = 20 WHERE Type = 'PROMOTION_PRIZE_RULES';
-INSERT INTO UnitPromotions_YieldFromKills
-	(PromotionType, YieldType, Yield)
-VALUES
-	('PROMOTION_PRIZE_RULES', 'YIELD_GOLD', 300);
 
 UPDATE UnitPromotions SET FriendlyHealChange = 5, CityAttack = 25 WHERE Type = 'PROMOTION_MARE_NOSTRUM';
 

@@ -35,16 +35,11 @@ INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_HONOR', 'YIELD_PRODUCTION', 1);
-	
+
 INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_HONOR', 'YIELD_SCIENCE', 50);
-
-INSERT INTO Policy_CityYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_HONOR', 'YIELD_PRODUCTION', 1);
 
 -- Warrior Code (Now Tribute)
 DELETE FROM Policy_UnitCombatProductionModifiers
@@ -108,7 +103,6 @@ INSERT INTO Policy_YieldPerCityOverStrengthThreshold
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_MILITARY_TRADITION', 'YIELD_CULTURE', 2);
-	
 
 -- Military Caste (Now Dominance)
 UPDATE Policies
@@ -163,7 +157,8 @@ VALUES
 -- Scaler
 INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
-SELECT Type, 'YIELD_SCIENCE', 10
+SELECT
+	Type, 'YIELD_SCIENCE', 10
 FROM Policies
 WHERE PolicyBranchType = 'POLICY_BRANCH_HONOR';
 

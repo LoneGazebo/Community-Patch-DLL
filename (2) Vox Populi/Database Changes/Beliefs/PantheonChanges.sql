@@ -143,9 +143,9 @@ UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_SUN_GOD';
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 VALUES
-	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FAITH', 1),
+	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
 	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_SCIENCE', 1),
-	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
+	('BELIEF_SUN_GOD', 'IMPROVEMENT_FARM', 'YIELD_FAITH', 1);
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
@@ -425,7 +425,7 @@ VALUES
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_EPONA', 'YIELD_FOOD', 8, 1),	
+	('BELIEF_EPONA', 'YIELD_FOOD', 8, 1),
 	('BELIEF_EPONA', 'YIELD_PRODUCTION', 8, 1),
 	('BELIEF_EPONA', 'YIELD_SCIENCE', 8, 1),
 	('BELIEF_EPONA', 'YIELD_CULTURE', 8, 1);
@@ -484,7 +484,6 @@ INSERT INTO Belief_YieldChangeWorldWonder
 VALUES
 	('BELIEF_LUGH', 'YIELD_CULTURE', 2),
 	('BELIEF_LUGH', 'YIELD_TOURISM', 2);
-
 
 -- Rhiannon, the Sovereign
 INSERT INTO Belief_YieldPerFollowingCity
@@ -570,13 +569,13 @@ WHERE Type = 'BELIEF_DAGDA';
 INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_DAGDA', 'YIELD_GOLD', 12),
 	('BELIEF_DAGDA', 'YIELD_PRODUCTION', 12),
+	('BELIEF_DAGDA', 'YIELD_GOLD', 12),
 	('BELIEF_DAGDA', 'YIELD_CULTURE', 12);
 
 -- Bran, the Sleeping Guardian
-UPDATE Beliefs 
-SET 
+UPDATE Beliefs
+SET
 	FriendlyHealChange = 10,
 	CityRangeStrikeModifier = 25
 WHERE Type = 'BELIEF_BRAN';
@@ -599,6 +598,7 @@ VALUES
 
 -- Cailleach, the Queen of Winter
 UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_CAILLEACH';
+
 -- Note: if you have the RequiresResources flag set, the Times100 table ignores it for tundra, but the YieldChanges table obeys it
 INSERT INTO Belief_CityYieldPerXTerrainTimes100
 	(BeliefType, TerrainType, YieldType, Yield)
@@ -609,11 +609,10 @@ VALUES
 INSERT INTO Belief_TerrainYieldChanges
 	(BeliefType, TerrainType, YieldType, Yield)
 VALUES
-	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),	
-	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_PRODUCTION', 1),		
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),
+	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_PRODUCTION', 1),
 	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1),
 	('BELIEF_CAILLEACH', 'TERRAIN_SNOW', 'YIELD_CULTURE', 1);
-
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
@@ -622,6 +621,3 @@ VALUES
 	('BELIEF_CAILLEACH', 'IMPROVEMENT_QUARRY', 'YIELD_CULTURE', 1),
 	('BELIEF_CAILLEACH', 'IMPROVEMENT_MINE', 'YIELD_GOLD', 1),
 	('BELIEF_CAILLEACH', 'IMPROVEMENT_MINE', 'YIELD_CULTURE', 1);
-
-
-

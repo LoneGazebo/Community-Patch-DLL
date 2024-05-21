@@ -1,10 +1,6 @@
 ----------------------------------------------------------
 -- Unique Ability: River Warlord
 ----------------------------------------------------------
-UPDATE Traits
-SET
-	RiverTradeRoad = 1
-WHERE Type = 'TRAIT_AMPHIB_WARLORD';
 
 ----------------------------------------------------------
 -- Unique Unit: Mandekalu Cavalry (Knight)

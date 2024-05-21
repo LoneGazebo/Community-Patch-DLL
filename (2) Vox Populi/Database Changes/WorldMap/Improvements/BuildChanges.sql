@@ -25,6 +25,7 @@ SET
 	Water = 1,
 	CanBeEmbarked = 1
 WHERE Type = 'BUILD_REPAIR';
+
 -- Great People build actions
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

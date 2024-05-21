@@ -73,9 +73,9 @@
 		</Row>
 		<Row>
 			<Type>PROMOTION_COASTAL_ARTILLERY</Type>
-			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
 			<Description>TXT_KEY_PROMOTION_COASTAL_ARTILLERY</Description>
 			<Help>TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP</Help>
+			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
 			<PromotionPrereqOr1>PROMOTION_FIELD_1</PromotionPrereqOr1>
 			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_ARTILLERY</PediaEntry>
@@ -515,13 +515,6 @@
 			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_PRIZE_RULES</Type>
-			<Description>TXT_KEY_PROMOTION_PRIZE_RULES</Description>
-			<Help>TXT_KEY_PROMOTION_PRIZE_RULES_HELP</Help>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PRIZE_RULES</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_MARE_NOSTRUM</Type>

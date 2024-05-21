@@ -9304,7 +9304,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	{
 		if (GetBuildingProductionBlockedTurns() > 0)
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED", pkBuildingInfo->GetTextKey(), "",  GetBuildingProductionBlockedTurns());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED", pkBuildingInfo->GetTextKey(), "", GetBuildingProductionBlockedTurns());
 			if (toolTipSink == NULL)
 				return false;
 		}

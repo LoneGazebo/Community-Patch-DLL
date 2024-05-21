@@ -104,7 +104,6 @@ INSERT INTO Policy_SpecialistExtraYields
 VALUES
 	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 1);
 
-
 INSERT INTO Policy_YieldModifierFromGreatWorks
 	(PolicyType, YieldType, Yield)
 VALUES

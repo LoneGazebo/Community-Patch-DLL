@@ -25,6 +25,7 @@ VALUES
 	('TRAIT_GREAT_EXPANSE', 'TERRAIN_DESERT'),
 	('TRAIT_GREAT_EXPANSE', 'TERRAIN_TUNDRA'),
 	('TRAIT_GREAT_EXPANSE', 'TERRAIN_SNOW');
+
 ----------------------------------------------------------
 -- Unique Unit: Comanche Riders (Cavalry)
 ----------------------------------------------------------

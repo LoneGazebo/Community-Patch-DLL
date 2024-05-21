@@ -1,6 +1,7 @@
 -- Notes on Format: Eras are separated by dashes, NO UNIQUES in comments since flavors are general. Please update the comments if any tech gets changed.
 
-/*Flavors used here, somewhat grouped:
+/*
+Flavors used here, somewhat grouped:
 Strategy: FLAVOR_EXPANSION, FLAVOR_WONDER, FLAVOR_CITY_DEFENSE, FLAVOR_ESPIONAGE, FLAVOR_SPACESHIP, FLAVOR_NAVAL_GROWTH, FLAVOR_DIPLOMACY
 Yield: FLAVOR_GROWTH, FLAVOR_PRODUCTION, FLAVOR_SCIENCE, FLAVOR_GOLD, FLAVOR_RELIGION, FLAVOR_CULTURE,
 FLAVOR_TILE_IMPROVEMENT, FLAVOR_NAVAL_TILE_IMPROVEMENT
