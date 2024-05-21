@@ -203,7 +203,6 @@ WHERE EXISTS (
 
 DROP TABLE AncientDifficultyBonusAmounts;
 
-
 -- +/- 1 or 2 to the final totals for Renaissance amounts to match Proposal (6-71)
 CREATE TEMP TABLE RenaissanceDifficultyBonusAmounts (
 	HandicapTypeTemp text,

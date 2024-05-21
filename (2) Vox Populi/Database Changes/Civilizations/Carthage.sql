@@ -42,6 +42,8 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_CARTHAGE', 'BUILDINGCLASS_NATIONAL_TREASURY', 'BUILDING_GREAT_COTHON');
 
+DELETE FROM Building_ClassesNeededInCity WHERE BuildingType = 'BUILDING_GREAT_COTHON';
+
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_CURRENCY',
@@ -52,9 +54,6 @@ SET
 	Water = 1,
 	FreeBuilding = 'BUILDINGCLASS_HARBOR'
 WHERE Type = 'BUILDING_GREAT_COTHON';
-
-DELETE FROM Building_ClassesNeededInCity
-WHERE BuildingType = 'BUILDING_GREAT_COTHON';
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)

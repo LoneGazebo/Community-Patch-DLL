@@ -799,7 +799,7 @@ UPDATE Buildings
 SET
 	PolicyBranchType = NULL,
 	IlliteracyFlatReduction = 1,
-	MedianTechPercentChange = 0	
+	MedianTechPercentChange = 0
 WHERE Type = 'BUILDING_PORCELAIN_TOWER';
 
 INSERT INTO Building_YieldChanges

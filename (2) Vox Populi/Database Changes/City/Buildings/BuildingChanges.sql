@@ -1009,13 +1009,9 @@ WHERE BuildingClass = 'BUILDINGCLASS_HARBOR';
 -- Seaport
 UPDATE Buildings
 SET
-  AllowsIndustrialWaterRoutes = 1
-WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
-
-UPDATE Buildings
-SET
 	PrereqTech = 'TECH_STEAM_POWER',
-	CitySupplyModifier = 20
+	CitySupplyModifier = 20,
+	AllowsIndustrialWaterRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
 INSERT INTO Helper

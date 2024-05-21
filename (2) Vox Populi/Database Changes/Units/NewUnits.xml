@@ -783,6 +783,7 @@
 			<UnitFlagIconOffset>17</UnitFlagIconOffset>
 			<IconAtlas>EXPANSION_UNIT_ATLAS_1</IconAtlas>
 			<PortraitIndex>17</PortraitIndex>
+			<ShowInPedia>false</ShowInPedia>
 		</Row>
 		<!-- NOTE for new Policy-unlocked Units:
 			These are inserted based on vanilla properties of the assumed base unit (except those to be swept, and text + art)

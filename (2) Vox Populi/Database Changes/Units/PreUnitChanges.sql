@@ -162,10 +162,18 @@ WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 
 -- Poland: Lancer
 
+-- Polynesia: Scout
+UPDATE Units
+SET
+	ObsoleteTech = 'TECH_SCIENTIFIC_THEORY',
+	CombatClass = 'UNITCOMBAT_RECON',
+	DefaultUnitAI = 'UNITAI_EXPLORE'
+WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+
 -- Portugal: Caravel
 UPDATE Units SET NumExoticGoods = 0 WHERE Type = 'UNIT_PORTUGUESE_NAU';
 
--- Rome: Legion
+-- Rome: Swordsman
 UPDATE Units
 SET
 	ObsoleteTech = 'TECH_STEEL',
@@ -308,15 +316,6 @@ SET
 	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_EXPLORER'),
 	FoundAbroad = (SELECT FoundAbroad FROM Units WHERE Type = 'UNIT_EXPLORER')
 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
-
--- Polynesia: Scout
-UPDATE Units
-SET
-	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_SCOUT'),
-	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_SCOUT'),
-	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_SCOUT'),
-	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_SCOUT')
-WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 -- Dromon: Liburna
 UPDATE Units

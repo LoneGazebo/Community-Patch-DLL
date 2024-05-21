@@ -306,8 +306,7 @@ INSERT INTO CityEventChoice_YieldSiphon
 	(CityEventChoiceType, YieldType, Yield)
 VALUES
 	('ESPIONAGE_EVENT_CHOICE_STEAL_FAITH', 'YIELD_FAITH', 100);
-	
-	
+
 CREATE TEMP TABLE Helper (
 	YieldType TEXT
 );
@@ -333,4 +332,3 @@ FROM CityEventChoices a, Helper b
 WHERE a.isCounterSpyMission = 1;
 
 DROP TABLE Helper;
-

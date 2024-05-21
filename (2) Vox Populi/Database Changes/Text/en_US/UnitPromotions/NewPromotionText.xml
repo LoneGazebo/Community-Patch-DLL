@@ -193,6 +193,7 @@
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP">
 			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Melee[ENDCOLOR], [COLOR_POSITIVE_TEXT]Naval Ranged[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Carrier[ENDCOLOR] Units.</Text>
 		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_1">
 			<Text>Splash Damage I</Text>
 		</Row>
@@ -544,13 +545,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES">
-			<Text>Prize Rules</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM">

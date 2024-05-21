@@ -68,8 +68,6 @@ INSERT INTO Civilization_UnitClassOverrides
 VALUES
 	('CIVILIZATION_SPAIN', 'UNITCLASS_INQUISITOR', 'UNIT_SPAIN_INQUISITOR');
 
-UPDATE Units SET ShowInPedia = 0 WHERE Type = 'UNIT_SPAIN_INQUISITOR';
-
 ----------------------------------------------------------
 -- Unique Unit: Conquistador (Explorer)
 ----------------------------------------------------------

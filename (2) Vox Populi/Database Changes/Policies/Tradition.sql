@@ -21,7 +21,6 @@ WHERE Type = 'POLICY_MONARCHY';
 
 DELETE FROM Policy_PrereqPolicies
 WHERE PolicyType IN (
-	'POLICY_LANDED_ELITE',
 	'POLICY_MONARCHY',
 	'POLICY_LEGALISM'
 );
@@ -29,10 +28,9 @@ WHERE PolicyType IN (
 INSERT INTO Policy_PrereqPolicies
 	(PolicyType, PrereqPolicy)
 VALUES
-	('POLICY_MONARCHY', 'POLICY_ARISTOCRACY'),	
+	('POLICY_MONARCHY', 'POLICY_ARISTOCRACY'),
 	('POLICY_MONARCHY', 'POLICY_OLIGARCHY'),
-	('POLICY_LANDED_ELITE', 'POLICY_ARISTOCRACY'),
-	('POLICY_LANDED_ELITE', 'POLICY_LEGALISM');
+	('POLICY_LANDED_ELITE', 'POLICY_ARISTOCRACY');
 
 -- Opener
 DELETE FROM Policy_BuildingClassCultureChanges
@@ -95,9 +93,7 @@ VALUES
 -- Legalism (now Ceremony)
 UPDATE Policies
 SET
-	GoldenAgeDurationMod = 0,
 	NumCitiesFreeCultureBuilding = 0,
-	CapitalGrowthMod = 0,
 	PortraitIndex = 55
 WHERE Type = 'POLICY_LEGALISM';
 
@@ -161,8 +157,6 @@ WHERE PolicyType = 'POLICY_LANDED_ELITE';
 UPDATE Policies
 SET
 	CapitalGrowthMod = 0,
-	GreatPeopleRateModifier = 0,
-	CityGrowthMod = 3,
 	PortraitIndex = 56
 WHERE Type = 'POLICY_LANDED_ELITE';
 
@@ -183,19 +177,24 @@ SET
 	CityGrowthMod = 0
 WHERE Type = 'POLICY_TRADITION_FINISHER';
 
-INSERT INTO Policy_ImprovementYieldChanges
-	(PolicyType, ImprovementType, YieldType, Yield)
-SELECT
-	'POLICY_TRADITION_FINISHER', Type, 'YIELD_FOOD', 1
-FROM Improvements
-WHERE CreatedByGreatPerson = 1 OR Type = 'IMPROVEMENT_LANDMARK';
+CREATE TEMP TABLE Helper (
+	YieldType TEXT
+);
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_FOOD'),
+	('YIELD_PRODUCTION');
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
 SELECT
-	'POLICY_TRADITION_FINISHER', Type, 'YIELD_PRODUCTION', 1
-FROM Improvements
-WHERE CreatedByGreatPerson = 1 OR Type = 'IMPROVEMENT_LANDMARK';
+	'POLICY_TRADITION_FINISHER', a.Type, b.YieldType, 1
+FROM Improvements a, Helper b
+WHERE a.CreatedByGreatPerson = 1 OR a.Type = 'IMPROVEMENT_LANDMARK';
+
+DROP TABLE Helper;
 
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
@@ -212,6 +211,7 @@ WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';
 
 INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
-SELECT Type, 'YIELD_FOOD', 1
+SELECT
+	Type, 'YIELD_FOOD', 1
 FROM Policies
 WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';
