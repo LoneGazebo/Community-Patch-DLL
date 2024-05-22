@@ -128,6 +128,8 @@ local YieldTypes = YieldTypes
 local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
 local g_isAdvisor = true
 
+local g_isDisableBuildingBonusHighlights = g_options.GetValue( "DisableBuildingBonusHighlights" ) == 1
+
 local g_isSeparateCityProductionEUI = g_options.GetValue( "SeparateCityProduction" ) == 1
 --print("Separate City Production: "..tostring(g_isSeparateCityProductionEUI))
 
@@ -1251,6 +1253,7 @@ local function handleBuildOrder( city, orderID, itemID )
 end
 
 local function ChangeHoverBuildingDisplay(city, itemID)
+	if g_isDisableBuildingBonusHighlights then return end
 	Events.ClearHexHighlightStyle("BoostedResourcePlot")
 	g_HoverBuildingID = itemID
 
