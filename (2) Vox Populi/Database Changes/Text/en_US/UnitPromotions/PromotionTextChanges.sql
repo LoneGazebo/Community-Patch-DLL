@@ -267,15 +267,15 @@ WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_HELP';
 
 -- Scouting
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight.'
+SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight.'
+SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.'
+SET Text = '+1 [ICON_MOVES] Movement and Embarked Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_3_HELP';
 
 -- Survivalism
@@ -669,7 +669,6 @@ UPDATE Language_en_US
 SET Text = '-15% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
--- Enhanced Medic
 UPDATE Language_en_US
 SET Text = 'Khaaaan!'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
@@ -685,7 +684,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_GAIN_EXPERIENCE_HELP';
 
 -- Trade Mission Bonus
 UPDATE Language_en_US
-SET Text = '+100% [ICON_GOLD] Gold from performing a [COLOR_POSITIVE_TEXT]Trade Mission[ENDCOLOR].'
+SET Text = '+100% [ICON_GOLD] Gold from performing a [COLOR_POSITIVE_TEXT]Trade Mission[ENDCOLOR].[NEWLINE]+2 [ICON_MOVES] Embarked Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_TRADE_MISSION_BONUS_HELP';
 
 -- Heavy Charge
