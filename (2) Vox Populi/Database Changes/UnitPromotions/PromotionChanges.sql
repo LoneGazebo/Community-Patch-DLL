@@ -201,8 +201,8 @@ VALUES
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'TERRAIN_DESERT', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'TERRAIN_SNOW', 1);
 
-UPDATE UnitPromotions SET VisibilityChange = 1 WHERE Type IN ('PROMOTION_SCOUTING_1', 'PROMOTION_SCOUTING_2');
-UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_SCOUTING_3';
+UPDATE UnitPromotions SET VisibilityChange = 1, EmbarkExtraVisibility = 1 WHERE Type IN ('PROMOTION_SCOUTING_1', 'PROMOTION_SCOUTING_2');
+UPDATE UnitPromotions SET MovesChange = 1, ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_SCOUTING_3';
 
 UPDATE UnitPromotions SET EmbarkFlatCost = 1, DisembarkFlatCost = 1, Amphib = 1, River = 1 WHERE Type = 'PROMOTION_FROGMAN';
 
