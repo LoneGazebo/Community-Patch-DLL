@@ -16,7 +16,8 @@ VALUES
 INSERT INTO Trait_YieldFromXMilitaryUnits
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_ENHANCED_CULTURE', 'YIELD_CULTURE', 10);
+	('TRAIT_ENHANCED_CULTURE', 'YIELD_CULTURE', 10),
+	('TRAIT_ENHANCED_CULTURE', 'YIELD_TOURISM', 10);
 
 ----------------------------------------------------------
 -- Unique Unit: Musketeer (Tercio)
