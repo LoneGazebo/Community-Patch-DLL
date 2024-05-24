@@ -63,7 +63,6 @@ public:
 #endif
 
 	int GetTilesPerGoody() const;
-	int GetGoodyUniqueRange() const;
 	int GetFeatureGrowthProbability() const;
 	int GetUpgradeTime() const;
 	int GetRiverSideUpgradeMod() const;
@@ -238,7 +237,6 @@ protected:
 #endif
 
 	int m_iTilesPerGoody;
-	int m_iGoodyUniqueRange;
 	int m_iFeatureGrowthProbability;
 	int m_iUpgradeTime;
 	int m_iRiverSideUpgradeMod;

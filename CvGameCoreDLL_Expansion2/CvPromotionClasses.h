@@ -284,7 +284,6 @@ public:
 	int GetAdjacentCityDefenseMod() const;
 	int GetNearbyEnemyDamage() const;
 	int GetMilitaryProductionModifier() const;
-	bool IsHighSeaRaider() const;
 	int GetGeneralGoldenAgeExpPercent() const;
 	int GetGiveCombatMod() const;
 	int GetGiveHPIfEnemyKilled() const;
@@ -609,7 +608,6 @@ protected:
 	int m_iAdjacentCityDefesneMod;
 	int m_iNearbyEnemyDamage;
 	int m_iMilitaryProductionModifier;
-	bool m_bHighSeaRaider;
 	int m_iGeneralGoldenAgeExpPercent;
 	int m_iGiveCombatMod;
 	int m_iGiveHPHealedIfEnemyKilled;

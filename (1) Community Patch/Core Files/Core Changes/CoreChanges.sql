@@ -79,32 +79,6 @@ UPDATE UnitPromotions
 SET EmbarkExtraVisibility = EmbarkExtraVisibility - 1
 WHERE EmbarkExtraVisibility > 1;
 
--- Resource Priority Changes
-
-UPDATE Resources
-SET AITradeModifier = 30
-WHERE Type = 'RESOURCE_URANIUM';
-
-UPDATE Resources
-SET AITradeModifier = 30
-WHERE Type = 'RESOURCE_ALUMINUM';
-
-UPDATE Resources
-SET AITradeModifier = 25
-WHERE Type = 'RESOURCE_OIL';
-
-UPDATE Resources
-SET AITradeModifier = 25
-WHERE Type = 'RESOURCE_COAL';
-
-UPDATE Resources
-SET AITradeModifier = 20
-WHERE Type = 'RESOURCE_IRON';
-
-UPDATE Resources
-SET AITradeModifier = 20
-WHERE Type = 'RESOURCE_HORSES';
-
 -- Build times (to compensate for build turn fix)
 UPDATE Builds
 SET Time = Time - 100

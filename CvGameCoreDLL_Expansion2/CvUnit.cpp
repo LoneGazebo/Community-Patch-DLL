@@ -333,7 +333,6 @@ CvUnit::CvUnit() :
 	, m_bInfoBarDirty()
 	, m_bNotConverting()
 	, m_bAirCombat()
-	, m_bSetUpForRangedAttack()
 	, m_bEmbarked()
 	, m_bPromotedFromGoody()
 	, m_bAITurnProcessed()
@@ -439,7 +438,6 @@ CvUnit::CvUnit() :
 	, m_iNearbyEnemyCityCombatMod()
 	, m_iPillageBonusStrengthPercent()
 	, m_iStackedGreatGeneralExperience()
-	, m_iIsHighSeaRaider()
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
 	, m_iNearbyEnemyDamage()
@@ -1543,7 +1541,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyEnemyCityCombatMod = 0;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
-	m_iIsHighSeaRaider = false;
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
@@ -1670,7 +1667,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bInfoBarDirty = false;
 	m_bNotConverting = false;
 	m_bAirCombat = false;
-	m_bSetUpForRangedAttack = false;
 	m_bEmbarked = false;
 	m_bPromotedFromGoody = false;
 	m_bAITurnProcessed = false;
@@ -18243,22 +18239,6 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncl
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetCombatLimit() const
-{
-	VALIDATE_OBJECT
-	return m_pUnitInfo->GetCombatLimit();
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::GetRangedCombatLimit() const
-{
-	VALIDATE_OBJECT
-	return m_pUnitInfo->GetRangedCombatLimit();
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::isWaiting() const
 {
 	VALIDATE_OBJECT
@@ -18339,23 +18319,6 @@ int CvUnit::experienceNeeded() const
 
 	return iExperienceNeeded;
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::attackXPValue() const
-{
-	VALIDATE_OBJECT
-	return m_pUnitInfo->GetXPValueAttack();
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::defenseXPValue() const
-{
-	VALIDATE_OBJECT
-	return m_pUnitInfo->GetXPValueDefense();
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::maxXPValue() const
@@ -18648,21 +18611,6 @@ void CvUnit::ChangeStackedGreatGeneralExperience(int iExperience)
 {
 	VALIDATE_OBJECT
 	m_iStackedGreatGeneralExperience += iExperience;
-}
-void CvUnit::ChangeIsHighSeaRaider(int iValue)
-{
-	VALIDATE_OBJECT
-	m_iIsHighSeaRaider += iValue;
-}
-int CvUnit::GetIsHighSeaRaider() const
-{
-	VALIDATE_OBJECT
-	return	m_iIsHighSeaRaider;
-}
-bool CvUnit::isHighSeaRaider() const
-{
-	VALIDATE_OBJECT
-	return GetIsHighSeaRaider() > 0;
 }
 int CvUnit::getWonderProductionModifier() const
 {
@@ -27860,7 +27808,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
-		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);
 		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
 		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
 		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
@@ -28609,7 +28556,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNearbyEnemyCityCombatMod);
 	visitor(unit.m_iPillageBonusStrengthPercent);
 	visitor(unit.m_iStackedGreatGeneralExperience);
-	visitor(unit.m_iIsHighSeaRaider);
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
 	visitor(unit.m_iNearbyEnemyDamage);
@@ -28711,7 +28657,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_bInfoBarDirty);
 	visitor(unit.m_bNotConverting);
 	visitor(unit.m_bAirCombat);
-	visitor(unit.m_bSetUpForRangedAttack);
 	visitor(unit.m_bEmbarked);
 	visitor(unit.m_bPromotedFromGoody);
 	visitor(unit.m_bAITurnProcessed);

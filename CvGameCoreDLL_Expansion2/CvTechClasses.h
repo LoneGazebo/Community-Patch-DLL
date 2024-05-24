@@ -34,8 +34,6 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	// Accessor Functions (Non-Arrays)
-	int GetAIWeight() const;
-	int GetAITradeModifier() const;
 	int GetResearchCost() const;
 	int GetEra() const;
 	int GetFeatureProductionModifier() const;
@@ -116,8 +114,6 @@ public:
 #endif
 
 private:
-	int m_iAIWeight;
-	int m_iAITradeModifier;
 	int m_iResearchCost;
 	int m_iEra;
 	int m_iFeatureProductionModifier;
