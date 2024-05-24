@@ -76,7 +76,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 #endif
 	m_iCultureAdjacentSameType(0),
 	m_iTilesPerGoody(0),
-	m_iGoodyUniqueRange(0),
 	m_iFeatureGrowthProbability(0),
 	m_iUpgradeTime(0),
 	m_iRiverSideUpgradeMod(0),
@@ -309,7 +308,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bGoody = kResults.GetBool("Goody");
 	m_bPermanent = kResults.GetBool("Permanent");
 	m_iTilesPerGoody = kResults.GetInt("TilesPerGoody");
-	m_iGoodyUniqueRange = kResults.GetInt("GoodyRange");
 	m_iFeatureGrowthProbability = kResults.GetInt("FeatureGrowth");
 	m_iUpgradeTime = kResults.GetInt("UpgradeTime");
 	m_iRiverSideUpgradeMod = kResults.GetInt("RiverSideUpgradeMod");
@@ -822,12 +820,6 @@ int CvImprovementEntry::GetYieldAdjacentTwoSameType(YieldTypes eYield) const
 int CvImprovementEntry::GetTilesPerGoody() const
 {
 	return m_iTilesPerGoody;
-}
-
-/// How far goody huts need to be away from each other
-int CvImprovementEntry::GetGoodyUniqueRange() const
-{
-	return m_iGoodyUniqueRange;
 }
 
 /// How likely this improvement is to expand into an adjacent tile

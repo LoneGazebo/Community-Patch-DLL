@@ -5843,22 +5843,10 @@ bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //======================================================================================================
 //					CvResourceClassInfo
 //======================================================================================================
-CvResourceClassInfo::CvResourceClassInfo() :
-	m_iUniqueRange(0)
-{
-}
-//------------------------------------------------------------------------------
-int CvResourceClassInfo::getUniqueRange() const
-{
-	return m_iUniqueRange;
-}
-//------------------------------------------------------------------------------
 bool CvResourceClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
-
-	m_iUniqueRange = kResults.GetInt("UniqueRange");
 
 	return true;
 }
@@ -5876,27 +5864,13 @@ CvResourceInfo::CvResourceInfo() :
 	m_iTechObsolete(0),
 	m_iAIStopTradingEra(-1),
 	m_iStartingResourceQuantity(0),
-	m_iAITradeModifier(0),
-	m_iAIObjective(0),
 	m_iHappiness(0),
 	m_iWonderProductionMod(0),
 	m_eWonderProductionModObsoleteEra(NO_ERA),
 	m_iMinAreaSize(0),
 	m_iMinLatitude(0),
 	m_iMaxLatitude(0),
-	m_iPlacementOrder(0),
-	m_iConstAppearance(0),
-	m_iRandAppearance1(0),
-	m_iRandAppearance2(0),
-	m_iRandAppearance3(0),
-	m_iRandAppearance4(0),
 	m_eResourceUsage(RESOURCEUSAGE_BONUS),
-	m_iPercentPerPlayer(0),
-	m_iTilesPer(0),
-	m_iMinLandPercent(0),
-	m_iUniqueRange(0),
-	m_iGroupRange(0),
-	m_iGroupRand(0),
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness(0),
 	m_iMonopolyGALength(0),
@@ -5907,7 +5881,6 @@ CvResourceInfo::CvResourceInfo() :
 	m_bHills(false),
 	m_bFlatlands(false),
 	m_bNoRiverSide(false),
-	m_bNormalize(false),
 	m_bOnlyMinorCivs(false),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_piYieldChange(NULL),
@@ -6003,16 +5976,6 @@ int CvResourceInfo::getStartingResourceQuantity() const
 	return m_iStartingResourceQuantity;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getAITradeModifier() const
-{
-	return m_iAITradeModifier;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getAIObjective() const
-{
-	return m_iAIObjective;
-}
-//------------------------------------------------------------------------------
 int CvResourceInfo::getHappiness() const
 {
 	return m_iHappiness;
@@ -6043,69 +6006,9 @@ int CvResourceInfo::getMaxLatitude() const
 	return m_iMaxLatitude;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getPlacementOrder() const
-{
-	return m_iPlacementOrder;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getConstAppearance() const
-{
-	return m_iConstAppearance;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getRandAppearance1() const
-{
-	return m_iRandAppearance1;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getRandAppearance2() const
-{
-	return m_iRandAppearance2;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getRandAppearance3() const
-{
-	return m_iRandAppearance3;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getRandAppearance4() const
-{
-	return m_iRandAppearance4;
-}
-//------------------------------------------------------------------------------
 ResourceUsageTypes CvResourceInfo::getResourceUsage() const
 {
 	return m_eResourceUsage;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getPercentPerPlayer() const
-{
-	return m_iPercentPerPlayer;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getTilesPer() const
-{
-	return m_iTilesPer;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getMinLandPercent() const
-{
-	return m_iMinLandPercent;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getUniqueRange() const
-{
-	return m_iUniqueRange;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getGroupRange() const
-{
-	return m_iGroupRange;
-}
-//------------------------------------------------------------------------------
-int CvResourceInfo::getGroupRand() const
-{
-	return m_iGroupRand;
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvResourceInfo::getMonopolyHappiness() const
@@ -6165,11 +6068,6 @@ bool CvResourceInfo::isFlatlands() const
 bool CvResourceInfo::isNoRiverSide() const
 {
 	return m_bNoRiverSide;
-}
-//------------------------------------------------------------------------------
-bool CvResourceInfo::isNormalize() const
-{
-	return m_bNormalize;
 }
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isOnlyMinorCivs() const
@@ -6646,8 +6544,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Basic properties
 	m_iStartingResourceQuantity = kResults.GetInt("StartingResourceQuantity");
-	m_iAITradeModifier = kResults.GetInt("AITradeModifier");
-	m_iAIObjective = kResults.GetInt("AIObjective");
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iWonderProductionMod = kResults.GetInt("WonderProductionMod");
 
@@ -6657,15 +6553,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMinLatitude = kResults.GetInt("MinLatitude");
 	m_iMaxLatitude = kResults.GetInt("MaxLatitude");
-	m_iPlacementOrder = kResults.GetInt("PlacementOrder");
-	m_iConstAppearance = kResults.GetInt("ConstAppearance");
 
-	m_iPercentPerPlayer = kResults.GetInt("Player");
-	m_iTilesPer = kResults.GetInt("TilesPer");
-	m_iMinLandPercent = kResults.GetInt("MinLandPercent");
-	m_iUniqueRange = kResults.GetInt("Unique");
-	m_iGroupRange = kResults.GetInt("GroupRange");
-	m_iGroupRand = kResults.GetInt("GroupRand");
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness = kResults.GetInt("MonopolyHappiness");
 	m_iMonopolyGALength = kResults.GetInt("MonopolyGALength");
@@ -6681,16 +6569,10 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bHills = kResults.GetBool("Hills");
 	m_bFlatlands = kResults.GetBool("Flatlands");
 	m_bNoRiverSide = kResults.GetBool("NoRiverSide");
-	m_bNormalize = kResults.GetBool("Normalize");
 	m_bOnlyMinorCivs = kResults.GetBool("OnlyMinorCivs");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-
-	m_iRandAppearance1 = kResults.GetInt("RandApp1");
-	m_iRandAppearance2 = kResults.GetInt("RandApp2");
-	m_iRandAppearance3 = kResults.GetInt("RandApp3");
-	m_iRandAppearance4 = kResults.GetInt("RandApp4");
 
 	m_eResourceUsage   = (ResourceUsageTypes)kResults.GetInt("ResourceUsage");
 
@@ -6965,7 +6847,6 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iExtraTurnDamage(0),
 	m_iFirstFinderGold(0),
 	m_iInBorderHappiness(0),
-	m_iOccurrenceFrequency(0),
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
 #if defined(MOD_BALANCE_CORE)
 	m_iPrereqTechPassable(NO_TECH),
@@ -7084,11 +6965,6 @@ int CvFeatureInfo::getFirstFinderGold() const
 int CvFeatureInfo::getInBorderHappiness() const
 {
 	return m_iInBorderHappiness;
-}
-//------------------------------------------------------------------------------
-int CvFeatureInfo::getOccurrenceFrequency() const
-{
-	return m_iOccurrenceFrequency;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getAdjacentUnitFreePromotion() const
@@ -7334,7 +7210,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGrowthProbability = kResults.GetInt("Growth");
 	m_iFirstFinderGold = kResults.GetInt("FirstFinderGold");
 	m_iInBorderHappiness = kResults.GetInt("InBorderHappiness");
-	m_iOccurrenceFrequency = kResults.GetInt("OccurrenceFrequency");
 
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
@@ -7466,8 +7341,7 @@ CvYieldInfo::CvYieldInfo() :
 #endif
 	m_iGoldenAgeYield(0),
 	m_iGoldenAgeYieldThreshold(0),
-	m_iGoldenAgeYieldMod(0),
-	m_iAIWeightPercent(0)
+	m_iGoldenAgeYieldMod(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -7563,11 +7437,6 @@ int CvYieldInfo::getGoldenAgeYieldMod() const
 	return m_iGoldenAgeYieldMod;
 }
 //------------------------------------------------------------------------------
-int CvYieldInfo::getAIWeightPercent() const
-{
-	return m_iAIWeightPercent;
-}
-//------------------------------------------------------------------------------
 bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -7593,7 +7462,6 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kResults.GetValue("GoldenAgeYield", m_iGoldenAgeYield);
 	kResults.GetValue("GoldenAgeYieldThreshold", m_iGoldenAgeYieldThreshold);
 	kResults.GetValue("GoldenAgeYieldMod", m_iGoldenAgeYieldMod);
-	kResults.GetValue("AIWeightPercent", m_iAIWeightPercent);
 
 	return true;
 

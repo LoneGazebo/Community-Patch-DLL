@@ -1825,13 +1825,7 @@ private:
 class CvResourceClassInfo :	public CvBaseInfo
 {
 public:
-	CvResourceClassInfo();
-
-	int getUniqueRange() const;
-
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
-protected:
-	int m_iUniqueRange;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1853,26 +1847,12 @@ public:
 	int getTechObsolete() const;
 	int getAIStopTradingEra() const;
 	int getStartingResourceQuantity() const;
-	int getAITradeModifier() const;
-	int getAIObjective() const;
 	int getHappiness() const;
 	int getWonderProductionMod() const;
 	EraTypes getWonderProductionModObsoleteEra() const;
 	int getMinAreaSize() const;
 	int getMinLatitude() const;
 	int getMaxLatitude() const;
-	int getPlacementOrder() const;
-	int getConstAppearance() const;
-	int getRandAppearance1() const;
-	int getRandAppearance2() const;
-	int getRandAppearance3() const;
-	int getRandAppearance4() const;
-	int getPercentPerPlayer() const;
-	int getTilesPer() const;
-	int getMinLandPercent() const;
-	int getUniqueRange() const;
-	int getGroupRange() const;
-	int getGroupRand() const;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getMonopolyHappiness() const;
 	int getMonopolyGALength() const;
@@ -1957,25 +1937,11 @@ protected:
 	int m_iTechObsolete;
 	int m_iAIStopTradingEra;
 	int m_iStartingResourceQuantity;
-	int m_iAITradeModifier;
-	int m_iAIObjective;
 	int m_iHappiness;
 	int m_iWonderProductionMod;
 	int m_iMinAreaSize;
 	int m_iMinLatitude;
 	int m_iMaxLatitude;
-	int m_iPlacementOrder;
-	int m_iConstAppearance;
-	int m_iRandAppearance1;
-	int m_iRandAppearance2;
-	int m_iRandAppearance3;
-	int m_iRandAppearance4;
-	int m_iPercentPerPlayer;
-	int m_iTilesPer;
-	int m_iMinLandPercent;
-	int m_iUniqueRange;
-	int m_iGroupRange;
-	int m_iGroupRand;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int m_iMonopolyHappiness;
 	int m_iMonopolyGALength;
@@ -1993,7 +1959,6 @@ protected:
 	bool m_bHills;
 	bool m_bFlatlands;
 	bool m_bNoRiverSide;
-	bool m_bNormalize;
 	bool m_bOnlyMinorCivs;
 
 	CivilizationTypes m_eRequiredCivilization;
@@ -2054,7 +2019,6 @@ public:
 	int getExtraTurnDamage() const;
 	int getFirstFinderGold() const;
 	int getInBorderHappiness() const;
-	int getOccurrenceFrequency() const;
 	int getAdjacentUnitFreePromotion() const;
 #if defined(MOD_BALANCE_CORE)
 	int getPromotionIfOwned() const;
@@ -2128,7 +2092,6 @@ protected:
 	int m_iExtraTurnDamage;
 	int m_iFirstFinderGold;
 	int m_iInBorderHappiness;
-	int m_iOccurrenceFrequency;
 	int m_iAdjacentUnitFreePromotion;
 #if defined(MOD_BALANCE_CORE)
 	int m_iPromotionIfOwned;
@@ -2214,7 +2177,6 @@ public:
 	int getGoldenAgeYield() const;
 	int getGoldenAgeYieldThreshold() const;
 	int getGoldenAgeYieldMod() const;
-	int getAIWeightPercent() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2239,7 +2201,6 @@ protected:
 	int m_iGoldenAgeYield;
 	int m_iGoldenAgeYieldThreshold;
 	int m_iGoldenAgeYieldMod;
-	int m_iAIWeightPercent;
 };
 
 

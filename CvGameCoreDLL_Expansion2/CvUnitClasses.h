@@ -99,14 +99,10 @@ public:
 	int GetSpecialUnitCargoLoad() const;
 #endif
 	void SetCombat(int iNum);
-	int GetCombatLimit() const;
 	int GetRangedCombat() const;
-	int GetRangedCombatLimit() const;
 	bool IsCoastalFireOnly() const;
 	bool IsNoSupply() const;
 	int GetMaxHitPoints() const;
-	int GetXPValueAttack() const;
-	int GetXPValueDefense() const;
 	int GetSpecialCargo() const;
 	int GetDomainCargo() const;
 
@@ -171,7 +167,6 @@ public:
 	int GetTourismBonusTurns() const;
 	bool IsIgnoreBuildingDefense() const;
 	bool IsPrereqResources() const;
-	bool IsMechUnit() const;
 	bool IsSuicide() const;
 	bool IsCaptureWhileEmbarked() const;
 	bool IsRangeAttackOnlyInDomain() const;
@@ -330,14 +325,10 @@ private:
 	int m_iCargoCombat;
 	int m_iSpecialUnitCargoLoad;
 #endif
-	int m_iCombatLimit;
 	int m_iRangedCombat;
-	int m_iRangedCombatLimit;
 	bool m_bCoastalFire;
 	bool m_bNoSupply;
 	int m_iMaxHitPoints;
-	int m_iXPValueAttack;
-	int m_iXPValueDefense;
 	int m_iSpecialCargo;
 
 	int m_iDomainCargo;
@@ -418,7 +409,6 @@ private:
 	int m_iTourismBonusTurns;
 	bool m_bIgnoreBuildingDefense;
 	bool m_bPrereqResources;
-	bool m_bMechanized;
 	bool m_bSuicide;
 	bool m_bCaptureWhileEmbarked;
 	bool m_bRangeAttackOnlyInDomain;

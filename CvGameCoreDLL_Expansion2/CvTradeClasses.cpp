@@ -4963,18 +4963,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	if(pUnit && pUnit->isHighSeaRaiderUnit())
 	{
 		iPlunderGoldValue *= 3;
-		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
-			{
-				if(pkPromotionInfo->IsHighSeaRaider())
-				{
-					pUnit->setHasPromotion(eLoopPromotion, true);
-				}
-			}
-		}
 	}
 	iPlunderGoldValue /= 100;
 #endif

@@ -286,8 +286,6 @@ protected:
 	LUAAPIEXTN(SetBaseRangedCombatStrength, void, int);
 	static int lGetDamageCombatModifier(lua_State* L);
 	static int lGetMaxRangedCombatStrength(lua_State* L);
-	static int lGetCombatLimit(lua_State* L);
-	static int lGetRangedCombatLimit(lua_State* L);
 	static int lCanAirAttack(lua_State* L);
 	static int lCanAirDefend(lua_State* L);
 	static int lGetAirCombatDamage(lua_State* L);
@@ -305,8 +303,6 @@ protected:
 	static int lIsEverFortifyable(lua_State* L);
 	static int lFortifyModifier(lua_State* L);
 	static int lExperienceNeeded(lua_State* L);
-	static int lAttackXPValue(lua_State* L);
-	static int lDefenseXPValue(lua_State* L);
 	static int lMaxXPValue(lua_State* L);
 	static int lIsRanged(lua_State* L);
 	static int lIsMustSetUpToRangedAttack(lua_State* L);

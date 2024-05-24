@@ -3042,7 +3042,6 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("OneShotTourismPercentOthers");
 		AnalyzeUnit("IgnoreBuildingDefense");
 		AnalyzeUnit("PrereqResources");
-		AnalyzeUnit("Mechanized");
 		AnalyzeUnit("Suicide");
 		AnalyzeUnit("CaptureWhileEmbarked");
 		AnalyzeUnit("HurryCostModifier");
@@ -3066,13 +3065,9 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("RequiresEnhancedReligion");
 		AnalyzeUnit("ProhibitsSpread");
 		AnalyzeUnit("CanBuyCityState");
-		--AnalyzeUnit("CombatLimit", ""); -- intrernal
-		-- AnalyzeUnit("RangedCombatLimit"); -- internal
 		AnalyzeUnit("RangeAttackOnlyInDomain");
 		AnalyzeUnit("RangeAttackIgnoreLOS");
 		AnalyzeUnit("NumExoticGoods", "");
-		--AnalyzeUnit("XPValueAttack", ""); -- internal
-		--AnalyzeUnit("XPValueDefense", ""); -- internal
 		AnalyzeUnit("DomainCargo", "Domains", "Cargo domain");
 		AnalyzeUnit("SpecialCargo", "SpecialUnits", "Special cargo");
 		AnalyzeUnit("SpecialUnitCargoLoad", "SpecialUnits", "Special cargo load");
@@ -3488,7 +3483,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("AdjacentCityDefenseMod");
 		AnalyzePromotion("NearbyEnemyDamage", "");
 		AnalyzePromotion("MilitaryProductionModifier");
-		AnalyzePromotion("HighSeaRaider");
 		AnalyzePromotion("AuraRangeChange", "");
 		AnalyzePromotion("AuraEffectChange", "");
 		AnalyzePromotion("NearbyHealEnemyTerritory");

@@ -282,8 +282,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(SetBaseRangedCombatStrength);
 	Method(GetDamageCombatModifier);
 	Method(GetMaxRangedCombatStrength);
-	Method(GetCombatLimit);
-	Method(GetRangedCombatLimit);
 	Method(CanAirAttack);
 	Method(CanAirDefend);
 	Method(GetAirCombatDamage);
@@ -300,8 +298,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsEverFortifyable);
 	Method(FortifyModifier);
 	Method(ExperienceNeeded);
-	Method(AttackXPValue);
-	Method(DefenseXPValue);
 	Method(MaxXPValue);
 	Method(IsRanged);
 	Method(IsMustSetUpToRangedAttack);
@@ -3250,26 +3246,6 @@ int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int combatLimit();
-int CvLuaUnit::lGetCombatLimit(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->GetCombatLimit();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetRangedCombatLimit();
-int CvLuaUnit::lGetRangedCombatLimit(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->GetRangedCombatLimit();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //bool canAirAttack();
 int CvLuaUnit::lCanAirAttack(lua_State* L)
 {
@@ -3461,26 +3437,6 @@ int CvLuaUnit::lExperienceNeeded(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->experienceNeeded();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int attackXPValue();
-int CvLuaUnit::lAttackXPValue(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->attackXPValue();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int defenseXPValue();
-int CvLuaUnit::lDefenseXPValue(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->defenseXPValue();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

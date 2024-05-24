@@ -91,14 +91,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iCargoCombat(0),
 	m_iSpecialUnitCargoLoad(NO_SPECIALUNIT),
 #endif
-	m_iCombatLimit(0),
 	m_iRangedCombat(0),
-	m_iRangedCombatLimit(0),
 	m_bCoastalFire(false),
 	m_bNoSupply(false),
 	m_iMaxHitPoints(100),
-	m_iXPValueAttack(0),
-	m_iXPValueDefense(0),
 	m_iSpecialCargo(0),
 	m_iDomainCargo(0),
 	m_iExtraMaintenanceCost(0),
@@ -154,7 +150,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iTourismBonusTurns(0),
 	m_bIgnoreBuildingDefense(false),
 	m_bPrereqResources(false),
-	m_bMechanized(false),
 	m_bSuicide(false),
 	m_bCaptureWhileEmbarked(false),
 	m_bRangeAttackOnlyInDomain(false),
@@ -324,14 +319,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bCanChangePort = kResults.GetBool("CanChangePort");
 #endif
 	m_iCombat = kResults.GetInt("Combat");
-	m_iCombatLimit = kResults.GetInt("CombatLimit");
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
-	m_iRangedCombatLimit = kResults.GetInt("RangedCombatLimit");
 	m_bCoastalFire = kResults.GetBool("CoastalFireOnly");
 	m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
 	m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
-	m_iXPValueAttack = kResults.GetInt("XPValueAttack");
-	m_iXPValueDefense = kResults.GetInt("XPValueDefense");
 	m_iExtraMaintenanceCost = kResults.GetInt("ExtraMaintenanceCost");
 	m_bNoMaintenance = kResults.GetBool("NoMaintenance");
 	m_iUnhappiness = kResults.GetInt("Unhappiness");
@@ -364,7 +355,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iTourismBonusTurns = kResults.GetInt("TourismBonusTurns");
 	m_bIgnoreBuildingDefense = kResults.GetBool("IgnoreBuildingDefense");
 	m_bPrereqResources = kResults.GetBool("PrereqResources");
-	m_bMechanized = kResults.GetBool("Mechanized");
 	m_bSuicide = kResults.GetBool("Suicide");
 	m_bCaptureWhileEmbarked = kResults.GetBool("CaptureWhileEmbarked");
 	m_bRangeAttackOnlyInDomain = kResults.GetBool("RangeAttackOnlyInDomain");
@@ -1046,22 +1036,10 @@ void CvUnitEntry::SetCombat(int iNum)
 	m_iCombat = iNum;
 }
 
-/// Maximum damage to enemy
-int CvUnitEntry::GetCombatLimit() const
-{
-	return m_iCombatLimit;
-}
-
 /// Bombard combat value
 int CvUnitEntry::GetRangedCombat() const
 {
 	return m_iRangedCombat;
-}
-
-/// Maximum damage to enemy in bombard
-int CvUnitEntry::GetRangedCombatLimit() const
-{
-	return m_iRangedCombatLimit;
 }
 
 bool CvUnitEntry::IsCoastalFireOnly() const
@@ -1079,18 +1057,6 @@ bool CvUnitEntry::IsNoSupply() const
 int CvUnitEntry::GetMaxHitPoints() const
 {
 	return m_iMaxHitPoints;
-}
-
-/// Experience point value when attacking
-int CvUnitEntry::GetXPValueAttack() const
-{
-	return m_iXPValueAttack;
-}
-
-/// Experience point value when defending
-int CvUnitEntry::GetXPValueDefense() const
-{
-	return m_iXPValueDefense;
 }
 
 /// Is there a special unit this unit carries (e.g. Nuclear Sub carries Nuclear missile)
@@ -1399,12 +1365,6 @@ bool CvUnitEntry::IsIgnoreBuildingDefense() const
 bool CvUnitEntry::IsPrereqResources() const
 {
 	return m_bPrereqResources;
-}
-
-/// Mechanized unit?
-bool CvUnitEntry::IsMechUnit() const
-{
-	return m_bMechanized;
 }
 
 /// Suicide attack unit?

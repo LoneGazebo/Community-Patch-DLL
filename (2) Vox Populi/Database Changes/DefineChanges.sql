@@ -107,9 +107,6 @@ UPDATE Defines SET Value = 1.35 WHERE Name = 'CULTURE_COST_LATER_PLOT_EXPONENT';
 -- % Extra gold cost to buy a resource tile
 UPDATE Defines SET Value = 0 WHERE Name = 'PLOT_BUY_RESOURCE_COST';
 
--- Unused
-UPDATE Defines SET Value = 0 WHERE Name = 'PLOT_BUY_NW_COST';
-
 -- Population required for training settlers
 UPDATE Defines SET Value = 4 WHERE Name = 'CITY_MIN_SIZE_FOR_SETTLERS';
 
@@ -348,9 +345,6 @@ UPDATE Defines SET Value = 10 WHERE Name = 'MINOR_CIV_BUYOUT_TURNS';
 
 -- Sane value in case gold gift is re-enabled
 UPDATE Defines SET Value = 18 WHERE Name = 'GOLD_GIFT_FRIENDSHIP_DIVISOR';
-
--- First meeting gold, unused in VP
-UPDATE Defines SET Value = 20 WHERE Name = 'MINOR_CIV_CONTACT_GOLD_OTHER';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Policies
