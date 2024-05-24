@@ -12321,7 +12321,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	iCost /= iDivisor;
 	iCost *= iDivisor;
 
-	return iCost;
+	return max(/*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR), iCost);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12760,7 +12760,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	iCost /= iDivisor;
 	iCost *= iDivisor;
 
-	return iCost;
+	return max(/*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR), iCost);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12843,7 +12843,7 @@ int CvCity::GetPurchaseCost(ProjectTypes eProject)
 	iCost /= iDivisor;
 	iCost *= iDivisor;
 
-	return iCost;
+	return max(/*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR), iCost);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12857,31 +12857,24 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 	int iPurchaseCost = (int)pow((double)iPurchaseCostBase, (double) /*0.75f in CP, 0.68f in VP*/ GD_FLOAT_GET(HURRY_GOLD_PRODUCTION_EXPONENT));
 
 	// Hurry Mod (Policies, etc.)
-	HurryTypes eHurry = (HurryTypes)GC.getInfoTypeForString("HURRY_GOLD");
-
+	HurryTypes eHurry = static_cast<HurryTypes>(GC.getInfoTypeForString("HURRY_GOLD"));
 	if (eHurry != NO_HURRY)
 	{
 		int iHurryMod = GET_PLAYER(getOwner()).getHurryModifier(eHurry);
+		iHurryMod += getHurryModifier(eHurry);
 
 		if (iHurryMod != 0)
 		{
 			iPurchaseCost *= (100 + iHurryMod);
 			iPurchaseCost /= 100;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if (getHurryModifier(eHurry) != 0)
-		{
-			iPurchaseCost *= (100 + getHurryModifier(eHurry));
-			iPurchaseCost /= 100;
-		}
-#endif
 	}
 
 	// Game Speed modifier
 	iPurchaseCost *= GC.getGame().getGameSpeedInfo().getHurryPercent();
 	iPurchaseCost /= 100;
 
-	return iPurchaseCost;
+	return max(0, iPurchaseCost);
 }
 
 //	--------------------------------------------------------------------------------
