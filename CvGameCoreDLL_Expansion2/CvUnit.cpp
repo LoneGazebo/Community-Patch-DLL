@@ -13706,7 +13706,7 @@ bool CvUnit::blastTourism()
 	if (iTourismBlastAfterModifier > 0 && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 	{
 		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-		SHOW_PLOT_POPUP(pPlot, getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourismBlastAfterModifier));
+		SHOW_PLOT_POPUP(pPlot, getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourismBlastAfterModifier).c_str());
 	}
 
 	// Achievements
