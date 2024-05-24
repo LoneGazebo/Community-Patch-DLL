@@ -2997,7 +2997,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (iNewImprovementDamage != iOldImprovementDamage)
 				{
 					sState.mExtraDamageToAdjacent[pDirectivePlot->GetPlotIndex()] = iNewImprovementDamage - iOldImprovementDamage;
-					bDefenseStateChanged;
+					bDefenseStateChanged = true;
 				}
 			}
 

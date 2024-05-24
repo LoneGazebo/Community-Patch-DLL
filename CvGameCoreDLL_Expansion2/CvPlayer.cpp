@@ -28661,7 +28661,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								if (pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 								{
 									InfluenceLevelTypes eLevel = GetCulture()->GetInfluenceLevel(pPlot->getOwner());
-									SHOW_PLOT_POPUP(pPlot, GetID(), CultureHelpers::GetInfluenceText(eLevel, iValue));
+									SHOW_PLOT_POPUP(pPlot, GetID(), CultureHelpers::GetInfluenceText(eLevel, iValue).c_str());
 								}
 							}
 						}

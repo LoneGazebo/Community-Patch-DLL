@@ -2527,7 +2527,7 @@ void CvPlayerTrade::MoveUnits (void)
 										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
 										{
 											InfluenceLevelTypes eLevel = kOriginPlayer.GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
-											SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourism));
+											SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourism).c_str());
 
 											CvNotifications* pNotification = kOriginPlayer.GetNotifications();
 											if (pNotification)

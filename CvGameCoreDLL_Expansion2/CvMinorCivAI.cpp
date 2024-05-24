@@ -6532,6 +6532,9 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 
 bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1, int iData2)
 {
+	if (IsGlobalQuest(eQuest))
+		return false;
+
 	bool bCompareData1 = false;
 	bool bCompareData2 = false;
 
@@ -6557,24 +6560,10 @@ bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTy
 		bCompareData1 = true;
 		bCompareData2 = true;
 		break;
-	case MINOR_CIV_QUEST_ROUTE:
-	case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
-	case MINOR_CIV_QUEST_GIVE_GOLD:
-	case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
-	case MINOR_CIV_QUEST_SPREAD_RELIGION:
-	case MINOR_CIV_QUEST_TRADE_ROUTE:
-	case MINOR_CIV_QUEST_EXPLORE_AREA:
-		break; // Duplicates are allowed (except Find Natural Wonder and Explore Area, which have separate handling).
-	case MINOR_CIV_QUEST_KILL_CAMP:
-	case MINOR_CIV_QUEST_KILL_CITY_STATE:
-	case MINOR_CIV_QUEST_INVEST:
-	case MINOR_CIV_QUEST_INFLUENCE:
-	case MINOR_CIV_QUEST_CONTEST_TOURISM:
-	case MINOR_CIV_QUEST_ARCHAEOLOGY:
-	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
-	case MINOR_CIV_QUEST_HORDE:
-	case MINOR_CIV_QUEST_REBELLION:
-		return false; // These are not personal quests.
+	default: // Duplicates are allowed (except Find Natural Wonder and Explore Area, which have separate handling).
+		if (IsPersonalQuest(eQuest))
+			break;
+		UNREACHABLE();
 	}
 
 	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
@@ -7200,28 +7189,18 @@ bool CvMinorCivAI::IsGlobalQuest(MinorCivQuestTypes eQuest) const
 {
 	switch (eQuest)
 	{
-	case MINOR_CIV_QUEST_KILL_CAMP:
-		return true;
 	case MINOR_CIV_QUEST_KILL_CITY_STATE:
 		return MOD_BALANCE_VP; // Kill another City-State differs between CP and VP
+	case MINOR_CIV_QUEST_KILL_CAMP:
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
-		return true;
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
-		return true;
 	case MINOR_CIV_QUEST_CONTEST_FAITH:
-		return true;
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
-		return true;
 	case MINOR_CIV_QUEST_INVEST:
-		return true;
 	case MINOR_CIV_QUEST_INFLUENCE:
-		return true;
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
-		return true;
 	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
-		return true;
 	case MINOR_CIV_QUEST_HORDE:
-		return true;
 	case MINOR_CIV_QUEST_REBELLION:
 		return true;
 	default:
