@@ -81,8 +81,6 @@ public:
 	int GetAllFeatureProduction() const;
 	int GetImprovementCostModifier() const;
 	int GetImprovementUpgradeRateModifier() const;
-	int GetSpecialistProductionModifier() const;
-	int GetSpecialistUpgradeModifier() const;
 	int GetMilitaryProductionModifier() const;
 	int GetBaseFreeUnits() const;
 	int GetBaseFreeMilitaryUnits() const;
@@ -547,8 +545,6 @@ private:
 	int m_iAllFeatureProduction;
 	int m_iImprovementCostModifier;
 	int m_iImprovementUpgradeRateModifier;
-	int m_iSpecialistProductionModifier;
-	int m_iSpecialistUpgradeModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iBaseFreeUnits;
 	int m_iBaseFreeMilitaryUnits;

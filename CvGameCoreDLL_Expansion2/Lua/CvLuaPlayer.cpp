@@ -139,7 +139,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanTrain);
 	Method(CanConstruct);
 	Method(CanCreate);
-	Method(CanPrepare);
 	Method(CanMaintain);
 
 	Method(IsCanPurchaseAnyCity);
@@ -583,7 +582,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionModifier);
 	Method(GetBuildingProductionModifier);
 	Method(GetProjectProductionModifier);
-	Method(GetSpecialistProductionModifier);
 	Method(GetMaxGlobalBuildingProductionModifier);
 	Method(GetMaxTeamBuildingProductionModifier);
 	Method(GetMaxPlayerBuildingProductionModifier);
@@ -2393,12 +2391,6 @@ int CvLuaPlayer::lCanConstruct(lua_State* L)
 int CvLuaPlayer::lCanCreate(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::canCreate);
-}
-//------------------------------------------------------------------------------
-//bool canPrepare(SpecialistTypes  eSpecialist, bool bContinue);
-int CvLuaPlayer::lCanPrepare(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::canPrepare);
 }
 //------------------------------------------------------------------------------
 //bool canMaintain(ProcessTypes  eProcess, bool bContinue);
@@ -7739,14 +7731,6 @@ int CvLuaPlayer::lGetProjectProductionModifier(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ProjectTypes eProject = (ProjectTypes)luaL_checkinteger(L, 2);
 	lua_pushinteger(L, pkPlayer->getProductionModifier(eProject));
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lGetSpecialistProductionModifier(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)luaL_checkinteger(L, 2);
-	lua_pushinteger(L, pkPlayer->getProductionModifier(eSpecialist));
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -265,7 +265,6 @@ public:
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
-	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoinCity() const;
 
@@ -380,7 +379,6 @@ public:
 	bool isProductionUnit() const;
 	bool isProductionBuilding() const;
 	bool isProductionProject() const;
-	bool isProductionSpecialist() const;
 	bool isProductionProcess() const;
 
 	bool canContinueProduction(OrderData order);
@@ -391,7 +389,6 @@ public:
 	UnitAITypes getProductionUnitAI() const;
 	BuildingTypes getProductionBuilding() const;
 	ProjectTypes getProductionProject() const;
-	SpecialistTypes getProductionSpecialist() const;
 	ProcessTypes getProductionProcess() const;
 	const char* getProductionName() const;
 	const char* getProductionNameKey() const;
@@ -403,7 +400,6 @@ public:
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
 	bool isBuildingInQueue(BuildingTypes eBuilding) const;
 	int getFirstProjectOrder(ProjectTypes eProject) const;
-	int getFirstSpecialistOrder(SpecialistTypes eSpecialist) const;
 	int getNumTrainUnitAI(UnitAITypes eUnitAI) const;
 
 	int getProduction() const;
@@ -412,13 +408,11 @@ public:
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreInvestment = false) const;
 	int getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreInvestment = false) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
-	int getProductionNeeded(SpecialistTypes eSpecialist) const;
 	int getProductionTurnsLeft() const;
 	int getUnitTotalProductionTurns(UnitTypes eUnit) const;
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
-	int getProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum) const;
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getProductionNeeded(ProcessTypes eProcess) const;
 	int getProductionTurnsLeft(ProcessTypes eProcess, int iNum) const;
@@ -455,7 +449,6 @@ public:
 	int getProductionModifier(UnitTypes eUnit, _In_opt_ CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
 	int getProductionModifier(BuildingTypes eBuilding, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProjectTypes eProject, _In_opt_ CvString* toolTipSink = NULL) const;
-	int getProductionModifier(SpecialistTypes eSpecialist, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProcessTypes eProcess, _In_opt_ CvString* toolTipSink = NULL) const;
 
 	int getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow) const;
@@ -1446,13 +1439,6 @@ public:
 	void setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue);
 	void changeProjectProductionTimes100(ProjectTypes eIndex, int iChange);
 
-	int getSpecialistProduction(SpecialistTypes eIndex) const;
-	void setSpecialistProduction(SpecialistTypes eIndex, int iNewValue);
-	void changeSpecialistProduction(SpecialistTypes eIndex, int iChange);
-	int getSpecialistProductionTimes100(SpecialistTypes eIndex) const;
-	void setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewValue);
-	void changeSpecialistProductionTimes100(SpecialistTypes eIndex, int iChange);
-
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getProcessProduction(ProcessTypes eIndex) const;
 	int getProcessProductionTimes100(ProcessTypes eIndex) const;
@@ -1590,7 +1576,6 @@ public:
 	void produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit = NO_UNITAI, bool bCanOverflow = true);
 	void produce(BuildingTypes eConstructBuilding, bool bCanOverflow = true);
 	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
-	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
 	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT);
 	bool CreateBuilding(BuildingTypes eBuildingType);
@@ -2103,7 +2088,6 @@ protected:
 	std::vector<int> m_paiNumResourcesLocal;
 	std::vector<int> m_paiNumUnimprovedResourcesLocal;
 	std::vector<int> m_paiProjectProduction;
-	std::vector<int> m_paiSpecialistProduction;
 	std::vector<int> m_paiUnitProduction;
 	std::vector<int> m_paiUnitProductionTime;
 	std::vector<int> m_paiSpecialistCount;
@@ -2495,7 +2479,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResource)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumUnimprovedResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProduction)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProductionTime)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistCount)

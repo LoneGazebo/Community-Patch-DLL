@@ -129,7 +129,6 @@ protected:
 	static int lCanTrain(lua_State* L);
 	static int lCanConstruct(lua_State* L);
 	static int lCanCreate(lua_State* L);
-	static int lCanPrepare(lua_State* L);
 	static int lCanMaintain(lua_State* L);
 
 	static int lIsCanPurchaseAnyCity(lua_State* L);
@@ -654,7 +653,6 @@ protected:
 	static int lGetUnitProductionModifier(lua_State* L);
 	static int lGetBuildingProductionModifier(lua_State* L);
 	static int lGetProjectProductionModifier(lua_State* L);
-	static int lGetSpecialistProductionModifier(lua_State* L);
 
 	static int lGetMaxGlobalBuildingProductionModifier(lua_State* L);
 	static int lGetMaxTeamBuildingProductionModifier(lua_State* L);
