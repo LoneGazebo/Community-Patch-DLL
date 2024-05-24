@@ -60,7 +60,6 @@ protected:
 	static int lCanConstruct(lua_State* L);
 	static int lCanCreateTooltip(lua_State* L);
 	static int lCanCreate(lua_State* L);
-	static int lCanPrepare(lua_State* L);
 	static int lCanMaintain(lua_State* L);
 
 	static int lGetPurchaseUnitTooltip(lua_State* L);
@@ -88,7 +87,6 @@ protected:
 	static int lIsProductionUnit(lua_State* L);
 	static int lIsProductionBuilding(lua_State* L);
 	static int lIsProductionProject(lua_State* L);
-	static int lIsProductionSpecialist(lua_State* L);
 	static int lIsProductionProcess(lua_State* L);
 
 	static int lCanContinueProduction(lua_State* L);
@@ -99,7 +97,6 @@ protected:
 	static int lGetProductionUnitAI(lua_State* L);
 	static int lGetProductionBuilding(lua_State* L);
 	static int lGetProductionProject(lua_State* L);
-	static int lGetProductionSpecialist(lua_State* L);
 	static int lGetProductionProcess(lua_State* L);
 	static int lGetProductionName(lua_State* L);
 	static int lGetProductionNameKey(lua_State* L);
@@ -107,7 +104,6 @@ protected:
 	static int lIsFoodProduction(lua_State* L);
 	static int lGetFirstUnitOrder(lua_State* L);
 	static int lGetFirstProjectOrder(lua_State* L);
-	static int lGetFirstSpecialistOrder(lua_State* L);
 
 	static int lGetNumTrainUnitAI(lua_State* L);
 	static int lGetFirstBuildingOrder(lua_State* L);
@@ -129,7 +125,6 @@ protected:
 	static int lGetUnitProductionTurnsLeft(lua_State* L);
 	static int lGetBuildingProductionTurnsLeft(lua_State* L);
 	static int lGetProjectProductionTurnsLeft(lua_State* L);
-	static int lGetSpecialistProductionTurnsLeft(lua_State* L);
 #if defined(MOD_PROCESS_STOCKPILE)
 	LUAAPIEXTN(GetProcessProductionTurnsLeft, int);
 #endif
@@ -156,7 +151,6 @@ protected:
 	static int lGetUnitProductionModifier(lua_State* L);
 	static int lGetBuildingProductionModifier(lua_State* L);
 	static int lGetProjectProductionModifier(lua_State* L);
-	static int lGetSpecialistProductionModifier(lua_State* L);
 
 	static int lGetExtraProductionDifference(lua_State* L);
 

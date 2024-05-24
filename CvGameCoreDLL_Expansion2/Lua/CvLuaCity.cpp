@@ -65,7 +65,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanConstruct);
 	Method(CanCreateTooltip);
 	Method(CanCreate);
-	Method(CanPrepare);
 	Method(CanMaintain);
 
 	Method(GetPurchaseUnitTooltip);
@@ -93,7 +92,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsProductionUnit);
 	Method(IsProductionBuilding);
 	Method(IsProductionProject);
-	Method(IsProductionSpecialist);
 	Method(IsProductionProcess);
 
 	Method(CanContinueProduction);
@@ -104,7 +102,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetProductionUnitAI);
 	Method(GetProductionBuilding);
 	Method(GetProductionProject);
-	Method(GetProductionSpecialist);
 	Method(GetProductionProcess);
 	//Method(GetProductionName);
 	Method(GetProductionNameKey);
@@ -112,7 +109,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsFoodProduction);
 	Method(GetFirstUnitOrder);
 	Method(GetFirstProjectOrder);
-	Method(GetFirstSpecialistOrder);
 
 	Method(GetOrderFromQueue);
 
@@ -138,7 +134,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionTurnsLeft);
 	Method(GetBuildingProductionTurnsLeft);
 	Method(GetProjectProductionTurnsLeft);
-	Method(GetSpecialistProductionTurnsLeft);
 #if defined(MOD_PROCESS_STOCKPILE)
 	Method(GetProcessProductionTurnsLeft);
 #endif
@@ -166,7 +161,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionModifier);
 	Method(GetBuildingProductionModifier);
 	Method(GetProjectProductionModifier);
-	Method(GetSpecialistProductionModifier);
 
 	Method(GetExtraProductionDifference);
 
@@ -1116,18 +1110,6 @@ int CvLuaCity::lCanCreate(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canPrepare( int iSpecialist, bool bContinue );
-int CvLuaCity::lCanPrepare(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const int iSpecialist = lua_tointeger(L, 2);
-	const bool bContinue = luaL_optint(L, 3, 0);
-	const bool bResult = pkCity->canPrepare((SpecialistTypes)iSpecialist, bContinue);
-
-	lua_pushboolean(L, bResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //bool canMaintain( int iProcess, bool bContinue );
 int CvLuaCity::lCanMaintain(lua_State* L)
 {
@@ -1621,12 +1603,6 @@ int CvLuaCity::lIsProductionProject(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::isProductionProject);
 }
 //------------------------------------------------------------------------------
-//bool isProductionSpecialist();
-int CvLuaCity::lIsProductionSpecialist(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::isProductionSpecialist);
-}
-//------------------------------------------------------------------------------
 //bool isProductionProcess();
 int CvLuaCity::lIsProductionProcess(lua_State* L)
 {
@@ -1702,16 +1678,6 @@ int CvLuaCity::lGetProductionProject(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//SpecialistTypes getProductionSpecialist()
-int CvLuaCity::lGetProductionSpecialist(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eValue = pkCity->getProductionSpecialist();
-
-	lua_pushinteger(L, eValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //ProcessTypes getProductionProcess()
 int CvLuaCity::lGetProductionProcess(lua_State* L)
 {
@@ -1750,12 +1716,6 @@ int CvLuaCity::lGetFirstUnitOrder(lua_State* L)
 int CvLuaCity::lGetFirstProjectOrder(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::getFirstProjectOrder);
-}
-//------------------------------------------------------------------------------
-//int getFirstSpecialistOrder(SpecialistTypes eSpecialist);
-int CvLuaCity::lGetFirstSpecialistOrder(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::getFirstSpecialistOrder);
 }
 //------------------------------------------------------------------------------
 //int getNumTrainUnitAI(UnitAITypes eUnitAI);
@@ -2064,12 +2024,6 @@ int CvLuaCity::lGetProjectProductionTurnsLeft(lua_State* L)
 {
 	return BasicLuaMethod<int, ProjectTypes>(L, &CvCity::getProductionTurnsLeft);
 }
-//------------------------------------------------------------------------------
-//int getSpecialistProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum);
-int CvLuaCity::lGetSpecialistProductionTurnsLeft(lua_State* L)
-{
-	return BasicLuaMethod<int, SpecialistTypes>(L, &CvCity::getProductionTurnsLeft);
-}
 #if defined(MOD_PROCESS_STOCKPILE)
 //------------------------------------------------------------------------------
 //int getProcessProductionTurnsLeft(ProcessTypes eProcess, int iNum);
@@ -2257,17 +2211,6 @@ int CvLuaCity::lGetProjectProductionModifier(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const ProjectTypes eProject = (ProjectTypes)lua_tointeger(L, 2);
 	const int iResult = pkCity->getProductionModifier(eProject);
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getSpecialistProductionModifier(SpecialistTypes eSpecialist);
-int CvLuaCity::lGetSpecialistProductionModifier(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
-	const int iResult = pkCity->getProductionModifier(eSpecialist);
 
 	lua_pushinteger(L, iResult);
 	return 1;

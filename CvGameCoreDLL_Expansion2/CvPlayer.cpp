@@ -240,7 +240,6 @@ CvPlayer::CvPlayer() :
 	, m_iWorkerSpeedModifier()
 	, m_iImprovementCostModifier()
 	, m_iImprovementUpgradeRateModifier()
-	, m_iSpecialistProductionModifier()
 	, m_iMilitaryProductionModifier()
 	, m_iSpaceProductionModifier()
 	, m_iBasePressureModifier()
@@ -1467,7 +1466,6 @@ void CvPlayer::uninit()
 	m_iWorkerSpeedModifier = 0;
 	m_iImprovementCostModifier = 0;
 	m_iImprovementUpgradeRateModifier = 0;
-	m_iSpecialistProductionModifier = 0;
 	m_iMilitaryProductionModifier = 0;
 	m_iSpaceProductionModifier = 0;
 	m_iBasePressureModifier = 0;
@@ -16033,35 +16031,6 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 	return true;
 }
 
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::canPrepare(SpecialistTypes eSpecialist, bool) const
-{
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(GetID());
-		args->Push(eSpecialist);
-
-		// Attempt to execute the game events.
-		// Will return false if there are no registered listeners.
-		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanPrepare", args.get(), bResult))
-		{
-			// Check the result.
-			if(!bResult)
-			{
-				return false;
-			}
-		}
-	}
-
-
-	return false;
-}
-
-
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canMaintain(ProcessTypes eProcess, bool) const
 {
@@ -16632,28 +16601,6 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	return std::max(1, iProductionNeeded);
 }
 
-//	--------------------------------------------------------------------------------
-int CvPlayer::getProductionNeeded(SpecialistTypes eSpecialist) const
-{
-	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if (pkSpecialistInfo == NULL)
-	{
-		// This should never happen! If this does, fix the calling function!
-		CvAssert(pkSpecialistInfo);
-		return 0;
-	}
-
-	int iProductionNeeded = pkSpecialistInfo->getCost();
-
-	iProductionNeeded *= GC.getGame().getGameSpeedInfo().getCreatePercent();
-	iProductionNeeded /= 100;
-
-	iProductionNeeded *= GC.getGame().getStartEraInfo().getCreatePercent();
-	iProductionNeeded /= 100;
-
-	return std::max(1, iProductionNeeded);
-}
-
 #if defined(MOD_PROCESS_STOCKPILE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getMaxStockpile() const
@@ -16825,19 +16772,6 @@ int CvPlayer::getProductionModifier(ProjectTypes eProject, CvString* toolTipSink
 		iMultiplier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE_PLAYER", iTempMod);
 	}
-
-	return iMultiplier;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getProductionModifier(SpecialistTypes, CvString* toolTipSink) const
-{
-	int iMultiplier = getProductionModifier(toolTipSink);
-	int iTempMod = 0;
-
-	iTempMod = getSpecialistProductionModifier();
-	iMultiplier += iTempMod;
-	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPECIALIST_PLAYER", iTempMod);
 
 	return iMultiplier;
 }
@@ -31039,21 +30973,6 @@ void CvPlayer::changeImprovementUpgradeRateModifier(int iChange)
 	m_iImprovementUpgradeRateModifier = (m_iImprovementUpgradeRateModifier + iChange);
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getSpecialistProductionModifier() const
-{
-	return m_iSpecialistProductionModifier;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeSpecialistProductionModifier(int iChange)
-{
-	m_iSpecialistProductionModifier = (m_iSpecialistProductionModifier + iChange);
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getMilitaryProductionModifier() const
 {
@@ -44736,7 +44655,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeWorkerSpeedModifier(pPolicy->GetWorkerSpeedModifier() * iChange);
 	changeImprovementCostModifier(pPolicy->GetImprovementCostModifier() * iChange);
 	changeImprovementUpgradeRateModifier(pPolicy->GetImprovementUpgradeRateModifier() * iChange);
-	changeSpecialistProductionModifier(pPolicy->GetSpecialistProductionModifier() * iChange);
 	changeMilitaryProductionModifier(pPolicy->GetMilitaryProductionModifier() * iChange);
 	changeBaseFreeUnits(pPolicy->GetBaseFreeUnits() * iChange);
 	ChangeHappinessPerGarrisonedUnit(pPolicy->GetHappinessPerGarrisonedUnit() * iChange);
@@ -47158,7 +47076,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iWorkerSpeedModifier);
 	visitor(player.m_iImprovementCostModifier);
 	visitor(player.m_iImprovementUpgradeRateModifier);
-	visitor(player.m_iSpecialistProductionModifier);
 	visitor(player.m_iMilitaryProductionModifier);
 	visitor(player.m_iSpaceProductionModifier);
 	visitor(player.m_iBasePressureModifier);

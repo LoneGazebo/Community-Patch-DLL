@@ -306,7 +306,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ORDER_TRAIN);
 	RegisterEnum(ORDER_CONSTRUCT);
 	RegisterEnum(ORDER_CREATE);
-	RegisterEnum(ORDER_PREPARE);
 	RegisterEnum(ORDER_MAINTAIN);
 	RegisterEnum(NUM_ORDER_TYPES);
 	EnumEnd(L);

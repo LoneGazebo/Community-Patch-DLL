@@ -71,8 +71,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iAllFeatureProduction(0),
 	m_iImprovementCostModifier(0),
 	m_iImprovementUpgradeRateModifier(0),
-	m_iSpecialistProductionModifier(0),
-	m_iSpecialistUpgradeModifier(0),
 	m_iMilitaryProductionModifier(0),
 	m_iBaseFreeUnits(0),
 	m_iBaseFreeMilitaryUnits(0),
@@ -558,8 +556,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iAllFeatureProduction = kResults.GetInt("AllFeatureProduction");
 	m_iImprovementCostModifier = kResults.GetInt("ImprovementCostModifier");
 	m_iImprovementUpgradeRateModifier = kResults.GetInt("ImprovementUpgradeRateModifier");
-	m_iSpecialistProductionModifier = kResults.GetInt("SpecialistProductionModifier");
-	m_iSpecialistUpgradeModifier = kResults.GetInt("SpecialistUpgradeModifier");
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_iBaseFreeUnits = kResults.GetInt("BaseFreeUnits");
 	m_iBaseFreeMilitaryUnits = kResults.GetInt("BaseFreeMilitaryUnits");
@@ -1705,18 +1701,6 @@ int CvPolicyEntry::GetImprovementCostModifier() const
 int CvPolicyEntry::GetImprovementUpgradeRateModifier() const
 {
 	return m_iImprovementUpgradeRateModifier;
-}
-
-/// Specialist production boost
-int CvPolicyEntry::GetSpecialistProductionModifier() const
-{
-	return m_iSpecialistProductionModifier;
-}
-
-/// Increase rate of Specialist growth
-int CvPolicyEntry::GetSpecialistUpgradeModifier() const
-{
-	return m_iSpecialistUpgradeModifier;
 }
 
 /// Military unit production boost

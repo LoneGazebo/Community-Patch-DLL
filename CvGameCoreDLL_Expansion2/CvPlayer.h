@@ -333,7 +333,6 @@ public:
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
-	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool IsCanPurchaseAnyCity(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnit, BuildingTypes eBuilding, YieldTypes ePurchaseYield);
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;
@@ -342,7 +341,6 @@ public:
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const;
 	int getProductionNeeded(BuildingTypes eBuilding) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
-	int getProductionNeeded(SpecialistTypes eSpecialist) const;
 
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getMaxStockpile() const;
@@ -352,7 +350,6 @@ public:
 	int getProductionModifier(UnitTypes eUnit, CvString* toolTipSink = NULL) const;
 	int getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProjectTypes eProject, CvString* toolTipSink = NULL) const;
-	int getProductionModifier(SpecialistTypes eSpecialist, CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProcessTypes eProcess, CvString* toolTipSink = NULL) const;
 
 	int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra = 0) const;
@@ -1232,9 +1229,6 @@ public:
 
 	int getImprovementUpgradeRateModifier() const;
 	void changeImprovementUpgradeRateModifier(int iChange);
-
-	int getSpecialistProductionModifier() const;
-	void changeSpecialistProductionModifier(int iChange);
 
 	int getMilitaryProductionModifier() const;
 	void changeMilitaryProductionModifier(int iChange);
@@ -3335,7 +3329,6 @@ protected:
 	int m_iWorkerSpeedModifier;
 	int m_iImprovementCostModifier;
 	int m_iImprovementUpgradeRateModifier;
-	int m_iSpecialistProductionModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iSpaceProductionModifier;
 	int m_iBasePressureModifier;
@@ -4180,7 +4173,6 @@ SYNC_ARCHIVE_VAR(int, m_iFeatureProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iWorkerSpeedModifier)
 SYNC_ARCHIVE_VAR(int, m_iImprovementCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iImprovementUpgradeRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iSpecialistProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iBasePressureModifier)
