@@ -924,7 +924,7 @@ SET Text = '[COLOR_POSITIVE_TEXT]Military-Industrial Complex[ENDCOLOR]: -33% [IC
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The military-industrial complex, or military-industrial-congressional complex, comprises the policy and monetary relationships which exist between legislators, national armed forces, and the arms industry that supports them. These relationships include political contributions, political approval for military spending, lobbying to support bureaucracies, and oversight of the industry. It is a type of iron triangle. The term is most often used in reference to the system behind the military of the United States, where it gained popularity after its use in the farewell address of President Dwight D. Eisenhower on January 17, 1961, though the term is applicable to any country with a similarly developed infrastructure'
+SET Text = 'The military-industrial complex, or military-industrial-congressional complex, comprises the policy and monetary relationships which exist between legislators, national armed forces, and the arms industry that supports them. These relationships include political contributions, political approval for military spending, lobbying to support bureaucracies, and oversight of the industry. It is a type of iron triangle. The term is most often used in reference to the system behind the military of the United States, where it gained popularity after its use in the farewell address of President Dwight D. Eisenhower on January 17, 1961, though the term is applicable to any country with a similarly developed infrastructure.'
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION_TEXT';
 
 UPDATE Language_en_US
