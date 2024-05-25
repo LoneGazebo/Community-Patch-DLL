@@ -461,10 +461,51 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	return defaultChoice;
 }
 
+//------------------------------------------------------------------------------
 void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B);
 pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B);
 pair<int,int> AddFractions(vector<int>& dividendList, vector<int>& divisorList);
 
+//------------------------------------------------------------------------------
+class fraction
+{
+private:
+	int num, den; // numerator, denominator
+
+	fraction checkOperands(const fraction &rhs);
+	bool isIdentical(const fraction &rhs) const;
+	int gcd(int a, int b);
+public:
+
+	fraction(int num = 0, int den = 1): num(num), den(den) { CvAssert(den != 0); }
+
+	fraction operator+(const fraction &rhs);
+	fraction operator-(const fraction &rhs);
+	fraction operator*(const fraction &rhs);
+	fraction operator/(const fraction &rhs);
+	fraction& operator+=(const fraction &rhs);
+	fraction& operator-=(const fraction &rhs);
+	fraction& operator*=(const fraction &rhs);
+	fraction& operator/=(const fraction &rhs);
+	bool operator==(const fraction &rhs) const;
+	inline bool operator!=(const fraction &rhs) const { return !operator==(rhs); };
+	bool operator<(const fraction &rhs) const;
+	inline bool operator<=(const fraction &rhs) const { return operator<(rhs) || operator==(rhs); };
+	inline bool operator>=(const fraction &rhs) const { return !operator<(rhs); };
+	inline bool operator>(const fraction &rhs) const { return !operator<(rhs) && !operator==(rhs); };
+	
+	friend fraction abs(const fraction &rhs);
+	friend bool operator==(const int lhs, const fraction &rhs);
+	friend bool operator!=(const int lhs, const fraction &rhs);
+	
+	fraction& Reduce();
+	int Truncate() const { return num / den; }
+
+	friend FDataStream& operator<<(FDataStream& saveTo, const fraction& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, fraction& writeTo);
+};
+
+//------------------------------------------------------------------------------
 void PrintMemoryInfo(const char* hint);
 
 #endif
