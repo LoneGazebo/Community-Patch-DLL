@@ -219,6 +219,10 @@ void CvGameTrade::InvalidateTradePathCache()
 		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
 		InvalidateTradePathCache(ePlayer1);
 	}
+	m_aPotentialTradePathsWater.clear();
+	m_aPotentialTradePathsWaterUi.clear();
+	m_aPotentialTradePathsLand.clear();
+	m_aPotentialTradePathsLandUi.clear();
 }
 
 void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
@@ -234,10 +238,6 @@ void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
 	m_lastTradePathUpdate[ePlayer] = -1;
 	m_lastTradePathUpdateUi[ePlayer] = -1;
-	m_aPotentialTradePathsWater.clear();
-	m_aPotentialTradePathsWaterUi.clear();
-	m_aPotentialTradePathsLand.clear();
-	m_aPotentialTradePathsLandUi.clear();
 }
 
 void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
@@ -4417,7 +4417,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 	int iCityLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		// Get a sorted list of nearby cities 
+		// Get a sorted list of nearby cities
 		const CvCityManager::CityList& kNearbyCities = CvCityManager::GetNearbyCities(pLoopCity);
 		for (CvCityManager::CityList::const_iterator itr = kNearbyCities.begin(); itr != kNearbyCities.end(); ++itr)
 		{
