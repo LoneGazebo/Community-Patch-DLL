@@ -62,7 +62,7 @@ function BuildStaticTeamsList()
         local pPlayer = Players[ iPlayer ];
         
         local bIsObserver = (pPlayer:IsObserver() and (PreGame.GetSlotClaim(pPlayer:GetID()) == SlotClaim.SLOTCLAIM_ASSIGNED));
-        if( pPlayer:IsAlive() or bIsObserver ) then
+        if( pPlayer:IsEverAlive() or bIsObserver ) then
             local iTeam = pPlayer:GetTeam();
             local pTeam = Teams[ iTeam ];
             
@@ -364,7 +364,7 @@ function BuildControls()
             local pPlayer = teamData;
 
             -- Make sure they're alive
-            if( pPlayer:IsAlive() ) then
+            if( pPlayer:IsEverAlive() ) then
                 local controlTable = {};
                 ContextPtr:BuildInstanceForControl( "PlayerEntry", controlTable, Controls.MPListStack );
                 g_PlayerEntries[ pPlayer:GetID() ] = controlTable;
