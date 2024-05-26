@@ -90,41 +90,35 @@ int SMovePlot::effectivePathLength(int iMovesPerTurn) const
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
+    : m_iColumns(0),
+      m_iRows(0),
+      m_iXstart(0),
+      m_iYstart(0),
+      m_iXdest(0),
+      m_iYdest(0),
+      m_iDestHitCount(0),
+      m_bWrapX(false),
+      m_bWrapY(false),
+      m_bHeapDirty(false),
+      udDestValid(NULL),
+      udHeuristic(NULL),
+      udCost(NULL),
+      udValid(NULL),
+      udGetExtraChildrenFunc(NULL),
+      udInitializeFunc(NULL),
+      udUninitializeFunc(NULL),
+      m_pBest(NULL),
+      m_ppaaNodes(NULL),
+      m_ppaaNeighbors(NULL),
+      m_iCurrentGenerationID(0),
+      m_iProcessedNodes(0),
+      m_iTestedNodes(0),
+      m_iRounds(0),
+      m_iBasicPlotCost(1),
+      m_iMovesCached(0),
+      m_iTurnsCached(0),
+      m_strName("AStar") // for debugging
 {
-	m_iColumns = 0;
-	m_iRows = 0;
-	m_iXstart = 0;
-	m_iYstart = 0;
-	m_iXdest = 0;
-	m_iYdest = 0;
-	m_iDestHitCount = 0;
-
-	m_bWrapX = false;
-	m_bWrapY = false;
-	m_bHeapDirty = false;
-
-	udDestValid = NULL;
-	udHeuristic = NULL;
-	udCost = NULL;
-	udValid = NULL;
-	udGetExtraChildrenFunc = NULL;
-	udInitializeFunc = NULL;
-	udUninitializeFunc = NULL;
-
-	m_pBest = NULL;
-	m_ppaaNodes = NULL;
-	m_ppaaNeighbors = NULL;
-
-	m_iCurrentGenerationID = 0;
-	m_iProcessedNodes = 0;
-	m_iTestedNodes = 0;
-	m_iRounds = 0;
-	m_iBasicPlotCost = 1;
-	m_iMovesCached = 0;
-	m_iTurnsCached = 0;
-
-	//for debugging
-	m_strName = "AStar";
 }
 
 //	--------------------------------------------------------------------------------
@@ -3774,22 +3768,22 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 }
 
 //	---------------------------------------------------------------------------
-//convenience constructor
+// Convenience constructor
 SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType)
+    : ePath(_ePathType),
+      iFlags(0),
+      iMaxTurns(INT_MAX),
+      ePlayer(_ePlayer),
+      eEnemy(NO_PLAYER),
+      iUnitID(0),
+      eBuild(NO_BUILD),
+      eRoute(NO_ROUTE),
+      iMaxNormalizedDistance(INT_MAX),
+      iMinMovesLeft(0),
+      iStartMoves(0),
+      eRoutePurpose(NO_ROUTE_PURPOSE),
+      bUseRivers(false)
 {
-	ePath = _ePathType;
-	iFlags = 0;
-	iMaxTurns = INT_MAX;
-	ePlayer = _ePlayer;
-	eEnemy = NO_PLAYER;
-	iUnitID = 0;
-	eBuild = NO_BUILD;
-	eRoute = NO_ROUTE;
-	iMaxNormalizedDistance = INT_MAX;
-	iMinMovesLeft = 0;
-	iStartMoves = 0;
-	eRoutePurpose = NO_ROUTE_PURPOSE;
-	bUseRivers = false;
 }
 
 //	---------------------------------------------------------------------------

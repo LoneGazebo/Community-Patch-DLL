@@ -212,19 +212,19 @@ CvCity * CvReligion::GetHolyCity() const
 //=====================================
 /// Default Constructor
 CvReligionInCity::CvReligionInCity()
+    : m_eReligion(NO_RELIGION),
+      m_iFollowers(0),
+      m_iPressure(0),
+      m_iNumTradeRoutesApplyingPressure(0)
 {
-	m_eReligion = NO_RELIGION;
-	m_iFollowers = 0;
-	m_iPressure = 0;
-	m_iNumTradeRoutesApplyingPressure = 0;
 }
 
 /// Constructor
-CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, int iFollowers, int iPressure) :
-	m_eReligion(eReligion),
-	m_iFollowers(iFollowers),
-	m_iPressure(iPressure),
-	m_iNumTradeRoutesApplyingPressure(0)
+CvReligionInCity::CvReligionInCity(ReligionTypes eReligion, int iFollowers, int iPressure)
+    : m_eReligion(eReligion),
+      m_iFollowers(iFollowers),
+      m_iPressure(iPressure),
+      m_iNumTradeRoutesApplyingPressure(0)
 {
 }
 

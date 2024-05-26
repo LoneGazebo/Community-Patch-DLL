@@ -33,13 +33,13 @@
 
 /// Constructor
 CvAIOperation::CvAIOperation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, AIOperationTypes eType, ArmyType eMoveType)
+    : m_iID(iID),
+      m_eOwner(eOwner),
+      m_eEnemy(eEnemy),
+      m_eType(eType),
+      m_eArmyType(eMoveType)
 {
-	m_iID = iID;
-	m_eOwner = eOwner;
-	m_eEnemy = eEnemy;
-	m_eType = eType;
-	m_eArmyType = eMoveType;
-	Reset();
+    Reset();
 }
 
 /// Destructor
