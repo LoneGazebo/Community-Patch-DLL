@@ -146,7 +146,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAdjacentCity(false),
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
-	m_bRestoreMoves(0),
+	m_bRestoreMoves(false),
 #endif
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
