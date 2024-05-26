@@ -53077,7 +53077,7 @@ void CvPlayer::DoVassalLevy()
 							continue;
 
 						// Must be combat unit
-						if (!(pUnitInfo->GetCombat() > 0 || pUnitInfo->GetRangedCombat() > 0))
+						if (pUnitInfo->GetCombat() <= 0 && pUnitInfo->GetRangedCombat() <= 0)
 							continue;
 
 						if (IsUnitValidForVassalLevy(eVassalUnit, kTeamLoop, pLoopCity, false))
