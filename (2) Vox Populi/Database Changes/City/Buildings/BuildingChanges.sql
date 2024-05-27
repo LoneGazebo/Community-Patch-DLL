@@ -381,37 +381,16 @@ WHERE Type = 'BUILDING_HOSPITAL';
 UPDATE Buildings
 SET
 	AlwaysHeal = 15,
-	PovertyFlatReduction = 1
+	PovertyFlatReduction = 1,
+	NoUnhappfromXSpecialists = 2
 WHERE BuildingClass = 'BUILDINGCLASS_HOSPITAL';
 
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_SpecialistYieldChanges
+	(BuildingType, SpecialistType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_FOOD', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_HOSPITAL';
-
-INSERT INTO Building_YieldFromYieldPercent
-	(BuildingType, YieldIn, YieldOut, Value)
-SELECT
-	Type, 'YIELD_FOOD', 'YIELD_SCIENCE', 5
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_HOSPITAL';
-
-INSERT INTO Building_YieldChangesPerPop
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_FOOD', 10
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_HOSPITAL';
-
--- Medical Lab
-UPDATE Buildings
-SET
-	PopulationChange = 2,
-	FoodKept = 15,
-	PovertyFlatReduction = 1
-WHERE BuildingClass = 'BUILDINGCLASS_MEDICAL_LAB';
+	a.Type, b.Type, 'YIELD_FOOD', 1
+FROM Buildings a, Specialists b
+WHERE a.BuildingClass = 'BUILDINGCLASS_HOSPITAL' and b.GreatPeopleUnitClass IS NOT NULL;
 
 INSERT INTO Helper
 	(SpecialistType, YieldType)
@@ -425,9 +404,30 @@ INSERT INTO Building_SpecialistYieldChangesLocal
 SELECT
 	a.Type, b.SpecialistType, b.YieldType, 2
 FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_MEDICAL_LAB';
+WHERE a.BuildingClass = 'BUILDINGCLASS_HOSPITAL';
 
 DELETE FROM Helper;
+
+-- Medical Lab
+UPDATE Buildings
+SET
+	PopulationChange = 2,
+	FoodKept = 15
+WHERE BuildingClass = 'BUILDINGCLASS_MEDICAL_LAB';
+
+INSERT INTO Building_YieldFromBirth
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_SCIENCE', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MEDICAL_LAB';
+
+INSERT INTO Building_YieldFromBirthRetroactive
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_SCIENCE', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MEDICAL_LAB';
 
 ----------------------------------------------------------------------------
 -- Science line
@@ -442,9 +442,9 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_GROVE';
 
 INSERT INTO Building_YieldFromBirth
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 SELECT
-	Type, 'YIELD_SCIENCE', 5
+	Type, 'YIELD_SCIENCE', 5, 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_GROVE';
 
@@ -1851,9 +1851,9 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
 
 INSERT INTO Building_YieldFromBirth
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 SELECT
-	Type, 'YIELD_CULTURE', 15
+	Type, 'YIELD_CULTURE', 15, 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
 

@@ -1183,6 +1183,8 @@ public:
 
 	int GetYieldFromBirth(YieldTypes eIndex) const;
 	void ChangeYieldFromBirth(YieldTypes eIndex, int iChange);
+	int GetYieldFromBirthEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldFromBirthEraScaling(YieldTypes eIndex, int iChange);
 	int GetYieldFromUnitProduction(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange);
 	int GetYieldFromBorderGrowth(YieldTypes eIndex) const;
@@ -1986,6 +1988,7 @@ protected:
 	std::vector<int> m_aiYieldFromConstruction;
 	std::vector<int> m_aiYieldFromTech;
 	std::vector<int> m_aiYieldFromBirth;
+	std::vector<int> m_aiYieldFromBirthEraScaling;
 	std::vector<int> m_aiYieldFromUnitProduction;
 	std::vector<int> m_aiYieldFromBorderGrowth;
 	std::vector<int> m_aiYieldFromPolicyUnlock;
@@ -2390,6 +2393,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirthEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)

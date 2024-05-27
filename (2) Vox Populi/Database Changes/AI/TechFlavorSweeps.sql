@@ -294,7 +294,8 @@ VALUES
 
 	--------------------------------------------------------------
 
-	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 25), -- Buildings: Hospital, International Finance Center, Wonders: StatueofLiberty, Improvement: Faster Chop
+	('TECH_BIOLOGY', 'FLAVOR_GREAT_PEOPLE', 25), -- Buildings: Hospital, International Finance Center, Wonders: StatueofLiberty, Improvement: Faster Chop
+	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 15),
 	('TECH_BIOLOGY', 'FLAVOR_WONDER', 5),
 
 	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Ability: +1 TR

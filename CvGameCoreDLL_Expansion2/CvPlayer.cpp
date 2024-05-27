@@ -27540,43 +27540,50 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
-					iValue += ((pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield)) * max(1, iPassYield));
-					if (pReligion)
+					if (bEraScale)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield);
-					}
-					if (pLoopCity->isCapital())
-					{
-						iValue += getYieldFromBirthCapital(eYield) * max(1, iPassYield);
-					}
-					//Scale it here to avoid scaling the growth yield below.
-					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
-					{
-						iValue *= iEra;
-					}
+						iValue += ((pLoopCity->GetYieldFromBirthEraScaling(eYield) + getYieldFromBirth(eYield)) * max(1, iPassYield));
+						if (pReligion)
+						{
+							iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield);
+						}
+						if (pLoopCity->isCapital())
+						{
+							iValue += getYieldFromBirthCapital(eYield) * max(1, iPassYield);
+						}
+						//Scale it here to avoid scaling the growth yield below.
+						if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+						{
+							iValue *= iEra;
+						}
 
-					//And now on growth % bonuses.
-					int iCurrentYield = 0;
+						//And now on growth % bonuses.
+						int iCurrentYield = 0;
 
-					if(eYield == YIELD_CULTURE)
-					{
-						iCurrentYield = pLoopCity->getJONSCulturePerTurn();
-					}
-					else if (eYield == YIELD_FAITH)
-					{
-						iCurrentYield = pLoopCity->GetFaithPerTurn();
+						if(eYield == YIELD_CULTURE)
+						{
+							iCurrentYield = pLoopCity->getJONSCulturePerTurn();
+						}
+						else if (eYield == YIELD_FAITH)
+						{
+							iCurrentYield = pLoopCity->GetFaithPerTurn();
+						}
+						else
+						{
+							iCurrentYield = pLoopCity->getYieldRate(eYield, false);
+						}
+						if(iCurrentYield != 0)
+						{
+							iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * max(1, iPassYield));
+							if(iValue <= 0 && pLoopCity->GetGrowthExtraYield(eYield) > 0)
+							{
+								iValue = 1;
+							}
+						}
 					}
 					else
 					{
-						iCurrentYield = pLoopCity->getYieldRate(eYield, false);
-					}
-					if(iCurrentYield != 0)
-					{
-						iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * max(1, iPassYield));
-						if(iValue <= 0 && pLoopCity->GetGrowthExtraYield(eYield) > 0)
-						{
-							iValue = 1;
-						}
+						iValue = pLoopCity->GetYieldFromBirth(eYield);
 					}
 					break;
 				}
@@ -46491,7 +46498,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				int iVal = pLoopCity->getPopulation() * pPolicy->GetYieldFromBirthRetroactive(eYield);
-				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, pLoopCity, false, true, false, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, pLoopCity, false, false, false, eYield);
 			}
 		}
 
@@ -46500,7 +46507,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			if (getCapitalCity() != NULL)
 			{
 				int iVal = getCapitalCity()->getPopulation() * pPolicy->GetYieldFromBirthCapitalRetroactive(eYield);
-				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, false, false, eYield);
 			}
 		}
 #endif

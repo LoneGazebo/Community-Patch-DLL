@@ -28,11 +28,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 -- Medical Lab
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. [ICON_VP_SCIENTIST] Scientists, [ICON_VP_MERCHANT] Merchants, and [ICON_VP_ENGINEER] Engineers in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
+SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Gain 50 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in the City (not scaling with Era).'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15% and boosts the City''s Science production from specialists. The City needs to have a Hospital in order to construct the Medical Lab.'
+SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%, immediately increases the City''s size, and generates instant [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen born in the City (applying retroactively). The City needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
 
 -- Garden

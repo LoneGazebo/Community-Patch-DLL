@@ -336,6 +336,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromProcessModifier(NULL),
 
 	m_piYieldFromBirth(NULL),
+	m_piYieldFromBirthEraScaling(NULL),
+	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
@@ -474,6 +476,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
 	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthEraScaling);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
@@ -968,7 +972,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
+	kUtility.SetYields(m_piYieldFromBirthEraScaling, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
+	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Building_YieldFromBirthRetroactive", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
@@ -3286,6 +3292,28 @@ int* CvBuildingEntry::GetYieldFromBirthArray() const
 {
 	return m_piYieldFromBirth;
 }
+int CvBuildingEntry::GetYieldFromBirthEraScaling(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthEraScaling[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromBirthEraScalingArray() const
+{
+	return m_piYieldFromBirthEraScaling;
+}
+int CvBuildingEntry::GetYieldFromBirthRetroactive(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthRetroactive[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromBirthRetroactiveArray() const
+{
+	return m_piYieldFromBirthRetroactive;
+}
 int CvBuildingEntry::GetYieldFromUnitProduction(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -4925,6 +4953,9 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 			continue;
 
 		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
+			return false;
+
+		if (kBuilding.GetYieldFromBirthRetroactive((YieldTypes)iYieldLoop) > 0)
 			return false;
 	}
 #endif

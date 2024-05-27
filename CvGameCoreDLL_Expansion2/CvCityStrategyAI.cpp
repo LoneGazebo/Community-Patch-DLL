@@ -3956,6 +3956,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetInstantYield(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromBirthRetroactive(eYield) > 0)
+	{
+		iInstant += pCity->getPopulation() * pkBuildingInfo->GetYieldFromBirthRetroactive(eYield);
+	}
 	if (pkBuildingInfo->GetGrowthExtraYield(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetGrowthExtraYield(eYield);
