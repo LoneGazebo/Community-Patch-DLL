@@ -499,8 +499,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetPillageChange);
 	Method(GetUpgradeDiscount);
 	Method(GetExperiencePercent);
-	Method(GetKamikazePercent);
-
 
 	Method(IsOutOfAttacks);
 	Method(SetMadeAttack);
@@ -5312,16 +5310,6 @@ int CvLuaUnit::lGetExperiencePercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const int iResult = pkUnit->getExperiencePercent();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getKamikazePercent() const;
-int CvLuaUnit::lGetKamikazePercent(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-	const int iResult = pkUnit->getKamikazePercent();
 
 	lua_pushinteger(L, iResult);
 	return 1;

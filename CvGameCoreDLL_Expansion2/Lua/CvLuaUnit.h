@@ -46,7 +46,6 @@ protected:
 	static int lGetMeleeAttackFromPlot(lua_State* L);
 
 	static int lCanEnterTerritory(lua_State* L);
-	static int lCanEnterArea(lua_State* L);
 	static int lGetDeclareWarRangeStrike(lua_State* L);
 	static int lCanMoveOrAttackInto(lua_State* L);
 	static int lCanMoveThrough(lua_State* L);
@@ -113,17 +112,11 @@ protected:
 	static int lGetExoticGoodsGoldAmount(lua_State* L);
 	static int lGetExoticGoodsXPAmount(lua_State* L);
 
-	static int lCanAirBomb(lua_State* L);
-	static int lCanAirBombAt(lua_State* L);
-
-	static int lBombardTarget(lua_State* L);
-	static int lCanBombard(lua_State* L);
 	static int lCanPillage(lua_State* L);
 
 	static int lIsSelected(lua_State* L);
 
 	static int lCanFound(lua_State* L);
-	static int lCanSpread(lua_State* L);
 
 	static int lCanJoin(lua_State* L);
 	static int lCanConstruct(lua_State* L);
@@ -508,7 +501,6 @@ protected:
 	static int lGetPillageChange(lua_State* L);
 	static int lGetUpgradeDiscount(lua_State* L);
 	static int lGetExperiencePercent(lua_State* L);
-	static int lGetKamikazePercent(lua_State* L);
 
 	static int lIsOutOfAttacks(lua_State* L);
 	static int lSetMadeAttack(lua_State* L);

@@ -1105,10 +1105,6 @@ public:
 	int GetTotalScienceyAid() const;
 	void SetTotalScienceyAid(int iValue);
 
-	void ChangeTotalGreatWorkAid(int iChange);
-	int GetTotalGreatWorkAid() const;
-	void SetTotalGreatWorkAid(int iValue);
-
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 
@@ -1932,7 +1928,6 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
-	int m_iTotalGreatWorkAid;
 	std::vector<int> m_aiChangeGrowthExtraYield;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
@@ -2074,11 +2069,6 @@ protected:
 	std::vector<int> m_paiProjectProduction;
 	std::vector<int> m_paiUnitProduction;
 	std::vector<int> m_paiUnitProductionTime;
-	std::vector<int> m_paiSpecialistCount;
-	std::vector<int> m_paiMaxSpecialistCount;
-	std::vector<int> m_paiForceSpecialistCount;
-	std::vector<int> m_paiFreeSpecialistCount;
-	std::vector<int> m_paiImprovementFreeSpecialists;
 	std::vector<int> m_paiUnitCombatFreeExperience;
 	std::vector<int> m_paiUnitCombatProductionModifier;
 	std::map<PromotionTypes, int> m_paiFreePromotionCount;
@@ -2327,7 +2317,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromMisc)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromLeague)
 SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
 SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
-SYNC_ARCHIVE_VAR(int, m_iTotalGreatWorkAid)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromEmpire)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
@@ -2455,11 +2444,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumUnimprovedResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProductionTime)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiMaxSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiForceSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementFreeSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifier)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_paiFreePromotionCount)

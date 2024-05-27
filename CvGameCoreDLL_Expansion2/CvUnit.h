@@ -1518,9 +1518,6 @@ public:
 	int getExperiencePercent() const;
 	void changeExperiencePercent(int iChange);
 
-	int getKamikazePercent() const;
-	void changeKamikazePercent(int iChange);
-
 	DirectionTypes getFacingDirection(bool checkLineOfSightProperty) const;
 	void setFacingDirection(DirectionTypes facingDirection);
 	void rotateFacingDirectionClockwise();
@@ -2180,7 +2177,6 @@ protected:
 	int m_iDropRange;
 	int m_iAirSweepCapableCount;
 	int m_iExtraNavalMoves;
-	int m_iKamikazePercent;
 	DirectionTypes m_eFacingDirection;
 	int m_iIgnoreTerrainCostCount;
 	int m_iIgnoreTerrainDamageCount;
@@ -2626,7 +2622,6 @@ SYNC_ARCHIVE_VAR(int, m_iExperiencePercent)
 SYNC_ARCHIVE_VAR(int, m_iDropRange)
 SYNC_ARCHIVE_VAR(int, m_iAirSweepCapableCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraNavalMoves)
-SYNC_ARCHIVE_VAR(int, m_iKamikazePercent)
 SYNC_ARCHIVE_VAR(DirectionTypes, m_eFacingDirection)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainCostCount)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainDamageCount)
