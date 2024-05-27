@@ -749,11 +749,6 @@ public:
 	int defenseXPValue() const;
 	int maxXPValue() const;
 
-	int firstStrikes() const;
-	int chanceFirstStrikes() const;
-	int maxFirstStrikes() const;
-
-	bool immuneToFirstStrikes() const;
 	bool ignoreBuildingDefense() const;
 
 	bool ignoreTerrainCost() const;
@@ -1158,10 +1153,6 @@ public:
 	void setCombatTimer(int iNewValue);
 	void changeCombatTimer(int iChange);
 
-	int getCombatFirstStrikes() const;
-	void setCombatFirstStrikes(int iNewValue);
-	void changeCombatFirstStrikes(int iChange);
-
 	int GetMapLayer() const;
 	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
@@ -1241,8 +1232,6 @@ public:
 	int getLandAirDefenseValue() const;
 	void changeLandAirDefenseValue(int iChange);
 #endif
-	int getImmuneToFirstStrikesCount() const;
-	void changeImmuneToFirstStrikesCount(int iChange);
 
 	int getExtraVisibilityRange() const;
 	void changeExtraVisibilityRange(int iChange);
@@ -1278,12 +1267,6 @@ public:
 
 	int getExtraEvasion() const;
 	void changeExtraEvasion(int iChange);
-
-	int getExtraFirstStrikes() const;
-	void changeExtraFirstStrikes(int iChange);
-
-	int getExtraChanceFirstStrikes() const;
-	void changeExtraChanceFirstStrikes(int iChange);
 
 	int getExtraWithdrawal() const;
 	void changeExtraWithdrawal(int iChange);
@@ -2105,7 +2088,6 @@ protected:
 	int m_iAttackPlotX;
 	int m_iAttackPlotY;
 	int m_iCombatTimer;
-	int m_iCombatFirstStrikes;
 	bool m_bMovedThisTurn;
 	bool m_bHasWithdrawnThisTurn;
 	bool m_bFortified;
@@ -2143,7 +2125,6 @@ protected:
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
 #endif
-	int m_iImmuneToFirstStrikesCount;
 	int m_iExtraVisibilityRange;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int m_iExtraReconRange;
@@ -2153,8 +2134,6 @@ protected:
 	int m_iExtraRange;
 	int m_iInterceptChance;
 	int m_iExtraEvasion;
-	int m_iExtraFirstStrikes;
-	int m_iExtraChanceFirstStrikes;
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	ContractTypes m_eUnitContract;
@@ -2566,7 +2545,6 @@ SYNC_ARCHIVE_VAR(int, m_iCargoCapacity)
 SYNC_ARCHIVE_VAR(int, m_iAttackPlotX)
 SYNC_ARCHIVE_VAR(int, m_iAttackPlotY)
 SYNC_ARCHIVE_VAR(int, m_iCombatTimer)
-SYNC_ARCHIVE_VAR(int, m_iCombatFirstStrikes)
 SYNC_ARCHIVE_VAR(bool, m_bMovedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bHasWithdrawnThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bFortified)
@@ -2600,7 +2578,6 @@ SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
 SYNC_ARCHIVE_VAR(int, m_iLandAirDefenseValue)
-SYNC_ARCHIVE_VAR(int, m_iImmuneToFirstStrikesCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraVisibilityRange)
 SYNC_ARCHIVE_VAR(int, m_iExtraReconRange)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
@@ -2608,8 +2585,6 @@ SYNC_ARCHIVE_VAR(int, m_iExtraMoveDiscount)
 SYNC_ARCHIVE_VAR(int, m_iExtraRange)
 SYNC_ARCHIVE_VAR(int, m_iInterceptChance)
 SYNC_ARCHIVE_VAR(int, m_iExtraEvasion)
-SYNC_ARCHIVE_VAR(int, m_iExtraFirstStrikes)
-SYNC_ARCHIVE_VAR(int, m_iExtraChanceFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraWithdrawal)
 SYNC_ARCHIVE_VAR(ContractTypes, m_eUnitContract)
 SYNC_ARCHIVE_VAR(int, m_iNegatorPromotion)
