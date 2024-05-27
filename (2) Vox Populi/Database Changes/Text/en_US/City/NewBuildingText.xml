@@ -196,7 +196,7 @@
 
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
-			<Text>+1 [ICON_FOOD] Food for every 10 [ICON_CITIZEN] Citizens in the City. 5% of the City's [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Land Units in this City heal 15 points per turn whether or not they take an action. All Specialists in this City produce +1 [ICON_FOOD] Food, and 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. [ICON_VP_SCIENTIST] Scientists, [ICON_VP_MERCHANT] Merchants, and [ICON_VP_ENGINEER] Engineers in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 
 		<!-- Temple -->

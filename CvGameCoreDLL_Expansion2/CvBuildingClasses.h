@@ -467,6 +467,12 @@ public:
 	int GetYieldFromBirth(int i) const;
 	int* GetYieldFromBirthArray() const;
 
+	int GetYieldFromBirthEraScaling(int i) const;
+	int* GetYieldFromBirthEraScalingArray() const;
+
+	int GetYieldFromBirthRetroactive(int i) const;
+	int* GetYieldFromBirthRetroactiveArray() const;
+
 	int GetYieldFromUnitProduction(int i) const;
 	int* GetYieldFromUnitProductionArray() const;
 
@@ -995,6 +1001,8 @@ private:
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;
+	int* m_piYieldFromBirthEraScaling;
+	int* m_piYieldFromBirthRetroactive;
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;

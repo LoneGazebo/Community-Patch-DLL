@@ -16216,6 +16216,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromBirth(eYield, pBuildingInfo->GetYieldFromBirth(eYield) * iChange);
 			}
+			if ((pBuildingInfo->GetYieldFromBirthEraScaling(eYield) > 0))
+			{
+				ChangeYieldFromBirthEraScaling(eYield, pBuildingInfo->GetYieldFromBirthEraScaling(eYield) * iChange);
+			}
+			if ((pBuildingInfo->GetYieldFromBirthRetroactive(eYield) > 0))
+			{
+				int iVal = getPopulation() * pBuildingInfo->GetYieldFromBirthRetroactive(eYield);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, eBuilding, iVal, false, NO_PLAYER, NULL, false, this, false, true, false, eYield);
+			}
 			if ((pBuildingInfo->GetYieldFromUnitProduction(eYield) > 0))
 			{
 				ChangeYieldFromUnitProduction(eYield, pBuildingInfo->GetYieldFromUnitProduction(eYield) * iChange);
@@ -18588,6 +18597,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
 			if (!IsResistance() && iGameTurn > 0 && !bNoBonus)
 			{
+				// Two triggers: one era scaling and one not
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
 
 				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
@@ -25959,7 +25970,7 @@ void CvCity::ChangeYieldFromTech(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Instant yield from birth (not scaling with era)
 int CvCity::GetYieldFromBirth(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -25969,7 +25980,7 @@ int CvCity::GetYieldFromBirth(YieldTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Instant yield from birth (not scaling from era)
 void CvCity::ChangeYieldFromBirth(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
@@ -25978,8 +25989,32 @@ void CvCity::ChangeYieldFromBirth(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromBirth[eIndex] = m_aiYieldFromBirth[eIndex] + iChange;
+		m_aiYieldFromBirth[eIndex] += iChange;
 		CvAssert(GetYieldFromBirth(eIndex) >= 0);
+	}
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield from birth (scaling with era)
+int CvCity::GetYieldFromBirthEraScaling(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromBirthEraScaling[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Instant yield from birth (scaling with era)
+void CvCity::ChangeYieldFromBirthEraScaling(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromBirthEraScaling[eIndex] += iChange;
+		CvAssert(GetYieldFromBirthEraScaling(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -33361,6 +33396,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromConstruction);
 	visitor(city.m_aiYieldFromTech);
 	visitor(city.m_aiYieldFromBirth);
+	visitor(city.m_aiYieldFromBirthEraScaling);
 	visitor(city.m_aiYieldFromUnitProduction);
 	visitor(city.m_aiYieldFromBorderGrowth);
 	visitor(city.m_aiYieldFromPolicyUnlock);
