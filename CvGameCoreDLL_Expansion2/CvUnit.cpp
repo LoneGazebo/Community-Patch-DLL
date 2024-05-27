@@ -258,7 +258,6 @@ CvUnit::CvUnit() :
 	, m_iDropRange()
 	, m_iAirSweepCapableCount()
 	, m_iExtraNavalMoves()
-	, m_iKamikazePercent()
 	, m_iBaseCombat()
 	, m_eFacingDirection()
 	, m_iArmyId()
@@ -1518,7 +1517,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDropRange = 0;
 	m_iAirSweepCapableCount = 0;
 	m_iExtraNavalMoves = 0;
-	m_iKamikazePercent = 0;
 	m_eFacingDirection = DIRECTION_SOUTHEAST;
 	m_iIgnoreTerrainCostCount = 0;
 	m_iIgnoreTerrainDamageCount = 0;
@@ -17059,9 +17057,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	// Damage modifier always applies for melee attack
 	iModifier += GetDamageCombatModifier(false, getDamage() + iAssumeExtraDamage);
 
-	// Kamikaze attack
-	iModifier += getKamikazePercent();
-
 	// Temporary attack bonus (Policies, etc.)
 	if (GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 		iModifier += /*25*/ GD_INT_GET(POLICY_ATTACK_BONUS_MOD);
@@ -17477,10 +17472,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	// Extra combat percent
 	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
-
-	// Kamikaze attack
-	if (getKamikazePercent() != 0)
-		iModifier += getKamikazePercent();
 
 	// If the empire is unhappy, then Units get a combat penalty
 	if (kPlayer.IsEmpireUnhappy())
@@ -25438,25 +25429,6 @@ void CvUnit::changeExperiencePercent(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getKamikazePercent() const
-{
-	VALIDATE_OBJECT
-	return m_iKamikazePercent;
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeKamikazePercent(int iChange)
-{
-	VALIDATE_OBJECT
-	if(iChange != 0)
-	{
-		m_iKamikazePercent += iChange;
-
-		setInfoBarDirty(true);
-	}
-}
-
-//	--------------------------------------------------------------------------------
 DirectionTypes CvUnit::getFacingDirection(bool checkLineOfSightProperty) const
 {
 	VALIDATE_OBJECT
@@ -28536,7 +28508,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iDropRange);
 	visitor(unit.m_iAirSweepCapableCount);
 	visitor(unit.m_iExtraNavalMoves);
-	visitor(unit.m_iKamikazePercent);
 	visitor(unit.m_eFacingDirection);
 	visitor(unit.m_iIgnoreTerrainCostCount);
 	visitor(unit.m_iIgnoreTerrainDamageCount);
@@ -29361,7 +29332,7 @@ bool CvUnit::isEnemy(TeamTypes eFromPerspectiveOfTeam, const CvPlot* pAssumedUni
 bool CvUnit::isSuicide() const
 {
 	VALIDATE_OBJECT
-	return (getUnitInfo().IsSuicide() || getKamikazePercent() != 0);
+	return getUnitInfo().IsSuicide();
 }
 
 //	--------------------------------------------------------------------------------

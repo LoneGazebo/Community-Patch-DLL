@@ -1,4 +1,4 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
+/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
@@ -313,11 +313,6 @@ CvCity::CvCity() :
 	, m_paiProjectProduction()
 	, m_paiUnitProduction()
 	, m_paiUnitProductionTime()
-	, m_paiSpecialistCount()
-	, m_paiMaxSpecialistCount()
-	, m_paiForceSpecialistCount()
-	, m_paiFreeSpecialistCount()
-	, m_paiImprovementFreeSpecialists()
 	, m_paiUnitCombatFreeExperience()
 	, m_paiUnitCombatProductionModifier()
 	, m_paiFreePromotionCount()
@@ -369,7 +364,6 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromLeague()
 	, m_iTotalScienceyAid()
 	, m_iTotalArtsyAid()
-	, m_iTotalGreatWorkAid()
 	, m_iEmpireSizeModifierReduction()
 	, m_iDistressFlatReduction()
 	, m_iPovertyFlatReduction()
@@ -1384,7 +1378,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRateFromLeague.resize(NUM_YIELD_TYPES);
 	m_iTotalScienceyAid = 0;
 	m_iTotalArtsyAid = 0;
-	m_iTotalGreatWorkAid = 0;
 	m_iCachedTechNeedModifier = 0;
 	m_iHappinessFromEmpire = 0;
 	m_iUnhappinessFromEmpire = 0;
@@ -1800,33 +1793,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiUnitProductionTime[iI] = 0;
 		}
 
-		CvAssertMsg((0 < iNumSpecialistInfos), "GC.getNumSpecialistInfos() is not greater than zero but an array is being allocated in CvCity::reset");
-		m_paiSpecialistCount.clear();
-		m_paiSpecialistCount.resize(iNumSpecialistInfos);
-		m_paiMaxSpecialistCount.clear();
-		m_paiMaxSpecialistCount.resize(iNumSpecialistInfos);
-		m_paiForceSpecialistCount.clear();
-		m_paiForceSpecialistCount.resize(iNumSpecialistInfos);
-		m_paiFreeSpecialistCount.clear();
-		m_paiFreeSpecialistCount.resize(iNumSpecialistInfos);
-
-		for (iI = 0; iI < iNumSpecialistInfos; iI++)
-		{
-			m_paiSpecialistCount[iI] = 0;
-			m_paiMaxSpecialistCount[iI] = 0;
-			m_paiForceSpecialistCount[iI] = 0;
-			m_paiFreeSpecialistCount[iI] = 0;
-		}
-
-		int iNumImprovementInfos = GC.getNumImprovementInfos();
-		CvAssertMsg((0 < iNumImprovementInfos), "GC.getNumImprovementInfos() is not greater than zero but an array is being allocated in CvCity::reset");
-		m_paiImprovementFreeSpecialists.clear();
-		m_paiImprovementFreeSpecialists.resize(iNumImprovementInfos);
-		for (iI = 0; iI < iNumImprovementInfos; iI++)
-		{
-			m_paiImprovementFreeSpecialists[iI] = 0;
-		}
-
 		int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
 		CvAssertMsg((0 < iNumUnitCombatClassInfos), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiUnitCombatFreeExperience.clear();
@@ -1864,6 +1830,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
 		int iNumFeatureInfos = GC.getNumFeatureInfos();
 		int iNumResourceInfos = GC.getNumResourceInfos();
+		int iNumImprovementInfos = GC.getNumImprovementInfos();
 
 #if defined(MOD_BALANCE_CORE)
 		m_paiNumTerrainWorked.clear();
@@ -24973,23 +24940,6 @@ void CvCity::SetTotalArtsyAid(int iValue)
 		m_iTotalArtsyAid = iValue;
 }
 
-//GREAT WORK AID TOTALS  - Used for negation if cancelled
-void CvCity::ChangeTotalGreatWorkAid(int iChange)
-{
-	SetTotalGreatWorkAid(GetTotalGreatWorkAid() + iChange);
-}
-
-int CvCity::GetTotalGreatWorkAid() const
-{
-	return m_iTotalGreatWorkAid;
-}
-
-void CvCity::SetTotalGreatWorkAid(int iValue)
-{
-	if (GetTotalGreatWorkAid() != iValue)
-		m_iTotalGreatWorkAid = iValue;
-}
-
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -32524,7 +32474,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiBaseYieldRateFromLeague);
 	visitor(city.m_iTotalScienceyAid);
 	visitor(city.m_iTotalArtsyAid);
-	visitor(city.m_iTotalGreatWorkAid);
 	visitor(city.m_aiChangeGrowthExtraYield);
 	visitor(city.m_iHappinessFromEmpire);
 	visitor(city.m_iUnhappinessFromEmpire);
@@ -32652,11 +32601,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_paiProjectProduction);
 	visitor(city.m_paiUnitProduction);
 	visitor(city.m_paiUnitProductionTime);
-	visitor(city.m_paiSpecialistCount);
-	visitor(city.m_paiMaxSpecialistCount);
-	visitor(city.m_paiForceSpecialistCount);
-	visitor(city.m_paiFreeSpecialistCount);
-	visitor(city.m_paiImprovementFreeSpecialists);
 	visitor(city.m_paiUnitCombatFreeExperience);
 	visitor(city.m_paiUnitCombatProductionModifier);
 	visitor(city.m_paiFreePromotionCount);
