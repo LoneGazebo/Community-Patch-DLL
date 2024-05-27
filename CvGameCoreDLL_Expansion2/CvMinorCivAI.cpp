@@ -12040,9 +12040,14 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return 0;
 
+	PlayerTypes eMinor = GetPlayer()->GetID();
 	CvPlayer* pMajor = &GET_PLAYER(eMajor);
 	CvAssertMsg(pMajor, "MINOR CIV AI: pMajor not expected to be NULL.  Please send Anton your save file and version.");
 	if (!pMajor) return 0;
+
+	int iEra = pMajor->GetCurrentEra();
+	if (iEra <= 0)
+		iEra = 1;
 
 	int iAnchor = /*0*/ GD_INT_GET(MINOR_FRIENDSHIP_ANCHOR_DEFAULT) + GetRestingPointChange(eMajor);
 
@@ -12068,11 +12073,6 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	// Diplomatic Marriage? (VP)
 	if (!GetPlayer()->IsAtWarWith(pMajor->GetID()) && pMajor->GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(eMajor))
 	{
-		int iEra = pMajor->GetCurrentEra();
-		if (iEra <= 0)
-		{
-			iEra = 1;
-		}
 		iAnchor += /*75*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE) * iEra;
 	}
 	// United Front? (VP)
@@ -12083,6 +12083,37 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 
 	// Social Policies
 	iAnchor += pMajor->GetMinorFriendshipAnchorMod();
+
+	if (GD_INT_GET(MINOR_LANDMARK_RESTING_INFLUENCE) > 0)
+	{
+		CvMap& theMap = GC.getMap();
+		int iNumWorldPlots = theMap.numPlots();
+		ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+
+		// Iterate through all plots
+		for (int iI = 0; iI < iNumWorldPlots; iI++)
+		{
+			// Only plots the City-State currently owns
+			CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
+			if (pLoopPlot->getOwner() != eMinor)
+				continue;
+
+			// Is this a Landmark?
+			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+			if (eImprovement != eLandmarkImprovement)
+				continue;
+
+			// Was it built by this major?
+			if (pLoopPlot->GetPlayerThatBuiltImprovement() != eMajor)
+				continue;
+
+			// Was it built in this City-State's lands, and does the bonus still apply?
+			if (pLoopPlot->GetLandmarkCreditMinor() != eMinor)
+				continue;
+
+			iAnchor += iEra * /*0 in CP, 10 in VP*/ GD_INT_GET(MINOR_LANDMARK_RESTING_INFLUENCE);
+		}
+	}
 
 	// Religion
 	CvPlayerReligions* pMajorReligions = pMajor->GetReligions();

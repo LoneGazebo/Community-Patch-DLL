@@ -543,6 +543,9 @@ public:
 	void SetRoutePillaged(bool bPillaged);
 #endif
 
+	PlayerTypes GetLandmarkCreditMinor() const;
+	void SetLandmarkCreditMinor(PlayerTypes eNewValue);
+
 	PlayerTypes GetPlayerThatClearedBarbCampHere() const;
 	void SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue);
 
@@ -1006,6 +1009,7 @@ protected:
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;
+	char /*PlayerTypes*/ m_eLandmarkCreditMinor;
 	char /*PlayerTypes*/ m_ePlayerThatClearedDigHere;
 	char /*PlayerTypes*/ m_ePlayerThatDestroyedCityHere;
 	char /*RouteTypes*/ m_eRouteType;

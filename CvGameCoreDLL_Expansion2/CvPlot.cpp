@@ -214,6 +214,7 @@ void CvPlot::reset()
 	m_iPlotChangeMoves = 0;
 	m_iRestoreMoves = 0;
 #endif
+	m_eLandmarkCreditMinor = NO_PLAYER;
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
 	m_eRouteType = NO_ROUTE;
@@ -6393,6 +6394,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	CvCity* pOldCity = NULL;
 	CvString strBuffer;
 	int iI = 0;
+	ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 
 	// Remove effects for old owner before changing the member
 	if(getOwner() != eNewValue)
@@ -6525,6 +6527,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
+
+					// Remove credit for building Landmark if player took it from the minor
+					if (eImprovement == eLandmarkImprovement && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam() && eOldOwner == GetLandmarkCreditMinor())
+						SetLandmarkCreditMinor(NO_PLAYER);
 				}
 
 				// Remove Resource Quantity from total
@@ -7956,6 +7962,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 			pOwningCity->GetCityCitizens()->SetDirty(true);
 		}
+		SetLandmarkCreditMinor(NO_PLAYER);
 		PlayerTypes owningPlayerID = getOwner();
 		if (eOldImprovement != NO_IMPROVEMENT)
 		{
@@ -9445,6 +9452,18 @@ PlayerTypes CvPlot::GetPlayerThatClearedBarbCampHere() const
 void CvPlot::SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue)
 {
 	m_ePlayerThatClearedBarbCampHere = eNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+PlayerTypes CvPlot::GetLandmarkCreditMinor() const
+{
+	return (PlayerTypes) m_eLandmarkCreditMinor;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetLandmarkCreditMinor(PlayerTypes eNewValue)
+{
+	m_eLandmarkCreditMinor = eNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13369,6 +13388,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlayerBuiltRoute);
 	visitor(plot.m_ePlayerResponsibleForRoute);
 	visitor(plot.m_ePlayerThatClearedBarbCampHere);
+	visitor(plot.m_eLandmarkCreditMinor);
 	visitor(plot.m_ePlayerThatClearedDigHere);
 	visitor(plot.m_ePlayerThatDestroyedCityHere);
 	visitor(plot.m_eRouteType);

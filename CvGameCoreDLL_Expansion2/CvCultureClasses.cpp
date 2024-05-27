@@ -3410,13 +3410,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		if (eLandmarkImprovement != NO_IMPROVEMENT)
 		{
 			pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
-
-			// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-			pPlot->SetImprovementPillaged(false, false);
-#else
-			pPlot->SetImprovementPillaged(false);
-#endif
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
 			if (pUnit)
@@ -3429,19 +3422,32 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				// City-state owned territory?
 				if (kOwner.isMinorCiv())
 				{
-					int iFriendship = /*50*/ GD_INT_GET(LANDMARK_MINOR_FRIENDSHIP_CHANGE);
-					if (MOD_BALANCE_CORE_MINORS)
+					pPlot->SetLandmarkCreditMinor(kOwner.GetID()); // applies resting Influence bonus
+
+					int iExtraInfluence = /*50 in CP, 0 in VP*/ GD_INT_GET(LANDMARK_MINOR_FRIENDSHIP_CHANGE);
+					if (MOD_BALANCE_VP)
 					{
 						int iEra = m_pPlayer->GetCurrentEra();
 						if (iEra <= 0)
 							iEra = 1;
 
-						iFriendship *= iEra;
+						iExtraInfluence *= iEra;
+
+						if (GD_INT_GET(MINOR_LANDMARK_RESTING_INFLUENCE) > 0)
+						{
+							// Influence snaps to new resting Influence if lower, then the extra Influence is added.
+							int iNewRestingInfluenceTimes100 = kOwner.GetMinorCivAI()->GetFriendshipAnchorWithMajor(m_pPlayer->GetID()) * 100;
+							if (iNewRestingInfluenceTimes100 <= kOwner.GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(m_pPlayer->GetID()))
+								kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
+							else
+								kOwner.GetMinorCivAI()->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), iExtraInfluence * 100 + iNewRestingInfluenceTimes100);
+						}
+						else
+							kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
 					}
-
-					kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
+					else
+						kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
 				}
-
 				// Major civ owned territory?
 				else if (kOwner.isMajorCiv())
 				{
