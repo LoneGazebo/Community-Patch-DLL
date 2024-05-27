@@ -303,14 +303,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackXPValue);
 	Method(DefenseXPValue);
 	Method(MaxXPValue);
-	Method(FirstStrikes);
-	Method(ChanceFirstStrikes);
-	Method(MaxFirstStrikes);
 	Method(IsRanged);
 	Method(IsMustSetUpToRangedAttack);
 	Method(CanSetUpForRangedAttack);
 	Method(IsSetUpForRangedAttack);
-	Method(ImmuneToFirstStrikes);
 	Method(NoDefensiveBonus);
 	Method(IgnoreBuildingDefense);
 	Method(CanMoveImpassable);
@@ -479,8 +475,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetExtraRange);
 	Method(GetExtraIntercept);
 	Method(GetExtraEvasion);
-	Method(GetExtraFirstStrikes);
-	Method(GetExtraChanceFirstStrikes);
 	Method(GetExtraWithdrawal);
 	Method(GetExtraEnemyHeal);
 	Method(GetExtraNeutralHeal);
@@ -3501,36 +3495,6 @@ int CvLuaUnit::lMaxXPValue(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int firstStrikes();
-int CvLuaUnit::lFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->firstStrikes();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int chanceFirstStrikes();
-int CvLuaUnit::lChanceFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->chanceFirstStrikes();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int maxFirstStrikes();
-int CvLuaUnit::lMaxFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->maxFirstStrikes();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //bool IsCanAttackRanged();
 int CvLuaUnit::lIsRanged(lua_State* L)
 {
@@ -3554,16 +3518,6 @@ int CvLuaUnit::lCanSetUpForRangedAttack(lua_State* L)
 int CvLuaUnit::lIsSetUpForRangedAttack(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvUnit::isSetUpForRangedAttack);
-}
-//------------------------------------------------------------------------------
-//bool immuneToFirstStrikes();
-int CvLuaUnit::lImmuneToFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->immuneToFirstStrikes();
-
-	lua_pushboolean(L, bResult);
-	return 1;
 }
 //------------------------------------------------------------------------------
 //bool noDefensiveBonus();
@@ -5163,26 +5117,6 @@ int CvLuaUnit::lGetExtraEvasion(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->getExtraEvasion();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getExtraFirstStrikes();
-int CvLuaUnit::lGetExtraFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getExtraFirstStrikes();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getExtraChanceFirstStrikes();
-int CvLuaUnit::lGetExtraChanceFirstStrikes(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getExtraChanceFirstStrikes();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

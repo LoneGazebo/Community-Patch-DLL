@@ -164,7 +164,6 @@ CvUnit::CvUnit() :
 	, m_iAttackPlotX()
 	, m_iAttackPlotY()
 	, m_iCombatTimer()
-	, m_iCombatFirstStrikes()
 	, m_bMovedThisTurn()
 	, m_bFortified()
 	, m_iBlitzCount()
@@ -193,7 +192,6 @@ CvUnit::CvUnit() :
 	, m_iMultiAttackBonus()
 	, m_iLandAirDefenseValue()
 #endif
-	, m_iImmuneToFirstStrikesCount()
 	, m_iExtraVisibilityRange()
 	, m_iExtraMoves()
 	, m_iExtraMoveDiscount()
@@ -203,8 +201,6 @@ CvUnit::CvUnit() :
 	, m_iExtraAirInterceptRange()  // JJ: This is new
 #endif
 	, m_iExtraEvasion()
-	, m_iExtraFirstStrikes()
-	, m_iExtraChanceFirstStrikes()
 	, m_iExtraWithdrawal()
 #if defined(MOD_BALANCE_CORE_JFD)
 	, m_eUnitContract()
@@ -1423,7 +1419,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAttackPlotX = INVALID_PLOT_COORD;
 	m_iAttackPlotY = INVALID_PLOT_COORD;
 	m_iCombatTimer = 0;
-	m_iCombatFirstStrikes = 0;
 	m_bMovedThisTurn = false;
 	m_bHasWithdrawnThisTurn = false;
 	m_bFortified = false;
@@ -1459,7 +1454,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMultiAttackBonus = 0;
 	m_iLandAirDefenseValue = 0;
 #endif
-	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	m_iExtraReconRange = 0;
@@ -1472,8 +1466,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraAirInterceptRange = 0; // JJ: This is new
 #endif
 	m_iExtraEvasion = 0;
-	m_iExtraFirstStrikes = 0;
-	m_iExtraChanceFirstStrikes = 0;
 	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_eUnitContract = NO_CONTRACT;
@@ -4538,20 +4530,6 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 			iOurDefense /= 100;
 		}
 	}
-	else
-	{
-		if(!(pAttacker->immuneToFirstStrikes()))
-		{
-			iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((2 * /*20*/ GD_INT_GET(COMBAT_DAMAGE)) / 5)) + 100);
-			iOurDefense /= 100;
-		}
-
-		if(immuneToFirstStrikes())
-		{
-			iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((2 * /*20*/ GD_INT_GET(COMBAT_DAMAGE)) / 5)) + 100);
-			iOurDefense /= 100;
-		}
-	}
 
 	iOurDefense /= (getCargo() + 1);
 
@@ -4572,20 +4550,6 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		if(interceptionProbability() > 0)
 		{
 			iTheirDefense *= (100 + interceptionProbability());
-			iTheirDefense /= 100;
-		}
-	}
-	else
-	{
-		if(!(pAttacker->immuneToFirstStrikes()))
-		{
-			iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((2 * /*20*/ GD_INT_GET(COMBAT_DAMAGE)) / 5)) + 100);
-			iTheirDefense /= 100;
-		}
-
-		if(pDefender->immuneToFirstStrikes())
-		{
-			iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((2 * /*20*/ GD_INT_GET(COMBAT_DAMAGE)) / 5)) + 100);
 			iTheirDefense /= 100;
 		}
 	}
@@ -18419,38 +18383,6 @@ int CvUnit::maxXPValue() const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::firstStrikes() const
-{
-	VALIDATE_OBJECT
-	return std::max(0, getExtraFirstStrikes());
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::chanceFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return std::max(0, getExtraChanceFirstStrikes());
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::maxFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return (firstStrikes() + chanceFirstStrikes());
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::immuneToFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return (getImmuneToFirstStrikesCount() > 0);
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::ignoreBuildingDefense() const
 {
 	//return m_pUnitInfo->IsIgnoreBuildingDefense();
@@ -22393,31 +22325,6 @@ void CvUnit::changeCombatTimer(int iChange)
 	setCombatTimer(getCombatTimer() + iChange);
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getCombatFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return m_iCombatFirstStrikes;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::setCombatFirstStrikes(int iNewValue)
-{
-	VALIDATE_OBJECT
-	m_iCombatFirstStrikes = iNewValue;
-	CvAssert(getCombatFirstStrikes() >= 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeCombatFirstStrikes(int iChange)
-{
-	VALIDATE_OBJECT
-	setCombatFirstStrikes(getCombatFirstStrikes() + iChange);
-}
-
 bool CvUnit::CanGarrison() const
 {
 	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()!=DOMAIN_AIR && IsCanDefend() && !isDelayedDeath();
@@ -22905,22 +22812,6 @@ void CvUnit::changeLandAirDefenseValue(int iChange)
 
 
 #endif
-//	--------------------------------------------------------------------------------
-int CvUnit::getImmuneToFirstStrikesCount() const
-{
-	VALIDATE_OBJECT
-	return m_iImmuneToFirstStrikesCount;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeImmuneToFirstStrikesCount(int iChange)
-{
-	VALIDATE_OBJECT
-	m_iImmuneToFirstStrikesCount = (m_iImmuneToFirstStrikesCount + iChange);
-	CvAssert(getImmuneToFirstStrikesCount() >= 0);
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraVisibilityRange() const
@@ -23065,40 +22956,6 @@ void CvUnit::changeExtraEvasion(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iExtraEvasion += iChange;
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getExtraFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return m_iExtraFirstStrikes;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeExtraFirstStrikes(int iChange)
-{
-	VALIDATE_OBJECT
-	m_iExtraFirstStrikes = (m_iExtraFirstStrikes + iChange);
-	CvAssert(getExtraFirstStrikes() >= 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getExtraChanceFirstStrikes() const
-{
-	VALIDATE_OBJECT
-	return m_iExtraChanceFirstStrikes;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeExtraChanceFirstStrikes(int iChange)
-{
-	VALIDATE_OBJECT
-	m_iExtraChanceFirstStrikes = (m_iExtraChanceFirstStrikes + iChange);
-	CvAssert(getExtraChanceFirstStrikes() >= 0);
 }
 
 
@@ -26266,7 +26123,6 @@ void CvUnit::clearCombat()
 		CvAssertMsg(plot()->isUnitFighting(), "plot()->isUnitFighting is expected to be true");
 		m_combatCity.reset();
 		m_combatUnit.reset();
-		setCombatFirstStrikes(0);
 
 		if(IsSelected())
 		{
@@ -28641,7 +28497,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAttackPlotX);
 	visitor(unit.m_iAttackPlotY);
 	visitor(unit.m_iCombatTimer);
-	visitor(unit.m_iCombatFirstStrikes);
 	visitor(unit.m_bMovedThisTurn);
 	visitor(unit.m_bHasWithdrawnThisTurn);
 	visitor(unit.m_bFortified);
@@ -28675,7 +28530,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
 	visitor(unit.m_iLandAirDefenseValue);
-	visitor(unit.m_iImmuneToFirstStrikesCount);
 	visitor(unit.m_iExtraVisibilityRange);
 	visitor(unit.m_iExtraReconRange);
 	visitor(unit.m_iExtraMoves);
@@ -28683,8 +28537,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraRange);
 	visitor(unit.m_iInterceptChance);
 	visitor(unit.m_iExtraEvasion);
-	visitor(unit.m_iExtraFirstStrikes);
-	visitor(unit.m_iExtraChanceFirstStrikes);
 	visitor(unit.m_iExtraWithdrawal);
 	visitor(unit.m_eUnitContract);
 	visitor(unit.m_iNegatorPromotion);

@@ -308,9 +308,6 @@ protected:
 	static int lAttackXPValue(lua_State* L);
 	static int lDefenseXPValue(lua_State* L);
 	static int lMaxXPValue(lua_State* L);
-	static int lFirstStrikes(lua_State* L);
-	static int lChanceFirstStrikes(lua_State* L);
-	static int lMaxFirstStrikes(lua_State* L);
 	static int lIsRanged(lua_State* L);
 	static int lIsMustSetUpToRangedAttack(lua_State* L);
 	static int lCanSetUpForRangedAttack(lua_State* L);
@@ -319,7 +316,6 @@ protected:
 	static int lIsCoastalAttackOnly(lua_State* L);
 	static int lIsCityAttackOnly(lua_State* L);
 
-	static int lImmuneToFirstStrikes(lua_State* L);
 	static int lNoDefensiveBonus(lua_State* L);
 	static int lIgnoreBuildingDefense(lua_State* L);
 	static int lCanMoveImpassable(lua_State* L);
@@ -490,8 +486,6 @@ protected:
 	static int lGetExtraRange(lua_State* L);
 	static int lGetExtraIntercept(lua_State* L);
 	static int lGetExtraEvasion(lua_State* L);
-	static int lGetExtraFirstStrikes(lua_State* L);
-	static int lGetExtraChanceFirstStrikes(lua_State* L);
 	static int lGetExtraWithdrawal(lua_State* L);
 	static int lGetExtraEnemyHeal(lua_State* L);
 	static int lGetExtraNeutralHeal(lua_State* L);
