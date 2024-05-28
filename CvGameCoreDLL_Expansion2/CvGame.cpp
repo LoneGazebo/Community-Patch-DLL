@@ -1616,13 +1616,6 @@ void CvGame::update()
 					gDLL->FlushTurnReminders();
 				}
 			}
-
-			PlayerTypes activePlayerID = getActivePlayer();
-			const CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
-			if(NO_PLAYER != activePlayerID && activePlayer.getAdvancedStartPoints() >= 0 && !GC.GetEngineUserInterface()->isInAdvancedStart())
-			{
-				GC.GetEngineUserInterface()->setInAdvancedStart(true);
-			}
 		}
 	}
 
@@ -4706,20 +4699,6 @@ void CvGame::setMaxCityElimination(int iNewValue) const
 {
 	CvPreGame::setMaxCityElimination(iNewValue);
 	CvAssert(getMaxCityElimination() >= 0);
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::getNumAdvancedStartPoints() const
-{
-	return CvPreGame::advancedStartPoints();
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvGame::setNumAdvancedStartPoints(int iNewValue) const
-{
-	CvPreGame::setAdvancedStartPoints(iNewValue);
-	CvAssert(getNumAdvancedStartPoints() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8493,20 +8472,6 @@ bool CvGame::isNukesValid() const
 void CvGame::makeNukesValid(bool bValid)
 {
 	m_bNukesValid = bValid;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvGame::isInAdvancedStart() const
-{
-	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
-	{
-		if((GET_PLAYER((PlayerTypes)iPlayer).getAdvancedStartPoints() >= 0) && GET_PLAYER((PlayerTypes)iPlayer).isHuman())
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 //	--------------------------------------------------------------------------------

@@ -649,7 +649,6 @@ bool CvAirMissionDefinition::isDead(BattleUnitTypes unitType) const
 //, iEra(0)
 //, iMaxTurns(0)
 //, iCityElimination(0)
-//, iAdvancedStartPoints(0)
 //, iTurnTime(0)
 //, iNumCustomMapOptions(0)
 //, aiCustomMapOptions(0)

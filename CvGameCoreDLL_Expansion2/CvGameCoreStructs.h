@@ -209,7 +209,6 @@ FDataStream& operator>>(FDataStream&, BuildingGreatWork&);
 //
 //	int iMaxTurns;
 //	int iCityElimination;
-//	int iAdvancedStartPoints;
 //	int iTurnTime;
 //
 //	int iNumCustomMapOptions;

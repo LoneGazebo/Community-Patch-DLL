@@ -5797,7 +5797,6 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 //======================================================================================================
 CvRouteInfo::CvRouteInfo() :
 	m_iGoldMaintenance(0),
-	m_iAdvancedStartCost(0),
 	m_iValue(0),
 	m_iMovementCost(0),
 	m_iFlatMovementCost(0),
@@ -5818,11 +5817,6 @@ CvRouteInfo::~CvRouteInfo()
 int CvRouteInfo::GetGoldMaintenance() const
 {
 	return m_iGoldMaintenance;
-}
-//------------------------------------------------------------------------------
-int CvRouteInfo::getAdvancedStartCost() const
-{
-	return m_iAdvancedStartCost;
 }
 //------------------------------------------------------------------------------
 int CvRouteInfo::getValue() const
@@ -5872,7 +5866,6 @@ bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		return false;
 
 	m_iGoldMaintenance = kResults.GetInt("GoldMaintenance");
-	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
 	m_iValue = kResults.GetInt("Value");
 	m_iMovementCost = kResults.GetInt("Movement");
 	m_iFlatMovementCost = kResults.GetInt("FlatMovement");
@@ -7010,7 +7003,6 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iGrowthTerrainType(-1),
 	m_iDefenseModifier(0),
 	m_iInfluenceCost(0),
-	m_iAdvancedStartRemoveCost(0),
 	m_iTurnDamage(0),
 	m_iExtraTurnDamage(0),
 	m_iFirstFinderGold(0),
@@ -7114,11 +7106,6 @@ int CvFeatureInfo::getDefenseModifier() const
 int CvFeatureInfo::getInfluenceCost() const
 {
 	return m_iInfluenceCost;
-}
-//------------------------------------------------------------------------------
-int CvFeatureInfo::getAdvancedStartRemoveCost() const
-{
-	return m_iAdvancedStartRemoveCost;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getTurnDamage() const
@@ -7382,7 +7369,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iSeeThroughChange = kResults.GetInt("SeeThrough");
 	m_iDefenseModifier = kResults.GetInt("Defense");
 	m_iInfluenceCost = kResults.GetInt("InfluenceCost");
-	m_iAdvancedStartRemoveCost = kResults.GetInt("AdvancedStartRemoveCost");
 	m_iTurnDamage = kResults.GetInt("TurnDamage");
 	m_iExtraTurnDamage = kResults.GetInt("ExtraTurnDamage");
 	m_iAppearanceProbability = kResults.GetInt("AppearanceProbability");

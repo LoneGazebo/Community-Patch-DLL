@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -100,8 +100,6 @@ protected:
 	static int lChangeMaxTurns(lua_State* L);
 	static int lGetMaxCityElimination(lua_State* L);
 	static int lSetMaxCityElimination(lua_State* L);
-	static int lGetNumAdvancedStartPoints(lua_State* L);
-	static int lSetNumAdvancedStartPoints(lua_State* L);
 	static int lGetStartTurn(lua_State* L);
 	static int lGetWinningTurn(lua_State* L);
 	static int lGetStartYear(lua_State* L);
@@ -231,7 +229,6 @@ protected:
 	static int lMakeSpecialUnitValid(lua_State* L);
 	static int lIsNukesValid(lua_State* L);
 	static int lMakeNukesValid(lua_State* L);
-	static int lIsInAdvancedStart(lua_State* L);
 
 	static int lSetName(lua_State* L);
 	static int lGetName(lua_State* L);

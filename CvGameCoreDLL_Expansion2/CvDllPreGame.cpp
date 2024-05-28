@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -54,7 +54,7 @@ PlayerTypes CvDllPreGame::activePlayer()
 //------------------------------------------------------------------------------
 int CvDllPreGame::advancedStartPoints()
 {
-	return CvPreGame::advancedStartPoints();
+	return -1;
 }
 //------------------------------------------------------------------------------
 bool CvDllPreGame::autorun()
@@ -574,7 +574,7 @@ void CvDllPreGame::setAdminPassword(const CvString& p)
 //------------------------------------------------------------------------------
 void CvDllPreGame::setAdvancedStartPoints(int a)
 {
-	CvPreGame::setAdvancedStartPoints(a);
+	// Disabled
 }
 //------------------------------------------------------------------------------
 void CvDllPreGame::setAlias(const CvString& a)
