@@ -513,18 +513,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetAnarchyNumTurns);
 	Method(ChangeAnarchyNumTurns);
 
-	Method(GetAdvancedStartPoints);
-	Method(SetAdvancedStartPoints);
-	Method(ChangeAdvancedStartPoints);
-	Method(GetAdvancedStartUnitCost);
-	Method(GetAdvancedStartCityCost);
-	Method(GetAdvancedStartPopCost);
-	Method(GetAdvancedStartBuildingCost);
-	Method(GetAdvancedStartImprovementCost);
-	Method(GetAdvancedStartRouteCost);
-	Method(GetAdvancedStartTechCost);
-	Method(GetAdvancedStartVisibilityCost);
-
 	Method(GetAttackBonusTurns);
 	Method(GetCultureBonusTurns);
 	Method(GetTourismBonusTurns);
@@ -7226,73 +7214,6 @@ int CvLuaPlayer::lSetAnarchyNumTurns(lua_State* L)
 int CvLuaPlayer::lChangeAnarchyNumTurns(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeAnarchyNumTurns);
-}
-
-//------------------------------------------------------------------------------
-//int getAdvancedStartPoints();
-int CvLuaPlayer::lGetAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//void setAdvancedStartPoints(int iNewValue);
-int CvLuaPlayer::lSetAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::setAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//void changeAdvancedStartPoints(int iChange);
-int CvLuaPlayer::lChangeAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::changeAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartUnitCost(UnitTypes  eUnit, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartUnitCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartUnitCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartCityCost(bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartCityCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartCityCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartPopCost(bool bAdd, CyCity* pCity);
-int CvLuaPlayer::lGetAdvancedStartPopCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartPopCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartBuildingCost(BuildingTypes  eBuilding, bool bAdd, CyCity* pCity);
-int CvLuaPlayer::lGetAdvancedStartBuildingCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartBuildingCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartImprovementCost(ImprovementTypes  eImprovement, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartImprovementCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartImprovementCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartRouteCost(RouteTypes  eRoute, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartRouteCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartRouteCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartTechCost(TechTypes  eTech, bool bAdd);
-int CvLuaPlayer::lGetAdvancedStartTechCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartTechCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartVisibilityCost(bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartVisibilityCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartVisibilityCost);
 }
 
 //------------------------------------------------------------------------------

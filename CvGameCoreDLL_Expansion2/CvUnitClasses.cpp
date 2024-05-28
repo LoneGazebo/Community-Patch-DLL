@@ -28,7 +28,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bCannotEmbark(false),
 #endif
 	m_iHurryCostModifier(0),
-	m_iAdvancedStartCost(0),
 	m_iMinAreaSize(0),
 	m_iMoves(0),
 	m_bImmobile(false),
@@ -279,7 +278,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bCannotEmbark = kResults.GetBool("CannotEmbark");
 #endif
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
-	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMoves = kResults.GetInt("Moves");
 	m_bImmobile = kResults.GetInt("Immobile")>0;
@@ -793,12 +791,6 @@ bool CvUnitEntry::CannotEmbark() const
 int CvUnitEntry::GetHurryCostModifier() const
 {
 	return m_iHurryCostModifier;
-}
-
-/// Cost if starting midway through game
-int CvUnitEntry::GetAdvancedStartCost() const
-{
-	return m_iAdvancedStartCost;
 }
 
 /// Required Plot count of the CvArea this City belongs to (Usually used for Water Units to prevent building them on tiny lakes and such)

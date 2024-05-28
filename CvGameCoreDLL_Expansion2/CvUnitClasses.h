@@ -43,7 +43,6 @@ public:
 	bool CannotEmbark() const;
 #endif
 	int GetHurryCostModifier() const;
-	int GetAdvancedStartCost() const;
 	int GetMinAreaSize() const;
 	int GetMoves() const;
 	bool IsImmobile() const;
@@ -278,7 +277,6 @@ private:
 	bool m_bCannotEmbark;
 #endif
 	int m_iHurryCostModifier;
-	int m_iAdvancedStartCost;
 	int m_iMinAreaSize;
 	int m_iMoves;
 	bool m_bImmobile; //may still have moves>0 for attacks?

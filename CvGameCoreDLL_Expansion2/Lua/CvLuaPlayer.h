@@ -583,18 +583,6 @@ protected:
 	static int lSetAnarchyNumTurns(lua_State* L);
 	static int lChangeAnarchyNumTurns(lua_State* L);
 
-	static int lGetAdvancedStartPoints(lua_State* L);
-	static int lSetAdvancedStartPoints(lua_State* L);
-	static int lChangeAdvancedStartPoints(lua_State* L);
-	static int lGetAdvancedStartUnitCost(lua_State* L);
-	static int lGetAdvancedStartCityCost(lua_State* L);
-	static int lGetAdvancedStartPopCost(lua_State* L);
-	static int lGetAdvancedStartBuildingCost(lua_State* L);
-	static int lGetAdvancedStartImprovementCost(lua_State* L);
-	static int lGetAdvancedStartRouteCost(lua_State* L);
-	static int lGetAdvancedStartTechCost(lua_State* L);
-	static int lGetAdvancedStartVisibilityCost(lua_State* L);
-
 	static int lGetAttackBonusTurns(lua_State* L);
 	static int lGetCultureBonusTurns(lua_State* L);
 	static int lGetTourismBonusTurns(lua_State* L);

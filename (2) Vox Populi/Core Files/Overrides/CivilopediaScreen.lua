@@ -3046,7 +3046,6 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("Suicide");
 		AnalyzeUnit("CaptureWhileEmbarked");
 		AnalyzeUnit("HurryCostModifier");
-		AnalyzeUnit("AdvancedStartCost");
 		AnalyzeUnit("AirInterceptRange", "[ICON_RANGE_STRENGTH]");
 		AnalyzeUnit("AirUnitCap", "[ICON_AIRSTRIKE_DEFENSE]");
 		AnalyzeUnit("NukeDamageLevel");

@@ -918,25 +918,11 @@ public:
 	void SetAnarchyNumTurns(int iValue);
 	void ChangeAnarchyNumTurns(int iChange);
 
-	int getAdvancedStartPoints() const;
-	void setAdvancedStartPoints(int iNewValue);
-	void changeAdvancedStartPoints(int iChange);
-
 	bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
 	bool canSpyDestroyUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
 	bool canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
 	bool canSpyDestroyBuilding(PlayerTypes eTarget, BuildingTypes eBuilding) const;
 	bool canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject) const;
-
-	void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd);
-	int getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot = NULL);
-	int getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot = NULL);
-	int getAdvancedStartPopCost(bool bAdd, CvCity* pCity = NULL);
-	int getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, CvCity* pCity = NULL);
-	int getAdvancedStartImprovementCost(ImprovementTypes eImprovement, bool bAdd, CvPlot* pPlot = NULL);
-	int getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pPlot = NULL);
-	int getAdvancedStartTechCost(TechTypes eTech, bool bAdd);
-	int getAdvancedStartVisibilityCost(bool bAdd, CvPlot* pPlot = NULL);
 
 	// Temporary Bonuses
 	int GetAttackBonusTurns() const;
@@ -3200,7 +3186,6 @@ protected:
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
 	int m_iLeagueCultureCityModifier;
-	int m_iAdvancedStartPoints;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
 	int m_iTourismBonusTurns;
@@ -4068,7 +4053,6 @@ SYNC_ARCHIVE_VAR(bool, m_bIsLeagueArt)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeague)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeagueAid)
 SYNC_ARCHIVE_VAR(int, m_iLeagueCultureCityModifier)
-SYNC_ARCHIVE_VAR(int, m_iAdvancedStartPoints)
 SYNC_ARCHIVE_VAR(int, m_iAttackBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iCultureBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iTourismBonusTurns)

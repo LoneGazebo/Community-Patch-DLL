@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -24,7 +24,6 @@ CvTechEntry::CvTechEntry(void):
 	m_iAIWeight(0),
 	m_iAITradeModifier(0),
 	m_iResearchCost(0),
-	m_iAdvancedStartCost(0),
 	m_iEra(NO_ERA),
 	m_iFeatureProductionModifier(0),
 	m_iUnitFortificationModifier(0),
@@ -112,7 +111,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iAIWeight = kResults.GetInt("AIWeight");
 	m_iAITradeModifier = kResults.GetInt("AITradeModifier");
 	m_iResearchCost = kResults.GetInt("Cost");
-	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
 	m_iFeatureProductionModifier = kResults.GetInt("FeatureProductionModifier");
 	m_iUnitFortificationModifier = kResults.GetInt("UnitFortificationModifier");
 	m_iUnitBaseHealModifier = kResults.GetInt("UnitBaseHealModifier");
@@ -282,12 +280,6 @@ int CvTechEntry::GetAITradeModifier() const
 int CvTechEntry::GetResearchCost() const
 {
 	return m_iResearchCost;
-}
-
-/// Cost if starting midway through game
-int CvTechEntry::GetAdvancedStartCost() const
-{
-	return m_iAdvancedStartCost;
 }
 
 /// Historical era within tech tree
@@ -1499,7 +1491,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	if(pkTechEntry == NULL)
 		return false;
 
-	if(!IsResearch() && m_pPlayer->getAdvancedStartPoints() < 0)
+	if(!IsResearch())
 	{
 		return false;
 	}

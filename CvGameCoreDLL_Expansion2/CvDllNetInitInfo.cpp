@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -43,7 +43,6 @@ CvDllNetInitInfo::CvDllNetInitInfo()
 	m_iMaxTurns = CvPreGame::maxTurns();
 	m_iMaxCityElimination = CvPreGame::maxCityElimination();
 	m_iNumMinorCivs = CvPreGame::numMinorCivs();
-	m_iNumAdvancedStartPoints = CvPreGame::advancedStartPoints();
 	m_eMode = CvPreGame::gameMode();
 
 #if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
@@ -214,7 +213,6 @@ bool CvDllNetInitInfo::Read(FDataStream& kStream)
 	kStream >> m_iPitbossTurnTime;
 	kStream >> m_iMaxCityElimination;
 	kStream >> m_iNumMinorCivs;
-	kStream >> m_iNumAdvancedStartPoints;
 	kStream >> m_eMode;
 	kStream >> m_bStatReporting;
 #if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
@@ -254,7 +252,6 @@ bool CvDllNetInitInfo::Write(FDataStream& kStream)
 	kStream << m_iPitbossTurnTime;
 	kStream << m_iMaxCityElimination;
 	kStream << m_iNumMinorCivs;
-	kStream << m_iNumAdvancedStartPoints;
 	kStream << m_eMode;
 	kStream << m_bStatReporting;
 #if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
@@ -304,7 +301,6 @@ bool CvDllNetInitInfo::Commit()
 	CvPreGame::setMaxTurns(m_iMaxTurns);
 	CvPreGame::setMaxCityElimination(m_iMaxCityElimination);
 	CvPreGame::setNumMinorCivs(m_iNumMinorCivs);
-	CvPreGame::setAdvancedStartPoints(m_iNumAdvancedStartPoints);
 	CvPreGame::setGameMode(m_eMode);
 #if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
 	CvPreGame::SetKnownPlayersTable(m_aiKnownPlayersTable);

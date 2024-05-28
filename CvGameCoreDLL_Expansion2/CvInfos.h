@@ -1803,7 +1803,6 @@ public:
 	virtual ~CvRouteInfo();
 
 	int GetGoldMaintenance() const;
-	int getAdvancedStartCost() const;
 
 	int getValue() const;
 	int getMovementCost() const;
@@ -1820,7 +1819,6 @@ public:
 
 protected:
 	int m_iGoldMaintenance;
-	int m_iAdvancedStartCost;
 	int m_iValue;
 	int m_iMovementCost;
 	int m_iFlatMovementCost;
@@ -2068,7 +2066,6 @@ public:
 	int getGrowthTerrainType() const;
 	int getDefenseModifier() const;
 	int getInfluenceCost() const;
-	int getAdvancedStartRemoveCost() const;
 	int getTurnDamage() const;
 	int getExtraTurnDamage() const;
 	int getFirstFinderGold() const;
@@ -2143,7 +2140,6 @@ protected:
 	int m_iGrowthTerrainType;
 	int m_iDefenseModifier;
 	int m_iInfluenceCost;
-	int m_iAdvancedStartRemoveCost;
 	int m_iTurnDamage;
 	int m_iExtraTurnDamage;
 	int m_iFirstFinderGold;

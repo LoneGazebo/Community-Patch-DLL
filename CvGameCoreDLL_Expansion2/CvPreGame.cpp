@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -180,7 +180,6 @@ void StringToBools(const char* szString, int* iNumBools, bool** ppBools);
 
 PlayerTypes s_activePlayer(NO_PLAYER);
 CvString s_adminPassword;
-int s_advancedStartPoints(0);
 CvString s_alias;
 std::vector<ArtStyleTypes> s_artStyles(MAX_PLAYERS);
 bool s_autorun(false);
@@ -665,11 +664,6 @@ PlayerTypes activePlayer()
 const CvString& adminPassword()
 {
 	return s_adminPassword;
-}
-
-int advancedStartPoints()
-{
-	return s_advancedStartPoints;
 }
 
 const CvString& alias()
@@ -1750,7 +1744,6 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 
 	loadFrom >> s_activePlayer;
 	loadFrom >> s_adminPassword;
-	loadFrom >> s_advancedStartPoints;
 	loadFrom >> s_alias;
 	loadFrom >> s_artStyles;
 	loadFrom >> s_autorun;
@@ -1985,8 +1978,6 @@ void resetGame()
 	s_maxCityElimination = 0;
 
 	s_numMinorCivs = -1;
-
-	s_advancedStartPoints = 0;
 
 	// Unsaved game data
 	s_syncRandomSeed = 0;
@@ -2271,11 +2262,6 @@ void setActivePlayer(PlayerTypes p)
 void setAdminPassword(const CvString& p)
 {
 	s_adminPassword = p;
-}
-
-void setAdvancedStartPoints(int a)
-{
-	s_advancedStartPoints = a;
 }
 
 void setAlias(const CvString& a)
@@ -3616,7 +3602,6 @@ void writeArchive(FDataStream& saveTo)
 
 	saveTo << s_activePlayer;
 	saveTo << s_adminPassword;
-	saveTo << s_advancedStartPoints;
 	saveTo << s_alias;
 	saveTo << s_artStyles;
 	saveTo << s_autorun;

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -49,7 +49,6 @@ FDataStream& operator<<(FDataStream&, const CustomOption&);
 
 PlayerTypes                                activePlayer();
 const CvString&                            adminPassword();
-int                                        advancedStartPoints();
 const CvString&                            alias();                             // setupdata
 ArtStyleTypes                              artStyle(PlayerTypes p);
 bool                                       autorun();                           // setupdata
@@ -173,7 +172,6 @@ SeaLevelTypes                              seaLevel();
 const CvSeaLevelInfo&                      seaLevelInfo();
 void                                       setActivePlayer(PlayerTypes p);
 void                                       setAdminPassword(const CvString& p);
-void                                       setAdvancedStartPoints(int a);
 void                                       setAlias(const CvString& a);                           // setupdata
 void                                       setArtStyle(PlayerTypes p, ArtStyleTypes a);
 void                                       setAutorun(bool isEnabled);                        // setupdata

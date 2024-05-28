@@ -165,9 +165,6 @@ public:
 	int getMaxCityElimination() const;
 	void setMaxCityElimination(int iNewValue) const;
 
-	int getNumAdvancedStartPoints() const;
-	void setNumAdvancedStartPoints(int iNewValue) const;
-
 	int getStartTurn() const;
 	void setStartTurn(int iNewValue);
 
@@ -487,8 +484,6 @@ public:
 
 	bool isNukesValid() const;
 	void makeNukesValid(bool bValid = true);
-
-	bool isInAdvancedStart() const;
 
 	const CvString& getName();
 	void setName(const char* szName);
