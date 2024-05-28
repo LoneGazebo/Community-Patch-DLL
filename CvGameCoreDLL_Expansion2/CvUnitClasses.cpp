@@ -101,7 +101,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iXPValueDefense(0),
 	m_iSpecialCargo(0),
 	m_iDomainCargo(0),
-	m_iConscriptionValue(0),
 	m_iExtraMaintenanceCost(0),
 	m_bNoMaintenance(false),
 	m_iUnhappiness(0),
@@ -333,7 +332,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
 	m_iXPValueAttack = kResults.GetInt("XPValueAttack");
 	m_iXPValueDefense = kResults.GetInt("XPValueDefense");
-	m_iConscriptionValue = kResults.GetInt("Conscription");
 	m_iExtraMaintenanceCost = kResults.GetInt("ExtraMaintenanceCost");
 	m_bNoMaintenance = kResults.GetBool("NoMaintenance");
 	m_iUnhappiness = kResults.GetInt("Unhappiness");
@@ -1113,12 +1111,6 @@ int CvUnitEntry::GetSpecialUnitCargoLoad() const
 int CvUnitEntry::GetDomainCargo() const
 {
 	return m_iDomainCargo;
-}
-
-/// Cost to conscript this unit
-int CvUnitEntry::GetConscriptionValue() const
-{
-	return m_iConscriptionValue;
 }
 
 /// Extra cost for unit maintenance in Gold (deducted every turn)

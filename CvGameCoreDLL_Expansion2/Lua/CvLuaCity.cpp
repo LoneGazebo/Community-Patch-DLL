@@ -164,13 +164,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetExtraProductionDifference);
 
-	Method(CanHurry);
-	Method(Hurry);
-	Method(GetConscriptUnit);
-	Method(GetConscriptPopulation);
-	Method(ConscriptMinCityPopulation);
-	Method(CanConscript);
-	Method(Conscript);
 	Method(GetResourceYieldRateModifier);
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
@@ -195,11 +188,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(FoodDifferenceTimes100);
 	Method(GrowthThreshold);
 	Method(ProductionLeft);
-	Method(HurryCost);
-	Method(HurryGold);
-	Method(HurryPopulation);
-	Method(HurryProduction);
-	Method(MaxHurryPopulation);
 
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
@@ -1631,13 +1619,13 @@ int CvLuaCity::lGetProductionExperience(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::getProductionExperience);
 }
 //------------------------------------------------------------------------------
-//void addProductionExperience(CyUnit* pUnit, bool bConscript = false);
+//void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false);
 int CvLuaCity::lAddProductionExperience(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-	const bool bConscript = luaL_optint(L, 3, 0);
-	pkCity->addProductionExperience(pkUnit, bConscript);
+	const bool bHalveXP = luaL_optint(L, 3, 0);
+	pkCity->addProductionExperience(pkUnit, bHalveXP);
 
 	return 1;
 }
@@ -2222,51 +2210,6 @@ int CvLuaCity::lGetExtraProductionDifference(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::getExtraProductionDifference);
 }
 //------------------------------------------------------------------------------
-//bool canHurry(HurryTypes iHurry, bool bTestVisible);
-int CvLuaCity::lCanHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::canHurry);
-}
-//------------------------------------------------------------------------------
-//void hurry(HurryTypes iHurry);
-int CvLuaCity::lHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::hurry);
-}
-//------------------------------------------------------------------------------
-//UnitTypes getConscriptUnit()
-int CvLuaCity::lGetConscriptUnit(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::getConscriptUnit);
-}
-//------------------------------------------------------------------------------
-//int getConscriptPopulation();
-int CvLuaCity::lGetConscriptPopulation(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::getConscriptPopulation);
-}
-//------------------------------------------------------------------------------
-//int conscriptMinCityPopulation();
-int CvLuaCity::lConscriptMinCityPopulation(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::conscriptMinCityPopulation);
-}
-//------------------------------------------------------------------------------
-//bool canConscript();
-int CvLuaCity::lCanConscript(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::canConscript);
-}
-//------------------------------------------------------------------------------
-//void conscript();
-int CvLuaCity::lConscript(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	pkCity->conscript();
-
-	return 1;
-}
-//------------------------------------------------------------------------------
 //int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource);
 int CvLuaCity::lGetResourceYieldRateModifier(lua_State* L)
 {
@@ -2405,36 +2348,6 @@ int CvLuaCity::lGrowthThreshold(lua_State* L)
 int CvLuaCity::lProductionLeft(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::productionLeft);
-}
-//------------------------------------------------------------------------------
-//int hurryCost(HurryTypes iHurry, bool bExtra);
-int CvLuaCity::lHurryCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::hurryCost);
-}
-//------------------------------------------------------------------------------
-//int hurryGold(HurryTypes iHurry);
-int CvLuaCity::lHurryGold(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::hurryGold);
-}
-//------------------------------------------------------------------------------
-//int hurryPopulation(HurryTypes iHurry);
-int CvLuaCity::lHurryPopulation(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::hurryPopulation);
-}
-//------------------------------------------------------------------------------
-//int hurryProduction(HurryTypes iHurry);
-int CvLuaCity::lHurryProduction(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::hurryProduction);
-}
-//------------------------------------------------------------------------------
-//int maxHurryPopulation();
-int CvLuaCity::lMaxHurryPopulation(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::maxHurryPopulation);
 }
 //------------------------------------------------------------------------------
 //int getNumBuilding(BuildingTypes eBuildingType);

@@ -2943,52 +2943,10 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 //======================================================================================================
 //					CvHurryInfo
 //======================================================================================================
-CvHurryInfo::CvHurryInfo() :
-	m_iPolicyPrereq(NO_POLICY),
-	m_iGoldPerProduction(0),
-	m_iProductionPerPopulation(0),
-	m_iGoldPerBeaker(0),
-	m_iGoldPerCulture(0)
-{
-}
-//------------------------------------------------------------------------------
-int CvHurryInfo::getPolicyPrereq() const
-{
-	return m_iPolicyPrereq;
-}
-//------------------------------------------------------------------------------
-int CvHurryInfo::getGoldPerProduction() const
-{
-	return m_iGoldPerProduction;
-}
-//------------------------------------------------------------------------------
-int CvHurryInfo::getProductionPerPopulation() const
-{
-	return m_iProductionPerPopulation;
-}
-//------------------------------------------------------------------------------
-int CvHurryInfo::getGoldPerBeaker() const
-{
-	return m_iGoldPerBeaker;
-}
-//------------------------------------------------------------------------------
-int CvHurryInfo::getGoldPerCulture() const
-{
-	return m_iGoldPerCulture;
-}
-//------------------------------------------------------------------------------
 bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
-
-	m_iGoldPerProduction = kResults.GetInt("GoldPerProduction");
-	m_iProductionPerPopulation = kResults.GetInt("ProductionPerPopulation");
-	m_iGoldPerBeaker = kResults.GetInt("GoldPerBeaker");
-	m_iGoldPerCulture = kResults.GetInt("GoldPerCulture");
-
-	const char* szPolicyPrereq = kResults.GetText("PolicyPrereq");
-	m_iPolicyPrereq = GC.getInfoTypeForString(szPolicyPrereq, true);
 
 	return true;
 }
@@ -8289,7 +8247,6 @@ CvWorldInfo::CvWorldInfo() :
 	m_iTargetNumCities(0),
 	m_iNumFreeBuildingResources(0),
 	m_iBuildingClassPrereqModifier(0),
-	m_iMaxConscriptModifier(0),
 	m_iGridWidth(0),
 	m_iGridHeight(0),
 	m_iMaxActiveReligions(0),
@@ -8350,11 +8307,6 @@ int CvWorldInfo::getNumFreeBuildingResources() const
 int CvWorldInfo::getBuildingClassPrereqModifier() const
 {
 	return m_iBuildingClassPrereqModifier;
-}
-//------------------------------------------------------------------------------
-int CvWorldInfo::getMaxConscriptModifier() const
-{
-	return m_iMaxConscriptModifier;
 }
 //------------------------------------------------------------------------------
 int CvWorldInfo::getGridWidth() const
@@ -8469,7 +8421,6 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iTargetNumCities				= kResults.GetInt("TargetNumCities");
 	m_iNumFreeBuildingResources		= kResults.GetInt("NumFreeBuildingResources");
 	m_iBuildingClassPrereqModifier	= kResults.GetInt("BuildingClassPrereqModifier");
-	m_iMaxConscriptModifier			= kResults.GetInt("MaxConscriptModifier");
 	m_iGridWidth					= kResults.GetInt("GridWidth");
 	m_iGridHeight					= kResults.GetInt("GridHeight");
 	m_iMaxActiveReligions			= kResults.GetInt("MaxActiveReligions");
@@ -8507,7 +8458,6 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iTargetNumCities != rhs.m_iTargetNumCities) return false;
 	if(m_iNumFreeBuildingResources != rhs.m_iNumFreeBuildingResources) return false;
 	if(m_iBuildingClassPrereqModifier != rhs.m_iBuildingClassPrereqModifier) return false;
-	if(m_iMaxConscriptModifier != rhs.m_iMaxConscriptModifier) return false;
 	if(m_iGridWidth != rhs.m_iGridWidth) return false;
 	if(m_iGridHeight != rhs.m_iGridHeight) return false;
 	if(m_iMaxActiveReligions != rhs.m_iMaxActiveReligions) return false;
@@ -8545,7 +8495,6 @@ void CvWorldInfo::Serialize(WorldInfo& worldInfo, Visitor& visitor)
 	visitor(worldInfo.m_iTargetNumCities);
 	visitor(worldInfo.m_iNumFreeBuildingResources);
 	visitor(worldInfo.m_iBuildingClassPrereqModifier);
-	visitor(worldInfo.m_iMaxConscriptModifier);
 	visitor(worldInfo.m_iGridWidth);
 	visitor(worldInfo.m_iGridHeight);
 	visitor(worldInfo.m_iMaxActiveReligions);
@@ -8581,7 +8530,6 @@ void CvWorldInfo::readFromVersion0(FDataStream& loadFrom)
 	loadFrom >> m_iTargetNumCities;
 	loadFrom >> m_iNumFreeBuildingResources;
 	loadFrom >> m_iBuildingClassPrereqModifier;
-	loadFrom >> m_iMaxConscriptModifier;
 	loadFrom >> m_iGridWidth;
 	loadFrom >> m_iGridHeight;
 	loadFrom >> m_iTerrainGrainChange;

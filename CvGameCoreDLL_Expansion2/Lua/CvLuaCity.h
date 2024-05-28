@@ -154,13 +154,6 @@ protected:
 
 	static int lGetExtraProductionDifference(lua_State* L);
 
-	static int lCanHurry(lua_State* L);
-	static int lHurry(lua_State* L);
-	static int lGetConscriptUnit(lua_State* L);
-	static int lGetConscriptPopulation(lua_State* L);
-	static int lConscriptMinCityPopulation(lua_State* L);
-	static int lCanConscript(lua_State* L);
-	static int lConscript(lua_State* L);
 	static int lGetResourceYieldRateModifier(lua_State* L);
 	static int lGetHandicapType(lua_State* L);
 	static int lGetCivilizationType(lua_State* L);
@@ -185,11 +178,6 @@ protected:
 	static int lFoodDifferenceTimes100(lua_State* L);
 	static int lGrowthThreshold(lua_State* L);
 	static int lProductionLeft(lua_State* L);
-	static int lHurryCost(lua_State* L);
-	static int lHurryGold(lua_State* L);
-	static int lHurryPopulation(lua_State* L);
-	static int lHurryProduction(lua_State* L);
-	static int lMaxHurryPopulation(lua_State* L);
 
 	static int lGetNumBuilding(lua_State* L);
 	static int lIsHasBuilding(lua_State* L);

@@ -167,7 +167,6 @@ public:
 	int GetHappyPerMilitaryUnit() const;
 	int GetFreeSpecialist() const;
 	int GetTechPrereq() const;
-	int GetMaxConscript() const;
 	int GetExpModifier() const;
 	int GetExpInBorderModifier() const;
 	int GetMinorQuestFriendshipMod() const;
@@ -651,7 +650,6 @@ private:
 	bool m_bMinorScienceAllies;
 	bool m_bMinorResourceBonus;
 	int m_iFreeSpecialist;
-	int m_iMaxConscript;
 	int m_iPolicyBranchType;
 	int m_iNumExtraBranches;
 	int m_iWoundedUnitDamageMod;
@@ -856,7 +854,6 @@ private:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 #endif
-//	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiPlotYieldChanges;

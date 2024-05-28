@@ -383,7 +383,7 @@ public:
 
 	bool canContinueProduction(OrderData order);
 	int getProductionExperience(UnitTypes eUnit = NO_UNIT);
-	void addProductionExperience(CvUnit* pUnit, bool bConscript = false, bool bGoldPurchase = false);
+	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false);
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
@@ -462,16 +462,6 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetFoodProductionTimes100(int iExcessFoodTimes100) const;
 #endif
-
-	bool canHurry(HurryTypes eHurry, bool bTestVisible = false) const;
-	void hurry(HurryTypes eHurry);
-
-	UnitTypes getConscriptUnit() const;
-	CvUnit* initConscriptedUnit();
-	int getConscriptPopulation() const;
-	int conscriptMinCityPopulation() const;
-	bool canConscript() const;
-	void conscript();
 
 	SPlotStats getPlotStats() const;
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
@@ -560,12 +550,6 @@ public:
 #endif
 
 	int productionLeft() const;
-	int hurryCost(HurryTypes eHurry, bool bExtra) const;
-	int getHurryCostModifier(HurryTypes eHurry, bool bIgnoreNew = false) const;
-	int hurryGold(HurryTypes eHurry) const;
-	int hurryPopulation(HurryTypes eHurry) const;
-	int hurryProduction(HurryTypes eHurry) const;
-	int maxHurryPopulation() const;
 
 	bool hasActiveWorldWonder() const;
 
@@ -2221,16 +2205,6 @@ protected:
 	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const;
 	int getExtraProductionDifference(int iExtra, ProjectTypes eProject) const;
 	int getExtraProductionDifference(int iExtra, int iModifier) const;
-	int getHurryCostModifier(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
-	int getHurryCostModifier(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
-	int getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew) const;
-	int getHurryCost(HurryTypes eHurry, bool bExtra, UnitTypes eUnit, bool bIgnoreNew) const;
-	int getHurryCost(HurryTypes eHurry, bool bExtra, BuildingTypes eBuilding, bool bIgnoreNew) const;
-	int getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, int iModifier) const;
-	int getHurryPopulation(HurryTypes eHurry, int iHurryCost) const;
-	int getHurryGold(HurryTypes eHurry, int iHurryCost, int iFullCost) const;
-	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
-	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
 
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;

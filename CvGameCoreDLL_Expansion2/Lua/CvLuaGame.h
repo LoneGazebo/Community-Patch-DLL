@@ -49,8 +49,6 @@ protected:
 	static int lCityPurchaseBuilding(lua_State* L);
 	static int lCityPurchaseProject(lua_State* L);
 
-	static int lGetProductionPerPopulation(lua_State* L);
-
 	static int lGetAdjustedPopulationPercent(lua_State* L);
 	static int lGetAdjustedLandPercent(lua_State* L);
 

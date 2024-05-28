@@ -690,11 +690,6 @@ protected:
 	static int lIsMilitaryFoodProduction(lua_State* L);
 	static int lGetHighestUnitLevel(lua_State* L);
 
-	static int lGetConscriptCount(lua_State* L);
-	static int lSetConscriptCount(lua_State* L);
-	static int lChangeConscriptCount(lua_State* L);
-
-	static int lGetMaxConscript(lua_State* L);
 	static int lGetOverflowResearch(lua_State* L);
 	LUAAPIEXTN(SetOverflowResearch, void, iResearch);
 	LUAAPIEXTN(ChangeOverflowResearch, void, iResearch);
@@ -957,10 +952,6 @@ protected:
 	static int lIsBuildingClassMaxedOut(lua_State* L);
 	static int lGetBuildingClassMaking(lua_State* L);
 	static int lGetBuildingClassCountPlusMaking(lua_State* L);
-	static int lGetHurryCount(lua_State* L);
-	static int lIsHasAccessToHurry(lua_State* L);
-	static int lIsCanHurry(lua_State* L);
-	static int lGetHurryGoldCost(lua_State* L);
 
 	static int lIsResearchingTech(lua_State* L);
 	static int lSetResearchingTech(lua_State* L);

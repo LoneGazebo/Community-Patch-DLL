@@ -283,8 +283,6 @@ CvPlayer::CvPlayer() :
 	, m_iSecondReligionPantheonCount()
 	, m_iEnablesSSPartHurryCount()
 	, m_iEnablesSSPartPurchaseCount()
-	, m_iConscriptCount()
-	, m_iMaxConscript()
 	, m_iHighestUnitLevel()
 	, m_iOverflowResearch()
 	, m_iExpModifier()
@@ -323,7 +321,6 @@ CvPlayer::CvPlayer() :
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	, m_iBorderGainlessPillageCount()
 #endif
-	, m_iPopRushHurryCount()
 	, m_iTotalImprovementsBuilt()
 	, m_iCostNextPolicy()
 	, m_iNumBuilders()
@@ -428,7 +425,6 @@ CvPlayer::CvPlayer() :
 , m_paiBuildingClassCount()
 , m_paiBuildingClassMaking()
 , m_paiProjectMaking()
-, m_paiHurryCount()
 , m_paiHurryModifier()
 , m_pabLoyalMember()
 , m_pabGetsScienceFromPlayer()
@@ -1144,7 +1140,6 @@ void CvPlayer::uninit()
 	m_paiBuildingClassCount.clear();
 	m_paiBuildingClassMaking.clear();
 	m_paiProjectMaking.clear();
-	m_paiHurryCount.clear();
 	m_paiHurryModifier.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_paiNumCitiesFreeChosenBuilding.clear();
@@ -1515,8 +1510,6 @@ void CvPlayer::uninit()
 	m_iSecondReligionPantheonCount = 0;
 	m_iEnablesSSPartHurryCount = 0;
 	m_iEnablesSSPartPurchaseCount = 0;
-	m_iConscriptCount = 0;
-	m_iMaxConscript = 0;
 	m_iHighestUnitLevel = 1;
 	m_iOverflowResearch = 0;
 	m_iExpModifier = 0;
@@ -1654,7 +1647,6 @@ void CvPlayer::uninit()
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_iBorderGainlessPillageCount = 0;
 #endif
-	m_iPopRushHurryCount = 0;
 	m_uiStartTime = 0;
 	m_bHasUUPeriod = false;
 	m_iTotalImprovementsBuilt = 0;
@@ -2105,9 +2097,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiProjectMaking.clear();
 		m_paiProjectMaking.resize(GC.getNumProjectInfos(), 0);
-
-		m_paiHurryCount.clear();
-		m_paiHurryCount.resize(GC.getNumHurryInfos(), 0);
 
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
@@ -11228,7 +11217,6 @@ void CvPlayer::doTurn()
 		updateTimerAnnexedMilitaryCityStates();
 	}
 
-	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
 	DoVassalLevy();
 
@@ -31946,44 +31934,6 @@ void CvPlayer::setHighestUnitLevel(int iNewValue)
 	CvAssert(getHighestUnitLevel() >= 0);
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getMaxConscript() const
-{
-	return m_iMaxConscript;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeMaxConscript(int iChange)
-{
-	m_iMaxConscript = (m_iMaxConscript + iChange);
-	CvAssert(getMaxConscript() >= 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getConscriptCount() const
-{
-	return m_iConscriptCount;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::setConscriptCount(int iNewValue)
-{
-	m_iConscriptCount = iNewValue;
-	CvAssert(getConscriptCount() >= 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeConscriptCount(int iChange)
-{
-	setConscriptCount(getConscriptCount() + iChange);
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getOverflowResearch() const
 {
@@ -41718,173 +41668,6 @@ void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCi
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getHurryCount(HurryTypes eIndex) const
-{
-	CvAssert(eIndex >= 0);
-	CvAssert(eIndex < GC.getNumHurryInfos());
-	return m_paiHurryCount[eIndex];
-}
-
-
-//	--------------------------------------------------------------------------------
-// Do we have access to this Hurry type?
-bool CvPlayer::IsHasAccessToHurry(HurryTypes eIndex) const
-{
-	return (getHurryCount(eIndex) > 0);
-}
-
-//	--------------------------------------------------------------------------------
-/// Can we use this Hurry RIGHT NOW?
-bool CvPlayer::IsCanHurry(HurryTypes eIndex) const
-{
-	CvHurryInfo* pkHurryInfo = GC.getHurryInfo(eIndex);
-	if(pkHurryInfo == NULL)
-		return false;
-
-	int iCost = GetHurryGoldCost(eIndex);
-
-	// Can we pay for this Hurry?
-	if(iCost < 0 || GetTreasury()->GetGold() < iCost)
-	{
-		return false;
-	}
-
-	// Science Rushing
-	if(pkHurryInfo->getGoldPerBeaker() > 0)
-	{
-		return true;
-	}
-
-	// Culture Rushing
-	if(pkHurryInfo->getGoldPerCulture() > 0)
-	{
-		// If we already have enough Culture for the next Policy, there's nothing to rush!
-		if(getNextPolicyCost() > getJONSCulture())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
-/// How much Gold does it cost us to Hurry? (whatever the applicable item is)
-int CvPlayer::GetHurryGoldCost(HurryTypes eHurry) const
-{
-	int iGold = -1;
-
-	CvHurryInfo* pkHurryInfo = GC.getHurryInfo(eHurry);
-	if(pkHurryInfo == NULL)
-	{
-		//This should never happen.
-		return -1;
-	}
-
-	// Science Rushing
-	if(pkHurryInfo->getGoldPerBeaker() > 0)
-	{
-		TechTypes eTech = GetPlayerTechs()->GetCurrentResearch();
-
-		if(eTech != NO_TECH)
-		{
-			int iTotalCost = GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech);
-			int iResearchLeft = GET_TEAM(getTeam()).GetTeamTechs()->GetResearchLeft(eTech);
-
-			// Cost of Gold rushing based on the ORIGINAL Research price
-			int iGoldForFullPrice = iTotalCost * pkHurryInfo->getGoldPerBeaker();
-			iGoldForFullPrice = (int) pow((double) iGoldForFullPrice, (double) /*1.10f*/ GD_FLOAT_GET(HURRY_GOLD_TECH_EXPONENT));
-
-			// Figure out the actual cost by comparing what's left to the original Research cost, and multiplying that by the amount to Gold rush the original cost
-			iGold = (iGoldForFullPrice * iResearchLeft / iTotalCost);
-		}
-	}
-
-	// Culture Rushing
-	if(pkHurryInfo->getGoldPerCulture() > 0)
-	{
-		int iCurrentPolicyCost = getNextPolicyCost();
-
-		if(iCurrentPolicyCost > 0)
-		{
-			int iCultureLeft = iCurrentPolicyCost - getJONSCulture();
-
-			// Cost of Gold rushing based on the ORIGINAL Culture price
-			int iGoldForFullPrice = iCurrentPolicyCost * pkHurryInfo->getGoldPerCulture();
-			iGoldForFullPrice = (int) pow((double) iGoldForFullPrice, (double) /*1.10f*/ GD_FLOAT_GET(HURRY_GOLD_CULTURE_EXPONENT));
-
-			// Figure out the actual cost by comparing what's left to the original Culture cost, and multiplying that by the amount to Gold rush the original cost
-			iGold = (iGoldForFullPrice * iCultureLeft / iCurrentPolicyCost);
-		}
-	}
-
-	return iGold;
-}
-
-//	--------------------------------------------------------------------------------
-/// Hurry something!
-void CvPlayer::DoHurry(HurryTypes eIndex)
-{
-	CvHurryInfo* pkHurryInfo = GC.getHurryInfo(eIndex);
-	if(pkHurryInfo)
-	{
-		if(IsCanHurry(eIndex))
-		{
-			int iGoldCost = GetHurryGoldCost(eIndex);
-			GetTreasury()->ChangeGold(-iGoldCost);
-
-			// Science Rushing
-			if(pkHurryInfo->getGoldPerBeaker() > 0)
-			{
-				TechTypes eTech = GetPlayerTechs()->GetCurrentResearch();
-
-				GET_TEAM(getTeam()).setHasTech(eTech, true, GetID(), false, false);
-			}
-
-			// Culture Rushing
-			if(pkHurryInfo->getGoldPerCulture() > 0)
-			{
-				setJONSCulture(getNextPolicyCost());
-			}
-		}
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::canPopRush()
-{
-	return (m_iPopRushHurryCount > 0);
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeHurryCount(HurryTypes eIndex, int iChange)
-{
-	CvAssert(eIndex >= 0);
-	CvAssert(eIndex < GC.getNumHurryInfos());
-
-	int oldHurryCount = m_paiHurryCount[eIndex];
-	m_paiHurryCount[eIndex] = m_paiHurryCount[eIndex] + iChange;
-	CvAssert(getHurryCount(eIndex) >= 0);
-
-	CvHurryInfo* pkHurryInfo = GC.getHurryInfo(eIndex);
-	if(pkHurryInfo == NULL)
-		return;
-
-	// if we just went from 0 to 1 (or the reverse)
-	if((oldHurryCount > 0) != (m_paiHurryCount[eIndex] > 0))
-	{
-		// does this hurry reduce population?
-		if(pkHurryInfo->getProductionPerPopulation() > 0)
-		{
-			m_iPopRushHurryCount += iChange;
-			CvAssert(m_iPopRushHurryCount >= 0);
-		}
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
 int CvPlayer::getHurryModifier(HurryTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -44830,7 +44613,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeSecondReligionPantheonCount((pPolicy->IsSecondReligionPantheon()) ? iChange : 0);
 	ChangeEnablesSSPartHurryCount((pPolicy->IsEnablesSSPartHurry()) ? iChange : 0);
 	ChangeEnablesSSPartPurchaseCount((pPolicy->IsEnablesSSPartPurchase()) ? iChange : 0);
-	changeMaxConscript(getWorldSizeMaxConscript(kPolicy) * iChange);
 	changeExpModifier(pPolicy->GetExpModifier() * iChange);
 	changeExpInBorderModifier(pPolicy->GetExpInBorderModifier() * iChange);
 	changeMinorQuestFriendshipMod(pPolicy->GetMinorQuestFriendshipMod() * iChange);
@@ -45196,13 +44978,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 	for(iI = 0; iI < GC.getNumHurryInfos(); iI++)
 	{
-		if(GC.getHurryInfo((HurryTypes) iI)->getPolicyPrereq() == ePolicy)
-		{
-			changeHurryCount(((HurryTypes)iI), iChange);
-		}
-		{
-			changeHurryModifier((HurryTypes) iI, (pPolicy->GetHurryModifier(iI) * iChange));
-		}
+		changeHurryModifier((HurryTypes) iI, (pPolicy->GetHurryModifier(iI) * iChange));
 	}
 
 	for(iI = 0; iI < GC.getNumPlotInfos(); iI++)
@@ -47121,8 +46897,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSecondReligionPantheonCount);
 	visitor(player.m_iEnablesSSPartHurryCount);
 	visitor(player.m_iEnablesSSPartPurchaseCount);
-	visitor(player.m_iConscriptCount);
-	visitor(player.m_iMaxConscript);
 	visitor(player.m_iHighestUnitLevel);
 	visitor(player.m_iOverflowResearch);
 	visitor(player.m_iExpModifier);
@@ -47218,7 +46992,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNavalCombatExperienceTimes100);
 	visitor(player.m_iBorderObstacleCount);
 	visitor(player.m_iBorderGainlessPillageCount);
-	visitor(player.m_iPopRushHurryCount);
 	visitor(player.m_iTotalImprovementsBuilt);
 	visitor(player.m_iCostNextPolicy);
 	visitor(player.m_iNumBuilders);
@@ -47380,7 +47153,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiBuildingClassCount);
 	visitor(player.m_paiBuildingClassMaking);
 	visitor(player.m_paiProjectMaking);
-	visitor(player.m_paiHurryCount);
 	visitor(player.m_paiHurryModifier);
 	visitor(player.m_bVassalLevy);
 	visitor(player.m_iVassalGoldMaintenanceMod);
