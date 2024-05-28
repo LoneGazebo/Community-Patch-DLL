@@ -618,11 +618,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsMilitaryFoodProduction);
 	Method(GetHighestUnitLevel);
 
-	Method(GetConscriptCount);
-	Method(SetConscriptCount);
-	Method(ChangeConscriptCount);
-
-	Method(GetMaxConscript);
 	Method(GetOverflowResearch);
 	Method(SetOverflowResearch);
 	Method(ChangeOverflowResearch);
@@ -873,10 +868,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsBuildingClassMaxedOut);
 	Method(GetBuildingClassMaking);
 	Method(GetBuildingClassCountPlusMaking);
-	Method(GetHurryCount);
-	Method(IsHasAccessToHurry);
-	Method(IsCanHurry);
-	Method(GetHurryGoldCost);
 
 	//Method(IsSpecialistValid);
 	Method(IsResearchingTech);
@@ -7941,31 +7932,6 @@ int CvLuaPlayer::lGetHighestUnitLevel(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int getConscriptCount();
-int CvLuaPlayer::lGetConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getConscriptCount);
-}
-//------------------------------------------------------------------------------
-//void setConscriptCount(int iNewValue);
-int CvLuaPlayer::lSetConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::setConscriptCount);
-}
-//------------------------------------------------------------------------------
-//void changeConscriptCount(int iChange);
-int CvLuaPlayer::lChangeConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::changeConscriptCount);
-}
-
-//------------------------------------------------------------------------------
-//int getMaxConscript();
-int CvLuaPlayer::lGetMaxConscript(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getMaxConscript);
-}
-//------------------------------------------------------------------------------
 //int getOverflowResearch();
 int CvLuaPlayer::lGetOverflowResearch(lua_State* L)
 {
@@ -10020,31 +9986,6 @@ int CvLuaPlayer::lGetBuildingClassCountPlusMaking(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getBuildingClassCountPlusMaking);
 }
-//------------------------------------------------------------------------------
-//int getHurryCount(HurryTypes  eIndex);
-int CvLuaPlayer::lGetHurryCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getHurryCount);
-}
-//------------------------------------------------------------------------------
-//bool IsHasAccessToHurry(HurryTypes  eIndex);
-int CvLuaPlayer::lIsHasAccessToHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsHasAccessToHurry);
-}
-//------------------------------------------------------------------------------
-//bool IsCanHurry(HurryTypes  eIndex);
-int CvLuaPlayer::lIsCanHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsCanHurry);
-}
-//------------------------------------------------------------------------------
-//int GetHurryGoldCost(HurryTypes  eIndex);
-int CvLuaPlayer::lGetHurryGoldCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetHurryGoldCost);
-}
-
 //------------------------------------------------------------------------------
 //bool isResearchingTech(TechTypes  iIndex);
 int CvLuaPlayer::lIsResearchingTech(lua_State* L)

@@ -68,8 +68,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(CityPurchaseBuilding);
 	Method(CityPurchaseProject);
 
-	Method(GetProductionPerPopulation);
-
 	Method(GetAdjustedPopulationPercent);
 	Method(GetAdjustedLandPercent);
 
@@ -657,12 +655,6 @@ int CvLuaGame::lCityPurchaseProject(lua_State* L)
 
 	GetInstance()->CityPurchase(pkCity, NO_UNIT, NO_BUILDING, eProjectType, ePurchaseYield);
 	return 0;
-}
-//------------------------------------------------------------------------------
-// int getProductionPerPopulation(HurryTypes eHurry);
-int CvLuaGame::lGetProductionPerPopulation(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvGame::getProductionPerPopulation);
 }
 //------------------------------------------------------------------------------
 // int getAdjustedPopulationPercent(VictoryTypes eVictory);

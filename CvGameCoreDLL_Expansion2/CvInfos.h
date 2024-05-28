@@ -927,23 +927,7 @@ private:
 class CvHurryInfo :	public CvBaseInfo
 {
 public:
-	CvHurryInfo();
-
-	int getPolicyPrereq() const;
-	int getGoldPerProduction() const;
-	int getProductionPerPopulation() const;
-	int getGoldPerBeaker() const;
-	int getGoldPerCulture() const;
-
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
-
-protected:
-
-	int m_iPolicyPrereq;
-	int m_iGoldPerProduction;
-	int m_iProductionPerPopulation;
-	int m_iGoldPerBeaker;
-	int m_iGoldPerCulture;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2482,7 +2466,6 @@ public:
 	int getTargetNumCities() const;
 	int getNumFreeBuildingResources() const;
 	int getBuildingClassPrereqModifier() const;
-	int getMaxConscriptModifier() const;
 	int getGridWidth() const;
 	int getGridHeight() const;
 	int getMaxActiveReligions() const;
@@ -2530,7 +2513,6 @@ protected:
 	int m_iTargetNumCities;
 	int m_iNumFreeBuildingResources;
 	int m_iBuildingClassPrereqModifier;
-	int m_iMaxConscriptModifier;
 	int m_iGridWidth;
 	int m_iGridHeight;
 	int m_iMaxActiveReligions;

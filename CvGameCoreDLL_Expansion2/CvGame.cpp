@@ -3923,21 +3923,6 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
 	return std::min(100, (((iNextBestPopulation * 100) / getTotalPopulation()) + pkVictoryInfo->getPopulationPercentLead()));
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvGame::getProductionPerPopulation(HurryTypes eHurry)
-{
-	if(NO_HURRY == eHurry)
-		return 0;
-
-	CvHurryInfo* pkHurryInfo = GC.getHurryInfo(eHurry);
-	if(pkHurryInfo == NULL)
-		return 0;
-
-	return (pkHurryInfo->getProductionPerPopulation());
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 {

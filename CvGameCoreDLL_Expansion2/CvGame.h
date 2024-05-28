@@ -103,8 +103,6 @@ public:
 	bool canDoControl(ControlTypes eControl);
 	void doControl(ControlTypes eControl);
 
-	int getProductionPerPopulation(HurryTypes eHurry);
-
 	int getAdjustedPopulationPercent(VictoryTypes eVictory) const;
 	int getAdjustedLandPercent(VictoryTypes eVictory) const;
 

@@ -110,7 +110,6 @@ public:
 	int GetSpecialCargo() const;
 	int GetDomainCargo() const;
 
-	int GetConscriptionValue() const;
 	int GetExtraMaintenanceCost() const;
 	bool IsNoMaintenance() const;
 	int GetUnhappiness() const;
@@ -342,7 +341,6 @@ private:
 	int m_iSpecialCargo;
 
 	int m_iDomainCargo;
-	int m_iConscriptionValue;
 	int m_iExtraMaintenanceCost;
 	bool m_bNoMaintenance;
 	int m_iUnhappiness;

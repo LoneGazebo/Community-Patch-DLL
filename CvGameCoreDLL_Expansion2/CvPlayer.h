@@ -1393,13 +1393,6 @@ public:
 	int getHighestUnitLevel() const;
 	void setHighestUnitLevel(int iNewValue);
 
-	int getConscriptCount() const;
-	void setConscriptCount(int iNewValue);
-	void changeConscriptCount(int iChange);
-
-	int getMaxConscript() const;
-	void changeMaxConscript(int iChange);
-
 	int getOverflowResearch() const;
 	void setOverflowResearch(int iNewValue);
 	void changeOverflowResearch(int iChange);
@@ -2319,15 +2312,6 @@ public:
 	int getProjectMaking(ProjectTypes eIndex) const;
 	void changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity = NULL);
 
-	int getHurryCount(HurryTypes eIndex) const;
-	bool IsHasAccessToHurry(HurryTypes eIndex) const;
-
-	bool IsCanHurry(HurryTypes eIndex) const;
-	int GetHurryGoldCost(HurryTypes eHurry) const;
-	void DoHurry(HurryTypes eIndex);
-
-	bool canPopRush();
-	void changeHurryCount(HurryTypes eIndex, int iChange);
 	int getHurryModifier(HurryTypes eIndex) const;
 	void changeHurryModifier(HurryTypes eIndex, int iChange);
 
@@ -3378,8 +3362,6 @@ protected:
 	int m_iSecondReligionPantheonCount;
 	int m_iEnablesSSPartHurryCount;
 	int m_iEnablesSSPartPurchaseCount;
-	int m_iConscriptCount;
-	int m_iMaxConscript;
 	int m_iHighestUnitLevel;
 	int m_iOverflowResearch;
 	int m_iExpModifier;
@@ -3484,7 +3466,6 @@ protected:
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	int m_iBorderGainlessPillageCount;
 #endif
-	int m_iPopRushHurryCount;
 	int m_iTotalImprovementsBuilt;
 	int m_iCostNextPolicy;
 	int m_iNumBuilders;
@@ -3683,7 +3664,6 @@ protected:
 	std::vector<int> m_paiBuildingClassCount;
 	std::vector<int> m_paiBuildingClassMaking;
 	std::vector<int> m_paiProjectMaking;
-	std::vector<int> m_paiHurryCount;
 	std::vector<int> m_paiHurryModifier;
 
 	bool m_bVassalLevy;
@@ -4218,8 +4198,6 @@ SYNC_ARCHIVE_VAR(int, m_iNumMissionarySpreads)
 SYNC_ARCHIVE_VAR(int, m_iSecondReligionPantheonCount)
 SYNC_ARCHIVE_VAR(int, m_iEnablesSSPartHurryCount)
 SYNC_ARCHIVE_VAR(int, m_iEnablesSSPartPurchaseCount)
-SYNC_ARCHIVE_VAR(int, m_iConscriptCount)
-SYNC_ARCHIVE_VAR(int, m_iMaxConscript)
 SYNC_ARCHIVE_VAR(int, m_iHighestUnitLevel)
 SYNC_ARCHIVE_VAR(int, m_iOverflowResearch)
 SYNC_ARCHIVE_VAR(int, m_iExpModifier)
@@ -4315,7 +4293,6 @@ SYNC_ARCHIVE_VAR(int, m_iLifetimeCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(int, m_iNavalCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(int, m_iBorderObstacleCount)
 SYNC_ARCHIVE_VAR(int, m_iBorderGainlessPillageCount)
-SYNC_ARCHIVE_VAR(int, m_iPopRushHurryCount)
 SYNC_ARCHIVE_VAR(int, m_iTotalImprovementsBuilt)
 SYNC_ARCHIVE_VAR(int, m_iCostNextPolicy)
 SYNC_ARCHIVE_VAR(int, m_iNumBuilders)
@@ -4469,7 +4446,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassMaking)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassMaking)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectMaking)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryModifier)
 SYNC_ARCHIVE_VAR(bool, m_bVassalLevy)
 SYNC_ARCHIVE_VAR(int, m_iVassalGoldMaintenanceMod)

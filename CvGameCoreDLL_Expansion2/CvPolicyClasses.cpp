@@ -158,7 +158,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappyPerMilitaryUnit(0),
 	m_iFreeSpecialist(0),
 	m_iTechPrereq(NO_TECH),
-	m_iMaxConscript(0),
 	m_iExpModifier(0),
 	m_iExpInBorderModifier(0),
 	m_iMinorQuestFriendshipMod(0),
@@ -432,7 +431,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
 
-//	SAFE_DELETE_ARRAY(m_pabHurry);
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 #if defined(MOD_BALANCE_CORE)
@@ -666,7 +664,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iDefenseBoost = kResults.GetInt("DefenseBoostAllCities");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
-	m_iMaxConscript = kResults.GetInt("MaxConscript");
 	m_iWoundedUnitDamageMod = kResults.GetInt("WoundedUnitDamageMod");
 	m_iUnitUpgradeCostMod = kResults.GetInt("UnitUpgradeCostMod");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
@@ -2139,12 +2136,6 @@ int CvPolicyEntry::GetTechPrereq() const
 	return m_iTechPrereq;
 }
 
-/// Number of units that may be conscripted
-int CvPolicyEntry::GetMaxConscript() const
-{
-	return m_iMaxConscript;
-}
-
 /// Modifier to experience
 int CvPolicyEntry::GetExpModifier() const
 {
@@ -2954,14 +2945,6 @@ int CvPolicyEntry::GetTourismByUnitClassCreated(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiTourismOnUnitCreation ? m_paiTourismOnUnitCreation[i] : -1;
 }
-
-/// Is this hurry type now enabled?
-//bool CvPolicyEntry::IsHurry(int i) const
-//{
-//	FAssertMsg(i < GC.getNumHurryInfos(), "Index out of bounds");
-//	FAssertMsg(i > -1, "Index out of bounds");
-//	return m_pabHurry ? m_pabHurry[i] : false;
-//}
 
 /// Modifier to Hurry cost
 int CvPolicyEntry::GetHurryModifier(int i) const
