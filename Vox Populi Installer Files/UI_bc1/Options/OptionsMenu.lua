@@ -116,6 +116,7 @@ function OnOK()
 	EUI_options.SetValue( "SeparateMilitaryDomain", Controls.SeparateMilitaryDomainCheckbox:IsChecked() )
 	EUI_options.SetValue( "SeparateProjectWonders", Controls.SeparateProjectWondersCheckbox:IsChecked() )
 --
+	EUI_options.SetValue( "HighlightBuildingBonuses", Controls.HighlightBuildingBonusesCheckbox:IsChecked() )
 	OptionsManager.CommitGameOptions();
 	OptionsManager.CommitGraphicsOptions();
 	SaveAudioOptions();
@@ -667,6 +668,7 @@ function UpdateGameOptionsDisplay()
 		Controls.SeparateProjectWondersCheckbox:SetAlpha( 0.5 );
 	end
 --
+	Controls.HighlightBuildingBonusesCheckbox:SetCheck( EUI_options.GetValue( "HighlightBuildingBonuses" ) == 1 )
 	Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
 	Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
 	Controls.AutoWorkersDontRemoveFeaturesCB:SetCheck( OptionsManager.IsAutoWorkersDontRemoveFeatures_Cached() );
