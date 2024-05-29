@@ -131,7 +131,7 @@
 
 		<!-- Interface Options -->
 		<Container ID="IFacePanel" Size="971,500" Offset="0,44" Hidden="1">
-			<Stack Anchor="R,T" Offset="550,50" Padding="4" >
+			<Stack Anchor="R,T" Offset="550,50" Padding="2" >
 				<CheckBox ID="PolicyInfo" Anchor="R,C" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
 				<CheckBox ID="ScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
 				<CheckBox ID="MPScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
@@ -172,6 +172,7 @@
 						<Label Anchor="L,C" String="TXT_KEY_CLOSE" />
 					</Stack>
 				</CheckBox>
+				<CheckBox ID="HighlightBuildingBonusesCheckbox" Anchor="R,C" String="TXT_KEY_EUI_HIGHLIGHT_BUILDING_BONUSES_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_EUI_HIGHLIGHT_BUILDING_BONUSES_BODY" />
 				<CheckBox ID="SeparateCityProductionCheckbox" Anchor="R,C" String="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_DISPLAY" IsChecked="1" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_BODY"/>
 				<CheckBox ID="SeparateGPReligiousCheckbox" Anchor="R,T" Offset="24,-6" String="TXT_KEY_EUI_SEPARATE_GP_RELIGIOUS_DISPLAY" Font="TwCenMT16" IsChecked="1" NoStateChange="1" Disabled="0"/>
 				<CheckBox ID="SeparateMilitaryDomainCheckbox" Anchor="R,T" Offset="24,-16" String="TXT_KEY_EUI_SEPARATE_MILITARY_DOMAIN_DISPLAY" Font="TwCenMT16" IsChecked="1" NoStateChange="1" Disabled="0"/>
