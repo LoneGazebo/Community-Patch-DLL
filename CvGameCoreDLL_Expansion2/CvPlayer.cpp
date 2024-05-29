@@ -32805,6 +32805,28 @@ int CvPlayer::GetRazingSpeedBonus() const
 void CvPlayer::ChangeRazingSpeedBonus(int iChange)
 {
 	m_iRazingSpeedBonus += iChange;
+	// recalculate razing turns for each city that's being razed
+
+	int iPopulationDrop = 1;
+	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier() + GetRazingSpeedBonus());
+	iPopulationDrop /= 100;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsRazing())
+		{
+			// reset previous value
+			pLoopCity->ChangeRazingTurns(-pLoopCity->GetRazingTurns());
+
+			// same calculation as in CvPlayer::raze
+			int iTurnsToRaze = pLoopCity->getPopulation();
+			if (iPopulationDrop > 0)
+			{
+				iTurnsToRaze = (iTurnsToRaze + iPopulationDrop - 1) / iPopulationDrop;
+			}
+			pLoopCity->ChangeRazingTurns(iTurnsToRaze);
+		}
+	}
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetNoPartisans() const
