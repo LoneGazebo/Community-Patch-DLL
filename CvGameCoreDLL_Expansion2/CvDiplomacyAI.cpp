@@ -49938,26 +49938,15 @@ void CvDiplomacyAI::LogMinorCivGiftTile(PlayerTypes eMinor)
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if (GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -49988,26 +49977,15 @@ void CvDiplomacyAI::LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, 
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50058,26 +50036,15 @@ void CvDiplomacyAI::LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipT
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50128,26 +50095,15 @@ void CvDiplomacyAI::LogMinorCivBullyHeavy(PlayerTypes eMinor, int iOldFriendship
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if (GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50198,26 +50154,15 @@ void CvDiplomacyAI::LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipT
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50269,26 +50214,15 @@ void CvDiplomacyAI::LogMinorCivQuestReceived(PlayerTypes eMinor, int iOldFriends
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50325,26 +50259,15 @@ void CvDiplomacyAI::LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriends
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50381,26 +50304,15 @@ void CvDiplomacyAI::LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriend
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -50437,26 +50349,15 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 
 		CvString strOutBuf;
 		CvString strBaseString;
-
-		CvString playerName;
 		CvString otherPlayerName;
-
 		CvString strTemp;
 
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -54047,6 +53948,35 @@ void CvDiplomacyAI::TestUIDiploStatement(PlayerTypes eToPlayer, DiploStatementTy
 	m_eTestToPlayer = eToPlayer;
 	m_eTestStatement = eStatement;
 	m_iTestStatementArg1 = iArg1;
+}
+
+void CvDiplomacyAI::LogMinorStatusChange(PlayerTypes eMinor, const char* msg)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		CvString strTemp;
+
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Turn number
+		CvString strBaseString;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+		// Our Name
+		strBaseString += playerName;
+
+		// Their Name
+		CvString otherPlayerName = GET_PLAYER(eMinor).getCivilizationShortDescription();
+		strBaseString += ", " + otherPlayerName;
+		CvString strOutBuf = strBaseString;
+
+		// Actual Info (friends/allies gained/lost)
+		strOutBuf += ", ";
+		strOutBuf += msg;
+		pLog->Msg(strOutBuf);
+	}
 }
 
 //	-------------------------------------------------------------------------------------
