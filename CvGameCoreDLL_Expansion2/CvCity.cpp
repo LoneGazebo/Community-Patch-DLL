@@ -32129,6 +32129,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	CvUnit* pNewUnit = NULL;
+	bool bInvest = (ePurchaseYield == YIELD_GOLD) && (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT));
 
 	switch (ePurchaseYield)
 	{
@@ -32136,7 +32137,6 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 	{
 		int	iGoldCost = GetPurchaseCost(eUnitType);
 
-		bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
 		if (bInvest)
 		{
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
@@ -32357,31 +32357,34 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 		return NULL;
 	}
 
-	//autoupgrade
-	if (pNewUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+	if (!bInvest)
 	{
-		UnitTypes eUpgradeUnit = pNewUnit->GetUpgradeUnitType();
-		if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+		//autoupgrade
+		if (pNewUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 		{
-			//return value must not be a zombie
-			pNewUnit = pNewUnit->DoUpgrade(true);
-		}
-	}
-	if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
-	{
-		UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
-		UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-		if (pNewUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
-		{
-			CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-			if (pkcUnitEntry)
+			UnitTypes eUpgradeUnit = pNewUnit->GetUpgradeUnitType();
+			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
 			{
-				UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
-				CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pNewUnit->getX(), pNewUnit->getY(), eZuluImpiAI);
-				pZuluImpi->convert(pNewUnit, true);
-
 				//return value must not be a zombie
-				pNewUnit = pZuluImpi;
+				pNewUnit = pNewUnit->DoUpgrade(true);
+			}
+		}
+		if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+		{
+			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
+			UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
+			if (pNewUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+			{
+				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
+				if (pkcUnitEntry)
+				{
+					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
+					CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pNewUnit->getX(), pNewUnit->getY(), eZuluImpiAI);
+					pZuluImpi->convert(pNewUnit, true);
+
+					//return value must not be a zombie
+					pNewUnit = pZuluImpi;
+				}
 			}
 		}
 	}
