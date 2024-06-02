@@ -11702,8 +11702,8 @@ void CvMinorCivAI::DoFriendship()
 			continue;
 		
 		// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
-		int iFrendship = GetBaseFriendshipWithMajor(ePlayer);
-		DoFriendshipChangeEffects(ePlayer, iFrendship, iFrendship);
+		int iFriendship = GetBaseFriendshipWithMajor(ePlayer);
+		DoFriendshipChangeEffects(ePlayer, iFriendship, iFriendship);
 		
 		// Notification for status changes
 		int iChangeThisTurn = GetFriendshipChangePerTurnTimes100(ePlayer);
@@ -12028,9 +12028,9 @@ void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bF
 }
 
 /// Changes the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest)
+void CvMinorCivAI::ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest, bool bUpdateStatus)
 {
-	ChangeFriendshipWithMajorTimes100(ePlayer, iChange * 100, bFromQuest);
+	ChangeFriendshipWithMajorTimes100(ePlayer, iChange * 100, bFromQuest, bUpdateStatus);
 }
 
 /// What is the resting point of Influence this major has?  Affected by religion, social policies, Wary Of, etc.
