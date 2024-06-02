@@ -4070,7 +4070,7 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			CvPlot* pTargetPlot = bIsVenice ? GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true) : NULL;
 			if (pTargetPlot) //venetian merchant
 			{
-				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, 0);
+				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, false);
 				if (pUnit->atPlot(*pTargetPlot) && pUnit->canMove())
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eColonia);
 			}
