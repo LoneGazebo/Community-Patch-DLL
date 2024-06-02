@@ -12389,6 +12389,8 @@ bool CvUnit::trade()
 	// Acquire Influence
 	int iInfluence = getTradeInfluence(pPlot);
 
+	bool bGreatDiplomat = MOD_BALANCE_VP && m_pUnitInfo->GetNumInfPerEra() > 0 && m_pUnitInfo->GetRestingPointChange() != 0;
+
 	if (MOD_BALANCE_VP) 
 	{
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
@@ -12399,14 +12401,15 @@ bool CvUnit::trade()
 		}
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
-		if (m_pUnitInfo->GetNumInfPerEra() > 0 && iRestingPointChange != 0)
+		if (bGreatDiplomat)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
-					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence);
+					// only reduce influence, but don't update ally status here. it could lead to unintended war declarations by the minor civ if their ally changes temporarily while looping through the players
+					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence, false, /*bUpdateStatus*/ false);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 					if (pNotifications)
@@ -12462,6 +12465,21 @@ bool CvUnit::trade()
 	}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iInfluence);
+
+	// Great Diplomat: now update the friend/ally status for the other players
+	if (bGreatDiplomat)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+			{
+				// Friendship amount doesn't change
+				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer);
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, iFriendship, iFriendship);
+			}
+		}
+	}
 
 	//This keeps minor civs in the black, financially.
 	//GET_PLAYER(eMinor).GetTreasury()->ChangeGold((iInfluence / 2));
