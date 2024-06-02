@@ -847,15 +847,9 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Log the quest rewards
 	if (GC.getLogging() && GC.getAILogging())
 	{
-		CvString strLogName;
+		CvString strLogName = GC.getDiploMinorLogFileName(&kPlayer);
+		CvString playerName = kPlayer.getCivilizationShortDescription();
 		CvString strTemp;
-		CvString playerName = pMinor->getCivilizationShortDescription();
-
-		// Open the log file
-		if (GC.getPlayerAndCityAILogSplit())
-			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-		else
-			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
 		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
@@ -12264,8 +12258,8 @@ PlayerTypes CvMinorCivAI::GetAlly() const
 	return m_eAlly;
 }
 
-/// Sets who has the best relations with us right now
-void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
+/// Sets who has the best relations with us right now ... MAY FAIL!
+bool CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 {
 	CvAssertMsg(eNewAlly >= NO_PLAYER, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eNewAlly < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -12274,24 +12268,41 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	int iNumPlots = GC.getMap().numPlots();
 
 	PlayerTypes eOldAlly = GetAlly();
+
 #if defined(MOD_BALANCE_CORE)
 	if(IsNoAlly())
 	{
-		m_eAlly = NO_PLAYER;
-		return;
+		if (eNewAlly != NO_PLAYER)
+		{
+			GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "cannot become new ally because of IsNoAlly status");
+			return false;
+		}
 	}
-	if(GetPermanentAlly() != NO_PLAYER && eNewAlly != GetPermanentAlly())
+
+	if (GetPermanentAlly() != NO_PLAYER)
 	{
-		m_eAlly = GetPermanentAlly();
-		GET_PLAYER(GetPermanentAlly()).RefreshCSAlliesFriends();
-		GET_PLAYER(GetPermanentAlly()).UpdateHappinessFromMinorCivs();
-		return;
+		if (eNewAlly != GetPermanentAlly())
+		{
+			m_pPlayer->GetDiplomacyAI()->LogMinorStatusChange(eNewAlly, "cannot set a new ally because of PermanentAlly status");
+			return false;
+		}
+		else if (m_eAlly != GetPermanentAlly())
+		{
+			GET_PLAYER(GetPermanentAlly()).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "setting new permanent ally");
+			//continue below!
+		}
 	}
 #endif
+
+	//nothing to do?
+	if (eOldAlly == eNewAlly)
+		return false;
+
 	int iPlotVisRange = /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE);
 
 	if(eOldAlly != NO_PLAYER)
 	{
+		GET_PLAYER(eOldAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "lost ally");
 		for(int iI = 0; iI < iNumPlots; iI++)
 		{
 			CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
@@ -12316,6 +12327,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	// Seed the GP counter?
 	if(eNewAlly != NO_PLAYER)
 	{
+		GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "gained ally");
 		CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
 
 		// share the visibility with my ally (and his team-mates)
@@ -12391,49 +12403,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	DoTestEndWarsVSMinors(eOldAlly, eNewAlly);
 	DoTestEndSkirmishes(eNewAlly);
 
-	//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
-	if (MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
-	{
-		int iEra = GET_PLAYER(eNewAlly).GetCurrentEra();
-		if (iEra <= 0)
-		{
-			iEra = 1;
-		}
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-			{
-				CvCity* pCapital = GET_PLAYER(eNewAlly).getCapitalCity();
-				if (pCapital != NULL)
-				{
-					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iEra);
-				}
-			}
-		}
-	}
-	//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
-	if (MOD_BALANCE_CORE && (eOldAlly != NO_PLAYER) && (eOldAlly != eNewAlly))
-	{
-		int iEra = GET_PLAYER(eOldAlly).GetCurrentEra();
-		if (iEra <= 0)
-		{
-			iEra = 1;
-		}
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-			{
-				CvCity* pCapital = GET_PLAYER(eOldAlly).getCapitalCity();
-				if (pCapital != NULL)
-				{
-					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1 * iEra));
-				}
-			}
-		}
-	}
-
+	//alliances may affect defense strength
 	CvCity* pCity = m_pPlayer->getCapitalCity();
 	if (pCity)
 		pCity->updateStrengthValue();
@@ -12484,6 +12454,8 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			}
 		}
 	}
+
+	return true;
 }
 
 /// How many turns has the alliance been active?
@@ -12538,6 +12510,9 @@ void CvMinorCivAI::SetFriends(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+
+	if (m_abFriends[ePlayer] != bValue)
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), bValue ? "gained friend" : "lost friend");
 
 	m_abFriends[ePlayer] = bValue;
 }
@@ -12713,18 +12688,20 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
 	}
 
-	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
-	if(bFriendsChanged || bAlliesChanged)
-		DoSetBonus(ePlayer, bAdd, bFriendsChanged, bAlliesChanged, /*bSuppressNotifications*/ bFromQuest);
-
 	// Now actually changed Allied status, since we needed the old player in effect to create the notifications in the function above us
+	bool bAllyChangeSuccess = false;
 	if(bAlliesChanged)
 	{
 		if(bAdd)
-			SetAlly(ePlayer);
+			bAllyChangeSuccess = SetAlly(ePlayer);
 		else
-			SetAlly(NO_PLAYER);	// We KNOW no one else can be higher, so set the Ally to NO_PLAYER
+			bAllyChangeSuccess = SetAlly(NO_PLAYER);	// We KNOW no one else can be higher, so set the Ally to NO_PLAYER
 	}
+
+	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
+	if (bFriendsChanged || (bAlliesChanged&&bAllyChangeSuccess))
+		DoSetBonus(ePlayer, bAdd, bFriendsChanged, bAlliesChanged, /*bSuppressNotifications*/ bFromQuest);
+
 	if (ePlayer != NO_PLAYER)
 	{
 		GET_PLAYER(ePlayer).RefreshCSAlliesFriends();
@@ -12825,6 +12802,24 @@ int CvMinorCivAI::GetAlliesThreshold(PlayerTypes ePlayer) const
 /// Sets a major to get a Bonus (or not) - set both bFriends and bAllies to be true if you're adding/removing both states at once
 void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications, bool bPassedBySomeone, PlayerTypes eNewAlly)
 {
+	//update bonus from (major) player trait
+	CvPlayer& kMajor = GET_PLAYER(ePlayer);
+	CvCity* pCapital = kMajor.getCapitalCity();
+	if (pCapital)
+	{
+		int iEra = max(1, (int)kMajor.GetCurrentEra());
+		int iSign = bAdd ? 1 : -1;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (bAllies)
+				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iSign * iEra));
+			if (bFriends)
+				pCapital->ChangeBaseYieldRateFromCSFriendship(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iSign * iEra));
+		}
+	}
+
+	//the rest depends on the minor's traits
 	MinorCivTraitTypes eTrait = GetTrait();
 
 	// Cultured
@@ -12844,7 +12839,6 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Maritime
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
-		CvPlayer& kMajor = GET_PLAYER(ePlayer);
 		int iAllyCapitalFoodTimes100 = 0;
 		int iAllyOtherCitiesFoodTimes100 = 0;
 		int iFriendCapitalFoodTimes100 = 0;
@@ -13923,11 +13917,42 @@ void CvMinorCivAI::SetTurnLastPledgeBrokenByMajor(PlayerTypes eMajor, int iTurn)
 
 
 
-/// Someone changed eras - does this affect their bonuses?
+/// Someone about to change eras - does this affect their bonuses?
 bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 {
 	bool bSomethingChanged = false;
 
+	//bonuses based on major traits
+	CvPlayer& kMajor = GET_PLAYER(ePlayer);
+	CvCity* pCapital = kMajor.getCapitalCity();
+	if (pCapital)
+	{
+		int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
+		int iNextEra = max(1, (int)eNewEra);
+
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+
+			if (IsAllies(ePlayer))
+			{
+				int iAllyChange = kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * (iNextEra - iCurrentEra);
+				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyChange);
+				if (iAllyChange)
+					bSomethingChanged = true;
+			}
+
+			if (IsFriends(ePlayer))
+			{
+				int iFriendChange = kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * (iNextEra - iCurrentEra);
+				pCapital->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendChange);
+				if (iFriendChange)
+					bSomethingChanged = true;
+			}
+		}
+	}
+
+	//bonuses based on minor traits
 	MinorCivTraitTypes eTrait = GetTrait();
 
 	// MARITIME
@@ -18320,14 +18345,9 @@ void CvMinorCivAI::doIncomingUnitGifts()
 
 						if (GC.getLogging() && GC.getAILogging())
 						{
-							CvString strLogName;
+							CvString strLogName = GC.getDiploMinorLogFileName(GetPlayer());
 							CvString playerName = GetPlayer()->getCivilizationShortDescription();
-
-							// Open the log file
-							if (GC.getPlayerAndCityAILogSplit())
-								strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-							else
-								strLogName = "DiplomacyAI_MinorCiv_Log.csv";
+							CvString strTemp;
 
 							FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
@@ -18347,7 +18367,6 @@ void CvMinorCivAI::doIncomingUnitGifts()
 							strOutBuf += ", RECEIVED_UNIT_GIFT, " + pNewUnit->getName();
 							pLog->Msg(strOutBuf);
 						}
-
 
 						// Gift from a major to a city-state
 						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())

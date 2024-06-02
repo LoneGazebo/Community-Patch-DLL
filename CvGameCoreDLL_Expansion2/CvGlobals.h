@@ -28,6 +28,7 @@ class CvTwoLayerPathFinder;
 class CvInterface;
 class CvEngine;
 class CvMap;
+class CvPlayer;
 class CvPlayerAI;
 class CvTeam;
 class CvInterfaceModeInfo;
@@ -251,6 +252,7 @@ public:
 
 	bool getPlayerAndCityAILogSplit() const;
 	void setPlayerAndCityAILogSplit(bool bEnable);
+	const CvString getDiploMinorLogFileName(const CvPlayer* pPlayer) const;
 
 	bool GetTutorialLogging() const;
 	void SetTutorialLogging(bool bEnable);

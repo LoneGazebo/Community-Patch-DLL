@@ -1773,6 +1773,7 @@ public:
 	void LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
 	void LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
 	void LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bSaving);
+	void LogMinorStatusChange(PlayerTypes eMinor, const char* msg);
 
 	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER, bool bOnlyCheckedDeals = false);
 	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL, bool bOnlyCheckedDeals = false, bool bSendNetworkMessage = true);
@@ -1782,7 +1783,6 @@ public:
 
 	void LogOpenEmbassy(PlayerTypes ePlayer);
 	void LogCloseEmbassy(PlayerTypes ePlayer);
-
 private:
 	/// Helper function to return this player's ID more conveniently
 	inline PlayerTypes GetID() const

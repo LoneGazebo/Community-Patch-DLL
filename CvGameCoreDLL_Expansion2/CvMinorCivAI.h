@@ -586,7 +586,7 @@ public:
 
 	int GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer);
 	PlayerTypes GetAlly() const;
-	void SetAlly(PlayerTypes eNewAlly);
+	bool SetAlly(PlayerTypes eNewAlly);
 	int GetAlliedTurns() const;
 
 	bool IsAllies(PlayerTypes ePlayer) const;

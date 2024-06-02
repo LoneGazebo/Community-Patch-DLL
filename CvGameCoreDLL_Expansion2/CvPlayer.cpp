@@ -2910,7 +2910,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
-		pNewCity->fixBonusFromMinors(false);
+		pNewCity->UpdateYieldsFromExistingFriendsAndAllies(false);
 
 		GC.getGame().SetClosestCityMapDirty();
 
@@ -32771,12 +32771,12 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 	{
 		//remove the capital bonus
 		if (pOldCapitalCity)
-			pOldCapitalCity->fixBonusFromMinors(true);
+			pOldCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(true);
 
 		if (pNewCapitalCity != NULL)
 		{
 			//remove the non-capital bonus
-			pNewCapitalCity->fixBonusFromMinors(true);
+			pNewCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(true);
 
 			// Need to set our original capital x,y?
 			if (GetOriginalCapitalX() == -1 && pNewCapitalCity->getOriginalOwner() == m_eID)
@@ -32785,7 +32785,7 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 			m_iCapitalCityID = pNewCapitalCity->GetID();
 
 			//add the capital bonus
-			pNewCapitalCity->fixBonusFromMinors(false);
+			pNewCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(false);
 		}
 		else
 		{
@@ -32794,7 +32794,7 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 
 		//add the non-capital bonus
 		if (pOldCapitalCity)
-			pOldCapitalCity->fixBonusFromMinors(false);
+			pOldCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(false);
 	}
 }
 

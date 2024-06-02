@@ -2887,6 +2887,16 @@ void CvGlobals::setPlayerAndCityAILogSplit(bool bEnable)
 	m_bPlayerAndCityAILogSplit = bEnable;
 }
 
+const CvString CvGlobals::getDiploMinorLogFileName(const CvPlayer* pPlayer) const
+{
+	// Open the log file
+	if (GC.getPlayerAndCityAILogSplit())
+		return CvString("DiplomacyAI_MinorCiv_Log_") + pPlayer->getCivilizationShortDescription() + ".csv";
+
+	//default
+	return CvString("DiplomacyAI_MinorCiv_Log.csv");
+}
+
 bool CvGlobals::GetTutorialLogging() const
 {
 	return m_bTutorialLogging;

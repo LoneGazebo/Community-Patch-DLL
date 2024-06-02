@@ -804,33 +804,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-		if (MOD_BALANCE_CORE && isCapital())
-		{
-			int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
-			int iNumFriends = GET_PLAYER(getOwner()).GetNumCSFriends();
-			if (iNumAllies > 0 || iNumFriends > 0)
-			{
-				//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
-				int iEra = owningPlayer.GetCurrentEra();
-				if (iEra <= 0)
-				{
-					iEra = 1;
-				}
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes)iI;
-					if (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-					{
-						SetBaseYieldRateFromCSAlliance(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
-					}
-					if (owningPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
-					{
-						SetBaseYieldRateFromCSFriendship(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
-					}
-				}
-			}
-		}
-
 		// Free resources under city?
 		for (int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -2503,30 +2476,9 @@ void CvCity::doTurn()
 
 	if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).isMinorCiv() && !GET_PLAYER(getOwner()).isBarbarian())
 	{
-		int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
-		int iNumFriends = GET_PLAYER(getOwner()).GetNumCSFriends();
-		// Loop through all minors and get the total number we've met.
-		if (isCapital())
-		{
-			//If we get a yield bonus in all cities because of CS alliance, this is a good place to refresh it.
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if (iEra <= 0)
-			{
-				iEra = 1;
-			}
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes)iI;
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-				{
-					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
-				}
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
-				{
-					SetBaseYieldRateFromCSFriendship(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
-				}
-			}
-		}
+		//normally we only do delta update. this is for debugging
+		CrosscheckYieldsFromMinors();
+
 		if (MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
 		{
 			int iBad = 0;
@@ -25146,7 +25098,7 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-/// Base yield rate from CS Alliances
+/// EFFECTIVE yield rate from CS Alliances (name is misleading)
 int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -25154,8 +25106,6 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = m_aiBaseYieldRateFromCSAlliance[eIndex];
-	int iBonus = GetYieldPerAlly(eIndex) != 0 ? GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() : 0;
-
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
 	//policy effects
@@ -25171,7 +25121,7 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 		iValue /= 100;
 	}
 
-	return (iValue + iBonus);
+	return iValue;
 }
 //	--------------------------------------------------------------------------------
 /// Base yield rate from CS Alliances
@@ -25195,7 +25145,7 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 	}
 }
 //	--------------------------------------------------------------------------------
-/// Base yield rate from CS Friendships
+/// EFFECTIVE yield rate from CS Friendships (name is misleading)
 int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -25203,8 +25153,6 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = m_aiBaseYieldRateFromCSFriendship[eIndex];
-	int iBonus = GetYieldPerFriend(eIndex) != 0 ? GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() : 0;
-
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
 	//policy effects
@@ -25220,7 +25168,7 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 		iValue /= 100;
 	}
 
-	return (iValue + iBonus);
+	return iValue;
 
 }
 void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
@@ -28492,10 +28440,29 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 		SetCheapestPlotInfluenceDistance(INT_MAX);
 }
 
-void CvCity::fixBonusFromMinors(bool bRemove)
+void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 {
 	//if a city is founded or conquered we have to make sure it gets the current bonuses so we can subtract the bonus later when it experies
 	//this method should only be called once per city on its first turn or when the capital moves ...
+
+	int iSign = bRemove ? -1 : +1;
+
+	if (MOD_BALANCE_CORE && isCapital())
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		int iNumAllies = kPlayer.GetNumCSAllies();
+		int iNumFriends = kPlayer.GetNumCSFriends();
+		if (iNumAllies > 0 || iNumFriends > 0)
+		{
+			int iEra = max(1, (int)kPlayer.GetCurrentEra());
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				ChangeBaseYieldRateFromCSAlliance(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * iSign));
+				ChangeBaseYieldRateFromCSFriendship(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * iSign));
+			}
+		}
+	}
 
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -28503,8 +28470,6 @@ void CvCity::fixBonusFromMinors(bool bRemove)
 		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
 		if (pMinor && pMinor->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 		{
-			int iSign = bRemove ? -1 : +1;
-
 			if (pMinor->IsAllies(getOwner()))
 			{
 				int iBonus = isCapital() ? pMinor->GetAlliesCapitalFoodBonus() : pMinor->GetAlliesOtherCityFoodBonus();
@@ -28528,7 +28493,6 @@ void CvCity::fixBonusFromMinors(bool bRemove)
 			updateYield();
 		}
 	}
-
 }
 
 //	--------------------------------------------------------------------------------
@@ -31144,6 +31108,47 @@ bool CvCity::doCheckProduction()
 	}
 
 	return CleanUpQueue();
+}
+
+bool CvCity::CrosscheckYieldsFromMinors()
+{
+#ifdef VPDEBUG
+	CvPlayer& kMajor = GET_PLAYER(getOwner());
+
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		int iMajorBonus = 0;
+		int iMinorBonus = 0;
+
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+			CvMinorCivAI* pMinorLoop = GET_PLAYER(eMinorLoop).GetMinorCivAI();
+
+			//bonuses based on major traits
+			if (isCapital())
+			{
+				if (pMinorLoop->IsAllies(getOwner()))
+					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)*100;
+
+				if (pMinorLoop->IsFriends(getOwner()))
+					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*100;
+			}
+
+			//bonuses based on minor traits (currently food only)
+			if (eYield == YIELD_FOOD)
+				iMinorBonus += isCapital() ? pMinorLoop->GetCurrentCapitalFoodBonus(getOwner()) : pMinorLoop->GetCurrentOtherCityFoodBonus(getOwner());
+		}
+
+		if (m_aiBaseYieldRateFromCSAlliance[eYield]*100 + m_aiBaseYieldRateFromCSFriendship[eYield]*100 != iMajorBonus + iMinorBonus)
+		{
+			CUSTOMLOG("yield mismatch in %s!", getNameKey());
+			return false;
+		}
+	}
+#endif
+	return true;
 }
 
 //	--------------------------------------------------------------------------------

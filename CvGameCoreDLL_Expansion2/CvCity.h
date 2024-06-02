@@ -1497,7 +1497,7 @@ public:
 	void SetCheapestPlotInfluenceDistance(int iValue);
 	void DoUpdateCheapestPlotInfluenceDistance();
 	int calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const;
-	void fixBonusFromMinors(bool bRemove);
+	void UpdateYieldsFromExistingFriendsAndAllies(bool bRemove);
 
 	// End plot acquisition
 
@@ -2164,6 +2164,7 @@ protected:
 	void doDecay();
 	void doMeltdown();
 	bool doCheckProduction();
+	bool CrosscheckYieldsFromMinors();
 
 	int getExtraProductionDifference(int iExtra, UnitTypes eUnit) const;
 	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const;
