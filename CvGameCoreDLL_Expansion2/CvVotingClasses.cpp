@@ -4021,8 +4021,8 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				else if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
 				{
 					int iPercent = 25;
-					iVotes *= 100;
-					iVotes /= iPercent;
+					iVotes *= iPercent;
+					iVotes /= 100;
 					if (iVotes <= 0)
 					{
 						iVotes = 1;
