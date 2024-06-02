@@ -29,64 +29,64 @@
 
 /// Default Constructor
 CvMinorCivQuest::CvMinorCivQuest()
+    : m_eMinor(NO_PLAYER),
+      m_eAssignedPlayer(NO_PLAYER),
+      m_eType(NO_MINOR_CIV_QUEST_TYPE),
+      m_iStartTurn(NO_TURN),
+      m_iData1(NO_QUEST_DATA),
+      m_iData2(NO_QUEST_DATA),
+      m_iData3(NO_QUEST_DATA),
+      m_iInfluence(0),
+      m_iDisabledInfluence(0),
+      m_iGold(0),
+      m_iScience(0),
+      m_iCulture(0),
+      m_iFaith(0),
+      m_iGoldenAgePoints(0),
+      m_iFood(0),
+      m_iProduction(0),
+      m_iTourism(0),
+      m_iHappiness(0),
+      m_iGP(0),
+      m_iGPGlobal(0),
+      m_iGeneralPoints(0),
+      m_iAdmiralPoints(0),
+      m_iExperience(0),
+      m_iJuggernauts(0),
+      m_bPartialQuest(false),
+      m_bHandled(false)
 {
-	m_eMinor = NO_PLAYER;
-	m_eAssignedPlayer = NO_PLAYER;
-	m_eType = NO_MINOR_CIV_QUEST_TYPE;
-	m_iStartTurn = NO_TURN; /* -1 */
-	m_iData1 = NO_QUEST_DATA; /* -1 */
-	m_iData2 = NO_QUEST_DATA; /* -1 */
-	m_iData3 = NO_QUEST_DATA; /* -1 */
-	m_iInfluence = 0;
-	m_iDisabledInfluence = 0;
-	m_iGold = 0;
-	m_iScience = 0;
-	m_iCulture = 0;
-	m_iFaith = 0;
-	m_iGoldenAgePoints = 0;
-	m_iFood = 0;
-	m_iProduction = 0;
-	m_iTourism = 0;
-	m_iHappiness = 0;
-	m_iGP = 0;
-	m_iGPGlobal = 0;
-	m_iGeneralPoints = 0;
-	m_iAdmiralPoints = 0;
-	m_iExperience = 0;
-	m_iJuggernauts = 0;
-	m_bPartialQuest = false;
-	m_bHandled = false;
 }
 
 /// Constructor
 CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer, MinorCivQuestTypes eType)
+    : m_eMinor(eMinor),
+      m_eAssignedPlayer(eAssignedPlayer),
+      m_eType(eType),
+      m_iStartTurn(NO_TURN),
+      m_iData1(NO_QUEST_DATA),
+      m_iData2(NO_QUEST_DATA),
+      m_iData3(NO_QUEST_DATA),
+      m_iInfluence(0),
+      m_iDisabledInfluence(0),
+      m_iGold(0),
+      m_iScience(0),
+      m_iCulture(0),
+      m_iFaith(0),
+      m_iGoldenAgePoints(0),
+      m_iFood(0),
+      m_iProduction(0),
+      m_iTourism(0),
+      m_iHappiness(0),
+      m_iGP(0),
+      m_iGPGlobal(0),
+      m_iGeneralPoints(0),
+      m_iAdmiralPoints(0),
+      m_iExperience(0),
+      m_iJuggernauts(0),
+      m_bPartialQuest(false),
+      m_bHandled(false)
 {
-	m_eMinor = eMinor;
-	m_eAssignedPlayer = eAssignedPlayer;
-	m_eType = eType;
-	m_iStartTurn = NO_TURN; /* -1 */
-	m_iData1 = NO_QUEST_DATA; /* -1 */
-	m_iData2 = NO_QUEST_DATA; /* -1 */
-	m_iData3 = NO_QUEST_DATA; /* -1 */
-	m_iInfluence = 0;
-	m_iDisabledInfluence = 0;
-	m_iGold = 0;
-	m_iScience = 0;
-	m_iCulture = 0;
-	m_iFaith = 0;
-	m_iGoldenAgePoints = 0;
-	m_iFood = 0;
-	m_iProduction = 0;
-	m_iTourism = 0;
-	m_iHappiness = 0;
-	m_iGP = 0;
-	m_iGPGlobal = 0;
-	m_iGeneralPoints = 0;
-	m_iAdmiralPoints = 0;
-	m_iExperience = 0;
-	m_iJuggernauts = 0;
-	m_bPartialQuest = false;
-	m_bHandled = false;
 }
 
 CvMinorCivQuest::~CvMinorCivQuest()

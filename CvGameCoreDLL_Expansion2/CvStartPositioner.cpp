@@ -846,10 +846,10 @@ struct SStartRegion
 	int iTotalWorth;
 
 	SStartRegion(int iIndex = 0, int iPlotWorth = 0)
+		: iID(iIndex),
+		  iTotalWorth(iPlotWorth),
+		  vPlots(1, iIndex)
 	{  
-		iID = iIndex;
-		vPlots = vector<int>(1, iIndex);
-		iTotalWorth = iPlotWorth;
 	}
 
 	void mergeWith(SStartRegion& other) 

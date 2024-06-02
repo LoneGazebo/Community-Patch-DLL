@@ -1037,12 +1037,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvVoterDecision& readFrom)
 // ================================================================================
 //			CvResolution
 // ================================================================================
-CvResolution::CvResolution(void)
+CvResolution::CvResolution()
+    : m_iID(-1),
+      m_eType(NO_RESOLUTION),
+      m_eLeague(NO_LEAGUE),
+      m_sEffects()
 {
-	m_iID = -1;
-	m_eType = NO_RESOLUTION;
-	m_eLeague = NO_LEAGUE;
-	m_sEffects = CvResolutionEffects();
 }
 
 CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague)
@@ -1137,14 +1137,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolution& readFrom)
 // ================================================================================
 //			CvProposal
 // ================================================================================
-CvProposal::CvProposal(void)
+CvProposal::CvProposal() : m_eProposalPlayer(NO_PLAYER)
 {
-	m_eProposalPlayer = NO_PLAYER;
 }
 
-CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer) : CvResolution(iID, eType, eLeague)
+CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer)
+    : CvResolution(iID, eType, eLeague),
+      m_eProposalPlayer(eProposalPlayer)
 {
-	m_eProposalPlayer = eProposalPlayer;
 }
 
 CvProposal::~CvProposal(void)
