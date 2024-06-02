@@ -133,7 +133,6 @@ CREATE TEMP TABLE DifficultyBonusMultipliers (
 	IsNotGold boolean,
 	IsFoodOrGold boolean,
 	IsFoodOrGoldBeforeRenaissance boolean,
-	IsRenaissance boolean,
 	IsAny boolean,
 	MultiplierTimes100 integer
 );
@@ -159,34 +158,10 @@ VALUES
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 1, 20); -- 0.2x for researching a tech
 
 INSERT INTO DifficultyBonusMultipliers
-	(HistoricEventTypeTemp, IsRenaissance, MultiplierTimes100)
-VALUES
-	('HISTORIC_EVENT_WON_WAR', 1, 130),
-	('DIFFICULTY_BONUS_CITY_CONQUEST', 1, 130),
-	('DIFFICULTY_BONUS_CITY_FOUND', 1, 130),
-	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 130),
-	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 130),
-	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 1, 130),
-	('HISTORIC_EVENT_GOLDEN_AGE', 1, 130),
-	('HISTORIC_EVENT_WORLD_WONDER', 1, 130),
-	('DIFFICULTY_BONUS_RESEARCHED_TECH', 1, 130),
-	('DIFFICULTY_BONUS_ADOPTED_POLICY', 1, 130),
-	('HISTORIC_EVENT_DIG', 1, 130),
-	('HISTORIC_EVENT_GREAT_PERSON', 1, 130),
-	('HISTORIC_EVENT_TRADE_LAND', 1, 130),
-	('HISTORIC_EVENT_TRADE_SEA', 1, 130),
-	('HISTORIC_EVENT_TRADE_CS', 1, 130); -- 1.3x for all Renaissance Era bonuses
-
-INSERT INTO DifficultyBonusMultipliers
 	(HistoricEventTypeTemp, IsFoodOrGold, IsFoodOrGoldBeforeRenaissance, MultiplierTimes100)
 VALUES
 	('DIFFICULTY_BONUS_CITY_FOUND', 1, 0, 200), -- 2x Food and Gold for founding a city
 	('DIFFICULTY_BONUS_CITY_FOUND', 0, 1, 0); -- 0x Food and Gold for founding a city before Renaissance Era
-
-UPDATE HandicapInfo_AIDifficultyBonus
-SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsRenaissance = 1) / 100
-WHERE EraType = 'ERA_RENAISSANCE'
-AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsRenaissance = 1);
 
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 1) / 100
