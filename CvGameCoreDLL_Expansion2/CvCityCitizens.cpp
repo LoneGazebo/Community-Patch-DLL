@@ -1728,10 +1728,10 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		}
 		else
 		{
-			//is a specialist better than working a plot?
+			//is a specialist (may also be a default specialist aka laborer) better than working a plot?
 			if (iBestSpecialistValue > iWorstWorkedPlotValue && pWorstWorkedPlot)
 			{
-				//this method also handles laborers
+				//this method also handles laborers!
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
 				justAddedBuildings.push_back(eBestSpecialistBuilding);
 
@@ -1765,14 +1765,6 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
 				justAddedBuildings.push_back(eWorstSpecialistBuilding);
-			}
-			else
-			{
-				//if nothing else works, create a laborer
-				ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_LOCAL);
-				// if we have just released a laborer, we're turning in circles.
-				if (bReleaseLaborer)
-					break;
 			}
 		}
 

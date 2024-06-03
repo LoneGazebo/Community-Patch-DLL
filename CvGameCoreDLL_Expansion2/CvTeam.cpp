@@ -4145,6 +4145,9 @@ void CvTeam::changeEmbarkedExtraMoves(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isHasMet(TeamTypes eIndex)	const
 {
+	if (eIndex == NO_TEAM)
+		return false;
+
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abHasMet[eIndex];
@@ -4156,7 +4159,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 {
 	ASSERT(eIndex >= 0 && eIndex < MAX_TEAMS);
 
-	if (isHasMet(eIndex))
+	if (isHasMet(eIndex) || eIndex==NO_TEAM)
 		return;
 
 	m_abHasMet[eIndex] = true;

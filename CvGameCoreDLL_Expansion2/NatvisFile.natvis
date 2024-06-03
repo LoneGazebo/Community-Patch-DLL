@@ -36,12 +36,13 @@
 	</Type>
 
 	<Type Name="CvCity">
-		<DisplayString>(id {m_iID}, P{m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
+		<DisplayString>(id {m_iID}, P{m_eOwner}, at {m_iX}:{m_iY}, pop {m_iPopulation})</DisplayString>
 		<Expand>
-			<Item Name="m_iID">m_iID</Item>
-			<Item Name="m_eOwner">m_eOwner</Item>
-			<Item Name="m_iX">m_iX</Item>
-			<Item Name="m_iY">m_iY</Item>
+			<Item Name="id">m_iID</Item>
+			<Item Name="owner">m_eOwner</Item>
+			<Item Name="x">m_iX</Item>
+			<Item Name="y">m_iY</Item>
+			<Item Name="pop">m_iPopulation</Item>
 		</Expand>
 	</Type>
 

@@ -590,7 +590,7 @@ public:
 
 	int GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer);
 	PlayerTypes GetAlly() const;
-	bool SetAlly(PlayerTypes eNewAlly);
+	void SetAlly(PlayerTypes eNewAlly, bool bSuppressNotification);
 	int GetAlliedTurns() const;
 
 	bool IsAllies(PlayerTypes ePlayer) const;
@@ -613,8 +613,6 @@ public:
 	int GetFriendsThreshold(PlayerTypes ePlayer) const;
 	bool IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const;
 	int GetAlliesThreshold(PlayerTypes ePlayer) const;
-
-	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
 	void DoUpdateNumThreateningBarbarians();
 	void DoIntrusion();
@@ -857,6 +855,7 @@ public:
 
 	bool IsSameReligionAsMajor(PlayerTypes eMajor);
 
+	//horrible API but too lazy to fix
 	CvString GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies);
 	pair<CvString, CvString> GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly);
 	CvString GetNamesListAsString(CivsList veNames);
@@ -866,6 +865,11 @@ public:
 
 	QuestListForAllPlayers m_QuestsGiven;
 private:
+	//return true if an actual change occurred
+	bool SetAllyInternal(PlayerTypes eNewAlly);
+	void ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressSelfNotification);
+	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange, bool bAllyChange);
+
 	CvPlayer* m_pPlayer;
 	MinorCivTypes m_minorCivType;
 	MinorCivPersonalityTypes m_ePersonality;
