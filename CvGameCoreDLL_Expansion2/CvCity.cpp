@@ -415,6 +415,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromTech()
 	, m_aiYieldFromUnitProduction()
 	, m_aiYieldFromBirth()
+	, m_aiYieldFromBirthEraScaling()
 	, m_aiYieldFromBorderGrowth()
 	, m_aiYieldFromPolicyUnlock()
 	, m_aiYieldFromPurchase()
@@ -1446,6 +1447,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromBirth.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromBirthEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitProduction.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromBorderGrowth.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPolicyUnlock.resize(NUM_YIELD_TYPES);
@@ -1535,6 +1537,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromConstruction[iI] = 0;
 		m_aiYieldFromTech[iI] = 0;
 		m_aiYieldFromBirth[iI] = 0;
+		m_aiYieldFromBirthEraScaling[iI] = 0;
 		m_aiYieldFromUnitProduction[iI] = 0;
 		m_aiYieldFromBorderGrowth[iI] = 0;
 		m_aiYieldFromPolicyUnlock[iI] = 0;
