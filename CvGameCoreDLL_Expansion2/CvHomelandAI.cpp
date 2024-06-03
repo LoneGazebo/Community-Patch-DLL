@@ -2558,7 +2558,12 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
-	int iScore = eDirective.m_iScore;
+	int iScore = eDirective.GetScore();
+
+	// Try to avoid moving around too much with workers
+	if (!eDirective.m_bIsGreatPerson)
+		iMoveTurns *= 2;
+
 	int iBuildTime = iBuildTurns + iMoveTurns;
 
 	// Precomputed square root of INT_MAX
@@ -2571,7 +2576,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return iScore * iScore;
 
 	const int iScoreWeightSquared = 1;
-	const int iBuildTimeWeightSquared = 100;
+	int iBuildTimeWeightSquared = eDirective.m_bIsGreatPerson ? 16 : 100;
 
 	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
@@ -2605,10 +2610,10 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
 
-		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
+		if (eOtherDirective.GetScore() <= eDirective.GetScore())
 			continue;
 
-		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
+		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
 			continue;
 
 		return false;
@@ -2649,7 +2654,7 @@ static bool IsBestWeightedDirectiveForBuilderAndPlot(BuilderDirective eDirective
 		if (iOtherDirectiveWeightedScore <= iDirectiveWeightedScore)
 			continue;
 
-		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
+		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
 			continue;
 
 		return false;
@@ -2698,12 +2703,18 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
 				continue;
 
-			if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective))
+			if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective, true))
 				continue;
 
 			if (pUnit->GetDanger(pDirectivePlot) > pUnit->GetCurrHitPoints())
 			{
-				continue;
+				CvUnit* pBestDefender = pDirectivePlot->getBestDefender(pPlayer->GetID());
+
+				if (!pBestDefender)
+					continue;
+
+				if (pBestDefender->GetDanger(pDirectivePlot) > pBestDefender->GetCurrHitPoints() / 2)
+					continue;
 			}
 
 			int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
@@ -2905,33 +2916,47 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		BuilderDirective eDirective = pUnitAndDirectiveWithScore.option.second;
 		int iBuilderID = pBuilder->GetID();
 
-		bool bMoveExecuted = false;
-		bool bIsAutomated = !m_pPlayer->isHuman() || pBuilder->IsAutomated();
-		if (bIsAutomated)
+		// We may have planned an improvement that we can't build yet, but should still update other plots as if we've built it
+		// E.g. if we're planning to build an improvement with a no-two-adjacent requirement, we still want to build other improvements next to it.
+		bool bCanBuild = pBuilder->canBuild(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY), eDirective.m_eBuild);
+
+		if (bCanBuild)
 		{
-			if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
+			bool bIsAutomated = !m_pPlayer->isHuman() || pBuilder->IsAutomated();
+			if (bIsAutomated)
 			{
-				UnitProcessed(iBuilderID);
+				if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
+				{
+					UnitProcessed(iBuilderID);
+
+					processedWorkers.insert(iBuilderID);
+					m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
+				}
+				ignoredDirectives.insert(eDirective);
+			}
+			else
+			{
+				// Assign non-automated worker to this directive
+				pBuilderTaskingAI->SetAssignedDirective(pBuilder, eDirective);
 
 				processedWorkers.insert(iBuilderID);
+				ignoredDirectives.insert(eDirective);
 				m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
-
-				bMoveExecuted = true;
 			}
-			ignoredDirectives.insert(eDirective);
 		}
 		else
 		{
-			// Assign non-automated worker to this directive
-			pBuilderTaskingAI->SetAssignedDirective(pBuilder, eDirective);
-
-			processedWorkers.insert(iBuilderID);
 			ignoredDirectives.insert(eDirective);
-			m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
-
-			bMoveExecuted = true;
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				CvBuildInfo* pkBuild = GC.getBuildInfo(eDirective.m_eBuild);
+				CvString strTemp = pkBuild->GetDescription();
+				strLogString.Format("Planning to %s at (%d, %d), but we can not build it yet", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY);
+				LogHomelandMessage(strLogString);
+			}
 		}
-		if (bMoveExecuted && allWorkers.size() > processedWorkers.size())
+		if (allWorkers.size() > processedWorkers.size())
 		{
 			// We may want to recalculate some of the other directive scores
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
@@ -3016,21 +3041,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				OptionWithScore<pair<CvUnit*, BuilderDirective>> eOtherDirectiveWithScore = *it;
 				BuilderDirective eOtherDirective = eOtherDirectiveWithScore.option.second;
 
-				// Pruning
-				if (eDirective.m_sX == eOtherDirective.m_sX && eDirective.m_sY == eOtherDirective.m_sY)
-				{
-					// Prune directives that are in the same plot
-					continue;
-				}
-				else if (pkImprovementInfo && pkImprovementInfo->IsNoTwoAdjacent())
-				{
-					// Prune directives to ensure we don't try to build two adjacent that cannot be adjacent
-					if (eOtherDirective.m_eBuild == eDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
-					{
-						continue;
-					}
-				}
-
 				bool bDirectiveUpdated = false;
 
 				CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
@@ -3042,8 +3052,41 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
 
+				// Pruning
+				if (eDirective.m_sX == eOtherDirective.m_sX && eDirective.m_sY == eOtherDirective.m_sY)
+				{
+					// Prune directives that are in the same plot
+					if (bCanBuild || eDirective == eOtherDirective)
+					{
+						continue;
+					}
+					else
+					{
+						if (eOtherImprovement != NO_IMPROVEMENT)
+						{
+							int iScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+
+							iScore /= 10;
+							// If we are planning to build something else here in the future, downscale the priority of this by 1/3
+							eOtherDirective.m_iScore = iScore;
+							eOtherDirective.m_iScorePenalty += iScore / 3;
+							if (eOtherDirective.m_iScorePenalty >= eOtherDirective.m_iScore)
+								continue;
+							bDirectiveUpdated = true;
+						}
+					}
+				}
+				else if (pkImprovementInfo && pkImprovementInfo->IsNoTwoAdjacent())
+				{
+					// Prune directives to ensure we don't try to build two adjacent that cannot be adjacent
+					if (eOtherDirective.m_eBuild == eDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
+					{
+						continue;
+					}
+				}
+
 				// Reevaluating
-				if (eOtherImprovement != NO_IMPROVEMENT && bResourceStateChanged)
+				if (eOtherImprovement != NO_IMPROVEMENT && bResourceStateChanged && !bDirectiveUpdated)
 				{
 					// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
 					if ((pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eResource && pkOtherImprovementInfo && pkOtherImprovementInfo->IsConnectsResource(eResource)) || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eResource))

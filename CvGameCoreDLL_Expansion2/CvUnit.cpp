@@ -13752,7 +13752,7 @@ bool CvUnit::blastTourism()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold) const
+bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
@@ -13789,7 +13789,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if (!pPlot)
 		return true;
 
-	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
+	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this)))
 	{
 		return false;
 	}
