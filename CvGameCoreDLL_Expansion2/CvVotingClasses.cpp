@@ -1438,7 +1438,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(ePlayer, 40);
 				}
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(true);
-				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(NO_PLAYER);
+				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(NO_PLAYER,false);
 			}
 		}
 	}
@@ -1450,8 +1450,8 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		{
 			if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
 			{
-				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eOriginalProposer);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentAlly(eOriginalProposer);
+				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eOriginalProposer,false);
 			}
 		}
 	}	

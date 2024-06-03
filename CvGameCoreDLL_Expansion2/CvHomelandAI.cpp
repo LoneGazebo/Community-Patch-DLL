@@ -1390,6 +1390,9 @@ void CvHomelandAI::PlotUpgradeMoves()
 				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
 					continue;
 
+				//avoid a warning, reset the last move
+				pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
+
 				//this removes the unit from the army (if any)
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
 

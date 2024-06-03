@@ -25133,7 +25133,7 @@ void CvCity::ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSAlliance[eIndex] = m_aiBaseYieldRateFromCSAlliance[eIndex] + iChange;
+		m_aiBaseYieldRateFromCSAlliance[eIndex] += iChange;
 		CvAssert(GetBaseYieldRateFromCSAlliance(eIndex) >= 0);
 	}
 }
@@ -25179,7 +25179,7 @@ void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSFriendship[eIndex] = m_aiBaseYieldRateFromCSFriendship[eIndex] + iChange;
+		m_aiBaseYieldRateFromCSFriendship[eIndex] += iChange;
 		CvAssert(GetBaseYieldRateFromCSFriendship(eIndex) >= 0);
 	}
 }
@@ -31114,6 +31114,7 @@ bool CvCity::CrosscheckYieldsFromMinors()
 {
 #ifdef VPDEBUG
 	CvPlayer& kMajor = GET_PLAYER(getOwner());
+	int iEra = max(1, (int)kMajor.GetCurrentEra());
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -31125,15 +31126,17 @@ bool CvCity::CrosscheckYieldsFromMinors()
 		{
 			PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
 			CvMinorCivAI* pMinorLoop = GET_PLAYER(eMinorLoop).GetMinorCivAI();
+			if (!pMinorLoop->GetPlayer()->isAlive())
+				continue;
 
 			//bonuses based on major traits
 			if (isCapital())
 			{
 				if (pMinorLoop->IsAllies(getOwner()))
-					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)*100;
+					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)*iEra*100;
 
 				if (pMinorLoop->IsFriends(getOwner()))
-					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*100;
+					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*iEra*100;
 			}
 
 			//bonuses based on minor traits (currently food only)
