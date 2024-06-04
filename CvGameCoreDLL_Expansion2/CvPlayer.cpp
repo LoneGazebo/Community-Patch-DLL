@@ -13195,7 +13195,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if (GC.getGame().getElapsedGameTurns() < 20)
 			return false;
 
-		if (GetReligions()->HasCreatedReligion())
+		if (GetReligions()->OwnsReligion())
 			return false;
 
 		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && !GetPlayerTraits()->IsAlwaysReligion())
@@ -47812,9 +47812,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 	// Add a Reformation belief if eligible
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	if (isHuman() && pPolicy->IsAddReformationBelief() && GetReligions()->HasCreatedReligion(true) && !GetReligions()->HasAddedReformationBelief())
+	if (isHuman() && pPolicy->IsAddReformationBelief() && GetReligions()->OwnsReligion(true) && !GetReligions()->HasAddedReformationBelief())
 #else
-	if (isHuman() && pPolicy->IsAddReformationBelief() && GetReligions()->HasCreatedReligion() && !GetReligions()->HasAddedReformationBelief())
+	if (isHuman() && pPolicy->IsAddReformationBelief() && GetReligions()->OwnsReligion() && !GetReligions()->HasAddedReformationBelief())
 #endif
 	{
 		pNotifications = GetNotifications();
@@ -53666,7 +53666,7 @@ bool CvPlayer::HasPantheon() const
 
 bool CvPlayer::HasAnyReligion() const
 {
-	return GetReligions()->HasCreatedReligion();
+	return GetReligions()->OwnsReligion();
 }
 
 bool CvPlayer::HasReligion(ReligionTypes iReligionType) const

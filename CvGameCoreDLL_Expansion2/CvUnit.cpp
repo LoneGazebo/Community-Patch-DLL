@@ -11039,7 +11039,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(pReligions->HasCreatedReligion(getOwner()))
+	if(GET_PLAYER(getOwner()).GetReligions()->OwnsReligion())
 	{
 		return false;
 	}
@@ -11241,7 +11241,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(!pReligions->HasCreatedReligion(getOwner()))
+	if(!GET_PLAYER(getOwner()).GetReligions()->OwnsReligion())
 	{
 		return false;
 	}

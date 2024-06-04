@@ -108,7 +108,7 @@ function GetReligiousStatus()
 
 	local text = nil;
 	local player = Players[Game.GetActivePlayer()];
-	if(player:HasCreatedReligion()) then
+	if(player:OwnsReligion()) then
 		local eReligion = player:GetOwnedReligion();
 		text = Locale.Lookup("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName(eReligion));
 	elseif(player:HasCreatedPantheon()) then
@@ -288,7 +288,7 @@ function RefreshYourReligion()
 	Controls.GreatPersonList:CalculateSize();
 	
 	local player = Players[Game.GetActivePlayer()];
-	if(player:HasCreatedReligion()) then
+	if(player:OwnsReligion()) then
 		local eReligion = player:GetOwnedReligion();
 	
 		local religion = GameInfo.Religions[eReligion];
@@ -312,7 +312,7 @@ function RefreshYourReligion()
 	g_ReligiousBeliefsManager:ResetInstances();
 	Controls.YourReligionNoBeliefs:SetHide(true);
 	Controls.YourReligiousBeliefsStack:SetHide(false);
-	if (player:HasCreatedReligion()) then
+	if (player:OwnsReligion()) then
 		local eReligion = player:GetOwnedReligion();
 		for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
 			local belief = GameInfo.Beliefs[v];

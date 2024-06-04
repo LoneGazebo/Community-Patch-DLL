@@ -3653,7 +3653,7 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 		{
 			PlayerTypes e = (PlayerTypes) i;
 
-			if (GET_PLAYER(e).isAlive() && GET_PLAYER(e).GetReligions()->HasCreatedReligion(true))
+			if (GET_PLAYER(e).isAlive() && GET_PLAYER(e).GetReligions()->OwnsReligion(true))
 			{
 				vChoices.push_back(GET_PLAYER(e).GetReligions()->GetOwnedReligion());
 			}

@@ -6818,8 +6818,8 @@ bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const
 	if (IsAtWar(ePlayer))
 		return true;
 
-	// Teammates and vassals automatically won't convert cities if the player has created a religion
-	if (GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion() && (IsTeammate(ePlayer) || IsVassal(ePlayer)))
+	// Teammates and vassals automatically won't convert cities if the player owns a religion
+	if (GET_PLAYER(ePlayer).GetReligions()->OwnsReligion() && (IsTeammate(ePlayer) || IsVassal(ePlayer)))
 		return true;
 
 	return m_abAskedNotToConvert[ePlayer];
@@ -41392,7 +41392,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && IsPlayerOpposingReligion(ePlayer))
+		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && m_pPlayer->GetReligions()->OwnsReligion(true) && GET_PLAYER(ePlayer).GetReligions()->OwnsReligion(true) && IsPlayerOpposingReligion(ePlayer))
 		{
 			return 18;
 		}
@@ -49761,7 +49761,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	}
 
 	// Exception for religious conversion: Not a bad target if they haven't created a religion and haven't asked us to stop.
-	if (eTheftType == THEFT_TYPE_CONVERSION && !GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion() && !m_abAskedNotToConvert[ePlayer])
+	if (eTheftType == THEFT_TYPE_CONVERSION && !GET_PLAYER(ePlayer).GetReligions()->OwnsReligion() && !m_abAskedNotToConvert[ePlayer])
 		return false;
 
 	// If any of the below conditions are true, never steal from this player

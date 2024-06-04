@@ -4366,7 +4366,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 	if (!kPlayer.GetReligions()->HasCreatedPantheon())
 		iModifier *= 2;
 
-	if (kPlayer.GetReligions()->HasCreatedPantheon() && !kPlayer.GetReligions()->HasCreatedReligion(true) && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(true) > 0)
+	if (kPlayer.GetReligions()->HasCreatedPantheon() && !kPlayer.GetReligions()->OwnsReligion(true) && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(true) > 0)
 		iModifier *= 2;
 
 	ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();

@@ -396,7 +396,8 @@ public:
 	bool UpdateStateReligion();
 	void SetStateReligionOverride(ReligionTypes eReligion);
 	ReligionTypes GetStateReligion(bool bIncludePantheon = true) const;
-	ReligionTypes GetOwnedReligion() const;
+	ReligionTypes GetOwnedReligion(bool bIgnoreLocal = false) const;
+	bool OwnsReligion(bool bIgnoreLocal = false) const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
 
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;

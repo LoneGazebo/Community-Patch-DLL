@@ -810,7 +810,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanCreatePantheon(PlayerTypes 
 		return FOUNDING_INVALID_PLAYER;
 	}
 
-	if(HasCreatedPantheon(ePlayer) || HasCreatedReligion(ePlayer))
+	if(HasCreatedPantheon(ePlayer) || kPlayer.GetReligions()->OwnsReligion())
 	{
 		return FOUNDING_PLAYER_ALREADY_CREATED_PANTHEON;
 	}
@@ -1417,7 +1417,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 	if (ePlayer == NO_PLAYER)
 		return FOUNDING_INVALID_PLAYER;
 
-	if (HasCreatedReligion(ePlayer))
+	if (GET_PLAYER(ePlayer).GetReligions()->OwnsReligion())
 		return FOUNDING_PLAYER_ALREADY_CREATED_RELIGION;
 
 	if (GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion())
@@ -2291,7 +2291,7 @@ int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, Play
 /// Has this player created a religion?
 bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal) const
 {
-	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
     if (eReligion != NO_RELIGION)
 	{
 		if (MOD_RELIGION_LOCAL_RELIGIONS && bIgnoreLocal) 
@@ -3891,7 +3891,7 @@ bool CvPlayerReligions::HasCityWithMajorityReligion(ReligionTypes eReligionToChe
 bool CvPlayerReligions::HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const
 {
 	// Not happy about it if have their own religion
-	if (HasCreatedReligion())
+	if (OwnsReligion())
 	{
 		return false;
 	}
@@ -3942,12 +3942,30 @@ ReligionTypes CvPlayerReligions::GetStateReligion(bool bIncludePantheon) const
 }
 
 // Do we own the holy city of our state religion?
-ReligionTypes CvPlayerReligions::GetOwnedReligion() const
+ReligionTypes CvPlayerReligions::GetOwnedReligion(bool bIgnoreLocal) const
 {
-	if (!m_bOwnsStateReligion || m_eStateReligion == RELIGION_PANTHEON)
-		return NO_RELIGION;
+	if (!MOD_BALANCE_VP)
+	{
+		// in CP, players can only own a religion if they have founded it
+		return GetReligionCreatedByPlayer();
+	}
+	else
+	{
+		// in VP, religions can also be obtained by conquering holy cities
+		if (!m_bOwnsStateReligion || m_eStateReligion == RELIGION_PANTHEON)
+			return NO_RELIGION;
 
-	return m_eStateReligion;
+		if (bIgnoreLocal && GC.getReligionInfo(m_eStateReligion)->IsLocalReligion())
+			return NO_RELIGION;
+
+		return m_eStateReligion;
+	}
+}
+
+// Do we own a holy city?
+bool CvPlayerReligions::OwnsReligion(bool bIgnoreLocal) const
+{
+	return GetOwnedReligion(bIgnoreLocal) != NO_RELIGION;
 }
 
 /// What is our state religion?
@@ -9452,7 +9470,7 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 				if (kLoopPlayer.GetID() == m_pPlayer->GetID())
 					iNumCities *= 2;
 
-				if (!kLoopPlayer.GetReligions()->HasCreatedReligion(true))
+				if (!kLoopPlayer.GetReligions()->OwnsReligion(true))
 				{
 					iNumCities *= 2;
 				}
@@ -11115,7 +11133,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	{
 		// Better score if city owner isn't starting a religion and can easily be converted to our side
 		CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-		if (kCityPlayer.isMajorCiv() && !kCityPlayer.GetReligions()->HasCreatedReligion() && kCityPlayer.GetReligions()->GetStateReligion() != eSpreadReligion)
+		if (kCityPlayer.isMajorCiv() && !kCityPlayer.GetReligions()->OwnsReligion() && kCityPlayer.GetReligions()->GetStateReligion() != eSpreadReligion)
 		{
 			iScore *= 3;
 			iScore /= 2;

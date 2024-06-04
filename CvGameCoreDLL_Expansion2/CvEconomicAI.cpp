@@ -3427,7 +3427,7 @@ bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 
 	// Always true if we've already created a religion
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	if(pReligions->HasCreatedReligion(pPlayer->GetID()))
+	if(pPlayer->GetReligions()->OwnsReligion())
 	{
 		return true;
 	}
