@@ -341,6 +341,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBeliefsInPantheon);
 	Method(HasCreatedReligion);
 	Method(CanCreatePantheon);
+	Method(OwnsReligion);
 	Method(GetOwnedReligion);
 	Method(GetReligionCreatedByPlayer);
 	Method(GetOriginalReligionCreatedByPlayer);
@@ -3950,6 +3951,16 @@ int CvLuaPlayer::lGetOwnedReligion(lua_State* L)
 
 	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetOwnedReligion();
 	lua_pushinteger(L, eReligion);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lOwnsReligion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const bool bOwnsReligion = pkPlayer->GetReligions()->OwnsReligion();
+	lua_pushboolean(L, bOwnsReligion);
 
 	return 1;
 }

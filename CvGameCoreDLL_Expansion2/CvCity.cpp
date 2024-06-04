@@ -1019,7 +1019,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
 		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
 	}
-	else if (pReligions->HasCreatedPantheon() && !pReligions->HasCreatedReligion())
+	else if (pReligions->HasCreatedPantheon() && !pReligions->OwnsReligion())
 	{
 		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
 		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
@@ -1037,9 +1037,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		else if (MOD_RELIGION_LOCAL_RELIGIONS) 
 		{
 			// Spread a local religion here if one is active
-			if (pReligions->HasCreatedReligion() && GC.getReligionInfo(pReligions->GetReligionCreatedByPlayer())->IsLocalReligion()) 
+			if (pReligions->OwnsReligion() && GC.getReligionInfo(pReligions->GetOwnedReligion())->IsLocalReligion()) 
 			{
-				GetCityReligions()->AdoptReligionFully(pReligions->GetReligionCreatedByPlayer());
+				GetCityReligions()->AdoptReligionFully(pReligions->GetOwnedReligion());
 			}
 		}
 	}

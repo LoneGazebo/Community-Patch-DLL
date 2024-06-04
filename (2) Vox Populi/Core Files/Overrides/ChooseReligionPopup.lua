@@ -291,7 +291,7 @@ function RefreshReligions()
 	
 	for iPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do	
 		local pPlayer = Players[iPlayer];
-		if (pPlayer:IsEverAlive() and pPlayer:HasCreatedReligion()) then
+		if (pPlayer:IsEverAlive() and pPlayer:OwnsReligion()) then
 			local eReligion = pPlayer:GetOwnedReligion();
 			local iOtherTeam = pPlayer:GetTeam();
 			
@@ -391,7 +391,7 @@ function RefreshExistingBeliefs()
 	Controls.FollowerBelief2Name:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_FOLLOWER_BELIEF2");
 	Controls.EnhancerBeliefName:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_SPREAD_BELIEF");
 	
-	if (pPlayer:HasCreatedReligion()) then
+	if (pPlayer:OwnsReligion()) then
 		local eReligion = pPlayer:GetOwnedReligion();
 		for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
 			local belief = GameInfo.Beliefs[v];
@@ -479,7 +479,7 @@ function RefreshExistingBeliefs()
 	end
 
 	if (pPlayer:IsTraitBonusReligiousBelief()) then
-		if (not pPlayer:HasCreatedReligion()) then
+		if (not pPlayer:OwnsReligion()) then
 			Controls.BonusBeliefButton:RegisterCallback(Mouse.eLClick, OnBonusBeliefClick);
  			Controls.BonusBeliefDescription:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_SELECT_BONUS_BELIEF");
 			Controls.BonusBeliefDescription:SetOffsetVal(24,25);
@@ -513,7 +513,7 @@ function SelectReligion(religionID, name, iconAtlas, portraitIndex)
 		Controls.LabelPleaseSelectAReligion:SetHide(true);
 		g_CurrentReligionName = name;
 
-		if (pPlayer:HasCreatedReligion()) then
+		if (pPlayer:OwnsReligion()) then
 			Controls.LabelReligionName:LocalizeAndSetText(name);
 			Controls.LabelReligionName:RegisterCallback(Mouse.eLClick, IgnoreLeftClick);
 			Controls.FoundReligion:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_OK_BUTTON_ENHANCE");
