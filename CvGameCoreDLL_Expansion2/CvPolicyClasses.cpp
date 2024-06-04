@@ -5254,16 +5254,36 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	{
 		if (pkPolicyBranchInfo->IsPurchaseByLevel())
 		{
-			// If below level 1, can't have as many of this level as of the previous one
+			// If above level 1, can't have as many of this level as of the previous one
 			int iLevel = pkPolicyEntry->GetLevel();
+			int iPoliciesOfThisLevel = GetNumTenetsOfLevel(eBranch, iLevel) + 1 /* For the policy we're adding here */;
 			if (iLevel > 1)
 			{
-				int iPoliciesOfThisLevel = GetNumTenetsOfLevel(eBranch, iLevel) + 1 /* For the policy we're adding here */;
 				int iPoliciesOfPreviousLevel = GetNumTenetsOfLevel(eBranch, iLevel - 1);
 				if (iPoliciesOfThisLevel >= iPoliciesOfPreviousLevel)
 				{
 					return false;
 				}
+			}
+			// Number of policies of each level is limited by the UI for human players, so to make it fair it's also limited for the AI
+			int iMaxNumPolicies = 0;
+			switch (iLevel)
+			{
+			case 1:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_1);
+				break;
+			case 2:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_2);
+				break;
+			case 3:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_3);
+				break;
+			default:
+				iMaxNumPolicies = 999;
+			}
+			if (iPoliciesOfThisLevel > iMaxNumPolicies)
+			{
+				return false;
 			}
 		}
 	}

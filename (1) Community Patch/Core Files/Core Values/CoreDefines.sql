@@ -3,6 +3,11 @@
 INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', 1;
 INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', 0;
 
+-- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_1', 7;
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_2', 4;
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_3', 3;
+
 -- Can units that ignore terrain cost (mainly scouts) cross rivers without expending additional movement?
 -- 1 to enable, 0 to disable
 INSERT INTO Defines(Name, Value) SELECT 'IGNORE_TERRAIN_COST_INCLUDES_RIVERS', 1;
