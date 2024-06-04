@@ -8842,7 +8842,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						ePlayer = (PlayerTypes) iPlayerLoop;
 						CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-						if(!kPlayer.isAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
+						if(!kPlayer.isEverAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
 						{
 							continue;
 						}
