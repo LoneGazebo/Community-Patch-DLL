@@ -390,7 +390,8 @@ INSERT INTO Building_SpecialistYieldChanges
 SELECT
 	a.Type, b.Type, 'YIELD_FOOD', 1
 FROM Buildings a, Specialists b
-WHERE a.BuildingClass = 'BUILDINGCLASS_HOSPITAL' and b.GreatPeopleUnitClass IS NOT NULL;
+WHERE a.BuildingClass = 'BUILDINGCLASS_HOSPITAL'
+AND b.GreatPeopleUnitClass IS NOT NULL;
 
 INSERT INTO Helper
 	(SpecialistType, YieldType)

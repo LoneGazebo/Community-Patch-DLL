@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 -- Medical Lab
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Gain 50 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in the City (not scaling with Era).'
+SET Text = '+2 [ICON_CITIZEN] Citizens, and gain 50 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in the City when completed. Gain 50 [ICON_RESEARCH] Science, and 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 UPDATE Language_en_US
