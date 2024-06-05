@@ -475,7 +475,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units ignore terrain costs when on Hills and can cross Mountains. Cities, Roads, and Railroads may be built on Mountains, and Mountains can be worked to produce +1 [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science, scaling with Era.'
+SET Text = 'Units can cross Mountains and ignore terrain costs when entering any tile with a Hill or Mountain. Cities, Roads, and Railroads may be built on Mountains. Mountains can be worked to produce +1 [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
