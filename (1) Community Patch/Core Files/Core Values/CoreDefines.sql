@@ -8,9 +8,13 @@ INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_1', 7;
 INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_2', 4;
 INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_3', 3;
 
--- Can units that ignore terrain cost (mainly scouts) cross rivers without expending additional movement?
+-- Can units that ignore ALL terrain costs cross rivers without expending additional movement? Doesn't affect trait abilities.
 -- 1 to enable, 0 to disable
-INSERT INTO Defines(Name, Value) SELECT 'IGNORE_TERRAIN_COST_INCLUDES_RIVERS', 1;
+INSERT INTO Defines (Name, Value) SELECT 'IGNORE_GLOBAL_TERRAIN_COSTS_INCLUDES_RIVERS', 1;
+
+-- Can units that ignore SPECIFIC terrain costs via UnitPromotions_Features or UnitPromotions_Terrains cross rivers without expending additional movement? Doesn't affect trait abilities.
+-- 1 to enable, 0 to disable
+INSERT INTO Defines (Name, Value) SELECT 'IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0;
 
 -- Victory conditions
 INSERT INTO Defines (Name, Value) SELECT 'VICTORY_DOMINATION_CONTROL_PERCENT', 100;

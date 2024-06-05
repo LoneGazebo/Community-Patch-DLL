@@ -1270,6 +1270,7 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GetGroundAttackDamage' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
 
 -- Ignore Terrain Cost in specific Feature/Terrain
+-- Whether this includes rivers is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
 

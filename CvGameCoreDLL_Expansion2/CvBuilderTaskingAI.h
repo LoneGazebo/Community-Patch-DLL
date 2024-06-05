@@ -209,7 +209,7 @@ protected:
 	//some player dependent flags for unique improvements
 	ImprovementTypes m_aeUniqueFeatureImprovement[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)
 	ImprovementTypes m_eUniqueCityAdjacentImprovement; // serialized
-	ImprovementTypes m_eUniqueCostalImprovement; // serialized
+	ImprovementTypes m_eUniqueCoastalImprovement; // serialized
 	ImprovementTypes m_eUniqueHillImprovement; // serialized
 };
 

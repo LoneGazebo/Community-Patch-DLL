@@ -301,8 +301,7 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
 			bIgnoreTerrainCost = true;
 
-		//option: river crossings override ignore terrain cost, unless special promotions
-		if (bIgnoreTerrainCost && (!bRiverCrossing || /*1*/ GD_INT_GET(IGNORE_TERRAIN_COST_INCLUDES_RIVERS) > 0))
+		if (bIgnoreTerrainCost) // Incan UA bypasses the check for river crossings, so no need to check those defines
 			iRegularCost = 1;
 		else
 		{
