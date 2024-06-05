@@ -363,7 +363,9 @@ CvUnit::CvUnit() :
 	, m_iFortificationYieldChange()
 	, m_strScriptData()
 	, m_iScenarioData()
+	, m_terrainIgnoreCostCount()
 	, m_terrainDoubleMoveCount()
+	, m_featureIgnoreCostCount()
 	, m_featureDoubleMoveCount()
 	, m_terrainImpassableCount()
 	, m_featureImpassableCount()
@@ -1928,7 +1930,9 @@ void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
+	m_terrainIgnoreCostCount.clear();
 	m_terrainDoubleMoveCount.clear(); // BUG FIX
+	m_featureIgnoreCostCount.clear();
 	m_featureDoubleMoveCount.clear();
 	m_terrainHalfMoveCount.clear();
 	m_featureHalfMoveCount.clear();
@@ -26670,6 +26674,41 @@ void CvUnit::setScenarioData(int iNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getTerrainIgnoreCostCount(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_terrainIgnoreCostCount.begin(); it != m_terrainIgnoreCostCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_terrainIgnoreCostCount;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_terrainIgnoreCostCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
 	for (TerrainTypeCounter::const_iterator it = m_terrainDoubleMoveCount.begin(); it != m_terrainDoubleMoveCount.end(); ++it)
@@ -26702,6 +26741,41 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 	}
 
 	m_terrainDoubleMoveCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getFeatureIgnoreCostCount(FeatureTypes eIndex) const
+{
+	for (FeatureTypeCounter::const_iterator it = m_featureIgnoreCostCount.begin(); it != m_featureIgnoreCostCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	FeatureTypeCounter& mVec = m_featureIgnoreCostCount;
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_featureIgnoreCostCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -28801,7 +28875,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_strScriptData);
 	visitor(unit.m_iScenarioData);
 	visitor(unit.m_iBuilderStrength);
+	visitor(unit.m_terrainIgnoreCostCount);
 	visitor(unit.m_terrainDoubleMoveCount);
+	visitor(unit.m_featureIgnoreCostCount);
 	visitor(unit.m_featureDoubleMoveCount);
 	visitor(unit.m_terrainHalfMoveCount);
 	visitor(unit.m_featureHalfMoveCount);
@@ -32146,7 +32222,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetOutsideFriendlyLandsModifier();
-	// Scout: +10 Trailblazer 1 - 3. 	R + mR + S: +25 Infiltrators (barrage 4).
+	// Scout: +20 Trailblazer 3. 	R + mR + S: +25 Infiltrators (barrage 4).
 	if (iTemp != 0)
 	{
 
@@ -32499,7 +32575,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		// Melee Attack Helpers
 
 	iTemp = pkPromotionInfo->IsIgnoreZOC();
-	// Scout: Trailblazer (woodland trailblazer) 2.		nM: Pincer (boarding party 4).
+	// Scout: Trailblazer (woodland trailblazer) 3.		nM: Pincer (boarding party 4).
 	// mR: Skirmisher Doctrine (skirmisher mobility).
 	if (iTemp != 0 && !IsIgnoreZOC())
 	{
@@ -32852,10 +32928,17 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			
+			if(pkPromotionInfo->GetTerrainIgnoreCost(iI) && !isTerrainIgnoreCost(eTerrain) && !ignoreTerrainCost())
+				// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
+			{
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 8;
+				if (IsGainsXPFromScouting())
+					iExtra *= 3;
+				iValue += iExtra;
+			}
 
 			if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
-				// Scout: Snow/Desert Woodland Trailblazer 2.
 			{
 				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
 				iExtra *= 8;
@@ -32928,8 +33011,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				
 			}
 
+			if(pkPromotionInfo->GetFeatureIgnoreCost(iI) && !isFeatureIgnoreCost(eFeature) && !ignoreTerrainCost())
+				// Scout: Forest/Jungle Woodland Trailblazer 1, Marsh Woodland Trailblazer 2.
+			{
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 8;
+				if (IsGainsXPFromScouting())
+					iExtra *= 3;
+				iValue += iExtra;
+			}
+
 			if(pkPromotionInfo->GetFeatureDoubleMove(iI) && !isFeatureDoubleMove(eFeature))
-			// Scout: Forest/Jungle Woodland Trailblazer 1.		M: Forest/Junlge Woodsman.
+			// M: Forest/Jungle Woodsman.
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= 8;

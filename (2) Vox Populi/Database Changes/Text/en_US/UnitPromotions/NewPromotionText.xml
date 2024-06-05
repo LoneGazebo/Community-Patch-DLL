@@ -172,19 +172,19 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_1_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].</Text>
+			<Text>+1 [ICON_VP_VISION] Sight and Embarked Sight.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR], [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>+1 [ICON_MOVES] Movement and Embarked Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR], [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE]No [ICON_MOVES] Movement or combat penalties for crossing a river.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY">
@@ -404,7 +404,7 @@
 			<Text>Frogman</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FROGMAN_HELP">
-			<Text>Eliminate combat penalties for attacking from the sea or over a river.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.</Text>
+			<Text>No combat penalties for attacking from the sea.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.[NEWLINE]+50% [ICON_STRENGTH] Defense when Embarked.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCREENING">

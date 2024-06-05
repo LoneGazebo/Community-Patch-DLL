@@ -517,14 +517,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SCOUTING_2</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_SCOUTING_3</Type>
-			<Description>TXT_KEY_PROMOTION_SCOUTING_3</Description>
-			<Help>TXT_KEY_PROMOTION_SCOUTING_3_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_SCOUTING_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCOUTING_3</PediaEntry>
-		</Replace>
-		<Replace>
 			<Type>PROMOTION_SURVIVALISM_1</Type>
 			<Description>TXT_KEY_PROMOTION_SURVIVALISM_1</Description>
 			<Help>TXT_KEY_PROMOTION_SURVIVALISM_1_HELP</Help>

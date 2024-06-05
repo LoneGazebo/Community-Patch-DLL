@@ -1269,6 +1269,10 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GetGroundAttackDamage' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap when expended.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
 
+-- Ignore Terrain Cost in specific Feature/Terrain
+ALTER TABLE UnitPromotions_Features ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
+
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
