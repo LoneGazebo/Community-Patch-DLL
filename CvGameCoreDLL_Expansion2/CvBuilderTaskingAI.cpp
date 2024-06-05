@@ -52,7 +52,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 
 	// special case to evaluate plots adjacent to city
 	m_eUniqueCityAdjacentImprovement = NO_IMPROVEMENT;
-	m_eUniqueCostalImprovement = NO_IMPROVEMENT;
+	m_eUniqueCoastalImprovement = NO_IMPROVEMENT;
 	m_eUniqueHillImprovement = NO_IMPROVEMENT;
 
 	CivilizationTypes eCiv = m_pPlayer->getCivilizationType();
@@ -96,7 +96,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 				}
 				if (pkImprovementInfo->IsCoastal())
 				{
-					m_eUniqueCostalImprovement = eImprovement;
+					m_eUniqueCoastalImprovement = eImprovement;
 				}
 				if (pkImprovementInfo->IsHillsMakesValid())
 				{
@@ -120,7 +120,7 @@ void CvBuilderTaskingAI::Uninit(void)
 	for (int i = 0; i < NUM_FEATURE_TYPES; i++)
 		m_aeUniqueFeatureImprovement[i] = NO_IMPROVEMENT;
 	m_eUniqueCityAdjacentImprovement = NO_IMPROVEMENT;
-	m_eUniqueCostalImprovement = NO_IMPROVEMENT;
+	m_eUniqueCoastalImprovement = NO_IMPROVEMENT;
 	m_eUniqueHillImprovement = NO_IMPROVEMENT;
 }
 
@@ -133,7 +133,7 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_canalWantedPlots);
 	visitor(builderTaskingAI.m_aeUniqueFeatureImprovement);
 	visitor(builderTaskingAI.m_eUniqueCityAdjacentImprovement);
-	visitor(builderTaskingAI.m_eUniqueCostalImprovement);
+	visitor(builderTaskingAI.m_eUniqueCoastalImprovement);
 	visitor(builderTaskingAI.m_eUniqueHillImprovement);
 }
 
@@ -1026,9 +1026,9 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 	{
 		return m_eUniqueCityAdjacentImprovement;
 	}
-	else if (m_eUniqueCostalImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand() && pPlot->canHaveImprovement(m_eUniqueCostalImprovement, m_pPlayer->GetID(), false, true))
+	else if (m_eUniqueCoastalImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand() && pPlot->canHaveImprovement(m_eUniqueCoastalImprovement, m_pPlayer->GetID(), false, true))
 	{
-		return m_eUniqueCostalImprovement;
+		return m_eUniqueCoastalImprovement;
 	}
 	else if (m_eUniqueHillImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS && pPlot->canHaveImprovement(m_eUniqueHillImprovement, m_pPlayer->GetID(), false, true))
 	{
