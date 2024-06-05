@@ -3636,10 +3636,31 @@ bool CvMinorCivQuest::DoCancelQuest()
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eWonder);
 		const char* strBuildingName = pkBuildingInfo->GetDescriptionKey();
 
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONSTRUCT_WONDER");
-		strMessage << strBuildingName;
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONSTRUCT_WONDER");
-		strSummary << strBuildingName;
+		// has someone else built the wonder?
+		bool bSomeoneElseHasBuiltWonder = false;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (m_eAssignedPlayer != eLoopPlayer && GET_PLAYER(eLoopPlayer).countNumBuildings(eWonder) > 0)
+			{
+				bSomeoneElseHasBuiltWonder = true;
+				break;
+			}
+		}
+		if (bSomeoneElseHasBuiltWonder)
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONSTRUCT_WONDER");
+			strMessage << strBuildingName;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONSTRUCT_WONDER");
+			strSummary << strBuildingName;
+		}
+		else
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONSTRUCT_WONDER_TIME");
+			strMessage << strBuildingName;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONSTRUCT_WONDER_TIME");
+			strSummary << strBuildingName;
+		}
 		break;
 	}
 	case MINOR_CIV_QUEST_KILL_CITY_STATE:

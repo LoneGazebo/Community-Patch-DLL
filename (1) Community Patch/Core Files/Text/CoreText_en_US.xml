@@ -2809,6 +2809,14 @@
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
 		
+		<!-- Quest Expired -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CONSTRUCT_WONDER_TIME">
+			<Text>After waiting for a long time, the leaders of {2_MinorCivName:textkey} are no longer interested in the construction of {@1_WonderName} and have canceled the quest they had previously given to you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONSTRUCT_WONDER_TIME">
+			<Text>{@2_CivName} no longer desires {@1_WonderName}!</Text>
+		</Row>
+		
 		<!-- Automation -->
 		<!-- Automation Text -->
 		<Row Tag="TXT_KEY_ACTION_AUTOMATE_MISSIONARY">
