@@ -555,7 +555,7 @@ public:
 	int getBlastTourismTurns();
 	bool blastTourism();
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
 	bool build(BuildTypes eBuild);
 
 #if defined(MOD_CIV6_WORKER)

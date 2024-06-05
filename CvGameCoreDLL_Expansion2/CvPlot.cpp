@@ -2488,7 +2488,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool) const
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency) const
 {
 	CvPlot* pLoopPlot = NULL;
 	bool bValid = false;
@@ -2808,7 +2808,74 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	}
 #endif
 
+	if (!bCheckAdjacency)
+		return true;
+
+	bool bHasLuxuryRequirement = pkImprovementInfo->IsAdjacentLuxury();
+	bool bHasNoTwoAdjacencyRequirement = pkImprovementInfo->IsNoTwoAdjacent();
+	if (bHasLuxuryRequirement || bHasNoTwoAdjacencyRequirement)
+	{
+		bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			if (pAdjacentPlot != NULL)
+			{
+				if (bHasLuxuryRequirement)
+				{
+					ResourceTypes eResource = pAdjacentPlot->getResourceType(GET_PLAYER(ePlayer).getTeam());
+					if (eResource != NO_RESOURCE)
+					{
+						CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+						if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							bLuxuryRequirementMet = true;
+						}
+					}
+				}
+				if (bHasNoTwoAdjacencyRequirement)
+				{
+					ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+					if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eImprovement)
+					{
+						return false;
+					}
+					CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+					if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eImprovement))
+					{
+						return false;
+					}
+					int iBuildProgress = pAdjacentPlot->getBuildProgress(GetBuildTypeFromImprovement(eImprovement));
+					if (iBuildProgress > 0)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		if (bHasLuxuryRequirement && !bLuxuryRequirementMet)
+		{
+			return false;
+		}
+	}
+
 	return true;
+}
+
+BuildTypes CvPlot::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const
+{
+	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	{
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+
+		if (NULL != pkBuild && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
+		{
+			return eBuild;
+		}
+	}
+
+	return NO_BUILD;
 }
 
 
@@ -10330,7 +10397,7 @@ int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePl
 	return iReligionChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection, const CvCity* pOwningCity, bool bOptimal) const
+int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal) const
 {
 	int iBestYield = 0;
 	int iYield = 0;
@@ -10497,24 +10564,24 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 				}
 			}
 
-			if (eRoute != NO_ROUTE)
+			if (eRoute != NO_ROUTE || (eForceCityConnection != NUM_ROUTE_TYPES && eForceCityConnection != NO_ROUTE))
 			{
-				if (!bIgnoreCityConnection)
+				if ((eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, true /*bIndustrial*/))) && MOD_BALANCE_YIELD_SCALE_ERA)
 				{
-					if (IsCityConnection(ePlayer, true /*bIndustrial*/) && MOD_BALANCE_YIELD_SCALE_ERA)
-					{
-						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
-					}
-					else if (IsCityConnection(ePlayer, false /*bIndustrial*/))
-					{
-						iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					}
+					iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+				}
+				else if (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, false /*bIndustrial*/)))
+				{
+					iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 				}
 
-				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-				if (pkRouteInfo)
+				if (eRoute != NO_ROUTE)
 				{
-					iYield += pkRouteInfo->getYieldChange(eYield);
+					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+					if (pkRouteInfo)
+					{
+						iYield += pkRouteInfo->getYieldChange(eYield);
+					}
 				}
 			}
 		}
@@ -10551,9 +10618,9 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 }
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const
+int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const
 #else
-int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
+int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
 #endif
 {
 	if (ePlayer == NO_PLAYER)
@@ -10696,6 +10763,10 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
 		}
 	}
+
+	bool bIsCityConnection = IsCityConnection(ePlayer);
+	if (eForceCityConnection != NUM_ROUTE_TYPES)
+		bIsCityConnection = eForceCityConnection != NO_ROUTE;
 	
 	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
 	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
@@ -10705,7 +10776,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
-				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute())
+				if (bIsCityConnection || IsTradeUnitRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -10725,7 +10796,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
-				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute())
+				if (bIsCityConnection || IsTradeUnitRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -10745,7 +10816,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
 			if (iBonus2 > 0)
 			{
-				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
+				if (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -11071,8 +11142,8 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	int iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, pOwningCity, bDisplay);
 	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, eImprovement, eFeature, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, false, pOwningCity, false);
-	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, eFeature, eResource, false, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
+	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, false);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
 	{
@@ -13753,9 +13824,9 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, bool bIgnoreCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon) const
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon) const
 #else
-int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, bool bIgnoreCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
 #endif
 {
 	int iYield = 0;
@@ -13798,7 +13869,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		if (GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
 			if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && eNewRoute == NO_ROUTE)
-				bIgnoreCityConnection = true;
+				eForceCityConnection = NO_ROUTE;
 
 			eFeature = NO_FEATURE;
 		}
@@ -13870,7 +13941,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYield(eYield, ePlayer, eNewImprovement, eNewRoute, eFeature, eResource, bIgnoreCityConnection, pOwningCity, false) + calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+		iYield += calculateImprovementYield(eYield, ePlayer, eNewImprovement, eNewRoute, eFeature, eResource, eForceCityConnection, pOwningCity, false) + calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
 		{
@@ -13880,9 +13951,9 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	}
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eNewImprovement, eFeature, eResource, bIgnoreCityConnection, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, false);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eNewImprovement, eFeature, eResource, eForceCityConnection, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, false);
 #else
-	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eNewImprovement, eFeature, eResource, bIgnoreCityConnection, pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eNewImprovement, eFeature, eResource, eForceCityConnection, pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 #endif
 
 	//no overhead if empty
