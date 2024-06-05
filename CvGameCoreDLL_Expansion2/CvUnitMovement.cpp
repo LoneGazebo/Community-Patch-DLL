@@ -283,7 +283,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				}
 			}
 
-			if (bRiverCrossing && !bNoRiverCrossingPenalty && domain == DOMAIN_LAND)
+			if (!bNoRiverCrossingPenalty && domain == DOMAIN_LAND)
 			{
 				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
 			}
