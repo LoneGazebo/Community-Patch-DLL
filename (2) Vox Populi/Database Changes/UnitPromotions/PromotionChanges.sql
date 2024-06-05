@@ -1042,18 +1042,16 @@ WHERE Type IN (
 	'PROMOTION_HILL_WALKER'
 );
 
-UPDATE UnitPromotions SET HillsDoubleMove = 1 WHERE Type = 'PROMOTION_HILL_WALKER';
-
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, DoubleMove)
+	(PromotionType, FeatureType, IgnoreTerrainCost)
 VALUES
 	('PROMOTION_MARSH_WALKER', 'FEATURE_MARSH', 1),
-	('PROMOTION_MARSH_WALKER', 'FEATURE_FLOOD_PLAINS', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_FOREST', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_JUNGLE', 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, DoubleMove)
+	(PromotionType, TerrainType, IgnoreTerrainCost)
 VALUES
+	('PROMOTION_HILL_WALKER', 'TERRAIN_HILL', 1),
 	('PROMOTION_WHITE_WALKER', 'TERRAIN_SNOW', 1),
 	('PROMOTION_DESERT_WALKER', 'TERRAIN_DESERT', 1);
