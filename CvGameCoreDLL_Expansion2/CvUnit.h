@@ -1695,9 +1695,17 @@ public:
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 
+	int getTerrainIgnoreCostCount(TerrainTypes eIndex) const;
+	inline bool isTerrainIgnoreCost(TerrainTypes eIndex) const { return getTerrainIgnoreCostCount(eIndex) > 0; }
+	void changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange);
+
 	int getTerrainDoubleMoveCount(TerrainTypes eIndex) const;
 	inline bool isTerrainDoubleMove(TerrainTypes eIndex) const { return getTerrainDoubleMoveCount(eIndex) > 0; }
 	void changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange);
+
+	int getFeatureIgnoreCostCount(FeatureTypes eIndex) const;
+	inline bool isFeatureIgnoreCost(FeatureTypes eIndex) const { return getFeatureIgnoreCostCount(eIndex) > 0; }
+	void changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange);
 
 	int getFeatureDoubleMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureDoubleMove(FeatureTypes eIndex) const { return getFeatureDoubleMoveCount(eIndex) > 0; }
@@ -2385,7 +2393,9 @@ protected:
 	int m_iBuilderStrength;
 #endif
 
+	TerrainTypeCounter m_terrainIgnoreCostCount;
 	TerrainTypeCounter m_terrainDoubleMoveCount;
+	FeatureTypeCounter m_featureIgnoreCostCount;
 	FeatureTypeCounter m_featureDoubleMoveCount;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	TerrainTypeCounter m_terrainHalfMoveCount;
@@ -2790,7 +2800,9 @@ SYNC_ARCHIVE_VAR(GreatPeopleDirectiveTypes, m_eGreatPeopleDirectiveType)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
 SYNC_ARCHIVE_VAR(int, m_iScenarioData)
 SYNC_ARCHIVE_VAR(int, m_iBuilderStrength)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainIgnoreCostCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainDoubleMoveCount)
+SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureIgnoreCostCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureDoubleMoveCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainHalfMoveCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureHalfMoveCount)

@@ -300,6 +300,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piCombatModPerAdjacentUnitCombatAttackModifier(NULL),
 	m_piCombatModPerAdjacentUnitCombatDefenseModifier(NULL),
 #endif
+	m_pbTerrainIgnoreCost(NULL),
+	m_pbFeatureIgnoreCost(NULL),
 	m_pbTerrainDoubleMove(NULL),
 	m_pbFeatureDoubleMove(NULL),
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -353,6 +355,8 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatAttackModifier);
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatDefenseModifier);
 #endif
+	SAFE_DELETE_ARRAY(m_pbTerrainIgnoreCost);
+	SAFE_DELETE_ARRAY(m_pbFeatureIgnoreCost);
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleMove);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -711,6 +715,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_piTerrainAttackPercent, iNumTerrains, 0);
 		kUtility.InitializeArray(m_piTerrainDefensePercent, iNumTerrains, 0);
 		kUtility.InitializeArray(m_piTerrainPassableTech, iNumTerrains, NO_TECH);
+		kUtility.InitializeArray(m_pbTerrainIgnoreCost, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbTerrainDoubleMove, iNumTerrains, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
@@ -745,6 +750,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const int iTerrainDefense = pResults->GetInt("Defense");
 			m_piTerrainDefensePercent[iTerrainID] = iTerrainDefense;
 
+			const bool bIgnoreTerrainCost = pResults->GetBool("IgnoreTerrainCost");
+			m_pbTerrainIgnoreCost[iTerrainID] = bIgnoreTerrainCost;
+
 			const bool bDoubleMove = pResults->GetBool("DoubleMove");
 			m_pbTerrainDoubleMove[iTerrainID] = bDoubleMove;
 
@@ -773,6 +781,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_piFeatureAttackPercent, iNumFeatures, 0);
 		kUtility.InitializeArray(m_piFeatureDefensePercent, iNumFeatures, 0);
 		kUtility.InitializeArray(m_piFeaturePassableTech, iNumFeatures, NO_TECH);
+		kUtility.InitializeArray(m_pbFeatureIgnoreCost, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbFeatureDoubleMove, iNumFeatures, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
@@ -806,6 +815,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			const int iFeatureDefense = pResults->GetInt("Defense");
 			m_piFeatureDefensePercent[iFeatureID] = iFeatureDefense;
+
+			const bool bIgnoreTerrainCost = pResults->GetBool("IgnoreTerrainCost");
+			m_pbFeatureIgnoreCost[iFeatureID] = bIgnoreTerrainCost;
 
 			const bool bDoubleMove = pResults->GetBool("DoubleMove");
 			m_pbFeatureDoubleMove[iFeatureID] = bDoubleMove;
@@ -2966,6 +2978,34 @@ int CvPromotionEntry::GetFeaturePassableTech(int i) const
 	}
 
 	return -1;
+}
+
+/// Indicates if a unit ignores terrain cost in a type of terrain
+bool CvPromotionEntry::GetTerrainIgnoreCost(int i) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainIgnoreCost)
+	{
+		return m_pbTerrainIgnoreCost[i];
+	}
+
+	return false;
+}
+
+/// Indicates if a unit ignores terrain cost in a type of terrain feature
+bool CvPromotionEntry::GetFeatureIgnoreCost(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureIgnoreCost)
+	{
+		return m_pbFeatureIgnoreCost[i];
+	}
+
+	return false;
 }
 
 /// Indicates if a unit can move twice as fast in a type of terrain

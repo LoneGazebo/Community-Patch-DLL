@@ -226,11 +226,15 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
 
 		//in some cases we ignore terrain / feature cost
-		if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+		if (bAmphibious && bRiverCrossing)
 			bIgnoreTerrainCost = true;
 		else if (pTraits->IsFasterInHills() && pToPlot->isHills())
 			bIgnoreTerrainCost = true;
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
+			bIgnoreTerrainCost = true;
+		else if (pUnit->isTerrainIgnoreCost(eToTerrain))
+			bIgnoreTerrainCost = true;
+		else if (pUnit->isFeatureIgnoreCost(eToFeature))
 			bIgnoreTerrainCost = true;
 
 		if (MOD_SANE_UNIT_MOVEMENT_COST)

@@ -96,7 +96,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP';
 
 -- Amphibious
 UPDATE Language_en_US
-SET Text = 'Eliminate combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
+SET Text = 'Eliminate combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP';
 
 -- Cover
@@ -271,12 +271,8 @@ SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
-
-UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement and Embarked Movement.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_3_HELP';
+WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
 
 -- Survivalism
 UPDATE Language_en_US
