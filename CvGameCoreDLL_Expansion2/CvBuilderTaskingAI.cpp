@@ -302,7 +302,7 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 			bIgnoreTerrainCost = true;
 
 		//option: river crossings override ignore terrain cost, unless special promotions
-		if (bIgnoreTerrainCost && (!bRiverCrossing || bIgnoreTerrainCost))
+		if (bIgnoreTerrainCost && (!bRiverCrossing || /*1*/ GD_INT_GET(IGNORE_TERRAIN_COST_INCLUDES_RIVERS) > 0))
 			iRegularCost = 1;
 		else
 		{
