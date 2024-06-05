@@ -794,7 +794,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			m_iEarliestBarbarianReleaseTurn = max(0, GC.getGame().randRangeInclusive(iBarbReleaseTurn - iPlusMinus, iBarbReleaseTurn + iPlusMinus, CvSeeder::fromRaw(0x07f63322)));
 	}
 	else
-		m_iEarliestBarbarianReleaseTurn = max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().randRangeInclusive(0, /*15*/ max(1, GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION)), CvSeeder::fromRaw(0x4602dd5b)));
+		m_iEarliestBarbarianReleaseTurn = max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().randRangeInclusive(0, /*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), CvSeeder::fromRaw(0x4602dd5b)));
 
 	UpdateGameEra();
 	// What route type forms an industrial connection

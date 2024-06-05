@@ -3661,6 +3661,83 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 	}
 
 	m_aeCivApproach[ePlayer] = eApproach;
+
+	// Planning war? Pick a surface approach to disguise our war plans.
+	if (eApproach == CIV_APPROACH_WAR)
+	{
+		// We don't need a surface approach while *at* war. Approaches are updated in DoWeMadePeaceWithSomeone(), so there's no need to store one for later.
+		if (IsAtWar(ePlayer))
+		{
+			SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
+			return;
+		}
+
+		CivApproachTypes eSurfaceApproach = NO_CIV_APPROACH;
+		CivApproachTypes eCurrentSurfaceApproach = GetCachedSurfaceApproach(ePlayer);
+
+		if (eCurrentSurfaceApproach != NO_CIV_APPROACH)
+		{
+			eSurfaceApproach = eCurrentSurfaceApproach;
+
+			// If we were just denounced or they ended our friendship, can't be better than GUARDED
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
+			{
+				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
+				{
+					eSurfaceApproach = CIV_APPROACH_GUARDED;
+				}
+			}
+
+			if (eSurfaceApproach == CIV_APPROACH_HOSTILE)
+			{
+				if (IsLiberator(ePlayer, false, true) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
+				{
+					eSurfaceApproach = CIV_APPROACH_GUARDED;
+				}
+			}
+			else if (eSurfaceApproach == CIV_APPROACH_FRIENDLY)
+			{
+				if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
+				{
+					eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+				}
+			}
+
+			GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, eSurfaceApproach);
+			return;
+		}
+		else
+		{
+			eSurfaceApproach = GetHighestValueApproach(ePlayer, /*bExcludeWar*/ true, /*bIncludeOverrides*/ true);
+
+			// If we were just denounced or they ended our friendship, can't be better than GUARDED
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
+			{
+				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
+				{
+					eSurfaceApproach = CIV_APPROACH_GUARDED;
+				}
+			}
+
+			// Don't pretend to be afraid if we're not
+			if (eSurfaceApproach == CIV_APPROACH_AFRAID)
+			{
+				GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, CIV_APPROACH_GUARDED);
+				return;
+			}
+			// Deceptive = Friendly
+			else if (eSurfaceApproach == CIV_APPROACH_DECEPTIVE)
+			{
+				GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, CIV_APPROACH_FRIENDLY);
+				return;
+			}
+
+			GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, eSurfaceApproach);
+			return;
+		}
+	}
+
+	SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
 }
 
 /// What is our Strategic Diplomatic Approach towards this Major Civ?
@@ -3719,107 +3796,43 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 		return eRealApproach;
 	}
 
-	// Pick a surface approach to disguise our war plans (this approach is cached to prevent erratic behavior)
+	// Use a surface approach to disguise our war plans (this approach is cached to prevent erratic behavior)
 	if (eRealApproach == CIV_APPROACH_WAR)
 	{
-		CivApproachTypes eSurfaceApproach = NO_CIV_APPROACH;
-		CivApproachTypes eCurrentSurfaceApproach = GetCachedSurfaceApproach(ePlayer);
-
-		if (eCurrentSurfaceApproach != NO_CIV_APPROACH)
-		{
-			eSurfaceApproach = eCurrentSurfaceApproach;
-
-			// If we were just denounced or they ended our friendship, can't be better than GUARDED
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
-			{
-				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
-				{
-					eSurfaceApproach = CIV_APPROACH_GUARDED;
-				}
-			}
-
-			if (eSurfaceApproach == CIV_APPROACH_HOSTILE)
-			{
-				if (IsLiberator(ePlayer, false, true) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
-				{
-					eSurfaceApproach = CIV_APPROACH_GUARDED;
-				}
-			}
-			if (eSurfaceApproach == CIV_APPROACH_FRIENDLY)
-			{
-				if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
-				{
-					eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
-				}
-			}
-
-			GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, eSurfaceApproach);
-			return eSurfaceApproach;
-		}
-		else
-		{
-			eSurfaceApproach = GetHighestValueApproach(ePlayer, /*bExcludeWar*/ true, /*bIncludeOverrides*/ true);
-
-			// If we were just denounced or they ended our friendship, can't be better than GUARDED
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
-			{
-				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
-				{
-					eSurfaceApproach = CIV_APPROACH_GUARDED;
-				}
-			}
-
-			// Don't pretend to be afraid if we're not
-			if (eSurfaceApproach == CIV_APPROACH_AFRAID)
-			{
-				GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, CIV_APPROACH_GUARDED);
-				return CIV_APPROACH_GUARDED;
-			}
-
-			// Deceptive = Friendly
-			if (eSurfaceApproach == CIV_APPROACH_DECEPTIVE)
-			{
-				GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, CIV_APPROACH_FRIENDLY);
-				return CIV_APPROACH_FRIENDLY;
-			}
-
-			GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, eSurfaceApproach);
-			return eSurfaceApproach;
-		}
+		return GetCachedSurfaceApproach(ePlayer);
 	}
 	// Deceptive = Friendly
 	else if (eRealApproach == CIV_APPROACH_DECEPTIVE)
 	{
-		GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
 		return CIV_APPROACH_FRIENDLY;
 	}
 
-	GetPlayer()->GetDiplomacyAI()->SetCachedSurfaceApproach(ePlayer, NO_CIV_APPROACH);
 	return eRealApproach;
 }
 
 
-/// How is trade deal valuation modified based on our surface-lavel approach towards ePlayer?
+/// How is trade deal valuation modified based on our surface-level approach towards ePlayer?
 int CvDiplomacyAI::GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFromMe) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return -1;
 	if (bFromMe)
 	{
-		//How much is OUR stuff worth?
+		// How much is OUR stuff worth?
 		switch (GetSurfaceApproach(ePlayer))
 		{
 		case CIV_APPROACH_FRIENDLY:
-			return 80;
+			return /*80*/ GD_INT_GET(APPROACH_FRIENDLY_SELLING_PRICE_MODIFIER);
 		case CIV_APPROACH_AFRAID:
-			return 80;
+			return /*80*/ GD_INT_GET(APPROACH_AFRAID_SELLING_PRICE_MODIFIER);
 		case CIV_APPROACH_NEUTRAL:
-			return 100;
+		case NO_CIV_APPROACH:
+			return /*100*/ GD_INT_GET(APPROACH_NEUTRAL_SELLING_PRICE_MODIFIER);
 		case CIV_APPROACH_GUARDED:
-			return 125;
+			return /*125*/ GD_INT_GET(APPROACH_GUARDED_SELLING_PRICE_MODIFIER);
 		case CIV_APPROACH_HOSTILE:
-			return 200;
+			return /*200*/ GD_INT_GET(APPROACH_HOSTILE_SELLING_PRICE_MODIFIER);
 		default:
-			return 100;
+			return 100; // Peace deals should always be evaluated fairly for sanity
 		}
 	}
 	else
@@ -3827,17 +3840,18 @@ int CvDiplomacyAI::GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFro
 		switch (GetPlayer()->GetDiplomacyAI()->GetSurfaceApproach(ePlayer))
 		{
 		case CIV_APPROACH_FRIENDLY:
-			return 125;
+			return /*125*/ GD_INT_GET(APPROACH_FRIENDLY_BUYING_PRICE_MODIFIER);
 		case CIV_APPROACH_AFRAID:
-			return 125;
+			return /*125*/ GD_INT_GET(APPROACH_AFRAID_BUYING_PRICE_MODIFIER);
 		case CIV_APPROACH_NEUTRAL:
-			return 100;
+		case NO_CIV_APPROACH:
+			return /*100*/ GD_INT_GET(APPROACH_NEUTRAL_BUYING_PRICE_MODIFIER);
 		case CIV_APPROACH_GUARDED:
-			return 80;
+			return /*80*/ GD_INT_GET(APPROACH_GUARDED_BUYING_PRICE_MODIFIER);
 		case CIV_APPROACH_HOSTILE:
-			return 50;
+			return /*50*/ GD_INT_GET(APPROACH_HOSTILE_BUYING_PRICE_MODIFIER);
 		default:
-			return 100;
+			return 100; // Peace deals should always be evaluated fairly for sanity
 		}
 	}
 }
@@ -4304,8 +4318,6 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 	if (bValue != IsDoFAccepted(ePlayer))
 	{
-		m_pPlayer->recomputeGreatPeopleModifiers();
-
 		// Someone made a DoF, send out notifications to everyone
 		if (bValue)
 		{
@@ -4415,6 +4427,8 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 		{
 			SetDoFAcceptedTurn(ePlayer, -1);
 		}
+
+		m_pPlayer->recomputeGreatPeopleModifiers();
 	}
 }
 
@@ -5215,7 +5229,7 @@ void CvDiplomacyAI::SetStateAllWars(StateAllWars eState)
 }
 
 /// How much progress (or lack thereof) have we made in this war?
-/// (to be) Used by the AI to determine whether they should continue or stop.
+/// Used by the AI to determine whether they should continue or stop.
 int CvDiplomacyAI::GetWarProgressScore(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;

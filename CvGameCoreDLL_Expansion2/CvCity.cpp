@@ -16226,7 +16226,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if ((pBuildingInfo->GetYieldFromBirthRetroactive(eYield) > 0))
 			{
 				int iVal = getPopulation() * pBuildingInfo->GetYieldFromBirthRetroactive(eYield);
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, eBuilding, iVal, false, NO_PLAYER, NULL, false, this, false, true, false, eYield);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, eBuilding, iVal, false, NO_PLAYER, NULL, false, this, false, false, false, eYield);
 			}
 			if ((pBuildingInfo->GetYieldFromUnitProduction(eYield) > 0))
 			{

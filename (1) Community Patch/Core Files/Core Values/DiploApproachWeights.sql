@@ -4,8 +4,18 @@
 -- WAR and HOSTILE approach scores are multiplied by whichever of these values is appropriate, and then divided by 100.
 -- NOTE: Target Value is also affected by proximity!
 
--- Normal Target Value Multiplier (Major Civs)
+-- Conquest Target Value Multiplier
+-- Applied instead of the below values if the AI really wants to conquer this player AND has a good attack target.
 INSERT INTO Defines (Name, Value) VALUES
+('CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK', 250),
+('CONQUEST_WAR_MULTIPLIER_TARGET_SOFT', 200),
+('CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE', 150),
+('CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE', 125),
+('CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT', 100),
+('CONQUEST_WAR_MULTIPLIER_TARGET_BAD', 75),
+('CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', 50),
+
+-- Normal Target Value Multiplier (Major Civs)
 ('MAJOR_WAR_MULTIPLIER_TARGET_CAKEWALK', 200),
 ('MAJOR_WAR_MULTIPLIER_TARGET_SOFT', 150),
 ('MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE', 125),
@@ -22,17 +32,6 @@ UPDATE Defines SET Value = 75 WHERE Name = 'MINOR_APPROACH_WAR_TARGET_AVERAGE';
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_APPROACH_WAR_TARGET_DIFFICULT', 50;
 UPDATE Defines SET Value = 33 WHERE Name = 'MINOR_APPROACH_WAR_TARGET_BAD';
 UPDATE Defines SET Value = 25 WHERE Name = 'MINOR_APPROACH_WAR_TARGET_IMPOSSIBLE';
-
--- Conquest Target Value Multiplier
--- Applied instead of the above values if the AI really wants to conquer this player AND has a good attack target.
-INSERT INTO Defines (Name, Value) VALUES
-('CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK', 250),
-('CONQUEST_WAR_MULTIPLIER_TARGET_SOFT', 200),
-('CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE', 150),
-('CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE', 125),
-('CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT', 100),
-('CONQUEST_WAR_MULTIPLIER_TARGET_BAD', 75),
-('CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', 50);
 
 
 -- Proximity Multipliers to Approach Weights
@@ -85,9 +84,9 @@ INSERT INTO Defines (Name, Value) SELECT 'APPROACH_SHIFT_PERCENT', 0.30;
 UPDATE Defines SET Value = 5 WHERE Name = 'APPROACH_RANDOM_PERCENT';
 
 
--- C4DF Approach Values
 INSERT INTO Defines (Name, Value) VALUES
 
+-- C4DF Approach Values
 -- Approach multipliers for having 2+ vassals
 ('APPROACH_WAR_TOO_MANY_VASSALS', 20), -- % increase to WAR and HOSTILE approaches per vassal
 ('APPROACH_GUARDED_TOO_MANY_VASSALS', 20), -- % increase to GUARDED and AFRAID approaches per vassal
@@ -100,13 +99,31 @@ INSERT INTO Defines (Name, Value) VALUES
 -- Modifiers for agreeing to give a former vassal independence
 ('APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED', -4), -- Adds x times the AI's War Bias to the War Approach
 ('APPROACH_FRIENDLY_VASSAL_PEACEFULLY_REVOKED', 5), -- Adds x times the AI's Friendly Bias to the Friendly Approach
-('APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', 2); -- Adds x times the AI's Deceptive Bias to the Deceptive Approach (not applied if master liberates vassal)
+('APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', 2), -- Adds x times the AI's Deceptive Bias to the Deceptive Approach (not applied if master liberates vassal)
+
+
+-- Approach Trade Value Modifiers
+-- Change the AI's trade prices based on their surface approach towards another player.
+-- WAR is possible as a surface approach, but the trade modifier for peace deals is always 100 for sanity, so there's no define for it.
+
+-- The AI is buying from the other player
+('APPROACH_HOSTILE_BUYING_PRICE_MODIFIER', 50),
+('APPROACH_GUARDED_BUYING_PRICE_MODIFIER', 80),
+('APPROACH_AFRAID_BUYING_PRICE_MODIFIER', 125),
+('APPROACH_NEUTRAL_BUYING_PRICE_MODIFIER', 100),
+('APPROACH_FRIENDLY_BUYING_PRICE_MODIFIER', 125),
+
+-- The AI is selling to the other player
+('APPROACH_HOSTILE_SELLING_PRICE_MODIFIER', 200),
+('APPROACH_GUARDED_SELLING_PRICE_MODIFIER', 125),
+('APPROACH_AFRAID_SELLING_PRICE_MODIFIER', 80),
+('APPROACH_NEUTRAL_SELLING_PRICE_MODIFIER', 100),
+('APPROACH_FRIENDLY_SELLING_PRICE_MODIFIER', 80),
 
 
 -- "Close To Victory" Thresholds
 -- A player who has completed x% of the progress towards a specific victory condition is considered "close to" that victory.
 -- Affects AI calculations and (if Endgame Aggression isn't disabled for that player) triggers the Endgame Aggression boost to approach.
-INSERT INTO Defines (Name, Value) VALUES
 ('CLOSE_TO_DOMINATION_VICTORY_THRESHOLD', 50),
 ('CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD', 55),
 ('CLOSE_TO_SCIENCE_VICTORY_THRESHOLD', 80),
