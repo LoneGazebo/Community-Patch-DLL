@@ -13,6 +13,10 @@ UPDATE Features
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODS_WALKER'
 WHERE Type = 'FEATURE_JUNGLE';
 
+UPDATE Features
+SET SpawnLocationUnitFreePromotion = 'PROMOTION_MARSH_WALKER'
+WHERE Type = 'FEATURE_MARSH';
+
 UPDATE Terrains
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_DESERT_WALKER'
 WHERE Type = 'TERRAIN_DESERT';
