@@ -2206,382 +2206,397 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	if(isAtWar(eTeam))
+	// Not at war? Do nothing!
+	if (!isAtWar(eTeam))
+		return;
+
+	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
-		if (MOD_EVENTS_WAR_AND_PEACE) 
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+	}
+	else 
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
 		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
 		}
-		else 
+	}
+
+	setAtWar(eTeam, false, bPacifier);
+	GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
+
+	// Set initial peace counters for all players
+	for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+	{
+		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoop);
+		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
 		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
+			for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
 			{
-				CvLuaArgsHandle args;
-				args->Push(GetID());
-				args->Push(eTeam);
+				PlayerTypes eLoopPlayer2 = static_cast<PlayerTypes>(iLoop2);
+				CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
 
-				bool bResult = false;
-				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
-			}
-		}
-
-		setAtWar(eTeam, false, bPacifier);
-		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
-
-		// Set initial peace counters for all players
-		for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
-
-			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
-			{
-				for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+				if (kLoopPlayer2.isAlive() && kLoopPlayer2.getTeam() == eTeam)
 				{
-					PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
+					kLoopPlayer.SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
+					kLoopPlayer.SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
+					kLoopPlayer.SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
+					kLoopPlayer2.SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+					kLoopPlayer2.SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+					kLoopPlayer2.SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
 
-					if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
+					// Also reset damage counters of each city
+					int iLoopCity = 0;
+					for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoopCity))
 					{
-						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
-						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
-						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
-						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
-						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
-						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+						pLoopCity->SetDamagePermyriad(eLoopPlayer2, 0);
+					}
+					iLoopCity = 0;
+					for (CvCity* pLoopCity = kLoopPlayer2.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kLoopPlayer2.nextCity(&iLoopCity))
+					{
+						pLoopCity->SetDamagePermyriad(eLoopPlayer, 0);
 					}
 				}
 			}
 		}
+	}
 
-		vector<PlayerTypes> veFirstPlayerAllies;
-		vector<PlayerTypes> veSecondPlayerAllies;
+	vector<PlayerTypes> veFirstPlayerAllies;
+	vector<PlayerTypes> veSecondPlayerAllies;
 
-		//Secondary major declarations
-		for(int iI = 0; iI < MAX_TEAMS; iI++)
+	//Secondary major declarations
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
-			if(GET_TEAM((TeamTypes)iI).isAlive())
+			//Are we a vassal of the from player?
+			if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 			{
-				//Are we a vassal of the from player?
-				if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+				GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, eTeam, true, true);
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, eTeam, true, true);
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+					if (kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
 					{
-						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-						if (kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
+						veFirstPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
+					}
+				}
+			}
+			//Are we a vassal of the to player?
+			else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+			{
+				GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, GetID(), true, true);
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+					if (kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
+					{
+						veSecondPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
+					}
+				}
+			}
+
+			if(GET_TEAM((TeamTypes)iI).isMinorCiv())
+			{
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
+					if(kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
+					{
+						if (kPlayer.GetMinorCivAI()->IsNoAlly())
+							continue;
+
+						PlayerTypes eAlly = kPlayer.GetMinorCivAI()->GetAlly();
+						if (eAlly == NO_PLAYER)
+							continue;
+
+						TeamTypes eAllyTeam = GET_PLAYER(eAlly).getTeam();
+						if (eAllyTeam == GetID())
 						{
+							GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, eTeam, true, true);
 							veFirstPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
 						}
-					}
-				}
-				//Are we a vassal of the to player?
-				else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
-				{
-					GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, GetID(), true, true);
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-						if (kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
+						else if (GET_TEAM(eAllyTeam).IsVassal(GetID()))
 						{
+							// ally of a vassal. add their name to the list, but don't make peace here (done when DoMakePeace is called for the vassal)
+							veFirstPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
+						}
+						else if (eAllyTeam == eTeam)
+						{
+							GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, GetID(), true, true);
+							veSecondPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
+						}
+						else if (GET_TEAM(eAllyTeam).IsVassal(eTeam))
+						{
+							// ally of a vassal. add their name to the notification, but don't make peace here (done when DoMakePeace is called for the vassal)
 							veSecondPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
 						}
 					}
 				}
-
-				if(GET_TEAM((TeamTypes)iI).isMinorCiv())
-				{
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-					{
-						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-						if(kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
-						{
-							if (kPlayer.GetMinorCivAI()->IsNoAlly())
-								continue;
-
-							PlayerTypes eAlly = kPlayer.GetMinorCivAI()->GetAlly();
-							if (eAlly == NO_PLAYER)
-								continue;
-
-							TeamTypes eAllyTeam = GET_PLAYER(eAlly).getTeam();
-							if (eAllyTeam == GetID())
-							{
-								GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, eTeam, true, true);
-								veFirstPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
-							}
-							else if (GET_TEAM(eAllyTeam).IsVassal(GetID()))
-							{
-								// ally of a vassal. add their name to the list, but don't make peace here (done when DoMakePeace is called for the vassal)
-								veFirstPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
-							}
-							else if (eAllyTeam == eTeam)
-							{
-								GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, GetID(), true, true);
-								veSecondPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
-							}
-							else if (GET_TEAM(eAllyTeam).IsVassal(eTeam))
-							{
-								// ally of a vassal. add their name to the notification, but don't make peace here (done when DoMakePeace is called for the vassal)
-								veSecondPlayerAllies.push_back((PlayerTypes)iPlayerLoop);
-							}
-						}
-					}
-				}
 			}
 		}
+	}
 
-		// One shot things
-		DoNowAtWarOrPeace(eTeam, false);
-		GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), false);
+	// One shot things
+	DoNowAtWarOrPeace(eTeam, false);
+	GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), false);
 
-		DoUpdateVassalWarPeaceRelationships();
+	DoUpdateVassalWarPeaceRelationships();
 
-		// Move Units that shouldn't be in each others' territory any more
-		if(bBumpUnits)
+	// Move Units that shouldn't be in each others' territory any more
+	if(bBumpUnits)
+	{
+		GC.getMap().verifyUnitValidPlot();
+	}
+
+	// Both of us have now made a peace treaty.  Keep track of this in case either one breaks the agreement
+	int iCurrentTurn = GC.getGame().getElapsedGameTurns();
+	SetTurnMadePeaceTreatyWithTeam(eTeam, iCurrentTurn);
+	GET_TEAM(eTeam).SetTurnMadePeaceTreatyWithTeam(GetID(), iCurrentTurn);
+
+	if(!isMinorCiv())
+	{
+		// Made peace with a minor - see if we have allied minors which should also make peace
+		if(GET_TEAM(eTeam).isMinorCiv())
 		{
-			GC.getMap().verifyUnitValidPlot();
-		}
+			PlayerTypes eOurMinor;
+			int iMinorLoop = 0;
 
-		// Both of us have now made a peace treaty.  Keep track of this in case either one breaks the agreement
-		int iCurrentTurn = GC.getGame().getElapsedGameTurns();
-		SetTurnMadePeaceTreatyWithTeam(eTeam, iCurrentTurn);
-		GET_TEAM(eTeam).SetTurnMadePeaceTreatyWithTeam(GetID(), iCurrentTurn);
+			PlayerTypes eOurPlayer;
+			int iPlayerLoop = 0;
 
-		if(!isMinorCiv())
-		{
-			// Made peace with a minor - see if we have allied minors which should also make peace
-			if(GET_TEAM(eTeam).isMinorCiv())
+			PlayerTypes eThirdParty;
+			int iThirdPartyLoop = 0;
+
+			PlayerTypes eMakingPeaceWithMinor;
+			int iMakingPeaceWithMinorLoop = 0;
+
+			bool bPeaceBlocked = false;
+
+			// Loop through all players to see if they're on our team
+			for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eOurMinor;
-				int iMinorLoop = 0;
+				eOurPlayer = (PlayerTypes) iPlayerLoop;
 
-				PlayerTypes eOurPlayer;
-				int iPlayerLoop = 0;
+				// Not on this team
+				if(GET_PLAYER(eOurPlayer).getTeam() != GetID())
+					continue;
 
-				PlayerTypes eThirdParty;
-				int iThirdPartyLoop = 0;
-
-				PlayerTypes eMakingPeaceWithMinor;
-				int iMakingPeaceWithMinorLoop = 0;
-
-				bool bPeaceBlocked = false;
-
-				// Loop through all players to see if they're on our team
-				for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				// Loop through minors to see if they're allied with us
+				for(iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
-					eOurPlayer = (PlayerTypes) iPlayerLoop;
+					eOurMinor = (PlayerTypes) iMinorLoop;
 
-					// Not on this team
-					if(GET_PLAYER(eOurPlayer).getTeam() != GetID())
+					// Minor not alive
+					if(!GET_PLAYER(eOurMinor).isAlive())
 						continue;
 
-					// Loop through minors to see if they're allied with us
-					for(iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+					// Allied with us
+					if(GET_PLAYER(eOurMinor).GetMinorCivAI()->GetAlly() == eOurPlayer)
 					{
-						eOurMinor = (PlayerTypes) iMinorLoop;
+						bPeaceBlocked = false;
 
-						// Minor not alive
-						if(!GET_PLAYER(eOurMinor).isAlive())
-							continue;
-
-						// Allied with us
-						if(GET_PLAYER(eOurMinor).GetMinorCivAI()->GetAlly() == eOurPlayer)
+						// Now... see if there's another major allied to the minor we just made peace with, which would block OUR allied minor from making peace with him
+						for(iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 						{
-							bPeaceBlocked = false;
+							eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
-							// Now... see if there's another major allied to the minor we just made peace with, which would block OUR allied minor from making peace with him
-							for(iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+							for(iMakingPeaceWithMinorLoop = MAX_MAJOR_CIVS; iMakingPeaceWithMinorLoop < MAX_CIV_PLAYERS; iMakingPeaceWithMinorLoop++)
 							{
-								eThirdParty = (PlayerTypes) iThirdPartyLoop;
+								eMakingPeaceWithMinor = (PlayerTypes) iMakingPeaceWithMinorLoop;
 
-								for(iMakingPeaceWithMinorLoop = MAX_MAJOR_CIVS; iMakingPeaceWithMinorLoop < MAX_CIV_PLAYERS; iMakingPeaceWithMinorLoop++)
+								// Not on the team we're making peace with
+								if(GET_PLAYER(eMakingPeaceWithMinor).getTeam() != eTeam)
+									continue;
+
+								// Minor not alive
+								if(!GET_PLAYER(eMakingPeaceWithMinor).isAlive())
+									continue;
+
+								if(GET_PLAYER(eMakingPeaceWithMinor).GetMinorCivAI()->GetAlly() == eThirdParty)
 								{
-									eMakingPeaceWithMinor = (PlayerTypes) iMakingPeaceWithMinorLoop;
-
-									// Not on the team we're making peace with
-									if(GET_PLAYER(eMakingPeaceWithMinor).getTeam() != eTeam)
-										continue;
-
-									// Minor not alive
-									if(!GET_PLAYER(eMakingPeaceWithMinor).isAlive())
-										continue;
-
-									if(GET_PLAYER(eMakingPeaceWithMinor).GetMinorCivAI()->GetAlly() == eThirdParty)
+									if(GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).isAtWar(GET_PLAYER(eOurMinor).getTeam()))
 									{
-										if(GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).isAtWar(GET_PLAYER(eOurMinor).getTeam()))
-										{
-											bPeaceBlocked = true;
-											break;
-										}
+										bPeaceBlocked = true;
+										break;
 									}
 								}
 							}
+						}
 
-							// Not at permanent war with this team
-							if(!bPeaceBlocked)
+						// Not at permanent war with this team
+						if(!bPeaceBlocked)
+						{
+							if(!GET_PLAYER(eOurMinor).GetMinorCivAI()->IsPermanentWar(eTeam))
 							{
-								if(!GET_PLAYER(eOurMinor).GetMinorCivAI()->IsPermanentWar(eTeam))
-								{
-									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, bPacifier, eTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
-								}
+								GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, bPacifier, eTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
 							}
 						}
 					}
 				}
 			}
 		}
+	}
 
-		// Update Interface
-		if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
+	// Update Interface
+	if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
+	{
+		DLLUI->setDirty(Score_DIRTY_BIT, true);
+		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	}
+
+	// What does it mean when we make peace
+	CvPlayer* pOurPlayer = NULL;
+	PlayerTypes eOurPlayer;
+	for(int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
+	{
+		eOurPlayer = (PlayerTypes) iOurPlayerLoop;
+		pOurPlayer = &GET_PLAYER(eOurPlayer);
+
+		if(pOurPlayer->isAlive())
 		{
-			DLLUI->setDirty(Score_DIRTY_BIT, true);
-			DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-		}
-
-		// What does it mean when we make peace
-		CvPlayer* pOurPlayer = NULL;
-		PlayerTypes eOurPlayer;
-		for(int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
-		{
-			eOurPlayer = (PlayerTypes) iOurPlayerLoop;
-			pOurPlayer = &GET_PLAYER(eOurPlayer);
-
-			if(pOurPlayer->isAlive())
+			// Our Team
+			if (pOurPlayer->getTeam() == GetID())
 			{
-				// Our Team
-				if (pOurPlayer->getTeam() == GetID())
-				{
-					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
-					pOurPlayer->GetMilitaryAI()->LogPeace(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
-				}
-				// Their Team
-				else if (pOurPlayer->getTeam() == eTeam)
-				{
-					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
-					pOurPlayer->GetMilitaryAI()->LogPeace(GetID());	// This is not quite correct, but it'll work well enough for AI testing
-				}
+				pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
+				pOurPlayer->GetMilitaryAI()->LogPeace(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
+			}
+			// Their Team
+			else if (pOurPlayer->getTeam() == eTeam)
+			{
+				pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
+				pOurPlayer->GetMilitaryAI()->LogPeace(GetID());	// This is not quite correct, but it'll work well enough for AI testing
+			}
+		}
+	}
+
+	Localization::String locSummary;
+	Localization::String locString;
+
+	// Text stuff
+	if(!bSuppressNotification)
+	{
+		CvString strFirstPlayerAllyList = "";
+		if (!veFirstPlayerAllies.empty())
+		{
+			for (uint iMinorCivLoop = 0; iMinorCivLoop < veFirstPlayerAllies.size(); iMinorCivLoop++)
+			{
+				PlayerTypes eMinor = veFirstPlayerAllies[iMinorCivLoop];
+				Localization::String strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
+				strFirstPlayerAllyList = strFirstPlayerAllyList + "[NEWLINE]" + strTemp.toUTF8();
 			}
 		}
 
-		Localization::String locSummary;
-		Localization::String locString;
-
-		// Text stuff
-		if(!bSuppressNotification)
+		CvString strSecondPlayerAllyList = "";
+		if (!veSecondPlayerAllies.empty())
 		{
-			CvString strFirstPlayerAllyList = "";
+			for (uint iMinorCivLoop = 0; iMinorCivLoop < veSecondPlayerAllies.size(); iMinorCivLoop++)
+			{
+				PlayerTypes eMinor = veSecondPlayerAllies[iMinorCivLoop];
+				Localization::String strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
+				strSecondPlayerAllyList = strSecondPlayerAllyList + "[NEWLINE]" + strTemp.toUTF8();
+			}
+		}
+
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes) iI;
+			
+			CvString strFirstPlayerAllyInformation = "";
 			if (!veFirstPlayerAllies.empty())
 			{
-				for (uint iMinorCivLoop = 0; iMinorCivLoop < veFirstPlayerAllies.size(); iMinorCivLoop++)
-				{
-					PlayerTypes eMinor = veFirstPlayerAllies[iMinorCivLoop];
-					Localization::String strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
-					strFirstPlayerAllyList = strFirstPlayerAllyList + "[NEWLINE]" + strTemp.toUTF8();
-				}
+				Localization::String strTemp = GET_PLAYER(ePlayer).getTeam() == GetID() ? Localization::Lookup("TXT_KEY_YOUR_ALLIES") : Localization::Lookup("TXT_KEY_OTHER_PLAYER_ALLIES");
+				strTemp << strFirstPlayerAllyList;
+				strFirstPlayerAllyInformation = strTemp.toUTF8();
 			}
-
-			CvString strSecondPlayerAllyList = "";
+			CvString strSecondPlayerAllyInformation = "";
 			if (!veSecondPlayerAllies.empty())
 			{
-				for (uint iMinorCivLoop = 0; iMinorCivLoop < veSecondPlayerAllies.size(); iMinorCivLoop++)
-				{
-					PlayerTypes eMinor = veSecondPlayerAllies[iMinorCivLoop];
-					Localization::String strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
-					strSecondPlayerAllyList = strSecondPlayerAllyList + "[NEWLINE]" + strTemp.toUTF8();
-				}
+				Localization::String strTemp = GET_PLAYER(ePlayer).getTeam() == eTeam ? Localization::Lookup("TXT_KEY_YOUR_ALLIES") : Localization::Lookup("TXT_KEY_OTHER_PLAYER_ALLIES");
+				strTemp << strSecondPlayerAllyList;
+				strSecondPlayerAllyInformation = strTemp.toUTF8();
 			}
 
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			if ((GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver()) && GET_PLAYER(ePlayer).GetNotifications())
 			{
-				PlayerTypes ePlayer = (PlayerTypes) iI;
-				
-				CvString strFirstPlayerAllyInformation = "";
-				if (!veFirstPlayerAllies.empty())
+				if (GET_PLAYER(ePlayer).getTeam() == GetID())
 				{
-					Localization::String strTemp = GET_PLAYER(ePlayer).getTeam() == GetID() ? Localization::Lookup("TXT_KEY_YOUR_ALLIES") : Localization::Lookup("TXT_KEY_OTHER_PLAYER_ALLIES");
-					strTemp << strFirstPlayerAllyList;
-					strFirstPlayerAllyInformation = strTemp.toUTF8();
-				}
-				CvString strSecondPlayerAllyInformation = "";
-				if (!veSecondPlayerAllies.empty())
-				{
-					Localization::String strTemp = GET_PLAYER(ePlayer).getTeam() == eTeam ? Localization::Lookup("TXT_KEY_YOUR_ALLIES") : Localization::Lookup("TXT_KEY_OTHER_PLAYER_ALLIES");
-					strTemp << strSecondPlayerAllyList;
-					strSecondPlayerAllyInformation = strTemp.toUTF8();
-				}
+					locSummary = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH");
+					locSummary << GET_TEAM(eTeam).getName().GetCString();
 
-				if ((GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver()) && GET_PLAYER(ePlayer).GetNotifications())
-				{
-					if (GET_PLAYER(ePlayer).getTeam() == GetID())
+					if (GET_TEAM(eTeam).isMinorCiv())
 					{
-						locSummary = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH");
-						locSummary << GET_TEAM(eTeam).getName().GetCString();
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_MINOR_DETAILED");
+						locString << GET_TEAM(eTeam).getName().GetCString();
+						locString << strFirstPlayerAllyInformation;
+					}
+					else
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						locString << GET_TEAM(eTeam).getName().GetCString();
+						locString << strFirstPlayerAllyInformation;
+						locString << strSecondPlayerAllyInformation;
+					}
+					GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locSummary.toUTF8(), -1, -1, eTeam);
+				}
+				else if (GET_PLAYER(ePlayer).getTeam() == eTeam)
+				{
+					locSummary = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH");
+					locSummary << getName().GetCString();
 
+					// a minor player can't make peace with a major on their own, so GetID() must refer to a major
+					locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+					locString << getName().GetCString();
+					locString << strSecondPlayerAllyInformation;
+					locString << strFirstPlayerAllyInformation;
+
+					GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locSummary.toUTF8(), -1, -1, this->getLeaderID());
+				}
+				else if ((GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam)) || GET_PLAYER(ePlayer).isObserver())
+				{
+					locSummary = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE");
+					locSummary << getName().GetCString();
+					locSummary << GET_TEAM(eTeam).getName().GetCString();
+
+					if (GET_TEAM(GetID()).isMinorCiv())
+					{
+						// minor civ's can't make peace with majors on their own (and with minors only in case of the 'war' CS quest), so don't show information about allies here
+						locString = locSummary;
+					}
+					else
+					{
 						if (GET_TEAM(eTeam).isMinorCiv())
 						{
-							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_MINOR_DETAILED");
+							locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE_MINOR_DETAILED");
+							locString << getName().GetCString();
 							locString << GET_TEAM(eTeam).getName().GetCString();
 							locString << strFirstPlayerAllyInformation;
 						}
 						else
 						{
-							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+							locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE_DETAILED");
+							locString << getName().GetCString();
 							locString << GET_TEAM(eTeam).getName().GetCString();
 							locString << strFirstPlayerAllyInformation;
 							locString << strSecondPlayerAllyInformation;
 						}
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locSummary.toUTF8(), -1, -1, eTeam);
 					}
-					else if (GET_PLAYER(ePlayer).getTeam() == eTeam)
-					{
-						locSummary = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH");
-						locSummary << getName().GetCString();
-
-						// a minor player can't make peace with a major on their own, so GetID() must refer to a major
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
-						locString << getName().GetCString();
-						locString << strSecondPlayerAllyInformation;
-						locString << strFirstPlayerAllyInformation;
-
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locSummary.toUTF8(), -1, -1, this->getLeaderID());
-					}
-					else if ((GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam)) || GET_PLAYER(ePlayer).isObserver())
-					{
-						locSummary = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE");
-						locSummary << getName().GetCString();
-						locSummary << GET_TEAM(eTeam).getName().GetCString();
-
-						if (GET_TEAM(GetID()).isMinorCiv())
-						{
-							// minor civ's can't make peace with majors on their own (and with minors only in case of the 'war' CS quest), so don't show information about allies here
-							locString = locSummary;
-						}
-						else
-						{
-							if (GET_TEAM(eTeam).isMinorCiv())
-							{
-								locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE_MINOR_DETAILED");
-								locString << getName().GetCString();
-								locString << GET_TEAM(eTeam).getName().GetCString();
-								locString << strFirstPlayerAllyInformation;
-							}
-							else
-							{
-								locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_MADE_PEACE_DETAILED");
-								locString << getName().GetCString();
-								locString << GET_TEAM(eTeam).getName().GetCString();
-								locString << strFirstPlayerAllyInformation;
-								locString << strSecondPlayerAllyInformation;
-							}
-						}
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locSummary.toUTF8(), -1, -1, this->getLeaderID(), eTeam);
-					}
+					GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locSummary.toUTF8(), -1, -1, this->getLeaderID(), eTeam);
 				}
 			}
 		}
-
-		strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_MADE_PEACE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
-		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);
 	}
+
+	strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_MADE_PEACE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8049,6 +8064,12 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 							}
 						}
 					}
+
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if (pkPromotionInfo && pkPromotionInfo->IsCanMoveImpassable())
+					{
+						kPlayer.SetWorkersIgnoreImpassable(true);
+					}
 				}
 #else
 				if(pTech->IsFreePromotion(ePromotion))
@@ -8821,7 +8842,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						ePlayer = (PlayerTypes) iPlayerLoop;
 						CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-						if(!kPlayer.isAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
+						if(!kPlayer.isEverAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
 						{
 							continue;
 						}
@@ -9806,12 +9827,6 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 
 	// Vassalage is disabled...
 	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
-	{
-		return false;
-	}
-
-	// Human Vassalage isn't enabled...
-	if(!GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS) && isHuman())
 	{
 		return false;
 	}

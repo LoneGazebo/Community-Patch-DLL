@@ -1312,22 +1312,22 @@
 			<Text>The [ICON_GREAT_WORK] Great Work "{2_GWName}" has been stolen.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION">
-			<Text>[ICON_PRODUCTION] Sabotage City Producion</Text>
+			<Text>[ICON_PRODUCTION] Sabotage City Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
-			<Text>Remove {8_Num} Turns of [ICON_PRODUCTION] Production from the City's current production progress.</Text>
+			<Text>City is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
-			<Text>{8_Num} Turns of the current [ICON_PRODUCTION] Production progress have been lost.</Text>
+			<Text>The city is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
 			<Text>[ICON_PEACE] Pilfer Religious Relics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_HELP">
-			<Text>Steal 50% [ICON_PEACE] Faith per turn from the Target City. -50% Religious Pressure emitted by the Target City. Lasts for {5_Duration}.</Text>
+			<Text>Steal 100% [ICON_PEACE] Faith per turn from the Target City. -100% Religious Pressure emitted by the Target City. Lasts for {5_Duration}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_EFFECT">
-			<Text>Each turn, 50% of the City's [ICON_PEACE] Faith Output are stolen. The city emits -50% Religious Pressure. {5_DurationText}</Text>
+			<Text>Each turn, 100% of the City's [ICON_PEACE] Faith Output is stolen. The City emits -100% Religious Pressure. {5_DurationText}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
 			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists in the City</Text>
@@ -1410,10 +1410,10 @@
 			<Text>[ICON_SPY] Establish a counter-espionage network.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP">
-			<Text>Foreign [ICON_SPY] Spies generate -10 Network Points per turn, scaling with Counterspy Level.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate -20 Network Points per turn.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-10 Network Points[ENDCOLOR] per turn, scaling with Counterspy Level.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-20 Network Points[ENDCOLOR] per turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION">
 			<Text>Establish Network</Text>
@@ -1422,25 +1422,13 @@
 			<Text>[ICON_STRENGTH] Strengthen City Defenses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 20% stronger, and an additional 10% for every Counterspy Level. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_EFFECTS">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
 			<Text>Strenghen Defense</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE">
-			<Text>[ICON_PIRATE] Chase down foreign Spies.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_HELP">
-			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed. Gain 50 [ICON_RESEARCH] Science when you kill a foreign Spy, scaling with Era and Counterspy Level.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_MISSION">
-			<Text>Chase Spies</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

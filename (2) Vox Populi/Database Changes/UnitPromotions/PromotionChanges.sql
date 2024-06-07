@@ -34,7 +34,7 @@ UPDATE UnitPromotions SET RangedDefenseMod = 25 WHERE RankList = 'COVER';
 
 UPDATE UnitPromotions SET Amphib = 1, River = 1 WHERE Type = 'PROMOTION_AMPHIBIOUS';
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, DoubleMove)
+	(PromotionType, FeatureType, IgnoreTerrainCost)
 VALUES
 	('PROMOTION_AMPHIBIOUS', 'FEATURE_MARSH', 1);
 
@@ -140,15 +140,15 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 ----------------------------------------------------------------------------------------------------------------------------
 -- Siege promotion tree drawn using ASCIIFlow
 --
---                               ┌──────► Volley
---                               │                            Infiltrators
--- Siege I ─────────► Siege II ──┴──────► Siege III ────────► Range
+--                                       ┌──────► Volley
+--                                       │                            Infiltrators
+-- Siege I ─────────► Siege II ──────────┴──────► Siege III ────────► Range
 --
 -- Cover I ─────────► Cover II
---                                                            Firing Doctrine
--- Field I ─────────► Field II ──┬──────► Field III ────────► Logistics
---                               │
---                               └──────► Splash Damage I ──► Splash Damage II
+--                                                                    Firing Doctrine
+-- Field I ────┬────► Field II ──────────┬──────► Field III ────────► Logistics
+--             │                         │
+--             └────► Coastal Artillery  └──────► Splash Damage I ──► Splash Damage II
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET RangedAttackModifier = 10, CityAttack = 15 WHERE RankList = 'SIEGE';
 
@@ -158,6 +158,13 @@ UPDATE UnitPromotions SET CityAttack = 50, AttackFortifiedMod = 50 WHERE Type = 
 
 UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
+INSERT INTO UnitPromotions_UnitCombatMods
+	(PromotionType, UnitCombatType, Modifier)
+VALUES
+	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_NAVALMELEE', 50),
+	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_NAVALRANGED', 50),
+	('PROMOTION_COASTAL_ARTILLERY', 'UNITCOMBAT_CARRIER', 50);
+
 ----------------------------------------------------------------------------------------------------------------------------
 -- Recon promotion tree drawn using ASCIIFlow
 --
@@ -165,7 +172,7 @@ UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 --                                      │                                                    │
 --                                      ├───► Medic I ──────► Medic II                       ├───► Frogman
 --                                      │                                                    │
---                                      ├───► Scouting I ───► Scouting II ───► Scouting III  ├───► Screening
+--                                      ├───► Scouting I ───► Scouting II                    ├───► Screening
 --                                      │                                                    │
 -- Trailblazer I ────► Trailblazer II ──┴───► Trailblazer III ───────────────────────────────┘
 ----------------------------------------------------------------------------------------------------------------------------
@@ -178,26 +185,35 @@ WHERE Type IN ('PROMOTION_SURVIVALISM_1', 'PROMOTION_SURVIVALISM_2');
 
 UPDATE UnitPromotions SET AlwaysHeal = 1, FreePillageMoves = 1 WHERE Type = 'PROMOTION_SURVIVALISM_3';
 
-UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 10 WHERE RankList = 'TRAILBLAZER';
-UPDATE UnitPromotions SET IgnoreZOC = 1 WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_2';
-UPDATE UnitPromotions SET CanCrossMountains = 1, AllowsEmbarkation = 1, EnemyRoute = 1 WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_3';
+UPDATE UnitPromotions SET VisibilityChange = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_1';
+UPDATE UnitPromotions SET MovesChange = 1, ExtraNavalMovement = 1, River = 1 WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_2';
+UPDATE UnitPromotions
+SET
+	OutsideFriendlyLandsModifier = 20,
+	AllowsEmbarkation = 1,
+	CanCrossMountains = 1,
+	EnemyRoute = 1,
+	IgnoreZOC = 1
+WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_3';
 
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, DoubleMove)
+	(PromotionType, FeatureType, IgnoreTerrainCost)
 VALUES
 	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'FEATURE_JUNGLE', 1),
-	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'FEATURE_FOREST', 1);
+	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'FEATURE_FOREST', 1),
+	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'FEATURE_MARSH', 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, DoubleMove)
+	(PromotionType, TerrainType, IgnoreTerrainCost)
 VALUES
+	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'TERRAIN_HILL', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'TERRAIN_DESERT', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'TERRAIN_SNOW', 1);
 
-UPDATE UnitPromotions SET VisibilityChange = 1 WHERE Type IN ('PROMOTION_SCOUTING_1', 'PROMOTION_SCOUTING_2');
-UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_SCOUTING_3';
+UPDATE UnitPromotions SET VisibilityChange = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_SCOUTING_1';
+UPDATE UnitPromotions SET MovesChange = 1, ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_SCOUTING_2';
 
-UPDATE UnitPromotions SET EmbarkFlatCost = 1, DisembarkFlatCost = 1, Amphib = 1, River = 1 WHERE Type = 'PROMOTION_FROGMAN';
+UPDATE UnitPromotions SET EmbarkFlatCost = 1, DisembarkFlatCost = 1, Amphib = 1, EmbarkDefenseModifier = 50 WHERE Type = 'PROMOTION_FROGMAN';
 
 UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Type = 'PROMOTION_SCREENING';
 
@@ -446,12 +462,12 @@ VALUES
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 20);
+	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 33);
 
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 20);
+	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 33);
 
 UPDATE UnitPromotions SET RangeChange = 2 WHERE Type = 'PROMOTION_AIR_RANGE';
 
@@ -519,11 +535,13 @@ VALUES
 	('PROMOTION_VIKING', 'YIELD_GOLD', 30),
 	('PROMOTION_LONGBOAT', 'YIELD_GOLD', 60);
 
-UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
+UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
 UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
+
+UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
@@ -551,11 +569,7 @@ UPDATE UnitPromotions SET MovesChange = 3 WHERE Type = 'PROMOTION_FAST_GENERAL';
 UPDATE UnitPromotions SET AttackMod = 15, IgnoreZOC = 1 WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_GUN';
 UPDATE UnitPromotions SET AttackMod = 15, MovesChange = 1 WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_ARMOR';
 
-UPDATE UnitPromotions SET AttackBelowEqual50HealthMod = 20 WHERE Type = 'PROMOTION_PRIZE_RULES';
-INSERT INTO UnitPromotions_YieldFromKills
-	(PromotionType, YieldType, Yield)
-VALUES
-	('PROMOTION_PRIZE_RULES', 'YIELD_GOLD', 300);
+UPDATE UnitPromotions SET FriendlyHealChange = 5, CityAttack = 25 WHERE Type = 'PROMOTION_MARE_NOSTRUM';
 
 --------------------------------------------
 -- Tech free promotions
@@ -875,7 +889,7 @@ UPDATE UnitPromotions SET NearbyEnemyCombatMod = -10, NearbyEnemyCombatRange = 1
 UPDATE UnitPromotions SET NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 1 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
 -- Khan: Enhanced Medic
-UPDATE UnitPromotions SET SameTileHealChange = 10, AdjacentTileHealChange = 10, NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
+UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
 
 -- Samurai: Quick Study
 UPDATE UnitPromotions SET ExperiencePercent = 50 WHERE Type = 'PROMOTION_GAIN_EXPERIENCE';
@@ -1028,18 +1042,16 @@ WHERE Type IN (
 	'PROMOTION_HILL_WALKER'
 );
 
-UPDATE UnitPromotions SET HillsDoubleMove = 1 WHERE Type = 'PROMOTION_HILL_WALKER';
-
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, DoubleMove)
+	(PromotionType, FeatureType, IgnoreTerrainCost)
 VALUES
 	('PROMOTION_MARSH_WALKER', 'FEATURE_MARSH', 1),
-	('PROMOTION_MARSH_WALKER', 'FEATURE_FLOOD_PLAINS', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_FOREST', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_JUNGLE', 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, DoubleMove)
+	(PromotionType, TerrainType, IgnoreTerrainCost)
 VALUES
+	('PROMOTION_HILL_WALKER', 'TERRAIN_HILL', 1),
 	('PROMOTION_WHITE_WALKER', 'TERRAIN_SNOW', 1),
 	('PROMOTION_DESERT_WALKER', 'TERRAIN_DESERT', 1);

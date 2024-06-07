@@ -172,19 +172,26 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_1_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].</Text>
+			<Text>+1 [ICON_VP_VISION] Sight and Embarked Sight.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR], [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>+1 [ICON_MOVES] Movement and Embarked Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR], [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE]No [ICON_MOVES] Movement or combat penalties for crossing a river.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY">
+			<Text>Coastal Artillery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Melee[ENDCOLOR], [COLOR_POSITIVE_TEXT]Naval Ranged[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Carrier[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_1">
@@ -383,21 +390,21 @@
 			<Text>Aerial Torpedo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
 			<Text>Bomb Rack</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FROGMAN">
 			<Text>Frogman</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FROGMAN_HELP">
-			<Text>Eliminate combat penalties for attacking from the sea or over a river.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.</Text>
+			<Text>No combat penalties for attacking from the sea.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.[NEWLINE]+50% [ICON_STRENGTH] Defense when Embarked.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCREENING">
@@ -540,11 +547,11 @@
 			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES">
-			<Text>Prize Rules</Text>
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM">
+			<Text>Mare Nostrum</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS">
@@ -1072,35 +1079,35 @@
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Flood Plains[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
-			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER">
 			<Text>Woods Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER_HELP">
-			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER">
 			<Text>Desert Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER_HELP">
-			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
 			<Text>Hill Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER_HELP">
-			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPT">

@@ -172,17 +172,13 @@ UPDATE Units SET Cost = 100 WHERE Class = 'UNITCLASS_SWORDSMAN';
 UPDATE Units SET Cost = 160 WHERE Class = 'UNITCLASS_LONGSWORDSMAN';
 UPDATE Units SET Cost = 125 WHERE Class = 'UNITCLASS_FCOMPANY';
 UPDATE Units SET Cost = 550 WHERE Class = 'UNITCLASS_FOREIGNLEGION';
-UPDATE Units SET Cost = 1750 WHERE Class = 'UNITCLASS_MARINE';
 UPDATE Units SET Cost = 2500 WHERE Class = 'UNITCLASS_MODERN_ARMOR';
-UPDATE Units SET Cost = 2600 WHERE Class = 'UNITCLASS_XCOM_SQUAD';
 
 -- Unique Units
 UPDATE Units SET Cost = 70, FaithCost = 150 WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR'; -- earlier but same cost
 UPDATE Units SET Cost = 100 WHERE Type = 'UNIT_MAYAN_ATLATLIST'; -- cheaper and earlier
 UPDATE Units SET Cost = 135, FaithCost = 300 WHERE Type = 'UNIT_DANISH_BERSERKER'; -- earlier but same cost
-UPDATE Units SET Cost = 140, FaithCost = 280 WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR'; -- cheaper
 UPDATE Units SET Cost = 275, FaithCost = 350 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT'; -- cheaper
 UPDATE Units SET Cost = 325, FaithCost = 500 WHERE Type = 'UNIT_OTTOMAN_JANISSARY'; -- earlier but same cost
 UPDATE Units SET Cost = 350, FaithCost = 500 WHERE Type = 'UNIT_INDIAN_WARELEPHANT'; -- earlier but same cost
 UPDATE Units SET Cost = 600, FaithCost = 550 WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI'; -- cheaper
-UPDATE Units SET FaithCost = 500 WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR'; -- earlier but same cost

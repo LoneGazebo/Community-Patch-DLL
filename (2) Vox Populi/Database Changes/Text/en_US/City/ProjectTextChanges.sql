@@ -19,7 +19,7 @@ SET Text = 'Citizen Earth Protocol'
 WHERE Tag = 'TXT_KEY_PROJECT_UTOPIA_PROJECT';
 
 UPDATE Language_en_US
-SET Text = 'Construct the Citizen Earth Protocol to win a [COLOR_POSITIVE_TEXT]Cultural Victory[ENDCOLOR]![NEWLINE][NEWLINE]Requirements for Construction: [NEWLINE]   [ICON_BULLET] Must have an Ideology (with a [COLOR_POSITIVE_TEXT]Content[ENDCOLOR] Population).[NEWLINE]   [ICON_BULLET] Must be [ICON_TOURISM] [COLOR_POSITIVE_TEXT]Influential[ENDCOLOR] with all other Civilizations in the world.[NEWLINE]   [ICON_BULLET] Must have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Tier 3 Tenets in your current Ideology.'
+SET Text = 'Construct the Citizen Earth Protocol to win a [COLOR_POSITIVE_TEXT]Cultural Victory[ENDCOLOR]![NEWLINE][NEWLINE]Requirements for Construction:[NEWLINE]   [ICON_BULLET] Must have an Ideology (with a [COLOR_POSITIVE_TEXT]Content[ENDCOLOR] Population).[NEWLINE]   [ICON_BULLET] Must be [ICON_TOURISM] [COLOR_POSITIVE_TEXT]Influential[ENDCOLOR] with all other Civilizations in the world.[NEWLINE]   [ICON_BULLET] Must have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Tier 3 Tenets in your current Ideology.'
 WHERE Tag = 'TXT_KEY_PROJECT_UTOPIA_PROJECT_HELP';
 
 UPDATE Language_en_US

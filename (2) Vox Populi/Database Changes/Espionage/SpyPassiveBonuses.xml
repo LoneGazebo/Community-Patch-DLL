@@ -30,7 +30,7 @@
 			<Type>SPY_PASSIVE_4</Type>
 			<Description>TXT_KEY_SPY_PASSIVE_4</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_4_HELP</Help>
-			<NetworkPointsNeeded>1700</NetworkPointsNeeded>
+			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SciencePercentAdded>3</SciencePercentAdded>
 			<TilesRevealed>1</TilesRevealed>
 		</Row>
@@ -38,7 +38,7 @@
 			<Type>SPY_PASSIVE_5</Type>
 			<Description>TXT_KEY_SPY_PASSIVE_5</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_5_HELP</Help>
-			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
+			<NetworkPointsNeeded>1800</NetworkPointsNeeded>
 			<TilesRevealed>2</TilesRevealed>
 		</Row>
 	</SpyPassiveBonuses>

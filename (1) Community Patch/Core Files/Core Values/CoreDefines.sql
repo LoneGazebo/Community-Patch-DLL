@@ -3,9 +3,18 @@
 INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', 1;
 INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', 0;
 
--- Can units that ignore terrain cost (mainly scouts) cross rivers without expending additional movement?
+-- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_1', 7;
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_2', 4;
+INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_3', 3;
+
+-- Can units that ignore ALL terrain costs cross rivers without expending additional movement? Doesn't affect trait abilities.
 -- 1 to enable, 0 to disable
-INSERT INTO Defines(Name, Value) SELECT 'IGNORE_TERRAIN_COST_INCLUDES_RIVERS', 1;
+INSERT INTO Defines (Name, Value) SELECT 'IGNORE_GLOBAL_TERRAIN_COSTS_INCLUDES_RIVERS', 1;
+
+-- Can units that ignore SPECIFIC terrain costs via UnitPromotions_Features or UnitPromotions_Terrains cross rivers without expending additional movement? Doesn't affect trait abilities.
+-- 1 to enable, 0 to disable
+INSERT INTO Defines (Name, Value) SELECT 'IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0;
 
 -- Victory conditions
 INSERT INTO Defines (Name, Value) SELECT 'VICTORY_DOMINATION_CONTROL_PERCENT', 100;
@@ -26,6 +35,9 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 -- Minimum war duration for AI players
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
+
+-- City strength threshold used for some policy bonuses (VP)
+INSERT INTO Defines(Name, Value) SELECT 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES', 10;
 
 -- Minimum war duration for aggressively attacked City-States (scales with game speed)
 INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 2;
@@ -158,6 +170,7 @@ UPDATE Defines SET Value = 25 WHERE Name = 'PERMANENT_WAR_OTHER_CHANCE_NEIGHBORS
 UPDATE Defines SET Value = 20 WHERE Name = 'PERMANENT_WAR_OTHER_AT_WAR';
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_REMOVE_SPHERE_FRIENDSHIP', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_LIBERATION_RESTING_INFLUENCE', 0;
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_LANDMARK_RESTING_INFLUENCE', 0; -- scales with era; set to 0 to disable all effects
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_ROUTE_MAXIMUM_DISTANCE', 7;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS', 30;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_FIND_CITY_MIN_DISTANCE', 16;
@@ -197,7 +210,7 @@ UPDATE Defines SET Value = 1000 WHERE Name = 'BUILDER_TASKING_BASELINE_REPAIR';
 UPDATE Defines SET Value = 750 WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_ROUTES';
 UPDATE Defines SET Value = 300 WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS';
 UPDATE Defines SET Value = 100 WHERE Name = 'BUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS';
-INSERT INTO Defines (Name, Value) SELECT 'BUILDER_TASKING_BASELINE_ADDS_FOOD', 200;
+INSERT INTO Defines (Name, Value) SELECT 'BUILDER_TASKING_BASELINE_ADDS_FOOD', 180;
 INSERT INTO Defines (Name, Value) SELECT 'BUILDER_TASKING_BASELINE_ADDS_GOLD', 40;
 INSERT INTO Defines (Name, Value) SELECT 'BUILDER_TASKING_BASELINE_ADDS_FAITH', 150;
 INSERT INTO Defines (Name, Value) SELECT 'BUILDER_TASKING_BASELINE_ADDS_PRODUCTION', 200;
@@ -831,15 +844,15 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPL
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MIN', 33;  -- VP
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MAX', 100;  -- VP
 	
+-- Influence modifier for each successfully rigged election
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER', 40;
 
 -- Calculation of Network Points (VP Espionage System)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_BASE', 20;  -- Base Network Points generated per Turn
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_SPY_RANK', 10;  -- Additional Network Points per Spy Level
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_BASE', 30;  -- Base Network Points generated per Turn
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_SPY_RANK', 0;  -- Additional Network Points per Spy Level
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_CULTURAL_INFLUENCE', 10;  -- Additional Network Points for Cultural Influence
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND', 2;  -- Additional Network Points per Technology the Spy Owner does not have
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_MAX_NUM_TECH', 10;  -- Max Number of Techs taken into account (see previous line)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_COUNTERSPY_NETWORK', -10;  -- Reduction of Network Points from Enemy Counterspy Network 
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_COUNTERSPY_PER_RANK', -10;  -- Reduction of Network Points from Enemy Counterspy Rank, if Counterspy Network established
 
 -- Security (VP Espionage System)
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT', 160;  -- divided by 100: Percentage Reduction of Network Points per Security Point
@@ -848,22 +861,21 @@ INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_BASE', 10; -- Base 
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES', 1000; -- Security if not all players have a Spy
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS', 2; -- Security for each previous Spy Mission completed in the City
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_POPULATION', -2; -- Security per Population in City
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER', 2; -- +1 Security per X Population in city for each SpySecurityModifierPerXPop provided by buildings
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_TRADE_ROUTE', -1; -- Security per Trade Route to/from City
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SECURITY_PER_EXCESS_UNHAPPINESS', -4; -- Security per Excess Unhappiness in City
 
 -- Spy XP (VP Espionage System)
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR', 100; -- XP needed to get to the next Level (scales with game speed)
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_COUNTERSPY', 2; -- XP gained per Turn when active as Counterspy
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_DIPLOMAT', 1; -- XP gained per Turn when active as Diplomat
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_OFFENSIVE', 1; -- XP gained per Turn when active against another Major Civ
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_COUNTERSPY', 0; -- XP gained per Turn when active as Counterspy
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_DIPLOMAT', 0; -- XP gained per Turn when active as Diplomat
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_OFFENSIVE', 0; -- XP gained per Turn when active against another Major Civ
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_PER_TURN_CITYSTATE', 0; -- XP gained per Turn when active in a City-State
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_RIGGING_SUCCESS', 20; -- XP gained when successfully rigging an Election
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_UNCOVER_INTRIGUE', 15; -- XP gained when uncovering an Intrigue
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_XP_MISSION_SUCCESS_DENOMINATOR', 50; -- When succesfully completing a Spy Mission, gain (NP Points needed for Mission) / ESPIONAGE_XP_MISSION_SUCESS_DENOMINATOR
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_RIGGING_SUCCESS', 0; -- XP gained when successfully rigging an Election
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_XP_UNCOVER_INTRIGUE', 0; -- XP gained when uncovering an Intrigue
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT', 0; -- When successfully completing a Spy Mission, gain (NP Points needed for Mission) * ESPIONAGE_XP_MISSION_SUCESS_PERCENT / 100 XP
 
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN', 5; -- Cooldown between switching Counterspy Missions
-INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_IMPRISONMENT_COOLDOWN', 5; -- Number of turns after which an imprisoned spy is released
-
 
 -- Ideology Unlock via Policies
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', 3;

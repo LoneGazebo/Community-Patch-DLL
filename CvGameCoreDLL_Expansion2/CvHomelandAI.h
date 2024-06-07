@@ -234,7 +234,6 @@ private:
 	void PlotExplorerMoves();
 	void PlotFirstTurnSettlerMoves();
 	void PlotHealMoves();
-	void PlotMovesToSafety();
 
 	void PlotOpportunisticSettlementMoves();
 
@@ -263,8 +262,7 @@ private:
 //-------------------------------------
 
 	void PlanImprovements();
-	void PlotWorkerMoves(bool bSecondary = false);
-	void PlotWorkerSeaMoves(bool bSecondary = false);
+	void PlotWorkerMoves();
 	void PlotWriterMoves();
 	void PlotArtistMoves();
 	void PlotMusicianMoves();
@@ -338,7 +336,6 @@ private:
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
-	std::vector<CvHomelandTarget> m_TargetedNavalResources;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
 

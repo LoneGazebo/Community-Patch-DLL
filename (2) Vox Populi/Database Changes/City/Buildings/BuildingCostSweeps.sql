@@ -200,16 +200,6 @@ UPDATE Buildings
 SET Cost = 800, GoldMaintenance = 4
 WHERE Type = 'BUILDING_SKOLA';
 
--- Train Station
-UPDATE Buildings
-SET Cost = 1250, GoldMaintenance = 7
-WHERE BuildingClass = 'BUILDINGCLASS_TRAINSTATION';
-
--- Seaport
-UPDATE Buildings
-SET Cost = 1500, GoldMaintenance = 7
-WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
-
 -- Museum, Military Academy
 UPDATE Buildings
 SET GoldMaintenance = 6
@@ -248,9 +238,6 @@ UPDATE Buildings SET FaithCost = 300, UnlockedByBelief = 1 WHERE BuildingClass =
 UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_UNIVERSITY';
 UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_PUBLIC_SCHOOL';
 UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_LABORATORY';
-
--- Mission
-UPDATE Buildings SET Cost = -1, FaithCost = 100 WHERE BuildingClass = 'BUILDINGCLASS_SPAIN_MISSION';
 
 -- Religious buildings
 UPDATE Buildings SET Cost = -1, FaithCost = 200

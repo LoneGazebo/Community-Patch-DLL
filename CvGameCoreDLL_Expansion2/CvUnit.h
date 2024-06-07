@@ -555,7 +555,7 @@ public:
 	int getBlastTourismTurns();
 	bool blastTourism();
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
 	bool build(BuildTypes eBuild);
 
 #if defined(MOD_CIV6_WORKER)
@@ -1094,6 +1094,9 @@ public:
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
 
+	int GetCycleOrder() const;
+	void SetCycleOrder(int iNewValue);
+
 	bool IsRecentlyDeployedFromOperation() const;
 	void SetDeployFromOperationTurn(int iTurn)
 	{
@@ -1199,6 +1202,11 @@ public:
 	int getHillsDoubleMoveCount() const;
 	bool isHillsDoubleMove() const;
 	void changeHillsDoubleMoveCount(int iChange);
+	
+	int getRiverDoubleMoveCount() const;
+	bool isRiverDoubleMove() const;
+	void changeRiverDoubleMoveCount(int iChange);
+
 #if defined(MOD_BALANCE_CORE)
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
@@ -1687,9 +1695,17 @@ public:
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 
+	int getTerrainIgnoreCostCount(TerrainTypes eIndex) const;
+	inline bool isTerrainIgnoreCost(TerrainTypes eIndex) const { return getTerrainIgnoreCostCount(eIndex) > 0; }
+	void changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange);
+
 	int getTerrainDoubleMoveCount(TerrainTypes eIndex) const;
 	inline bool isTerrainDoubleMove(TerrainTypes eIndex) const { return getTerrainDoubleMoveCount(eIndex) > 0; }
 	void changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange);
+
+	int getFeatureIgnoreCostCount(FeatureTypes eIndex) const;
+	inline bool isFeatureIgnoreCost(FeatureTypes eIndex) const { return getFeatureIgnoreCostCount(eIndex) > 0; }
+	void changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange);
 
 	int getFeatureDoubleMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureDoubleMove(FeatureTypes eIndex) const { return getFeatureDoubleMoveCount(eIndex) > 0; }
@@ -2076,6 +2092,7 @@ protected:
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
 	int m_iLastMoveTurn;
+	int m_iCycleOrder;
 	int m_iReconX;
 	int m_iReconY;
 	int m_iReconCount;
@@ -2113,6 +2130,7 @@ protected:
 	int m_iAlwaysHealCount;
 	int m_iHealOutsideFriendlyCount;
 	int m_iHillsDoubleMoveCount;
+	int m_iRiverDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	int m_iMountainsDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
@@ -2375,7 +2393,9 @@ protected:
 	int m_iBuilderStrength;
 #endif
 
+	TerrainTypeCounter m_terrainIgnoreCostCount;
 	TerrainTypeCounter m_terrainDoubleMoveCount;
+	FeatureTypeCounter m_featureIgnoreCostCount;
 	FeatureTypeCounter m_featureDoubleMoveCount;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	TerrainTypeCounter m_terrainHalfMoveCount;
@@ -2533,6 +2553,7 @@ SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)
 SYNC_ARCHIVE_VAR(int, m_iHotKeyNumber)
 SYNC_ARCHIVE_VAR(int, m_iDeployFromOperationTurn)
 SYNC_ARCHIVE_VAR(int, m_iLastMoveTurn)
+SYNC_ARCHIVE_VAR(int, m_iCycleOrder)
 SYNC_ARCHIVE_VAR(int, m_iReconX)
 SYNC_ARCHIVE_VAR(int, m_iReconY)
 SYNC_ARCHIVE_VAR(int, m_iReconCount)
@@ -2568,6 +2589,7 @@ SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHealCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOutsideFriendlyCount)
 SYNC_ARCHIVE_VAR(int, m_iHillsDoubleMoveCount)
+SYNC_ARCHIVE_VAR(int, m_iRiverDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
@@ -2778,7 +2800,9 @@ SYNC_ARCHIVE_VAR(GreatPeopleDirectiveTypes, m_eGreatPeopleDirectiveType)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
 SYNC_ARCHIVE_VAR(int, m_iScenarioData)
 SYNC_ARCHIVE_VAR(int, m_iBuilderStrength)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainIgnoreCostCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainDoubleMoveCount)
+SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureIgnoreCostCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureDoubleMoveCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainHalfMoveCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureHalfMoveCount)

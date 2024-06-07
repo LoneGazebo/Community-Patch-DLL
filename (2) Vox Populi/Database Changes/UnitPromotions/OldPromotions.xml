@@ -517,14 +517,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SCOUTING_2</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_SCOUTING_3</Type>
-			<Description>TXT_KEY_PROMOTION_SCOUTING_3</Description>
-			<Help>TXT_KEY_PROMOTION_SCOUTING_3_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_SCOUTING_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCOUTING_3</PediaEntry>
-		</Replace>
-		<Replace>
 			<Type>PROMOTION_SURVIVALISM_1</Type>
 			<Description>TXT_KEY_PROMOTION_SURVIVALISM_1</Description>
 			<Help>TXT_KEY_PROMOTION_SURVIVALISM_1_HELP</Help>
@@ -812,6 +804,13 @@
 			<Help>TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_OCEAN_MOVEMENT</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_WAR_CANOES</Type>
+			<Description>TXT_KEY_PROMOTION_WAR_CANOES</Description>
+			<Help>TXT_KEY_PROMOTION_WAR_CANOES_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WAR_CANOES</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_GOODY_HUT_PICKER</Type>

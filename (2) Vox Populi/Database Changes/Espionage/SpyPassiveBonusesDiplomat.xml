@@ -8,6 +8,7 @@
 			<Description>TXT_KEY_DIPLOMAT_PASSIVE_1</Description>
 			<Help>TXT_KEY_DIPLOMAT_PASSIVE_1_HELP</Help>
 			<NetworkPointsNeeded>0</NetworkPointsNeeded>
+			<VoteTradePercent>20</VoteTradePercent>
 		</Row>
 		<Row>
 			<Type>DIPLOMAT_PASSIVE_2</Type>
@@ -17,6 +18,7 @@
 			<ReceiveIntrigues>true</ReceiveIntrigues>
 			<RevealTechTree>true</RevealTechTree>
 			<RevealPolicyTree>true</RevealPolicyTree>
+			<VoteTradePercent>5</VoteTradePercent>
 		</Row>
 		<Row>
 			<Type>DIPLOMAT_PASSIVE_3</Type>
@@ -25,6 +27,7 @@
 			<NetworkPointsNeeded>500</NetworkPointsNeeded>
 			<RevealMilitaryUnitCount>true</RevealMilitaryUnitCount>
 			<TradeRouteGoldBonus>20</TradeRouteGoldBonus>
+			<VoteTradePercent>5</VoteTradePercent>
 		</Row>
 		<Row>
 			<Type>DIPLOMAT_PASSIVE_4</Type>
@@ -33,6 +36,7 @@
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<RevealTradeDeals>true</RevealTradeDeals>
 			<RevealTrueApproaches>true</RevealTrueApproaches>
+			<VoteTradePercent>5</VoteTradePercent>
 		</Row>
 	</SpyPassiveBonusesDiplomat>
 </GameData>

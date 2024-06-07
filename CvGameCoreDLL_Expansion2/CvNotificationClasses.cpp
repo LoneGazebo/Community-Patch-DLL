@@ -14,9 +14,9 @@
 #include "LintFree.h"
 
 /// Constructor
-CvNotificationEntry::CvNotificationEntry(void)
+CvNotificationEntry::CvNotificationEntry()
+    : m_strNotificationType("")
 {
-	m_strNotificationType = "";
 }
 
 /// Destructor

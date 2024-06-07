@@ -1037,12 +1037,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvVoterDecision& readFrom)
 // ================================================================================
 //			CvResolution
 // ================================================================================
-CvResolution::CvResolution(void)
+CvResolution::CvResolution()
+    : m_iID(-1),
+      m_eType(NO_RESOLUTION),
+      m_eLeague(NO_LEAGUE),
+      m_sEffects()
 {
-	m_iID = -1;
-	m_eType = NO_RESOLUTION;
-	m_eLeague = NO_LEAGUE;
-	m_sEffects = CvResolutionEffects();
 }
 
 CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague)
@@ -1137,14 +1137,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolution& readFrom)
 // ================================================================================
 //			CvProposal
 // ================================================================================
-CvProposal::CvProposal(void)
+CvProposal::CvProposal() : m_eProposalPlayer(NO_PLAYER)
 {
-	m_eProposalPlayer = NO_PLAYER;
 }
 
-CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer) : CvResolution(iID, eType, eLeague)
+CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer)
+    : CvResolution(iID, eType, eLeague),
+      m_eProposalPlayer(eProposalPlayer)
 {
-	m_eProposalPlayer = eProposalPlayer;
 }
 
 CvProposal::~CvProposal(void)
@@ -3653,7 +3653,7 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 		{
 			PlayerTypes e = (PlayerTypes) i;
 
-			if (GET_PLAYER(e).isAlive() && GET_PLAYER(e).GetReligions()->HasCreatedReligion(true))
+			if (GET_PLAYER(e).isAlive() && GET_PLAYER(e).GetReligions()->OwnsReligion(true))
 			{
 				vChoices.push_back(GET_PLAYER(e).GetReligions()->GetOwnedReligion());
 			}
@@ -3988,11 +3988,26 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 					CvEspionageSpy* pSpy = GET_PLAYER(ePlayer).GetEspionage()->GetSpyByID(iSpyIndex);
 					if (pSpy != NULL)
 					{
-						int iRank = pSpy->GetSpyRank(ePlayer);
-						iRank = (5 - iRank);
-						if (iRank > 0)
+						if (!MOD_BALANCE_VP)
 						{
-							iVotes /= iRank;
+							int iRank = pSpy->GetSpyRank(ePlayer);
+							iRank = (5 - iRank);
+							if (iRank > 0)
+							{
+								iVotes /= iRank;
+								if (iVotes <= 0)
+								{
+									iVotes = 1;
+								}
+								return iVotes;
+							}
+						}
+						else
+						{
+							CvCityEspionage* pCapitalEspionage = GET_PLAYER(eFromPlayer).getCapitalCity()->GetCityEspionage();
+							int iPercent = pCapitalEspionage->GetDiplomatVoteTradePercent(ePlayer);
+							iVotes *= iPercent;
+							iVotes /= 100;
 							if (iVotes <= 0)
 							{
 								iVotes = 1;
@@ -4005,8 +4020,9 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				// They are our vassal, so yes, we have a diplomat already
 				else if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
 				{
-					int iRank = 2;
-					iVotes /= iRank;
+					int iPercent = 25;
+					iVotes *= iPercent;
+					iVotes /= 100;
 					if (iVotes <= 0)
 					{
 						iVotes = 1;
@@ -4182,7 +4198,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	iVotes += iImprovementVotes;
 
 	// Religion Founder
-	int iFaithVotes = GET_PLAYER(ePlayer).GetFaithToVotes();
+	int iFaithVotes = GET_PLAYER(ePlayer).GetFaithToVotesTimes100() / 100;
 	iVotes += iFaithVotes;
 
 	// Freedom Follower

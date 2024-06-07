@@ -90,41 +90,35 @@ int SMovePlot::effectivePathLength(int iMovesPerTurn) const
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
+    : m_iColumns(0),
+      m_iRows(0),
+      m_iXstart(0),
+      m_iYstart(0),
+      m_iXdest(0),
+      m_iYdest(0),
+      m_iDestHitCount(0),
+      m_bWrapX(false),
+      m_bWrapY(false),
+      m_bHeapDirty(false),
+      udDestValid(NULL),
+      udHeuristic(NULL),
+      udCost(NULL),
+      udValid(NULL),
+      udGetExtraChildrenFunc(NULL),
+      udInitializeFunc(NULL),
+      udUninitializeFunc(NULL),
+      m_pBest(NULL),
+      m_ppaaNodes(NULL),
+      m_ppaaNeighbors(NULL),
+      m_iCurrentGenerationID(0),
+      m_iProcessedNodes(0),
+      m_iTestedNodes(0),
+      m_iRounds(0),
+      m_iBasicPlotCost(1),
+      m_iMovesCached(0),
+      m_iTurnsCached(0),
+      m_strName("AStar") // for debugging
 {
-	m_iColumns = 0;
-	m_iRows = 0;
-	m_iXstart = 0;
-	m_iYstart = 0;
-	m_iXdest = 0;
-	m_iYdest = 0;
-	m_iDestHitCount = 0;
-
-	m_bWrapX = false;
-	m_bWrapY = false;
-	m_bHeapDirty = false;
-
-	udDestValid = NULL;
-	udHeuristic = NULL;
-	udCost = NULL;
-	udValid = NULL;
-	udGetExtraChildrenFunc = NULL;
-	udInitializeFunc = NULL;
-	udUninitializeFunc = NULL;
-
-	m_pBest = NULL;
-	m_ppaaNodes = NULL;
-	m_ppaaNeighbors = NULL;
-
-	m_iCurrentGenerationID = 0;
-	m_iProcessedNodes = 0;
-	m_iTestedNodes = 0;
-	m_iRounds = 0;
-	m_iBasicPlotCost = 1;
-	m_iMovesCached = 0;
-	m_iTurnsCached = 0;
-
-	//for debugging
-	m_strName = "AStar";
 }
 
 //	--------------------------------------------------------------------------------
@@ -2046,38 +2040,117 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	return TRUE;
 }
 
-//	--------------------------------------------------------------------------------
-int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+static void AddCityConnectionHarborConnections(const CvPlot* pPlot, const CvAStar* finder, vector<pair<int, int>>& out)
 {
-	out.clear();
-
 	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
-	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if (!pPlot)
-		return 0;
 
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
 	if (!pFirstCity || pFirstCity->getTeam() != eTeam)
-		return 0;
+		return;
 
 	// if the city is being razed
 	if (pFirstCity->IsRazing())
-		return 0;
+		return;
+
+	RouteTypes eRoute = finder->GetData().eRoute;
+	if (eRoute == NO_ROUTE)
+		return;
+
+	int iCityConnectionMask = CvCityConnections::CONNECTION_HARBOR;
+	if (MOD_BALANCE_VP)
+	{
+		if (eRoute == ROUTE_ROAD || eRoute == ROUTE_ANY)
+		{
+			iCityConnectionMask = CvCityConnections::CONNECTION_ANY_INDIRECT;
+		}
+		else if (eRoute == ROUTE_RAILROAD)
+		{
+			iCityConnectionMask = CvCityConnections::CONNECTION_INDUSTRIAL_HARBOR;
+		}
+	}
 
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
-	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
+	for (CvCityConnections::SingleCityConnectionStore::const_iterator it = cityConnections.begin(); it != cityConnections.end(); ++it)
 	{
 		//we only care about water and air connections here because they are not normal routes
-		if (it->second & (CvCityConnections::CONNECTION_HARBOR | CvCityConnections::CONNECTION_AIRPORT))
+		if (it->second & iCityConnectionMask)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
 			if (pSecondCity && !pSecondCity->IsRazing())
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
+}
+
+static void AddCityConnectionRiverConnections(CvPlot* pPlot, const CvAStar* finder, vector<pair<int, int>>& out)
+{
+	if (!MOD_BALANCE_VP)
+		return;
+
+	RouteTypes eRoute = finder->GetData().eRoute;
+	if (eRoute != ROUTE_ROAD && eRoute != ROUTE_ANY)
+		return;
+
+	if (!pPlot->isFreshWater())
+		return;
+
+	bool bIsForRoadBuilding = finder->GetData().ePath == PT_BUILD_ROUTE || finder->GetData().ePath == PT_BUILD_ROUTE_MIXED;
+
+	if (!bIsForRoadBuilding && (pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged()))
+		return;
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		int iRiverID = pPlot->GetRiverID((DirectionTypes)iI);
+		if (iRiverID == -1)
+			continue;
+
+		CvRiver* pRiver = GC.getMap().GetRiverById(iRiverID);
+		if (!pRiver)
+			continue;
+
+		std::vector<CvPlot*> pRiverPlots = pRiver->GetPlots();
+		for (std::vector<CvPlot*>::const_iterator it = pRiverPlots.begin(); it != pRiverPlots.end(); ++it)
+		{
+			CvPlot* pRiverPlot = *it;
+
+			if (!bIsForRoadBuilding && (pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged()))
+				continue;
+
+			if (pRiverPlot != pPlot && plotDistance(*pPlot, *pRiverPlot) >= 2)
+				out.push_back(make_pair(pRiverPlot->getX(), pRiverPlot->getY()));
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+{
+	out.clear();
+
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+	if (!pPlot)
+		return 0;
+
+	AddCityConnectionHarborConnections(pPlot, finder, out);
+	AddCityConnectionRiverConnections(pPlot, finder, out);
+
+	return (int)out.size();
+}
+
+//	--------------------------------------------------------------------------------
+int CityConnectionLandGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int, int>>& out)
+{
+	out.clear();
+
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+	if (!pPlot)
+		return 0;
+
+	AddCityConnectionRiverConnections(pPlot, finder, out);
 
 	return (int)out.size();
 }
@@ -2102,9 +2175,6 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 
 	if(ePlotRoute == NO_ROUTE)
 	{
-		//what else can count as road depends on the player type
-		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
-			ePlotRoute = ROUTE_ROAD;
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
@@ -2235,10 +2305,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_SHORTCUT);
+
+	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
+	{
+		bPlannedShortcutRoute = eBuilderTaskingAI->IsRoutePlanned(pPlot, ROUTE_RAILROAD, PURPOSE_SHORTCUT);
+	}
+
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_CONNECT_CAPITAL));
 	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT && !bGetSameRouteBenefitFromTrait && !bPlannedShortcutRoute ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
-	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD)
+	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD && data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
 	{
 		bPlannedCapitalRoute = eBuilderTaskingAI->IsRoutePlanned(pPlot, ROUTE_RAILROAD, PURPOSE_CONNECT_CAPITAL);
 	}
@@ -2281,7 +2357,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) || pPlot->IsRoutePillaged())
 	{
 		// if there is already any kind of road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 1;
+		iCost = (PATH_BASE_COST * 10) / 12;
 	}
 	else
 	{
@@ -2327,7 +2403,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer))
+	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
 		return FALSE;
 
 	if (pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
@@ -2731,7 +2807,7 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
-		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, config.bUseRivers ? CityConnectionLandGetExtraChildren : NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE_MIXED:
@@ -2751,7 +2827,7 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, config.bUseRivers ? CityConnectionLandGetExtraChildren : NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
@@ -3253,14 +3329,15 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
+	else if (pFromPlot->IsAlongSameRiver(pToPlot))
 	{
-		// Songhai ability
 		if (pCacheData->IsRiverTradeRoad())
 			iRouteDiscountTimes120 = 40;
 		else
 			bIgnoreTerrain = true;
 	}
+	else if (pToPlot->isCity())
+		bIgnoreTerrain = true;
 
 	if (iRouteDiscountTimes120 > 0)
 		bIgnoreTerrain = true;
@@ -3660,7 +3737,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, NO_BUILD, eRestrictRoute, NO_ROUTE_PURPOSE);
+	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, NO_BUILD, eRestrictRoute, NO_ROUTE_PURPOSE, true);
 	data.iFlags = bAssumeOpenBorders ? CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE : 0; //slight misuse but who cares
 
 	SPath result;
@@ -3687,24 +3764,26 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iMinMovesLeft = 0;
 	iStartMoves = pUnit ? pUnit->getMoves() : 0;
 	eRoutePurpose = NO_ROUTE_PURPOSE;
+	bUseRivers = false;
 }
 
 //	---------------------------------------------------------------------------
-//convenience constructor
+// Convenience constructor
 SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType)
+    : ePath(_ePathType),
+      iFlags(0),
+      iMaxTurns(INT_MAX),
+      ePlayer(_ePlayer),
+      eEnemy(NO_PLAYER),
+      iUnitID(0),
+      eBuild(NO_BUILD),
+      eRoute(NO_ROUTE),
+      iMaxNormalizedDistance(INT_MAX),
+      iMinMovesLeft(0),
+      iStartMoves(0),
+      eRoutePurpose(NO_ROUTE_PURPOSE),
+      bUseRivers(false)
 {
-	ePath = _ePathType;
-	iFlags = 0;
-	iMaxTurns = INT_MAX;
-	ePlayer = _ePlayer;
-	eEnemy = NO_PLAYER;
-	iUnitID = 0;
-	eBuild = NO_BUILD;
-	eRoute = NO_ROUTE;
-	iMaxNormalizedDistance = INT_MAX;
-	iMinMovesLeft = 0;
-	iStartMoves = 0;
-	eRoutePurpose = NO_ROUTE_PURPOSE;
 }
 
 //	---------------------------------------------------------------------------
@@ -3723,6 +3802,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
 	eRoutePurpose = NO_ROUTE_PURPOSE;
+	bUseRivers = false;
 }
 
 //	---------------------------------------------------------------------------
@@ -3741,11 +3821,12 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
 	eRoutePurpose = NO_ROUTE_PURPOSE;
+	bUseRivers = false;
 }
 
 //	---------------------------------------------------------------------------
 //convenience constructor
-SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, BuildTypes _eBuildType, RouteTypes _eRouteType, RoutePurpose _eRoutePurpose)
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, BuildTypes _eBuildType, RouteTypes _eRouteType, RoutePurpose _eRoutePurpose, bool _bUseRivers)
 {
 	ePath = _ePathType;
 	iFlags = 0;
@@ -3759,6 +3840,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
 	eRoutePurpose = _eRoutePurpose;
+	bUseRivers = _bUseRivers;
 }
 
 CvPlot * SPath::get(int i) const

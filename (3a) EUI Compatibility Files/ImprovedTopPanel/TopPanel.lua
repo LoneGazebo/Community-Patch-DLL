@@ -467,10 +467,11 @@ local function UpdateTopPanelNow()
 	for resourceID, resourceInstance in pairs( g_resourceString ) do
 		local resource = GameInfo.Resources[ resourceID ]
 
+		local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID )
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if not resource.HideInTopPanel then
-			if numResourceUsed > 0
+			if numResourceUsed > 0 or numResourceTotal > 0
 				or ( g_activePlayer:IsResourceRevealed(resourceID)
 				and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
 			then

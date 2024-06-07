@@ -430,6 +430,8 @@ namespace CultureHelpers
 #endif
 	int FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen);
 	void SendArtSwapNotification(GreatWorkSlotType eType, bool bArt, PlayerTypes eOriginator, PlayerTypes eReceipient, int iWorkFromOriginator, int iWorkFromRecipient);
+
+	const CvString GetInfluenceText(InfluenceLevelTypes eLevel, int iTourism);
 }
 
 #endif //CIV5_CULTURE_CLASSES_H

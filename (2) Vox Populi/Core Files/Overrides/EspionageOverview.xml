@@ -4,25 +4,22 @@
 	<Instance Name="AgentInstance">
 		<Box Size="451,80" Color="255,255,255,80" ID="Base">
 			<Stack Size="451,40" StackGrowth="Right">
-				<Box Size="116,40" Color="0,0,0,0">
-					<Label ID="AgentName" Anchor="L,T" Offset="10,4" TruncateWidth="105" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-					<Grid Style="Grid9Frame27" Size="65,35" Anchor="L,T" Offset="15,25">
-						<Image Size="21,21" Anchor="R,C" Offset="2,0" Texture="Esp_Spy_Upgrades21.dds" ID="AgentRank"/>
-					</Grid>
-					<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" ToolTip="Secret"/>
-          <Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Diplomat_FramedIcon45.dds" ID="DiplomatIcon" ToolTip="Secret" Hidden="true"/>
+				<Box Size="86,40" Color="0,0,0,0">
+					<Label ID="AgentName" Anchor="L,T" Offset="10,4" TruncateWidth="75" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon"/>
+					<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Diplomat_FramedIcon45.dds" ID="DiplomatIcon" Hidden="true"/>
 				</Box>
-				<Box Size="116,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
-					<Stack Size="116,20" StackGrowth="Right">
+				<Box Size="146,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
+					<Stack Size="146,20" Offset="15,0" StackGrowth="Right">
 						<Box Size="32,32" Anchor="L,T" Offset="0,-5" Color="0,0,0,0">
 							<Image ID="AgentLocationIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 							<Image ID="AgentLocationIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 							<Image ID="AgentLocationIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
-              <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+							<Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
 						</Box>
-						<Label ID="AgentLocation" Anchor="L,T" Offset="0,5" TruncateWidth="120" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+						<Label ID="AgentLocation" Anchor="L,T" Offset="0,5" TruncateWidth="150" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					</Stack>
-					<Stack Size="116,20" Offset="0,20" Anchor="C,T" StackGrowth="Bottom" ID="AgentActivitiesStack">
+					<Stack Size="146,20" Offset="0,20" Anchor="C,T" StackGrowth="Bottom" ID="AgentActivitiesStack">
 						<GridButton Size="110,26" Style="SmallButton" ID="RelocateButton" String="TXT_KEY_EO_RELOCATE" ToolTip="TXT_KEY_EO_RELOCATE_TOOLTIP"/>
 						<GridButton Size="110,26" Style="SmallButton" ID="SpyMissionButton" String="TXT_KEY_EO_MISSIONS" ToolTip="TXT_KEY_EO_MISSIONS_TOOLTIP_SHORT"/> <!-- VP -->
 						<GridButton Size="110,26" Style="SmallButton" ID="CounterspyButton" String="TXT_KEY_EO_COUNTERSPY" ToolTip="TXT_KEY_EO_COUNTERSPY_TOOLTIP_SHORT"/> <!-- VP -->
@@ -46,9 +43,6 @@
 			</Stack>
 			<Box Size="451,80" Color="0,0,0,200" ID="AgentKIAPanel" Hidden="1">
 				<Label Anchor="C,C" ID="AgentKIAText" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_KIA"/>
-			</Box>
-			<Box Size="451,80" Color="0,0,0,200" ID="AgentPrisonPanel" Hidden="1">
-				<Label Anchor="C,C" ID="AgentPrisonText" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_IMPRISONED"/>
 			</Box>
 			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="451,3"/>
 		</Box>
@@ -461,12 +455,12 @@
 						</Box>
 						<Box Size="484,20" Color="0,0,0,0">
 							<Stack Size="484,20" StackGrowth="Right">
-								<Box Size="116,18" Color="0,0,0,0">
+								<Box Size="96,18" Color="0,0,0,0">
 									<TextButton Offset="20,0" Anchor="L,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_NAME_RANK" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ASortByNameRank">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ASortByNameRankImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="116,18" Color="0,0,0,0">
+								<Box Size="136,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_LOCATION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ASortByLocation">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ASortByLocationImage"/>
 									</TextButton>
@@ -497,10 +491,7 @@
 						<Stack Size="465,40" StackGrowth="Right">
 							<Box Size="116,40" Color="0,0,0,0">
 								<Label ID="AgentName" String="Pickles" Anchor="L,T" Offset="10,4" TruncateWidth="116" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-								<Grid Style="Grid9Frame27" Size="65,35" Anchor="L,T" Offset="15,25">
-									<Image Size="21,21" Anchor="R,C" Offset="2,0" Texture="Esp_Spy_Upgrades21.dds" ID="AgentRank"/>
-								</Grid>
-								<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" ToolTip="Secret"/>
+								<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" />
 							</Box>
 							<Box Size="116,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
 								<Stack Size="116,20" Anchor="L,T" StackGrowth="Right">

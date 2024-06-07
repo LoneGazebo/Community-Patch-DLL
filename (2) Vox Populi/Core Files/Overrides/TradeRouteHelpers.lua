@@ -435,7 +435,7 @@ function BuildTradeRouteCultureToolTipString (pOriginCity, pTargetCity, eDomain)
 		else	
 			local iNumPolicies = pOriginPlayer:GetNumPolicyDifference(iOtherPlayer);
 			if(iNumPolicies < 0) then
-				iTotal = (iTotal * -1);
+				iNumPolicies = (iNumPolicies * -1);
 			end
 			if (iPlayer == Game.GetActivePlayer()) then	
 				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN");

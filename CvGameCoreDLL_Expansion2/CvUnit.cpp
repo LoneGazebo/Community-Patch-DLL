@@ -134,6 +134,7 @@ CvUnit::CvUnit() :
 	, m_iX()
 	, m_iY()
 	, m_iLastMoveTurn()
+	, m_iCycleOrder()
 	, m_iDeployFromOperationTurn()
 	, m_iReconX()
 	, m_iReconY()
@@ -179,6 +180,7 @@ CvUnit::CvUnit() :
 	, m_iAlwaysHealCount()
 	, m_iHealOutsideFriendlyCount()
 	, m_iHillsDoubleMoveCount()
+	, m_iRiverDoubleMoveCount()
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount()
 	, m_iEmbarkFlatCostCount()
@@ -361,7 +363,9 @@ CvUnit::CvUnit() :
 	, m_iFortificationYieldChange()
 	, m_strScriptData()
 	, m_iScenarioData()
+	, m_terrainIgnoreCostCount()
 	, m_terrainDoubleMoveCount()
+	, m_featureIgnoreCostCount()
 	, m_featureDoubleMoveCount()
 	, m_terrainImpassableCount()
 	, m_featureImpassableCount()
@@ -1230,6 +1234,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(getOwner() == GC.getGame().getActivePlayer())
 	{
 		DLLUI->setDirty(GameData_DIRTY_BIT, true);
+		kPlayer.GetUnitCycler().AddUnit(GetID());
 	}
 
 	// Message for World Unit being born
@@ -1389,6 +1394,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iX = INVALID_PLOT_COORD;
 	m_iY = INVALID_PLOT_COORD;
 	m_iLastMoveTurn = 0;
+	m_iCycleOrder = -1;
 	m_iDeployFromOperationTurn = -100;
 	m_iReconX = INVALID_PLOT_COORD;
 	m_iReconY = INVALID_PLOT_COORD;
@@ -1440,6 +1446,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAlwaysHealCount = 0;
 	m_iHealOutsideFriendlyCount = 0;
 	m_iHillsDoubleMoveCount = 0;
+	m_iRiverDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
 	m_iEmbarkFlatCostCount = 0;
@@ -1923,7 +1930,9 @@ void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
+	m_terrainIgnoreCostCount.clear();
 	m_terrainDoubleMoveCount.clear(); // BUG FIX
+	m_featureIgnoreCostCount.clear();
 	m_featureDoubleMoveCount.clear();
 	m_terrainHalfMoveCount.clear();
 	m_featureHalfMoveCount.clear();
@@ -2257,7 +2266,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		args->Push(GetID());  // unit being killed
 
 		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "CanSaveUnit", args.get(), bResult))
+		if(LuaSupport::CallTestAny(pkScriptSystem, "CanSaveUnit", args.get(), bResult))
 		{
 			// Check the result.
 			if(bResult)
@@ -2693,6 +2702,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	DLLUI->RemoveFromSelectionList(pDllThisUnit.get());
+	GET_PLAYER(getOwner()).GetUnitCycler().RemoveUnit(GetID());
 
 	// Killing a unit while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a unit.
@@ -3969,6 +3979,11 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 							setHasPromotion(ePromotion, true);
 						}
 					}
+				}
+				if (pNewPlot->IsRestoreMoves())
+				{
+					// Not using maxMoves() here since it shouldn't be affected by linked status and plot move changes (added below)
+					setMoves(baseMoves(isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR));
 				}
 				if (pNewPlot->GetPlotMovesChange() > 0)
 				{
@@ -5533,7 +5548,8 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 	}
 
-	changeMoves(-iMoveCost);
+	if (!targetPlot.IsRestoreMoves())
+		changeMoves(-iMoveCost);
 }
 
 bool CvUnit::EmergencyRebase()
@@ -10843,30 +10859,9 @@ bool CvUnit::foundCity()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
-	} 
-	else 
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
-	{
-		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion());
-	}
-	else
-	{
-		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true);
-#elif defined(MOD_BALANCE_CORE)
-		kPlayer.foundCity(getX(), getY(), m_pUnitInfo);
-#else
-		kPlayer.foundCity(getX(), getY());
-#endif
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	}
-#endif
+	ReligionTypes eReligion = (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON) ? GetReligionData()->GetReligion() : NO_RELIGION;
+	bool bForce = MOD_GLOBAL_RELIGIOUS_SETTLERS && eReligion == NO_RELIGION;
+	kPlayer.foundCity(getX(), getY(), eReligion, bForce, m_pUnitInfo);
 
 	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
 	{
@@ -11051,7 +11046,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(pReligions->HasCreatedReligion(getOwner()))
+	if(GET_PLAYER(getOwner()).GetReligions()->OwnsReligion())
 	{
 		return false;
 	}
@@ -11253,7 +11248,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(!pReligions->HasCreatedReligion(getOwner()))
+	if(!GET_PLAYER(getOwner()).GetReligions()->OwnsReligion())
 	{
 		return false;
 	}
@@ -12401,6 +12396,8 @@ bool CvUnit::trade()
 	// Acquire Influence
 	int iInfluence = getTradeInfluence(pPlot);
 
+	bool bGreatDiplomat = MOD_BALANCE_VP && m_pUnitInfo->GetNumInfPerEra() > 0 && m_pUnitInfo->GetRestingPointChange() != 0;
+
 	if (MOD_BALANCE_VP) 
 	{
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
@@ -12411,14 +12408,15 @@ bool CvUnit::trade()
 		}
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
-		if (m_pUnitInfo->GetNumInfPerEra() > 0 && iRestingPointChange != 0)
+		if (bGreatDiplomat)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
-					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence);
+					// only reduce influence, but don't update ally status here. it could lead to unintended war declarations by the minor civ if their ally changes temporarily while looping through the players
+					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence, false, /*bUpdateStatus*/ false);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 					if (pNotifications)
@@ -12474,6 +12472,21 @@ bool CvUnit::trade()
 	}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iInfluence);
+
+	// Great Diplomat: now update the friend/ally status for the other players
+	if (bGreatDiplomat)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
+			{
+				// Friendship amount doesn't change
+				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer);
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, iFriendship, iFriendship);
+			}
+		}
+	}
 
 	//This keeps minor civs in the black, financially.
 	//GET_PLAYER(eMinor).GetTreasury()->ChangeGold((iInfluence / 2));
@@ -13717,25 +13730,8 @@ bool CvUnit::blastTourism()
 	// Show tourism spread
 	if (iTourismBlastAfterModifier > 0 && pPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 	{
-		CvString strInfluenceText;
 		InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-
-		if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-		else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-		else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-		else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-		else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-		else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
-
-		char text[256] = {0};
-		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlastAfterModifier, strInfluenceText.c_str());
-		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
+		SHOW_PLOT_POPUP(pPlot, getOwner(), CultureHelpers::GetInfluenceText(eLevel, iTourismBlastAfterModifier).c_str());
 	}
 
 	// Achievements
@@ -13763,7 +13759,7 @@ bool CvUnit::blastTourism()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold) const
+bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
@@ -13800,7 +13796,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if (!pPlot)
 		return true;
 
-	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
+	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this)))
 	{
 		return false;
 	}
@@ -21636,6 +21632,21 @@ void CvUnit::setLastMoveTurn(int iNewValue)
 	CvAssert(getLastMoveTurn() >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCycleOrder() const
+{
+	VALIDATE_OBJECT
+	return m_iCycleOrder;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCycleOrder(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iCycleOrder = iNewValue;
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsRecentlyDeployedFromOperation() const
@@ -22710,6 +22721,31 @@ void CvUnit::changeHillsDoubleMoveCount(int iChange)
 	VALIDATE_OBJECT
 	m_iHillsDoubleMoveCount = (m_iHillsDoubleMoveCount + iChange);
 	CvAssert(getHillsDoubleMoveCount() >= 0);
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getRiverDoubleMoveCount() const
+{
+	VALIDATE_OBJECT
+		return m_iRiverDoubleMoveCount;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isRiverDoubleMove() const
+{
+	VALIDATE_OBJECT
+		return (getRiverDoubleMoveCount() > 0);
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeRiverDoubleMoveCount(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iRiverDoubleMoveCount = (m_iRiverDoubleMoveCount + iChange);
+	CvAssert(getRiverDoubleMoveCount() >= 0);
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -26642,6 +26678,41 @@ void CvUnit::setScenarioData(int iNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getTerrainIgnoreCostCount(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_terrainIgnoreCostCount.begin(); it != m_terrainIgnoreCostCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_terrainIgnoreCostCount;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_terrainIgnoreCostCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
 	for (TerrainTypeCounter::const_iterator it = m_terrainDoubleMoveCount.begin(); it != m_terrainDoubleMoveCount.end(); ++it)
@@ -26674,6 +26745,41 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 	}
 
 	m_terrainDoubleMoveCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getFeatureIgnoreCostCount(FeatureTypes eIndex) const
+{
+	for (FeatureTypeCounter::const_iterator it = m_featureIgnoreCostCount.begin(); it != m_featureIgnoreCostCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	FeatureTypeCounter& mVec = m_featureIgnoreCostCount;
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_featureIgnoreCostCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -27873,6 +27979,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
 		changeHillsDoubleMoveCount((thisPromotion.IsHillsDoubleMove()) ? iChange : 0);
+		changeRiverDoubleMoveCount((thisPromotion.IsRiverDoubleMove()) ? iChange : 0);
 		changeIgnoreTerrainCostCount((thisPromotion.IsIgnoreTerrainCost()) ? iChange : 0);
 		changeIgnoreTerrainDamageCount((thisPromotion.IsIgnoreTerrainDamage()) ? iChange : 0);
 		changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
@@ -28275,6 +28382,17 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		//promotion changes may invalidate some caches
 		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
 	}
+
+	//top up the duration, also if we already had the promotion
+	if (thisPromotion.PromotionDuration() != 0)
+	{
+		if (bNewValue)
+		{
+			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
+			SetPromotionDuration(eIndex, thisPromotion.PromotionDuration());
+			SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+		}
+	}
 }
 
 
@@ -28531,6 +28649,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iHotKeyNumber);
 	visitor(unit.m_iDeployFromOperationTurn);
 	visitor(unit.m_iLastMoveTurn);
+	visitor(unit.m_iCycleOrder);
 	visitor(unit.m_iReconX);
 	visitor(unit.m_iReconY);
 	visitor(unit.m_iReconCount);
@@ -28566,6 +28685,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAlwaysHealCount);
 	visitor(unit.m_iHealOutsideFriendlyCount);
 	visitor(unit.m_iHillsDoubleMoveCount);
+	visitor(unit.m_iRiverDoubleMoveCount);
 	visitor(unit.m_iMountainsDoubleMoveCount);
 	visitor(unit.m_iEmbarkFlatCostCount);
 	visitor(unit.m_iDisembarkFlatCostCount);
@@ -28776,7 +28896,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_strScriptData);
 	visitor(unit.m_iScenarioData);
 	visitor(unit.m_iBuilderStrength);
+	visitor(unit.m_terrainIgnoreCostCount);
 	visitor(unit.m_terrainDoubleMoveCount);
+	visitor(unit.m_featureIgnoreCostCount);
 	visitor(unit.m_featureDoubleMoveCount);
 	visitor(unit.m_terrainHalfMoveCount);
 	visitor(unit.m_featureHalfMoveCount);
@@ -30541,7 +30663,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,NO_ROUTE_PURPOSE);
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,NO_ROUTE_PURPOSE,false);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
@@ -32121,7 +32243,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetOutsideFriendlyLandsModifier();
-	// Scout: +10 Trailblazer 1 - 3. 	R + mR + S: +25 Infiltrators (barrage 4).
+	// Scout: +20 Trailblazer 3. 	R + mR + S: +25 Infiltrators (barrage 4).
 	if (iTemp != 0)
 	{
 
@@ -32474,7 +32596,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		// Melee Attack Helpers
 
 	iTemp = pkPromotionInfo->IsIgnoreZOC();
-	// Scout: Trailblazer (woodland trailblazer) 2.		nM: Pincer (boarding party 4).
+	// Scout: Trailblazer (woodland trailblazer) 3.		nM: Pincer (boarding party 4).
 	// mR: Skirmisher Doctrine (skirmisher mobility).
 	if (iTemp != 0 && !IsIgnoreZOC())
 	{
@@ -32827,10 +32949,17 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			
+			if(pkPromotionInfo->GetTerrainIgnoreCost(iI) && !isTerrainIgnoreCost(eTerrain) && !ignoreTerrainCost())
+				// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
+			{
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 8;
+				if (IsGainsXPFromScouting())
+					iExtra *= 3;
+				iValue += iExtra;
+			}
 
 			if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
-				// Scout: Snow/Desert Woodland Trailblazer 2.
 			{
 				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
 				iExtra *= 8;
@@ -32903,8 +33032,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				
 			}
 
+			if(pkPromotionInfo->GetFeatureIgnoreCost(iI) && !isFeatureIgnoreCost(eFeature) && !ignoreTerrainCost())
+				// Scout: Forest/Jungle Woodland Trailblazer 1, Marsh Woodland Trailblazer 2.
+			{
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 8;
+				if (IsGainsXPFromScouting())
+					iExtra *= 3;
+				iValue += iExtra;
+			}
+
 			if(pkPromotionInfo->GetFeatureDoubleMove(iI) && !isFeatureDoubleMove(eFeature))
-			// Scout: Forest/Jungle Woodland Trailblazer 1.		M: Forest/Junlge Woodsman.
+			// M: Forest/Jungle Woodsman.
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= 8;

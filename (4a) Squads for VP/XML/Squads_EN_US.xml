@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/30/2023 12:08:52 PM -->
+<GameData>
+
+    <Language_en_US>
+        <Row Tag="TXT_KEY_SQUADS">
+            <Text>Squads</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_TITLE">
+            <Text>Squads for VP</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MANAGE_SQUAD">
+            <Text>Manage Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVE_SQUAD">
+            <Text>Move Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_RESET_SQUAD">
+            <Text>Reset Squad</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_NAME">
+            <Text>Squad Name</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTIONS">
+            <Text>Options</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTION_HIGHLIGHT">
+            <Text>Highlight Squad Units</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER">
+            <Text>Display Squad Number on Unit Flags</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE">
+            <Text>Squad Movement End Behavior:</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL">
+            <Text>Alert on Arrival</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_UNIT_ARRIVAL">
+            <Text>Wake on Each Unit Arrival</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_SQUAD_ARRIVAL">
+            <Text>Wake on Squad Arrival</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_TT_MANAGE_SQUAD">
+            <Text>Enter management mode, where units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. Management mode can also be entered using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_TT_MOVE_SQUAD">
+            <Text>Enter movement mode, where [COLOR_YELLOW]RCLICK[ENDCOLOR] on a plot will issue move orders to all units in that squad to move to that area. Movement mode can also be entered for a squad by double tapping the number key corresponding to a squad.</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_TT_RESET_SQUAD">
+            <Text>Remove all units from this squad. Units can be removed individually from this squad with [COLOR_YELLOW]RCLICK[ENDCOLOR] on the unit list.</Text>
+        </Row>
+    </Language_en_US>
+  
+</GameData>

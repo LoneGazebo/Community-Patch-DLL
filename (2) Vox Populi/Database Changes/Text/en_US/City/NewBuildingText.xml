@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION">
-			<Text>Train Station</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION">
+			<Text>Coaling Station</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_STRATEGY">
-			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection, with railroad tiles, to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_STRATEGY">
+			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires an Industrial City Connection (see Concepts for more details).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
-			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires a [ICON_CONNECTED] Connection via Railroad tiles or by sea to the [ICON_CAPITAL] Capital, or to a City connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a [COLOR_NEGATIVE_TEXT]Seaport[ENDCOLOR] in the City.</Text>
+		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_HELP">
+			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT">
-			<Text>A train station, railway station, railroad station, or depot (see below) is a railway facility where trains regularly stop to load or unload passengers or freight. It generally consists of at least one track-side platform and a station building (depot) providing such ancillary services as ticket sales and waiting rooms. If a station is on a single-track line, it often has a passing loop to facilitate traffic movements. The smallest stations are most often referred to as "stops" or, in some parts of the world, as "halts" (flag stops). Stations may be at ground level, underground, or elevated. Connections may be available to intersecting rail lines or other transport modes such as buses, trams or other rapid transit systems.</Text>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COALING_STATION_TEXT">
+			<Text>In the age of steam, people harnessed fossil fuels to transport goods and people in quantities that were impossible with earlier methods. So much commercial activity demanded the creation of fueling depots where coal for steam-powered ships and trains could be stored. These coaling stations were positioned strategically along major maritime and railway hubs, ensuring efficient transportation throughout the world.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_BATH">
@@ -196,7 +196,7 @@
 
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
-			<Text>+1 [ICON_FOOD] Food for every 10 [ICON_CITIZEN] Citizens in the City. 5% of the City's [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Land Units in this City heal 15 points per turn whether or not they take an action. All Specialists in this City produce +1 [ICON_FOOD] Food, and 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. [ICON_VP_SCIENTIST] Scientists, [ICON_VP_MERCHANT] Merchants, and [ICON_VP_ENGINEER] Engineers in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 
 		<!-- Temple -->
@@ -241,7 +241,7 @@
 			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Allies increases the value of positive City-State relations during the mid-game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
-			<Text>+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SIGNET}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +2 [ICON_PRODUCTION] Production each.</Text>
+			<Text>+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SIGNET}[ENDCOLOR] for Diplomatic Units in the city in which it is built.[NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +2 [ICON_PRODUCTION] Production each.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT">
 			<Text>During the early medieval period, chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated chanceries into multiple, more specific bureaus. Thus, the chancery is the ancestor of the modern civil service.</Text>
@@ -254,7 +254,7 @@
 			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Friends and Allies increases the value of positive City-State relations during the late-game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EXPRESS}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science each.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EXPRESS}[ENDCOLOR] for Diplomatic Units in the city in which it is built.[NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science each.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT">
 			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
@@ -404,7 +404,7 @@
 			<Text>Bletchley Park</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
-			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all [ICON_VP_SCIENTIST] Scientists gain +1 [ICON_RESEARCH] Science. Receive 200 [ICON_VP_SPY_POINTS] Spy Points, and all your existing [ICON_SPY] Spies are leveled up. +10 [ICON_SPY] City Security in all Cities.</Text>
+			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all [ICON_VP_SCIENTIST] Scientists gain +1 [ICON_RESEARCH] Science. Receive 200 [ICON_VP_SPY_POINTS] Spy Points. +20 [ICON_SPY] City Security in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
 			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Powers, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
@@ -462,7 +462,7 @@
 			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Boosts the potency of all Chancercies in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
-			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_NOBILITY}[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in all Cities. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_NOBILITY}[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT">
 			<Text>Built in stages during the late-Medieval and Early Modern periods, the Summer Palace was a large, splendid edifice to the power and might of the early Qing Dynasty and a counterpart to the Emperor's main palace in Beijing. Famous for its exquisite landscaping, lush gardens and spectacular vista, the Summer Palace remains an important symbol of the power of Early Modern China and a popular tourist destination.</Text>
@@ -539,7 +539,7 @@
 			<Text>United Nations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UN_STRATEGY">
-			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age. [NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
+			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age.[NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UN_HELP">
 			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States originally in the World. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
@@ -840,7 +840,7 @@
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, Gold and the Morale promotion for all Military units trained in the city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>When you construct a Military Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Gain 10% of the Cost of any [ICON_PEACE] Faith Purchase as [ICON_PRODUCTION] Production in this City. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>When you construct a Military Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
@@ -907,7 +907,7 @@
 			<Text>Build the Celestial Throne for a big boost to your Holy City's base yields and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP">
-			<Text>+5 [ICON_PEACE] Faith from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+			<Text>+5 [ICON_GOLDEN_AGE] Golden Age Points from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_TEXT">
 			<Text>A throne is the seat of state of a potentate or dignitary, especially the seat occupied by a sovereign on state occasions; or the seat occupied by a pope or bishop on ceremonial occasions. "Throne" in an abstract sense can also refer to the monarchy or the Crown itself, an instance of metonymy, and is also used in many expressions such as "the power behind the throne".</Text>
@@ -946,7 +946,7 @@
 			<Text>Build the Divine Court for a boost to Gold output and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
-			<Text>+5 [ICON_GOLD] Gold from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+			<Text>+5 [ICON_CULTURE] Culture from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_TEXT">
 			<Text>A beth din ("house of judgment," or divine court) is a rabbinical court of Judaism. In ancient times, it was the building block of the legal system in the Biblical Land of Israel. Today, it is invested with legal powers in a number of religious matters (din Torah, "matter of litigation," plural dinei Torah) both in Israel and in Jewish communities in the Diaspora, where its judgments hold varying degrees of authority (depending upon the jurisdiction and subject matter) in matters specifically related to Jewish religious life.</Text>
@@ -998,7 +998,7 @@
 			<Text>Build the Ossuary for lots of Faith and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_HELP">
-			<Text>+5 [ICON_CULTURE] Culture from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+			<Text>+5 [ICON_GOLD] Gold from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_TEXT">
 			<Text>An ossuary is a chest, box, building, well, or site made to serve as the final resting place of human skeletal remains. They are frequently used where burial space is scarce. A body is first buried in a temporary grave, then after some years the skeletal remains are removed and placed in an ossuary. The greatly reduced space taken up by an ossuary means that it is possible to store the remains of many more people in a single tomb than if the original coffins were left as is. In Persia, the Zoroastrians used a deep well for this function from the earliest times (circa 3,000 years ago) and called it astudan (literally, "the place for the bones"). There are many rituals and regulations in the Zoroastrian faith concerning the astudans. Among the pre-7th-century Sogdians in the region of central Asia, the name for an ossuary was tanbar.</Text>
@@ -1022,7 +1022,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>All {TXT_KEY_BUILDING_MONUMENT_DESC}s, {TXT_KEY_BUILDING_BATH}s, and {TXT_KEY_BUILDING_GARDEN}s gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_MONARCHY}[ENDCOLOR] Policy.</Text>
+			<Text>All {TXT_KEY_BUILDING_MONUMENT_DESC}s, {TXT_KEY_BUILDING_BATH}s, and {TXT_KEY_BUILDING_GARDEN}s gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LANDED_ELITE}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -1042,7 +1042,7 @@
 			<Text>Palace Gardens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Contains 1 slot for a [ICON_VP_GREATWRITING] Great Work of Writing.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LANDED_ELITE}[ENDCOLOR] Policy.</Text>
+			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Contains 1 slot for a [ICON_VP_GREATWRITING] Great Work of Writing.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_MONARCHY}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
 			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
@@ -1089,7 +1089,7 @@
 			<Text>KGAZ 89.5FM - Eclectic Radio Mix</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BROADCAST_TOWER_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era [NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
+			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria:[NEWLINE]1.) Both from the same Era[NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY">

@@ -12,6 +12,7 @@
 #include "CvDllDeal.h"
 #include "CvDllPlayer.h"
 #include "CvDealAI.h"
+#include "CvDiplomacyAI.h"
 
 CvDllDealAI::CvDllDealAI(CvDealAI* pDealAI)
 	: m_pDealAI(pDealAI)
@@ -95,8 +96,21 @@ int CvDllDealAI::DoHumanOfferDealToThisAI(ICvDeal1* pDeal)
 void CvDllDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, ICvDeal1* pDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering)
 {
 	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
-	if(pkDeal != NULL)
-		m_pDealAI->DoAcceptedDeal(eFromPlayer, *pkDeal, iDealValueToMe, iValueImOffering, iValueTheyreOffering);
+	if (pkDeal != NULL)
+	{
+		// hack for multiplayer: we use DoAcceptedDeal with the following values to convey the information that a renew deal has been canceled
+		if (iDealValueToMe == INT_MAX && iValueImOffering == INT_MAX && iValueTheyreOffering == INT_MAX)
+		{
+			PlayerTypes eCancelingPlayer = eFromPlayer;
+			PlayerTypes eOtherPlayer = m_pDealAI->GetPlayer()->GetID();
+			// we don't want to run into an infinite loop of network messages being sent back and forth
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->CancelRenewDeal(eOtherPlayer, NO_REASON, false, pkDeal, false, /*bSendNetworkMessage*/ false);
+		}
+		else
+		{
+			m_pDealAI->DoAcceptedDeal(eFromPlayer, *pkDeal, iDealValueToMe, iValueImOffering, iValueTheyreOffering);
+		}
+	}
 }
 //------------------------------------------------------------------------------
 int CvDllDealAI::DoHumanDemand(ICvDeal1* pDeal)

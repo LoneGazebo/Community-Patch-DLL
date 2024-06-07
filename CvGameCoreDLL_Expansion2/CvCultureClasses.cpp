@@ -3410,13 +3410,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		if (eLandmarkImprovement != NO_IMPROVEMENT)
 		{
 			pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
-
-			// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-			pPlot->SetImprovementPillaged(false, false);
-#else
-			pPlot->SetImprovementPillaged(false);
-#endif
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
 			if (pUnit)
@@ -3429,19 +3422,32 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				// City-state owned territory?
 				if (kOwner.isMinorCiv())
 				{
-					int iFriendship = /*50*/ GD_INT_GET(LANDMARK_MINOR_FRIENDSHIP_CHANGE);
-					if (MOD_BALANCE_CORE_MINORS)
+					pPlot->SetLandmarkCreditMinor(kOwner.GetID()); // applies resting Influence bonus
+
+					int iExtraInfluence = /*50 in CP, 0 in VP*/ GD_INT_GET(LANDMARK_MINOR_FRIENDSHIP_CHANGE);
+					if (MOD_BALANCE_VP)
 					{
 						int iEra = m_pPlayer->GetCurrentEra();
 						if (iEra <= 0)
 							iEra = 1;
 
-						iFriendship *= iEra;
+						iExtraInfluence *= iEra;
+
+						if (GD_INT_GET(MINOR_LANDMARK_RESTING_INFLUENCE) > 0)
+						{
+							// Influence snaps to new resting Influence if lower, then the extra Influence is added.
+							int iNewRestingInfluenceTimes100 = kOwner.GetMinorCivAI()->GetFriendshipAnchorWithMajor(m_pPlayer->GetID()) * 100;
+							if (iNewRestingInfluenceTimes100 <= kOwner.GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(m_pPlayer->GetID()))
+								kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
+							else
+								kOwner.GetMinorCivAI()->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), iExtraInfluence * 100 + iNewRestingInfluenceTimes100);
+						}
+						else
+							kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
 					}
-
-					kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
+					else
+						kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
 				}
-
 				// Major civ owned territory?
 				else if (kOwner.isMajorCiv())
 				{
@@ -3693,7 +3699,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 	}
-	else if (m_pPlayer->getNumCities() > 0)
+	else
 	{
 		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
 	}
@@ -4779,7 +4785,7 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 
-		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		if (MOD_BALANCE_VP)
 		{
 			switch (eLevel)
 			{
@@ -5143,12 +5149,10 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		int iMod = /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();
 		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
-
-		iMod = min(90, iMod);
 
 		if (iMod != 0)
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod, iNumCities) + "[ENDCOLOR]";
@@ -6677,18 +6681,17 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		int iMod = /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();
 		iMod -= kCityPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
 
-
-		iMultiplier -= min(90, iMod);
+		iMultiplier -= iMod;
 	}
 #endif
 	// LATER add top science city and research agreement with this player???
 
-	return iMultiplier;
+	return max(-100, iMultiplier);
 }
 
 /// What is the tooltip describing the tourism output?
@@ -8138,4 +8141,34 @@ void CultureHelpers::SendArtSwapNotification(GreatWorkSlotType eType, bool bArt,
 			pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
 	}
 	GET_PLAYER(eReceipient).GetNotifications()->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, iWorkFromOriginator, kOriginator.GetID());
+}
+
+const CvString CultureHelpers::GetInfluenceText(InfluenceLevelTypes eLevel, int iTourism)
+{
+	CvString strInfluenceText;
+	switch (eLevel)
+	{
+	case NO_INFLUENCE_LEVEL:
+	case INFLUENCE_LEVEL_UNKNOWN:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_UNKNOWN");
+		break;
+	case INFLUENCE_LEVEL_EXOTIC:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_EXOTIC");
+		break;
+	case INFLUENCE_LEVEL_FAMILIAR:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_FAMILIAR");
+		break;
+	case INFLUENCE_LEVEL_POPULAR:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_POPULAR");
+		break;
+	case INFLUENCE_LEVEL_INFLUENTIAL:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_INFLUENTIAL");
+		break;
+	case INFLUENCE_LEVEL_DOMINANT:
+		strInfluenceText = GetLocalizedText("TXT_KEY_CO_DOMINANT");
+		break;
+	}
+	CvString strReturn;
+	strReturn.Format("[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
+	return strReturn;
 }

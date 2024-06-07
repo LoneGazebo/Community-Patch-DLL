@@ -16,7 +16,7 @@ SET Time = 300
 WHERE Type = 'BUILD_FORT';
 
 UPDATE Builds
-SET PrereqTech = 'TECH_COMBUSTION'
+SET PrereqTech = 'TECH_DYNAMITE'
 WHERE Type = 'BUILD_WELL';
 
 -- Worker repair actions
@@ -25,6 +25,7 @@ SET
 	Water = 1,
 	CanBeEmbarked = 1
 WHERE Type = 'BUILD_REPAIR';
+
 -- Great People build actions
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

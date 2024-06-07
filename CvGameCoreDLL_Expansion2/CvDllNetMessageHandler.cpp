@@ -385,13 +385,10 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 		else if (pEntry->IsReformationBelief())
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->HasCreatedReligion())
+			if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->OwnsReligion())
 			{
 				ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
-				if (eReligion != NO_RELIGION)
-				{
-					pkGameReligions->AddReformationBelief(ePlayer, eReligion, eBelief);
-				}
+				pkGameReligions->AddReformationBelief(ePlayer, eReligion, eBelief);
 			}
 		}
 	}

@@ -42,9 +42,7 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_CARTHAGE', 'BUILDINGCLASS_NATIONAL_TREASURY', 'BUILDING_GREAT_COTHON');
 
-UPDATE Building_ClassesNeededInCity
-SET BuildingClassType = 'BUILDINGCLASS_MARKET'
-WHERE BuildingType = 'BUILDING_GREAT_COTHON';
+DELETE FROM Building_ClassesNeededInCity WHERE BuildingType = 'BUILDING_GREAT_COTHON';
 
 UPDATE Buildings
 SET
@@ -52,7 +50,9 @@ SET
 	TradeRouteRecipientBonus = (SELECT TradeRouteRecipientBonus FROM Buildings WHERE Type = 'BUILDING_NATIONAL_TREASURY') + 1,
 	TradeRouteTargetBonus = (SELECT TradeRouteTargetBonus FROM Buildings WHERE Type = 'BUILDING_NATIONAL_TREASURY') + 1,
 	NumTradeRouteBonus = 2,
-	PovertyFlatReduction = 1
+	PovertyFlatReduction = 1,
+	Water = 1,
+	FreeBuilding = 'BUILDINGCLASS_HARBOR'
 WHERE Type = 'BUILDING_GREAT_COTHON';
 
 INSERT INTO Building_BuildingClassYieldChanges

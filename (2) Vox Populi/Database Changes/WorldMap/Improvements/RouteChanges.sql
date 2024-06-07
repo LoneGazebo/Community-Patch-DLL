@@ -17,7 +17,8 @@ INSERT INTO Route_TechMovementChanges
 VALUES
 	-- Road at unlock									-- 50
 	('ROUTE_ROAD', 'TECH_CONSTRUCTION', -10),			-- 40
-	('ROUTE_ROAD', 'TECH_GUNPOWDER', -5),				-- 35
+	-- ('ROUTE_ROAD', 'TECH_MACHINERY', -10),			-- 30
+	('ROUTE_ROAD', 'TECH_GUNPOWDER', -5),				-- 25
 	-- Railroad at unlock								-- 25
 	('ROUTE_RAILROAD', 'TECH_COMBUSTION', -10),			-- 15
 	('ROUTE_RAILROAD', 'TECH_COMBINED_ARMS', -5),		-- 10

@@ -385,16 +385,24 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_OFFENSE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_HIAWATHA'; -- 9, secondary: dom
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_HIAWATHA'; -- 6, primary: dom
 
-UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
-UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_ISABELLA'; -- 9, primary: dom
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
+UPDATE Leader_Flavors SET Flavor = 4 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_ISABELLA'; -- 8, primary: dom
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_ISABELLA'; -- 7, UU is a pseudo mounted
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_ISABELLA'; -- 5, UA, loves overseas expansion
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_AIR_CARRIER' AND LeaderType = 'LEADER_ISABELLA'; -- 4, naval
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_USE_NUKE' AND LeaderType = 'LEADER_ISABELLA'; -- 4, primary: dom
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_NUKE' AND LeaderType = 'LEADER_ISABELLA'; -- 4, primary: dom
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_GROWTH' AND LeaderType = 'LEADER_ISABELLA'; -- 7, primary: dom
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_GOLD' AND LeaderType = 'LEADER_ISABELLA'; -- 7, UA
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_ISABELLA'; -- 7, primary: dom
+UPDATE Leader_Flavors SET Flavor = 3 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
+UPDATE Leader_Flavors SET Flavor = 3 WHERE FlavorType = 'FLAVOR_ESPIONAGE' AND LeaderType = 'LEADER_ISABELLA'; -- 5, passive
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_RELIGION' AND LeaderType = 'LEADER_ISABELLA'; -- 6, UA
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_HAPPINESS' AND LeaderType = 'LEADER_ISABELLA'; -- 8, naval
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_ISABELLA'; -- 7, UI
-UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_ISABELLA'; -- 7, UU
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_ISABELLA'; -- 4, loves overseas expansion
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_NAVAL_RECON' AND LeaderType = 'LEADER_ISABELLA'; -- 4, loves overseas expansion
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_NUKE' AND LeaderType = 'LEADER_ISABELLA'; -- 9, primary: dom
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_USE_NUKE' AND LeaderType = 'LEADER_ISABELLA'; -- 9, primary: dom
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_AIR_CARRIER' AND LeaderType = 'LEADER_ISABELLA'; -- 5, naval
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_I_SEA_TRADE_ROUTE' AND LeaderType = 'LEADER_ISABELLA'; -- 5, naval
+UPDATE Leader_Flavors SET Flavor = 4 WHERE FlavorType = 'FLAVOR_WONDER' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_KAMEHAMEHA'; -- 7, expansionist
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_KAMEHAMEHA'; -- 8, ocean goer

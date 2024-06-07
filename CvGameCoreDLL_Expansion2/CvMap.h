@@ -90,6 +90,34 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
 FDataStream& operator>>(FDataStream&, CvLandmass&);
 
+class CvRiver
+{
+public:
+	CvRiver();
+	virtual ~CvRiver();
+
+	void init(int iID);
+	int GetID() const;
+	void SetID(int iID);
+
+	void AddPlot(CvPlot* pPlot);
+	vector<CvPlot*> GetPlots() const;
+
+	// for serialization
+	template<typename River, typename Visitor>
+	static void Serialize(River& landmass, Visitor& visitor);
+	virtual void read(FDataStream& kStream);
+	virtual void write(FDataStream& kStream) const;
+
+protected:
+
+	int m_iID;
+	vector<CvPlot*> m_vPlots;
+};
+
+FDataStream& operator<<(FDataStream&, const CvRiver&);
+FDataStream& operator>>(FDataStream&, CvRiver&);
+
 inline int coordRange(int iCoord, int iRange, bool bWrap)
 {
 	if(bWrap)
@@ -313,6 +341,18 @@ public:
 	void recalculateLandmasses();
 	void calculateLandmasses();
 
+	// Rivers
+	int GetNumRivers();
+	CvRiver* GetRiverById(int iID);
+	CvRiver* GetRiverByIndex(int iIndex);
+	CvRiver* AddRiver();
+	void DeleteRiver(int iID);
+	CvRiver* FirstRiver(int* pIterIdx, bool bRev = false);
+	CvRiver* NextRiver(int* pIterIdx, bool bRev = false);
+	void RecalculateRivers();
+	void CalculateRivers();
+	void CreateRiverFrom(CvPlot* pPlot, DirectionTypes eDirection, CvRiver* pRiver);
+
 	/// this is the default "continent stamper" a given lua map script can use it or not
 	void DefaultContinentStamper();
 
@@ -398,6 +438,7 @@ protected:
 
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
+	TContainer<CvRiver> m_rivers;
 
 	//store non-zero values outside of CvPlot because it will be zero almost all the time
 	typedef map<int, vector<unsigned char>> PlotInvisibleVisibilityLookup;

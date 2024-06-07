@@ -1,6 +1,7 @@
 -- Notes on Format: Eras are separated by dashes, NO UNIQUES in comments since flavors are general. Please update the comments if any tech gets changed.
 
-/*Flavors used here, somewhat grouped:
+/*
+Flavors used here, somewhat grouped:
 Strategy: FLAVOR_EXPANSION, FLAVOR_WONDER, FLAVOR_CITY_DEFENSE, FLAVOR_ESPIONAGE, FLAVOR_SPACESHIP, FLAVOR_NAVAL_GROWTH, FLAVOR_DIPLOMACY
 Yield: FLAVOR_GROWTH, FLAVOR_PRODUCTION, FLAVOR_SCIENCE, FLAVOR_GOLD, FLAVOR_RELIGION, FLAVOR_CULTURE,
 FLAVOR_TILE_IMPROVEMENT, FLAVOR_NAVAL_TILE_IMPROVEMENT
@@ -242,7 +243,7 @@ VALUES
 	('TECH_SCIENTIFIC_THEORY', 'FLAVOR_SCIENCE', 30), -- Buildings: Zoo, PublicSchool, Ability: TechTrade, Yields: Scientist +1S, Academy +3S
 	('TECH_SCIENTIFIC_THEORY', 'FLAVOR_CULTURE', 10),
 
-	('TECH_RAILROAD', 'FLAVOR_INFRASTRUCTURE', 10), -- Units: Colonist, Commando, Buildings: Hotel, TrainStation, Wonders: Neuschwanstein, Ability: +1TR, Yields: Town +3F, Village +1C
+	('TECH_RAILROAD', 'FLAVOR_INFRASTRUCTURE', 10), -- Units: Colonist, Commando, Buildings: Hotel, CoalingStation, Wonders: Neuschwanstein, Ability: +1TR, Yields: Town +3F, Village +1C
 	('TECH_RAILROAD', 'FLAVOR_MOBILE', 10),
 	('TECH_RAILROAD', 'FLAVOR_PRODUCTION', 15),
 	('TECH_RAILROAD', 'FLAVOR_GOLD', 10),
@@ -274,10 +275,11 @@ VALUES
 	('TECH_FERTILIZER', 'FLAVOR_GOLD', 10),
 	('TECH_FERTILIZER', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
-	('TECH_INDUSTRIALIZATION', 'FLAVOR_PRODUCTION', 25), -- Units: Diplomat, Ironclad, Buildings: Factory, Wonders: Westminster, Yields: Laborer +1G, Eng. +1P
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_PRODUCTION', 25), -- Units: Diplomat, Ironclad, Buildings: Factory, Wonders: Westminster, Reveals: Aluminum, Yields: Laborer +1G, Eng. +1P
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_WONDER', 5),
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_DIPLOMACY', 15),
 	('TECH_INDUSTRIALIZATION', 'FLAVOR_NAVAL', 15),
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
 	('TECH_DYNAMITE', 'FLAVOR_RANGED', 10), -- Units: GatlingGun, Cruiser, Wonders: Eiffel, Yields: Quarry +2P
 	('TECH_DYNAMITE', 'FLAVOR_NAVAL', 15),
@@ -292,12 +294,12 @@ VALUES
 
 	--------------------------------------------------------------
 
-	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 25), -- Buildings: Hospital, International Finance Center, Wonders: StatueofLiberty, Improvement: Faster Chop
+	('TECH_BIOLOGY', 'FLAVOR_GREAT_PEOPLE', 25), -- Buildings: Hospital, International Finance Center, Wonders: StatueofLiberty, Improvement: Faster Chop
+	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 15),
 	('TECH_BIOLOGY', 'FLAVOR_WONDER', 5),
 
-	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Reveals: Aluminum, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Ability: +1 TR
 	('TECH_ELECTRICITY', 'FLAVOR_WONDER', 10),
-	('TECH_ELECTRICITY', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
 	('TECH_CORPORATIONS', 'FLAVOR_GOLD', 30), -- Buildings: Corporations // Not changing this, it's supposed to be rushed I guess
 	('TECH_CORPORATIONS', 'FLAVOR_GROWTH', 30),

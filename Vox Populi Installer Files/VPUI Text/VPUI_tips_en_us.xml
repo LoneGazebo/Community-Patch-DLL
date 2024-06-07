@@ -17,6 +17,12 @@
 		<Replace Tag="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_BODY">
 			<Text>Separate city production items into specific categories. (e.g. Great Person Units, Religious Units, Military Units, Projects, National Wonders, World Wonders.)[NEWLINE][COLOR_NEGATIVE_TEXT]{TXT_KEY_EUI_REQUIRES_RELOAD}[ENDCOLOR]</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_EUI_HIGHLIGHT_BUILDING_BONUSES_DISPLAY">
+			<Text>Highlight Building Bonuses</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_HIGHLIGHT_BUILDING_BONUSES_BODY">
+			<Text>Highlight plots that would be buffed by a building when hovering over it in the city view production menu.[NEWLINE][COLOR_NEGATIVE_TEXT](Requires reload to take effect. May cause crashes for some players when hovering over buildings in the City Screen.)[ENDCOLOR]</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_EUI_SEPARATE_GP_RELIGIOUS_DISPLAY">
 			<Text>Separate Great Person and Religious Units</Text>
 		</Replace>
@@ -88,7 +94,7 @@
 			<Text>For each 1 damage taken, Units lose 0.3% Combat Strength when attacking (or defending against melee attacks). Soften your enemy's units with ranged attacks before attacking with your melee units.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_19">
-			<Text>Melee Units garrisoning a city, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
+			<Text>Melee Units garrisoning a City, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_20">
 			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Modifier. Don't expand your empire without sizable surplus happiness.</Text>

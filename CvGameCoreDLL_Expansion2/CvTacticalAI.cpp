@@ -3678,7 +3678,7 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 
 		if (pCity->canRangeStrikeAt(pDefender->getX(), pDefender->getY()) && !pCity->isMadeAttack())
 		{
-			pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), 0);
+			pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), false);
 			if (pDefender->GetCurrHitPoints() < 1)
 				return true;
 		}
@@ -6515,8 +6515,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pDefender && pDefender != pUnit)
 		{
 			//taking cover only works if the defender will not move away!
-			//since we move civilians only after the combat units have moved it should be safe to pin the defender here
-			if (!pDefender->TurnProcessed())
+			//since we move civilians only after the combat units have moved it should be safe to pin the defender here (AI players only!)
+			if (!pDefender->TurnProcessed() && !pDefender->isHuman())
 			{
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender, false);
 				pDefender->PushMission(CvTypes::getMISSION_SKIP());

@@ -3,10 +3,10 @@
 ----------------------------------------------------------
 UPDATE Traits
 SET
---	ExtraFoundedCityTerritoryClaimRange = 8,
+	ExtraFoundedCityTerritoryClaimRange = 4,
 	ExtraConqueredCityTerritoryClaimRange = 4,
 	CombatBonusImprovement = 'IMPROVEMENT_ENCAMPMENT_SHOSHONE',
-	NearbyImprovementBonusRange = 3,
+	NearbyImprovementBonusRange = 2,
 	NearbyImprovementCombatBonus = 20
 WHERE Type = 'TRAIT_GREAT_EXPANSE';
 
@@ -16,6 +16,15 @@ INSERT INTO Trait_FreePromotionUnitCombats
 	(TraitType, UnitCombatType, PromotionType)
 VALUES
 	('TRAIT_GREAT_EXPANSE', 'UNITCOMBAT_RECON', 'PROMOTION_GOODY_HUT_PICKER');
+
+INSERT INTO Trait_TerrainClaimBoost
+	(TraitType, TerrainType)
+VALUES
+	('TRAIT_GREAT_EXPANSE', 'TERRAIN_GRASS'),
+	('TRAIT_GREAT_EXPANSE', 'TERRAIN_PLAINS'),
+	('TRAIT_GREAT_EXPANSE', 'TERRAIN_DESERT'),
+	('TRAIT_GREAT_EXPANSE', 'TERRAIN_TUNDRA'),
+	('TRAIT_GREAT_EXPANSE', 'TERRAIN_SNOW');
 
 ----------------------------------------------------------
 -- Unique Unit: Comanche Riders (Cavalry)

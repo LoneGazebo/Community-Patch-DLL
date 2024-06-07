@@ -71,7 +71,7 @@ WHERE Tag = 'TXT_KEY_TECH_METALLURGY_HELP';
 
 -- Industrialization
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Factory[ENDCOLOR], a building which greatly improves the [ICON_PRODUCTION] Production of a city.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Factory[ENDCOLOR], a building which greatly improves the [ICON_PRODUCTION] Production of a city. Also reveals [ICON_RES_ALUMINUM] Aluminum, a resource used for many late-game units.'
 WHERE Tag = 'TXT_KEY_TECH_INDUSTRIALIZATION_HELP';
 
 -- Steam Power
@@ -246,7 +246,7 @@ WHERE Tag = 'TXT_KEY_TECH_NAVIGATION_HELP';
 
 -- Electricity
 UPDATE Language_en_US
-SET Text = 'Grants an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Reveals [ICON_RES_ALUMINUM] Aluminum, a resource used for many late-game units. Also allows Cities to build the [COLOR_POSITIVE_TEXT]Stock Exchange[ENDCOLOR], a building which boosts [ICON_GOLD] Gold.'
+SET Text = 'Grants an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Also allows Cities to build the [COLOR_POSITIVE_TEXT]Stock Exchange[ENDCOLOR], a building which boosts [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_TECH_ELECTRICITY_HELP';
 
 -- Radio

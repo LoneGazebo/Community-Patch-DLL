@@ -146,6 +146,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAdjacentCity(false),
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
+	m_bRestoreMoves(false),
 #endif
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
@@ -338,6 +339,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bNewOwner = kResults.GetBool("NewOwner");
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
+	m_bRestoreMoves = kResults.GetBool("RestoreMoves");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
@@ -930,6 +932,10 @@ int CvImprovementEntry::GetUnitPlotExperience() const
 int CvImprovementEntry::GetMovesChange() const
 {
 	return m_iMovesChange;
+}
+bool CvImprovementEntry::IsRestoreMoves() const
+{
+	return m_bRestoreMoves;
 }
 int CvImprovementEntry::GetGAUnitPlotExperience() const
 {

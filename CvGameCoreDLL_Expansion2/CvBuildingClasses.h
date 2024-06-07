@@ -149,7 +149,7 @@ public:
 	int GetTRTurnModGlobal() const;
 	int GetTRTurnModLocal() const;
 	int GetVotesPerGPT() const;
-	bool IsRequiresRail() const;
+	bool IsRequiresIndustrialCityConnection() const;
 	bool IsDummy() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
@@ -235,7 +235,7 @@ public:
 
 	int GetPurchaseCooldownReduction(bool bCivilian = false) const;
 #endif
-	bool IsVassalLevyEra() const;
+	int GetVassalLevyEra() const;
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int GetNationalPopulationRequired() const;
 	int GetLocalPopulationRequired() const;
@@ -289,7 +289,7 @@ public:
 	int GetEspionageModifier() const;
 	int GetGlobalEspionageModifier() const;
 	int GetSpySecurityModifier() const;
-	int GetSpySecurityModifierPerPop() const;
+	int GetSpySecurityModifierPerXPop() const;
 	int GetGlobalSpySecurityModifier() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
@@ -382,6 +382,7 @@ public:
 	bool IsExtraLuxuries() const;
 	bool IsDiplomaticVoting() const;
 	bool AllowsWaterRoutes() const;
+	bool AllowsIndustrialWaterRoutes() const;
 	bool AllowsAirRoutes() const;
 	bool IsScienceBuilding() const;
 	bool IsUnlockedByBelief() const;
@@ -466,6 +467,12 @@ public:
 	int GetYieldFromBirth(int i) const;
 	int* GetYieldFromBirthArray() const;
 
+	int GetYieldFromBirthEraScaling(int i) const;
+	int* GetYieldFromBirthEraScalingArray() const;
+
+	int GetYieldFromBirthRetroactive(int i) const;
+	int* GetYieldFromBirthRetroactiveArray() const;
+
 	int GetYieldFromUnitProduction(int i) const;
 	int* GetYieldFromUnitProductionArray() const;
 
@@ -478,8 +485,8 @@ public:
 	int GetYieldFromUnitLevelUp(int i) const;
 	int* GetYieldFromUnitLevelUpArray() const;
 
-	int GetYieldFromCombatExperience(int i) const;
-	int* GetYieldFromCombatExperienceArray() const;
+	int GetYieldFromCombatExperienceTimes100(int i) const;
+	int* GetYieldFromCombatExperienceTimes100Array() const;
 
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
@@ -544,6 +551,7 @@ public:
 	int GetFreeSpecialistCount(int i) const;
 	int GetUnitCombatFreeExperience(int i) const;
 	int GetUnitCombatProductionModifier(int i) const;
+	int GetUnitCombatProductionModifierGlobal(int i) const;
 	int GetDomainFreeExperience(int i) const;
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
 #if defined(MOD_BALANCE_CORE)
@@ -685,7 +693,7 @@ private:
 	int m_iTRTurnModLocal;
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
-	bool m_bRequiresRail;
+	bool m_bRequiresIndustrialCityConnection;
 	bool m_bDummy;
 	int m_iLandmarksTourismPercentGlobal;
 	int m_iGreatWorksTourismModifierGlobal;
@@ -798,7 +806,7 @@ private:
 	int m_iEspionageModifier;
 	int m_iGlobalEspionageModifier;
 	int m_iSpySecurityModifier;
-	int m_iSpySecurityModifierPerPop;
+	int m_iSpySecurityModifierPerXPop;
 	int m_iGlobalSpySecurityModifier;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;
@@ -888,7 +896,7 @@ private:
 	int m_iEventRequiredActive;
 	int m_iCityEventRequiredActive;
 #endif
-	bool m_bVassalLevyEra;
+	int m_iVassalLevyEra;
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int m_iNationalPopRequired;
 	int m_iLocalPopRequired;
@@ -930,6 +938,7 @@ private:
 	bool m_bExtraLuxuries;
 	bool m_bDiplomaticVoting;
 	bool m_bAllowsWaterRoutes;
+	bool m_bAllowsIndustrialWaterRoutes;
 	bool m_bAllowsAirRoutes;
 	bool m_bCityWall;
 	bool m_bUnlockedByBelief;
@@ -992,11 +1001,13 @@ private:
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;
+	int* m_piYieldFromBirthEraScaling;
+	int* m_piYieldFromBirthRetroactive;
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromUnitLevelUp;
-	int* m_piYieldFromCombatExperience;
+	int* m_piYieldFromCombatExperienceTimes100;
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;
@@ -1015,6 +1026,7 @@ private:
 	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
+	int* m_piUnitCombatProductionModifiersGlobal;
 	int* m_piDomainFreeExperience;
 	int* m_piDomainFreeExperiencePerGreatWork;
 #if defined(MOD_BALANCE_CORE)

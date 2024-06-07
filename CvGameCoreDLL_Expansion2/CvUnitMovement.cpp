@@ -224,14 +224,31 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain!
 		//difference to flat movement cost is that flat movement units don't get any bonuses
 		bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
+		bool bNoRiverCrossingPenalty = !bRiverCrossing || bHover || bAmphibious || (bIgnoreTerrainCost && /*TRUE*/ GD_INT_GET(IGNORE_GLOBAL_TERRAIN_COSTS_INCLUDES_RIVERS) > 0);
 
 		//in some cases we ignore terrain / feature cost
-		if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+		if (pTraits->IsFasterInHills() && pToPlot->isHills())
+		{
 			bIgnoreTerrainCost = true;
-		else if (pTraits->IsFasterInHills() && pToPlot->isHills())
-			bIgnoreTerrainCost = true;
+			bNoRiverCrossingPenalty = true; // as specified by Incan UA
+		}
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
+		{
 			bIgnoreTerrainCost = true;
+			bNoRiverCrossingPenalty = true; // as specified by Incan UA
+		}
+		else if (pUnit->isTerrainIgnoreCost(eToTerrain))
+		{
+			bIgnoreTerrainCost = true;
+			if (/*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
+				bNoRiverCrossingPenalty = true;
+		}
+		else if (pUnit->isFeatureIgnoreCost(eToFeature))
+		{
+			bIgnoreTerrainCost = true;
+			if (/*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
+				bNoRiverCrossingPenalty = true;
+		}
 
 		if (MOD_SANE_UNIT_MOVEMENT_COST)
 		{
@@ -244,23 +261,29 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			{
 				bIgnoreTerrainCost = true;
 				iTerrainFeatureCostAdderFromPromotions = 0;
+				if (/*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
+					bNoRiverCrossingPenalty = true;
 			}
 		}
 
-		//option: river crossings override ignore terrain cost, unless special promotions
-		if (bIgnoreTerrainCost && (!bRiverCrossing || bHover || bAmphibious || /*1*/ GD_INT_GET(IGNORE_TERRAIN_COST_INCLUDES_RIVERS) > 0))
+		if (bIgnoreTerrainCost && bNoRiverCrossingPenalty)
 			iRegularCost = 1;
 		else
 		{
-			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
-
-			// Hill cost is hardcoded
-			if (pToPlot->isHills() || pToPlot->isMountain())
+			if (bIgnoreTerrainCost)
+				iRegularCost = 1;
+			else
 			{
-				iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
+				iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
+
+				// Hill cost is hardcoded
+				if (pToPlot->isHills() || pToPlot->isMountain())
+				{
+					iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
+				}
 			}
 
-			if (bRiverCrossing && !bAmphibious && domain == DOMAIN_LAND)
+			if (!bNoRiverCrossingPenalty && domain == DOMAIN_LAND)
 			{
 				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
 			}
@@ -567,6 +590,10 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
+	{
+		iModifier /= 2;
+	}
 	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier *= 2;
@@ -623,6 +650,10 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
 	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
+	{
+		bIsFaster = true;
+	}
+	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		bIsFaster = true;
 	}

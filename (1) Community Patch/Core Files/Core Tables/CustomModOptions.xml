@@ -203,7 +203,6 @@
 	Various new tables and logics for improvements. Currently, this is required to activate:
 		- Column 'CreatesFeature' in 'Improvements'.
 		- Column 'RandResourceChance' in 'Improvements'.
-		- Column 'NewOwner' in 'Improvements'.
 		- Column 'RemoveWhenComplete' in 'Improvements'.
 		- Column 'QuantityRequirement' in 'Improvement_ResourceTypes'.
 	-->
@@ -428,6 +427,9 @@
 	
 	<!-- Civilizations always benefit from their pantheons, even after being converted. -->
 	<Row Class="5" Name="RELIGION_PERMANENT_PANTHEON" Value="0"/>
+	
+	<!-- Turns off some of the less important notifications -->
+	<Row Class="4" Name="CORE_REDUCE_NOTIFICATIONS " Value="1"/>
 
     <!-- disable ranged strikes from cities -->
     <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0"/>
@@ -816,7 +818,7 @@
 	<Row Class="6" Name="BALANCE_CORE" Value="0"/>
 	<!-- The yield sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_YIELDS" Value="0"/>
-	<!-- The spies sub-feature of COMMUNITY_PATCH -->
+	<!-- Number of spies scaling with map size -->
 	<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 	<!-- The military sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="0"/>
@@ -872,8 +874,6 @@
 	<Row Class="6" Name="UNIT_SUPPLY_MINORS_USE_HANDICAP" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
-	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_SPIES_ADVANCED" Value="0"/>
 	<!-- Military and City logging for CP - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->

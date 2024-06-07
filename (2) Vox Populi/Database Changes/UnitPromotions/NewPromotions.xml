@@ -72,6 +72,15 @@
 			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_COASTAL_ARTILLERY</Type>
+			<Description>TXT_KEY_PROMOTION_COASTAL_ARTILLERY</Description>
+			<Help>TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP</Help>
+			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
+			<PromotionPrereqOr1>PROMOTION_FIELD_1</PromotionPrereqOr1>
+			<PediaType>PEDIA_SIEGE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_ARTILLERY</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_SPLASH_1</Type>
 			<Description>TXT_KEY_PROMOTION_SPLASH_1</Description>
 			<Help>TXT_KEY_PROMOTION_SPLASH_1_HELP</Help>
@@ -508,11 +517,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_PRIZE_RULES</Type>
-			<Description>TXT_KEY_PROMOTION_PRIZE_RULES</Description>
-			<Help>TXT_KEY_PROMOTION_PRIZE_RULES_HELP</Help>
+			<Type>PROMOTION_MARE_NOSTRUM</Type>
+			<Description>TXT_KEY_PROMOTION_MARE_NOSTRUM</Description>
+			<Help>TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PRIZE_RULES</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_MARE_NOSTRUM</PediaEntry>
 		</Row>
 		<!-- Tech -->
 		<Row>

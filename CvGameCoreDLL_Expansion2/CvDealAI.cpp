@@ -1120,7 +1120,6 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 						// Don't offer the item in AI-AI deals or in AI offers to humans.
 						// If a human has asked for this item, return the sell price we'd be willing to accept.
 						iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMinAcceptableSellPrice;
-
 					}
 					else
 					{

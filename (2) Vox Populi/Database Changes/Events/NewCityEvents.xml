@@ -1013,7 +1013,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
 			<SpyIDChance>100</SpyIDChance>
-			<SpyCaptureChance>40</SpyCaptureChance>
+			<SpyKillChance>40</SpyKillChance>
 			<StealNumGW>1</StealNumGW>
 		</Row>
 		<!-- Sabotage Production -->
@@ -1027,8 +1027,8 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
 			<SpyIDChance>20</SpyIDChance>
-			<SpyCaptureChance>10</SpyCaptureChance>
-			<RemoveTurnsOfProductionProgress>10</RemoveTurnsOfProductionProgress>
+			<SpyKillChance>10</SpyKillChance>
+			<BlockBuildingTurns>5</BlockBuildingTurns>
 		</Row>
 		<!-- Pilfer Religious Relics -->
 		<Row>
@@ -1039,10 +1039,10 @@
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
+			<NetworkPointsNeeded>750</NetworkPointsNeeded>
 			<SpyIDChance>20</SpyIDChance>
-			<SpyCaptureChance>10</SpyCaptureChance>
-			<ReligiousPressureModifier>-50</ReligiousPressureModifier>
+			<SpyKillChance>10</SpyKillChance>
+			<ReligiousPressureModifier>-100</ReligiousPressureModifier>
 			<Expires>true</Expires>
 		</Row>
 		<!-- Kidnap Specialists in the City -->
@@ -1056,10 +1056,10 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
 			<SpyIDChance>30</SpyIDChance>
-			<SpyCaptureChance>10</SpyCaptureChance>
+			<SpyKillChance>10</SpyKillChance>
 			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
 			<Expires>true</Expires>
-			<CapitalOnly>true</CapitalOnly>
+			<RequiresNotPuppet>true</RequiresNotPuppet>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 		</Row>
 		<!-- Steal From Treasury -->
@@ -1073,7 +1073,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
 			<SpyIDChance>30</SpyIDChance>
-			<SpyCaptureChance>20</SpyCaptureChance>
+			<SpyKillChance>20</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
 			<StealFromTreasuryPercent>20</StealFromTreasuryPercent>
 		</Row>
@@ -1089,7 +1089,7 @@
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<NetworkPointsScaling>true</NetworkPointsScaling>
 			<SpyIDChance>50</SpyIDChance>
-			<SpyCaptureChance>20</SpyCaptureChance>
+			<SpyKillChance>20</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
 			<StealNumTechs>1</StealNumTechs>
 		</Row>
@@ -1104,7 +1104,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>50</SpyIDChance>
-			<SpyCaptureChance>70</SpyCaptureChance>
+			<SpyKillChance>70</SpyKillChance>
 			<PillageResourceTilesChance>100</PillageResourceTilesChance>
 			<PillageRoadsChance>50</PillageRoadsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
@@ -1120,7 +1120,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>30</SpyIDChance>
-			<SpyCaptureChance>30</SpyCaptureChance>
+			<SpyKillChance>30</SpyKillChance>
 			<IsEnemyUnhappy>true</IsEnemyUnhappy>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
@@ -1139,7 +1139,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>80</SpyIDChance>
-			<SpyCaptureChance>70</SpyCaptureChance>
+			<SpyKillChance>70</SpyKillChance>
 			<SapCityTurns>5</SapCityTurns>
 			<PillageFortificationsChance>100</PillageFortificationsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
@@ -1153,7 +1153,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP</Help>
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
-			<CounterspyNPRateReduction>10</CounterspyNPRateReduction>
+			<CounterspyNPRateReduction>20</CounterspyNPRateReduction>
 		</Row>
 		<!-- Inspect the local garrison and fine-tune our city defenses -->
 		<Row>
@@ -1163,19 +1163,7 @@
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
 			<CityDefenseModifierBase>20</CityDefenseModifierBase>
-			<CityDefenseModifier>10</CityDefenseModifier>
 			<CounterspyBlockSapCity>true</CounterspyBlockSapCity>
-		</Row>
-		<!-- Chase foreign spies -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_HELP</Help>
-			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_MISSION</MissionTooltip>
-			<IsCounterSpyMission>true</IsCounterSpyMission>
-			<IsSecretMission>true</IsSecretMission>
-			<IsAlwaysIDSpies>true</IsAlwaysIDSpies>
-			<IsKillCaughtSpies>true</IsKillCaughtSpies>
 		</Row>
 	</CityEventChoices>
 	<CityEventChoice_Notification>

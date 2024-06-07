@@ -34,6 +34,7 @@
 
 class CvArea;
 class CvLandmass;
+class CvRiver;
 class CvRoute;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
@@ -147,6 +148,10 @@ public:
 	bool isRiverSide() const;
 	bool isRiverConnection(DirectionTypes eDirection) const;
 
+	bool IsRiverSide(DirectionTypes eDirection) const;
+	bool IsLakeSide(DirectionTypes eDirection) const;
+	bool IsAlongSameRiver(const CvPlot* pToPlot) const;
+
 	CvPlot* getNeighboringPlot(DirectionTypes eDirection) const;
 	CvPlot* getNearestLandPlotInternal(int iDistance) const;
 	int getNearestLandArea() const;
@@ -163,7 +168,8 @@ public:
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
-	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false) const;
+	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false, bool bCheckAdjacency = false) const;
+	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
@@ -305,8 +311,8 @@ public:
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
 
-	void SetCityConnection(PlayerTypes ePlayer, bool bActive);
-	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER) const;
+	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
+	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void SetTradeUnitRoute(bool bActive);
@@ -338,6 +344,11 @@ public:
 	CvLandmass* landmass() const;
 	std::vector<int> getAllAdjacentLandmasses() const;
 	bool hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
+
+	int GetRiverID(DirectionTypes eDirection) const;
+	void SetRiverID(DirectionTypes eDirection, int iRiverID);
+	CvRiver* GetRiver(DirectionTypes eDirection) const;
+	bool HasSharedRiver(const CvPlot* pOther) const;
 
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;
@@ -533,6 +544,9 @@ public:
 	void SetRoutePillaged(bool bPillaged);
 #endif
 
+	PlayerTypes GetLandmarkCreditMinor() const;
+	void SetLandmarkCreditMinor(PlayerTypes eNewValue);
+
 	PlayerTypes GetPlayerThatClearedBarbCampHere() const;
 	void SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue);
 
@@ -572,12 +586,12 @@ public:
 	int calculateBestNatureYield(YieldTypes eYield, PlayerTypes ePlayer) const;
 	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 
-	int calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection,  const CvCity* pOwningCity, bool bOptimal = false) const;
+	int calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal = false) const;
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const;
+	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const;
 #else
-	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, bool bIgnoreCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
+	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
 #endif
 
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
@@ -600,9 +614,9 @@ public:
 #endif
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, bool bIgnoreCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL) const;
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL) const;
 #else
-	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, bool bIgnoreCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 #endif
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
@@ -724,6 +738,8 @@ public:
 	bool IsUnitPlotExperience() const;
 	int GetPlotMovesChange() const;
 	void ChangePlotMovesChange(int iValue);
+	bool IsRestoreMoves() const;
+	void ChangeRestoreMovesCount(int iValue);
 #endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
@@ -974,6 +990,8 @@ protected:
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
 
+	std::vector<int> m_vRivers;
+
 	SYNC_ARCHIVE_MEMBER(CvPlot)
 	char /*FeatureTypes*/ m_eFeatureType; 
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
@@ -983,6 +1001,7 @@ protected:
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
+	char m_iRestoreMoves;
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
@@ -991,6 +1010,7 @@ protected:
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;
+	char /*PlayerTypes*/ m_eLandmarkCreditMinor;
 	char /*PlayerTypes*/ m_ePlayerThatClearedDigHere;
 	char /*PlayerTypes*/ m_ePlayerThatDestroyedCityHere;
 	char /*RouteTypes*/ m_eRouteType;

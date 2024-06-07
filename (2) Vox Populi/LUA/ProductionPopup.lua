@@ -1307,7 +1307,12 @@ function AddProductionButton( id, description, orderType, turnsLeft, column, isD
 			-- Disabled help text
 			if (isDisabled) then
 				if (g_IsProductionMode) then
-					local strDisabledInfo = pCity:CanConstructTooltip(id);
+					local strDisabledInfo;
+					if (bBuilding) then
+						strDisabledInfo = pCity:CanConstructTooltip(id);
+					else
+						strDisabledInfo = pCity:CanCreateTooltip(id);
+					end
 					if (strDisabledInfo ~= nil and strDisabledInfo ~= "") then
 						strToolTip = strToolTip .. "[NEWLINE][COLOR_WARNING_TEXT]" .. strDisabledInfo .. "[ENDCOLOR]";
 					end

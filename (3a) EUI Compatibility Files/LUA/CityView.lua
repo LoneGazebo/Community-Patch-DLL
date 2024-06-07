@@ -128,6 +128,8 @@ local YieldTypes = YieldTypes
 local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
 local g_isAdvisor = true
 
+local g_isHighlightBuildingBonuses = g_options.GetValue( "HighlightBuildingBonuses" ) == 1
+
 local g_isSeparateCityProductionEUI = g_options.GetValue( "SeparateCityProduction" ) == 1
 --print("Separate City Production: "..tostring(g_isSeparateCityProductionEUI))
 
@@ -583,6 +585,9 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
 			strToolTip = GetHelpTextForProject( itemID, city, true )
+			if isDisabled then
+				strDisabledInfo = city:CanCreateTooltip(itemID)
+			end
 		elseif orderID == OrderTypes.ORDER_MAINTAIN then
 			itemInfo = GameInfo.Processes
 			strToolTip = GetHelpTextForProcess( itemID, true )
@@ -979,6 +984,9 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			end
 			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
 			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
+			if yieldID == YieldTypes.YIELD_PRODUCTION and city:IsIndustrialConnectedToCapital() then
+				cityYieldRate = cityYieldRate + city:GetConnectionGoldTimes100() / 100
+			end
 			-- Special culture case
 			if yieldID == YieldTypes.YIELD_CULTURE then
 				buildingYieldRate = buildingYieldRate + buildingCultureRate
@@ -1244,9 +1252,8 @@ local function handleBuildOrder( city, orderID, itemID )
 	end
 end
 
-local function ChangeHoverBuildingDisplay(city, itemID)
+local function HighlightHoveredBuildingBonuses(city, itemID)
 	Events.ClearHexHighlightStyle("BoostedResourcePlot")
-	g_HoverBuildingID = itemID
 
 	-- Show plots with resources that will be boosted by building moused over
 	local boostedPlots = {city:GetPlotsBoostedByBuilding(itemID)}
@@ -1264,7 +1271,10 @@ local function OnSelectionMouseEnter( orderID, itemID )
 	if city then
 		local cityOwnerID = city:GetOwner()
 		if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
-			ChangeHoverBuildingDisplay(city, itemID)
+			g_HoverBuildingID = itemID
+			if g_isHighlightBuildingBonuses then
+				HighlightHoveredBuildingBonuses(city, itemID)
+			end
 		end
 	end
 end
@@ -1272,12 +1282,13 @@ end
 local function OnSelectionMouseExit( orderID, itemID )
 	-- Only care about buildings 
 	if orderID ~= OrderTypes.ORDER_CONSTRUCT then return end
-
-	--print('No longer hovering over itemID', itemID)
 	
-	if g_HoverBuildingID == itemID then 
-		Events.ClearHexHighlightStyle("BoostedResourcePlot")
+	if g_HoverBuildingID == itemID then
 		g_HoverBuildingID = -1
+
+		if g_isHighlightBuildingBonuses then
+			Events.ClearHexHighlightStyle("BoostedResourcePlot")
+		end
 	end
 end
 
@@ -1355,8 +1366,8 @@ local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPo
 					local city = GetSelectedModifiableCity()
 					if city then
 						local cityOwnerID = city:GetOwner()
-						if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
-							ChangeHoverBuildingDisplay(city, itemID)
+						if cityOwnerID == g_activePlayerID and not city:IsPuppet() and g_isHighlightBuildingBonuses then
+							HighlightHoveredBuildingBonuses(city, itemID)
 						end
 					end
 				end
@@ -2130,7 +2141,8 @@ local function UpdateCityViewNow()
 		Controls.CityCapitalIcon:SetHide( not isCapital )
 
 		-- Connected to capital?
-		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or cityOwner:IsCapitalIndustrialConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+		Controls.CityIsIndustrialConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalIndustrialConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
 
 		-- Blockaded ? / Sapped ?
 		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )

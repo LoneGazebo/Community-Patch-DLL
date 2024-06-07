@@ -49,7 +49,6 @@ VALUES
 	('HISTORIC_EVENT_DIG', 'YIELD_FOOD'),
 	('HISTORIC_EVENT_DIG', 'YIELD_GOLD'),
 	('HISTORIC_EVENT_GREAT_PERSON', 'YIELD_FOOD'),
-	('HISTORIC_EVENT_GREAT_PERSON', 'YIELD_GOLD'),
 	('HISTORIC_EVENT_TRADE_LAND', 'YIELD_FOOD'),
 	('HISTORIC_EVENT_TRADE_LAND', 'YIELD_GOLD'),
 	('HISTORIC_EVENT_TRADE_SEA', 'YIELD_FOOD'),
@@ -121,31 +120,48 @@ FROM DifficultyBonusAmounts a, TriggerYields b;
 DROP TABLE TriggerYields;
 DROP TABLE DifficultyBonusAmounts;
 
+-- Adjustments start here
+-- First multiply by 100 to avoid rounding errors
+UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * 100
+WHERE Amount > 0;
+
 -- Multipliers for specific triggers
 CREATE TEMP TABLE DifficultyBonusMultipliers (
 	HistoricEventTypeTemp text,
 	IsGold boolean,
+	IsNotGold boolean,
+	IsFoodOrGold boolean,
+	IsFoodOrGoldBeforeRenaissance boolean,
+	IsAny boolean,
 	MultiplierTimes100 integer
 );
 
 INSERT INTO DifficultyBonusMultipliers
+	(HistoricEventTypeTemp, IsGold, IsNotGold, MultiplierTimes100)
 VALUES
-	('HISTORIC_EVENT_WON_WAR', 0, 200), -- 2x for winning a war
-	('HISTORIC_EVENT_WON_WAR', 1, 200),
-	('DIFFICULTY_BONUS_CITY_CONQUEST', 0, 150), -- 1.5x for city conquest
-	('DIFFICULTY_BONUS_CITY_CONQUEST', 1, 150),
-	('DIFFICULTY_BONUS_ADOPTED_POLICY', 0, 33), -- 0.33x for adopting a policy
-	('DIFFICULTY_BONUS_ADOPTED_POLICY', 1, 33),
-	('DIFFICULTY_BONUS_RESEARCHED_TECH', 0, 20), -- 0.2x for researching a tech
-	('DIFFICULTY_BONUS_RESEARCHED_TECH', 1, 20),
-	('HISTORIC_EVENT_GOLDEN_AGE', 1, 300), -- 3x Gold for Golden Ages
-	('HISTORIC_EVENT_WORLD_WONDER', 1, 300), -- 3x Gold for World Wonders
-	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 20), -- 0.2x Gold for killing a major civ unit
-	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 0, 10), -- 0.1x other yields for killing a major civ unit
-	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 20), -- 0.2x Gold for killing a City-State unit
-	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 0, 10), -- 0.1x other yields for killing a City-State unit
-	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 1, 10), -- 0.1x Gold for killing a Barbarian unit
-	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 0, 5); -- 0.05x other yields for killing a Barbarian unit
+	('HISTORIC_EVENT_GOLDEN_AGE', 1, 0, 300), -- 3x Gold for Golden Ages
+	('HISTORIC_EVENT_WORLD_WONDER', 1, 0, 300), -- 3x Gold for World Wonders
+	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 0, 20), -- 0.2x Gold for killing a major civ unit
+	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 0, 1, 10), -- 0.1x other yields for killing a major civ unit
+	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 0, 20), -- 0.2x Gold for killing a City-State unit
+	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 0, 1, 10), -- 0.1x other yields for killing a City-State unit
+	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 1, 0, 10), -- 0.1x Gold for killing a Barbarian unit
+	('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 0, 1, 5); -- 0.05x other yields for killing a Barbarian unit
+
+INSERT INTO DifficultyBonusMultipliers
+	(HistoricEventTypeTemp, IsAny, MultiplierTimes100)
+VALUES
+	('HISTORIC_EVENT_WON_WAR', 1, 200), -- 2x for winning a war
+	('DIFFICULTY_BONUS_CITY_CONQUEST', 1, 150), -- 1.5x for city conquest
+	('DIFFICULTY_BONUS_ADOPTED_POLICY', 1, 33), -- 0.33x for adopting a policy
+	('DIFFICULTY_BONUS_RESEARCHED_TECH', 1, 20); -- 0.2x for researching a tech
+
+INSERT INTO DifficultyBonusMultipliers
+	(HistoricEventTypeTemp, IsFoodOrGold, IsFoodOrGoldBeforeRenaissance, MultiplierTimes100)
+VALUES
+	('DIFFICULTY_BONUS_CITY_FOUND', 1, 0, 200), -- 2x Food and Gold for founding a city
+	('DIFFICULTY_BONUS_CITY_FOUND', 0, 1, 0); -- 0x Food and Gold for founding a city before Renaissance Era
 
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 1) / 100
@@ -153,132 +169,50 @@ WHERE YieldType = 'YIELD_GOLD'
 AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 1);
 
 UPDATE HandicapInfo_AIDifficultyBonus
-SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 0) / 100
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsNotGold = 1) / 100
 WHERE YieldType <> 'YIELD_GOLD'
-AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 0);
+AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsNotGold = 1);
+
+UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGold = 1) / 100
+WHERE YieldType IN ('YIELD_FOOD', 'YIELD_GOLD')
+AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGold = 1);
+
+UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGoldBeforeRenaissance = 1) / 100
+WHERE YieldType IN ('YIELD_FOOD', 'YIELD_GOLD') AND EraType IN (
+	SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
+)
+AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGoldBeforeRenaissance = 1);
+
+UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsAny = 1) / 100
+WHERE EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsAny = 1);
 
 DROP TABLE DifficultyBonusMultipliers;
 
--- Exceptions
 -- Reduce Science and Culture in Ancient Era on all difficulties
-CREATE TEMP TABLE AncientDifficultyBonusAmounts (
-	HandicapTypeTemp text,
+CREATE TEMP TABLE AncientDifficultyBonusMultipliers (
 	HistoricEventTypeTemp text,
 	YieldTypeTemp text,
-	AmountTemp integer
+	MultiplierTimes100 integer
 );
 
-INSERT INTO AncientDifficultyBonusAmounts
+INSERT INTO AncientDifficultyBonusMultipliers
 VALUES
-	('HANDICAP_PRINCE', 'DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 20),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 20),
-	('HANDICAP_PRINCE', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 6),
-	('HANDICAP_PRINCE', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 3),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 41),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 41),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 12),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 7),
-	('HANDICAP_EMPEROR', 'DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 64),
-	('HANDICAP_EMPEROR', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 64),
-	('HANDICAP_EMPEROR', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 18),
-	('HANDICAP_EMPEROR', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 11),
-	('HANDICAP_IMMORTAL', 'DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 81),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 81),
-	('HANDICAP_IMMORTAL', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 23),
-	('HANDICAP_IMMORTAL', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 14),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 101),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 101),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 29),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 17);
+	('DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 89), -- 0.89x Science for founding a city
+	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 89), -- 0.89x Science for World Wonders
+	('DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 78), -- 0.78x Science for adopting a policy
+	('DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 79); -- 0.79x Culture for researching a tech
 
 UPDATE HandicapInfo_AIDifficultyBonus
-SET Amount = (
-	SELECT AmountTemp FROM AncientDifficultyBonusAmounts
-	WHERE HandicapTypeTemp = HandicapType AND HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType AND EraType = 'ERA_ANCIENT'
-)
-WHERE EXISTS (
-	SELECT 1 FROM AncientDifficultyBonusAmounts
-	WHERE HandicapTypeTemp = HandicapType AND HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType AND EraType = 'ERA_ANCIENT'
-);
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM AncientDifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType) / 100
+WHERE EraType = 'ERA_ANCIENT'
+AND EXISTS (SELECT 1 FROM AncientDifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType);
 
-DROP TABLE AncientDifficultyBonusAmounts;
+DROP TABLE AncientDifficultyBonusMultipliers;
 
-
--- +/- 1 or 2 to the final totals for Renaissance amounts to match Proposal (6-71)
-CREATE TEMP TABLE RenaissanceDifficultyBonusAmounts (
-	HandicapTypeTemp text,
-	HistoricEventTypeTemp text,
-	YieldTypeTemp text,
-	AmountTemp integer
-);
-
-INSERT INTO RenaissanceDifficultyBonusAmounts
-VALUES
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WON_WAR', 'YIELD_GOLD', 185),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WON_WAR', 'YIELD_FOOD', 185),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WON_WAR', 'YIELD_SCIENCE', 185),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WON_WAR', 'YIELD_CULTURE', 185),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_GOLD', 277),
-	('HANDICAP_PRINCE', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD', 277),
-
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 'YIELD_GOLD', 38),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 'YIELD_GOLD', 38),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_GOLD', 38),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_FOOD', 38),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 38),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_GOLD', 61),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_FOOD', 61),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 61),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_GOLD', 282),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_FOOD', 282),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_SCIENCE', 282),
-	('HANDICAP_KING', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_CULTURE', 282),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WON_WAR', 'YIELD_GOLD', 377),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WON_WAR', 'YIELD_FOOD', 377),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WON_WAR', 'YIELD_SCIENCE', 377),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WON_WAR', 'YIELD_CULTURE', 377),
-	('HANDICAP_KING', 'HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_GOLD', 566),
-	('HANDICAP_KING', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD', 566),
-
-	('HANDICAP_EMPEROR', 'DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 'YIELD_CULTURE', 14),
-	('HANDICAP_EMPEROR', 'DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 'YIELD_SCIENCE', 14),
-	('HANDICAP_EMPEROR', 'HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_GOLD', 913),
-	('HANDICAP_EMPEROR', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD', 913),
-
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WON_WAR', 'YIELD_GOLD', 785),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WON_WAR', 'YIELD_FOOD', 785),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WON_WAR', 'YIELD_SCIENCE', 785),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WON_WAR', 'YIELD_CULTURE', 785),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_GOLD', 1178),
-	('HANDICAP_IMMORTAL', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD', 1178),
-
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 'YIELD_GOLD', 49),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 'YIELD_CULTURE', 49),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 'YIELD_SCIENCE', 49),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 'YIELD_CULTURE', 49),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 'YIELD_SCIENCE', 49),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_GOLD', 167),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_FOOD', 167),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 167),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_GOLD', 757),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_FOOD', 757),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_SCIENCE', 757),
-	('HANDICAP_DEITY', 'DIFFICULTY_BONUS_CITY_CONQUEST', 'YIELD_CULTURE', 757),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WON_WAR', 'YIELD_GOLD', 1009),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WON_WAR', 'YIELD_FOOD', 1009),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WON_WAR', 'YIELD_SCIENCE', 1009),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WON_WAR', 'YIELD_CULTURE', 1009),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_GOLD', 1514),
-	('HANDICAP_DEITY', 'HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD', 1514);
-
+-- Divide by 100 at the end
 UPDATE HandicapInfo_AIDifficultyBonus
-SET Amount = (
-	SELECT AmountTemp FROM RenaissanceDifficultyBonusAmounts
-	WHERE HandicapTypeTemp = HandicapType AND HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType AND EraType = 'ERA_RENAISSANCE'
-)
-WHERE EXISTS (
-	SELECT 1 FROM RenaissanceDifficultyBonusAmounts
-	WHERE HandicapTypeTemp = HandicapType AND HistoricEventTypeTemp = HistoricEventType AND YieldTypeTemp = YieldType AND EraType = 'ERA_RENAISSANCE'
-);
-
-DROP TABLE RenaissanceDifficultyBonusAmounts;
+SET Amount = Amount / 100
+WHERE Amount > 0;

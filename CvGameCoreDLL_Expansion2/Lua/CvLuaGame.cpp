@@ -3085,7 +3085,7 @@ int CvLuaGame::lAddReformation(lua_State* L)
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvGameReligions* pkGameReligions = GC.getGame().GetGameReligions();
-	if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->HasCreatedReligion() && kPlayer.GetReligions()->GetOwnedReligion() != NO_RELIGION && kPlayer.GetReligions()->GetOwnedReligion() == eReligion)
+	if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->GetOwnedReligion() != NO_RELIGION && kPlayer.GetReligions()->GetOwnedReligion() == eReligion)
 	{
 		pkGameReligions->AddReformationBelief(ePlayer, eReligion, eBelief);
 	}
@@ -3498,7 +3498,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 		int iLoop1;
 		int iLoop2;
 
-		SPathFinderUserData data(ePlayer, PT_CITY_CONNECTION_LAND, NO_BUILD, ROUTE_RAILROAD, NO_ROUTE_PURPOSE);
+		SPathFinderUserData data(ePlayer, PT_CITY_CONNECTION_LAND, NO_BUILD, ROUTE_RAILROAD, NO_ROUTE_PURPOSE, false);
 
 		for (pFirstCity = GET_PLAYER(ePlayer).firstCity(&iLoop1); pFirstCity != NULL; pFirstCity = GET_PLAYER(ePlayer).nextCity(&iLoop1))
 		{

@@ -165,7 +165,7 @@ public:
 	int GetEnemyWarWearinessModifier() const;
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
-	bool IsReconquista() const;
+	bool IsNewCitiesStartWithCapitalReligion() const;
 	bool IsForeignReligionSpreadImmune() const;
 	int GetInspirationalLeader() const;
 	int GetBullyMilitaryStrengthModifier() const;
@@ -200,7 +200,7 @@ public:
 	int GetWLTKDGATimer() const;
 	int GetWLTKDUnhappinessNeedsMod() const;
 	int GetStartingSpies() const;
-	int GetStartingSpyRank() const;
+	int GetSpyOffensiveStrengthModifier() const;
 	int GetSpyMoveRateBonus() const;
 	int GetSpySecurityModifier() const;
 	int GetSpyExtraRankBonus() const;
@@ -391,6 +391,7 @@ public:
 	int GetYieldFromCSFriend(int i) const;
 	int GetYieldFromSettle(int i) const;
 	int GetYieldFromConquest(int i) const;
+	int GetYieldFromCityDamageTimes100(int i) const;
 	int GetVotePerXCSAlliance() const;
 	int GetVotePerXCSFollowingYourReligion() const;
 	int GetChanceToConvertReligiousUnits() const;
@@ -540,7 +541,7 @@ protected:
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
-	bool m_bReconquista;
+	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;
@@ -639,7 +640,7 @@ protected:
 	int m_iWLTKDGATimer;
 	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
-	int m_iStartingSpyRank;
+	int m_iSpyOffensiveStrengthModifier;
 	int m_iSpyMoveRateBonus;
 	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
@@ -745,6 +746,7 @@ protected:
 	int* m_piYieldFromCSFriend;
 	int* m_piYieldFromSettle;
 	int* m_piYieldFromConquest;
+	int* m_piYieldFromCityDamageTimes100;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
@@ -1137,9 +1139,9 @@ public:
 	{
 		return m_bBuyOwnedTiles;
 	};
-	bool IsReconquista() const
+	bool IsNewCitiesStartWithCapitalReligion() const
 	{
-		return m_bReconquista;
+		return m_bNewCitiesStartWithCapitalReligion;
 	};
 	bool IsForeignReligionSpreadImmune() const
 	{
@@ -1277,9 +1279,9 @@ public:
 	{
 		return m_iStartingSpies;
 	};
-	int GetStartingSpyRank() const
+	int GetSpyOffensiveStrengthModifier() const
 	{
-		return m_iStartingSpyRank;
+		return m_iSpyOffensiveStrengthModifier;
 	};
 	int GetSpyMoveRateBonus() const
 	{
@@ -1877,6 +1879,10 @@ public:
 	{
 		return m_iYieldFromConquest[(int)eYield];
 	};
+	int GetYieldFromCityDamageTimes100(YieldTypes eYield) const
+	{
+		return m_iYieldFromCityDamageTimes100[static_cast<int>(eYield)];
+	};
 	int GetVotePerXCSAlliance() const
 	{
 		return m_iVotePerXCSAlliance;
@@ -2170,7 +2176,7 @@ private:
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
-	bool m_bReconquista;
+	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;
@@ -2205,7 +2211,7 @@ private:
 	int m_iWLTKDGATimer;
 	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
-	int m_iStartingSpyRank;
+	int m_iSpyOffensiveStrengthModifier;
 	int m_iSpyMoveRateBonus;
 	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
@@ -2391,6 +2397,7 @@ private:
 	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
+	int m_iYieldFromCityDamageTimes100[NUM_YIELD_TYPES];
 	std::map<int, int> m_aiGoldenAgeYieldModifier;
 	std::map<int, std::pair<int, bool>> m_aibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;

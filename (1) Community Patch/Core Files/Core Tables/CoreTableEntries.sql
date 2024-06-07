@@ -201,8 +201,11 @@ ALTER TABLE Buildings ADD COLUMN 'FoodBonusPerCityMajorityFollower' INTEGER DEFA
 ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
+-- Allows industrial city connections via water
+ALTER TABLE Buildings ADD COLUMN 'AllowsIndustrialWaterRoutes' boolean DEFAULT 0;
+
 -- Allows city connections via the air
-ALTER TABLE Buildings ADD AllowsAirRoutes BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'AllowsAirRoutes' boolean DEFAULT 0;
 
 -- Building, Belief, UA
 -- Increase to border growth expansion rate
@@ -239,6 +242,9 @@ ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovementFeature' BOOLEAN DEFAULT 0;
 -- Belief - reduces policy cost of Wonders by 1 for every x cities following religion
 
 ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DEFAULT 0;
+
+-- Policy - increases happiness in every city for which city strength is at least the define value 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES'
+ALTER TABLE Policies ADD COLUMN 'HappinessPerCityOverStrengthThreshold' INTEGER DEFAULT 0;
 
 -- Policy - increases potency of beakers for GSs
 ALTER TABLE Policies ADD COLUMN 'GreatScientistBeakerModifier' INTEGER DEFAULT 0;
@@ -443,6 +449,9 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 -- Improvement grants extra moves when unit is on this plot
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
+-- Improvement restores all moves when unit is on this plot
+ALTER TABLE Improvements ADD COLUMN 'RestoreMoves' boolean DEFAULT 0;
+
 -- Improvement requires fresh water, coast, or river adjacency to make valid.
 ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 
@@ -548,6 +557,9 @@ ALTER TABLE Policies ADD COLUMN 'UpgradeCSVassalTerritory' BOOLEAN DEFAULT 0;
 -- Spies gain additional Network Points per Turn
 ALTER TABLE Policies ADD COLUMN 'EspionageNetworkPoints' INTEGER DEFAULT 0;
 
+-- Modifies passive bonuses for Spies
+ALTER TABLE Policies ADD COLUMN 'PassiveEspionageBonusModifier' INTEGER DEFAULT 0;
+
 -- Modifies influence gained/lost when rigging elections
 ALTER TABLE Policies ADD COLUMN 'RigElectionInfluenceModifier' INTEGER DEFAULT 0;
 
@@ -555,6 +567,9 @@ ALTER TABLE Policies ADD COLUMN 'RigElectionInfluenceModifier' INTEGER DEFAULT 0
 ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
 -- Adds event tourism from golden ages starting.
 ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' INTEGER DEFAULT 0;
+
+-- Gives event tourism when completing internal trade routes as if they are international.
+ALTER TABLE Policies ADD COLUMN 'InternalTRTourism' boolean DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 
@@ -745,8 +760,8 @@ ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' INTEGER DEFAULT 0;
 -- New Traits - Can buy owned plots with gold
 ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' BOOLEAN DEFAULT 0;
 
--- New Traits - Converts citizens on conquest
-ALTER TABLE Traits ADD COLUMN 'Reconquista' BOOLEAN DEFAULT 0;
+-- New Traits - New Cities start with the religion of the capital
+ALTER TABLE Traits ADD COLUMN 'NewCitiesStartWithCapitalReligion' BOOLEAN DEFAULT 0;
 
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD COLUMN 'NoSpread' BOOLEAN DEFAULT 0;
@@ -836,6 +851,9 @@ ALTER TABLE Policies ADD COLUMN 'IncreasedQuestRewards' INTEGER DEFAULT 0;
 -- Extra vote in WC for every X City-States originally in the world
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
 
+-- Gives votes per city following your state religion
+ALTER TABLE Policies ADD COLUMN 'VotesPerFollowingCityTimes100' integer DEFAULT 0;
+
 -- GP Expend Influence Boost
 ALTER TABLE Policies ADD COLUMN 'InfluenceGPExpend' INTEGER DEFAULT 0;
 
@@ -844,6 +862,9 @@ ALTER TABLE Policies ADD COLUMN 'FreeTradeRoute' INTEGER DEFAULT 0;
 
 -- Free Spy
 ALTER TABLE Policies ADD COLUMN 'FreeSpy' INTEGER DEFAULT 0;
+
+-- City Security Modifier
+ALTER TABLE Policies ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 
 -- Gold from Internal Trade Routes
 ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' INTEGER DEFAULT 0;
@@ -860,7 +881,7 @@ ALTER TABLE Policies ADD COLUMN 'IdeologyPoint' INTEGER DEFAULT 0;
 -- Religious Distance Modifier (affects spread to owned cities based on distance)
 ALTER TABLE Policies ADD COLUMN 'ReligionDistance' INTEGER DEFAULT 0;
 
--- Religious Pressure Modifier (affects cities without a majority religion)
+-- Religious Pressure Modifier (only from cities following state religion)
 ALTER TABLE Policies ADD COLUMN 'PressureMod' INTEGER DEFAULT 0;
 
 -- New Beliefs
@@ -998,8 +1019,8 @@ ALTER TABLE Buildings ADD COLUMN 'FinishSeaTRTourism' INTEGER DEFAULT 0;
 -- WC vote per GPT - GPT / x (value below) = votes
 ALTER TABLE Buildings ADD COLUMN 'VotesPerGPT' INTEGER DEFAULT 0;
 
--- Requires Rail Connection to be built
-ALTER TABLE Buildings ADD COLUMN 'RequiresRail' BOOLEAN DEFAULT 0;
+-- Requires an Industrial City Connection to be built
+ALTER TABLE Buildings ADD COLUMN 'RequiresIndustrialCityConnection' BOOLEAN DEFAULT 0;
 
 -- Civ-specific building (but not necessarily a UB!)
 ALTER TABLE Buildings ADD COLUMN 'CivilizationRequired' TEXT DEFAULT NULL;
@@ -1230,6 +1251,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFA
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 
+-- Double Movement when next to Rivers
+ALTER TABLE UnitPromotions ADD COLUMN 'RiverDoubleMove' BOOLEAN DEFAULT 0;
+
 -- Embarking Costs One Movement Point
 ALTER TABLE UnitPromotions ADD COLUMN 'EmbarkFlatCost' BOOLEAN DEFAULT 0;
 
@@ -1244,6 +1268,11 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GetGroundAttackDamage' INTEGER DEFAULT 0;
 
 -- Allows for Unit to increase your supply cap when expended.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
+
+-- Ignore Terrain Cost in specific Feature/Terrain
+-- Whether this includes rivers is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
+ALTER TABLE UnitPromotions_Features ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
 
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
@@ -1352,8 +1381,8 @@ ALTER TABLE Traits ADD COLUMN 'WLTKDUnhappinessNeedsMod' INTEGER DEFAULT 0;
 -- Start game with x number of spies
 ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
 
--- Spies begin at x rank
-ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
+-- Modifier to offensive strength of spies
+ALTER TABLE Traits ADD COLUMN 'SpyOffensiveStrengthModifier' INTEGER DEFAULT 0;
 
 -- Boost CS Quest Value
 ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;
@@ -1401,14 +1430,14 @@ ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 
 
 -- City Security against Spies
 ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
--- City Security against Spies per Population
-ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifierPerPop' INTEGER DEFAULT 0;
+-- City Security against Spies per X Population, where X = ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER
+ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifierPerXPop' INTEGER DEFAULT 0;
 -- City Security against Spies in all Cities
 ALTER TABLE Buildings ADD COLUMN 'GlobalSpySecurityModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 
-ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' integer DEFAULT 0;
 
 -- Processes
 
@@ -1467,7 +1496,6 @@ ALTER TABLE Policies ADD COLUMN 'HappinessPerXGreatWorks' INTEGER DEFAULT 0;
 
 -- Alters food consumption of specialists - use integer (is raised to 100s later)
 ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;

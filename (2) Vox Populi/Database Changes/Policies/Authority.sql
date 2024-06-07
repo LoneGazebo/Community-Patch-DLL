@@ -27,7 +27,7 @@ VALUES
 UPDATE Policies
 SET
 	CultureFromBarbarianKills = 0,
-	CultureFromKills = 100,
+	CultureFromKills = 50,
 	BarbarianCombatBonus = 25
 WHERE Type = 'POLICY_HONOR';
 
@@ -35,6 +35,11 @@ INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_HONOR', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Policy_YieldFromKills
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_HONOR', 'YIELD_SCIENCE', 50);
 
 -- Warrior Code (Now Tribute)
 DELETE FROM Policy_UnitCombatProductionModifiers
@@ -85,42 +90,38 @@ VALUES
 	('POLICY_DISCIPLINE', 'YIELD_SCIENCE', 40),
 	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 40);
 
--- Military Tradition (Now Dominance)
+-- Military Tradition (Now Discipline)
 UPDATE Policies
 SET
 	ExpModifier = 0,
-	ExtraSupplyPerPopulation = 10
+	UnitGoldMaintenanceMod = -15,
+	RouteGoldMaintenanceMod = -50,
+	HappinessPerCityOverStrengthThreshold = 1
 WHERE Type = 'POLICY_MILITARY_TRADITION';
 
-INSERT INTO Policy_YieldFromKills
+INSERT INTO Policy_YieldPerCityOverStrengthThreshold
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_MILITARY_TRADITION', 'YIELD_SCIENCE', 100);
+	('POLICY_MILITARY_TRADITION', 'YIELD_CULTURE', 2);
+
+-- Military Caste (Now Dominance)
+UPDATE Policies
+SET
+	ExtraSupplyPerPopulation = 10,
+	CulturePerGarrisonedUnit = 0,
+	HappinessPerGarrisonedUnit = 0,
+	PortraitIndex = 22
+WHERE Type = 'POLICY_MILITARY_CASTE';
+
+INSERT INTO Policy_YieldFromXMilitaryUnits
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_MILITARY_CASTE', 'YIELD_PRODUCTION', 10);
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
 VALUES
-	('POLICY_MILITARY_TRADITION', 'PROMOTION_KILL_HEAL');
-
--- Military Caste (Now Militarism)
-UPDATE Policies
-SET
-	CulturePerGarrisonedUnit = 0,
-	HappinessPerGarrisonedUnit = 0,
-	UnitGoldMaintenanceMod = -15,
-	RouteGoldMaintenanceMod = -50,
-	PortraitIndex = 22
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
-INSERT INTO Policy_BuildingClassHappiness
-	(PolicyType, BuildingClassType, Happiness)
-VALUES
-	('POLICY_MILITARY_CASTE', 'BUILDINGCLASS_BARRACKS', 1);
-
-INSERT INTO Policy_BuildingClassYieldChanges
-	(PolicyType, BuildingClassType, YieldType, YieldChange)
-VALUES
-	('POLICY_MILITARY_CASTE', 'BUILDINGCLASS_BARRACKS', 'YIELD_CULTURE', 2);
+	('POLICY_MILITARY_CASTE', 'PROMOTION_KILL_HEAL');
 
 -- Professional Army (Now Honor)
 DELETE FROM Policy_BuildingClassProductionModifiers
@@ -154,9 +155,13 @@ VALUES
 	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 -- Scaler
-INSERT INTO Policy_CityYieldChanges
+INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 1
+	Type, 'YIELD_SCIENCE', 10
 FROM Policies
+WHERE PolicyBranchType = 'POLICY_BRANCH_HONOR';
+
+UPDATE Policies
+SET CultureFromKills = 10
 WHERE PolicyBranchType = 'POLICY_BRANCH_HONOR';

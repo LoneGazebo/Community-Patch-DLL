@@ -45,18 +45,18 @@ FDataStream& operator<<(FDataStream& saveTo, const TradeableItems& readFrom)
 
 /// Constructor
 CvTradedItem::CvTradedItem()
+    : m_eItemType(TRADE_ITEM_NONE),
+      m_iDuration(0),
+      m_iFinalTurn(0),
+      m_iData1(0),
+      m_iData2(0),
+      m_iData3(0),
+      m_bFlag1(false),
+      m_eFromPlayer(NO_PLAYER),
+      m_iValue(INT_MAX),
+      m_bValueIsEven(false),
+      m_bDoNotRemove(false)
 {
-	m_eItemType = TRADE_ITEM_NONE;
-	m_iDuration = 0;
-	m_iFinalTurn = 0;
-	m_iData1 = 0;
-	m_iData2 = 0;
-	m_iData3 = 0;
-	m_bFlag1 = false;
-	m_eFromPlayer = NO_PLAYER;
-	m_iValue = INT_MAX;
-	m_bValueIsEven = false;
-	m_bDoNotRemove = false;
 }
 
 /// Equals operator
@@ -122,44 +122,41 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTradedItem& readFrom)
 
 /// Constructor with typical parameters
 CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+    : m_eFromPlayer(eFromPlayer),
+      m_eToPlayer(eToPlayer),
+      m_ePeaceTreatyType(NO_PEACE_TREATY_TYPE),
+      m_eSurrenderingPlayer(NO_PLAYER),
+      m_eDemandingPlayer(NO_PLAYER),
+      m_eRequestingPlayer(NO_PLAYER),
+      m_iStartTurn(0),
+      m_iFinalTurn(0),
+      m_iDuration(0),
+      m_bConsideringForRenewal(false),
+      m_bCheckedForRenewal(false),
+      m_bIsGift(false),
+      m_iFromPlayerValue(-1),
+      m_iToPlayerValue(-1)
 {
-	m_eFromPlayer = eFromPlayer;
-	m_eToPlayer = eToPlayer;
-
-	m_ePeaceTreatyType = NO_PEACE_TREATY_TYPE;
-	m_eSurrenderingPlayer = NO_PLAYER;
-	m_eDemandingPlayer = NO_PLAYER;
-	m_eRequestingPlayer = NO_PLAYER;
-	m_iStartTurn = 0;
-	m_iFinalTurn = 0;
-	m_iDuration = 0;
-
-	m_bConsideringForRenewal = false;
-	m_bCheckedForRenewal = false;
-
-	m_bIsGift = false;
-	m_iFromPlayerValue = -1;
-	m_iToPlayerValue = -1;
 }
 
 /// Copy Constructor with typical parameters
 CvDeal::CvDeal(const CvDeal& source)
+    : m_eFromPlayer(source.m_eFromPlayer),
+      m_eToPlayer(source.m_eToPlayer),
+      m_iDuration(source.m_iDuration),
+      m_iFinalTurn(source.m_iFinalTurn),
+      m_iStartTurn(source.m_iStartTurn),
+      m_ePeaceTreatyType(source.m_ePeaceTreatyType),
+      m_eSurrenderingPlayer(source.m_eSurrenderingPlayer),
+      m_eDemandingPlayer(source.m_eDemandingPlayer),
+      m_eRequestingPlayer(source.m_eRequestingPlayer),
+      m_bConsideringForRenewal(source.m_bConsideringForRenewal),
+      m_bCheckedForRenewal(source.m_bCheckedForRenewal),
+      m_bIsGift(source.m_bIsGift),
+      m_iFromPlayerValue(source.m_iFromPlayerValue),
+      m_iToPlayerValue(source.m_iToPlayerValue),
+      m_TradedItems(source.m_TradedItems)
 {
-	m_eFromPlayer = source.m_eFromPlayer;
-	m_eToPlayer = source.m_eToPlayer;
-	m_iDuration = source.m_iDuration;
-	m_iFinalTurn = source.m_iFinalTurn;
-	m_iStartTurn = source.m_iStartTurn;
-	m_ePeaceTreatyType = source.m_ePeaceTreatyType;
-	m_eSurrenderingPlayer = source.m_eSurrenderingPlayer;
-	m_eDemandingPlayer = source.m_eDemandingPlayer;
-	m_eRequestingPlayer = source.m_eRequestingPlayer;
-	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
-	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-	m_bIsGift = source.m_bIsGift;
-	m_iFromPlayerValue = source.m_iFromPlayerValue;
-	m_iToPlayerValue = source.m_iToPlayerValue;
-	m_TradedItems = source.m_TradedItems;
 }
 
 /// Destructor
@@ -2296,17 +2293,6 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				strTooltip = strDivider;
 				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
-				strTooltip += strReason;
-				strTooltip += strEndColor;
-				return strTooltip;
-			}
-
-			// Human Vassalage not enabled
-			if (bFromHuman && !GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS))
-			{
-				strTooltip = strDivider;
-				strTooltip += strStartColor;
-				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
 				return strTooltip;

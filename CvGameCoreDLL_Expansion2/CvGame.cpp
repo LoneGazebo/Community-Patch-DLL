@@ -674,8 +674,21 @@ void CvGame::InitPlayers()
 		else if (iI < MAX_MAJOR_CIVS)
 		{
 			const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-			CvPreGame::setPlayerColor(eLoopPlayer, aePlayerColors[iI]);
-
+			PlayerColorTypes ePlayerColor = aePlayerColors[iI];
+			if (ePlayerColor == NO_PLAYERCOLOR)
+			{
+				// search for an unused player color
+				for (int iK = 0; iK < GC.GetNumPlayerColorInfos(); iK++)
+				{
+					if (std::find(vColorsAlreadyUsed.begin(), vColorsAlreadyUsed.end(), (PlayerColorTypes)iK) == vColorsAlreadyUsed.end())
+					{
+						ePlayerColor = (PlayerColorTypes)iK;
+						vColorsAlreadyUsed.push_back(ePlayerColor);
+						break;
+					}
+				}
+			}
+			CvPreGame::setPlayerColor(eLoopPlayer, ePlayerColor);
 			// Make sure the AI has the proper handicap.
 			if (CvPreGame::slotStatus(eLoopPlayer) == SS_COMPUTER)
 				CvPreGame::setHandicap(eLoopPlayer, eAIHandicap);
@@ -781,7 +794,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			m_iEarliestBarbarianReleaseTurn = max(0, GC.getGame().randRangeInclusive(iBarbReleaseTurn - iPlusMinus, iBarbReleaseTurn + iPlusMinus, CvSeeder::fromRaw(0x07f63322)));
 	}
 	else
-		m_iEarliestBarbarianReleaseTurn = max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().randRangeExclusive(0, /*15*/ max(1, GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION)), CvSeeder::fromRaw(0x4602dd5b)));
+		m_iEarliestBarbarianReleaseTurn = max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().randRangeInclusive(0, /*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), CvSeeder::fromRaw(0x4602dd5b)));
 
 	UpdateGameEra();
 	// What route type forms an industrial connection
@@ -982,6 +995,8 @@ void CvGame::DoGameStarted()
 		if (pBuilding)
 			pBuilding->UpdateUnitTypesUnlocked();
 	}
+
+	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerManager::Refresh(false);
@@ -6373,7 +6388,7 @@ bool CvGame::IsNoFakeOpinionModifiers() const
 /// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
 bool CvGame::IsShowHiddenOpinionModifiers() const
 {
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
+	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
 		return true;
 
 	return GD_INT_GET(DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS) > 0;
@@ -6383,7 +6398,7 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 /// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
 bool CvGame::IsShowAllOpinionValues() const
 {
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
+	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
 		return true;
 
 	return GD_INT_GET(DIPLOAI_SHOW_ALL_OPINION_VALUES) > 0;

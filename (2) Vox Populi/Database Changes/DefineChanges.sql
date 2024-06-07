@@ -199,8 +199,12 @@ UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD';
 -- Influence loss x100 if pledged CS is damaged
 UPDATE Defines SET Value = 300 WHERE Name = 'MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER';
 
--- Resting influence boost for liberation
+-- Resting influence boosts for liberation and building Landmarks
 UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_LIBERATION_RESTING_INFLUENCE';
+UPDATE Defines SET Value = 10 WHERE Name = 'MINOR_LANDMARK_RESTING_INFLUENCE'; -- scales with era
+
+-- Bonus to current Influence for building Landmarks (scales with era in VP)
+UPDATE Defines SET Value = 0 WHERE Name = 'LANDMARK_MINOR_FRIENDSHIP_CHANGE';
 
 -- % extra city strength if the CS has an ally
 UPDATE Defines SET Value = 25 WHERE Name = 'BALANCE_CS_ALLIANCE_DEFENSE_BONUS';
@@ -563,6 +567,7 @@ INSERT INTO PostDefines
 	(Name, "Key", "Table")
 VALUES
 	('EMBASSY_IMPROVEMENT', 'IMPROVEMENT_EMBASSY', 'Improvements'),
-	('JUGGERNAUT_PROMOTION', 'PROMOTION_JUGGERNAUT', 'UnitPromotions');
+	('JUGGERNAUT_PROMOTION', 'PROMOTION_JUGGERNAUT', 'UnitPromotions'),
+	('MARCH_SKIRMISHER_PROMOTION', 'PROMOTION_SKIRMISHER_MARCH', 'UnitPromotions');
 
 UPDATE PostDefines SET "Key" = 'ERA_MODERN' WHERE Name = 'IDEOLOGY_START_ERA';

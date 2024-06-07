@@ -186,14 +186,6 @@ WHERE UnitType IN (
 	SELECT Type FROM Units WHERE Class = 'UNITCLASS_ROCKET_ARTILLERY'
 ) AND PromotionType = 'PROMOTION_MUST_SET_UP';
 
--- Recon ignore terrain cost
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-SELECT
-	Type, 'PROMOTION_IGNORE_TERRAIN_COST'
-FROM Units
-WHERE CombatClass = 'UNITCOMBAT_RECON';
-
 -- Submarines have bonus attack against units, attack penalty against cities, are invisible, and can pass through ice
 INSERT INTO Helper
 VALUES

@@ -860,7 +860,9 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			improvementTips:insert( checkPillaged(GameInfo.Routes[routeID], plot:IsRoutePillaged()) )
 		end
 
-		if g_isNoob and isExtraTips and plot:IsTradeRoute() then
+		if plot:IsCityConnection(activePlayerID, true) then
+			improvementTips:insert( L"TXT_KEY_PLOTROLL_INDUSTRIAL_CITY_CONNECTION" )
+		elseif plot:IsCityConnection(activePlayerID, false) then
 			improvementTips:insert( L"TXT_KEY_PLOTROLL_TRADE_ROUTE" )
 		end
 

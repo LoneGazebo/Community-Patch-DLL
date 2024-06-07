@@ -236,7 +236,7 @@ void CvTreasury::ChangeGoldPerTurnFromDiplomacy(int iChange)
 }
 
 /// Get the amount of gold granted by connecting the city
-int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) const
+int CvTreasury::GetCityConnectionRouteGoldTimes100(const CvCity* pNonCapitalCity) const
 {
 	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
 	if (!pNonCapitalCity || !pCapitalCity || pNonCapitalCity == pCapitalCity)

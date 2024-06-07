@@ -136,7 +136,7 @@ public:
 	void processCorporations(CorporationTypes eCorporation, int iChange);
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	void DoEvents();
+	void DoEvents(bool bEspionageOnly = false);
 	void DoCancelEventChoice(EventChoiceTypes eChosenEventChoice);
 	void CheckActivePlayerEvents(CvCity* pCity);
 	bool IsEventValid(EventTypes eEvent);
@@ -326,15 +326,7 @@ public:
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFoundCity(int iX, int iY) const;
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
-#elif defined(MOD_BALANCE_CORE)
-	void foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#else
-	void foundCity(int iX, int iY);
-#endif
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
@@ -471,8 +463,8 @@ public:
 	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
-	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive);
-	bool IsCityConnectionPlot(const CvPlot* pPlot) const;
+	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive, bool bIndustrial);
+	bool IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const;
 
 	// Culture
 	int GetTotalJONSCulturePerTurn() const;
@@ -811,6 +803,8 @@ public:
 	void ChangeEspionageNetworkPoints(int iChange);
 	int GetRigElectionInfluenceModifier() const;
 	void ChangeRigElectionInfluenceModifier(int iChange);
+	int GetPassiveEspionageBonusModifier() const;
+	void ChangePassiveEspionageBonusModifier(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
 	int GetSpyPoints(bool bTotal) const;
@@ -841,9 +835,9 @@ public:
 	int GetExtraLeagueVotes() const;
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
-	int GetFaithToVotes() const;
-	void ChangeFaithToVotes(int iChange);
-	int TestFaithToVotes(int iChange);
+	int GetFaithToVotesTimes100() const;
+	void ChangeFaithToVotesTimes100(int iChange);
+	int TestFaithToVotesTimes100(int iChange);
 	int GetCapitalsToVotes() const;
 	void ChangeCapitalsToVotes(int iChange);
 	int TestCapitalsToVotes(int iChange);
@@ -1550,6 +1544,9 @@ public:
 	void ChangeGoldenAgeTourism(int iChange);
 	int GetGoldenAgeTourism() const;
 
+	void ChangeInternalTRTourism(int iChange);
+	bool IsInternalTRTourism() const;
+
 	void ChangeExtraCultureandScienceTradeRoutes(int iChange);
 	int GetExtraCultureandScienceTradeRoutes() const;
 
@@ -1636,9 +1633,6 @@ public:
 
 	int GetSpecialistFoodChange() const;
 	void ChangeSpecialistFoodChange(int iChange);
-
-	int GetNonSpecialistFoodChange() const;
-	void ChangeNonSpecialistFoodChange(int iChange);
 
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
@@ -1917,6 +1911,12 @@ public:
 	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
 	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
 
+	int getYieldFromXMilitaryUnits(YieldTypes eIndex)	const;
+	void changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange);
+
+	int getYieldPerCityOverStrengthThreshold(YieldTypes eIndex) const;
+	void changeYieldPerCityOverStrengthThreshold(YieldTypes eIndex, int iChange);
+
 	int getYieldForLiberation(YieldTypes eIndex)	const;
 	void changeYieldForLiberation(YieldTypes eIndex, int iChange);
 
@@ -1990,6 +1990,9 @@ public:
 	int GetFreeWCVotes() const;
 	void changeFreeWCVotes(int iChange);
 
+	int GetVotesPerFollowingCityTimes100() const;
+	void ChangeVotesPerFollowingCityTimes100(int iChange);
+
 	int GetInfluenceGPExpend() const;
 	void changeInfluenceGPExpend(int iChange);
 
@@ -2024,6 +2027,8 @@ public:
 	void ChangeNoXPLossUnitPurchase(int iChange);
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iChange);
+	int GetHappinessPerCityOverStrengthThreshold() const;
+	void ChangeHappinessPerCityOverStrengthThreshold(int iChange);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
 
 	void ChangePositiveWarScoreTourismMod(int iChange);
@@ -2418,10 +2423,12 @@ public:
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	CvUnitCycler& GetUnitCycler() { return m_UnitCycle; };
+	CvUnitCycler& GetUnitCycler() { return m_kUnitCycle; };
 
 	bool removeFromArmy(int iArmyID, int iID);
 
+	int findPathLengthNew(TechTypes eTech, int pTechs[] = NULL) const;
+	int findPathLength(TechTypes eTech, bool bCost) const;
 	int findTechPathLength(TechTypes eTech);
 	int getQueuePosition(TechTypes eTech) const;
 	void clearResearchQueue();
@@ -2717,6 +2724,9 @@ public:
 	bool IsHasAdoptedStateReligion() const;
 	void SetHasAdoptedStateReligion(bool bValue);
 
+	bool IsWorkersIgnoreImpassable() const;
+	void SetWorkersIgnoreImpassable(bool bValue);
+
 	int GetNumCitiesWithStateReligion();
 
 	CvCity* GetHolyCity();
@@ -2990,6 +3000,7 @@ public:
 
 	void DoVassalLevy();
 	void SetVassalLevy(bool bValue);
+	bool IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech = true) const;
 
 	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
@@ -3004,6 +3015,8 @@ public:
 	bool IsEarlyExpansionPhase() const;
 	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
+
+	bool NeedWorkerToImproveResource(ResourceTypes eResource) const;
 
 protected:
 	class ConqueredByBoolField
@@ -3134,6 +3147,7 @@ protected:
 	int m_iIdeologyPoint;
 	int m_iNoXPLossUnitPurchase;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
+	int m_iHappinessPerCityOverStrengthThreshold;
 	int m_iHappinessFromMinorCivs;
 	int m_iPositiveWarScoreTourismMod;
 	int m_iIsNoCSDecayAtWar;
@@ -3158,6 +3172,7 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
+	int m_iPassiveEspionageBonusModifier;
 	int m_iSpyPoints;
 	int m_iSpyPointsTotal;
 	int m_iSpyStartingRank;
@@ -3280,7 +3295,6 @@ protected:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
-	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -3297,6 +3311,7 @@ protected:
 	int m_iOccupiedProdMod;
 	int m_iGoldInternalTrade;
 	int m_iFreeWCVotes;
+	int m_iVotesPerFollowingCityTimes100;
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
@@ -3422,6 +3437,7 @@ protected:
 	int m_iJFDProsperity;
 	int m_iJFDCurrency;
 	int m_iGoldenAgeTourism;
+	int m_iInternalTRTourism;
 	int m_iExtraCultureandScienceTradeRoutes;
 	int m_iArchaeologicalDigTourism;
 	int m_iUpgradeCSVassalTerritory;
@@ -3574,6 +3590,7 @@ protected:
 	bool m_bLostHolyCity;
 	PlayerTypes m_eHolyCityConqueror;
 	bool m_bHasAdoptedStateReligion;
+	bool m_bWorkersIgnoreImpassable;
 
 	std::vector<int> m_aiCityYieldChange;
 	std::vector<int> m_aiCoastalCityYieldChange;
@@ -3616,6 +3633,8 @@ protected:
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
+	std::vector<int> m_aiYieldFromXMilitaryUnits;
+	std::vector<int> m_aiYieldPerCityOverStrengthThreshold;
 	std::vector<int> m_aiYieldForSpyID;
 	std::vector<int> m_aiYieldForLiberation;
 	std::vector<int> m_aiBuildingClassInLiberatedCities;
@@ -3750,7 +3769,7 @@ protected:
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
 
-	CvUnitCycler	m_UnitCycle;	
+	CvUnitCycler	m_kUnitCycle;	
 
 	// slewis's tutorial variables!
 	bool m_bEverPoppedGoody;
@@ -3911,6 +3930,7 @@ protected:
 #endif
 
 	std::vector<int> m_vCityConnectionPlots; //serialized
+	std::vector<int> m_vIndustrialCityConnectionPlots; //serialized
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
@@ -3998,6 +4018,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPopulationGlobal)
 SYNC_ARCHIVE_VAR(int, m_iIdeologyPoint)
 SYNC_ARCHIVE_VAR(int, m_iNoXPLossUnitPurchase)
 SYNC_ARCHIVE_VAR(int, m_iXCSAlliesLowersPolicyNeedWonders)
+SYNC_ARCHIVE_VAR(int, m_iHappinessPerCityOverStrengthThreshold)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromMinorCivs)
 SYNC_ARCHIVE_VAR(int, m_iPositiveWarScoreTourismMod)
 SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
@@ -4021,6 +4042,7 @@ SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iEspionageNetworkPoints)
 SYNC_ARCHIVE_VAR(int, m_iRigElectionInfluenceModifier)
+SYNC_ARCHIVE_VAR(int, m_iPassiveEspionageBonusModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
 SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
@@ -4131,7 +4153,6 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFoodChange)
-SYNC_ARCHIVE_VAR(int, m_iNonSpecialistFoodChange)
 SYNC_ARCHIVE_VAR(int, m_iWarWearinessModifier)
 SYNC_ARCHIVE_VAR(int, m_iWarScoreModifier)
 SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhappinessMod)
@@ -4147,6 +4168,7 @@ SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)
 SYNC_ARCHIVE_VAR(int, m_iOccupiedProdMod)
 SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)
 SYNC_ARCHIVE_VAR(int, m_iFreeWCVotes)
+SYNC_ARCHIVE_VAR(int, m_iVotesPerFollowingCityTimes100)
 SYNC_ARCHIVE_VAR(int, m_iInfluenceGPExpend)
 SYNC_ARCHIVE_VAR(int, m_iFreeTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpy)
@@ -4254,6 +4276,7 @@ SYNC_ARCHIVE_VAR(CvString, m_strJFDCurrencyName)
 SYNC_ARCHIVE_VAR(int, m_iJFDProsperity)
 SYNC_ARCHIVE_VAR(int, m_iJFDCurrency)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeTourism)
+SYNC_ARCHIVE_VAR(int, m_iInternalTRTourism)
 SYNC_ARCHIVE_VAR(int, m_iExtraCultureandScienceTradeRoutes)
 SYNC_ARCHIVE_VAR(int, m_iArchaeologicalDigTourism)
 SYNC_ARCHIVE_VAR(int, m_iUpgradeCSVassalTerritory)
@@ -4421,6 +4444,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizens)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromXMilitaryUnits)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerCityOverStrengthThreshold)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCulture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperiencePerGreatWorkGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldModFromMonopoly)

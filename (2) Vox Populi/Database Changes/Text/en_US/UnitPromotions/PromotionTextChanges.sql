@@ -96,7 +96,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP';
 
 -- Amphibious
 UPDATE Language_en_US
-SET Text = 'Eliminate combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
+SET Text = 'Eliminate combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP';
 
 -- Cover
@@ -190,7 +190,7 @@ SET Text = 'Ace Pilot III'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3';
 
 UPDATE Language_en_US
-SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units. [NEWLINE]+1 operational range.'
+SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP';
 
 UPDATE Language_en_US
@@ -267,16 +267,12 @@ WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_HELP';
 
 -- Scouting
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight.'
+SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight.'
+SET Text = '+1 [ICON_MOVES] Movement and Embarked Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_3_HELP';
 
 -- Survivalism
 UPDATE Language_en_US
@@ -418,6 +414,10 @@ UPDATE Language_en_US
 SET Text = 'Air Supremacy II'
 WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_AIR_II';
 
+UPDATE Language_en_US
+SET Text = 'Eagle Hunter'
+WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER';
+
 -- Buffalo Chest
 UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25 Hit Points.'
@@ -435,7 +435,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+1 [ICON_VP_VISION] Embarked Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VP_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Naval Movement
@@ -627,6 +627,11 @@ UPDATE Language_en_US
 SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP';
 
+-- War Canoes
+UPDATE Language_en_US
+SET Text = 'Double [ICON_MOVES] Movement when moving along Rivers.'
+WHERE Tag = 'TXT_KEY_PROMOTION_WAR_CANOES_HELP';
+
 UPDATE Language_en_US
 SET Text = 'Expeditionary Warfare'
 WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS';
@@ -657,12 +662,15 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP';
 
 -- Haka War Dance
 UPDATE Language_en_US
-SET Text = '-15% [ICON_STRENGTH] Combat Strength on [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].'
+SET Text = '-15% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
--- Enhanced Medic
 UPDATE Language_en_US
-SET Text = '+10 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] for Units [COLOR_POSITIVE_TEXT]on or adjacent to this tile[ENDCOLOR].[NEWLINE]Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
+SET Text = 'Khaaaan!'
+WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
+
+UPDATE Language_en_US
+SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 -- Quick Study
@@ -672,7 +680,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_GAIN_EXPERIENCE_HELP';
 
 -- Trade Mission Bonus
 UPDATE Language_en_US
-SET Text = '+100% [ICON_GOLD] Gold from performing a [COLOR_POSITIVE_TEXT]Trade Mission[ENDCOLOR].'
+SET Text = '+100% [ICON_GOLD] Gold from performing a [COLOR_POSITIVE_TEXT]Trade Mission[ENDCOLOR].[NEWLINE]+2 [ICON_MOVES] Embarked Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_TRADE_MISSION_BONUS_HELP';
 
 -- Heavy Charge

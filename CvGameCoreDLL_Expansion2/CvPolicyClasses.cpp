@@ -99,12 +99,15 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iLandmarksTourismPercent(0),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
+	m_bInternalTRTourism(false),
 	m_iExtraCultureandScienceTradeRoutes(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageNetworkPoints(0),
 	m_iRigElectionInfluenceModifier(0),
+	m_iPassiveEspionageBonusModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
+	m_iHappinessPerCityOverStrengthThreshold(0),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
 	m_iHappinessPerXPolicies(0),
@@ -256,7 +259,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iSpecialistFoodChange(0),
-	m_iNonSpecialistFoodChange(0),
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
@@ -313,6 +315,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPuppetProdMod(0),
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
+	m_iSpySecurityModifier(0),
+	m_iVotesPerFollowingCityTimes100(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
 	m_iFreeSpy(0),
@@ -379,6 +383,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
+	m_piYieldFromXMilitaryUnits(NULL),
+	m_piYieldPerCityOverStrengthThreshold(NULL),
 	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
@@ -482,6 +488,8 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
+	SAFE_DELETE_ARRAY(m_piYieldFromXMilitaryUnits);
+	SAFE_DELETE_ARRAY(m_piYieldPerCityOverStrengthThreshold);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -581,12 +589,15 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iLandmarksTourismPercent = kResults.GetInt("LandmarksTourismPercent");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
+	m_bInternalTRTourism = kResults.GetBool("InternalTRTourism");
 	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageNetworkPoints = kResults.GetInt("EspionageNetworkPoints");
 	m_iRigElectionInfluenceModifier = kResults.GetInt("RigElectionInfluenceModifier");
+	m_iPassiveEspionageBonusModifier = kResults.GetInt("PassiveEspionageBonusModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
+	m_iHappinessPerCityOverStrengthThreshold  = kResults.GetInt("HappinessPerCityOverStrengthThreshold");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -737,7 +748,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iSpecialistFoodChange = kResults.GetInt("SpecialistFoodChange");
-	m_iNonSpecialistFoodChange = kResults.GetInt("NonSpecialistFoodChange");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
@@ -772,6 +782,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
+	m_iSpySecurityModifier= kResults.GetInt("SpySecurityModifier");
+	m_iVotesPerFollowingCityTimes100 = kResults.GetInt("VotesPerFollowingCityTimes100");
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
@@ -1200,6 +1212,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromXMilitaryUnits, "Policy_YieldFromXMilitaryUnits", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldPerCityOverStrengthThreshold, "Policy_YieldPerCityOverStrengthThreshold", "PolicyType", szPolicyType);
 
 	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
 
@@ -1830,6 +1844,10 @@ int CvPolicyEntry::GetGoldenAgeTourism() const
 {
 	return m_iGoldenAgeTourism;
 }
+bool CvPolicyEntry::IsInternalTRTourism() const
+{
+	return m_bInternalTRTourism;
+}
 int CvPolicyEntry::GetExtraCultureandScienceTradeRoutes() const
 {
 	return m_iExtraCultureandScienceTradeRoutes;
@@ -1850,9 +1868,17 @@ int CvPolicyEntry::GetRigElectionInfluenceModifier() const
 {
 	return m_iRigElectionInfluenceModifier;
 }
+int CvPolicyEntry::GetPassiveEspionageBonusModifier() const
+{
+	return m_iPassiveEspionageBonusModifier;
+}
 int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
 	return m_iXCSAlliesLowersPolicyNeedWonders;
+}
+int CvPolicyEntry::GetHappinessPerCityOverStrengthThreshold() const
+{
+	return m_iHappinessPerCityOverStrengthThreshold;
 }
 
 int CvPolicyEntry::GetTRVisionBoost() const
@@ -2625,10 +2651,6 @@ int CvPolicyEntry::GetSpecialistFoodChange() const
 {
 	return m_iSpecialistFoodChange;
 }
-int CvPolicyEntry::GetNonSpecialistFoodChange() const
-{
-	return m_iNonSpecialistFoodChange;
-}
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
@@ -3117,6 +3139,16 @@ int CvPolicyEntry::GetFreeWCVotes() const
 {
 	return m_iFreeWCVotes;
 }
+//Modifier to City Security?
+int CvPolicyEntry::GetSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
+}
+// Votes per city following your state religion, times 100
+int CvPolicyEntry::GetVotesPerFollowingCityTimes100() const
+{
+	return m_iVotesPerFollowingCityTimes100;
+}
 //Influence from GP expenditure?
 int CvPolicyEntry::GetInfluenceGPExpend() const
 {
@@ -3576,6 +3608,30 @@ int CvPolicyEntry::GetYieldFromDelegateCount(int i) const
 int* CvPolicyEntry::GetYieldFromDelegateCountArray() const
 {
 	return m_piYieldFromDelegateCount;
+}
+
+int CvPolicyEntry::GetYieldFromXMilitaryUnits(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromXMilitaryUnits ? m_piYieldFromXMilitaryUnits[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromXMilitaryUnitsArray() const
+{
+	return m_piYieldFromXMilitaryUnits;
+}
+
+int CvPolicyEntry::GetYieldPerCityOverStrengthThreshold(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerCityOverStrengthThreshold ? m_piYieldPerCityOverStrengthThreshold[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldPerCityOverStrengthThresholdArray() const
+{
+	return m_piYieldPerCityOverStrengthThreshold;
 }
 
 int CvPolicyEntry::GetMissionInfluenceModifier() const
@@ -4677,6 +4733,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetRigElectionInfluenceModifier();
 				break;
+			case POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPassiveEspionageBonusModifier();
+				break;
 			case POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetMilitaryUnitGiftExtraInfluence();
 				break;
@@ -5195,16 +5254,36 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	{
 		if (pkPolicyBranchInfo->IsPurchaseByLevel())
 		{
-			// If below level 1, can't have as many of this level as of the previous one
+			// If above level 1, can't have as many of this level as of the previous one
 			int iLevel = pkPolicyEntry->GetLevel();
+			int iPoliciesOfThisLevel = GetNumTenetsOfLevel(eBranch, iLevel) + 1 /* For the policy we're adding here */;
 			if (iLevel > 1)
 			{
-				int iPoliciesOfThisLevel = GetNumTenetsOfLevel(eBranch, iLevel) + 1 /* For the policy we're adding here */;
 				int iPoliciesOfPreviousLevel = GetNumTenetsOfLevel(eBranch, iLevel - 1);
 				if (iPoliciesOfThisLevel >= iPoliciesOfPreviousLevel)
 				{
 					return false;
 				}
+			}
+			// Number of policies of each level is limited by the UI for human players, so to make it fair it's also limited for the AI
+			int iMaxNumPolicies = 0;
+			switch (iLevel)
+			{
+			case 1:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_1);
+				break;
+			case 2:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_2);
+				break;
+			case 3:
+				iMaxNumPolicies = GD_INT_GET(MAX_NUM_TENETS_LEVEL_3);
+				break;
+			default:
+				iMaxNumPolicies = 999;
+			}
+			if (iPoliciesOfThisLevel > iMaxNumPolicies)
+			{
+				return false;
 			}
 		}
 	}

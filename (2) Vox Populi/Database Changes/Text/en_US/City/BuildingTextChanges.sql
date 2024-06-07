@@ -28,16 +28,16 @@ WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 -- Medical Lab
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. [ICON_VP_SCIENTIST] Scientists, [ICON_VP_MERCHANT] Merchants, and [ICON_VP_ENGINEER] Engineers in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
+SET Text = '+2 [ICON_CITIZEN] Citizens, and gain 50 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in the City when completed. Gain 50 [ICON_RESEARCH] Science, and 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15% and boosts the City''s Science production from specialists. The City needs to have a Hospital in order to construct the Medical Lab.'
+SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%, immediately increases the City''s size, and generates instant [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen born in the City (applying retroactively). The City needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
 
 -- Garden
 UPDATE Language_en_US
-SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. [NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Nearby Oases: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CLOVES] Cloves: +1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_PEPPER] Pepper: +1 [ICON_PEACE] Faith, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_NUTMEG] Nutmeg: +1 [ICON_CULTURE] Culture, +1 [ICON_PRODUCTION] Production.'
+SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Nearby Oases: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CLOVES] Cloves: +1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_PEPPER] Pepper: +1 [ICON_PEACE] Faith, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_NUTMEG] Nutmeg: +1 [ICON_CULTURE] Culture, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_HELP';
 
 UPDATE Language_en_US
@@ -131,11 +131,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_STRATEGY';
 
 -- Seaport
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Coast and Ocean tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. +20% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. Can only be constructed in a Coastal City, and cannot have a [COLOR_NEGATIVE_TEXT]Train Station[ENDCOLOR] in the City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Coast and Ocean tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. +20% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE]Forms an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection with other Cities via water if they also have Seaports.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Provides a massive boost to City Production and Sea Resource yields during the Industrial Era. Increases Military Units supplied by this City''s population by 20%. Requires a Harbor, and cannot be built in the same City as a Train Station.'
+SET Text = 'The Seaport is an Industrial-era building, requiring a Harbor. It increases the [ICON_PRODUCTION] Production and [ICON_GOLD] Gold output of water tiles and increases Military Units supplied by this City''s population by 20%. Also allows for Industrial City Connections over Water (see Concepts for more details).'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_STRATEGY';
 
 -- Market
@@ -315,7 +315,7 @@ WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_BOMB_SHELTER_TEXT';
 
 -- Factory
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Manufactories worked by the City gain +2 [ICON_PRODUCTION] Production, and all owned Factories gain +2 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +2 [ICON_PRODUCTION] Production, +2 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. '
+SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Manufactories worked by the City gain +2 [ICON_PRODUCTION] Production, and all owned Factories gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +2 [ICON_PRODUCTION] Production, +2 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. '
 WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_HELP';
 
 -- Recycling Center
@@ -383,13 +383,22 @@ WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';
 
 -- Police Station
 UPDATE Language_en_US
-SET Text = '+10 [ICON_SPY] City Security, plus 1 for every [ICON_CITIZEN] Citizen in the City. When you capture or kill a foreign [ICON_SPY] Spy in this City, gain 100 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
+SET Text = '+10 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP';
 
 -- Constabulary
 UPDATE Language_en_US
-SET Text = '+15 [ICON_SPY] City Security. When you identify a foreign Spy in this City, gain 25 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture,  scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+20 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_HELP';
+
+-- Monastery
+UPDATE Language_en_US
+SET Text = 'Religious building purchased with [ICON_PEACE] Faith.[NEWLINE][NEWLINE]Requires the adoption of the [COLOR_MAGENTA]{TXT_KEY_POLICY_BRANCH_PIETY}[ENDCOLOR] Policy Branch.'
+WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output. Can only be built if you have adopted the Fealty Policy Branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
+WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_STRATEGY';
 
 -- Musicians' Guild
 UPDATE Language_en_US
@@ -472,14 +481,21 @@ UPDATE Language_en_US
 SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, 2 [ICON_RES_HORSE] Horses, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. The City must have an Arena before it can construct the Circus Maximus.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY';
 
--- East India Company
+UPDATE Language_en_US
+SET Text = 'Chartered Company'
+WHERE Tag = 'TXT_KEY_BUILDING_EAST_INDIA';
+
 UPDATE Language_en_US
 SET Text = 'Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner. Resource Diversity Modifier for Trade Routes from this City increases by 25%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'The {TXT_KEY_BUILDING_EAST_INDIA} increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with a {TXT_KEY_BUILDING_EAST_INDIA} will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'A chartered company was an early modern form of business organization typically engaged in long-distance trade, operating in Europe, the Atlantic World, and Asia.[NEWLINE]Many chartered companies were joint-stock companies; capital was accumulated with the help of transferable shares and, if the company was profitable, shareholders received dividends. The liability of the owners was limited to what they had invested or guaranteed to the company.[NEWLINE]These companies were granted exclusive rights through royal charters, enabling them to trade, explore, and colonize specific regions. Acting as quasi-sovereign entities, chartered companies established settlements, raised armies, and conducted diplomacy with indigenous peoples, wielding considerable political power and generating immense wealth for their home countries.[NEWLINE]Notable examples include the Dutch East India Company (VOC, 1602-1799) and the English East India Company (EIC, 1600-1874), which played pivotal roles in European expansion and colonialism in South and East Asia.[NEWLINE][NEWLINE]Operating in various geographical regions, chartered companies faced differing levels of success. While those in Asia, like the VOC and the EIC, thrived due to large investments and state support, those in the Atlantic world struggled amidst private competition and limited profitability. A successful exception was the Hudson Bay Company (HBC): established in 1670, the company traded in furs and European goods within the area where the rivers fed the bay.[NEWLINE][NEWLINE]Chartered companies were integral to early modern political economy, reflecting responses to Spanish and Portuguese expansion in the 16th century. While perceived as tools for promoting state wealth and power, they faced criticism for draining national economies and generating private fortunes, notably in the case of the EIC.[NEWLINE]By the late 18th century, chartered companies fell out of favor in Europe, although the British revived the concept in colonial ventures in Africa during the late 19th century.'
+WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_EAST_INDIA_TEXT';
 
 -- Ironworks
 UPDATE Language_en_US
@@ -490,14 +506,21 @@ UPDATE Language_en_US
 SET Text = 'The Ironworks National Wonder provides 2 [ICON_RES_IRON] Iron, increases [ICON_PRODUCTION] Production in a City by 10, and generates [ICON_RESEARCH] Science every time you construct a building. The City must have a Forge before it can construct an Ironworks.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY';
 
--- Oxford University
+UPDATE Language_en_US
+SET Text = 'Imperial College'
+WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY';
+
 UPDATE Language_en_US
 SET Text = 'A [ICON_GREAT_SCIENTIST] Great Scientist appears near the City. +50 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for [ICON_VP_GREATWRITING] Great Works of Writing. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The City must have a University before it can construct Oxford University.'
+SET Text = 'The {TXT_KEY_BUILDING_OXFORD_UNIVERSITY} National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The City must have a University before it can construct the {TXT_KEY_BUILDING_OXFORD_UNIVERSITY}.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'In the medieval period, higher education evolved in various regions, each with its own distinct institutions and traditions. In Europe, the earliest universities emerged spontaneously as a scholastic guild, whether of masters or students, without any express authorization of a prince, king, pope or prelate.[NEWLINE][NEWLINE]In many cases, however, universities petitioned secular power for privileges. Emperor Frederick I in Authentica Habita (1158) gave the first privileges to students in Bologna. Another step was Pope Alexander III in 1179 requiring that masters of church schools give licenses to properly qualified teachers and forbidding them from charging for it. The integrity of a university was only preserved in such an internally regulated corporation, which protected the scholars from external intervention. This independently evolving organization was absent in the universities of southern Italy and Spain, which served the bureaucratic needs of monarchs, and were therefore their artificial creations.[NEWLINE][NEWLINE]The University of Paris was formally recognized when Pope Gregory IX issued the bull Parens scientiarum (1231). This was a revolutionary step: studium generale (universities) and universitas (corporations of students or teachers) existed beforehand, but after the issuing of the bull, they attained autonomy. The papal bull of 1233 stipulated that anyone admitted as a teacher in Toulouse had the right to teach everywhere without further examinations. In time, this privilege became the single most important defining characteristic of the university and the symbol of its institutional autonomy. By the year 1292, even the two oldest universities, Bologna and Paris, felt the need to seek similar bulls from Pope Nicholas IV.[NEWLINE][NEWLINE]Meanwhile, in the Islamic world, institutions such as madrasas and the House of Wisdom in Baghdad (established in the late 8th century) played vital roles in preserving and advancing knowledge, spanning fields from theology to medicine.[NEWLINE]Outside of Europe and the Islamic world, East Asia saw the rise of educational centers like the Imperial Academy in China (founded in 3 AD under Emperor Ping of Han as Taixue, then renamed Guozijian after the Sui dynasty) as well as the National Confucian Academy in Korea (Sungkyunkwan, 1398), which emphasized Confucian teachings and governmental administration. The Imperial Examination system in China further democratized access to education by selecting officials based on merit rather than birthright, fostering social mobility and intellectual development. These diverse educational systems in medieval times contributed to the spread of knowledge, cultural exchange, and societal progress, leaving a lasting impact on the intellectual landscape of their respective regions.'
+WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_PEDIA';
 
 -- National Intelligence Agency
 UPDATE Language_en_US
@@ -621,7 +644,7 @@ WHERE Tag = 'TXT_KEY_WONDER_HIMEJI_CASTLE_HELP';
 
 -- Machu Picchu
 UPDATE Language_en_US
-SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
+SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and +15% [ICON_PRODUCTION] Production from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MACHU_PICHU_HELP';
 
 -- Forbidden Palace
@@ -671,7 +694,7 @@ WHERE Tag = 'TXT_KEY_WONDER_LEANING_TOWER_HELP';
 
 -- Porcelain Tower
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST] Great Scientist. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in this City.'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST] Great Scientist. +10% [ICON_RESEARCH] Science in the City in which it is built. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP';
 
 -- Brandenburg Gate

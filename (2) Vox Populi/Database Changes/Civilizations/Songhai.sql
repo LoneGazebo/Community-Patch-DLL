@@ -1,13 +1,6 @@
 ----------------------------------------------------------
 -- Unique Ability: River Warlord
 ----------------------------------------------------------
-UPDATE Traits
-SET
-	FasterAlongRiver = 1,
-	RiverTradeRoad = 1
-WHERE Type = 'TRAIT_AMPHIB_WARLORD';
-
-DELETE FROM Trait_FreePromotionUnitCombats WHERE TraitType = 'TRAIT_AMPHIB_WARLORD' AND PromotionType = 'PROMOTION_WAR_CANOES';
 
 ----------------------------------------------------------
 -- Unique Unit: Mandekalu Cavalry (Knight)

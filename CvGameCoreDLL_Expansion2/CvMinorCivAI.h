@@ -580,7 +580,7 @@ public:
 	int GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const;
 	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromWar = false, bool bUpdateStatus = true);
-	void ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
+	void ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest = false, bool bUpdateStatus = true);
 
 	int GetFriendshipAnchorWithMajor(PlayerTypes eMajor);
 	
@@ -838,6 +838,7 @@ public:
 
 	int GetRestingPointChange(PlayerTypes ePlayer) const;
 	void ChangeRestingPointChange(PlayerTypes ePlayer, int iChange);
+	void SetRestingPointChange(PlayerTypes ePlayer, int iValue);
 
 	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
