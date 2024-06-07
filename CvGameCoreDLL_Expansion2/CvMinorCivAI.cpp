@@ -12689,7 +12689,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAlliesChanged = true;
 	}
 	// Remove Allies bonus
-	else if (eOldAlly == ePlayer && (!bNowAllies || bHasOtherPermanentAlly) && GetPermanentAlly() != ePlayer)
+	else if (eOldAlly == ePlayer && (!bNowAllies || bHasOtherPermanentAlly))
 	{
 		bAdd = false;
 		bAlliesChanged = true;
