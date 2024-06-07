@@ -27894,10 +27894,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
 		return;
 
+	CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
 	if (isHasPromotion(eIndex) != bNewValue)
 	{
-		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
-
 		if (bNewValue && MOD_GLOBAL_CANNOT_EMBARK && getUnitInfo().CannotEmbark())
 		{
 			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater())
