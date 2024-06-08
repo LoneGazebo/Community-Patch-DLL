@@ -178,7 +178,7 @@
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Embarked Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR], [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE]No [ICON_MOVES] Movement or combat penalties for crossing a river.</Text>
+			<Text>+1 [ICON_MOVES] Movement and Embarked Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR], [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE]Eliminate combat penalties for attacking over a river.[NEWLINE]Crossing a river costs only 1 [ICON_MOVES] Movement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3">
 			<Text>Trailblazer III</Text>

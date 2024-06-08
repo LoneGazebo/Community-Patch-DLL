@@ -700,8 +700,6 @@ VALUES
 
 UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
-UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
-
 -- Reconnaissance
 UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECON_EXPERIENCE';
 
@@ -908,6 +906,9 @@ UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_
 
 -- Pracinha: Pride of the Nation
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 1000 WHERE Type = 'PROMOTION_MANY_GOLDEN_AGE_POINTS';
+
+-- Minuteman, Berber Cavalry: Ignores Terrain Cost
+UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
 
 -- Mehal Sefari, Berber Cavalry: Homeland Guardian
 UPDATE UnitPromotions SET FriendlyLandsModifier = 25 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN';
