@@ -5345,18 +5345,25 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 
 		if (iUnassignedArchaeologists > iPossibleSites)
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.end()->GetID());
-
-			if (pUnit)
+			// We should only scrap a unit if we have at least one valid unit in m_CurrentMoveUnits
+			if (!m_CurrentMoveUnits.empty())
 			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Idle Archaeologist scrapped at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
+			// Scrap the last archaeologist in the list
+				CHomelandUnitArray::iterator lastUnit = m_CurrentMoveUnits.end();
+				--lastUnit; // Move back one position to point to the last element
+				CvUnit* pUnit = m_pPlayer->getUnit(lastUnit->GetID());
 
-				pUnit->scrap();
+				if (pUnit)
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Idle Archaeologist scrapped at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					pUnit->scrap();
+				}
 			}
 		}
 	}
