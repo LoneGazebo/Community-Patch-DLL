@@ -273,6 +273,7 @@
         <Label ID="RazingIcon" Anchor="C,C" Offset="0,0" String="[ICON_RAZING]" Hidden="1"/>
         <Label ID="ResistanceIcon" Anchor="C,C" Offset="0,0" String="[ICON_RESISTANCE]" Hidden="1"/>
         <Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Hidden="1"/>
+        <Label ID="IndustrialConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_INDUSTRIAL_CONNECTED]" ToolTip="TXT_KEY_CITY_INDUSTRIAL_CONNECTED" Hidden="1"/>
         <Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Hidden="1"/>
         <Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Hidden="1"/>
         <Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Hidden="1"/>
