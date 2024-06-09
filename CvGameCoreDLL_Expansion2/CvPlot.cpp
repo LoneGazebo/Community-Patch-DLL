@@ -3352,14 +3352,19 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 		return 0;
 	}
 
-	*ppCity = getEffectiveOwningCity();
+	CvCity* pEffectiveOwningCity = getEffectiveOwningCity();
 
-	if(*ppCity == NULL)
+	if(pEffectiveOwningCity == NULL)
 	{
-		*ppCity = GC.getMap().findCity(getX(), getY(), NO_PLAYER, eTeam, false);
+		pEffectiveOwningCity = GC.getMap().findCity(getX(), getY(), NO_PLAYER, eTeam, false);
 	}
 
-	if(*ppCity == NULL)
+	if (ppCity)
+	{
+		*ppCity = pEffectiveOwningCity;
+	}
+
+	if(pEffectiveOwningCity == NULL)
 	{
 		return 0;
 	}
