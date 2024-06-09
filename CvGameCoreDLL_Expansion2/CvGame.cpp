@@ -6555,7 +6555,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					return false;
 
 				// Already at war, but making peace with this player would stop us from eliminating everyone?
-				if (eMakePeacePlayer == kPlayer.GetID())
+				if (eMakePeacePlayer != NO_PLAYER && eMakePeacePlayer == kPlayer.GetID())
 					return false;
 			}
 			else
