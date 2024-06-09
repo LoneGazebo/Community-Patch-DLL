@@ -4147,6 +4147,10 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (isObserver())
+		return true;
+
 	return m_abHasMet[eIndex];
 }
 
