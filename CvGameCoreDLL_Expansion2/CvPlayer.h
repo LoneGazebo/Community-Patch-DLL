@@ -20,9 +20,7 @@
 #include "CvAchievementUnlocker.h"
 #include "CvUnitCycler.h"
 #include "TContainer.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvMinorCivAI.h"
-#endif
 #include "CvSerialize.h"
 
 class CvPlayerPolicies;
@@ -43,15 +41,11 @@ class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
 class CvDistanceMap;
-#if defined(MOD_BALANCE_CORE)
 class CvPlayerCorporations;
 class CvPlayerContracts;
-#endif
 class CvCityConnections;
 class CvNotifications;
-#if defined(MOD_WH_MILITARY_LOG)
 class CvEventLog;
-#endif
 class CvTreasury;
 class CvPlayerTraits;
 class CvGameInitialItemsOverrides;
@@ -388,11 +382,10 @@ public:
 	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
 
 	int GetNumUnitsOutOfSupply(bool bCheckWarWeariness = true) const;
-#if defined(MOD_BALANCE_CORE)
+
 	int GetNumUnitsToSupply() const;
 	int getNumUnitsSupplyFree() const;
 	void changeNumUnitsSupplyFree(int iValue);
-#endif
 
 	int calculateUnitCost() const;
 	int calculateResearchModifier(TechTypes eTech);
@@ -982,15 +975,9 @@ public:
 	void changeGoldenAgeModifier(int iChange);
 
 	// Great People Stuff
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	void createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY, bool bIsFree);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY, bool bIsFree);
-#else
-	void createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY);
-	void createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY);
-#endif
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int getGreatPeopleCreated(bool bExcludeFree) const;
 	void incrementGreatPeopleCreated(bool bIsFree);
 
@@ -998,14 +985,14 @@ public:
 	void incrementGreatGeneralsCreated(bool bIsFree);
 	int getGreatAdmiralsCreated(bool bExcludeFree) const;
 	void incrementGreatAdmiralsCreated(bool bIsFree);
-#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+
 	int getGreatMerchantsCreated(bool bExcludeFree) const;
 	void incrementGreatMerchantsCreated(bool bIsFree);
 	int getGreatScientistsCreated(bool bExcludeFree) const;
 	void incrementGreatScientistsCreated(bool bIsFree);
 	int getGreatEngineersCreated(bool bExcludeFree) const;
 	void incrementGreatEngineersCreated(bool bIsFree);
-#endif
+
 	int getGreatWritersCreated(bool bExcludeFree) const;
 	void incrementGreatWritersCreated(bool bIsFree);
 	int getGreatArtistsCreated(bool bExcludeFree) const;
@@ -1014,63 +1001,19 @@ public:
 	void incrementGreatMusiciansCreated(bool bIsFree);
 	int getGreatDiplomatsCreated(bool bExcludeFree) const;
 	void incrementGreatDiplomatsCreated(bool bIsFree);
-#if defined(MOD_BALANCE_CORE)
+
 	int getGPExtra1Created(bool bExcludeFree) const;
 	void incrementGPExtra1Created(bool bIsFree);
-	
 	int getGPExtra2Created(bool bExcludeFree) const;
 	void incrementGPExtra2Created(bool bIsFree);
-
 	int getGPExtra3Created(bool bExcludeFree) const;
 	void incrementGPExtra3Created(bool bIsFree);
-
 	int getGPExtra4Created(bool bExcludeFree) const;
 	void incrementGPExtra4Created(bool bIsFree);
-
 	int getGPExtra5Created(bool bExcludeFree) const;
 	void incrementGPExtra5Created(bool bIsFree);
-#endif
-#else
-	int getGreatPeopleCreated() const;
-	void incrementGreatPeopleCreated();
 
-	int getGreatGeneralsCreated() const;
-	void incrementGreatGeneralsCreated();
-	int getGreatAdmiralsCreated() const;
-	void incrementGreatAdmiralsCreated();
-#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-	int getGreatMerchantsCreated() const;
-	void incrementGreatMerchantsCreated();
-	int getGreatScientistsCreated() const;
-	void incrementGreatScientistsCreated();
-	int getGreatEngineersCreated() const;
-	void incrementGreatEngineersCreated();
-#endif
-	int getGreatWritersCreated() const;
-	void incrementGreatWritersCreated();
-	int getGreatArtistsCreated() const;
-	void incrementGreatArtistsCreated();
-	int getGreatMusiciansCreated() const;
-	void incrementGreatMusiciansCreated();
-	int getGreatDiplomatsCreated() const;
-	void incrementGreatDiplomatsCreated();
-#if defined(MOD_BALANCE_CORE)
-	int getGPExtra1Created() const;
-	void incrementGPExtra1Created();
-	
-	int getGPExtra2Created() const;
-	void incrementGPExtra2Created();
-
-	int getGPExtra3Created() const;
-	void incrementGPExtra3Created();
-
-	int getGPExtra4Created() const;
-	void incrementGPExtra4Created();
-
-	int getGPExtra5Created() const;
-	void incrementGPExtra5Created();
-#endif
-#endif
+	void incrementGreatPersonCount(const CvUnitEntry& kUnitInfo, bool bCountAsProphet, bool bIsFree);
 
 	int getMerchantsFromFaith() const;
 	void incrementMerchantsFromFaith();
@@ -1090,7 +1033,7 @@ public:
 	void incrementEngineersFromFaith();
 	int getDiplomatsFromFaith() const;
 	void incrementDiplomatsFromFaith();
-#if defined(MOD_BALANCE_CORE)
+
 	int getGPExtra1FromFaith() const;
 	void incrementGPExtra1FromFaith();
 	int getGPExtra2FromFaith() const;
@@ -1106,7 +1049,6 @@ public:
 	void changeResourceFromGP(ResourceTypes eIndex, byte iChange);
 
 	int getResourceModFromReligion(ResourceTypes eIndex) const;
-#endif
 
 	int getGreatPeopleThresholdModifier() const;
 	void changeGreatPeopleThresholdModifier(int iChange);
@@ -1173,11 +1115,7 @@ public:
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
-#if defined(MOD_EVENTS_GREAT_PEOPLE)
 	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatPersonUnit);
-#else
-	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit);
-#endif
 	int GetGreatPersonExpendGold() const;
 	void ChangeGreatPersonExpendGold(int iChange);
 
@@ -1188,11 +1126,7 @@ public:
 	void SetGreatPeopleSpawnCounter(int iValue);
 	void ChangeGreatPeopleSpawnCounter(int iChange);
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	void DoSpawnGreatPerson(PlayerTypes eMinor, bool bIsFree);
-#else
-	void DoSpawnGreatPerson(PlayerTypes eMinor);
-#endif
 	void DoGreatPeopleSpawnTurn();
 	CvCity* GetGreatPersonSpawnCity(UnitTypes eUnit);
 
@@ -1310,7 +1244,6 @@ public:
 	int GetNumMaintenanceFreeUnits(DomainTypes eDomain = NO_DOMAIN, bool bOnlyCombatUnits = false) const;
 
 	int getNumMilitaryUnits() const;
-#if defined(MOD_BATTLE_ROYALE)
 	/*Changes to allow finer details of the Military Units that the Player has*/
 	int getNumMilitaryLandUnits() const;
 	int getNumMilitarySeaUnits() const;
@@ -1319,9 +1252,6 @@ public:
 	int GetMilitaryAirMight() const;
 	int GetMilitaryLandMight() const;
 	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain = NO_DOMAIN);
-#else
-	void changeNumMilitaryUnits(int iChange);
-#endif
 
 	int getHappyPerMilitaryUnit() const;
 	void changeHappyPerMilitaryUnit(int iChange);
@@ -1660,22 +1590,14 @@ public:
 	void ResetMightCalcTurn();
 
 	int getCombatExperienceTimes100() const;
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
 	void setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
-#else
-	void setCombatExperienceTimes100(int iExperienceTimes100);
-	void changeCombatExperienceTimes100(int iChangeTimes100);
-#endif
+
 	int getLifetimeCombatExperienceTimes100() const;
 	int getNavalCombatExperienceTimes100() const;
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+
 	void setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
-#else
-	void setNavalCombatExperienceTimes100(int iExperienceTimes100);
-	void changeNavalCombatExperienceTimes100(int iChangeTimes100);
-#endif
 
 	int getBorderObstacleCount() const;
 	bool isBorderObstacle() const;
@@ -2170,9 +2092,8 @@ public:
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
-
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
 	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);
 	bool HasStrategicMonopoly(ResourceTypes eResource) const;
@@ -2200,8 +2121,6 @@ public:
 	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
 	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
 	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
-
-#endif
 
 	const std::vector<ResourceTypes>& GetResourcesNotForSale() const { return m_vResourcesNotForSale; }
 	bool IsResourceNotForSale(ResourceTypes eResource);
@@ -2261,6 +2180,8 @@ public:
 	void changeResourceSiphoned(ResourceTypes eIndex, int iChange);
 
 	int getResourceInOwnedPlots(ResourceTypes eIndex);
+
+	bool HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequirement = false, const bool bCheckAluminum = false, const UnitTypes eFromUnit = NO_UNIT, const bool bContinue = false) const;
 
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
@@ -2702,11 +2623,12 @@ public:
 #endif
 
 	// spaceship planning
-	void LogSpaceshipPlanMessage(const CvString& strMsg);
-	vector<CvCity*> GetCoreCitiesForSpaceshipProduction();
-	int GetNumAluminumStillNeededForCoreCities();
-	int GetNumAluminumStillNeededForSpaceship();
-	int GetNumSpaceshipPartsBuildableNow(bool bIncludeCurrentlyInProduction = false);
+	void LogSpaceshipPlanMessage(const CvString& strMsg) const;
+	void DoUpdateCoreCitiesForSpaceshipProduction();
+	const vector<int>& GetCoreCitiesForSpaceshipProduction() const;
+	int GetNumAluminumStillNeededForCoreCities() const;
+	int GetNumAluminumStillNeededForSpaceship() const;
+	int GetNumSpaceshipPartsBuildableNow(bool bIncludeCurrentlyInProduction = false) const;
 
 	void DoAnnounceReligionAdoption();
 	// End New Religion Stuff
@@ -2758,13 +2680,11 @@ public:
 	void SetEverConqueredBy(PlayerTypes ePlayer, bool bValue);
 	bool IsEverConqueredBy(PlayerTypes ePlayer);
 
-	// slewis Tutorial functions
-	bool GetEverPoppedGoody(void);  // has this player ever popped a goody hut
-	CvPlot* GetClosestGoodyPlot(bool bStopAfterFindingFirst = false);  // find the goody plot that has the closest unit that can reach it, null means none could be found
-	bool GetPlotHasOrder(CvPlot* Plot);  // are any of the player's units directed to this plot?
+	bool GetEverPoppedGoody(void); // has this player ever popped a goody hut
+	CvPlot* GetClosestGoodyPlot(bool bStopAfterFindingFirst = false); // find the goody plot that has the closest unit that can reach it, null means none could be found
+	bool GetPlotHasOrder(CvPlot* Plot); // are any of the player's units directed to this plot?
 	bool GetAnyUnitHasOrderToGoody(void);
 	bool GetEverTrainedBuilder(void);
-	// end Tutorial functions
 
 	bool CanEmbark() const;
 	bool CanCrossOcean() const;
@@ -2981,6 +2901,8 @@ public:
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 
 	bool NeedWorkboatToImproveResource(ResourceTypes eResource) const;
+
+	UnitTypes GetCompetitiveSpawnUnitType(const bool bIncludeRanged = false, const bool bIncludeShips = false, const bool bIncludeRecon = false, const bool bIncludeUUs = false, const CvCity* pSpawnCity = NULL, const bool bNoResource = false, const bool bMinorCivGift = false, const bool bRandom = false, CvSeeder* pSeed = NULL, const vector<int> viUnitCombat = vector<int>()) const;
 
 protected:
 	class ConqueredByBoolField
@@ -3518,11 +3440,7 @@ protected:
 
 	int m_iLastSliceMoved; // not serialized
 
-	vector<CvCity*> m_vCitiesForSpaceshipParts; // not serialized
-	int m_iCitiesForSpaceshipPartsUpdateTurn; // not serialized
-	vector<CvCity*> m_vCoreCitiesForSpaceshipProduction; // not serialized
-	int m_iCoreCitiesForSpaceshipProductionUpdateTurn; // not serialized
-
+	vector<int> m_viCoreCitiesForSpaceshipProduction;
 
 	uint m_uiStartTime;  // XXX save these?
 
@@ -3727,7 +3645,7 @@ protected:
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
 
-	CvUnitCycler	m_kUnitCycle;	
+	CvUnitCycler m_kUnitCycle;
 
 	// slewis's tutorial variables!
 	bool m_bEverPoppedGoody;
@@ -4336,6 +4254,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumFreePolicies)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePoliciesEver)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeTenets)
 SYNC_ARCHIVE_VAR(int, m_iCachedCurrentWarValue)
+SYNC_ARCHIVE_VAR(vector<int>, m_viCoreCitiesForSpaceshipProduction)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)

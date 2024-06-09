@@ -274,10 +274,7 @@ protected:
 
 	static int lGetResourceUsageType(lua_State* L);
 
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 	static int lGetNumResourceTotalRequiredForUnit(lua_State* L);
-#endif
-
 	static int lGetNumResourceRequiredForUnit(lua_State* L);
 	static int lGetNumResourceRequiredForBuilding(lua_State* L);
 

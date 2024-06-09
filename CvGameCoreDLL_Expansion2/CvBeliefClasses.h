@@ -417,9 +417,7 @@ class CvReligionBeliefs
 {
 public:
 	CvReligionBeliefs(void);
-	~CvReligionBeliefs(void);
 	CvReligionBeliefs(const CvReligionBeliefs& source);
-	void Uninit();
 	void Reset();
 	void AddBelief(BeliefTypes eBelief);
 

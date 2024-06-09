@@ -3350,17 +3350,13 @@ int CvLuaPlayer::lGetInfluenceTradeRouteGoldBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+
 	int iResult = 0;
 	PlayerTypes ePlayer = pkPlayer->GetID();
 	if (ePlayer != eOtherPlayer)
 	{
 		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
 	}
-#else
-	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3516,16 +3512,13 @@ int CvLuaPlayer::lGetInfluenceTradeRouteScienceBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+
 	int iResult = 0;
 	PlayerTypes ePlayer = pkPlayer->GetID();
 	if (ePlayer != eOtherPlayer)
 	{
 		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
 	}
-#else
-	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3673,12 +3666,8 @@ int CvLuaPlayer::lChangeInfluenceOnPlayer(lua_State* L)
 int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	YieldTypes eFocusYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
-#else
-	pkPlayer->GetCulture()->DoSwapGreatWorks();
-#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -3905,12 +3894,8 @@ int CvLuaPlayer::lCanCreatePantheon(lua_State* L)
 int CvLuaPlayer::lHasCreatedReligion(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal = luaL_optbool(L, 2, false);
 	const bool bResult = pkPlayer->GetReligions()->HasCreatedReligion(bIgnoreLocal);
-#else
-	const bool bResult = pkPlayer->GetReligions()->HasCreatedReligion();
-#endif
 	lua_pushboolean(L, bResult);
 
 	return 1;
@@ -4038,11 +4023,7 @@ int CvLuaPlayer::lGetMinimumFaithNextGreatProphet(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/);
-#endif
 	lua_pushinteger(L, iFaith);
 
 	return 1;
@@ -6874,15 +6855,11 @@ int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
 	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
 	bool bIgnoreDummy = luaL_optbool(L, 3, false);
 	if(pkPlayer->GetPlayerPolicies())
 	{
 		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy);
-#else
-		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
-#endif
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
@@ -7210,15 +7187,11 @@ int CvLuaPlayer::lGetAttackBonusTurns(lua_State* L)
 //int GetCultureBonusTurns();
 int CvLuaPlayer::lGetCultureBonusTurns(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = (pkPlayer->GetCultureBonusTurns() + pkPlayer->GetCultureBonusTurnsConquest()); 
 	lua_pushinteger(L, iResult);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::GetCultureBonusTurns);
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -7429,13 +7402,8 @@ int CvLuaPlayer::lCreateGreatGeneral(lua_State* L)
 	const UnitTypes eGreatPersonUnit = (UnitTypes)lua_tointeger(L, 2);
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
-
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	const bool bIsFree = luaL_optint(L, 5, 0);
 	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y, bIsFree);
-#else
-	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y);
-#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -9097,22 +9065,15 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	UnitClassTypes  eUnitClass = pkPlayer->GetMinorCivAI()->GetBullyUnit();
-	if(eUnitClass != NO_UNITCLASS)
+	const UnitClassTypes eUnitClass = pkPlayer->GetMinorCivAI()->GetBullyUnit();
+	const UnitTypes eUnit = pkPlayer->GetSpecificUnitType(eUnitClass);
+	if (eUnit != NO_UNIT)
 	{
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo != NULL)
-		{
-			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->GetSpecificUnitType(eUnitClass)));
-			if(eUnit != NO_UNIT)
-			{
-				lua_pushinteger(L, eUnit);
-				return 1;
-			}
-		}
-	}		
+		lua_pushinteger(L, eUnit);
+		return 1;
+	}
 
-	lua_pushinteger(L, (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"));
+	lua_pushinteger(L, GC.getInfoTypeForString("UNIT_WORKER"));
 	return 1;
 }
 //------------------------------------------------------------------------------

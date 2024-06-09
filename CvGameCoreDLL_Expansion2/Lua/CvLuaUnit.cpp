@@ -163,10 +163,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanUpgradeInTerritory);
 #endif
 	Method(GetNumResourceNeededToUpgrade);
-
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 	Method(GetNumResourceTotalNeededToUpgrade);
-#endif
 
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
@@ -2267,7 +2264,6 @@ int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetNumResourceTotalNeededToUpgrade(lua_State* L)
 {
@@ -2287,7 +2283,6 @@ int CvLuaUnit::lGetNumResourceTotalNeededToUpgrade(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int /*HandicapTypes*/ getHandicapType();
 int CvLuaUnit::lGetHandicapType(lua_State* L)

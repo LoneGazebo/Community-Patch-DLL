@@ -294,8 +294,6 @@ int										 getActiveSlotCount();
 
 int readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion);
 
-#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
-
 #if MAX_MAJOR_CIVS <= 32
 typedef uint32 KnownPlayersBitArray;
 #elif MAX_MAJOR_CIVS <= 64
@@ -307,8 +305,6 @@ typedef uint64 KnownPlayersBitArray;
 
 void SetKnownPlayersTable(const std::vector<KnownPlayersBitArray>& aiKnownPlayersTable);
 const std::vector<KnownPlayersBitArray>& GetKnownPlayersTable();
-
-#endif
 
 extern const std::vector<TeamTypes>& sr_TeamTypes;
 

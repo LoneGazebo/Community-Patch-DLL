@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -82,7 +82,7 @@ typedef vector<CvTradedItem> TradedItemList;
 //!  - Also stores the players involved and the turn the deal ends (if any)
 //!  - Populated through calls to a group of methods that each create and add a CvTradedItem
 //!  - These methods to create CvTradedItems have customized parameters so the external caller
-//!    doesn’t need to know how the data is stored internally
+//!    doesnï¿½t need to know how the data is stored internally
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvDeal
 {
@@ -298,14 +298,14 @@ public:
 	static void Serialize(GameDeals& gameDeals, Visitor& visitor);
 
 	void AddProposedDeal(const CvDeal& kDeal);
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	bool RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest);
+
 	bool FinalizeMPDeal(CvDeal kDeal, bool bAccepted);
 	bool FinalizeMPDealLatest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted, bool latest);
 	void FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes>& veNowAtPeacePairs);
 	CvDeal* GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest = false);
 	void DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyMode eTargetPlayers);
-#endif
+
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, CvWeightedVector<TeamTypes>& veNowAtPeacePairs);
 	void DoTurn();

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -76,11 +76,12 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-#ifdef MOD_CORE_TWO_PASS_DANGER
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
-#else
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_ZOC;
-#endif
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_DANGER;
+	if (MOD_CORE_TWO_PASS_DANGER)
+		iFlags |= CvUnit::MOVEFLAG_SELECTIVE_ZOC;
+	else
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+
 	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),iFlags,0,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
@@ -127,28 +128,31 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 		return;
 
 	//two pass danger is dangerous ... it might happen that a covering unit moves away, leaving other exposed
-#ifdef MOD_CORE_TWO_PASS_DANGER
-	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
-	PlotIndexContainer plotsWithOwnedUnitsLikelyToBeKilled;
-
-	//first pass
-	UpdateDangerInternal(true, plotsWithOwnedUnitsLikelyToBeKilled);
-
-	//find out which units might die and therefore won't have a ZOC
-	int iLoop;
-	for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
+	if (MOD_CORE_TWO_PASS_DANGER)
 	{
-		if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
-			plotsWithOwnedUnitsLikelyToBeKilled.push_back(pLoopUnit->plot()->GetPlotIndex());
-	}
+		CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
+		PlotIndexContainer plotsWithOwnedUnitsLikelyToBeKilled;
 
-	//second pass
-	if (!plotsWithOwnedUnitsLikelyToBeKilled.empty() || !bKeepKnownUnits)
-		UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
-#else
-	PlotIndexContainer dummy;
-	UpdateDangerInternal(bKeepKnownUnits, dummy);
-#endif
+		//first pass
+		UpdateDangerInternal(true, plotsWithOwnedUnitsLikelyToBeKilled);
+
+		//find out which units might die and therefore won't have a ZOC
+		int iLoop;
+		for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
+		{
+			if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
+				plotsWithOwnedUnitsLikelyToBeKilled.push_back(pLoopUnit->plot()->GetPlotIndex());
+		}
+
+		//second pass
+		if (!plotsWithOwnedUnitsLikelyToBeKilled.empty() || !bKeepKnownUnits)
+			UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
+	}
+	else
+	{
+		PlotIndexContainer dummy;
+		UpdateDangerInternal(bKeepKnownUnits, dummy);
+	}
 }
 
 //fog of war is dangerous, but we don't know whether we will take the damage or not ...
@@ -241,12 +245,8 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if(ShouldIgnoreCity(pLoopCity, false))
 				continue;
 
-#if defined(MOD_EVENTS_CITY_BOMBARD)
 			bool bIndirectFireAllowed = false; //this is an OUT parameter ...
 			int iRange = pLoopCity->getBombardRange(bIndirectFireAllowed);
-#else
-			int iRange = /*2*/ GD_INT_GET(CITY_ATTACK_RANGE);
-#endif
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvPlot* pLoopPlot = NULL;
 			for(int iDX = -(iRange); iDX <= iRange; iDX++)

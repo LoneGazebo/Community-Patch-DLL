@@ -345,47 +345,48 @@ bool CvCombatInfo::getDefenderCaptured() const
 int CvCombatInfo::getDamageInflicted(BattleUnitTypes unitType) const
 {
 	checkBattleUnitType(unitType);
-#if defined(MOD_EVENTS_BATTLES)
 	int iDamage = m_iDamageInflicted[unitType];
 
-	if (MOD_EVENTS_BATTLES_DAMAGE) {
+	if (MOD_EVENTS_BATTLES_DAMAGE)
+	{
 		int iValue = 0;
-		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, unitType, iDamage) == GAMEEVENTRETURN_VALUE) {
-			if (iValue != 0) {
-				if (iValue < 0) {
-					// Decreasing the amount of damage, in which case it can't be more than the amount inflicted (as that's called 'healing'!)
-					if (iDamage + iValue < 0) {
-						iValue = -iDamage;
-					}
-				} else {
-					// Increasing the amount of damage, in which case we can't exceed unit/city hit points
-					CvCity* pCity = m_pCities[unitType];
-					if (pCity)
+		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, unitType, iDamage) == GAMEEVENTRETURN_VALUE)
+		{
+			if (iValue < 0)
+			{
+				// Decreasing the amount of damage, in which case it can't be more than the amount inflicted (as that's called 'healing'!)
+				if (iDamage + iValue < 0)
+				{
+					iValue = -iDamage;
+				}
+			}
+			else if (iValue > 0)
+			{
+				// Increasing the amount of damage, in which case we can't exceed unit/city hit points
+				CvCity* pCity = m_pCities[unitType];
+				if (pCity)
+				{
+					if (iDamage + iValue + pCity->getDamage() > pCity->GetMaxHitPoints())
 					{
-						if (iDamage + iValue + pCity->getDamage() > pCity->GetMaxHitPoints())
-						{
-							iValue = pCity->GetMaxHitPoints() - pCity->getDamage() - iDamage;
-						}
-					}
-					else
-					{
-						if (iDamage + iValue > m_pUnits[unitType]->GetCurrHitPoints())
-						{
-							iValue = m_pUnits[unitType]->GetCurrHitPoints() - iDamage;
-						}
+						iValue = pCity->GetMaxHitPoints() - pCity->getDamage() - iDamage;
 					}
 				}
-				
-				iDamage += iValue;
+				else
+				{
+					if (iDamage + iValue > m_pUnits[unitType]->GetCurrHitPoints())
+					{
+						iValue = m_pUnits[unitType]->GetCurrHitPoints() - iDamage;
+					}
+				}
 			}
+
+			iDamage += iValue;
 		}
 	}
 
 	return iDamage;
-#else
-	return m_iDamageInflicted[unitType];
-#endif
 }
+
 void CvCombatInfo::setDamageInflicted(BattleUnitTypes unitType, int iDamage)
 {
 	checkBattleUnitType(unitType);

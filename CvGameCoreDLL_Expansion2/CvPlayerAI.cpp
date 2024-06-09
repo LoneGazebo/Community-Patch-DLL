@@ -179,12 +179,13 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 	for (size_t i = 0; i < unitsToDelete.size(); i++)
 		unitsToDelete[i]->doDelayedDeath();
 
-#if defined(MOD_CORE_DELAYED_VISIBILITY)
-	//force explicit visibility update for killed units
-	if (!unitsToDelete.empty())
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
-#endif
+	if (MOD_CORE_DELAYED_VISIBILITY)
+	{
+		// Force explicit visibility update for killed units
+		if (!unitsToDelete.empty())
+			for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+				GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
+	}
 
 	//army cleanup (two step approach because deleting a unit invalidates the iterator)
 	std::vector<int> itemsToDelete;
@@ -535,11 +536,7 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			CvCity* pCapital = getCapitalCity();
 			if(pCapital)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				pCapital->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				pCapital->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false);
-#endif
 			}
 			ChangeNumFreeGreatPeople(-1);
 		}
@@ -559,19 +556,18 @@ void CvPlayerAI::AI_chooseFreeTech()
 
 	clearResearchQueue();
 
-#if defined(MOD_EVENTS_AI_OVERRIDE_TECH)
-	if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) {
+	if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH)
+	{
 		int iValue = 0;
-		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), true) == GAMEEVENTRETURN_VALUE) {
+		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), true) == GAMEEVENTRETURN_VALUE)
+		{
 			// Defend against modder stupidity!
-			if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) {
+			if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue))
+			{
 				eBestTech = (TechTypes)iValue;
 			}
 		}
 	}
-#else
-	// TODO: script override
-#endif
 
 	if(eBestTech == NO_TECH)
 	{
@@ -616,7 +612,6 @@ void CvPlayerAI::AI_chooseResearch()
 
 	if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
-#if defined(MOD_EVENTS_AI_OVERRIDE_TECH)
 		if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) 
 		{
 			int iValue = 0;
@@ -629,9 +624,6 @@ void CvPlayerAI::AI_chooseResearch()
 				}
 			}
 		}
-#else
-		//todo: script override
-#endif
 
 		if(eBestTech == NO_TECH)
 		{
@@ -1610,7 +1602,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) < /*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT))
 		return eDirective;
 
-#if defined(MOD_BALANCE_CORE)
 	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
@@ -1623,8 +1614,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
 	}
 	iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatEngineersCreated(true));
+
 	// Build manufactories up to your flavor.
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNumImprovement = getImprovementCount(eManufactory);
 		if(iNumImprovement <= iFlavor)
@@ -1632,17 +1624,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= (/*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) - GetCurrentEra()))
-#else
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 3) / 4))
-	{
-		if (GetDiplomacyAI()->IsGoingForWorldConquest())
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-		}
-	}
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= /*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT))
-#endif
+
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= (/*5*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) - GetCurrentEra()))
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 	}
@@ -2051,25 +2034,19 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 
 //	--------------------------------------------------------------------------------
 /// planner for AI spaceship production: returns the cities in which the currently available spaceship parts should be built in order to achieve SV as early as possible
-vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
+const vector<CvCity*>& CvPlayerAI::GetBestCitiesForSpaceshipParts()
 {
-	if (GC.getGame().getGameTurn() == m_iCitiesForSpaceshipPartsUpdateTurn)
-	{
-		return m_vCitiesForSpaceshipParts;
-	}
-
-	m_iCitiesForSpaceshipPartsUpdateTurn = GC.getGame().getGameTurn();
-	m_vCitiesForSpaceshipParts.clear();
+	const vector<CvCity*> vpEmpty;
 
 	CvCity* pCapital = getCapitalCity();
 	if (!pCapital)
-		return m_vCitiesForSpaceshipParts;
+		return vpEmpty;
 
 	int iNumSpaceshipPartsStillNeeded = 6 - GET_TEAM(getTeam()).GetSSProjectCount(/*bIncludeApollo*/ false);
 	int iNumSpaceshipPartsBuildableNow = GetNumSpaceshipPartsBuildableNow(/*bIncludeCurrentlyInProduction*/ true);
 
 	if (iNumSpaceshipPartsStillNeeded == 0 || iNumSpaceshipPartsBuildableNow == 0)
-		return m_vCitiesForSpaceshipParts;
+		return vpEmpty;
 
 	// get unit type for one of the spaceship parts
 	UnitTypes eSpaceshipUnit = NO_UNIT;
@@ -2119,7 +2096,7 @@ vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 
 	int iNumCitiesToConsider = vCitiesToConsider.size();
 	if (iNumCitiesToConsider == 0)
-		return m_vCitiesForSpaceshipParts;
+		return vpEmpty;
 
 	// we want to assign spaceship part to cities in such a way that the total number of turns to bring all spaceship parts to the capital is minimized
 	// to do this, we loop through the spaceship parts we still need and assign each of it to the best city. one city can be considered for multiple parts.
@@ -2246,9 +2223,11 @@ vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 	vCitiesSortedByTurns.StableSortItems();
 
 	// for the parts we can produce right now, choose the worst cities.
-	for (int k = 0; k < min(vCitiesSortedByTurns.size(), iNumSpaceshipPartsBuildableNow); k++)
+	int iNumCitiesForSpaceship = min(vCitiesSortedByTurns.size(), iNumSpaceshipPartsBuildableNow);
+	vector<CvCity*> vpCitiesForSpaceshipParts(iNumCitiesForSpaceship);
+	for (int i = 0; i < iNumCitiesForSpaceship; i++)
 	{
-		m_vCitiesForSpaceshipParts.push_back(vCitiesSortedByTurns.GetElement(k));
+		vpCitiesForSpaceshipParts[i] = vCitiesSortedByTurns.GetElement(i);
 	}
 
 	if (GC.getLogging())
@@ -2269,7 +2248,7 @@ vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		}
 	}
 
-	return m_vCitiesForSpaceshipParts;
+	return vpCitiesForSpaceshipParts;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2282,9 +2261,8 @@ void CvPlayerAI::AI_doSpaceshipProduction()
 	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
 		return;
 
-
 	// calculate cities to build spaceship parts in
-	vector<CvCity*> vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
+	const vector<CvCity*>& vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
 
 	// cancel spaceship part production in cities that are not considered the best cities (have to do this first to make the parts available)
 	CvString strOutBuf;

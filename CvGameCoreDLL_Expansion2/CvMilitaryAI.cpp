@@ -243,11 +243,7 @@ void CvMilitaryAIStrategyXMLEntries::DeleteArray()
 /// Get a specific entry
 _Ret_maybenull_ CvMilitaryAIStrategyXMLEntry* CvMilitaryAIStrategyXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
-	return (index!=NO_MILITARYAISTRATEGY) ? m_paAIStrategyEntries[index] : NULL;
-#else
-	return m_paAIStrategyEntries[index];
-#endif
+	return (index != NO_MILITARYAISTRATEGY) ? m_paAIStrategyEntries[index] : NULL;
 }
 
 
@@ -322,9 +318,10 @@ void CvMilitaryAI::Reset()
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
 	m_iNumberOfTimesSettlerBuildSkippedOver = 0;
-#if defined(MOD_BALANCE_CORE)
+
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
+
 	m_iNumFreeCarriers = 0;
 	//new unit counters
 	m_iNumArcherLandUnits = 0;
@@ -339,7 +336,6 @@ void CvMilitaryAI::Reset()
 	m_iNumCarrierNavalUnits = 0;
 	m_iNumMissileUnits = 0;
 	m_iNumActiveUniqueUnits = 0;
-#endif
 
 	for(int iI = 0; iI < m_pAIStrategies->GetNumMilitaryAIStrategies(); iI++)
 	{
@@ -1831,10 +1827,7 @@ void CvMilitaryAI::UpdateDefenseState()
 /// Count up barbarian camps and units visible to us
 void CvMilitaryAI::ScanForBarbarians()
 {
-
-#if defined(MOD_BALANCE_CORE)
 	int iLastTurnBarbarianCount = m_iVisibleBarbarianCount;
-#endif
 
 	m_iBarbarianCampCount = 0;
 	m_iVisibleBarbarianCount = 0;
@@ -1864,12 +1857,9 @@ void CvMilitaryAI::ScanForBarbarians()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//try to smooth the count a bit
 	if (m_iVisibleBarbarianCount < iLastTurnBarbarianCount)
-		m_iVisibleBarbarianCount = iLastTurnBarbarianCount-1;
-#endif
-
+		m_iVisibleBarbarianCount = iLastTurnBarbarianCount - 1;
 }
 
 /// Start or stop military strategies to get flavors set properly
@@ -1985,10 +1975,8 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
-#if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
-#endif
 				else if(strStrategyName == "MILITARYAISTRATEGY_WINNING_WARS")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WinningWars(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_LOSING_WARS")
@@ -2635,28 +2623,12 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
 			if (eUpgradeUnit != NO_UNIT)
 			{
-				//ok nice looks like we can upgrade
+				// Ok nice looks like we can upgrade
 				bIsObsolete = false;
 
-				//but does this unit's upgrade require additional resources we don't have?
-				CvUnitEntry* pUpgradeUnitInfo = GC.GetGameUnits()->GetEntry(eUpgradeUnit);
-				if (pUpgradeUnitInfo != NULL)
-				{
-					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
-						int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
-						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
-							bIsObsolete = true;
-
-						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						{
-							if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource))
-								bIsObsolete = true;
-						}
-					}
-				}
+				// But do we have the resources for it?
+				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, pLoopUnit->getUnitType()))
+					bIsObsolete = true;
 			}
 		}
 
@@ -3632,7 +3604,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		eOtherPlayer = (PlayerTypes) iMajorLoop;
-#if defined(MOD_BALANCE_CORE)
+
 		if(pkDiplomacyAI->GetVictoryBlockLevel(eOtherPlayer) > BLOCK_LEVEL_WEAK)
 		{
 			iCurrentWeight += 5;
@@ -3641,7 +3613,6 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		{
 			iCurrentWeight += 5;
 		}
-#endif
 
 		// Mobilize for war is automatic if we are preparing a sneak attack
 		if (pkDiplomacyAI->GetCivApproach(eOtherPlayer) == CIV_APPROACH_WAR)
@@ -3845,7 +3816,6 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughRangedUnits(CvPlayer* pPlayer, int 
 /// "Need Ranged" Player Strategy: If a player has too many melee units
 bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iNumRanged, int iNumMelee)
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	if(pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 	{
 		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_RANGED) || pPlayer->IsUnderrepresentedUnitType(UNITAI_CITY_BOMBARD))
@@ -3853,7 +3823,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 			return true;
 		}
 	}
-#endif
+
 	int iFlavorRange = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
 	int iRatio = iNumRanged * 10 / max(1,iNumMelee+iNumRanged);
 	return (iRatio <= iFlavorRange / 2);

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -384,7 +384,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					if(pUnitEntry->GetPrereqAndTech() == eTech && pUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT)
 					{
-						UnitTypes eCivUnit = ((GET_PLAYER(ePlayer).GetSpecificUnitType((UnitClassTypes)pUnitEntry->GetUnitClassType())));
+						UnitTypes eCivUnit = GET_PLAYER(ePlayer).GetSpecificUnitType((UnitClassTypes)pUnitEntry->GetUnitClassType());
 						if(eUnitType != eCivUnit)
 						{
 							continue;

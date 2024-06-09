@@ -3723,108 +3723,84 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					yield[eYield] += PolicyInfo->GetReligionBuildingYieldMod(eBuildingClass, eYield) * iNumCities;
 				}
 			}
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 			if (PolicyInfo->GetYieldChangesPerReligionTimes100(i) != 0)
 			{
 				yield[eYield] += PolicyInfo->GetYieldChangesPerReligionTimes100(i) * iNumCities / 100;
 			}
-#endif
 		}
 	}
 
-	UnitClassTypes eUnitClass;
+	// Unit related
 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
-		eUnitClass = (UnitClassTypes)iI;
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if (!pkUnitClassInfo)
-			continue;
-		
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 		if (!pUnitEntry)
 			continue;
-		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0;
-		if (PolicyInfo->GetUnitClassProductionModifiers(eUnitClass) != 0)
-		{
-			if (bCombat ? pPlayerTraits->IsWarmonger() : pPlayerTraits->IsExpansionist())
-			{
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetUnitClassProductionModifiers(eUnitClass) * 2;
-			}
-			else
-			{
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetUnitClassProductionModifiers(eUnitClass);
-			}
-		}
-	
-		if (PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) != 0)
-		{
-			if (bCombat ? pPlayerTraits->IsWarmonger() : pPlayerTraits->IsExpansionist())
-			{
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 25;
-			}
-			if (pUnitEntry->IsFound())
-				yield[YIELD_FOOD] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * (50 - (pPlayer->getNumCities() * 5));
-			else if (pUnitEntry->GetWorkRate() > 0)
-				yield[YIELD_FOOD] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 50 * pPlayer->getNumCities();
-			else
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 25;
 
+		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0;
+		int iProductionModifier = PolicyInfo->GetUnitClassProductionModifiers(eUnitClass);
+		if (iProductionModifier != 0)
+		{
+			if (bCombat ? pPlayerTraits->IsWarmonger() : pPlayerTraits->IsExpansionist())
+				yield[YIELD_GREAT_GENERAL_POINTS] += iProductionModifier * 2;
+			else
+				yield[YIELD_GREAT_GENERAL_POINTS] += iProductionModifier;
 		}
-		if (PolicyInfo->GetTourismByUnitClassCreated(eUnitClass) != 0)
+
+		int iNumFreeUnitsByClass = PolicyInfo->GetNumFreeUnitsByClass(eUnitClass);
+		if (iNumFreeUnitsByClass != 0)
+		{
+			if (bCombat ? pPlayerTraits->IsWarmonger() : pPlayerTraits->IsExpansionist())
+				yield[YIELD_GREAT_GENERAL_POINTS] += iNumFreeUnitsByClass * 25;
+
+			if (pUnitEntry->IsFound())
+				yield[YIELD_FOOD] += iNumFreeUnitsByClass * (50 - (pPlayer->getNumCities() * 5));
+			else if (pUnitEntry->GetWorkRate() > 0)
+				yield[YIELD_FOOD] += iNumFreeUnitsByClass * 50 * pPlayer->getNumCities();
+			else
+				yield[YIELD_GREAT_GENERAL_POINTS] += iNumFreeUnitsByClass * 25;
+		}
+
+		int iTourismByUnitClassCreated = PolicyInfo->GetTourismByUnitClassCreated(eUnitClass);
+		if (iTourismByUnitClassCreated != 0)
 		{
 			if (pPlayerTraits->IsTourism())
-			{
-				yield[YIELD_TOURISM] += PolicyInfo->GetTourismByUnitClassCreated(eUnitClass) * 5;
-			}
+				yield[YIELD_TOURISM] += iTourismByUnitClassCreated * 5;
 			else
-			{
-				yield[YIELD_TOURISM] += PolicyInfo->GetTourismByUnitClassCreated(eUnitClass);
-			}
+				yield[YIELD_TOURISM] += iTourismByUnitClassCreated;
 		}
 
-		if (pPlayer->getCapitalCity() != NULL)
+		if (pPlayer->getCapitalCity())
 		{
+			int iBaseValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
+
 			if (PolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, /*INDUSTRIAL*/ GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA)) != 0)
 			{
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-				if (pkUnitClassInfo)
+				if (iBaseValue > 0)
 				{
-					const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
-					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-					if (pUnitEntry)
-					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-						if (iValue > 0)
-						{
-							if (pPlayerTraits->IsReligious())
-							{
-								iValue *= 2;
-							}
-							yield[YIELD_FAITH] += min(225, iValue);
-						}
-					}
+					int iValue = iBaseValue;
+					if (pPlayerTraits->IsReligious())
+						iValue *= 2;
+
+					yield[YIELD_FAITH] += min(225, iValue);
 				}
 			}
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-			if (pkUnitClassInfo)
+
+			if (pUnitEntry->GetPolicyType() == ePolicy)
 			{
-				const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
-				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
+				if (iBaseValue > 0)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-					if (iValue > 0)
-					{
-						if (pPlayerTraits->IsWarmonger())
-						{
-							iValue *= 2;
-						}
-						if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-							yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
-						else
-							yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
-					}
+					int iValue = iBaseValue;
+					if (pPlayerTraits->IsWarmonger())
+						iValue *= 2;
+
+					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
+						yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
+					else
+						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 				}
 			}
 		}

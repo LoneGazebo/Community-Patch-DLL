@@ -116,42 +116,11 @@ int plotDistance(int iIndexA, int iIndexB)
 
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
-#if defined(MOD_BALANCE_CORE)
 	return GC.getMap().getNeighborUnchecked(iX,iY,eDirection);
-#else
-	if(eDirection == NO_DIRECTION)
-	{
-		return GC.getMap().plot(iX, iY);
-	}
-	else
-	{
-		// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-		iX = xToHexspaceX(iX , iY);
-		iX += GC.getPlotDirectionX()[eDirection];
-		iY += GC.getPlotDirectionY()[eDirection];
-
-		// convert from hex-space coordinates to the storage array
-		iX = hexspaceXToX(iX, iY);
-
-		return GC.getMap().plot(iX, iY);
-	}
-#endif
 }
 
 DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
-#if 0
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
-	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
-	{
-		if (aPlotsToCheck[iI]==pToPlot)
-		{
-			return (DirectionTypes)iI;
-		}
-	}
-	//if the direct neighbor lookup fails, use the real method
-	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
-#else
 	int iSourceX = pFromPlot->getX();
 	int iSourceY = pFromPlot->getY();
 	int iDestX = pToPlot->getX();
@@ -200,7 +169,6 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 			return DIRECTION_SOUTHWEST;
 		}
 	}
-#endif
 }
 
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
@@ -459,24 +427,16 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 	CvUnitEntry* unitInfo = GC.getUnitInfo(eUnit);
 	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
 
-	if(unitInfo == NULL || promotionInfo == NULL)
+	if (!unitInfo || !promotionInfo)
 		return false;
 
 	// No combat class (civilians)
-	if(unitInfo->GetUnitCombatType() == NO_UNITCOMBAT)
-	{
+	if (unitInfo->GetUnitCombatType() == NO_UNITCOMBAT)
 		return false;
-	}
 
 	// Combat class not valid for this Promotion
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
-	if(!(promotionInfo->GetUnitCombatClass(unitInfo->GetUnitPromotionType())))
-#else
-	if(!(promotionInfo->GetUnitCombatClass(unitInfo->GetUnitCombatType())))
-#endif
-	{
+	if (!promotionInfo->GetUnitCombatClass(unitInfo->GetUnitPromotionType()))
 		return false;
-	}
 
 	return true;
 }
@@ -486,13 +446,11 @@ bool IsPromotionValidForCivilianUnitType(PromotionTypes ePromotion, UnitTypes eU
 {
 	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
 
-	if(promotionInfo == NULL)
+	if (!promotionInfo)
 		return false;
 
-	if(!(promotionInfo->GetCivilianUnitType((int)eUnit)))
-	{
+	if (!promotionInfo->GetCivilianUnitType(eUnit))
 		return false;
-	}
 
 	return true;
 }
@@ -826,11 +784,7 @@ bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
 
 bool isLimitedUnitClass(UnitClassTypes eUnitClass)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass) || isUnitLimitPerCity(eUnitClass));
-#else
-	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass));
-#endif
 }
 
 bool isWorldProject(ProjectTypes eProject)

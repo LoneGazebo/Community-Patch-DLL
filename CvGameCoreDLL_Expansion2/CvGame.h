@@ -669,13 +669,7 @@ public:
 	int GetBarbarianReleaseTurn() const;
 	void SetBarbarianReleaseTurn(int iValue);
 
-	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false, bool bRandom = true, bool bMinorCivGift = false);
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, bool bMinorCivGift, CvSeeder seed);
-	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
-
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);
-	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvCitySiteEvaluator* GetStartSiteEvaluator();

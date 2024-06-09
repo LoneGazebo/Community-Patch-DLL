@@ -2010,8 +2010,7 @@ bool CvMinorCivQuest::IsExpired()
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
 			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-			if (pkUnitClassInfo && pkUnitInfo->GetUpgradeUnitClass(iI))
+			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(m_eAssignedPlayer).GetSpecificUnitType(eUnitClass);
 				if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
@@ -10966,7 +10965,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 		UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 		const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if (pkUnitClassInfo == NULL || GetPlayer()->GetSpecificUnitType(eUnitClass) == NO_UNIT)
+		if (!pkUnitClassInfo || GetPlayer()->GetSpecificUnitType(eUnitClass) == NO_UNIT)
 			continue;
 
 		// No planes, no naval units unless allowed, and no siege units
@@ -10990,29 +10989,12 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 		if (eUnitAI == UNITAI_EXPLORE || eUnitAI == UNITAI_EXPLORE_SEA)
 			continue;
 
-		bool bValid = true;
-		for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-		{
-			const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if (pkPromotionInfo && pkUnitInfo->GetFreePromotions(iLoop))
-			{
-				if (pkPromotionInfo->IsOnlyDefensive() || pkPromotionInfo->IsHoveringUnit())
-				{
-					bValid = false;
-					break;
-				}
-			}
-		}
-		if (!bValid)
-			continue;
-
 		// Can we train the unit type this unit upgrades to?
+		bool bValid = true;
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
 			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-			if (pkUnitClassInfo && pkUnitInfo->GetUpgradeUnitClass(iI))
+			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClass);
 				if (GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
@@ -15132,8 +15114,9 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed, bool bJuggernaut)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
+	CvPlayer& kMajor = GET_PLAYER(eMajor);
 
-	if (bCityStateAnnexed && !GET_PLAYER(eMajor).GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	if (bCityStateAnnexed && !kMajor.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 		return NULL;
 
 	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
@@ -15142,7 +15125,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	if (!bJuggernaut)
 	{
 		// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-		bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
+		bool bCanSupply = kMajor.GetNumUnitsToSupply() < kMajor.GetNumUnitsSupplied(); // this works when we're at the limit
 		if (!bCanSupply || (IsUnitSpawningDisabled(eMajor) && !bCityStateAnnexed))
 			return NULL;
 	}
@@ -15156,22 +15139,22 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	else
 	{
 		CvPlot* pStartingPlot = GC.getMap().plotCheckInvalid(GetPlayer()->GetOriginalCapitalX(), GetPlayer()->GetOriginalCapitalY());
-		if(pStartingPlot)
+		if (pStartingPlot)
 			pMinorCapital = pStartingPlot->getPlotCity();
 	}
 
 	if (!pMinorCapital)
 		return NULL;
 
-	if (pMinorCapital->plot() == NULL)
+	if (!pMinorCapital->plot())
 		return NULL;
 
 	// Major has no capital
-	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	CvCity* pMajorCapital = kMajor.getCapitalCity();
 	if (!pMajorCapital)
 		return NULL;
 
-	if (pMajorCapital->plot() == NULL)
+	if (!pMajorCapital->plot())
 		return NULL;
 
 	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN));
@@ -15195,9 +15178,9 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			iLowestCoastalDistance = MIN_INT;
 
 		int iCityLoop = 0;
-		for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = kMajor.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iCityLoop))
 		{
-			if (pLoopCity->plot() == NULL)
+			if (!pLoopCity->plot())
 				continue;
 
 			int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
@@ -15237,38 +15220,17 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 				// If naval, major must have a coastal city
 				if (bBoatsAllowed || pkUnitInfo->GetDomainType() != DOMAIN_SEA)
 				{
-					// If scout, must be a scout
-					if (!bExplore || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+					// Ally must have unit's prereq tech
+					TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
+					if (ePrereqTech == NO_TECH || kMajor.HasTech(ePrereqTech))
 					{
-						// Ally must have unit's prereq tech
-						TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-						if (ePrereqTech == NO_TECH || GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+						// Ally must NOT have unit's obsolete tech
+						TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
+						if (eObsoleteTech == NO_TECH || !kMajor.HasTech(eObsoleteTech))
 						{
-							// Ally must NOT have unit's obsolete tech
-							TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
-							if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+							if (kMajor.HasResourceForNewUnit(eUniqueUnit))
 							{
-								bool bFailedResourceCheck = false;
-
-								// Ally must meet this unit's strategic resource requirements
-								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-								{
-									const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-									CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-									if (pkResourceInfo)
-									{
-										int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
-
-										if (iResourceRequirement > 0 && iResourceRequirement > GET_PLAYER(eMajor).getNumResourceAvailable(eResource, true))
-										{
-											bFailedResourceCheck = true;
-											break;
-										}
-									}
-								}
-
-								if (!bFailedResourceCheck)
-									eUnit = eUniqueUnit;
+								eUnit = eUniqueUnit;
 							}
 						}
 					}
@@ -15279,10 +15241,21 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	if (eUnit == NO_UNIT)
 	{
-		if (bExplore) // Free exploration unit (First contact bonus)
-			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
+		if (bExplore)
+		{
+			vector<int> viUnitCombat;
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_RECON"));
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_ARCHER"));
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED"));
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_HELICOPTER"));
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE"));
+			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED"));
+			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, true, true, false, NULL, false, true, true, NULL, viUnitCombat);
+		}
 		else
-			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed, false, false, true, true, CvSeeder::fromRaw(0xf00798cf).mix(GetPlayer()->GetID()).mix(GET_PLAYER(eMajor).GetID()));
+		{
+			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, bBoatsAllowed, false, false, NULL, false, true, true);
+		}
 	}
 
 	if (eUnit == NO_UNIT)
@@ -16433,25 +16406,15 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	CvString sFactors = "";
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
-#if defined(MOD_BALANCE_CORE)
+
 	UnitClassTypes eUnitClassType = GetBullyUnit();
-	if(eUnitClassType == NO_UNITCLASS)
-	{
+	if (eUnitClassType == NO_UNITCLASS)
 		return "";
-	}
-	UnitTypes eUnitType = NO_UNIT;
-	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
-	if(pkUnitClassInfo != NULL)
-	{
-		eUnitType = (GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType));
-	}
-	if(eUnitType == NO_UNIT)
-	{
+
+	UnitTypes eUnitType = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType);
+	if (eUnitType == NO_UNIT)
 		return "";
-	}
-#else
-	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
-#endif
+
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnitType);
 	CvAssert(pUnitInfo);
 	if (!pUnitInfo)
@@ -16494,21 +16457,15 @@ CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
 	CvString sFactors = "";
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
+
 	UnitClassTypes eUnitClassType = GetBullyUnit();
 	if (eUnitClassType == NO_UNITCLASS)
-	{
 		return "";
-	}
-	UnitTypes eUnitType = NO_UNIT;
-	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
-	if (pkUnitClassInfo != NULL)
-	{
-		eUnitType = (GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType));
-	}
+
+	UnitTypes eUnitType = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType);
 	if (eUnitType == NO_UNIT)
-	{
 		return "";
-	}
+
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnitType);
 	CvAssert(pUnitInfo);
 	if (!pUnitInfo)
@@ -16516,17 +16473,12 @@ CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
 
 	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
 	if (!bCanBully)
-	{
 		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
-	}
-	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-	{
-		if (iScore < 0)
-			iScore *= -1;
-		sFear << iScore;
-	}
-	else
-		sFear << iScore;
+
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING && iScore < 0)
+		iScore *= -1;
+		
+	sFear << iScore;
 
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX");
 	sResult << sFear.toUTF8() << sFactors << pUnitInfo->GetDescriptionKey();

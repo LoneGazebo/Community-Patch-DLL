@@ -225,13 +225,8 @@ public:
 	void SetRouteToCapitalConnected(bool bValue, bool bSuppressReligionUpdate = false);
 	bool IsRouteToCapitalConnected(void) const;
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	void createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit, bool bIsFree);
-#else
-	void createGreatGeneral(UnitTypes eGreatPersonUnit);
-	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
-#endif
 
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
 
@@ -382,8 +377,8 @@ public:
 	bool isProductionProcess() const;
 
 	bool canContinueProduction(OrderData order);
-	int getProductionExperience(UnitTypes eUnit = NO_UNIT);
-	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false);
+	int getProductionExperience(UnitTypes eUnit = NO_UNIT) const;
+	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false) const;
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
@@ -467,11 +462,7 @@ public:
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
 
 	void processResource(ResourceTypes eResource, int iChange);
-#if defined(MOD_BALANCE_CORE)
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false, bool bNoBonus = false);
-#else
-	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
-#endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
@@ -603,17 +594,8 @@ public:
 	void SetAdditionalFood(int iValue);
 #endif
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getPopulation(bool bIncludeAutomatons = false) const;
-#else
-	int getPopulation() const;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
-#else
-	void setPopulation(int iNewValue, bool bReassignPop = true);
-#endif
 	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
 
 	void setLowestRazingPop(int iValue);
@@ -665,9 +647,7 @@ public:
 
 	int GetJONSCulturePerTurnFromTraits() const;
 	void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
-#if defined(MOD_BALANCE_CORE)
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
-#endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
 
@@ -679,21 +659,17 @@ public:
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	void SetBaseTourism(int iValue);
 	int GetBaseTourism() const;
 	void SetBaseTourismBeforeModifiers(int iValue);
 	int GetBaseTourismBeforeModifiers() const;
-#endif
 	// END Culture
 
 	int getTourismRateModifier() const;
 	void changeTourismRateModifier(int iChange);
-#if defined(MOD_BALANCE_CORE)
+
 	int GetFaithPerTurn(bool bStatic = true) const;
-#else
-	int GetFaithPerTurn() const;
-#endif
 	int GetFaithPerTurnFromBuildings() const;
 
 	int GetFaithPerTurnFromPolicies() const;
@@ -1316,8 +1292,6 @@ public:
 
 	bool isBorderCity() const;
 	bool isBorderCity(vector<PlayerTypes>& vUnfriendlyMajors) const;
-
-	void DoBarbIncursion();
 #endif
 
 	void changeNukeInterceptionChance(int iNewValue);
@@ -1355,9 +1329,6 @@ public:
 	void ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange);
 	int GetGreatWorkYieldChange(YieldTypes eIndex) const;
 #endif
-
-	int getPowerYieldRateModifier(YieldTypes eIndex) const;
-	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
 
 	int getResourceYieldRateModifier(YieldTypes eIndex) const;
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -1618,13 +1589,13 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
-	bool			IsBusy() const;
+	bool IsBusy() const;
 	// Combat related
 	const CvUnit* getCombatUnit() const;
 	CvUnit* getCombatUnit();
-	void			setCombatUnit(CvUnit* pCombatUnit, bool bAttacking = false);
-	void			clearCombat();
-	bool			isFighting() const;
+	void setCombatUnit(CvUnit* pCombatUnit, bool bAttacking = false);
+	void clearCombat();
+	bool isFighting() const;
 
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType) const;
@@ -1794,6 +1765,9 @@ public:
 
 	void ChangeVassalLevyEra(int iChange);
 	int GetVassalLevyEra() const;
+
+	void SpawnFreeUnit(UnitTypes eUnit);
+	bool SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, const bool bIncludeShips = false, const bool bNoResource = false) const;
 
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)

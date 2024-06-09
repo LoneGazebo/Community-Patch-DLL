@@ -194,9 +194,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_ppiEraUnitCombatType(NULL),
 	m_ppiEraUnitPromotions(NULL),
 #endif
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+
 	m_piResourceQuantityTotals(),
-#endif
+
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits(0),
 #endif
@@ -233,9 +233,9 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_paszMiddleArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszUnitNames);
 	SAFE_DELETE_ARRAY(m_paeGreatWorks);
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+
 	m_piResourceQuantityTotals.clear();
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
 	SAFE_DELETE_ARRAY(m_piEraCombatStrength);
@@ -1642,7 +1642,6 @@ int* CvUnitEntry::GetUnitNewEraPromotionsChangesArray(int i)
 }
 #endif
 
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 /// Player must have gross number of resources to build (does not consume)
 int CvUnitEntry::GetResourceQuantityTotal(int i) const
 {
@@ -1657,7 +1656,6 @@ int CvUnitEntry::GetResourceQuantityTotal(int i) const
 
 	return 0;
 }
-#endif
 
 /// Initial set of promotions for this unit
 bool CvUnitEntry::GetFreePromotions(int i) const
@@ -2113,11 +2111,7 @@ void CvUnitXMLEntries::DeleteArray()
 /// Get a specific entry
 CvUnitEntry* CvUnitXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
-	return (index!=NO_UNIT) ? m_paUnitEntries[index] : NULL;
-#else
-	return m_paUnitEntries[index];
-#endif
+	return (index != NO_UNIT) ? m_paUnitEntries[index] : NULL;
 }
 
 /// Helper function to read in an integer array of data sized according to number of unit types

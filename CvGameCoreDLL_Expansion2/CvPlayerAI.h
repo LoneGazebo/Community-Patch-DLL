@@ -70,7 +70,7 @@ public:
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant);
 
 	//spaceship planning
-	vector<CvCity*> GetBestCitiesForSpaceshipParts();
+	const vector<CvCity*>& GetBestCitiesForSpaceshipParts();
 	void AI_doSpaceshipProduction();
 
 	//For Great Diplomats

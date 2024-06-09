@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -152,11 +152,7 @@ int CvCitySpecializationXMLEntries::GetNumCitySpecializations()
 /// Get a specific entry
 CvCitySpecializationXMLEntry* CvCitySpecializationXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
-	return (index!=NO_CITY_SPECIALIZATION) ? m_paCitySpecializationEntries[index] : NULL;
-#else
-	return m_paCitySpecializationEntries[index];
-#endif
+	return (index != NO_CITY_SPECIALIZATION) ? m_paCitySpecializationEntries[index] : NULL;
 }
 
 /// Find the first specializations for a yield
@@ -1130,42 +1126,27 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	switch(eYield)
 	{
 	case YIELD_FOOD:
-	{
-		int iMaxFoodKeptPercent = pCity->getMaxFoodKeptPercent();
-		if(iMaxFoodKeptPercent >= 100)
-		{
-			iMaxFoodKeptPercent = 99;
-		}
-		iRtnValue *= 100 / (100 - iMaxFoodKeptPercent);
-	}
-	break;
+		iRtnValue *= 100 / (100 - min(99, pCity->getMaxFoodKeptPercent()));
+		break;
 
 	case YIELD_PRODUCTION:
-		// Double production if any military training facilities present
-#if defined(MOD_BALANCE_CORE)
-		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
+		if (pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
 		{
 			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_LAND) * 10)) / 100;
 		}
-		if(pCity->getDomainFreeExperience(DOMAIN_AIR) > 0)
+		if (pCity->getDomainFreeExperience(DOMAIN_AIR) > 0)
 		{
 			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_AIR) * 10)) / 100;
 		}
-		if(pCity->getDomainFreeExperience(DOMAIN_SEA) > 0)
+		if (pCity->getDomainFreeExperience(DOMAIN_SEA) > 0)
 		{
 			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_SEA) * 10)) / 100;
 		}
-#else
-		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
-		{
-			iRtnValue *= 2;
-		}
-#endif
 		break;
 
 	case YIELD_SCIENCE:
 		break;
-#if defined(MOD_BALANCE_CORE)
+
 	case YIELD_CULTURE:
 		iYieldChanges = pCity->getCultureRateModifier();
 		if(iYieldChanges > 0)
@@ -1183,7 +1164,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 			iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
 		}
 		break;
-#endif
+
 	case NO_YIELD:
 	case YIELD_GOLD:
 	case YIELD_TOURISM:

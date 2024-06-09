@@ -6460,7 +6460,7 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 
 	return NO_BUILDING;
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Should unique luxuries appear around this tile?
 bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGive)
 {
@@ -6561,111 +6561,38 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 
 void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 {
-	CvPlot* pLoopPlot = NULL;
-	UnitTypes eBestLandUnit = NO_UNIT;
-	int iStrengthBestLandCombat = 0;
-	UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
-	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	// No supply? Forget about it
+	if (m_pPlayer->GetNumUnitsToSupply() >= m_pPlayer->GetNumUnitsSupplied())
+		return;
+
+	UnitTypes eUnit = m_pPlayer->GetCompetitiveSpawnUnitType(false, false, true, true, pCity);
+	if (eUnit == NO_UNIT)
+		return;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		// It's possible that the player runs out of supply mid loop
+		if (m_pPlayer->GetNumUnitsToSupply() >= m_pPlayer->GetNumUnitsSupplied())
+			return;
+
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+		if (!pLoopPlot)
+			continue;
+
+		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		if (eImprovement == GetBestSpawnUnitImprovement())
 		{
-			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(pUnitEntry)
-			{
-				if(!pCity->canTrain(eUnit))
-				{
-					continue;
-				}
-				if(pUnitEntry->GetRangedCombat() > 0)
-				{
-					continue;
-				}
-				if (pUnitEntry->GetCombat() == 0)
-				{
-					continue;
-				}
-				if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
-				{
-					continue;
-				}
-				if(pUnitEntry->GetDomainType() == DOMAIN_LAND && m_pPlayer->GetNumUnitsToSupply() > m_pPlayer->GetNumUnitsSupplied())
-				{
-					bool bBad = false;
-					ResourceTypes eResource;
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						eResource = (ResourceTypes) iResourceLoop;
-						int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
-						if (iNumResource > 0)
-						{
-							if(m_pPlayer->getNumResourceAvailable(eResource, true) < iNumResource)
-							{
-								bBad = true;
-								break;
-							}
-						}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						{
-							iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
-							if (iNumResource > 0)
-							{
-								if (m_pPlayer->getNumResourceTotal(eResource, true) < iNumResource || m_pPlayer->getNumResourceAvailable(eResource, true) < 0)
-								{
-									bBad = true;
-									break;
-								}
-							}
-						}
-#endif
-					}
-					if(bBad)
-					{
-						continue;
-					}
-					int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
-					if(iCombatLandStrength > iStrengthBestLandCombat)
-					{
-						iStrengthBestLandCombat = iCombatLandStrength;
-						eBestLandUnit = eUnit;
-					}
-				}
-			}
-		}
-	}
-	if(eBestLandUnit == NO_UNIT)
-	{
-		eBestLandUnit = eWarrior;
-	}
-	if(eBestLandUnit != NO_UNIT)
-	{
-		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-		{
-			if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
-			{
-				continue;
-			}
-			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					if(pLoopPlot->getImprovementType() == this->GetBestSpawnUnitImprovement())
-					{
-						CvUnit* pkUnit = m_pPlayer->initUnit(eBestLandUnit, pLoopPlot->getX(), pLoopPlot->getY());
-						pCity->addProductionExperience(pkUnit);
-						if (!pkUnit->jumpToNearestValidPlot())
-							pkUnit->kill(false);
-					}
-				}
-			}
+			CvUnit* pkUnit = m_pPlayer->initUnit(eUnit, pLoopPlot->getX(), pLoopPlot->getY());
+			pCity->addProductionExperience(pkUnit);
+			if (!pkUnit->jumpToNearestValidPlot())
+				pkUnit->kill(false);
 		}
 	}
 }
-#endif
+
 /// Should unique luxuries appear beneath this tile?
 void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 {
@@ -7132,18 +7059,13 @@ void CvPlayerTraits::ChooseMayaBoost()
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
 			{
 				eDesiredGreatPerson = NO_UNIT;
 			}
-#endif
 		}
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+
 		if(eDesiredGreatPerson == NO_UNIT)
-#else
-		else
-#endif
 		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
 
@@ -7232,11 +7154,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 		CvCity* pCity = m_pPlayer->GetGreatPersonSpawnCity(eDesiredGreatPerson);
 		if(pCity)
 		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false);
-#endif
 			SetUnitBaktun(eDesiredGreatPerson);
 		}
 		m_pPlayer->ChangeNumMayaBoosts(-1);
@@ -7333,32 +7251,20 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
+		if (eUnit != NO_UNIT)
 		{
-			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
-			if (eUnit != NO_UNIT)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+			if (pUnitEntry)
 			{
-				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-				if (pUnitEntry)
+				if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 				{
-					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
-					{
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
-						{
-							continue;
-						}
-						else
-						{
-#endif
-						iNumGreatPeopleTypes++;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						}
-#endif
-					}
+					if (MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
+						continue;
+
+					iNumGreatPeopleTypes++;
 				}
-			}	
+			}
 		}
 	}
 

@@ -61,16 +61,16 @@
 #define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
 // for debugging only
-//#define MOD_UNIT_KILL_STATS
+#define MOD_UNIT_KILL_STATS gCustomMods.isUNIT_KILL_STATS()
 
 /// visible tiles stay visible until the end of the turn
-#define MOD_CORE_DELAYED_VISIBILITY
+#define MOD_CORE_DELAYED_VISIBILITY gCustomMods.isCORE_DELAYED_VISIBILITY()
 
 /// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
-//#define MOD_CORE_TWO_PASS_DANGER
+#define MOD_CORE_TWO_PASS_DANGER gCustomMods.isCORE_TWO_PASS_DANGER()
 
-/// define this if you need hovercraft support, but it costs performance
-//#define MOD_CORE_HOVERING_UNITS
+/// set this to true if you need hovercraft support, but it costs performance
+#define MOD_CORE_HOVERING_UNITS gCustomMods.isCORE_HOVERING_UNITS()
 
 /// unrevealed plots are impassable instead of passable by default
 #define MOD_CORE_UNREVEALED_IMPASSABLE
@@ -78,13 +78,10 @@
 /// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
 
-#define MOD_CORE_RESILIENT_PANTHEONS
+#define MOD_CORE_RESILIENT_PANTHEONS gCustomMods.isCORE_RESILIENT_PANTHEONS()
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
-
-// Comment out this line to include all the tutorials code
-#define NO_TUTORIALS
 
 // Comment out this line to switch off all custom mod logging
 #define CUSTOMLOGDEBUG "CustomMods.log"
@@ -1557,6 +1554,13 @@ public:
 	MOD_OPT_DECL(ISKA_GOLDENAGEPOINTS_TO_PRESTIGE);
 
 	MOD_OPT_DECL(BATTLE_ROYALE);
+
+	MOD_OPT_DECL(UNIT_KILL_STATS);
+
+	MOD_OPT_DECL(CORE_TWO_PASS_DANGER);
+	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);
+	MOD_OPT_DECL(CORE_HOVERING_UNITS);
+	MOD_OPT_DECL(CORE_RESILIENT_PANTHEONS);
 
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 	MOD_OPT_DECL(ADJACENT_BLOCKADE);

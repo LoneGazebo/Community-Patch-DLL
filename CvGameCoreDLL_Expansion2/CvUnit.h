@@ -31,9 +31,7 @@ class CvPlot;
 class CvUnitEntry;
 class CvUnitReligion;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 class CvTacticalMove;
-#endif
 
 typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
 typedef std::vector<std::pair<TerrainTypes, int>> TerrainTypeCounter;
@@ -237,13 +235,8 @@ public:
 		MOVE_RESULT_NO_TARGET	= 0xFFFFFFFB,		//attack not required
 	};
 
-#if defined(MOD_BALANCE_CORE)
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, CvUnit* pPassUnit = NULL);
 	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false, CvUnit* pPassUnit = NULL);
-#else
-	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
-	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false);
-#endif
 
 	void uninit();
 
@@ -256,11 +249,7 @@ public:
 	static int CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iExperienceTimes100);
 	void grantExperienceFromLostPromotions(int iNumLost);
 
-#if defined(MOD_BALANCE_CORE)
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
-#else
-	void convert(CvUnit* pUnit, bool bIsUpgrade);
-#endif
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
@@ -418,10 +407,9 @@ public:
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
 	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
 
-#if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
 	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
-#endif
+
 	bool canAirlift(const CvPlot* pPlot) const;
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool airlift(int iX, int iY);
@@ -1030,11 +1018,6 @@ public:
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
 
-#if defined(MOD_BALANCE_CORE)
-	//int combatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const;
-	int combatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
-#endif
-
 	int GetYieldModifier(YieldTypes eYield) const;
 	void SetYieldModifier(YieldTypes eYield, int iValue);
 
@@ -1405,11 +1388,9 @@ public:
 	int GetGreatGeneralStackMovement(const CvPlot* pLoopPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(const CvPlot* pAtPlot = NULL) const;
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifierFromPromotions(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier, const CvPlot* pAtPlot = NULL) const;
-#endif
 
 	bool IsCombatSupportUnit() const;
 
@@ -1683,7 +1664,6 @@ public:
 	inline bool isFeatureDoubleMove(FeatureTypes eIndex) const { return getFeatureDoubleMoveCount(eIndex) > 0; }
 	void changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange);
 
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	int getTerrainHalfMoveCount(TerrainTypes eIndex) const;
 	inline bool isTerrainHalfMove(TerrainTypes eIndex) const { return getTerrainHalfMoveCount(eIndex) > 0; }
 	void changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange);
@@ -1699,7 +1679,7 @@ public:
 	int getFeatureExtraMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureExtraMove(FeatureTypes eIndex) const { return getFeatureExtraMoveCount(eIndex) > 0; }
 	void changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
 	bool isTerrainDoubleHeal(TerrainTypes eIndex) const;
@@ -2009,6 +1989,8 @@ public:
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
+
+	void DoGreatPersonSpawnBonus(CvCity* pSpawnCity);
 
 protected:
 	const MissionData* HeadMissionData() const;
@@ -2361,13 +2343,13 @@ protected:
 	TerrainTypeCounter m_terrainDoubleMoveCount;
 	FeatureTypeCounter m_featureIgnoreCostCount;
 	FeatureTypeCounter m_featureDoubleMoveCount;
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
+
 	TerrainTypeCounter m_terrainHalfMoveCount;
 	FeatureTypeCounter m_featureHalfMoveCount;
 
 	TerrainTypeCounter m_terrainExtraMoveCount;
 	FeatureTypeCounter m_featureExtraMoveCount;
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	TerrainTypeCounter m_terrainDoubleHeal;
 	FeatureTypeCounter m_featureDoubleHeal;
