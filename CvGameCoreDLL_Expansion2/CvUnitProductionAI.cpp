@@ -1162,7 +1162,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
 					if (pkResourceInfo != NULL && pkResourceInfo->isTerrain(TERRAIN_COAST))
 					{
-						if (!kPlayer.NeedWorkerToImproveResource(eResourceLoop))
+						if (!kPlayer.NeedWorkboatToImproveResource(eResourceLoop))
 							continue;
 
 						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop);
@@ -1175,7 +1175,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iCityLoop = 0;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
-				if (pLoopCity->HasSharedAreaWith(m_pCity,true,false))
+				if (pLoopCity->HasSharedAreaWith(m_pCity,true,false) && m_pCity != pLoopCity)
 				{
 					AICityStrategyTypes eNeedNavalWorker = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
 					if (eNeedNavalWorker != NO_AICITYSTRATEGY && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedNavalWorker))

@@ -2614,7 +2614,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 #endif
 						if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
-							if (!kPlayer.NeedWorkerToImproveResource(eResource))
+							if (!kPlayer.NeedWorkboatToImproveResource(eResource))
 								continue;
 
 							iNumUnimprovedWaterResources++;
