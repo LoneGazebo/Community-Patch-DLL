@@ -480,8 +480,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			// the building needs aluminum? check if we'd still have enough for the spaceship
 			if (eResource == eAluminum && pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0)
 			{
-				vector<CvCity*> vCitiesForSpaceshipParts = kPlayer.GetCoreCitiesForSpaceshipProduction();
-				if (std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), m_pCity) == vCitiesForSpaceshipParts.end())
+				const vector<int>& vCitiesForSpaceshipParts = kPlayer.GetCoreCitiesForSpaceshipProduction();
+				if (std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), m_pCity->GetID()) == vCitiesForSpaceshipParts.end())
 				{
 					// this is not one of the core cities for spaceship parts. only build something if we'd still have enough aluminum for spaceship parts and for buildings in the core cities
 					int iNumAluminumWeCanUse = kPlayer.getNumResourceAvailable(eResource, false) - kPlayer.GetNumAluminumStillNeededForSpaceship() - kPlayer.GetNumAluminumStillNeededForCoreCities();

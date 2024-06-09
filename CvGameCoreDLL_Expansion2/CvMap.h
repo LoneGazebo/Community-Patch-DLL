@@ -386,12 +386,10 @@ public:
 	int GetPopupCount(int iPlotIndex);
 	void IncreasePopupCount(int iPlotIndex);
 
-#if defined(MOD_UNIT_KILL_STATS)
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void ExportUnitKillCount(PlayerTypes ePlayer);
 	void DoKillCountDecay(float fDecayFactor = 0.98f);
-#endif
 
 protected:
 
@@ -462,10 +460,8 @@ protected:
 
 	map<int, int> m_plotPopupCount; //not serialized
 
-#if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed
 	UnitKillCount killCount;
-#endif
 };
 
 #endif

@@ -433,11 +433,7 @@ public:
 
 	void DoTestStartGlobalQuest();
 	void DoTestStartPersonalQuest(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE)
 	void AddQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
-#else
-	void AddQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iStartTurn);
-#endif
 	void AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 

@@ -2043,12 +2043,9 @@ public:
 	bool isVisibleAlways() const;
 	bool isNukeImmune() const;
 	bool IsRough() const;
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
+
 	bool IsNaturalWonder(bool orPseudoNatural = false) const;
 	bool IsPseudoNaturalWonder() const;
-#else
-	bool IsNaturalWonder() const;
-#endif
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szTag);

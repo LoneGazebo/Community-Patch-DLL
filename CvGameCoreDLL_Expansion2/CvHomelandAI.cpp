@@ -1385,42 +1385,9 @@ void CvHomelandAI::PlotUpgradeMoves()
 					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
 
 				// Resource requirement
-				bool bMissingResource = false;
-				if (!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
-				{
-					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bMissingResource; iResourceLoop++)
-					{
-						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-						UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
-						int iNumResource = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityRequirement(eResource);
-						if (iNumResource > 0)
-						{
-							//Don't use all of our Aluminum, keep some for spaceship parts
-							ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-							if (eResource == eAluminumResource)
-							{
-								iNumResource += (m_pPlayer->GetNumAluminumStillNeededForSpaceship() + m_pPlayer->GetNumAluminumStillNeededForCoreCities());
-							}
-
-							int iNumResourceInUnit = pUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
-							if (m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < iNumResource)
-							{
-								bMissingResource = true;
-							}
-
-							if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-							{
-								int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
-								if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
-								{
-									bMissingResource = true;
-								}
-							}
-						}
-					}
-				}
-
-				if (bMissingResource)
+				UnitTypes eUnit = pUnit->getUnitType();
+				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
+				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
 					continue;
 
 				//this removes the unit from the army (if any)
@@ -1608,11 +1575,7 @@ void CvHomelandAI::PlotEngineerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER || (pUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !m_pPlayer->IsAtWar()))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
-#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1741,11 +1704,7 @@ void CvHomelandAI::PlotMissionaryMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->AI_getUnitAIType() == UNITAI_MISSIONARY || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_MISSIONARY))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_MISSIONARY)
-#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1950,11 +1909,7 @@ void CvHomelandAI::PlotArchaeologistMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
-#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());

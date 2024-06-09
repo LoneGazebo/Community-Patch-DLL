@@ -195,37 +195,30 @@ public:
 	int GetNumGreatWorks() const;
 	int GetNumGreatWorkSlots() const;
 	int GetNumGreatWorkSlots(GreatWorkSlotType eSlotType) const;
-	bool ControlsGreatWork (int iIndex);
+	bool ControlsGreatWork(int iIndex);
 	bool GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID, BuildingTypes &eReturnBuilding, int &iReturnSlot);
 #if defined(MOD_BALANCE_CORE)
 	void DoSwapGreatWorksHuman(bool bSwap);
 #endif
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+
 	void DoSwapGreatWorks(YieldTypes eFocusYield);
-	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
-#else
-	void DoSwapGreatWorks();
-	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
-#endif
+	void MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
 	bool ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
 	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID = -1);
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	bool MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet);
 #endif
 	bool FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
-#if defined(MOD_BALANCE_CORE)
 	bool MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot);
-#else
-	void MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot);
-#endif
+
 	int GetSwappableWritingIndex() const;
 	int GetSwappableArtIndex() const;
 	int GetSwappableArtifactIndex() const;
 	int GetSwappableMusicIndex() const;
-	void SetSwappableWritingIndex (int iIndex);
-	void SetSwappableArtIndex (int iIndex);
-	void SetSwappableArtifactIndex (int iIndex);
-	void SetSwappableMusicIndex (int iIndex);
+	void SetSwappableWritingIndex(int iIndex);
+	void SetSwappableArtIndex(int iIndex);
+	void SetSwappableArtifactIndex(int iIndex);
+	void SetSwappableMusicIndex(int iIndex);
 
 	// Archaeology 
 	void AddDigCompletePlot(CvPlot* pPlot);
@@ -236,8 +229,8 @@ public:
 	bool HasDigCompleteHere(CvPlot* pPlot) const;
 	int GetWrittenArtifactCulture() const;
 
-	void DoArchaeologyChoice (ArchaeologyChoiceType eChoice);
-	//    AI support routine - move elsewhere later?
+	void DoArchaeologyChoice(ArchaeologyChoiceType eChoice);
+	// AI support routine - move elsewhere later?
 	ArchaeologyChoiceType GetArchaeologyChoice(CvPlot *pPlot);
  
 	// Cultural Influence
@@ -378,11 +371,7 @@ public:
 
 	void Init(CvCity* m_pCity);
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	int GetNumGreatWorks(bool bIgnoreYield = true) const;
-#else
-	int GetNumGreatWorks() const;
-#endif
 	int GetNumGreatWorkSlots() const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const;

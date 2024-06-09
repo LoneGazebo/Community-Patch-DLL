@@ -1640,7 +1640,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 					// Update City Specializations.
 					kDefendingPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-#if defined(MOD_BALANCE_CORE)
+
 					//Do a golden age on war if we can
 					if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
 					{
@@ -1669,67 +1669,40 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							kDefendingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
 						}
 					}
+
 					// Get a free unit on DOW?
-					for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 					{
 						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-						if(pkUnitClassInfo)
+						const UnitTypes eLoopUnit = kAttackingPlayer.GetSpecificUnitType(eUnitClass);
+						if (eLoopUnit == NO_UNIT)
+							continue;
+
+						const CvUnitEntry* pLoopUnitInfo = GC.getUnitInfo(eLoopUnit);
+						if (!pLoopUnitInfo)
+							continue;
+
+						const UnitAITypes eDefaultAI = pLoopUnitInfo->GetDefaultUnitAIType();
+						bool bWarOnly = pLoopUnitInfo->IsWarOnly();
+						bool bCombat = (pLoopUnitInfo->GetCombat() > 0);
+						const TechTypes ePrereqTech = static_cast<TechTypes>(pLoopUnitInfo->GetPrereqAndTech());
+	
+						int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+						bool bAttackerPrereqTech = kAttackingPlayer.HasTech(ePrereqTech);
+						for (int iJ = 0; iJ < iUnitAttackerClass; iJ++)
 						{
-							CvPlot* pNewUnitPlot = NULL;
-							UnitTypes eLoopUnit;
-							int iDefaultAI = 0;
-							int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
-							int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
-							for(int iJ = 0; iJ < iUnitAttackerClass; iJ++)
-							{
-								eLoopUnit = kAttackingPlayer.GetSpecificUnitType(eUnitClass);
-								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
-								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
-								bool bPrereqTech = GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
-								if(!bCombat)
-								{
-									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-								}
-								else if(bWarOnly && bPrereqTech)
-								{
-									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-								}
-								else
-								{
-									if(kAttackingPlayer.canTrainUnit(eLoopUnit, false, false, true))
-									{
-										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-									}
-								}
-							}
-							for(int iK = 0; iK < iUnitDefenderClass; iK++)
-							{
-								eLoopUnit = kDefendingPlayer.GetSpecificUnitType(eUnitClass);
-								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
-								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
-								bool bPrereqTech = GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
-								if(!bCombat)
-								{
-									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-								}
-								else if(bWarOnly && bPrereqTech)
-								{
-									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-								}
-								else
-								{
-									if(kDefendingPlayer.canTrainUnit(eLoopUnit, false, false, true))
-									{
-										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-									}
-								}
-							}
+							if (!bCombat || (bWarOnly && bAttackerPrereqTech) || kAttackingPlayer.canTrainUnit(eLoopUnit, false, false, true))
+								kAttackingPlayer.addFreeUnit(eLoopUnit, false, eDefaultAI);
+						}
+
+						int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+						bool bDefenderPrereqTech = kDefendingPlayer.HasTech(ePrereqTech);
+						for (int iJ = 0; iJ < iUnitDefenderClass; iJ++)
+						{
+							if (!bCombat || (bWarOnly && bDefenderPrereqTech) || kDefendingPlayer.canTrainUnit(eLoopUnit, false, false, true))
+								kDefendingPlayer.addFreeUnit(eLoopUnit, false, eDefaultAI);
 						}
 					}
-#endif
 				}
 			}
 		}
@@ -7012,35 +6985,29 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				SetTradeTech(eIndex, true);
 			}
 
-			if(bFirst)
+			if (bFirst)
 			{
-				if(GC.getGame().countKnownTechNumTeams(eIndex) == 1)
+				if (GC.getGame().countKnownTechNumTeams(eIndex) == 1)
 				{
-					if (pkTechInfo->GetFirstFreeUnitClass() != NO_UNITCLASS)
+					UnitClassTypes eFreeUnitClass = static_cast<UnitClassTypes>(pkTechInfo->GetFirstFreeUnitClass());
+					if (eFreeUnitClass != NO_UNITCLASS)
 					{
 						bFirstResource = true;
-
-						for (int iI = 0; iI < MAX_PLAYERS; iI++)
+						CivsList veMembers = getPlayers();
+						for (CivsList::iterator it = veMembers.begin(); it != veMembers.end(); ++it)
 						{
-							const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
-							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+							CvPlayerAI& kPlayer = GET_PLAYER(*it);
+							if (!kPlayer.isAlive())
+								continue;
+
+							eFreeUnit = kPlayer.GetSpecificUnitType(eFreeUnitClass);
+							if (eFreeUnit == NO_UNIT)
+								continue;
+
+							pCapitalCity = kPlayer.getCapitalCity();
+							if (pCapitalCity)
 							{
-								eFreeUnit = (GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass()));
-
-								if (eFreeUnit != NO_UNIT)
-								{
-									pCapitalCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
-
-									if (pCapitalCity != NULL)
-									{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-										pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-										pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false);
-#endif
-									}
-								}
+								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
 							}
 						}
 					}
@@ -8011,7 +7978,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 		}
 	}
 #endif
-	CvPlot* pNewUnitPlot = NULL;
+
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
@@ -8038,32 +8005,31 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			}
 
 			// Free promotion from this tech?
-			for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+			for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
 			{
 				PromotionTypes ePromotion = (PromotionTypes) iPromotion;
-#if defined(MOD_BALANCE_CORE)
-				if(pTech->IsFreePromotion(ePromotion))
+				if (pTech->IsFreePromotion(ePromotion))
 				{
 					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
-
-					//For civilians
-					int iLoop = 0;
-					CvUnit* pLoopUnit = NULL;
+					
 					// Loop through existing units, because they have no way to earn it later
-					for(int iI = 0; iI < MAX_PLAYERS; iI++)
+					CivsList veMembers = getPlayers();
+					for (CivsList::iterator it = veMembers.begin(); it != veMembers.end(); ++it)
 					{
-						if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+						CvPlayer& kPlayer = GET_PLAYER(*it);
+						if (!kPlayer.isAlive())
+							continue;
+
+						int iLoop = 0;
+						for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 						{
-							for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
+							// If we're in friendly territory and we can embark, give the promotion for free
+							if (pLoopUnit->plot()->IsFriendlyTerritory(*it))
 							{
-								// If we're in friendly territory and we can embark, give the promotion for free
-								if(pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI))
+								// Civilian unit or the unit can acquire this promotion
+								if (IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
 								{
-									// Civilian unit or the unit can acquire this promotion
-									if(IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
-									{
-										pLoopUnit->setHasPromotion(ePromotion, true);
-									}
+									pLoopUnit->setHasPromotion(ePromotion, true);
 								}
 							}
 						}
@@ -8075,10 +8041,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 						kPlayer.SetWorkersIgnoreImpassable(true);
 					}
 				}
-#else
-				if(pTech->IsFreePromotion(ePromotion))
-					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
-#endif
 			}
 
 			// Update our traits (some may have become obsolete)
@@ -8087,32 +8049,36 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			kPlayer.recomputePolicyCostModifier();
 
 			// Does our trait give us a new unit when we reach this tech?
-			UnitTypes eLoopUnit;
-			int iDefaultAI = 0;
-			int iUnitClass = kPlayer.GetPlayerTraits()->GetFirstFreeUnit(eTech);
-			while(iUnitClass != NO_UNITCLASS)
+			UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(kPlayer.GetPlayerTraits()->GetFirstFreeUnit(eTech));
+			while (eUnitClass != NO_UNITCLASS)
 			{
-				eLoopUnit = kPlayer.GetSpecificUnitType((UnitClassTypes)iUnitClass);
-				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
-
-				// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.
-				// So in the future we should use a different notification ("you received a new unit from your trait since you reached this tech") instead.
-				SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-				if(pNewUnitPlot && kPlayer.GetNotifications() && GC.GetGameUnits()->GetEntry(eLoopUnit)->GetSpecialUnitType() == eSpecialUnitGreatPerson)
+				UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
+				if (eUnit != NO_UNIT)
 				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER");
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON");
-					kPlayer.GetNotifications()->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), pNewUnitPlot->getX(), pNewUnitPlot->getY(), eLoopUnit);
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+					if (pUnitInfo)
+					{
+						UnitAITypes eDefaultAI = static_cast<UnitAITypes>(pUnitInfo->GetDefaultUnitAIType());
+						CvPlot* pNewUnitPlot = kPlayer.addFreeUnit(eUnit, false, eDefaultAI);
+
+						// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.
+						// So in the future we should use a different notification ("you received a new unit from your trait since you reached this tech") instead.
+						SpecialUnitTypes eSpecialUnitGreatPerson = static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_PEOPLE"));
+						if (pNewUnitPlot && kPlayer.GetNotifications() && pUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER");
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON");
+							kPlayer.GetNotifications()->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), pNewUnitPlot->getX(), pNewUnitPlot->getY(), eUnit);
+						}
+					}
 				}
 
 				// Another?
-				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
+				eUnitClass = static_cast<UnitClassTypes>(kPlayer.GetPlayerTraits()->GetNextFreeUnit());
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			int iLoop = 0;
-			CvUnit* pLoopUnit = NULL;
-			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
 				if(pLoopUnit->isFreeUpgrade() || kPlayer.GetPlayerTraits()->IsFreeUpgrade())
 				{
@@ -8176,7 +8142,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 					}
 				}
 			}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 			// Free buildings (once unlocked via tech)
 			CvCity* pLoopCity = NULL;

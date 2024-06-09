@@ -1193,19 +1193,15 @@ public:
 	void SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValue);
 
 	int GetNumRealBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE)
 	void SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bool bNoBonus = false);
 	void SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus = false);
-#else
-	void SetNumRealBuilding(BuildingTypes eIndex, int iNewValue);
-	void SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime);
-#endif
+
 	int GetNumFreeBuilding(BuildingTypes eIndex) const;
 	void SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
-#if defined(MOD_BALANCE_CORE)
+
 	int IsFirstTimeBuilding(BuildingTypes eBuilding);
 	void SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue);
-#endif
+
 	int GetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	void SetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
 	void ChangeBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
@@ -1224,27 +1220,20 @@ public:
 
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 	int GetCultureFromGreatWorks() const;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+
 	int GetNumGreatWorks(bool bIgnoreYield = true) const;
-#else
-	int GetNumGreatWorks() const;
-#endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact = false, bool bArt = false) const;
-#if defined(MOD_BALANCE_CORE)
+
 	int GetThemingBonusIndex(BuildingTypes eBuilding) const;
 	void SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex);
-#endif
 
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;
 	void ChangeGreatWorksTourismModifier(int iChange);
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	int GetCurrentThemingBonuses(YieldTypes eYield) const;
-#else
-	int GetCurrentThemingBonuses() const;
-#endif
+
 	int GetTotalNumThemedBuildings() const;
 	int GetNumBuildingsFromFaith() const;
 

@@ -291,9 +291,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetResourceUsageType);
 
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 	Method(GetNumResourceTotalRequiredForUnit);
-#endif
 
 	Method(GetNumResourceRequiredForUnit);
 	Method(GetNumResourceRequiredForBuilding);
@@ -2002,7 +2000,7 @@ int CvLuaGame::lGetResourceUsageType(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceTotalRequiredForUnit(lua_State* L)
 {
@@ -2021,7 +2019,6 @@ int CvLuaGame::lGetNumResourceTotalRequiredForUnit(lua_State* L)
 
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForUnit(lua_State* L)
 {
