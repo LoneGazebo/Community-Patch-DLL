@@ -5874,12 +5874,12 @@ int CvPlot::ComputeYieldFromAdjacentImprovement(CvImprovementEntry& kImprovement
 	CvPlot* pAdjacentPlot = NULL;
 	int iRtnValue = 0;
 
-	if(kImprovement.GetYieldAdjacentSameType(eYield) > 0)
+	if(kImprovement.GetYieldAdjacentSameType(eYield) != 0)
 	{
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
+			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue > !pAdjacentPlot->IsImprovementPillaged())
 			{
 				iRtnValue += kImprovement.GetYieldAdjacentSameType(eYield);
 			}
@@ -5899,7 +5899,7 @@ int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovem
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
+			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue && !pAdjacentPlot->IsImprovementPillaged())
 			{
 				iRtnValue += kImprovement.GetYieldAdjacentTwoSameType(eYield);
 			}
@@ -5915,21 +5915,15 @@ int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprov
 	CvPlot* pAdjacentPlot = NULL;
 	int iRtnValue = 0;
 
-	for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		ImprovementTypes eImprovement = (ImprovementTypes)iJ;
-		if(eImprovement != NO_IMPROVEMENT)
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if(pAdjacentPlot && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
 		{
-			if(kImprovement.GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+			int iChange = kImprovement.GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), eYield);
+			if (iChange > 0)
 			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-				{
-					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eImprovement)
-					{
-						iRtnValue += kImprovement.GetAdjacentImprovementYieldChanges(eImprovement, eYield);
-					}
-				}
+				iRtnValue += iChange;
 			}
 		}
 	}
