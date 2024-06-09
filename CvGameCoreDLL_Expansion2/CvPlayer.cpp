@@ -43372,9 +43372,9 @@ bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) co
 
 //	--------------------------------------------------------------------------------
 //Returns false if we can't improve the resource at all
-bool CvPlayer::NeedWorkerToImproveResource(ResourceTypes eResource) const
+bool CvPlayer::NeedWorkboatToImproveResource(ResourceTypes eResource) const
 {
-	bool bCanImproveWithWorker = false;
+	bool bCanImproveWithWorkboat = false;
 	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		BuildTypes eBuild = (BuildTypes)iI;
@@ -43395,10 +43395,13 @@ bool CvPlayer::NeedWorkerToImproveResource(ResourceTypes eResource) const
 		if (pkImprovementInfo->IsCreatedByGreatPerson())
 			continue;
 
+		if (!pkImprovementInfo->IsWater())
+			continue;
+
 		if (!canBuild(NULL, eBuild))
 			continue;
 
-		bCanImproveWithWorker = true;
+		bCanImproveWithWorkboat = true;
 
 		int iLoopUnit = 0;
 		for (const CvUnit* pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit))
@@ -43410,7 +43413,7 @@ bool CvPlayer::NeedWorkerToImproveResource(ResourceTypes eResource) const
 			}
 		}
 	}
-	return bCanImproveWithWorker;
+	return bCanImproveWithWorkboat;
 }
 
 //	--------------------------------------------------------------------------------
