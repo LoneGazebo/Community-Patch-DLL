@@ -185,6 +185,9 @@ local g_cityToolTips = {
 		local tipText = ""
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[ cityOwnerID ]
+
+		local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
+
 		if cityOwner then
 			local cityTeamID = cityOwner:GetTeam()
 
@@ -222,7 +225,7 @@ local g_cityToolTips = {
 				end
 			end
 
-			if cityTeamID == g_activeTeamID then
+			if cityTeamID == g_activeTeamID or isDebug then
 
 				local cultureStored = city:GetJONSCultureStored()
 				local cultureNeeded = city:GetJONSCultureThreshold()
@@ -248,7 +251,7 @@ local g_cityToolTips = {
 
 				if not OptionsManager.IsNoBasicHelp() then
 					tipText = tipText .. "[NEWLINE]";
-					if cityOwnerID == g_activePlayerID then
+					if cityOwnerID == g_activePlayerID or isDebug then
 						tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_CITY_ENTER_CITY_SCREEN")
 					else
 						tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_CITY_TEAMMATE")

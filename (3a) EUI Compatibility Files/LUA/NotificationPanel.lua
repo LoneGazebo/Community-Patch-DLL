@@ -1411,6 +1411,8 @@ local function UpdateCivListNow()
 		end
 	end
 	-- Update the Majors
+    
+	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
 
 	for playerID, instance in pairs( g_majorControlTable ) do
 
@@ -1421,7 +1423,7 @@ local function UpdateCivListNow()
 		-- have we met ?
 
 		if player:IsAlive()
-			and g_activeTeam:IsHasMet( teamID )
+			and (g_activeTeam:IsHasMet( teamID ) or isDebug)
 		then
 			if team:GetNumMembers() > 1 then
 				instance.TeamIcon:SetText( "[ICON_TEAM_" .. team:GetID() + 1 .. "]" )
@@ -1609,7 +1611,7 @@ local function UpdateCivListNow()
 
 		if minorPlayer
 			and minorPlayer:IsAlive()
-			and g_activeTeam:IsHasMet( minorPlayer:GetTeam() )
+			and (g_activeTeam:IsHasMet( minorPlayer:GetTeam() ) or isDebug)
 		then
 			instance.Button:SetHide( false )
 
