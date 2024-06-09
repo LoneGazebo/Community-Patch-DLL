@@ -452,6 +452,10 @@ public:
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
+	set<int> GetFreePromotions() const
+	{
+		return m_siFreePromotions;
+	}
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
 #endif
@@ -820,6 +824,8 @@ protected:
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
+
+	set<int> m_siFreePromotions;
 
 private:
 	CvTraitEntry(const CvTraitEntry&);
@@ -2099,6 +2105,11 @@ public:
 
 	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
 
+	set<PromotionTypes> GetFreePromotions() const
+	{
+		return m_seFreePromotions;
+	}
+
 private:
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
 	bool ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit);
@@ -2469,6 +2480,8 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
+
+	set<PromotionTypes> m_seFreePromotions;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerTraits&);

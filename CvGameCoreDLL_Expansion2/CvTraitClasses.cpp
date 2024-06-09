@@ -2657,6 +2657,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
+
+	// Sets
+	kUtility.PopulateSetByExistence(m_siFreePromotions, "UnitPromotions", "Trait_FreePromotions", "PromotionType", "TraitType", szTraitType);
+
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
 	//Trait_Terrains
@@ -3912,6 +3916,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	// Not optimal, since this assumes the free promotions are always combat-based.
+	// But there isn't a good way to classify promotions.
 	for (int iNumPromos = 0; iNumPromos < GC.getNumPromotionInfos(); iNumPromos++)
 	{
 		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
@@ -3934,6 +3940,11 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	if (!GetFreePromotions().empty())
+	{
+		m_bIsWarmonger = true;
+		return;
+	}
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
@@ -5161,6 +5172,14 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 #endif
+
+			// Free promotions
+			set<int> siFreePromotions = trait->GetFreePromotions();
+			for (set<int>::iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
+			{
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(*it);
+				m_seFreePromotions.insert(ePromotion);
+			}
 		}
 	}
 

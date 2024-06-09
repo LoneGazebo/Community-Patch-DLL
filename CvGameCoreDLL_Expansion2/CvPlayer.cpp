@@ -1075,6 +1075,13 @@ void CvPlayer::init(PlayerTypes eID)
 			}
 		}
 
+		// Free promotions from traits
+		set<PromotionTypes> seFreePromotions = GetPlayerTraits()->GetFreePromotions();
+		for (set<PromotionTypes>::iterator it = seFreePromotions.begin(); it != seFreePromotions.end(); ++it)
+		{
+			ChangeFreePromotionCount(*it, 1);
+		}
+
 		SetGreatGeneralCombatBonus(/*15*/ GD_INT_GET(GREAT_GENERAL_STRENGTH_MOD));
 	}
 	GET_TEAM(getTeam()).DoUpdateBestRoute();
