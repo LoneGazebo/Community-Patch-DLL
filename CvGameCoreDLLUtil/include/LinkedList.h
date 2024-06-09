@@ -8,24 +8,20 @@
 
 template <class tVARTYPE> class CLinkList;
 
-
 template <class tVARTYPE> class CLLNode
 {
 
 friend class CLinkList<tVARTYPE>;
 
 public:
+    CLLNode(const tVARTYPE& val) 
+        : m_data(val), m_pNext(NULL), m_pPrev(NULL) 
+    {
+    }
 
-    CLLNode(const tVARTYPE& val)
-          {
-	          m_data = val;
+    virtual ~CLLNode() {}
 
-	          m_pNext = NULL;
-	          m_pPrev = NULL;
-          }
-	virtual ~CLLNode() {}
-
-	tVARTYPE	m_data;		//list of vartype
+    tVARTYPE m_data; // list of vartype
 
 protected:
 
@@ -33,7 +29,6 @@ protected:
 	CLLNode<tVARTYPE>*	m_pPrev;
 
 };
-
 
 template <class tVARTYPE> class CLinkList
 {

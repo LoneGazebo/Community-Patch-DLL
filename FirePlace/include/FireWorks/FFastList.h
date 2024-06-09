@@ -695,9 +695,12 @@ protected:
 	FCustomList_Tail_Member( const TYPE& rhs ) : m_kAllocator( rhs.m_kAllocator ) {};
 	~FCustomList_Tail_Member(){ m_kAllocator.clear(); };
 
-	const TYPE& operator = ( const TYPE& rhs ){
-		m_kAllocator = rhs.m_kAllocator;
-	};
+	const TYPE& operator=(const TYPE& rhs) {
+		if (this != &rhs) {  // Check for self-assignment
+			m_kAllocator = rhs.m_kAllocator;
+		}
+		return *this;  // Return a reference to the current object
+	}
 
 	T_ALLOCATOR m_kAllocator;
 
@@ -722,9 +725,12 @@ public:
 	FCustomList( const TYPE& rhs )
 		: CORE( rhs ) {};
 
-	const TYPE& operator=( const TYPE& rhs ){
-		CORE = rhs;
-	};
+	const TYPE& operator=(const TYPE& rhs) {
+		if (this != &rhs) {  // Check for self-assignment
+			CORE::operator=(rhs);  // Call the base class's assignment operator
+		}
+		return *this;  // Return a reference to the current object
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -766,9 +772,12 @@ public:
 	FCustomList( T_ALLOCATOR* pAlloc ) : CORE( pAlloc ) {};
 	FCustomList( const TYPE& rhs ) : CORE( rhs ) {};
 
-	const TYPE& operator=( const TYPE& rhs ){
-		CORE = rhs;
-	};
+	const TYPE& operator=(const TYPE& rhs) {
+		if (this != &rhs) {  // Check for self-assignment
+			CORE::operator=(rhs);  // Call the base class's assignment operator
+		}
+		return *this;  // Return a reference to the current object
+	}
 };
 
 
@@ -880,11 +889,13 @@ public:
 	~FMultiList(){};
 
 	//Copy operator
-	const TYPE& operator = ( const TYPE& rhs )
-	{
-		m_pAlloc = rhs.m_pAlloc;
-		m_kVector = rhs.m_kVector;
-	};
+	const TYPE& operator=(const TYPE& rhs) {
+		if (this != &rhs) {  // Check for self-assignment
+			m_pAlloc = rhs.m_pAlloc;
+			m_kVector = rhs.m_kVector;
+		}
+		return *this;  // Return a reference to the current object
+	}
 
 	////////////////////////////////////////////////////////////////////////
 	// Methods to insert/remove elements from the list

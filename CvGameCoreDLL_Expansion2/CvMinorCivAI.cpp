@@ -6412,8 +6412,8 @@ void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 	bool bPersonalQuestDone = false;
 	bool bGlobalQuestDone = false;
 
-	QuestListForPlayer::iterator itr_quest;
-	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+	QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin();
+	while (itr_quest != m_QuestsGiven[ePlayer].end())
 	{
 		if (itr_quest->IsHandled())
 		{
@@ -6423,8 +6423,18 @@ void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 			if (IsGlobalQuest(eQuestType))
 				bGlobalQuestDone = true;
 
+			// Store the next iterator before erasing the current element
+			QuestListForPlayer::iterator next_itr = itr_quest;
+			++next_itr;
+
 			m_QuestsGiven[ePlayer].erase(itr_quest);
-			itr_quest--;
+
+			// Move to the next valid iterator
+			itr_quest = next_itr;
+		}
+		else
+		{
+			++itr_quest;
 		}
 	}
 

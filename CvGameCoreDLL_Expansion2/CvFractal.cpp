@@ -521,10 +521,12 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 			}
 
 			// use the modified distance between the two closest seeds to determine the ridge height
-			// ??? are there any other fudge factors I want to add in here???
-			//std::stable_sort(vDistances.begin(),vDistances.end());
-
-			int iRidgeHeight = (255 * iClosestSeed) / iNextClosestSeed;
+			// TODO: are there any other fudge factors I want to add in here? - LoneGazebo
+			//std::stable_sort(vDistances.begin(),vDistances.end())
+			int iRidgeHeight = 0;
+			if (iNextClosestSeed != 0) {
+				iRidgeHeight = static_cast<int>((255.0 * iClosestSeed) / iNextClosestSeed);
+			}
 
 			// blend the new ridge height with the previous fractal height
 			m_aaiFrac[iX][iY] = (iRidgeHeight * iBlendRidge + m_aaiFrac[iX][iY] * iBlendFract) / std::max(iBlendRidge + iBlendFract, 1);
