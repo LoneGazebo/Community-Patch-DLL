@@ -6424,13 +6424,7 @@ void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 				bGlobalQuestDone = true;
 
 			// Store the next iterator before erasing the current element
-			QuestListForPlayer::iterator next_itr = itr_quest;
-			++next_itr;
-
-			m_QuestsGiven[ePlayer].erase(itr_quest);
-
-			// Move to the next valid iterator
-			itr_quest = next_itr;
+			itr_quest = m_QuestsGiven[ePlayer].erase(itr_quest);
 		}
 		else
 		{
