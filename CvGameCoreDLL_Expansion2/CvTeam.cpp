@@ -380,7 +380,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		for(int i = 0; i < MAX_TEAMS; i++)
 		{
 			m_aiTurnTeamMet[i] = -1;
-			m_aiNumTurnsAtWar[i] = 0;
+			m_aiTurnWarStarted[i] = -1;
 			m_aiNumTurnsLockedIntoWar[i] = 0;
 		}
 
@@ -806,18 +806,9 @@ void CvTeam::doTurn()
 	// NOT barbs
 	else
 	{
-		// War counter
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
 			TeamTypes eTeam = (TeamTypes) iTeamLoop;
-
-			if (!GET_TEAM(eTeam).isBarbarian())
-			{
-				if (isAtWar(eTeam))
-					ChangeNumTurnsAtWar(eTeam, 1);
-				else
-					SetNumTurnsAtWar(eTeam, 0);
-			}
 
 			if (GetNumTurnsLockedIntoWar(eTeam) > 0)
 				ChangeNumTurnsLockedIntoWar(eTeam, -1);
@@ -1457,30 +1448,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 		}
 	}
 #endif
-
-	// Set initial war counters for all players
-	for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
-
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
-		{
-			for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
-			{
-				PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
-
-				if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
-				{
-					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
-					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
-					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
-					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
-					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
-					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
-				}
-			}
-		}
-	}
 
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
@@ -2204,7 +2171,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	setAtWar(eTeam, false, bPacifier);
 	GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
 
-	// Set initial peace counters for all players
+	// Reset damage counters for cities
 	for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
 	{
 		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoop);
@@ -2219,14 +2186,6 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 
 				if (kLoopPlayer2.isAlive() && kLoopPlayer2.getTeam() == eTeam)
 				{
-					kLoopPlayer.SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
-					kLoopPlayer.SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
-					kLoopPlayer.SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
-					kLoopPlayer2.SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
-					kLoopPlayer2.SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
-					kLoopPlayer2.SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
-
-					// Also reset damage counters of each city
 					int iLoopCity = 0;
 					for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoopCity))
 					{
@@ -4282,6 +4241,26 @@ void CvTeam::SetTurnTeamMet(TeamTypes eTeam, int iTurn)
 }
 
 //	--------------------------------------------------------------------------------
+int CvTeam::GetNumTurnsAtWar(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	int iTurn = m_aiTurnWarStarted[eTeam];
+	if (iTurn == -1)
+		return INT_MAX;
+
+	return GC.getGame().getGameTurn() - iTurn;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::SetTurnWarStarted(TeamTypes eTeam, int iTurn)
+{
+	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_aiTurnWarStarted[eTeam] = iTurn;
+}
+
+//	--------------------------------------------------------------------------------
 /// Have we seen ePlayer's territory before?
 bool CvTeam::IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const
 {
@@ -4336,32 +4315,16 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
-	if (eIndex != GetID() || !bNewValue)
-	{
-		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
-		m_abAtWar[eIndex] = bNewValue;
-		for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
-		{
-			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-			if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
-			{
-				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-				{
-					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-					if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
-					{
-						kAttackingPlayer.recomputeGreatPeopleModifiers();
-						kDefendingPlayer.recomputeGreatPeopleModifiers();
-					}
-				}
-			}
-		}
-	}
+	if (eIndex == GetID())
+		return;
+
+	m_abAggressorPacifier[eIndex] = bAggressorPacifier;
+	m_abAtWar[eIndex] = bNewValue;
 
 	if (bNewValue)
 	{
+		SetTurnWarStarted(eIndex, GC.getGame().getGameTurn());
+
 		//Check for bad units, and capture them!
 		vector<CvUnitCaptureDefinition> kCaptureUnitList;
 
@@ -4424,6 +4387,49 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 			}
 		}
 	}
+	else
+	{
+		SetTurnWarStarted(eIndex, -1);
+
+		for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+		{
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoop);
+			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
+			{
+				for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+				{
+					PlayerTypes eLoopPlayer2 = static_cast<PlayerTypes>(iLoop2);
+					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
+
+					if (kLoopPlayer2.isAlive() && kLoopPlayer2.getTeam() == eIndex)
+					{
+						kLoopPlayer.SetLastCityCaptureTurn(eLoopPlayer2, -1);
+					}
+				}
+			}
+		}
+	}
+
+	for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	{
+		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+		{
+			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+			{
+				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
+				{
+					kAttackingPlayer.recomputeGreatPeopleModifiers();
+					kDefendingPlayer.recomputeGreatPeopleModifiers();
+				}
+			}
+		}
+	}
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 }
@@ -4452,33 +4458,6 @@ bool CvTeam::HasCommonEnemy(TeamTypes eOtherTeam) const
 	}
 
 	return false;
-}
-
-//	--------------------------------------------------------------------------------
-/// How long have we been at war with eTeam?
-int CvTeam::GetNumTurnsAtWar(TeamTypes eTeam) const
-{
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiNumTurnsAtWar[eTeam];
-}
-
-//	--------------------------------------------------------------------------------
-/// Sets how long have we been at war with eTeam
-void CvTeam::SetNumTurnsAtWar(TeamTypes eTeam, int iValue)
-{
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eTeam != GetID() || iValue == 0, "Team is setting war turns with itself!");
-	if(eTeam != GetID() || iValue == 0)
-		m_aiNumTurnsAtWar[eTeam] = iValue;
-}
-
-//	--------------------------------------------------------------------------------
-/// Changes how long have we been at war with eTeam
-void CvTeam::ChangeNumTurnsAtWar(TeamTypes eTeam, int iChange)
-{
-	SetNumTurnsAtWar(eTeam, GetNumTurnsAtWar(eTeam) + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9189,7 +9168,6 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_eKilledByTeam);
 
 	visitor(team.m_aiTechShareCount);
-	visitor(team.m_aiNumTurnsAtWar);
 	visitor(team.m_aiNumTurnsLockedIntoWar);
 	visitor(team.m_aiExtraMoves);
 
@@ -9233,6 +9211,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(MakeConstSpan(team.m_aiVictoryCountdown, GC.getNumVictoryInfos()));
 
 	visitor(team.m_aiTurnTeamMet);
+	visitor(team.m_aiTurnWarStarted);
 
 	visitor(*team.m_pTeamTechs);
 
@@ -9267,7 +9246,6 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iCorporationsEnabledCount);
 
 	visitor(team.m_abAtWar);
-	visitor(team.m_aiNumTurnsAtWar);
 	visitor(team.m_abAggressorPacifier);
 }
 

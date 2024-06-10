@@ -869,8 +869,12 @@ int CvLuaTeam::lGetNumTurnsAtWar(lua_State* L)
 	int iValue = 0;
 	if(eTeam != NO_TEAM)
 	{
-		iValue =  pkTeam->GetNumTurnsAtWar(eTeam);
-		
+		iValue = pkTeam->GetNumTurnsAtWar(eTeam);
+		if (iValue == INT_MAX)
+		{
+			lua_pushnumber(L, -1);
+			return 1;
+		}
 	}
 	lua_pushnumber(L, iValue);
 	return 1;

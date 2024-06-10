@@ -2013,18 +2013,8 @@ public:
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
 
-	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange);
-
-	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
-	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
-
-	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+	int GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
+	void SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn);
 
 	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false);
 
@@ -2050,9 +2040,6 @@ public:
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
-
-	void DoUpdateWarPeaceTurnCounters();
-	void ResetWarPeaceTurnCounters();
 
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
@@ -3530,9 +3517,7 @@ protected:
 	std::vector<int> m_aiCapitalYieldRateModifier;
 	std::vector<int> m_aiExtraYieldThreshold;
 	std::vector<int> m_aiSpecialistExtraYield;
-	std::vector<int> m_aiPlayerNumTurnsAtPeace;
-	std::vector<int> m_aiPlayerNumTurnsAtWar;
-	std::vector<int> m_aiPlayerNumTurnsSinceCityCapture;
+	std::vector<int> m_aiLastCityCaptureTurn;
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
 	std::vector<int> m_aiWarWeariness;
@@ -4327,9 +4312,7 @@ SYNC_ARCHIVE_VAR(bool, m_bAllowsFoodTradeRoutesGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraYieldThreshold)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistExtraYield)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtPeace)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtWar)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsSinceCityCapture)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastCityCaptureTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarWeariness)

@@ -4451,7 +4451,13 @@ int CvLuaPlayer::lGetWarDuration(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetPlayerNumTurnsAtWar(ePlayer);
+	const int iResult = GET_TEAM(pkPlayer->getTeam()).GetNumTurnsAtWar(GET_PLAYER(ePlayer).getTeam());
+	if (iResult == INT_MAX)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4459,11 +4465,13 @@ int CvLuaPlayer::lGetWarDuration(lua_State* L)
 int CvLuaPlayer::lGetLongestWarDuration(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	int iResult = -1;
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iI;
-		iResult = max(iResult, pkPlayer->GetPlayerNumTurnsAtWar(ePlayer));
+		int iDuration = GET_TEAM(pkPlayer->getTeam()).GetNumTurnsAtWar(GET_PLAYER(ePlayer).getTeam());
+		if (iDuration != INT_MAX && iDuration > iResult)
+			iResult = iDuration;
 	}
 
 	lua_pushinteger(L, iResult);

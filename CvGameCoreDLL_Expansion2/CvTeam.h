@@ -252,6 +252,9 @@ public:
 	int GetTurnTeamMet(TeamTypes eTeam) const;
 	void SetTurnTeamMet(TeamTypes eTeam, int iTurn);
 
+	int GetNumTurnsAtWar(TeamTypes eTeam) const;
+	void SetTurnWarStarted(TeamTypes eTeam, int iTurn);
+
 	bool IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const;
 	bool SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue);
 
@@ -261,10 +264,6 @@ public:
 	bool isAtWar(TeamTypes eIndex) const;
 	void setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier);
 	bool HasCommonEnemy(TeamTypes eOtherTeam) const;
-
-	int GetNumTurnsAtWar(TeamTypes eTeam) const;
-	void SetNumTurnsAtWar(TeamTypes eTeam, int iValue);
-	void ChangeNumTurnsAtWar(TeamTypes eTeam, int iChange);
 
 	int GetNumTurnsLockedIntoWar(TeamTypes eTeam) const;
 	void SetNumTurnsLockedIntoWar(TeamTypes eTeam, int iValue);
@@ -547,7 +546,6 @@ protected:
 	TeamTypes m_eKilledByTeam;
 
 	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiTechShareCount;
-	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsAtWar;
 	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsLockedIntoWar;
 	Firaxis::Array< int, NUM_DOMAIN_TYPES > m_aiExtraMoves;
 	Firaxis::Array< int, REALLY_MAX_TEAMS > m_paiTurnMadePeaceTreatyWithTeam;
@@ -564,7 +562,8 @@ protected:
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abResearchAgreement;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abForcePeace;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abWonLatestWar;
-	Firaxis::Array< int, REALLY_MAX_PLAYERS > m_aiTurnTeamMet;
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiTurnTeamMet;
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiTurnWarStarted;
 
 	typedef
 	FAllocArrayType< int,

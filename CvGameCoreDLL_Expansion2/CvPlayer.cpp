@@ -386,9 +386,7 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier()
 	, m_aiExtraYieldThreshold()
 	, m_aiSpecialistExtraYield()
-	, m_aiPlayerNumTurnsAtPeace()
-	, m_aiPlayerNumTurnsAtWar()
-	, m_aiPlayerNumTurnsSinceCityCapture()
+	, m_aiLastCityCaptureTurn()
 	, m_aiWarValueLost()
 	, m_aiWarDamageValue()
 	, m_aiWarWeariness()
@@ -1955,14 +1953,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
 
-	m_aiPlayerNumTurnsAtPeace.clear();
-	m_aiPlayerNumTurnsAtPeace.resize(MAX_PLAYERS, 0);
-
-	m_aiPlayerNumTurnsAtWar.clear();
-	m_aiPlayerNumTurnsAtWar.resize(MAX_PLAYERS, 0);
-
-	m_aiPlayerNumTurnsSinceCityCapture.clear();
-	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+	m_aiLastCityCaptureTurn.clear();
+	m_aiLastCityCaptureTurn.resize(MAX_PLAYERS, -1);
 
 	m_aiWarValueLost.clear();
 	m_aiWarValueLost.resize(MAX_PLAYERS, 0);
@@ -3239,7 +3231,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				}
 			}
 
-			SetPlayerNumTurnsSinceCityCapture(eOldOwner, 0);
+			SetLastCityCaptureTurn(eOldOwner, GC.getGame().getGameTurn());
 		}
 
 		// Notify diplomacy AI that the damage was done
@@ -9552,25 +9544,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	CvDiplomacyAI* pDiploAI = kPlayer.GetDiplomacyAI();
 	bool bAlive = kPlayer.isAlive();
 
-	// If they aren't alive, start the resurrection process
-	if (!bAlive)
-	{
-		// Mark the liberators
-		if (!bForced && !bSphereRemoval)
-		{
-			kLiberatedTeam.SetLiberatedByTeam(eTeam);
-		}
-
-		// Put everyone at peace with this guy
-		for (int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_CIV_TEAMS; iOtherTeamLoop++)
-		{
-			TeamTypes eOtherTeam = static_cast<TeamTypes>(iOtherTeamLoop);
-			if (eLiberatedTeam != eOtherTeam)
-			{
-				kLiberatedTeam.makePeace(eOtherTeam, /*bBumpUnits*/ false, /*bSuppressNotification*/ true, GetID());
-			}
-		}
-	}
+	// Mark the liberators
+	if (!bAlive && !bForced && !bSphereRemoval)
+		kLiberatedTeam.SetLiberatedByTeam(eTeam);
 
 	// Diplo bonus for returning the city
 	if (!bForced && kPlayer.isMajorCiv())
@@ -11265,7 +11241,6 @@ void CvPlayer::doTurnPostDiplomacy()
 		else
 		{
 			CvBarbarians::DoCamps();
-			DoUpdateWarPeaceTurnCounters();
 		}
 
 		if(isMinorCiv())
@@ -11514,9 +11489,6 @@ void CvPlayer::doTurnPostDiplomacy()
 		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerDoTurn", args.get(), bResult);
 	}
-
-	// Certain counters update now
-	DoUpdateWarPeaceTurnCounters();
 
 	if (isMajorCiv())
 	{
@@ -34299,8 +34271,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 
 			SetWarValueLost(eLoopPlayer, 0);
 			SetWarDamageValue(eLoopPlayer, 0);
+			SetLastCityCaptureTurn(eLoopPlayer, -1);
 			GET_PLAYER(eLoopPlayer).SetWarValueLost(GetID(), 0);
 			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
+			GET_PLAYER(eLoopPlayer).SetLastCityCaptureTurn(GetID(), -1);
 
 			if (isMajorCiv())
 				SetWarWeariness(eLoopPlayer, 0); // this is intentionally not reset for the other player (for a gradual decay)
@@ -34312,7 +34286,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		// Wipe out everything involving this player
 		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
 		clearResearchQueue();
-		ResetWarPeaceTurnCounters();
 		killUnits();
 		killCities();
 
@@ -37224,111 +37197,20 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-// WAR/PEACE COUNTERS
 
-int CvPlayer::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
+int CvPlayer::GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 {
-	return m_aiPlayerNumTurnsAtPeace[ePlayer];
+	int iTurn = m_aiLastCityCaptureTurn[ePlayer];
+	if (iTurn == -1)
+		return INT_MAX;
+
+	return GC.getGame().getGameTurn() - iTurn;
 }
 
-void CvPlayer::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
+void CvPlayer::SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
-	m_aiPlayerNumTurnsAtPeace[ePlayer] = iValue;
-}
-
-void CvPlayer::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsAtPeace(ePlayer, GetPlayerNumTurnsAtPeace(ePlayer) + iChange);
-}
-
-int CvPlayer::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
-{
-	return m_aiPlayerNumTurnsAtWar[ePlayer];
-}
-
-void CvPlayer::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
-	m_aiPlayerNumTurnsAtWar[ePlayer] = iValue;
-}
-
-void CvPlayer::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
-}
-
-int CvPlayer::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
-{
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;
-
-	int iMaxTurns = 0;
-
-	vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
-	for (size_t i = 0; i < vTeamPlayers.size(); i++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) vTeamPlayers[i];
-		if (GET_PLAYER(ePlayer).isAlive() && GetPlayerNumTurnsAtWar(ePlayer) > iMaxTurns)
-		{
-			iMaxTurns = GetPlayerNumTurnsAtWar(ePlayer);
-		}
-	}
-
-	return iMaxTurns;
-}
-
-int CvPlayer::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
-{
-	return m_aiPlayerNumTurnsSinceCityCapture[ePlayer];
-}
-
-void CvPlayer::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
-	m_aiPlayerNumTurnsSinceCityCapture[ePlayer] = iValue;
-}
-
-void CvPlayer::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsSinceCityCapture(ePlayer, GetPlayerNumTurnsSinceCityCapture(ePlayer) + iChange);
-}
-
-void CvPlayer::DoUpdateWarPeaceTurnCounters()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iI;
-
-		if (GET_PLAYER(ePlayer).isAlive() && getTeam() != GET_PLAYER(ePlayer).getTeam())
-		{
-			if (IsAtWarWith(ePlayer))
-			{
-				ChangePlayerNumTurnsAtWar(ePlayer, 1);
-				ChangePlayerNumTurnsSinceCityCapture(ePlayer, 1);
-				SetPlayerNumTurnsAtPeace(ePlayer, 0);
-			}
-			else
-			{
-				ChangePlayerNumTurnsAtPeace(ePlayer, 1);
-				SetPlayerNumTurnsAtWar(ePlayer, 0);
-				SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
-			}
-		}
-	}
-}
-
-void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iI;
-
-		SetPlayerNumTurnsAtWar(ePlayer, 0);
-		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
-
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(GetID(), 0);
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(GetID(), 0);
-	}
+	m_aiLastCityCaptureTurn[ePlayer] = iTurn;
 }
 
 //	--------------------------------------------------------------------------------
@@ -37613,7 +37495,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		}
 
 		// Do not increase war weariness if minimum war length hasn't been reached yet, or not able to make peace.
-		if (GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+		if (GET_TEAM(getTeam()).GetNumTurnsAtWar(eLoopTeam) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 			continue;
 
 		if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
@@ -37680,7 +37562,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 
 		// Did we just capture a city from this player? Ignore, due to a temporary boost in support amongst our population (in hopes of a favorable end-of-war settlement).
 		// This is meant to equalize human/AI, human/human, and AI/AI wars, since the AI will always refuse to make peace for a little bit after their city is captured.
-		if (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+		if (GetNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
 			continue;
 
 		if (IsAtWarWith(eLoopPlayer))
@@ -45777,9 +45659,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiCapitalYieldRateModifier);
 	visitor(player.m_aiExtraYieldThreshold);
 	visitor(player.m_aiSpecialistExtraYield);
-	visitor(player.m_aiPlayerNumTurnsAtPeace);
-	visitor(player.m_aiPlayerNumTurnsAtWar);
-	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
+	visitor(player.m_aiLastCityCaptureTurn);
 	visitor(player.m_aiWarValueLost);
 	visitor(player.m_aiWarDamageValue);
 	visitor(player.m_aiWarWeariness);
