@@ -2897,6 +2897,16 @@ const CvString CvGlobals::getDiploMinorLogFileName(const CvPlayer* pPlayer) cons
 	return CvString("DiplomacyAI_MinorCiv_Log.csv");
 }
 
+const CvString CvGlobals::getDiploPeaceLogFileName(const CvPlayer* pPlayer) const
+{
+	// Open the log file
+	if (GC.getPlayerAndCityAILogSplit())
+		return CvString("DiplomacyAI_Peace_Log_") + pPlayer->getCivilizationShortDescription() + ".csv";
+
+	//default
+	return CvString("DiplomacyAI_Peace_Log.csv");
+}
+
 bool CvGlobals::GetTutorialLogging() const
 {
 	return m_bTutorialLogging;

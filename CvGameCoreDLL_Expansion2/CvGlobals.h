@@ -253,6 +253,7 @@ public:
 	bool getPlayerAndCityAILogSplit() const;
 	void setPlayerAndCityAILogSplit(bool bEnable);
 	const CvString getDiploMinorLogFileName(const CvPlayer* pPlayer) const;
+	const CvString getDiploPeaceLogFileName(const CvPlayer* pPlayer) const;
 
 	bool GetTutorialLogging() const;
 	void SetTutorialLogging(bool bEnable);

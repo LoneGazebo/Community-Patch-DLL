@@ -13538,8 +13538,6 @@ bool CvUnit::build(BuildTypes eBuild)
 					}
 				}
 
-				UnitTypes eBestUnit = NO_UNIT;
-				int iStrengthBestCombat = 0;
 				if (pkBuildInfo->IsFreeBestDomainUnit() && kPlayer.GetNumUnitsToSupply() > kPlayer.GetNumUnitsSupplied())
 				{
 					bool bWater = pkBuildInfo->IsWater();

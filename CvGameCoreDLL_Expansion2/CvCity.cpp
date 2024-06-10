@@ -32539,10 +32539,17 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
 		return false;
 
-	int iFriendlyPower = GetPower();
-	int iEnemyPower = 0;
+	int iFriendlyLandPower = GetPower();
+	int iFriendlySeaPower = 0;
+	int iFriendlyOtherPower = 0;
+	int iEnemyLandPower = 0;
+	int iEnemySeaPower = 0;
+	int iEnemyOtherPower = 0;
 	bool bFriendlyGeneralInTheVicinity = false;
+	bool bFriendlyAdmiralInTheVicinity = false;
 	bool bEnemyGeneralInTheVicinity = false;
+	bool bEnemyAdmiralInTheVicinity = false;
+
 	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(plot(), i);
@@ -32555,33 +32562,79 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 			if (pUnit->IsCombatUnit())
 			{
 				if (pUnit->getTeam() == getTeam())
-					iFriendlyPower += pUnit->GetPower();
-				if (pUnit->getOwner() == eEnemy)
-					iEnemyPower += pUnit->GetPower();
+				{
+					DomainTypes eDomainType = pUnit->getDomainType();
+					switch (eDomainType)
+					{
+					case DOMAIN_LAND:
+						iFriendlyLandPower += pUnit->GetPower();
+						break;
+					case DOMAIN_SEA:
+						iFriendlySeaPower += pUnit->GetPower();
+						break;
+					default:
+						iFriendlyOtherPower += pUnit->GetPower();
+					}
+				}
+				else if (pUnit->getOwner() == eEnemy)
+				{
+					DomainTypes eDomainType = pUnit->getDomainType();
+					switch (eDomainType)
+					{
+					case DOMAIN_LAND:
+						iEnemyLandPower += pUnit->GetPower();
+						break;
+					case DOMAIN_SEA:
+						iEnemySeaPower += pUnit->GetPower();
+						break;
+					default:
+						iEnemyOtherPower += pUnit->GetPower();
+					}
+				}
 			}
-			else if (pUnit->IsGreatGeneral())
+			if (pUnit->GetGreatGeneralCount() > 0)
 			{
 				if (pUnit->getTeam() == getTeam())
 					bFriendlyGeneralInTheVicinity = true;
 				if (pUnit->getOwner() == eEnemy)
 					bEnemyGeneralInTheVicinity = true;
 			}
+			if (pUnit->GetGreatAdmiralCount() > 0)
+			{
+				if (pUnit->getTeam() == getTeam())
+					bFriendlyAdmiralInTheVicinity = true;
+				if (pUnit->getOwner() == eEnemy)
+					bEnemyAdmiralInTheVicinity = true;
+			}
 		}
 	}
 
 	if (bFriendlyGeneralInTheVicinity)
 	{
-		iFriendlyPower *= 11;
-		iFriendlyPower /= 10;
+		iFriendlyLandPower *= 115;
+		iFriendlyLandPower /= 100;
+	}
+	if (bFriendlyAdmiralInTheVicinity)
+	{
+		iFriendlySeaPower *= 115;
+		iFriendlySeaPower /= 100;
 	}
 
 	if (bEnemyGeneralInTheVicinity)
 	{
-		iEnemyPower *= 11;
-		iEnemyPower /= 10;
+		iEnemyLandPower *= 115;
+		iEnemyLandPower /= 100;
+	}
+	if (bEnemyAdmiralInTheVicinity)
+	{
+		iEnemySeaPower *= 115;
+		iEnemySeaPower /= 100;
 	}
 
-	return (iEnemyPower > iFriendlyPower);
+	// Final tally and assessment
+	int iEnemyPower = iEnemyLandPower + iEnemySeaPower + iEnemyOtherPower;
+	int iFriendlyPower = iFriendlyLandPower + iFriendlySeaPower + iFriendlyOtherPower;
+	return iEnemyPower > iFriendlyPower;
 }
 
 bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
@@ -32589,13 +32642,151 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 	if (vWarAllies.empty())
 		return false;
 
+	//unit strength doesn't matter if the city is low on hitpoints
+	if (isInDangerOfFalling())
+		return true;
+
+	//cannot use the tactical zone here, because it's not specific to a certain enemy
+	//but we can use the danger plots to exclude some cities
+	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
+		return false;
+
+	int iFriendlyLandPower = GetPower();
+	int iFriendlySeaPower = 0;
+	int iFriendlyOtherPower = 0;
+	bool bFriendlyGeneralInTheVicinity = false;
+	bool bFriendlyAdmiralInTheVicinity = false;
+
+	// Store each enemy's power by domain in weighted vectors to facilitate the Great General/Admiral buffs applying to those players only
+	vector<PlayerTypes> vOtherGGNearby;
+	vector<PlayerTypes> vOtherGANearby;
+	CvWeightedVector<PlayerTypes> veEnemyLandPowers;
+	CvWeightedVector<PlayerTypes> veEnemySeaPowers;
+	CvWeightedVector<PlayerTypes> veEnemyOtherPowers;
+	std::map<PlayerTypes, int> vectorIndices;
+	int iIndex = 0;
 	for (std::vector<PlayerTypes>::iterator it = vWarAllies.begin(); it != vWarAllies.end(); it++)
 	{
-		if (GET_PLAYER(*it).isAlive() && IsInDanger(*it))
-			return true;
+		veEnemyLandPowers.push_back(*it, 0);
+		veEnemySeaPowers.push_back(*it, 0);
+		veEnemyOtherPowers.push_back(*it, 0);
+		vectorIndices.insert(std::make_pair(*it, iIndex));
+		iIndex++;
 	}
 
-	return false;
+	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(plot(), i);
+		if (!pPlot)
+			continue;
+
+		for (int j = 0; j < pPlot->getNumUnits(); j++)
+		{
+			CvUnit* pUnit = pPlot->getUnitByIndex(j);
+			if (pUnit->IsCombatUnit())
+			{
+				if (pUnit->getTeam() == getTeam())
+				{
+					DomainTypes eDomainType = pUnit->getDomainType();
+					switch (eDomainType)
+					{
+					case DOMAIN_LAND:
+						iFriendlyLandPower += pUnit->GetPower();
+						break;
+					case DOMAIN_SEA:
+						iFriendlySeaPower += pUnit->GetPower();
+						break;
+					default:
+						iFriendlyOtherPower += pUnit->GetPower();
+					}
+				}
+				else
+				{
+					std::map<PlayerTypes, int>::iterator vectorIndexFinder = vectorIndices.find(pUnit->getOwner());
+					if (vectorIndexFinder != vectorIndices.end())
+					{
+						iIndex = vectorIndexFinder->second;
+						DomainTypes eDomainType = pUnit->getDomainType();
+						switch (eDomainType)
+						{
+						case DOMAIN_LAND:
+							veEnemyLandPowers.IncreaseWeight(iIndex, pUnit->GetPower());
+							break;
+						case DOMAIN_SEA:
+							veEnemySeaPowers.IncreaseWeight(iIndex, pUnit->GetPower());
+							break;
+						default:
+							veEnemyOtherPowers.IncreaseWeight(iIndex, pUnit->GetPower());
+						}
+					}
+				}
+			}
+			if (pUnit->GetGreatGeneralCount() > 0)
+			{
+				if (pUnit->getTeam() == getTeam())
+					bFriendlyGeneralInTheVicinity = true;
+				else
+					vOtherGGNearby.push_back(pUnit->getOwner());
+			}
+			if (pUnit->GetGreatAdmiralCount() > 0)
+			{
+				if (pUnit->getTeam() == getTeam())
+					bFriendlyAdmiralInTheVicinity = true;
+				else
+					vOtherGANearby.push_back(pUnit->getOwner());
+			}
+		}
+	}
+
+	// Tally up friendly power
+	if (bFriendlyGeneralInTheVicinity)
+	{
+		iFriendlyLandPower *= 11;
+		iFriendlyLandPower /= 10;
+	}
+	if (bFriendlyAdmiralInTheVicinity)
+	{
+		iFriendlySeaPower *= 11;
+		iFriendlySeaPower /= 10;
+	}
+	int iFriendlyPower = iFriendlyLandPower + iFriendlySeaPower + iFriendlyOtherPower;
+
+
+	// Tally up enemy power
+	int iEnemyPower = 0;
+	for (int i = 0; i < veEnemyLandPowers.size(); i++)
+	{
+		PlayerTypes eIndex = veEnemyLandPowers.GetElement(i);
+		int iEnemyLandPower = veEnemyLandPowers.GetWeight(i);
+
+		if (std::find(vOtherGGNearby.begin(), vOtherGGNearby.end(), eIndex) != vOtherGGNearby.end())
+		{
+			iEnemyLandPower *= 11;
+			iEnemyLandPower /= 10;
+		}
+
+		iEnemyPower += iEnemyLandPower;
+	}
+	for (int i = 0; i < veEnemySeaPowers.size(); i++)
+	{
+		PlayerTypes eIndex = veEnemySeaPowers.GetElement(i);
+		int iEnemySeaPower = veEnemySeaPowers.GetWeight(i);
+
+		if (std::find(vOtherGANearby.begin(), vOtherGANearby.end(), eIndex) != vOtherGANearby.end())
+		{
+			iEnemySeaPower *= 11;
+			iEnemySeaPower /= 10;
+		}
+
+		iEnemyPower += iEnemySeaPower;
+	}
+	for (int i = 0; i < veEnemyOtherPowers.size(); i++)
+	{
+		iEnemyPower += veEnemyOtherPowers.GetWeight(i);
+	}
+
+	// Final assessment
+	return iEnemyPower > iFriendlyPower;
 }
 
 //	--------------------------------------------------------------------------------
