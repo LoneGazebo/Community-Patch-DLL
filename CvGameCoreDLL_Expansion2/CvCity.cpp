@@ -32611,24 +32611,24 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 
 	if (bFriendlyGeneralInTheVicinity)
 	{
-		iFriendlyLandPower *= 115;
-		iFriendlyLandPower /= 100;
+		iFriendlyLandPower *= 11;
+		iFriendlyLandPower /= 10;
 	}
 	if (bFriendlyAdmiralInTheVicinity)
 	{
-		iFriendlySeaPower *= 115;
-		iFriendlySeaPower /= 100;
+		iFriendlySeaPower *= 11;
+		iFriendlySeaPower /= 10;
 	}
 
 	if (bEnemyGeneralInTheVicinity)
 	{
-		iEnemyLandPower *= 115;
-		iEnemyLandPower /= 100;
+		iEnemyLandPower *= 11;
+		iEnemyLandPower /= 10;
 	}
 	if (bEnemyAdmiralInTheVicinity)
 	{
-		iEnemySeaPower *= 115;
-		iEnemySeaPower /= 100;
+		iEnemySeaPower *= 11;
+		iEnemySeaPower /= 10;
 	}
 
 	// Final tally and assessment
