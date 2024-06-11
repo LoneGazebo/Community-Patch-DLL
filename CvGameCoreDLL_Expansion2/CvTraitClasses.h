@@ -392,6 +392,7 @@ public:
 	int GetYieldFromSettle(int i) const;
 	int GetYieldFromConquest(int i) const;
 	int GetYieldFromCityDamageTimes100(int i) const;
+	int GetPurchasedUnitsBonusXP() const;
 	int GetVotePerXCSAlliance() const;
 	int GetVotePerXCSFollowingYourReligion() const;
 	int GetChanceToConvertReligiousUnits() const;
@@ -425,6 +426,7 @@ public:
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldFromMinorDemand(YieldTypes eYield) const;
+	int GetYieldFromLuxuryResourceGain(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
@@ -751,6 +753,7 @@ protected:
 	int* m_piYieldFromSettle;
 	int* m_piYieldFromConquest;
 	int* m_piYieldFromCityDamageTimes100;
+	int m_iPurchasedUnitsBonusXP;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
@@ -790,6 +793,7 @@ protected:
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
 	int* m_piYieldFromMinorDemand;
+	int* m_piYieldFromLuxuryResourceGain;
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangeWorldWonder;
 	int** m_ppiTradeRouteYieldChange;
@@ -1889,6 +1893,10 @@ public:
 	{
 		return m_iYieldFromCityDamageTimes100[static_cast<int>(eYield)];
 	};
+	int GetPurchasedUnitsBonusXP() const
+	{
+		return m_iPurchasedUnitsBonusXP;
+	};
 	int GetVotePerXCSAlliance() const
 	{
 		return m_iVotePerXCSAlliance;
@@ -1997,6 +2005,7 @@ public:
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldFromMinorDemand(YieldTypes eYield) const;
+	int GetYieldFromLuxuryResourceGain(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const
 	{
 		return m_iYieldChangeTradeRoute[(int)eYield];
@@ -2414,6 +2423,7 @@ private:
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_aiDomainProductionModifiersPerSpecialist;
+	int m_iPurchasedUnitsBonusXP;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
@@ -2457,6 +2467,7 @@ private:
 	int m_iYieldFromKills[NUM_YIELD_TYPES];
 	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
 	int m_iYieldFromMinorDemand[NUM_YIELD_TYPES];
+	int m_iYieldFromLuxuryResourceGain[NUM_YIELD_TYPES];
 	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;

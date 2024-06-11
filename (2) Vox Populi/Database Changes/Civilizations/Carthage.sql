@@ -4,14 +4,16 @@
 UPDATE Traits
 SET
 	CrossesMountainsAfterGreatGeneral = 0,
-	FreeBuilding = 'BUILDING_LIGHTHOUSE',
+	FreeBuilding = NULL,
+	PurchasedUnitsBonusXP = 5,
 	TradeRouteResourceModifier = 100
 WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE';
 
-INSERT INTO Trait_YieldFromSettle
+INSERT INTO Trait_YieldFromLuxuryResourceGain
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 125);
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 100),
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_SCIENCE', 25);
 
 ----------------------------------------------------------
 -- Unique Unit: Quinquereme (Trireme)

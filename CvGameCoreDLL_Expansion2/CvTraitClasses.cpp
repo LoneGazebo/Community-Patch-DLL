@@ -262,6 +262,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromSettle(NULL),
 	m_piYieldFromConquest(NULL),
 	m_piYieldFromCityDamageTimes100(NULL),
+	m_iPurchasedUnitsBonusXP(0),
 	m_iVotePerXCSAlliance(0),
 	m_iVotePerXCSFollowingFollowingYourReligion(0),
 	m_iChanceToConvertReligiousUnits(0),
@@ -306,6 +307,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piYieldFromMinorDemand(NULL),
+	m_piYieldFromLuxuryResourceGain(NULL),
 	m_piYieldChangeTradeRoute(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_ppiTradeRouteYieldChange(NULL),
@@ -1640,6 +1642,10 @@ int CvTraitEntry::GetYieldFromCityDamageTimes100(int i) const
 {
 	return m_piYieldFromCityDamageTimes100 ? m_piYieldFromCityDamageTimes100[i] : -1;
 }
+int CvTraitEntry::GetPurchasedUnitsBonusXP() const
+{
+	return m_iPurchasedUnitsBonusXP;
+}
 int CvTraitEntry::GetVotePerXCSAlliance() const
 {
 	return m_iVotePerXCSAlliance;
@@ -1809,6 +1815,13 @@ int CvTraitEntry::GetYieldFromMinorDemand(YieldTypes eYield) const
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromMinorDemand ? m_piYieldFromMinorDemand[(int)eYield] : 0;
+}
+
+int CvTraitEntry::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromLuxuryResourceGain ? m_piYieldFromLuxuryResourceGain[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldChangeTradeRoute(int i) const
@@ -3320,6 +3333,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCityDamageTimes100, "Trait_YieldFromCityDamageTimes100", "TraitType", szTraitType);
+	m_iPurchasedUnitsBonusXP = kResults.GetInt("PurchasedUnitsBonusXP");
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
 	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
@@ -3445,6 +3459,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromKills, "Trait_YieldFromKills", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromBarbarianKills, "Trait_YieldFromBarbarianKills", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Trait_YieldFromMinorDemand", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromLuxuryResourceGain, "Trait_YieldFromLuxuryResourceGain", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeTradeRoute, "Trait_YieldChangeTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Trait_YieldChangeWorldWonder", "TraitType", szTraitType);
 
@@ -4222,6 +4237,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		if (GetYieldFromTilePurchase(eYield) > 0 ||
 			GetYieldFromTileEarn(eYield) > 0 ||
 			GetYieldFromSettle(eYield) > 0 ||
+			GetYieldFromLuxuryResourceGain(eYield) > 0 ||
 			GetGoldenAgeYieldModifier(eYield) > 0)
 		{
 			m_bIsExpansionist = true;
@@ -4924,6 +4940,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
 				}
+				m_iPurchasedUnitsBonusXP = trait->GetPurchasedUnitsBonusXP();
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
@@ -5016,6 +5033,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromKills[iYield] = trait->GetYieldFromKills((YieldTypes) iYield);
 				m_iYieldFromBarbarianKills[iYield] = trait->GetYieldFromBarbarianKills((YieldTypes) iYield);
 				m_iYieldFromMinorDemand[iYield] = trait->GetYieldFromMinorDemand((YieldTypes)iYield);
+				m_iYieldFromLuxuryResourceGain[iYield] = trait->GetYieldFromLuxuryResourceGain((YieldTypes)iYield);
 				m_iYieldChangeTradeRoute[iYield] = trait->GetYieldChangeTradeRoute(iYield);
 				m_iYieldChangeWorldWonder[iYield] = trait->GetYieldChangeWorldWonder(iYield);
 
@@ -5565,6 +5583,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
 		m_aiGoldenAgeYieldModifier.erase(iYield);
+		m_iPurchasedUnitsBonusXP = 0;
 		m_iVotePerXCSAlliance = 0;
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
@@ -5615,6 +5634,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
 		m_iYieldFromMinorDemand[iYield] = 0;
+		m_iYieldFromLuxuryResourceGain[iYield] = 0;
 		m_iYieldChangeTradeRoute[iYield] = 0;
 		m_iYieldChangeWorldWonder[iYield] = 0;
 		for(int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -6133,6 +6153,13 @@ int CvPlayerTraits::GetYieldFromMinorDemand(YieldTypes eYield) const
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromMinorDemand[(int)eYield];
+}
+
+int CvPlayerTraits::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_iYieldFromLuxuryResourceGain[(int)eYield];
 }
 
 /// Extra yield from this specialist
@@ -7644,6 +7671,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bStartsWithPantheon);
 	visitor(playerTraits.m_bProphetFervor);
 	visitor(playerTraits.m_bCombatBoostNearNaturalWonder);
+	visitor(playerTraits.m_iPurchasedUnitsBonusXP);
 	visitor(playerTraits.m_iVotePerXCSAlliance);
 	visitor(playerTraits.m_iGoldenAgeFromVictory);
 	visitor(playerTraits.m_iFreePolicyPerXTechs);
@@ -7668,6 +7696,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromKills);
 	visitor(playerTraits.m_iYieldFromBarbarianKills);
 	visitor(playerTraits.m_iYieldFromMinorDemand);
+	visitor(playerTraits.m_iYieldFromLuxuryResourceGain);
 	visitor(playerTraits.m_iYieldChangeTradeRoute);
 	visitor(playerTraits.m_iYieldChangeWorldWonder);
 	visitor(playerTraits.m_ppiTradeRouteYieldChange);

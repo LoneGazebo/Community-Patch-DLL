@@ -408,6 +408,7 @@ CvPlayer::CvPlayer() :
 , m_paiResourceImportFromMajor()
 , m_paiResourceFromMinors()
 , m_paiResourcesSiphoned()
+, m_paiHighestResourceQuantity()
 , m_aiNumResourceFromGP()
 , m_paiImprovementCount()
 , m_paiImprovementBuiltCount()
@@ -1108,6 +1109,7 @@ void CvPlayer::uninit()
 	m_paiResourceImportFromMajor.clear();
 	m_paiResourceFromMinors.clear();
 	m_paiResourcesSiphoned.clear();
+	m_paiHighestResourceQuantity.clear();
 	m_aiNumResourceFromGP.clear();
 	m_paiImprovementCount.clear();
 	m_paiImprovementBuiltCount.clear();
@@ -2026,6 +2028,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiResourcesSiphoned.clear();
 		m_paiResourcesSiphoned.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiHighestResourceQuantity.clear();
+		m_paiHighestResourceQuantity.resize(GC.getNumResourceInfos(), 0);
 
 		m_aiNumResourceFromGP.clear();
 		m_aiNumResourceFromGP.resize(GC.getNumResourceInfos(), 0);
@@ -11040,19 +11045,24 @@ void CvPlayer::doTurn()
 		ChangeFaithPurchaseCooldown(-1);
 	}
 
-	// Do we get periodic yields every X turns?
-	if (GC.getGame().getElapsedGameTurns() > 0)
+	if (isMajorCiv())
 	{
-		int iTurnInterval = getHandicapInfo().getDifficultyBonusTurnInterval();
-		if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
-		{
-			DoDifficultyBonus(DIFFICULTY_BONUS_PLAYER_TURNS_PASSED);
-		}
+		CheckForLuxuryResourceGainInstantYields(NO_RESOURCE);
 
-		iTurnInterval = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIDifficultyBonusTurnInterval();
-		if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
+		// Do we get periodic yields every X turns?
+		if (GC.getGame().getElapsedGameTurns() > 0)
 		{
-			DoDifficultyBonus(DIFFICULTY_BONUS_AI_TURNS_PASSED);
+			int iTurnInterval = getHandicapInfo().getDifficultyBonusTurnInterval();
+			if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
+			{
+				DoDifficultyBonus(DIFFICULTY_BONUS_PLAYER_TURNS_PASSED);
+			}
+
+			iTurnInterval = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIDifficultyBonusTurnInterval();
+			if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
+			{
+				DoDifficultyBonus(DIFFICULTY_BONUS_AI_TURNS_PASSED);
+			}
 		}
 	}
 
@@ -27990,6 +28000,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue /= 100;
 					break;
 				}
+				case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue += iPassYield;
+					break;
+				}
 			}
 
 			//Now, let's apply these yields here as total yields.
@@ -28955,6 +28973,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -38949,6 +38973,9 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 			CvAssert(m_paiNumResourceFromBuildings[eIndex] >= 0);
 		}
 
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
+
 		if(bCheckForMonopoly && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
 			CheckForMonopoly(eIndex);
@@ -39026,6 +39053,90 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetHighestResourceQuantity(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	return m_paiHighestResourceQuantity[eIndex];
+}
+
+void CvPlayer::SetHighestResourceQuantity(ResourceTypes eIndex, int iValue)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	m_paiHighestResourceQuantity[eIndex] = iValue;
+}
+
+void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
+{
+	if (eResource != NO_RESOURCE)
+	{
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL)
+			return;
+
+		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+			return;
+
+		int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
+		int iPreviousQuantity = GetHighestResourceQuantity(eResource);
+		if (iCurrentQuantity > iPreviousQuantity)
+		{
+			SetHighestResourceQuantity(eResource, iCurrentQuantity);
+			int iMultiplier = iCurrentQuantity - iPreviousQuantity;
+
+			CvPlayerTraits* pTraits = GetPlayerTraits();
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				YieldTypes eYield = (YieldTypes)iYield;
+				int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
+				if (iVal > 0)
+				{
+					doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			if (eResource == NO_RESOURCE)
+				continue;
+
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo == NULL)
+				continue;
+
+			if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+				continue;
+
+			int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
+			int iPreviousQuantity = GetHighestResourceQuantity(eResource);
+			if (iCurrentQuantity > iPreviousQuantity)
+			{
+				SetHighestResourceQuantity(eResource, iCurrentQuantity);
+				int iMultiplier = iCurrentQuantity - iPreviousQuantity;
+
+				CvPlayerTraits* pTraits = GetPlayerTraits();
+				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+				{
+					YieldTypes eYield = (YieldTypes)iYield;
+					int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
+					if (iVal > 0)
+					{
+						doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
+					}
+				}
+			}
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getResourceShortageValue(ResourceTypes eIndex) const
@@ -39078,6 +39189,8 @@ void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_paiResourceFromCSAlliances[eIndex] = m_paiResourceFromCSAlliances[eIndex] + iChange;
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
@@ -40056,6 +40169,9 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 
 		CvAssert(getResourceImportFromMajor(eIndex) >= 0);
 
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
+
 		CalculateNetHappiness();
 
 		if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
@@ -40096,6 +40212,9 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 		m_paiResourceFromMinors[eIndex] = m_paiResourceFromMinors[eIndex] + iChange;
 		CvAssert(getResourceFromMinors(eIndex) >= 0);
 
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
+
 		CalculateNetHappiness();
 
 		if (IsCSResourcesCountMonopolies())
@@ -40125,6 +40244,9 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 		m_paiResourcesSiphoned[eIndex] = m_paiResourcesSiphoned[eIndex] + iChange;
 		CvAssert(getResourceSiphoned(eIndex) >= 0);
 
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
+
 		CalculateNetHappiness();
 	}
 }
@@ -40147,6 +40269,8 @@ void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
 	if (iChange != 0)
 	{
 		m_aiNumResourceFromGP[eIndex] = m_aiNumResourceFromGP[eIndex] + iChange;
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
 	}
 }
 
@@ -43354,6 +43478,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "City Damage";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
+			{
+				instantYieldName = "Luxury Resource Gain";
+				break;
+			}
 	}
 
 	CvString strFileName = "InstantYieldSummary.csv";
@@ -45681,6 +45810,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourceImportFromMajor);
 	visitor(player.m_paiResourceFromMinors);
 	visitor(player.m_paiResourcesSiphoned);
+	visitor(player.m_paiHighestResourceQuantity);
 	visitor(player.m_aiNumResourceFromGP);
 	visitor(player.m_paiImprovementCount);
 	visitor(player.m_paiImprovementBuiltCount);

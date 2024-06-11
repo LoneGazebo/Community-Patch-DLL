@@ -10822,6 +10822,17 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, bool bGoldPur
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bHalveXP) ? 2 : 1));
 
+		// Carthage UA: Bonus XP to Gold purchased units
+		int iBonusXP = bGoldPurchase ? GET_PLAYER(getOwner()).GetPlayerTraits()->GetPurchasedUnitsBonusXP() : 0;
+		if (iBonusXP > 0)
+		{
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
+			pUnit->changeExperienceTimes100(iBonusXP * iEra * 100);
+		}
+
 		// XP2 Achievement
 		if (MOD_API_ACHIEVEMENTS && getOwner() != NO_PLAYER)
 		{

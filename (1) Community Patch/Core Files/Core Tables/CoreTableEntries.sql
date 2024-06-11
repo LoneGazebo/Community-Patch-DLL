@@ -305,6 +305,9 @@ UPDATE GameSpeeds SET DifficultyBonusPercent = 300 WHERE Type = 'GAMESPEED_MARAT
 -- (10 = 1%)
 ALTER TABLE GameSpeeds ADD COLUMN 'MilitaryRatingDecayPercent' INTEGER DEFAULT 0;
 
+-- Bonus XP to Gold-purchased military units, scaling with era.
+ALTER TABLE Traits ADD COLUMN 'PurchasedUnitsBonusXP' INTEGER DEFAULT 0;
+
 -- Trade Route yields no longer scale from distance.
 ALTER TABLE Traits ADD COLUMN 'IgnoreTradeDistanceScaling' BOOLEAN DEFAULT 0;
 

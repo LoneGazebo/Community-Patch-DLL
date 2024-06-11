@@ -2081,6 +2081,10 @@ public:
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
 
+	int GetHighestResourceQuantity(ResourceTypes eIndex) const;
+	void SetHighestResourceQuantity(ResourceTypes eIndex, int iValue);
+	void CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource);
+
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
 	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);
 	bool HasStrategicMonopoly(ResourceTypes eResource) const;
@@ -3546,6 +3550,7 @@ protected:
 	std::vector<int> m_paiResourceImportFromMajor;
 	std::vector<int> m_paiResourceFromMinors;
 	std::vector<int> m_paiResourcesSiphoned;
+	std::vector<int> m_paiHighestResourceQuantity;
 	std::vector<byte> m_aiNumResourceFromGP;
 	std::vector<int> m_paiImprovementCount;
 	std::vector<int> m_paiImprovementBuiltCount;
@@ -4334,6 +4339,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHighestResourceQuantity)
 SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementBuiltCount)
