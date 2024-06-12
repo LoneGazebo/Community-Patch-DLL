@@ -39095,7 +39095,7 @@ void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 				int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
 				if (iVal > 0)
 				{
-					doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
+					doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, false, false, eYield);
 				}
 			}
 		}
@@ -39129,7 +39129,7 @@ void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 					int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
 					if (iVal > 0)
 					{
-						doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
+						doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, false, false, eYield);
 					}
 				}
 			}
