@@ -4758,7 +4758,7 @@ void CvMinorCivAI::DoTurn()
 		doIncomingUnitGifts();
 
 		DoElection();
-		DoFriendship();
+		DoFriendshipDecay();
 
 		DoTestThreatenedAnnouncement();
 		DoTestProxyWarAnnouncement();
@@ -11660,11 +11660,13 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes ePlayer)
 
 
 /// Per-turn friendship stuff
-void CvMinorCivAI::DoFriendship()
+void CvMinorCivAI::DoFriendshipDecay()
 {
 	Localization::String strMessage;
 	Localization::String strSummary;
 	const char* strMinorsNameKey = GetPlayer()->getNameKey();
+
+	map<PlayerTypes, int> oldFriendship;
 
 	// first loop: apply the influence changes, but don't change friendship/ally status yet (otherwise we could have multiple status changes during a city-state's turn, that would be annoying)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -11689,6 +11691,9 @@ void CvMinorCivAI::DoFriendship()
 		{
 			ChangeFriendshipWithMajorTimes100(ePlayer, iChangeThisTurn, false, /*bUpdateStatus*/ false);
 		}
+
+		//remember old state for later
+		oldFriendship[ePlayer] = iOldFriendship;
 	}
 
 	// second loop: check for each player if friendship/ally status has changed
@@ -11699,9 +11704,8 @@ void CvMinorCivAI::DoFriendship()
 		if (!GET_PLAYER(ePlayer).isAlive() || !IsHasMetPlayer(ePlayer))
 			continue;
 		
-		// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
-		int iFriendship = GetBaseFriendshipWithMajor(ePlayer);
-		DoFriendshipChangeEffects(ePlayer, iFriendship, iFriendship);
+		// Now consider the effects of the previous change
+		DoFriendshipChangeEffects(ePlayer, oldFriendship[ePlayer], GetBaseFriendshipWithMajor(ePlayer));
 		
 		// Notification for status changes
 		int iChangeThisTurn = GetFriendshipChangePerTurnTimes100(ePlayer);

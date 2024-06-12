@@ -31152,9 +31152,24 @@ bool CvCity::CrosscheckYieldsFromMinors()
 					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*iEra*100;
 			}
 
-			//bonuses based on minor traits (currently food only)
+			//bonuses based on minor traits (currently food only). do not consider any major-trait specific modifiers here!
 			if (eYield == YIELD_FOOD)
-				iMinorBonus += isCapital() ? pMinorLoop->GetCurrentCapitalFoodBonus(getOwner()) : pMinorLoop->GetCurrentOtherCityFoodBonus(getOwner());
+			{
+				if (isCapital())
+				{
+					if (pMinorLoop->IsAllies(getOwner()))
+						iMinorBonus += pMinorLoop->GetAlliesCapitalFoodBonus();
+					if (pMinorLoop->IsFriends(getOwner()))
+						iMinorBonus += pMinorLoop->GetFriendsCapitalFoodBonus(getOwner());
+				}
+				else
+				{
+					if (pMinorLoop->IsAllies(getOwner()))
+						iMinorBonus += pMinorLoop->GetAlliesOtherCityFoodBonus();
+					if (pMinorLoop->IsFriends(getOwner()))
+						iMinorBonus += pMinorLoop->GetFriendsOtherCityFoodBonus(getOwner());
+				}
+			}
 		}
 
 		if (m_aiBaseYieldRateFromCSAlliance[eYield]*100 + m_aiBaseYieldRateFromCSFriendship[eYield]*100 != iMajorBonus + iMinorBonus)

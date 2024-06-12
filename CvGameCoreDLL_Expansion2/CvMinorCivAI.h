@@ -564,7 +564,7 @@ public:
 	// ***** Friendship *****
 	// ******************************
 
-	void DoFriendship();
+	void DoFriendshipDecay();
 
 	int GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer);
 
