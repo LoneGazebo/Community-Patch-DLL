@@ -25608,7 +25608,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					vMajorTeamsAtWarWith.push_back(eLoopTeam);
 			}
 
-			PeaceBlockReasons ePeaceBlockReason = NO_PEACE_BLOCK_REASON;
+			PeaceBlockReasons ePeaceBlockReason = NUM_PEACE_BLOCK_REASONS;
 			for (size_t i=0; i<vMyTeam.size(); i++)
 			{
 				if (!GET_PLAYER(vMyTeam[i]).isAlive() || !GET_PLAYER(vMyTeam[i]).isMajorCiv())
@@ -25619,7 +25619,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					ePeaceBlockReason = ePotentialReason;
 			}
 
-			if (ePeaceBlockReason != NO_PEACE_BLOCK_REASON)
+			if (ePeaceBlockReason != NUM_PEACE_BLOCK_REASONS)
 			{
 				CvString strLogMessage;
 				if (bLog)
@@ -25874,6 +25874,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bool bTheyAreInAnyDanger = false;
 		bool bAnySeriousDangerThem = false;
 		bool bNearlyWonWarWithNeighbor = false;
+		bool bWantedPeaceLastTime = false;
 
 		// Bad things >:(
 		bool bDominationBlocked = false;
@@ -25898,6 +25899,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 			if (!bPopulatedWarAllies)
 			{
+				bWantedPeaceLastTime = GetTreatyWillingToOffer(ePlayer) >= PEACE_TREATY_WHITE_PEACE || GetTreatyWillingToAccept(ePlayer) >= PEACE_TREATY_WHITE_PEACE;
 				bCapturedKeyCity = IsCapitalCapturedBy(ePlayer, /*bTeammates*/ true, /*bCheckEver*/ true) || IsHolyCityCapturedBy(ePlayer, /*bTeammates*/ true, /*bCheckEver*/ true);
 				bCapturedAnyCityFromUs = bCapturedKeyCity;
 				vOurWarAllies = GetOffensiveWarAllies(ePlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ false);
@@ -26261,7 +26263,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iMinimumWarDuration *= 2;
 		}
 		int iDurationPenalty = iWarDuration - iMinimumWarDuration;
-		bool bWantedPeaceLastTime = false;
 		bool bAnyAztecException = false;
 
 
@@ -26273,9 +26274,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 			if (GetPlayer()->getNumCities() > 0 && GET_PLAYER(ePlayer).getNumCities() == 0 && GetRawMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POOR)
 				continue;
-
-			if (IsWantsPeaceWithPlayer(ePlayer))
-				bWantedPeaceLastTime = true;
 
 			int iPeaceScore = 0;
 			bool bProlong = bProlongAll;
@@ -27122,7 +27120,7 @@ void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, CvString strL
 	// Get the leading info for this line
 	CvString strBaseString;
 	strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-	strBaseString += playerName + " VS. " + otherPlayerName;
+	strBaseString += playerName + " VS. " + otherPlayerName + ", ";
 
 	strBaseString += strLogMessage;
 	pLog->Msg(strBaseString);
