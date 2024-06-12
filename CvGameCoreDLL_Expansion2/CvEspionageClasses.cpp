@@ -3016,8 +3016,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 				}
 				else
 				{
-					// in VP, spies don't have levels anymore, all spies provide the same number of votes
-					iResult = 1;
+					iResult = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID()) + 1;
 					// apply modifier from player traits
 					iResult *= 100 + m_pPlayer->GetPlayerTraits()->GetSpyOffensiveStrengthModifier();
 					// we don't need to divide by 100 here, as the values are only used for comparing them against each other
