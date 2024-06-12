@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.7.3) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.8) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="129" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="130" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -31,12 +31,12 @@
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
     <File md5="8338C80D226B371AC67ADF6072052753" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="611263EA9A6139BF3C0A25E5418ACE58" import="0">EUI/NeededText.xml</File>
-    <File md5="B4CB2BBE87AF1677EF3CD97FA0CA0380" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="0BEC808C0E09231A1B4084352D0450B7" import="1">LUA/CityBannerManager.lua</File>
     <File md5="ADBA6340D1EB08FDDB285979E58B56F2" import="1">LUA/CityBannerManager.xml</File>
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="4FF2C3858ADD42E1185E68D7C38B55D3" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="3E618C7E482C03A3D91FC32DC9A4FE13" import="1">LUA/CityView.lua</File>
+    <File md5="679142969FEEB92658D4DB19AD0ABFD6" import="1">LUA/CityView.lua</File>
     <File md5="F5FCDE73448EC1391CE1C06B10630AAD" import="1">LUA/CityView.xml</File>
     <File md5="D25BC7DE8ED5F24CD827D75E5B498069" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
