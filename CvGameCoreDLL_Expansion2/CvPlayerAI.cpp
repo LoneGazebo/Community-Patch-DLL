@@ -2034,7 +2034,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 
 //	--------------------------------------------------------------------------------
 /// planner for AI spaceship production: returns the cities in which the currently available spaceship parts should be built in order to achieve SV as early as possible
-const vector<CvCity*>& CvPlayerAI::GetBestCitiesForSpaceshipParts()
+const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 {
 	const vector<CvCity*> vpEmpty;
 
@@ -2262,7 +2262,7 @@ void CvPlayerAI::AI_doSpaceshipProduction()
 		return;
 
 	// calculate cities to build spaceship parts in
-	const vector<CvCity*>& vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
+	const vector<CvCity*> vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
 
 	// cancel spaceship part production in cities that are not considered the best cities (have to do this first to make the parts available)
 	CvString strOutBuf;
