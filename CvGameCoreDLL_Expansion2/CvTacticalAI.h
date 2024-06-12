@@ -527,7 +527,7 @@ FDataStream& operator<<(FDataStream&, const CvTacticalAI&);
 enum CLOSED_ENUM eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
 enum CLOSED_ENUM eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH,
-							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_FINISH_TEMP };
+							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_USE_POWER, A_FINISH_TEMP };
 
 struct STacticalAssignment
 {
@@ -705,6 +705,7 @@ public:
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
 	bool isBlockedByNonSimUnit(eTactPlotDomain eDomain = TD_BOTH) const;
+	bool isNicePlotForCitadel() const { return bMightWantCitadel; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -760,6 +761,8 @@ protected:
 	bool bEnemyCivilianPresent:1;
 	//when a new plot is created we don't know its status yet
 	bool bEdgeOfTheKnownWorldUnknown:1;
+	//so generals know where to plant themselves
+	bool bMightWantCitadel:1;
 
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible

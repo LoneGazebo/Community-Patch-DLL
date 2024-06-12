@@ -40,10 +40,6 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-#include <queue>
-#endif
-
 // statics
 
 static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
@@ -99,6 +95,7 @@ void CvPlayerAI::AI_uninit()
 
 void CvPlayerAI::AI_reset()
 {
+	m_iCurrentCitadelTargetsTurn = -1;
 	AI_uninit();
 }
 
@@ -2894,108 +2891,93 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	return NULL;
 }
 
-CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
+std::priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable, bool bCheckDanger)
 {
-	if (!pUnit)
-		return NULL;
+	std::priority_queue<SPlotWithScore> goodPlots;
+	if (eBuild == NO_BUILD)
+		return goodPlots;
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	if (!pkBuildInfo)
+		return goodPlots;
+
+	ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	if (!pkImprovementInfo)
+		return goodPlots;
+
+	int iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
 	std::set<int> setCandidates;
-	ImprovementTypes eImprovement = NO_IMPROVEMENT;
-	CvImprovementEntry* pkImprovementInfo = NULL;
-	int iRange = 0;
-
-	if (eBuild == NO_BUILD)
-	{
-		CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
-		if (!pkUnitEntry || !pUnit->isCultureBomb())
-			return NULL;
-
-		iRange = range(pkUnitEntry->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
-	}
-	else
-	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-		if (!pkBuildInfo)
-			return NULL;
-
-		eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (!pkImprovementInfo)
-			return NULL;
-
-		iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
-	}
 
 	// loop through plots and wipe out ones that are invalid
 	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		if(!pPlot)
+		if (!pPlot)
 			continue;
 
 		//don't consider plots we already targeted
 		bool bTooClose = false;
-		for (size_t i=0; i<vPlotsToAvoid.size(); i++)
-			if (plotDistance(*vPlotsToAvoid[i],*pPlot)<3)
+		for (size_t i = 0; i < vPlotsToAvoid.size(); i++)
+			if (plotDistance(*vPlotsToAvoid[i], *pPlot) < 3)
 				bTooClose = true;
 		if (bTooClose)
 			continue;
-		
+
 		bool bGoodCandidate = true;
 		std::vector<int> vPossibleTiles;
 
 		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself
 		//we need to include it as it may belong to us or the enemy
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES+1; ++iI)
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES + 1; ++iI)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			if(pAdjacentPlot == NULL)
-				continue;
-			if (!pUnit->canMoveInto(*pAdjacentPlot, CvUnit::MOVEFLAG_DESTINATION))
+			CvPlot* pTestPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+			if (pTestPlot == NULL || pTestPlot->isImpassable(getTeam()))
 				continue;
 
 			// don't waste a colonia ...
 			if (bMustBeWorkable)
 			{
-				CvCity* pClosestCity = GetClosestCityByPlots(pAdjacentPlot);
-				if (pClosestCity && pClosestCity->getWorkPlotDistance() < GetCityDistanceInPlots(pAdjacentPlot))
+				CvCity* pClosestCity = GetClosestCityByPlots(pTestPlot);
+				if (pClosestCity && pClosestCity->getWorkPlotDistance() < GetCityDistanceInPlots(pTestPlot))
 					continue;
 			}
 
 			// not if we're about to give up the city
-			if (pAdjacentPlot->getOwningCity() && pAdjacentPlot->getOwningCity()->IsRazing())
+			if (pTestPlot->getOwningCity() && pTestPlot->getOwningCity()->IsRazing())
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()) )
+			if (pTestPlot->isCity() || pTestPlot->isWater() || !pTestPlot->isValidMovePlot(GetID(),false))
 				continue;
-			if(eBuild != NO_BUILD && !pAdjacentPlot->canBuild(eBuild, GetID()))
+			if (eBuild != NO_BUILD && !pTestPlot->canBuild(eBuild, GetID()))
 				continue;
 
 			//citadel special
 			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
-				if (!pAdjacentPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
+				if (!pTestPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
 					continue;
 
-				if (pAdjacentPlot->GetDefenseBuildValue(GetID(), eBuild, eImprovement) <= 0)
+				if (pTestPlot->GetDefenseBuildValue(GetID(), eBuild, eImprovement) <= 0)
 					continue;
 			}
 
 			//don't remove existing great people improvements
-			ImprovementTypes eExistingImprovement = pAdjacentPlot->getImprovementType();
+			ImprovementTypes eExistingImprovement = pTestPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
-				if(pkImprovementInfo2 && pkImprovementInfo2->IsCreatedByGreatPerson())
+				if (pkImprovementInfo2 && pkImprovementInfo2->IsCreatedByGreatPerson())
 					continue;
 			}
 
 			// make sure we don't step on the wrong toes
-			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
-			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != m_eID)
+			const PlayerTypes eOwner = pTestPlot->getOwner();
+			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != GetID())
 			{
 				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{
@@ -3004,15 +2986,13 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				}
 			}
 
-			vPossibleTiles.push_back(pAdjacentPlot->GetPlotIndex());
+			vPossibleTiles.push_back(pTestPlot->GetPlotIndex());
 		}
 
 		//a set guarantees uniqueness
 		if (bGoodCandidate)
-			setCandidates.insert(vPossibleTiles.begin(), vPossibleTiles.end() );
+			setCandidates.insert(vPossibleTiles.begin(), vPossibleTiles.end());
 	}
-
-	std::priority_queue<SPlotWithScore> goodPlots;
 
 	//now that we have a number of possible plots, score each
 	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
@@ -3020,23 +3000,22 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
 		int iScore = (pkImprovementInfo && (pkImprovementInfo->GetDefenseModifier() > 0 || pkImprovementInfo->GetNearbyEnemyDamage() > 0)) ? pPlot->GetDefenseBuildValue(GetID(), eBuild, eImprovement) : 0;
 
-		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
+		for (int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 		{
-			CvPlot* pAdjacentPlot = iterateRingPlots(pPlot,iI);
-			if(pAdjacentPlot == NULL)
+			CvPlot* pAdjacentPlot = iterateRingPlots(pPlot, iI);
+			if (pAdjacentPlot == NULL)
 				continue;
 
 			// don't evaluate city plots since we don't get ownership of them with the bomb
-			if(pAdjacentPlot->isCity())
+			if (pAdjacentPlot->isCity())
 				continue;
 
 			//don't count the plot if we already own it
 			if (pAdjacentPlot->getOwner() == GetID())
 				continue;
 
-			//danger is bad - check even adjacent plots!
-			int iDanger = pUnit->GetDanger(pAdjacentPlot);
-			if (iDanger > 20) //allow fog
+			//danger is bad - even check adjacent plots!
+			if (bCheckDanger && GetPossibleAttackers(*pAdjacentPlot,getTeam()).size()>0)
 			{
 				iScore = 0;
 				break;
@@ -3059,7 +3038,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 
 			int iWeightFactor = 1;
 			// choke points are good, even if only adjacent to the citadel
-			if(pAdjacentPlot->IsChokePoint())
+			if (pAdjacentPlot->IsChokePoint())
 			{
 				iWeightFactor += 3;
 			}
@@ -3067,7 +3046,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			//Let's grab embassies if we can!
 			if (pAdjacentPlot->IsImprovementEmbassy())
 			{
-				if (GET_PLAYER(pAdjacentPlot->GetPlayerThatBuiltImprovement()).getTeam() != GET_PLAYER(pUnit->getOwner()).getTeam())
+				if (GET_PLAYER(pAdjacentPlot->GetPlayerThatBuiltImprovement()).getTeam() != getTeam())
 					iWeightFactor += 5;
 				else //don't steal our own embassy
 					iWeightFactor = 1;
@@ -3088,20 +3067,26 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				}
 				else
 				{
-					// grabbing tiles away from majors is really nice
-					iWeightFactor += 4;
+					// grabbing tiles away from majors is nicer, if we hate them even more
+					CivOpinionTypes opinion = GetDiplomacyAI()->GetCivOpinion(eOtherPlayer);
+					if (opinion < CIV_OPINION_NEUTRAL)
+						iWeightFactor += 8;
+					else if (opinion == CIV_OPINION_NEUTRAL)
+						iWeightFactor += 4;
+					else if (opinion > CIV_OPINION_NEUTRAL)
+						iWeightFactor += 2;
 				}
 			}
 
 			// score resource - this may be the dominant factor!
 			ResourceTypes eResource = pAdjacentPlot->getResourceType(getTeam());
-			if(eResource != NO_RESOURCE)
+			if (eResource != NO_RESOURCE)
 			{
 				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);
 			}
 
 			// score yield
-			for(int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
+			for (int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
 			{
 				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
 			}
@@ -3113,6 +3098,49 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			goodPlots.push(SPlotWithScore(pPlot, iScore));
 		}
 	}
+
+	return goodPlots;
+}
+
+const vector<CvPlot*>& CvPlayerAI::GetTopCitadelPlotsCached()
+{
+	const int MAX_CANDIDATES = 3;
+
+	if (m_iCurrentCitadelTargetsTurn == GC.getGame().getGameTurn())
+		return m_vCurrentCitadelTargets;
+
+	static const BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+
+	m_vCurrentCitadelTargets.clear();
+	std::priority_queue<SPlotWithScore> goodPlots = GetBestCultureBombPlots(eCitadel, vector<CvPlot*>(), false, false);
+	for (int i = 0; i < MAX_CANDIDATES && !goodPlots.empty(); i++)
+	{
+		SPlotWithScore candidate = goodPlots.top();
+
+		m_vCurrentCitadelTargets.push_back(candidate.pPlot);
+		goodPlots.pop();
+
+		//give up if the rest is much worse than what we have
+		if (goodPlots.top().score < candidate.score / 2)
+			break;
+	}
+
+	m_iCurrentCitadelTargetsTurn = GC.getGame().getGameTurn();
+	return m_vCurrentCitadelTargets;
+}
+
+bool CvPlayerAI::IsNicePlotForCitadel(const CvPlot* pPlot)
+{
+	const vector<CvPlot*>& choices = GetTopCitadelPlotsCached();
+	return std::find(choices.begin(), choices.end(), pPlot) != choices.end();
+}
+
+CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
+{
+	if (!pUnit || eBuild == NO_BUILD)
+		return NULL;
+
+	std::priority_queue<SPlotWithScore> goodPlots = GetBestCultureBombPlots(eBuild, vPlotsToAvoid, bMustBeWorkable, true);
 
 	if ( goodPlots.size() == 0 )
 	{

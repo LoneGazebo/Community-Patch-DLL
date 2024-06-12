@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <array>
+#include <queue>
 
 //
 // 'global' vars for Civ V.  singleton class.

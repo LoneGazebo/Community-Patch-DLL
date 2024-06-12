@@ -15574,7 +15574,6 @@ static int GetDefensiveStrengthMultiplier(StrengthTypes eStrength)
 	case STRENGTH_PATHETIC:
 	case STRENGTH_WEAK:
 	case STRENGTH_POOR:
-		return 0;
 	case STRENGTH_AVERAGE:
 		return 1;
 	case STRENGTH_STRONG:
@@ -15618,11 +15617,10 @@ static int GetOffensiveStrengthMultiplier(StrengthTypes eStrength)
 	case STRENGTH_POOR:
 		return 2;
 	case STRENGTH_AVERAGE:
-		return 1;
 	case STRENGTH_STRONG:
 	case STRENGTH_POWERFUL:
 	case STRENGTH_IMMENSE:
-		return 0;
+		return 1;
 	default:
 		return 0;
 	}
@@ -15770,7 +15768,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			continue;
 
 		//impassable is uninteresting
-		if(!pLoopAdjacentPlot->isValidMovePlot(pLoopAdjacentPlot->getOwner()))
+		if(!pLoopAdjacentPlot->isValidMovePlot(pLoopAdjacentPlot->getOwner(),false))
 			continue;
 
 		//coasts are easy avenues of attack
@@ -15810,7 +15808,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 	{
 		CvPlot* pLoopNearbyPlot = iterateRingPlots(this, i);
-
 		if (pLoopNearbyPlot == NULL)
 			continue;
 
@@ -15818,24 +15815,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			continue;
 
 		//impassable is uninteresting
-		if (!pLoopNearbyPlot->isValidMovePlot(pLoopNearbyPlot->getOwner()))
+		if (!pLoopNearbyPlot->isValidMovePlot(pLoopNearbyPlot->getOwner(),false))
 			continue;
 
-		if (pLoopNearbyPlot->isWater())
-			continue;
-
-		if (pLoopNearbyPlot->getOwner() == eOwner)
-		{
-			// Avoid building next to cities
-			if (pLoopNearbyPlot->isCity())
-				bNearbyCity = true;
-
-			CvImprovementEntry* pkNearbyImprovement = GC.getImprovementInfo(pLoopNearbyPlot->getImprovementType());
-			int iDefenseModifier = pkNearbyImprovement ? pkNearbyImprovement->GetDefenseModifier() : 0;
-			iDefenseModifier += sState.mExtraDefense[pLoopNearbyPlot->GetPlotIndex()];
-			if (iDefenseModifier > 0)
-				iMaxNearbyDefenseModifier += max(iMaxNearbyDefenseModifier, iDefenseModifier);
-		}
 		else if (pLoopNearbyPlot->isOwned() && pLoopNearbyPlot->getOwner() != eOwner && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 		{
 			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pLoopNearbyPlot->getOwner());

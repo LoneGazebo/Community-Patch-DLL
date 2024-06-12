@@ -8055,13 +8055,20 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 				{
 					bool bHaveRealCover = false;
 					CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
-					if (pTestPlot->isFriendlyCity(*pUnit) || (pBestDefender && pBestDefender->TurnProcessed() && !pBestDefender->isProjectedToDieNextTurn()))
+					bool bDefenderIsGood = pBestDefender && pBestDefender->TurnProcessed() && !pBestDefender->isProjectedToDieNextTurn() && pBestDefender->GetDanger() < pBestDefender->GetCurrHitPoints();
+					if (pTestPlot->isFriendlyCity(*pUnit) || bDefenderIsGood)
 						bHaveRealCover = true;
 
 					//don't do it
 					if (!bHaveRealCover)
 						return result;
 				}
+			}
+			else if (testPlot.isNicePlotForCitadel() && pUnit->IsGreatGeneral() && movePlot.iMovesLeft > 0)
+			{
+				result.eAssignmentType = A_USE_POWER;
+				result.iRemainingMoves = 0;
+				iScore += 100;
 			}
 			else if (!pTestPlot->isFriendlyCity(*pUnit)) //cities are considered safe
 				return result;
@@ -8262,7 +8269,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 		return;
 
 	//minor players ignore barb camps and the units inside
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	if (plot->getRevealedImprovementType(kPlayer.getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		return;
 
@@ -8277,6 +8284,8 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	//updated once at the beginning
 	nVisiblePlotsNearEnemyRange2 = 0;
 	nVisiblePlotsNearEnemyRange3 = 0;
+	//maybe only plant citadels if we're not winning anyhow or if we have many generals? kPlayer.GetDiplomacyAI()->GetStateAllWars()
+	bMightWantCitadel = kPlayer.IsNicePlotForCitadel(pPlot);
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;
@@ -8377,7 +8386,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 					bfBlockedByNonSimCombatUnit |= 4;
 				}
 
-				if (pPlotUnit->TurnProcessed() && !pPlotUnit->isProjectedToDieNextTurn())
+				if (pPlotUnit->TurnProcessed())
 					bFriendlyDefenderEndTurn = true;
 
 				//rules for cities are complex so just don't try it
@@ -10030,6 +10039,10 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		if (TacticalAIHelpers::IsOtherPlayerCitadel( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer(), true))
 			refreshVolatilePlotProperties();
 		break;
+	case A_USE_POWER:
+		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
+		bEndOfSim = true;
+		break;
 	case A_FINISH:
 		OutputDebugString("this should not happen\n");
 	case A_FINISH_TEMP:
@@ -10504,8 +10517,8 @@ bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignme
 		//unit stays in place
 		iEndPlotIndex = assignment.iFromPlotIndex;
 		break;
-	case A_BLOCKED:
-		//not our problem ... fingers crossed
+	case A_BLOCKED:	//not our problem ... fingers crossed
+	case A_USE_POWER: //consumes the unit!
 		return true;
 	default:
 		OutputDebugString("unexpected assignment type ...\n");
@@ -10928,6 +10941,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)
 {
+	static const BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+
 	//take the assigned moves one by one and try to execute them faithfully. 
 	//may fail if a melee kill unexpectedly happens or does not happen
 
@@ -11044,6 +11059,11 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			bPrecondition = true;
 			bPostcondition = true;
 			break;
+		case A_USE_POWER:
+			if (pUnit->canBuild(pUnit->plot(), eCitadel))
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eCitadel);
+			else
+				bPrecondition = false;
 		case A_FINISH:
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//this is the difference to a blocked unit, we prevent anyone else from moving it unless we want it to heal
@@ -11169,5 +11189,7 @@ const char* assignmentTypeNames[] =
 	"RESTART",
 	"MELEEKILL_NOADVANCE",
 	"SWAP",
-	"SWAPREVERSE"
+	"SWAPREVERSE",
+	"USEPOWER",
+	"FINISHTEMP"
 };

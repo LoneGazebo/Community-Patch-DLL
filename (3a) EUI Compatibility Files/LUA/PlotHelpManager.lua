@@ -536,11 +536,13 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		end
 		local workRate = math_max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
 
+--debugging
 		if Game.IsDebugMode() then
-			local x, y = plot:GetX(), plot:GetY()
+			local n, x, y = plot:GetIndex(), plot:GetX(), plot:GetY()
 			local hex = ToHexFromGrid{ x=x, y=y }
-			tips:insert( "x:"..x.." y:"..y.." hex x:"..hex.x.." hex y:"..hex.y )
+			tips:insert( "n:"..n.." x:"..x.." y:"..y.." hex x:"..hex.x.." hex y:"..hex.y )
 		end
+--end
 		--------
 		-- Units
 		if plot:IsVisible( activeTeamID, true ) then
@@ -562,6 +564,27 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 
 				if unit and not unit:IsInvisible( activeTeamID, true ) then
 					tips:insert( ShortUnitTip( unit ) )
+
+--debugging
+					if Game.IsDebugMode() then
+						local fortified = ""
+						local garrisoned = ""
+						if unit:FortifyModifier()>0 then
+							fortified = " (fortified)"
+						end
+						if unit:IsGarrisoned() then
+							garrisoned = " (garrison)"
+						end
+						tips:insert( "Unit "..unit:GetID().." - Danger: "..unit:GetDanger()..fortified..garrisoned )
+						local operationInfo = unit:GetAIOperationInfo()
+						if operationInfo:len()>0 then
+							tips:insert( operationInfo )
+						end
+						-- mission info always contains a terminating "---"
+						tips:insert( unit:GetMissionInfo() )
+					end
+--end
+
 					if unit.IsTrade and unit:IsTrade() then
 						-- show trade route
 						g_unitMouseOvers:insert( unit )
