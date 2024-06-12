@@ -1479,6 +1479,37 @@ void CvGame::assignStartingPlots()
 	 GetStartPositioner()->Run(countMajorCivsAlive());
 }
 
+#if defined(EXTERNAL_PAUSING)
+bool ExternalPause()
+{
+	bool bPause = false;
+
+	// wait for an external mutex if it exists to make it easier to see what the AI is doing
+	HANDLE hMutex = ::OpenMutex(SYNCHRONIZE, FALSE, "TurnByTurn");
+	if (hMutex != NULL)
+	{
+		if (::WaitForSingleObject(hMutex, 0) == WAIT_OBJECT_0)
+		{
+			//we acquired the mutex, that means we can continue
+			ReleaseMutex(hMutex);
+			//also sleep a bit to keep the cpu requirements down if the player is not doing anything
+			Sleep(10);
+		}
+		else
+		{
+			//couldn't acquire it, we should pause
+			bPause = true;
+			//sleep a little bit for simple rate limiting
+			Sleep(200);
+		}
+		//close the handle in any case
+		CloseHandle(hMutex);
+	}
+
+	return bPause;
+}
+#endif
+
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
@@ -1533,10 +1564,16 @@ void CvGame::update()
 				gDLL->AutoSave(true);
 			}
 
+#if defined(EXTERNAL_PAUSING)
+			bool bExternalPause = ExternalPause();
+#else
+			bool bExternalPause = false;
+#endif
+
 			// If there are no active players, move on to the AI
-			if (getNumGameTurnActive() == 0)
+			if (!bExternalPause && getNumGameTurnActive() == 0)
 			{
-				if(gDLL->CanAdvanceTurn())
+				if (gDLL->CanAdvanceTurn())
 					doTurn();
 			}
 
