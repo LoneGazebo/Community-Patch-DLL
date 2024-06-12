@@ -39081,7 +39081,7 @@ void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 			return;
 
-		int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
+		int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false);
 		int iPreviousQuantity = GetHighestResourceQuantity(eResource);
 		if (iCurrentQuantity > iPreviousQuantity)
 		{
@@ -39115,7 +39115,7 @@ void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 			if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 				continue;
 
-			int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
+			int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false);
 			int iPreviousQuantity = GetHighestResourceQuantity(eResource);
 			if (iCurrentQuantity > iPreviousQuantity)
 			{
@@ -40169,9 +40169,6 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 
 		CvAssert(getResourceImportFromMajor(eIndex) >= 0);
 
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
-
 		CalculateNetHappiness();
 
 		if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
@@ -40212,9 +40209,6 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 		m_paiResourceFromMinors[eIndex] = m_paiResourceFromMinors[eIndex] + iChange;
 		CvAssert(getResourceFromMinors(eIndex) >= 0);
 
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
-
 		CalculateNetHappiness();
 
 		if (IsCSResourcesCountMonopolies())
@@ -40243,9 +40237,6 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 	{
 		m_paiResourcesSiphoned[eIndex] = m_paiResourcesSiphoned[eIndex] + iChange;
 		CvAssert(getResourceSiphoned(eIndex) >= 0);
-
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
 
 		CalculateNetHappiness();
 	}

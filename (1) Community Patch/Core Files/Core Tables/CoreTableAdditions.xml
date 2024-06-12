@@ -451,6 +451,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<Table name="Trait_YieldFromLuxuryResourceGain">
+		<!-- Excludes imports -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
