@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -386,12 +386,10 @@ public:
 	int GetPopupCount(int iPlotIndex);
 	void IncreasePopupCount(int iPlotIndex);
 
-#if defined(MOD_UNIT_KILL_STATS)
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void ExportUnitKillCount(PlayerTypes ePlayer);
 	void DoKillCountDecay(float fDecayFactor = 0.98f);
-#endif
 
 protected:
 
@@ -462,10 +460,8 @@ protected:
 
 	map<int, int> m_plotPopupCount; //not serialized
 
-#if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed
 	UnitKillCount killCount;
-#endif
 };
 
 #endif

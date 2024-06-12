@@ -382,26 +382,14 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
-#else
-		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
-#endif
 		DoReallocateCitizens(bForceCheck);
 	}
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
-#else
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
-#endif
 	DoSpecialists();
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
-#else
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
-#endif
 }
 
 int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache)
@@ -1361,18 +1349,10 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 /// Pick the worst Plot to stop working
 bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist)
 {
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int iCurrentCityPopulation = GetCity()->getPopulation(true);
-#else
-	int iCurrentCityPopulation = GetCity()->getPopulation();
-#endif
 
 	// Are all of our guys already not working Plots?
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	if (GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
-#else
-	if (GetNumUnassignedCitizens() == GetCity()->getPopulation())
-#endif
 	{
 		return false;
 	}
@@ -2602,11 +2582,8 @@ void CvCityCitizens::DoSpecialists()
 			int iGPThreshold = GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 			ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPPChange);
 
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
+			if (MOD_EVENTS_CITY)
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPrepared, GetCity()->getOwner(), GetCity(), eSpecialist, iGPPChange, iGPThreshold);
-			}
-#endif
 
 			// Enough to spawn a GP?
 			if (GetSpecialistGreatPersonProgress(eSpecialist) >= iGPThreshold)
@@ -2619,15 +2596,10 @@ void CvCityCitizens::DoSpecialists()
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					if (eUnitClass != NO_UNITCLASS)
+					const UnitTypes eUnit = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
+					if (eUnit != NO_UNIT)
 					{
-						UnitTypes eUnit = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
-
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						DoSpawnGreatPerson(eUnit, true, false, false);
-#else
-						DoSpawnGreatPerson(eUnit, true, false);
-#endif
 					}
 				}
 			}
@@ -2647,22 +2619,14 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
 
-#if defined(MOD_BALANCE_CORE)
 	if (m_pCity->IsResistance() || m_pCity->IsRazing())
-	{
 		return false;
-	}
-#endif
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	if(iNumSpecialistsAssigned < GetCity()->getPopulation(true) &&	// Limit based on Pop of City
-#else
-	if(iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
-#endif
-		iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
-		iNumSpecialistsAssigned < /*4*/ GD_INT_GET(MAX_SPECIALISTS_FROM_BUILDING))	// Overall Limit
+	if (iNumSpecialistsAssigned < GetCity()->getPopulation(true) && // Limit based on Pop of City
+		iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() && // Limit for this particular Building
+		iNumSpecialistsAssigned < /*4*/ GD_INT_GET(MAX_SPECIALISTS_FROM_BUILDING)) // Overall Limit
 	{
 		return true;
 	}
@@ -3077,25 +3041,14 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 				if (!GET_PLAYER(GetOwner()).isMinorCiv())
 				{
 					// Reset progress on this Specialist
-#if defined(MOD_BALANCE_CORE)
 					DoResetSpecialistGreatPersonProgressTimes100(eIndex, (iGPThreshold * 100));
-#else
-					DoResetSpecialistGreatPersonProgressTimes100(eSpecialist);
-#endif
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					if (eUnitClass != NO_UNITCLASS)
+					const UnitTypes eUnit = GET_PLAYER(GetOwner()).GetSpecificUnitType(eUnitClass);
+					if (eUnit != NO_UNIT)
 					{
-						UnitTypes eUnit = GET_PLAYER(GetOwner()).GetSpecificUnitType(eUnitClass);
-						if (eUnit != NO_UNIT)
-						{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-							DoSpawnGreatPerson(eUnit, true, false, false);
-#else
-							DoSpawnGreatPerson(eUnit, true, false);
-#endif
-						}
+						DoSpawnGreatPerson(eUnit, true, false, false);
 					}
 				}
 			}
@@ -3154,76 +3107,46 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true))
 	{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated(MOD_GLOBAL_TRULY_FREE_GP);
 		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
-#else
-		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated();
-#endif
 	}
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST", true))
 	{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
-#else
-		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated();
-#endif
 	}
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true))
 	{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated(MOD_GLOBAL_TRULY_FREE_GP);
 		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
-#else
-		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
-#endif
 	}
 	else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true))
 	{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatDiplomatsCreated();
-#endif
 	}
 	else
 	{
-#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 		if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 		{
-			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true)) {
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true))
+			{
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
-#endif
 			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true)) {
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true))
+			{
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
-#endif
 			}
 			else
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatEngineersCreated(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatEngineersCreated();
-#endif
 			}
 		}
 		else
-#endif
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+		{
 			iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-			iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatPeopleCreated();
-#endif
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	const UnitTypes eThisPlayersUnitType = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
 	if (eThisPlayersUnitType != NO_UNIT)
 	{
@@ -3232,44 +3155,23 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		{
 			if (pkUnitInfo->IsGPExtra() == 1)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra1Created(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra1Created();
-#endif
 			}
 			else if (pkUnitInfo->IsGPExtra() == 2)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra2Created(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra2Created();
-#endif
 			}
-
 			else if (pkUnitInfo->IsGPExtra() == 3)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra3Created(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra3Created();
-#endif
 			}
 			else if (pkUnitInfo->IsGPExtra() == 4)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra4Created(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra4Created();
-#endif
 			}
 			else if (pkUnitInfo->IsGPExtra() == 5)
 			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra5Created(MOD_GLOBAL_TRULY_FREE_GP);
-#else
-				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGPExtra5Created();
-#endif
 			}
 		}
 	}
@@ -3280,7 +3182,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		iThreshold *= (100 + iMod);
 		iThreshold /= 100;
 	}
-#endif
+
 	// Increase threshold based on how many GP have already been spawned
 	iThreshold += (/*100 in CP, 250 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_INCREASE) * iNumCreated);
 
@@ -3309,16 +3211,13 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 }
 
 /// Create a GP!
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bIsFree)
-#else
-void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet)
-#endif
 {
 	CvAssert(eUnit != NO_UNIT);
 
-	if (eUnit == NO_UNIT)
-		return;	// Better than crashing.
+	// Not a great person
+	if (GC.getUnitInfo(eUnit)->GetSpecialUnitType() != static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_PEOPLE")))
+		return;
 
 	// If it's the active player then show the popup
 	if (GetCity()->getOwner() == GC.getGame().getActivePlayer())
@@ -3334,300 +3233,16 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	CvPlayer& kPlayer = GET_PLAYER(GetCity()->getOwner());
 	CvUnit* newUnit = kPlayer.initUnit(eUnit, GetCity()->getX(), GetCity()->getY());
 
-	// Bump up the count
-	if (bIncrementCount && !bCountAsProphet)
-	{
-#if defined(MOD_BALANCE_CORE)
-		if (kPlayer.GetPlayerTraits()->IsGPWLTKD())
-		{
-			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
-			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iWLTKD /= 100;
+	newUnit->DoGreatPersonSpawnBonus(GetCity());
 
-			if (iWLTKD > 0)
-			{
-				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if (pNotifications)
-				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-					strText << newUnit->getNameKey() << GetCity()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-					strSummary << GetCity()->getNameKey();
-					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
-				}
-			}
-		}
-		if (newUnit->isWLKTKDOnBirth())
-		{
-			CvCity* pLoopCity = NULL;
-			int iLoop = 0;
-			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				if (pLoopCity != NULL)
-				{
-					int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
-					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iWLTKD /= 100;
-
-					if (iWLTKD > 0)
-					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
-							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
-							strSummary << pLoopCity->getNameKey();
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
-						}
-					}
-				}
-			}
-		}
-		if (newUnit->isGoldenAgeOnBirth())
-		{
-			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
-		}
-		if (newUnit->isCultureBoost())
-		{
-			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
-			kPlayer.changeJONSCulture(iValue);
-			if (kPlayer.getCapitalCity() != NULL)
-				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-
-			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if (pNotifications)
-			{
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
-				strText << newUnit->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
-				strSummary << newUnit->getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), newUnit->getX(), newUnit->getY(), -1);
-			}
-		}
-#endif
-		if (newUnit->IsGreatGeneral())
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatGeneralsCreated(bIsFree);
-#else
-			kPlayer.incrementGreatGeneralsCreated();
-#endif
-		}
-		else if (newUnit->IsGreatAdmiral())
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatAdmiralsCreated(bIsFree);
-#else
-			kPlayer.incrementGreatAdmiralsCreated();
-#endif
-			CvPlot *pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(newUnit);
-			if (newUnit->plot() != pSpawnPlot)
-			{
-				newUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
-			}
-		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatWritersCreated(bIsFree);
-#else
-			kPlayer.incrementGreatWritersCreated();
-#endif
-		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatArtistsCreated(bIsFree);
-#else
-			kPlayer.incrementGreatArtistsCreated();
-#endif
-		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatMusiciansCreated(bIsFree);
-#else
-			kPlayer.incrementGreatMusiciansCreated();
-#endif
-		}
-		else if (MOD_BALANCE_VP && newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGreatDiplomatsCreated(bIsFree);
-#else
-			kPlayer.incrementGreatDiplomatsCreated();
-#endif
-		}
-#if defined(MOD_BALANCE_CORE)
-		else if (newUnit->getUnitInfo().IsGPExtra() == 1)
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGPExtra1Created(bIsFree);
-#else
-			kPlayer.incrementGPExtra1Created();
-#endif
-		}
-		else if (newUnit->getUnitInfo().IsGPExtra() == 2)
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGPExtra2Created(bIsFree);
-#else
-			kPlayer.incrementGPExtra2Created();
-#endif
-		}
-		else if (newUnit->getUnitInfo().IsGPExtra() == 3)
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGPExtra3Created(bIsFree);
-#else
-			kPlayer.incrementGPExtra3Created();
-#endif
-		}
-		else if (newUnit->getUnitInfo().IsGPExtra() == 4)
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGPExtra4Created(bIsFree);
-#else
-			kPlayer.incrementGPExtra4Created();
-#endif
-		}
-		else if (newUnit->getUnitInfo().IsGPExtra() == 5)
-		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.incrementGPExtra5Created(bIsFree);
-#else
-			kPlayer.incrementGPExtra5Created();
-#endif
-		}
-#endif
-		else
-		{
-#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-			if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-			{
-				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-				{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-					kPlayer.incrementGreatMerchantsCreated(bIsFree);
-#else
-					kPlayer.incrementGreatMerchantsCreated();
-#endif
-				}
-				else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-				{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-					kPlayer.incrementGreatScientistsCreated(bIsFree);
-#else
-					kPlayer.incrementGreatScientistsCreated();
-#endif
-				}
-				else
-				{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-					kPlayer.incrementGreatEngineersCreated(bIsFree);
-#else
-					kPlayer.incrementGreatEngineersCreated();
-#endif
-				}
-			}
-			else
-#endif
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-				kPlayer.incrementGreatPeopleCreated(bIsFree);
-#else
-				kPlayer.incrementGreatPeopleCreated();
-#endif
-		}
-	}
-	if (bCountAsProphet || newUnit->getUnitInfo().IsFoundReligion())
-	{
-#if defined(MOD_BALANCE_CORE)
-		if (kPlayer.GetPlayerTraits()->IsGPWLTKD())
-		{
-			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
-			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iWLTKD /= 100;
-
-			if (iWLTKD > 0)
-			{
-				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if (pNotifications)
-				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-					strText << newUnit->getNameKey() << GetCity()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-					strSummary << GetCity()->getNameKey();
-					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
-				}
-			}
-		}
-		if (newUnit->isWLKTKDOnBirth())
-		{
-			CvCity* pLoopCity = NULL;
-			int iLoop = 0;
-			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				if (pLoopCity != NULL)
-				{
-					int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
-					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iWLTKD /= 100;
-
-					if (iWLTKD > 0)
-					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
-							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
-							strSummary << pLoopCity->getNameKey();
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
-						}
-					}
-				}
-			}
-		}
-		if (newUnit->isGoldenAgeOnBirth())
-		{
-			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
-		}
-		if (newUnit->isCultureBoost())
-		{
-			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
-			kPlayer.changeJONSCulture(iValue);
-			if (kPlayer.getCapitalCity() != NULL)
-				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-
-			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if (pNotifications)
-			{
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
-				strText << newUnit->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
-				strSummary << newUnit->getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), newUnit->getX(), newUnit->getY(), -1);
-			}
-		}
-#endif
-		if (bIncrementCount)
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-			kPlayer.GetReligions()->ChangeNumProphetsSpawned(1, bIsFree);
-#else
-			kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
-#endif
-	}
+	if (bIncrementCount)
+		kPlayer.incrementGreatPersonCount(newUnit->getUnitInfo(), bCountAsProphet, bIsFree);
 
 	// Setup prophet properly
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
-		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion);
+		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(), newUnit->getUnitInfo(),eReligion);
 	}
 
 	// Notification

@@ -954,8 +954,8 @@
 	<Row Class="6" Name="BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS" Value="0"/>
 	<!-- Ranged attacks on injured units no longer get a bonus for the unit being injured -->
 	<Row Class="6" Name="BALANCE_CORE_RANGED_ATTACK_PENALTY" Value="0"/>
-	  <!-- Inquisitors don't block spread, make 50% -->
-	  <Row Class="6" Name="BALANCE_CORE_INQUISITOR_TWEAKS" Value="0"/>
+	<!-- Inquisitors don't block spread, make 50% -->
+	<Row Class="6" Name="BALANCE_CORE_INQUISITOR_TWEAKS" Value="0"/>
 	<!-- If true, no lua hooks are called from the game core, increasing performance and stability -->
 	<Row Class="6" Name="CORE_DISABLE_LUA_HOOKS" Value="0"/>
 	<!-- If true, additional promotions are enabled which may cause a significant slowdown if there are many units in the game -->
@@ -970,12 +970,22 @@
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
 	<!-- Only recon units (and city border growth) can take ancient ruins. -->
 	<Row Class="6" Name="BALANCE_CORE_GOODY_RECON_ONLY" Value="0"/>
-	 
+	<!-- Pantheon presure is only reduced by half of incoming active spread pressure. -->
+	<Row Class="5" Name="CORE_RESILIENT_PANTHEONS" Value="0"/>
+	<!-- Enables hovercraft. -->
+	<Row Class="5" Name="CORE_HOVERING_UNITS" Value="0"/>
+	<!-- Visible tiles stay visible until the end of the turn. -->
+	<Row Class="6" Name="CORE_DELAYED_VISIBILITY" Value="1"/>
+	<!-- Danger plot valuation: ignore ZOC only for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units) -->
+	<Row Class="1" Name="CORE_TWO_PASS_DANGER" Value="0"/>
+
 	<Row Class="6" Name="YIELD_MODIFIER_FROM_UNITS" Value="0"/>
 
 	<Row Class="6" Name="ISKA_HERITAGE" Value="0"/>
 	<!-- If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Also game to calculate the military might for each domain. -->
 	<Row Class="6" Name="BATTLE_ROYALE" Value="0"/>
+
+	<Row Class="0" Name="UNIT_KILL_STATS" Value="0"/>
 
   </CustomModOptions>
 

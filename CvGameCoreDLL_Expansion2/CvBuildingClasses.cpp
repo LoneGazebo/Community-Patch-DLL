@@ -4544,17 +4544,10 @@ void CvBuildingXMLEntries::DeleteArray()
 }
 
 /// Get a specific entry
-#if defined(MOD_BALANCE_CORE)
 CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index) const
 {
 	return (index!=NO_BUILDING) ? m_paBuildingEntries[index] : NULL;
 }
-#else
-CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index)
-{
-	return m_paBuildingEntries[index];
-}
-#endif
 
 //=====================================
 // CvCityBuildings
@@ -5203,25 +5196,13 @@ int CvCityBuildings::GetNumRealBuilding(BuildingTypes eIndex) const
 }
 
 /// Accessor: Set number of these buildings that have been constructed in the city
-
-#if defined(MOD_BALANCE_CORE)
 void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bool bNoBonus)
 {
 	SetNumRealBuildingTimed(eIndex, iNewValue, true, m_pCity->getOwner(), GC.getGame().getGameTurnYear(), bNoBonus);
 }
-#else
-void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue)
-{
-	SetNumRealBuildingTimed(eIndex, iNewValue, true, m_pCity->getOwner(), GC.getGame().getGameTurnYear());
 
-}
-#endif
 /// Accessor: Set number of these buildings that have been constructed in the city (with date)
-#if defined(MOD_BALANCE_CORE)
 void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus)
-#else
-void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime)
-#endif
 {
 	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
 
@@ -5277,11 +5258,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		// Process building effects
 		if(iOldNumBuilding != GetNumBuilding(eIndex))
 		{
-#if defined(MOD_BALANCE_CORE)
 			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst, false, false, bNoBonus);
-#else
-			m_pCity->processBuilding(eIndex, iChangeNumRealBuilding, bFirst);
-#endif
 		}
 
 		// Maintenance cost
@@ -6016,13 +5993,8 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	int iRtnValue = (iStandardWorkCount * iBaseYield);
 	iRtnValue += (iRealWorkCount * iSecondaryYield);
 	//Then theming bonuses for the yield.
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	iRtnValue += GetCurrentThemingBonuses(eYield);
-#else
-	if (eYield == YIELD_CULTURE) {
-		iRtnValue += GetCurrentThemingBonuses();
-	}
-#endif
+
 	//Next add in any UA or extra theming bonuses.
 	iRtnValue += (iTypeBonuses + iThemingBonusTotal);
 
@@ -6036,13 +6008,8 @@ int CvCityBuildings::GetCultureFromGreatWorks() const
 }
 
 /// Accessor: How many Great Works of specific slot type present in this city?
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 int CvCityBuildings::GetNumGreatWorks(bool bIgnoreYield) const
-#else
-int CvCityBuildings::GetNumGreatWorks() const
-#endif
 {
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	int iRtnValue = 0;
 
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
@@ -6077,27 +6044,17 @@ int CvCityBuildings::GetNumGreatWorks() const
 		}
 	}
 	return iRtnValue;
-#else
-	// Simple if want total of all types
-	return m_aBuildingGreatWork.size();
-#endif
 }
 
 /// Accessor: How many Great Works of specific slot type present in this city?
-#if defined(MOD_BALANCE_CORE)
 int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact, bool bArt) const
-#else
-int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
-#endif
 {
 	if (eGreatWorkSlot == NO_GREAT_WORK_SLOT)
 		return 0;
 
 	int iRtnValue = 0;
-#if defined(MOD_BALANCE_CORE)
 	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-#endif
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
 	{
@@ -6111,19 +6068,18 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 
 				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
-
 					eBuilding = GetBuildingTypeFromClass(eBldgClass);
 				}
 				else
 				{
 					eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
 				}
+
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
-#if defined(MOD_BALANCE_CORE)
 					//Art/Artifact need distinction here, because they occupy the same slot!
-					if(bArtifact)
+					if (bArtifact)
 					{
 						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[(*it).iGreatWorkIndex];
 
@@ -6133,7 +6089,7 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 							iRtnValue++;
 						}
 					}
-					else if(bArt)
+					else if (bArt)
 					{
 						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[(*it).iGreatWorkIndex];
 
@@ -6143,9 +6099,7 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 							iRtnValue++;
 						}
 					}
-					else
-#endif
-					if (pkInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
+					else if (pkInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
 					{
 						iRtnValue++;
 					}
@@ -6155,7 +6109,7 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 	}
 	return iRtnValue;
 }
-#if defined(MOD_BALANCE_CORE)
+
 int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 {
 	return m_paiThemingBonusIndex[eBuilding];
@@ -6169,7 +6123,7 @@ void CvCityBuildings::SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex)
 		m_paiThemingBonusIndex[eBuilding] = iIndex;
 	}
 }
-#endif
+
 /// Accessor: Get tourism converted from culture from Improvements and Wonders
 int CvCityBuildings::GetLandmarksTourismPercent() const
 {
@@ -6203,16 +6157,11 @@ void CvCityBuildings::ChangeGreatWorksTourismModifier(int iChange)
 }
 
 /// Accessor: Total theming bonus from all buildings in the city
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
-#else
-int CvCityBuildings::GetCurrentThemingBonuses() const
-#endif
 {
 	int iTotal = 0;
 	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(*iI);
 		if (pkBuilding)
 		{
@@ -6236,9 +6185,6 @@ int CvCityBuildings::GetCurrentThemingBonuses() const
 				iTotal += iBonus;
 			}
 		}
-#else
-		iTotal += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
-#endif
 	}
 
 	return iTotal;

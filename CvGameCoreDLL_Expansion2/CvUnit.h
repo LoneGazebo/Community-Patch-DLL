@@ -31,9 +31,7 @@ class CvPlot;
 class CvUnitEntry;
 class CvUnitReligion;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 class CvTacticalMove;
-#endif
 
 typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
 typedef std::vector<std::pair<TerrainTypes, int>> TerrainTypeCounter;
@@ -237,13 +235,8 @@ public:
 		MOVE_RESULT_NO_TARGET	= 0xFFFFFFFB,		//attack not required
 	};
 
-#if defined(MOD_BALANCE_CORE)
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, CvUnit* pPassUnit = NULL);
 	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false, CvUnit* pPassUnit = NULL);
-#else
-	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
-	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false);
-#endif
 
 	void uninit();
 
@@ -256,11 +249,7 @@ public:
 	static int CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iExperienceTimes100);
 	void grantExperienceFromLostPromotions(int iNumLost);
 
-#if defined(MOD_BALANCE_CORE)
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
-#else
-	void convert(CvUnit* pUnit, bool bIsUpgrade);
-#endif
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
@@ -418,10 +407,9 @@ public:
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
 	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
 
-#if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
 	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
-#endif
+
 	bool canAirlift(const CvPlot* pPlot) const;
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool airlift(int iX, int iY);
@@ -737,23 +725,13 @@ public:
 
 	int GetResistancePower(const CvUnit* pOtherUnit) const;
 
-	int GetCombatLimit() const;
-	int GetRangedCombatLimit() const;
-
 	bool isWaiting() const;
 	bool IsEverFortifyable() const;
 	int fortifyModifier() const;
 
 	int experienceNeeded() const;
-	int attackXPValue() const;
-	int defenseXPValue() const;
 	int maxXPValue() const;
 
-	int firstStrikes() const;
-	int chanceFirstStrikes() const;
-	int maxFirstStrikes() const;
-
-	bool immuneToFirstStrikes() const;
 	bool ignoreBuildingDefense() const;
 
 	bool ignoreTerrainCost() const;
@@ -806,9 +784,6 @@ public:
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
 	void ChangeStackedGreatGeneralExperience(int iExperience);
-	void ChangeIsHighSeaRaider(int iValue);
-	int GetIsHighSeaRaider() const;
-	bool isHighSeaRaider() const;
 	int getWonderProductionModifier() const;
 	void ChangeWonderProductionModifier(int iValue);
 	int getMilitaryProductionModifier() const;
@@ -1043,11 +1018,6 @@ public:
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
 
-#if defined(MOD_BALANCE_CORE)
-	//int combatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const;
-	int combatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
-#endif
-
 	int GetYieldModifier(YieldTypes eYield) const;
 	void SetYieldModifier(YieldTypes eYield, int iValue);
 
@@ -1158,10 +1128,6 @@ public:
 	void setCombatTimer(int iNewValue);
 	void changeCombatTimer(int iChange);
 
-	int getCombatFirstStrikes() const;
-	void setCombatFirstStrikes(int iNewValue);
-	void changeCombatFirstStrikes(int iChange);
-
 	int GetMapLayer() const;
 	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
@@ -1241,8 +1207,6 @@ public:
 	int getLandAirDefenseValue() const;
 	void changeLandAirDefenseValue(int iChange);
 #endif
-	int getImmuneToFirstStrikesCount() const;
-	void changeImmuneToFirstStrikesCount(int iChange);
 
 	int getExtraVisibilityRange() const;
 	void changeExtraVisibilityRange(int iChange);
@@ -1278,12 +1242,6 @@ public:
 
 	int getExtraEvasion() const;
 	void changeExtraEvasion(int iChange);
-
-	int getExtraFirstStrikes() const;
-	void changeExtraFirstStrikes(int iChange);
-
-	int getExtraChanceFirstStrikes() const;
-	void changeExtraChanceFirstStrikes(int iChange);
 
 	int getExtraWithdrawal() const;
 	void changeExtraWithdrawal(int iChange);
@@ -1430,11 +1388,9 @@ public:
 	int GetGreatGeneralStackMovement(const CvPlot* pLoopPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(const CvPlot* pAtPlot = NULL) const;
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifierFromPromotions(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier, const CvPlot* pAtPlot = NULL) const;
-#endif
 
 	bool IsCombatSupportUnit() const;
 
@@ -1542,9 +1498,6 @@ public:
 
 	int getExperiencePercent() const;
 	void changeExperiencePercent(int iChange);
-
-	int getKamikazePercent() const;
-	void changeKamikazePercent(int iChange);
 
 	DirectionTypes getFacingDirection(bool checkLineOfSightProperty) const;
 	void setFacingDirection(DirectionTypes facingDirection);
@@ -1711,7 +1664,6 @@ public:
 	inline bool isFeatureDoubleMove(FeatureTypes eIndex) const { return getFeatureDoubleMoveCount(eIndex) > 0; }
 	void changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange);
 
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	int getTerrainHalfMoveCount(TerrainTypes eIndex) const;
 	inline bool isTerrainHalfMove(TerrainTypes eIndex) const { return getTerrainHalfMoveCount(eIndex) > 0; }
 	void changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange);
@@ -1727,7 +1679,7 @@ public:
 	int getFeatureExtraMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureExtraMove(FeatureTypes eIndex) const { return getFeatureExtraMoveCount(eIndex) > 0; }
 	void changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
 	bool isTerrainDoubleHeal(TerrainTypes eIndex) const;
@@ -2038,6 +1990,8 @@ public:
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
 
+	void DoGreatPersonSpawnBonus(CvCity* pSpawnCity);
+
 protected:
 	const MissionData* HeadMissionData() const;
 	MissionData* HeadMissionData();
@@ -2105,7 +2059,6 @@ protected:
 	int m_iAttackPlotX;
 	int m_iAttackPlotY;
 	int m_iCombatTimer;
-	int m_iCombatFirstStrikes;
 	bool m_bMovedThisTurn;
 	bool m_bHasWithdrawnThisTurn;
 	bool m_bFortified;
@@ -2143,7 +2096,6 @@ protected:
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
 #endif
-	int m_iImmuneToFirstStrikesCount;
 	int m_iExtraVisibilityRange;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int m_iExtraReconRange;
@@ -2153,8 +2105,6 @@ protected:
 	int m_iExtraRange;
 	int m_iInterceptChance;
 	int m_iExtraEvasion;
-	int m_iExtraFirstStrikes;
-	int m_iExtraChanceFirstStrikes;
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	ContractTypes m_eUnitContract;
@@ -2209,7 +2159,6 @@ protected:
 	int m_iDropRange;
 	int m_iAirSweepCapableCount;
 	int m_iExtraNavalMoves;
-	int m_iKamikazePercent;
 	DirectionTypes m_eFacingDirection;
 	int m_iIgnoreTerrainCostCount;
 	int m_iIgnoreTerrainDamageCount;
@@ -2232,7 +2181,6 @@ protected:
 	int m_iNearbyEnemyCityCombatMod;
 	int m_iPillageBonusStrengthPercent;
 	int m_iStackedGreatGeneralExperience;
-	int m_iIsHighSeaRaider;
 	int m_iWonderProductionModifier;
 	int m_iUnitProductionModifier;
 	int m_iNearbyEnemyDamage;
@@ -2350,8 +2298,6 @@ protected:
 	bool m_bInfoBarDirty;
 	bool m_bNotConverting;
 	bool m_bAirCombat;
-	//to be removed
-		bool m_bSetUpForRangedAttack;
 	bool m_bEmbarked;
 	bool m_bPromotedFromGoody;
 	bool m_bAITurnProcessed;
@@ -2369,7 +2315,7 @@ protected:
 	GreatPeopleDirectiveTypes m_eGreatPeopleDirectiveType;
 	CvUnitEntry* m_pUnitInfo;
 
-	bool m_bWaitingForMove;			///< If true, the unit is busy visualizing its move.
+	bool m_bWaitingForMove; ///< If true, the unit is busy visualizing its move.
 
 	IDInfo m_combatUnit;
 	IDInfo m_combatCity;
@@ -2386,7 +2332,7 @@ protected:
 	CvString m_strScriptData;
 	int m_iScenarioData;
 
-	CvUnitPromotions  m_Promotions;
+	CvUnitPromotions m_Promotions;
 	CvUnitReligion m_Religion;
 
 #if defined(MOD_CIV6_WORKER)
@@ -2397,13 +2343,13 @@ protected:
 	TerrainTypeCounter m_terrainDoubleMoveCount;
 	FeatureTypeCounter m_featureIgnoreCostCount;
 	FeatureTypeCounter m_featureDoubleMoveCount;
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
+
 	TerrainTypeCounter m_terrainHalfMoveCount;
 	FeatureTypeCounter m_featureHalfMoveCount;
 
 	TerrainTypeCounter m_terrainExtraMoveCount;
 	FeatureTypeCounter m_featureExtraMoveCount;
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	TerrainTypeCounter m_terrainDoubleHeal;
 	FeatureTypeCounter m_featureDoubleHeal;
@@ -2566,7 +2512,6 @@ SYNC_ARCHIVE_VAR(int, m_iCargoCapacity)
 SYNC_ARCHIVE_VAR(int, m_iAttackPlotX)
 SYNC_ARCHIVE_VAR(int, m_iAttackPlotY)
 SYNC_ARCHIVE_VAR(int, m_iCombatTimer)
-SYNC_ARCHIVE_VAR(int, m_iCombatFirstStrikes)
 SYNC_ARCHIVE_VAR(bool, m_bMovedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bHasWithdrawnThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bFortified)
@@ -2600,7 +2545,6 @@ SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
 SYNC_ARCHIVE_VAR(int, m_iLandAirDefenseValue)
-SYNC_ARCHIVE_VAR(int, m_iImmuneToFirstStrikesCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraVisibilityRange)
 SYNC_ARCHIVE_VAR(int, m_iExtraReconRange)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
@@ -2608,8 +2552,6 @@ SYNC_ARCHIVE_VAR(int, m_iExtraMoveDiscount)
 SYNC_ARCHIVE_VAR(int, m_iExtraRange)
 SYNC_ARCHIVE_VAR(int, m_iInterceptChance)
 SYNC_ARCHIVE_VAR(int, m_iExtraEvasion)
-SYNC_ARCHIVE_VAR(int, m_iExtraFirstStrikes)
-SYNC_ARCHIVE_VAR(int, m_iExtraChanceFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraWithdrawal)
 SYNC_ARCHIVE_VAR(ContractTypes, m_eUnitContract)
 SYNC_ARCHIVE_VAR(int, m_iNegatorPromotion)
@@ -2662,7 +2604,6 @@ SYNC_ARCHIVE_VAR(int, m_iExperiencePercent)
 SYNC_ARCHIVE_VAR(int, m_iDropRange)
 SYNC_ARCHIVE_VAR(int, m_iAirSweepCapableCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraNavalMoves)
-SYNC_ARCHIVE_VAR(int, m_iKamikazePercent)
 SYNC_ARCHIVE_VAR(DirectionTypes, m_eFacingDirection)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainCostCount)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainDamageCount)
@@ -2682,7 +2623,6 @@ SYNC_ARCHIVE_VAR(int, m_iNearbyFriendlyCityCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyCityCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iPillageBonusStrengthPercent)
 SYNC_ARCHIVE_VAR(int, m_iStackedGreatGeneralExperience)
-SYNC_ARCHIVE_VAR(int, m_iIsHighSeaRaider)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyDamage)
@@ -2784,7 +2724,6 @@ SYNC_ARCHIVE_VAR(bool, m_bCombatFocus)
 SYNC_ARCHIVE_VAR(bool, m_bInfoBarDirty)
 SYNC_ARCHIVE_VAR(bool, m_bNotConverting)
 SYNC_ARCHIVE_VAR(bool, m_bAirCombat)
-SYNC_ARCHIVE_VAR(bool, m_bSetUpForRangedAttack)
 SYNC_ARCHIVE_VAR(bool, m_bEmbarked)
 SYNC_ARCHIVE_VAR(bool, m_bPromotedFromGoody)
 SYNC_ARCHIVE_VAR(bool, m_bAITurnProcessed)

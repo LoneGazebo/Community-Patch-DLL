@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -73,15 +73,12 @@ private:
 	int m_iPitbossTurnTime;
 	int m_iMaxCityElimination;
 	int m_iNumMinorCivs;
-	int m_iNumAdvancedStartPoints;
 	GameMode m_eMode;
 	bool m_bStatReporting;
 
 	char m_szDebugString[512];
 
 	unsigned int m_uiRefCount;
-
-#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
 
 #if MAX_MAJOR_CIVS <= 32
 	typedef uint32 KnownPlayersBitArray;
@@ -94,6 +91,4 @@ private:
 
 	// this is not an FAutoVariable since it doesn't need syncing since it is just derived data.
 	std::vector<KnownPlayersBitArray> m_aiKnownPlayersTable;
-#endif
-
 };

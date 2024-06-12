@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -253,6 +253,42 @@ bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTab
 		const int idx = pResults->GetInt(0);
 		const int value = pResults->GetInt(1);
 		pArray[idx] = value;
+	}
+
+	pResults->Reset();
+
+	return true;
+}
+//------------------------------------------------------------------------------
+bool CvDatabaseUtility::PopulateSetByExistence(set<int>& siData, const char* szTypeTableName, const char* szDataTableName,
+	const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue)
+{
+	siData.clear();
+
+	string strKey = "_PSBE_";
+	strKey.append(szTypeTableName);
+	strKey.append(szDataTableName);
+	strKey.append(szFilterColumn);
+
+	Database::Results* pResults = GetResults(strKey);
+	if (!pResults)
+	{
+		char szSQL[512];
+		sprintf_s(szSQL, "select %s.ID from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
+		pResults = PrepareResults(strKey, szSQL);
+		if (!pResults)
+			return false;
+	}
+
+	if (!pResults->Bind(1, szFilterValue, false))
+	{
+		CvAssertMsg(false, GetErrorMessage());
+		return false;
+	}
+
+	while (pResults->Step())
+	{
+		siData.insert(pResults->GetInt(0));
 	}
 
 	pResults->Reset();

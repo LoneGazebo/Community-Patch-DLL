@@ -8814,7 +8814,9 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eLeagueProject);
 	CvAssert(pProjectInfo);
-	if (!pProjectInfo) return;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	
 	// Which rewards do we get?
 	//antonjs: A switch statement in its natural habitat without break statements...a rare sight indeed
@@ -8839,23 +8841,23 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		}
 	}
 
-	for (uint i = 0; i < veRewards.size(); i++)
+	for (vector<LeagueProjectRewardTypes>::iterator it = veRewards.begin(); it != veRewards.end(); ++it)
 	{
-		CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(veRewards[i]);
+		CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(*it);
 		CvAssert(pRewardInfo);
-		if (!pRewardInfo) continue;
 
 		// Free Building in Capital
-		if (pRewardInfo->GetBuilding() != NO_BUILDING)
+		BuildingTypes eBuilding = pRewardInfo->GetBuilding();
+		if (eBuilding != NO_BUILDING)
 		{
-			CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
+			CvCity* pCapital = kPlayer.getCapitalCity();
 			CvAssertMsg(pCapital, "Player does not have a capital city. Please send Anton your save file and version.");
 			if (pCapital)
 			{
-				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pBuildingInfo)
 				{
-					pCapital->CreateBuilding(pRewardInfo->GetBuilding());
+					pCapital->CreateBuilding(eBuilding);
 					pCapital->CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
 				}
 			}
@@ -8864,32 +8866,32 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		// Happiness
 		if (pRewardInfo->GetHappiness() != 0)
 		{
-			GET_PLAYER(ePlayer).ChangeHappinessFromLeagues(pRewardInfo->GetHappiness());
-			GET_PLAYER(ePlayer).CalculateNetHappiness();
+			kPlayer.ChangeHappinessFromLeagues(pRewardInfo->GetHappiness());
+			kPlayer.CalculateNetHappiness();
 		}
 
 		// Free Social Policy
 		if (pRewardInfo->GetFreeSocialPolicies() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeNumFreePolicies(pRewardInfo->GetFreeSocialPolicies());
+			kPlayer.ChangeNumFreePolicies(pRewardInfo->GetFreeSocialPolicies());
 		}
 
 		// Temporary Culture Modifier
 		if (pRewardInfo->GetCultureBonusTurns() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeCultureBonusTurns(pRewardInfo->GetCultureBonusTurns());
+			kPlayer.ChangeCultureBonusTurns(pRewardInfo->GetCultureBonusTurns());
 		}
 
 		// Temporary Tourism Modifier
 		if (pRewardInfo->GetTourismBonusTurns() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeTourismBonusTurns(pRewardInfo->GetTourismBonusTurns());
+			kPlayer.ChangeTourismBonusTurns(pRewardInfo->GetTourismBonusTurns());
 		}
 
 		// Golden Age Points
 		if (pRewardInfo->GetGoldenAgePoints() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeGoldenAgeProgressMeter(pRewardInfo->GetGoldenAgePoints());
+			kPlayer.ChangeGoldenAgeProgressMeter(pRewardInfo->GetGoldenAgePoints());
 		}
 
 		// City-State Influence Boost
@@ -8898,72 +8900,72 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		{
 			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
-				if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+				PlayerTypes eMinorCivLoop = static_cast<PlayerTypes>(iMinorCivLoop);
+				CvPlayer& kMinorCivLoop = GET_PLAYER(eMinorCivLoop);
+				if (kMinorCivLoop.isAlive() && kTeam.isHasMet(kMinorCivLoop.getTeam()))
 				{
-					GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor(ePlayer, pRewardInfo->GetCityStateInfluenceBoost());
+					kMinorCivLoop.GetMinorCivAI()->ChangeFriendshipWithMajor(ePlayer, pRewardInfo->GetCityStateInfluenceBoost());
 				}
 			}
 		}
 
 		// Beaker boost based on previous turns
+		// TODO: Turn this into an instant yield
 		if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
 		{
 			int iPreviousTurnsToCount = pRewardInfo->GetBaseBeakersTurnsToCount();
-			int iBeakersBonus = GET_PLAYER(ePlayer).getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
-			TechTypes eCurrentTech = GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch();
-			if(eCurrentTech == NO_TECH)
+			int iBeakersBonus = kPlayer.getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
+			TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+			if (eCurrentTech == NO_TECH)
 			{
-				GET_PLAYER(ePlayer).changeOverflowResearch(iBeakersBonus);
+				kPlayer.changeOverflowResearch(iBeakersBonus);
 			}
 			else
 			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
+				kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
 			}
 		}
 
 		// Free unit class
-		if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
+		const UnitClassTypes eUnitClass = pRewardInfo->GetFreeUnitClass();
+		const UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
+		if (eUnit != NO_UNIT)
 		{
-			UnitTypes eUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
-			if (eUnit != NO_UNIT)
+			CvCity* pCapital = kPlayer.getCapitalCity();
+			if (pCapital)
 			{
-				CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
-				if (pCapital)
+				CvPlot* pSpawnPlot = pCapital->plot();
+				CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+				if (pUnitInfo)
 				{
-					CvPlot* pSpawnPlot = pCapital->plot();
-
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-					if (pkUnitInfo)
+					if (pUnitInfo->GetDomainType() == DOMAIN_SEA)
 					{
-						if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
-						{
-							CvPlot* pWaterSpawnPlot = GET_PLAYER(ePlayer).GetBestCoastalSpawnPlot(NULL);
-							if (pWaterSpawnPlot)
-								pSpawnPlot = pWaterSpawnPlot;
-						}
+						CvPlot* pWaterSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(NULL);
+						if (pWaterSpawnPlot)
+							pSpawnPlot = pWaterSpawnPlot;
 					}
-
-					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY());
-					pCapital->addProductionExperience(pUnit);
-					pUnit->jumpToNearestValidPlot();
 				}
+
+				CvUnit* pUnit = kPlayer.initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY());
+				pCapital->addProductionExperience(pUnit);
+				if (!pUnit->jumpToNearestValidPlot())
+					pUnit->kill(false);
 			}
 		}
 
-		//CSD Project Rewards
 		if (pRewardInfo->GetAttackBonusTurns() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeAttackBonusTurns(pRewardInfo->GetAttackBonusTurns());
+			kPlayer.ChangeAttackBonusTurns(pRewardInfo->GetAttackBonusTurns());
 		}
+
 		if (pRewardInfo->GetBaseFreeUnits() > 0)
 		{
-			GET_PLAYER(ePlayer).changeBaseFreeUnits(pRewardInfo->GetBaseFreeUnits());
+			kPlayer.changeBaseFreeUnits(pRewardInfo->GetBaseFreeUnits());
 		}
-		// Temporary Culture Modifier
+
 		if (pRewardInfo->GetNumFreeGreatPeople() > 0)
 		{
-			GET_PLAYER(ePlayer).ChangeNumFreeGreatPeople(pRewardInfo->GetNumFreeGreatPeople());
+			kPlayer.ChangeNumFreeGreatPeople(pRewardInfo->GetNumFreeGreatPeople());
 		}
 	}
 }

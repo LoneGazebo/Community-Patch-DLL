@@ -1162,7 +1162,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP</Help>
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
-			<CityDefenseModifierBase>20</CityDefenseModifierBase>
+			<CityDefenseModifierBase>30</CityDefenseModifierBase>
 			<CounterspyBlockSapCity>true</CounterspyBlockSapCity>
 		</Row>
 	</CityEventChoices>

@@ -4963,18 +4963,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	if(pUnit && pUnit->isHighSeaRaiderUnit())
 	{
 		iPlunderGoldValue *= 3;
-		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
-			{
-				if(pkPromotionInfo->IsHighSeaRaider())
-				{
-					pUnit->setHasPromotion(eLoopPromotion, true);
-				}
-			}
-		}
 	}
 	iPlunderGoldValue /= 100;
 #endif
@@ -7282,10 +7270,10 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		else if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() && m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		{
 			// is this a city in which we want to build spaceship parts in the near future?
-			vector<CvCity*> vCitiesForSpaceship = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
+			const vector<int>& vCitiesForSpaceship = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
 			if (vCitiesForSpaceship.size() > 0)
 			{
-				if (find(vCitiesForSpaceship.begin(), vCitiesForSpaceship.end(), pCity) != vCitiesForSpaceship.end())
+				if (find(vCitiesForSpaceship.begin(), vCitiesForSpaceship.end(), pCity->GetID()) != vCitiesForSpaceship.end())
 				{
 					apProductionTargetCities.push_back(pCity);
 				}

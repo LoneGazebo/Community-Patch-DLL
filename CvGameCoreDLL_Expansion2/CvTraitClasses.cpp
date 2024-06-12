@@ -262,6 +262,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromSettle(NULL),
 	m_piYieldFromConquest(NULL),
 	m_piYieldFromCityDamageTimes100(NULL),
+	m_iPurchasedUnitsBonusXP(0),
 	m_iVotePerXCSAlliance(0),
 	m_iVotePerXCSFollowingFollowingYourReligion(0),
 	m_iChanceToConvertReligiousUnits(0),
@@ -306,6 +307,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piYieldFromMinorDemand(NULL),
+	m_piYieldFromLuxuryResourceGain(NULL),
 	m_piYieldChangeTradeRoute(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_ppiTradeRouteYieldChange(NULL),
@@ -1640,6 +1642,10 @@ int CvTraitEntry::GetYieldFromCityDamageTimes100(int i) const
 {
 	return m_piYieldFromCityDamageTimes100 ? m_piYieldFromCityDamageTimes100[i] : -1;
 }
+int CvTraitEntry::GetPurchasedUnitsBonusXP() const
+{
+	return m_iPurchasedUnitsBonusXP;
+}
 int CvTraitEntry::GetVotePerXCSAlliance() const
 {
 	return m_iVotePerXCSAlliance;
@@ -1809,6 +1815,13 @@ int CvTraitEntry::GetYieldFromMinorDemand(YieldTypes eYield) const
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromMinorDemand ? m_piYieldFromMinorDemand[(int)eYield] : 0;
+}
+
+int CvTraitEntry::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromLuxuryResourceGain ? m_piYieldFromLuxuryResourceGain[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldChangeTradeRoute(int i) const
@@ -2657,6 +2670,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
+
+	// Sets
+	kUtility.PopulateSetByExistence(m_siFreePromotions, "UnitPromotions", "Trait_FreePromotions", "PromotionType", "TraitType", szTraitType);
+
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
 	//Trait_Terrains
@@ -3316,6 +3333,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCityDamageTimes100, "Trait_YieldFromCityDamageTimes100", "TraitType", szTraitType);
+	m_iPurchasedUnitsBonusXP = kResults.GetInt("PurchasedUnitsBonusXP");
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
 	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
@@ -3441,6 +3459,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromKills, "Trait_YieldFromKills", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromBarbarianKills, "Trait_YieldFromBarbarianKills", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Trait_YieldFromMinorDemand", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromLuxuryResourceGain, "Trait_YieldFromLuxuryResourceGain", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeTradeRoute, "Trait_YieldChangeTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Trait_YieldChangeWorldWonder", "TraitType", szTraitType);
 
@@ -3912,6 +3931,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	// Not optimal, since this assumes the free promotions are always combat-based.
+	// But there isn't a good way to classify promotions.
 	for (int iNumPromos = 0; iNumPromos < GC.getNumPromotionInfos(); iNumPromos++)
 	{
 		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
@@ -3934,6 +3955,11 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	if (!GetFreePromotions().empty())
+	{
+		m_bIsWarmonger = true;
+		return;
+	}
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
@@ -4211,6 +4237,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		if (GetYieldFromTilePurchase(eYield) > 0 ||
 			GetYieldFromTileEarn(eYield) > 0 ||
 			GetYieldFromSettle(eYield) > 0 ||
+			GetYieldFromLuxuryResourceGain(eYield) > 0 ||
 			GetGoldenAgeYieldModifier(eYield) > 0)
 		{
 			m_bIsExpansionist = true;
@@ -4913,6 +4940,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
 				}
+				m_iPurchasedUnitsBonusXP = trait->GetPurchasedUnitsBonusXP();
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
@@ -5005,6 +5033,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromKills[iYield] = trait->GetYieldFromKills((YieldTypes) iYield);
 				m_iYieldFromBarbarianKills[iYield] = trait->GetYieldFromBarbarianKills((YieldTypes) iYield);
 				m_iYieldFromMinorDemand[iYield] = trait->GetYieldFromMinorDemand((YieldTypes)iYield);
+				m_iYieldFromLuxuryResourceGain[iYield] = trait->GetYieldFromLuxuryResourceGain((YieldTypes)iYield);
 				m_iYieldChangeTradeRoute[iYield] = trait->GetYieldChangeTradeRoute(iYield);
 				m_iYieldChangeWorldWonder[iYield] = trait->GetYieldChangeWorldWonder(iYield);
 
@@ -5161,6 +5190,14 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 #endif
+
+			// Free promotions
+			set<int> siFreePromotions = trait->GetFreePromotions();
+			for (set<int>::iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
+			{
+				PromotionTypes ePromotion = static_cast<PromotionTypes>(*it);
+				m_seFreePromotions.insert(ePromotion);
+			}
 		}
 	}
 
@@ -5546,6 +5583,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
 		m_aiGoldenAgeYieldModifier.erase(iYield);
+		m_iPurchasedUnitsBonusXP = 0;
 		m_iVotePerXCSAlliance = 0;
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
@@ -5596,6 +5634,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
 		m_iYieldFromMinorDemand[iYield] = 0;
+		m_iYieldFromLuxuryResourceGain[iYield] = 0;
 		m_iYieldChangeTradeRoute[iYield] = 0;
 		m_iYieldChangeWorldWonder[iYield] = 0;
 		for(int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -6116,6 +6155,13 @@ int CvPlayerTraits::GetYieldFromMinorDemand(YieldTypes eYield) const
 	return m_iYieldFromMinorDemand[(int)eYield];
 }
 
+int CvPlayerTraits::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_iYieldFromLuxuryResourceGain[(int)eYield];
+}
+
 /// Extra yield from this specialist
 int CvPlayerTraits::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const
 {
@@ -6460,7 +6506,7 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 
 	return NO_BUILDING;
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Should unique luxuries appear around this tile?
 bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGive)
 {
@@ -6561,111 +6607,38 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 
 void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 {
-	CvPlot* pLoopPlot = NULL;
-	UnitTypes eBestLandUnit = NO_UNIT;
-	int iStrengthBestLandCombat = 0;
-	UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
-	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	// No supply? Forget about it
+	if (m_pPlayer->GetNumUnitsToSupply() >= m_pPlayer->GetNumUnitsSupplied())
+		return;
+
+	UnitTypes eUnit = m_pPlayer->GetCompetitiveSpawnUnitType(false, false, true, true, pCity);
+	if (eUnit == NO_UNIT)
+		return;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		// It's possible that the player runs out of supply mid loop
+		if (m_pPlayer->GetNumUnitsToSupply() >= m_pPlayer->GetNumUnitsSupplied())
+			return;
+
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+		if (!pLoopPlot)
+			continue;
+
+		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		if (eImprovement == GetBestSpawnUnitImprovement())
 		{
-			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(pUnitEntry)
-			{
-				if(!pCity->canTrain(eUnit))
-				{
-					continue;
-				}
-				if(pUnitEntry->GetRangedCombat() > 0)
-				{
-					continue;
-				}
-				if (pUnitEntry->GetCombat() == 0)
-				{
-					continue;
-				}
-				if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
-				{
-					continue;
-				}
-				if(pUnitEntry->GetDomainType() == DOMAIN_LAND && m_pPlayer->GetNumUnitsToSupply() > m_pPlayer->GetNumUnitsSupplied())
-				{
-					bool bBad = false;
-					ResourceTypes eResource;
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						eResource = (ResourceTypes) iResourceLoop;
-						int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
-						if (iNumResource > 0)
-						{
-							if(m_pPlayer->getNumResourceAvailable(eResource, true) < iNumResource)
-							{
-								bBad = true;
-								break;
-							}
-						}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						{
-							iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
-							if (iNumResource > 0)
-							{
-								if (m_pPlayer->getNumResourceTotal(eResource, true) < iNumResource || m_pPlayer->getNumResourceAvailable(eResource, true) < 0)
-								{
-									bBad = true;
-									break;
-								}
-							}
-						}
-#endif
-					}
-					if(bBad)
-					{
-						continue;
-					}
-					int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
-					if(iCombatLandStrength > iStrengthBestLandCombat)
-					{
-						iStrengthBestLandCombat = iCombatLandStrength;
-						eBestLandUnit = eUnit;
-					}
-				}
-			}
-		}
-	}
-	if(eBestLandUnit == NO_UNIT)
-	{
-		eBestLandUnit = eWarrior;
-	}
-	if(eBestLandUnit != NO_UNIT)
-	{
-		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-		{
-			if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
-			{
-				continue;
-			}
-			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					if(pLoopPlot->getImprovementType() == this->GetBestSpawnUnitImprovement())
-					{
-						CvUnit* pkUnit = m_pPlayer->initUnit(eBestLandUnit, pLoopPlot->getX(), pLoopPlot->getY());
-						pCity->addProductionExperience(pkUnit);
-						if (!pkUnit->jumpToNearestValidPlot())
-							pkUnit->kill(false);
-					}
-				}
-			}
+			CvUnit* pkUnit = m_pPlayer->initUnit(eUnit, pLoopPlot->getX(), pLoopPlot->getY());
+			pCity->addProductionExperience(pkUnit);
+			if (!pkUnit->jumpToNearestValidPlot())
+				pkUnit->kill(false);
 		}
 	}
 }
-#endif
+
 /// Should unique luxuries appear beneath this tile?
 void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 {
@@ -7132,18 +7105,13 @@ void CvPlayerTraits::ChooseMayaBoost()
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
 			{
 				eDesiredGreatPerson = NO_UNIT;
 			}
-#endif
 		}
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+
 		if(eDesiredGreatPerson == NO_UNIT)
-#else
-		else
-#endif
 		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
 
@@ -7232,11 +7200,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 		CvCity* pCity = m_pPlayer->GetGreatPersonSpawnCity(eDesiredGreatPerson);
 		if(pCity)
 		{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false);
-#endif
 			SetUnitBaktun(eDesiredGreatPerson);
 		}
 		m_pPlayer->ChangeNumMayaBoosts(-1);
@@ -7333,32 +7297,20 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
+		if (eUnit != NO_UNIT)
 		{
-			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
-			if (eUnit != NO_UNIT)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+			if (pUnitEntry)
 			{
-				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-				if (pUnitEntry)
+				if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 				{
-					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
-					{
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
-						{
-							continue;
-						}
-						else
-						{
-#endif
-						iNumGreatPeopleTypes++;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-						}
-#endif
-					}
+					if (MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
+						continue;
+
+					iNumGreatPeopleTypes++;
 				}
-			}	
+			}
 		}
 	}
 
@@ -7719,6 +7671,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bStartsWithPantheon);
 	visitor(playerTraits.m_bProphetFervor);
 	visitor(playerTraits.m_bCombatBoostNearNaturalWonder);
+	visitor(playerTraits.m_iPurchasedUnitsBonusXP);
 	visitor(playerTraits.m_iVotePerXCSAlliance);
 	visitor(playerTraits.m_iGoldenAgeFromVictory);
 	visitor(playerTraits.m_iFreePolicyPerXTechs);
@@ -7743,6 +7696,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromKills);
 	visitor(playerTraits.m_iYieldFromBarbarianKills);
 	visitor(playerTraits.m_iYieldFromMinorDemand);
+	visitor(playerTraits.m_iYieldFromLuxuryResourceGain);
 	visitor(playerTraits.m_iYieldChangeTradeRoute);
 	visitor(playerTraits.m_iYieldChangeWorldWonder);
 	visitor(playerTraits.m_ppiTradeRouteYieldChange);

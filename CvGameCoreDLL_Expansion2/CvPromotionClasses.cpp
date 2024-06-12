@@ -259,7 +259,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
-	m_bHighSeaRaider(false),
 	m_iGeneralGoldenAgeExpPercent(0),
 	m_iGiveCombatMod(0),
 	m_iGiveHPHealedIfEnemyKilled(0),
@@ -538,7 +537,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAdjacentCityDefesneMod = kResults.GetInt("AdjacentCityDefenseMod");
 	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
-	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
 	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
 	m_iGiveCombatMod = kResults.GetInt("GiveCombatMod");
 	m_iGiveHPHealedIfEnemyKilled = kResults.GetInt("GiveHPHealedIfEnemyKilled");
@@ -2564,10 +2562,6 @@ int CvPromotionEntry::GetNearbyEnemyDamage() const
 int CvPromotionEntry::GetMilitaryProductionModifier() const
 {
 	return m_iMilitaryProductionModifier;
-}
-bool CvPromotionEntry::IsHighSeaRaider() const
-{
-	return m_bHighSeaRaider;
 }
 int CvPromotionEntry::GetGeneralGoldenAgeExpPercent() const
 {

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -446,17 +446,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						UnitTypes eUnit = kPlayer.GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
 						if (eUnit != NO_UNIT)
 						{
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-							if(pkUnitInfo)
-							{
-								int iValue = 1500;
-								if(kPlayer.getCapitalCity() != NULL)
-								{
-									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iValue);
-								}
-								if (iValue > 0)
-									iModifier += iValue;
-							}
+							int iValue = 1500;
+							if(kPlayer.getCapitalCity())
+								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iValue);
+
+							if (iValue > 0)
+								iModifier += iValue;
 						}
 					}
 					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");

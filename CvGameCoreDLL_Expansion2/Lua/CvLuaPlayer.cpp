@@ -139,7 +139,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanTrain);
 	Method(CanConstruct);
 	Method(CanCreate);
-	Method(CanPrepare);
 	Method(CanMaintain);
 
 	Method(IsCanPurchaseAnyCity);
@@ -513,18 +512,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetAnarchyNumTurns);
 	Method(ChangeAnarchyNumTurns);
 
-	Method(GetAdvancedStartPoints);
-	Method(SetAdvancedStartPoints);
-	Method(ChangeAdvancedStartPoints);
-	Method(GetAdvancedStartUnitCost);
-	Method(GetAdvancedStartCityCost);
-	Method(GetAdvancedStartPopCost);
-	Method(GetAdvancedStartBuildingCost);
-	Method(GetAdvancedStartImprovementCost);
-	Method(GetAdvancedStartRouteCost);
-	Method(GetAdvancedStartTechCost);
-	Method(GetAdvancedStartVisibilityCost);
-
 	Method(GetAttackBonusTurns);
 	Method(GetCultureBonusTurns);
 	Method(GetTourismBonusTurns);
@@ -595,7 +582,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionModifier);
 	Method(GetBuildingProductionModifier);
 	Method(GetProjectProductionModifier);
-	Method(GetSpecialistProductionModifier);
 	Method(GetMaxGlobalBuildingProductionModifier);
 	Method(GetMaxTeamBuildingProductionModifier);
 	Method(GetMaxPlayerBuildingProductionModifier);
@@ -632,11 +618,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsMilitaryFoodProduction);
 	Method(GetHighestUnitLevel);
 
-	Method(GetConscriptCount);
-	Method(SetConscriptCount);
-	Method(ChangeConscriptCount);
-
-	Method(GetMaxConscript);
 	Method(GetOverflowResearch);
 	Method(SetOverflowResearch);
 	Method(ChangeOverflowResearch);
@@ -887,10 +868,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsBuildingClassMaxedOut);
 	Method(GetBuildingClassMaking);
 	Method(GetBuildingClassCountPlusMaking);
-	Method(GetHurryCount);
-	Method(IsHasAccessToHurry);
-	Method(IsCanHurry);
-	Method(GetHurryGoldCost);
 
 	//Method(IsSpecialistValid);
 	Method(IsResearchingTech);
@@ -2407,12 +2384,6 @@ int CvLuaPlayer::lCanCreate(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::canCreate);
 }
 //------------------------------------------------------------------------------
-//bool canPrepare(SpecialistTypes  eSpecialist, bool bContinue);
-int CvLuaPlayer::lCanPrepare(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::canPrepare);
-}
-//------------------------------------------------------------------------------
 //bool canMaintain(ProcessTypes  eProcess, bool bContinue);
 int CvLuaPlayer::lCanMaintain(lua_State* L)
 {
@@ -3379,17 +3350,13 @@ int CvLuaPlayer::lGetInfluenceTradeRouteGoldBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+
 	int iResult = 0;
 	PlayerTypes ePlayer = pkPlayer->GetID();
 	if (ePlayer != eOtherPlayer)
 	{
 		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
 	}
-#else
-	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3545,16 +3512,13 @@ int CvLuaPlayer::lGetInfluenceTradeRouteScienceBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+
 	int iResult = 0;
 	PlayerTypes ePlayer = pkPlayer->GetID();
 	if (ePlayer != eOtherPlayer)
 	{
 		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
 	}
-#else
-	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3702,12 +3666,8 @@ int CvLuaPlayer::lChangeInfluenceOnPlayer(lua_State* L)
 int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	YieldTypes eFocusYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
-#else
-	pkPlayer->GetCulture()->DoSwapGreatWorks();
-#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -3934,12 +3894,8 @@ int CvLuaPlayer::lCanCreatePantheon(lua_State* L)
 int CvLuaPlayer::lHasCreatedReligion(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal = luaL_optbool(L, 2, false);
 	const bool bResult = pkPlayer->GetReligions()->HasCreatedReligion(bIgnoreLocal);
-#else
-	const bool bResult = pkPlayer->GetReligions()->HasCreatedReligion();
-#endif
 	lua_pushboolean(L, bResult);
 
 	return 1;
@@ -4067,11 +4023,7 @@ int CvLuaPlayer::lGetMinimumFaithNextGreatProphet(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
-#else
-	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/);
-#endif
 	lua_pushinteger(L, iFaith);
 
 	return 1;
@@ -4499,7 +4451,13 @@ int CvLuaPlayer::lGetWarDuration(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetPlayerNumTurnsAtWar(ePlayer);
+	const int iResult = GET_TEAM(pkPlayer->getTeam()).GetNumTurnsAtWar(GET_PLAYER(ePlayer).getTeam());
+	if (iResult == INT_MAX)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4507,11 +4465,13 @@ int CvLuaPlayer::lGetWarDuration(lua_State* L)
 int CvLuaPlayer::lGetLongestWarDuration(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	int iResult = -1;
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iI;
-		iResult = max(iResult, pkPlayer->GetPlayerNumTurnsAtWar(ePlayer));
+		int iDuration = GET_TEAM(pkPlayer->getTeam()).GetNumTurnsAtWar(GET_PLAYER(ePlayer).getTeam());
+		if (iDuration != INT_MAX && iDuration > iResult)
+			iResult = iDuration;
 	}
 
 	lua_pushinteger(L, iResult);
@@ -6903,15 +6863,11 @@ int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
 	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
 	bool bIgnoreDummy = luaL_optbool(L, 3, false);
 	if(pkPlayer->GetPlayerPolicies())
 	{
 		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy);
-#else
-		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
-#endif
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
@@ -7229,73 +7185,6 @@ int CvLuaPlayer::lChangeAnarchyNumTurns(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int getAdvancedStartPoints();
-int CvLuaPlayer::lGetAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//void setAdvancedStartPoints(int iNewValue);
-int CvLuaPlayer::lSetAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::setAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//void changeAdvancedStartPoints(int iChange);
-int CvLuaPlayer::lChangeAdvancedStartPoints(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::changeAdvancedStartPoints);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartUnitCost(UnitTypes  eUnit, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartUnitCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartUnitCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartCityCost(bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartCityCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartCityCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartPopCost(bool bAdd, CyCity* pCity);
-int CvLuaPlayer::lGetAdvancedStartPopCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartPopCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartBuildingCost(BuildingTypes  eBuilding, bool bAdd, CyCity* pCity);
-int CvLuaPlayer::lGetAdvancedStartBuildingCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartBuildingCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartImprovementCost(ImprovementTypes  eImprovement, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartImprovementCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartImprovementCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartRouteCost(RouteTypes  eRoute, bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartRouteCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartRouteCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartTechCost(TechTypes  eTech, bool bAdd);
-int CvLuaPlayer::lGetAdvancedStartTechCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartTechCost);
-}
-//------------------------------------------------------------------------------
-//int getAdvancedStartVisibilityCost(bool bAdd, CyPlot* pPlot);
-int CvLuaPlayer::lGetAdvancedStartVisibilityCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getAdvancedStartVisibilityCost);
-}
-
-//------------------------------------------------------------------------------
 //int GetAttackBonusTurns();
 int CvLuaPlayer::lGetAttackBonusTurns(lua_State* L)
 {
@@ -7306,15 +7195,11 @@ int CvLuaPlayer::lGetAttackBonusTurns(lua_State* L)
 //int GetCultureBonusTurns();
 int CvLuaPlayer::lGetCultureBonusTurns(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = (pkPlayer->GetCultureBonusTurns() + pkPlayer->GetCultureBonusTurnsConquest()); 
 	lua_pushinteger(L, iResult);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::GetCultureBonusTurns);
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -7525,13 +7410,8 @@ int CvLuaPlayer::lCreateGreatGeneral(lua_State* L)
 	const UnitTypes eGreatPersonUnit = (UnitTypes)lua_tointeger(L, 2);
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
-
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	const bool bIsFree = luaL_optint(L, 5, 0);
 	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y, bIsFree);
-#else
-	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y);
-#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -7821,14 +7701,6 @@ int CvLuaPlayer::lGetProjectProductionModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetSpecialistProductionModifier(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)luaL_checkinteger(L, 2);
-	lua_pushinteger(L, pkPlayer->getProductionModifier(eSpecialist));
-	return 1;
-}
-//------------------------------------------------------------------------------
 //int getMaxGlobalBuildingProductionModifier();
 int CvLuaPlayer::lGetMaxGlobalBuildingProductionModifier(lua_State* L)
 {
@@ -8035,31 +7907,6 @@ int CvLuaPlayer::lGetHighestUnitLevel(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getHighestUnitLevel);
 }
 
-//------------------------------------------------------------------------------
-//int getConscriptCount();
-int CvLuaPlayer::lGetConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getConscriptCount);
-}
-//------------------------------------------------------------------------------
-//void setConscriptCount(int iNewValue);
-int CvLuaPlayer::lSetConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::setConscriptCount);
-}
-//------------------------------------------------------------------------------
-//void changeConscriptCount(int iChange);
-int CvLuaPlayer::lChangeConscriptCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::changeConscriptCount);
-}
-
-//------------------------------------------------------------------------------
-//int getMaxConscript();
-int CvLuaPlayer::lGetMaxConscript(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getMaxConscript);
-}
 //------------------------------------------------------------------------------
 //int getOverflowResearch();
 int CvLuaPlayer::lGetOverflowResearch(lua_State* L)
@@ -9226,22 +9073,15 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	UnitClassTypes  eUnitClass = pkPlayer->GetMinorCivAI()->GetBullyUnit();
-	if(eUnitClass != NO_UNITCLASS)
+	const UnitClassTypes eUnitClass = pkPlayer->GetMinorCivAI()->GetBullyUnit();
+	const UnitTypes eUnit = pkPlayer->GetSpecificUnitType(eUnitClass);
+	if (eUnit != NO_UNIT)
 	{
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo != NULL)
-		{
-			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->GetSpecificUnitType(eUnitClass)));
-			if(eUnit != NO_UNIT)
-			{
-				lua_pushinteger(L, eUnit);
-				return 1;
-			}
-		}
-	}		
+		lua_pushinteger(L, eUnit);
+		return 1;
+	}
 
-	lua_pushinteger(L, (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"));
+	lua_pushinteger(L, GC.getInfoTypeForString("UNIT_WORKER"));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10115,31 +9955,6 @@ int CvLuaPlayer::lGetBuildingClassCountPlusMaking(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getBuildingClassCountPlusMaking);
 }
-//------------------------------------------------------------------------------
-//int getHurryCount(HurryTypes  eIndex);
-int CvLuaPlayer::lGetHurryCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::getHurryCount);
-}
-//------------------------------------------------------------------------------
-//bool IsHasAccessToHurry(HurryTypes  eIndex);
-int CvLuaPlayer::lIsHasAccessToHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsHasAccessToHurry);
-}
-//------------------------------------------------------------------------------
-//bool IsCanHurry(HurryTypes  eIndex);
-int CvLuaPlayer::lIsCanHurry(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsCanHurry);
-}
-//------------------------------------------------------------------------------
-//int GetHurryGoldCost(HurryTypes  eIndex);
-int CvLuaPlayer::lGetHurryGoldCost(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetHurryGoldCost);
-}
-
 //------------------------------------------------------------------------------
 //bool isResearchingTech(TechTypes  iIndex);
 int CvLuaPlayer::lIsResearchingTech(lua_State* L)

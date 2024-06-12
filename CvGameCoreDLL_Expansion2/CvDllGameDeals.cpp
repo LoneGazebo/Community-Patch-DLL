@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -89,7 +89,6 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	// was getting errors in the diplomacy log for human-human deals, bypassing seems ok.
 	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)	
 	{
@@ -97,9 +96,6 @@ bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer
 	}
 	else
 		return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
-#else
-	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
-#endif
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetTempDeal()
@@ -121,23 +117,16 @@ PlayerTypes CvDllGameDeals::HasMadeProposal(PlayerTypes eFromPlayer)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
+	if ((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false) != NULL;
-	}
-	else
-		return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
-#else
+
 	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
-#endif
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	CvDeal* pDeal = NULL;
-	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if ((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false);
 	}
@@ -145,10 +134,8 @@ ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes e
 	{
 		pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
 	}
-#else
-	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
-#endif
-	return (NULL != pDeal)? new CvDllDeal(pDeal) : NULL;
+
+	return pDeal ? new CvDllDeal(pDeal) : NULL;
 }
 //------------------------------------------------------------------------------
 

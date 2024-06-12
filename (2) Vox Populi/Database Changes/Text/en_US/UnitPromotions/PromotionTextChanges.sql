@@ -96,7 +96,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP';
 
 -- Amphibious
 UPDATE Language_en_US
-SET Text = 'Eliminate combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
+SET Text = 'Eliminate combat penalties for attacking from the sea or over a river.[NEWLINE]Crossing a river costs only 1 [ICON_MOVES] Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP';
 
 -- Cover
@@ -151,7 +151,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP';
 
 -- Woodsman
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOODSMAN_HELP';
 
 -- Logistics

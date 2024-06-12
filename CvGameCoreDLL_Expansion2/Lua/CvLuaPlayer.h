@@ -129,7 +129,6 @@ protected:
 	static int lCanTrain(lua_State* L);
 	static int lCanConstruct(lua_State* L);
 	static int lCanCreate(lua_State* L);
-	static int lCanPrepare(lua_State* L);
 	static int lCanMaintain(lua_State* L);
 
 	static int lIsCanPurchaseAnyCity(lua_State* L);
@@ -583,18 +582,6 @@ protected:
 	static int lSetAnarchyNumTurns(lua_State* L);
 	static int lChangeAnarchyNumTurns(lua_State* L);
 
-	static int lGetAdvancedStartPoints(lua_State* L);
-	static int lSetAdvancedStartPoints(lua_State* L);
-	static int lChangeAdvancedStartPoints(lua_State* L);
-	static int lGetAdvancedStartUnitCost(lua_State* L);
-	static int lGetAdvancedStartCityCost(lua_State* L);
-	static int lGetAdvancedStartPopCost(lua_State* L);
-	static int lGetAdvancedStartBuildingCost(lua_State* L);
-	static int lGetAdvancedStartImprovementCost(lua_State* L);
-	static int lGetAdvancedStartRouteCost(lua_State* L);
-	static int lGetAdvancedStartTechCost(lua_State* L);
-	static int lGetAdvancedStartVisibilityCost(lua_State* L);
-
 	static int lGetAttackBonusTurns(lua_State* L);
 	static int lGetCultureBonusTurns(lua_State* L);
 	static int lGetTourismBonusTurns(lua_State* L);
@@ -666,7 +653,6 @@ protected:
 	static int lGetUnitProductionModifier(lua_State* L);
 	static int lGetBuildingProductionModifier(lua_State* L);
 	static int lGetProjectProductionModifier(lua_State* L);
-	static int lGetSpecialistProductionModifier(lua_State* L);
 
 	static int lGetMaxGlobalBuildingProductionModifier(lua_State* L);
 	static int lGetMaxTeamBuildingProductionModifier(lua_State* L);
@@ -704,11 +690,6 @@ protected:
 	static int lIsMilitaryFoodProduction(lua_State* L);
 	static int lGetHighestUnitLevel(lua_State* L);
 
-	static int lGetConscriptCount(lua_State* L);
-	static int lSetConscriptCount(lua_State* L);
-	static int lChangeConscriptCount(lua_State* L);
-
-	static int lGetMaxConscript(lua_State* L);
 	static int lGetOverflowResearch(lua_State* L);
 	LUAAPIEXTN(SetOverflowResearch, void, iResearch);
 	LUAAPIEXTN(ChangeOverflowResearch, void, iResearch);
@@ -971,10 +952,6 @@ protected:
 	static int lIsBuildingClassMaxedOut(lua_State* L);
 	static int lGetBuildingClassMaking(lua_State* L);
 	static int lGetBuildingClassCountPlusMaking(lua_State* L);
-	static int lGetHurryCount(lua_State* L);
-	static int lIsHasAccessToHurry(lua_State* L);
-	static int lIsCanHurry(lua_State* L);
-	static int lGetHurryGoldCost(lua_State* L);
 
 	static int lIsResearchingTech(lua_State* L);
 	static int lSetResearchingTech(lua_State* L);

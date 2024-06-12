@@ -1218,10 +1218,15 @@ public:
 	// ------------------------------------
 
 	void DoUpdatePeaceTreatyWillingness(bool bMyTurn = false);
+	void DoUpdatePeaceTreatyOffers(vector<TeamTypes>& vMakePeaceTeams, bool bCriticalState);
+	int GetComparativeDanger(PlayerTypes ePlayer, vector<PlayerTypes>& vOurWarAllies, vector<PlayerTypes>& vTheirWarAllies, int& iTheirDanger, bool& bSeriousDangerUs, bool& bSeriousDangerThem, vector<int>& vEnemyCitiesEndangered, vector<int>& vEnemyCitiesEndangeredByUs);
 	bool IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const;
 	bool IsPeaceBlocked(PlayerTypes ePlayer) const;
 	PeaceBlockReasons GetPeaceBlockReason(PlayerTypes ePlayer) const;
+	void FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPlayer, PlayerTypes eAtWarPlayer, PeaceBlockReasons eReason);
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
+	void RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessage);
+	void LogPeaceWillingnessReason(PlayerTypes ePlayer, CvString strLogMessage);
 
 	// ------------------------------------
 	// Vassal Taxation

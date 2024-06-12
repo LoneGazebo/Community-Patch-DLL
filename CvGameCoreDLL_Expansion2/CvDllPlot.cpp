@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -148,18 +148,10 @@ bool CvDllPlot::IsTradeRoute(PlayerTypes ePlayer) const
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsImpassable() const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(m_pPlot->getOwner() != NO_PLAYER)
-	{
+	if (m_pPlot->getOwner() != NO_PLAYER)
 		return m_pPlot->isImpassable(GET_PLAYER(m_pPlot->getOwner()).getTeam());
-	}
-	else
-	{
-		return m_pPlot->isImpassable(BARBARIAN_TEAM);
-	}
-#else
-	return m_pPlot->isImpassable();
-#endif
+
+	return m_pPlot->isImpassable(BARBARIAN_TEAM);
 }
 //------------------------------------------------------------------------------
 void CvDllPlot::GetPosition(int& iX, int& iY) const

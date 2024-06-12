@@ -237,6 +237,12 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			bIgnoreTerrainCost = true;
 			bNoRiverCrossingPenalty = true; // as specified by Incan UA
 		}
+		else if (pToPlot->isHills() && pUnit->isTerrainIgnoreCost(TERRAIN_HILL))
+		{
+			bIgnoreTerrainCost = true;
+			if (/*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
+				bNoRiverCrossingPenalty = true;
+		}
 		else if (pUnit->isTerrainIgnoreCost(eToTerrain))
 		{
 			bIgnoreTerrainCost = true;

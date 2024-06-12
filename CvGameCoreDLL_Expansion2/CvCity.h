@@ -225,13 +225,8 @@ public:
 	void SetRouteToCapitalConnected(bool bValue, bool bSuppressReligionUpdate = false);
 	bool IsRouteToCapitalConnected(void) const;
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	void createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit, bool bIsFree);
-#else
-	void createGreatGeneral(UnitTypes eGreatPersonUnit);
-	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
-#endif
 
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
 
@@ -265,7 +260,6 @@ public:
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
-	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoinCity() const;
 
@@ -380,18 +374,16 @@ public:
 	bool isProductionUnit() const;
 	bool isProductionBuilding() const;
 	bool isProductionProject() const;
-	bool isProductionSpecialist() const;
 	bool isProductionProcess() const;
 
 	bool canContinueProduction(OrderData order);
-	int getProductionExperience(UnitTypes eUnit = NO_UNIT);
-	void addProductionExperience(CvUnit* pUnit, bool bConscript = false, bool bGoldPurchase = false);
+	int getProductionExperience(UnitTypes eUnit = NO_UNIT) const;
+	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false) const;
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
 	BuildingTypes getProductionBuilding() const;
 	ProjectTypes getProductionProject() const;
-	SpecialistTypes getProductionSpecialist() const;
 	ProcessTypes getProductionProcess() const;
 	const char* getProductionName() const;
 	const char* getProductionNameKey() const;
@@ -403,7 +395,6 @@ public:
 	int getFirstBuildingOrder(BuildingTypes eBuilding) const;
 	bool isBuildingInQueue(BuildingTypes eBuilding) const;
 	int getFirstProjectOrder(ProjectTypes eProject) const;
-	int getFirstSpecialistOrder(SpecialistTypes eSpecialist) const;
 	int getNumTrainUnitAI(UnitAITypes eUnitAI) const;
 
 	int getProduction() const;
@@ -412,13 +403,11 @@ public:
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreInvestment = false) const;
 	int getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreInvestment = false) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
-	int getProductionNeeded(SpecialistTypes eSpecialist) const;
 	int getProductionTurnsLeft() const;
 	int getUnitTotalProductionTurns(UnitTypes eUnit) const;
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
-	int getProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum) const;
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getProductionNeeded(ProcessTypes eProcess) const;
 	int getProductionTurnsLeft(ProcessTypes eProcess, int iNum) const;
@@ -455,7 +444,6 @@ public:
 	int getProductionModifier(UnitTypes eUnit, _In_opt_ CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
 	int getProductionModifier(BuildingTypes eBuilding, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProjectTypes eProject, _In_opt_ CvString* toolTipSink = NULL) const;
-	int getProductionModifier(SpecialistTypes eSpecialist, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProcessTypes eProcess, _In_opt_ CvString* toolTipSink = NULL) const;
 
 	int getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow) const;
@@ -470,25 +458,11 @@ public:
 	int GetFoodProductionTimes100(int iExcessFoodTimes100) const;
 #endif
 
-	bool canHurry(HurryTypes eHurry, bool bTestVisible = false) const;
-	void hurry(HurryTypes eHurry);
-
-	UnitTypes getConscriptUnit() const;
-	CvUnit* initConscriptedUnit();
-	int getConscriptPopulation() const;
-	int conscriptMinCityPopulation() const;
-	bool canConscript() const;
-	void conscript();
-
 	SPlotStats getPlotStats() const;
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
 
 	void processResource(ResourceTypes eResource, int iChange);
-#if defined(MOD_BALANCE_CORE)
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false, bool bNoBonus = false);
-#else
-	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
-#endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
@@ -567,12 +541,6 @@ public:
 #endif
 
 	int productionLeft() const;
-	int hurryCost(HurryTypes eHurry, bool bExtra) const;
-	int getHurryCostModifier(HurryTypes eHurry, bool bIgnoreNew = false) const;
-	int hurryGold(HurryTypes eHurry) const;
-	int hurryPopulation(HurryTypes eHurry) const;
-	int hurryProduction(HurryTypes eHurry) const;
-	int maxHurryPopulation() const;
 
 	bool hasActiveWorldWonder() const;
 
@@ -626,17 +594,8 @@ public:
 	void SetAdditionalFood(int iValue);
 #endif
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getPopulation(bool bIncludeAutomatons = false) const;
-#else
-	int getPopulation() const;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
-#else
-	void setPopulation(int iNewValue, bool bReassignPop = true);
-#endif
 	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
 
 	void setLowestRazingPop(int iValue);
@@ -688,9 +647,7 @@ public:
 
 	int GetJONSCulturePerTurnFromTraits() const;
 	void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
-#if defined(MOD_BALANCE_CORE)
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
-#endif
 
 	int GetJONSCulturePerTurnFromReligion() const;
 
@@ -702,21 +659,17 @@ public:
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 	void SetBaseTourism(int iValue);
 	int GetBaseTourism() const;
 	void SetBaseTourismBeforeModifiers(int iValue);
 	int GetBaseTourismBeforeModifiers() const;
-#endif
 	// END Culture
 
 	int getTourismRateModifier() const;
 	void changeTourismRateModifier(int iChange);
-#if defined(MOD_BALANCE_CORE)
+
 	int GetFaithPerTurn(bool bStatic = true) const;
-#else
-	int GetFaithPerTurn() const;
-#endif
 	int GetFaithPerTurnFromBuildings() const;
 
 	int GetFaithPerTurnFromPolicies() const;
@@ -1128,10 +1081,6 @@ public:
 	int GetTotalScienceyAid() const;
 	void SetTotalScienceyAid(int iValue);
 
-	void ChangeTotalGreatWorkAid(int iChange);
-	int GetTotalGreatWorkAid() const;
-	void SetTotalGreatWorkAid(int iValue);
-
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 
@@ -1343,8 +1292,6 @@ public:
 
 	bool isBorderCity() const;
 	bool isBorderCity(vector<PlayerTypes>& vUnfriendlyMajors) const;
-
-	void DoBarbIncursion();
 #endif
 
 	void changeNukeInterceptionChance(int iNewValue);
@@ -1382,9 +1329,6 @@ public:
 	void ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange);
 	int GetGreatWorkYieldChange(YieldTypes eIndex) const;
 #endif
-
-	int getPowerYieldRateModifier(YieldTypes eIndex) const;
-	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
 
 	int getResourceYieldRateModifier(YieldTypes eIndex) const;
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -1445,13 +1389,6 @@ public:
 	int getProjectProductionTimes100(ProjectTypes eIndex) const;
 	void setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue);
 	void changeProjectProductionTimes100(ProjectTypes eIndex, int iChange);
-
-	int getSpecialistProduction(SpecialistTypes eIndex) const;
-	void setSpecialistProduction(SpecialistTypes eIndex, int iNewValue);
-	void changeSpecialistProduction(SpecialistTypes eIndex, int iChange);
-	int getSpecialistProductionTimes100(SpecialistTypes eIndex) const;
-	void setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewValue);
-	void changeSpecialistProductionTimes100(SpecialistTypes eIndex, int iChange);
 
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getProcessProduction(ProcessTypes eIndex) const;
@@ -1590,7 +1527,6 @@ public:
 	void produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit = NO_UNITAI, bool bCanOverflow = true);
 	void produce(BuildingTypes eConstructBuilding, bool bCanOverflow = true);
 	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
-	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
 	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT);
 	bool CreateBuilding(BuildingTypes eBuildingType);
@@ -1653,13 +1589,13 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
-	bool			IsBusy() const;
+	bool IsBusy() const;
 	// Combat related
 	const CvUnit* getCombatUnit() const;
 	CvUnit* getCombatUnit();
-	void			setCombatUnit(CvUnit* pCombatUnit, bool bAttacking = false);
-	void			clearCombat();
-	bool			isFighting() const;
+	void setCombatUnit(CvUnit* pCombatUnit, bool bAttacking = false);
+	void clearCombat();
+	bool isFighting() const;
 
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType) const;
@@ -1830,6 +1766,9 @@ public:
 	void ChangeVassalLevyEra(int iChange);
 	int GetVassalLevyEra() const;
 
+	void SpawnFreeUnit(UnitTypes eUnit);
+	bool SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, const bool bIncludeShips = false, const bool bNoResource = false) const;
+
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
@@ -1963,7 +1902,6 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
-	int m_iTotalGreatWorkAid;
 	std::vector<int> m_aiChangeGrowthExtraYield;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
@@ -2103,14 +2041,8 @@ protected:
 	std::vector<int> m_paiNumResourcesLocal;
 	std::vector<int> m_paiNumUnimprovedResourcesLocal;
 	std::vector<int> m_paiProjectProduction;
-	std::vector<int> m_paiSpecialistProduction;
 	std::vector<int> m_paiUnitProduction;
 	std::vector<int> m_paiUnitProductionTime;
-	std::vector<int> m_paiSpecialistCount;
-	std::vector<int> m_paiMaxSpecialistCount;
-	std::vector<int> m_paiForceSpecialistCount;
-	std::vector<int> m_paiFreeSpecialistCount;
-	std::vector<int> m_paiImprovementFreeSpecialists;
 	std::vector<int> m_paiUnitCombatFreeExperience;
 	std::vector<int> m_paiUnitCombatProductionModifier;
 	std::map<PromotionTypes, int> m_paiFreePromotionCount;
@@ -2238,16 +2170,6 @@ protected:
 	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const;
 	int getExtraProductionDifference(int iExtra, ProjectTypes eProject) const;
 	int getExtraProductionDifference(int iExtra, int iModifier) const;
-	int getHurryCostModifier(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
-	int getHurryCostModifier(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
-	int getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew) const;
-	int getHurryCost(HurryTypes eHurry, bool bExtra, UnitTypes eUnit, bool bIgnoreNew) const;
-	int getHurryCost(HurryTypes eHurry, bool bExtra, BuildingTypes eBuilding, bool bIgnoreNew) const;
-	int getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, int iModifier) const;
-	int getHurryPopulation(HurryTypes eHurry, int iHurryCost) const;
-	int getHurryGold(HurryTypes eHurry, int iHurryCost, int iFullCost) const;
-	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
-	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
 
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
@@ -2370,7 +2292,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromMisc)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromLeague)
 SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
 SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
-SYNC_ARCHIVE_VAR(int, m_iTotalGreatWorkAid)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromEmpire)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
@@ -2496,14 +2417,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResource)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumUnimprovedResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProduction)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProductionTime)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiMaxSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiForceSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeSpecialistCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementFreeSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifier)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_paiFreePromotionCount)

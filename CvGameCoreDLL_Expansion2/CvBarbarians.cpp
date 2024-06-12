@@ -871,7 +871,7 @@ void CvBarbarians::DoCamps()
 			vThoseWhoSee.push_back(ePlayer);
 	}
 
-	// What % of camps should be prioritized to be on the coast?
+	// What % of camps should spawn on the coast, on average?
 	int iCoastPercent = /*33*/ GD_INT_GET(BARBARIAN_CAMP_COASTAL_SPAWN_ROLL);
 
 	// How many units should we spawn from new encampments?
@@ -909,11 +909,8 @@ void CvBarbarians::DoCamps()
 	// Place the camps on the map
 	do
 	{
-		// Bias towards coastal if we don't have the desired % of coastal camps (and there are valid plots)
-		bool bWantsCoastal = !vValidCoastalPlots.empty();
-		if (((iNumCampsInExistence * iCoastPercent) / 100) >= iNumCoastalCamps)
-			bWantsCoastal = false;
-
+		// Random roll to see if we bias towards coastal
+		bool bWantsCoastal = !vValidCoastalPlots.empty() && GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x04cd84f9).mix(iNumCampsToAdd)) <= iCoastPercent;
 		std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vValidCoastalPlots : vValidPlots;
 
 		// No valid plots to place a camp? We're done.

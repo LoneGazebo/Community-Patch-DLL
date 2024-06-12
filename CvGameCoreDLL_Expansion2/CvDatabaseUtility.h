@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -73,6 +73,8 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 							  int iMinArraySize = 0,
 							  const char* szAdditionalCondition = "");
 
+	// Populates a set of Type IDs that satisfies the filter and additional condition in the data table
+	bool PopulateSetByExistence(set<int>& siData, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue);
 
 	//------------------------------------------------------------------------------
 	// Tables in Civ5 commonly have a Flavors array.

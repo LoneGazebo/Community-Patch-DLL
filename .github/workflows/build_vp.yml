@@ -1,0 +1,239 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: windows-latest
+    steps:
+
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            ./wget
+            ./SDK7
+            ./SDK7.1
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Install wget
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Installing wget..."
+          mkdir wget
+          Invoke-WebRequest -Uri https://eternallybored.org/misc/wget/1.21.3/64/wget.exe -OutFile "wget\wget.exe"
+          Add-Content $env:GITHUB_PATH "$env:GITHUB_WORKSPACE\wget"
+          echo "wget installation complete."
+
+      - name: Download Windows SDK 7.0 SP1 and 7.1
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading SDKs..."
+          wget -O ./sdk7.iso https://web.archive.org/web/20161230154527/http://download.microsoft.com/download/2/E/9/2E911956-F90F-4BFB-8231-E292A7B6F287/GRMSDK_EN_DVD.iso
+          wget -O ./sdk71.iso http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDK_EN_DVD.iso
+          7z x ./sdk7.iso -y -o"./SDK7"
+          7z x ./sdk71.iso -y -o"./SDK7.1"
+          echo "SDKs downloaded and extracted."
+
+  build-clang:
+    needs: setup
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            ./wget
+            ./SDK7
+            ./SDK7.1
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Install SDKs
+        run: |
+          echo "Installing SDKs..."
+          Start-Process -FilePath ".\SDK7\Setup\WinSDK\WinSDK_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKBuild\WinSDKBuild_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKInterop\WinSDKInterop_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKTools\WinSDKTools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKWin32Tools\WinSDKWin32Tools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\vc_stdx86\vc_stdx86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\vc_stdamd64\vc_stdamd64.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\winsdk_intellidocs\winsdk_intellidocs.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKNetFxTools\WinSDK_nfxtoolsm_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDK\WinSDK_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKBuild\WinSDKBuild_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKInterop\WinSDKInterop_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKTools\WinSDKTools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKWin32Tools\WinSDKWin32Tools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\vc_stdx86\vc_stdx86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\vc_stdamd64\vc_stdamd64.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKNetFxTools\WinSDK_nfxtoolsm_x86.msi" -ArgumentList "/qn" -Wait
+          echo "SDKs installation complete."
+
+      - name: Clang version check
+        run: clang --version
+
+      - name: Run debug build
+        run: python build_vp_clang_sdk.py --config debug
+
+      - name: Display debug build log
+        run: cat clang-output/Debug/build.log
+
+      - name: Run release build
+        run: python build_vp_clang_sdk.py --config release
+
+      - name: Display release build log
+        run: cat clang-output/Release/build.log
+
+      - name: Create debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VP_Clang_Debug
+          path: 'clang-output\Debug'
+
+      - name: Create release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VP_Clang_Release
+          path: 'clang-output\Release'
+
+  build-msvc:
+    needs: setup
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            ./wget
+            ./SDK7
+            ./SDK7.1
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Install SDKs
+        run: |
+          echo "Installing SDKs..."
+          Start-Process -FilePath ".\SDK7\Setup\WinSDK\WinSDK_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKBuild\WinSDKBuild_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKInterop\WinSDKInterop_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKTools\WinSDKTools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKWin32Tools\WinSDKWin32Tools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\vc_stdx86\vc_stdx86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\vc_stdamd64\vc_stdamd64.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\winsdk_intellidocs\winsdk_intellidocs.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7\Setup\WinSDKNetFxTools\WinSDK_nfxtoolsm_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDK\WinSDK_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKBuild\WinSDKBuild_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKInterop\WinSDKInterop_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKTools\WinSDKTools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKWin32Tools\WinSDKWin32Tools_x86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\vc_stdx86\vc_stdx86.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\vc_stdamd64\vc_stdamd64.msi" -ArgumentList "/qn" -Wait
+          Start-Process -FilePath ".\SDK7.1\Setup\WinSDKNetFxTools\WinSDK_nfxtoolsm_x86.msi" -ArgumentList "/qn" -Wait
+          echo "SDKs installation complete."
+
+      - name: Copy DLLs to v90 folders # Bypass Microsoft.Cpp.Win32.Targets(57,5): error MSB6006: "CL.exe" exited with code -1073741515.
+        run: |
+          echo "Copying DLLs to v90 folders..."
+          cp "C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\msobj80.dll" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin"
+          cp "C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\mspdb80.dll" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin"
+          cp "C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\mspdbcore.dll" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin"
+          cp "C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\mspdbsrv.exe" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin"
+          echo "DLLs copied to v90 folders."
+
+      - name: Set Registry Keys # Bypass Microsoft.Cpp.Win32.Targets(57,5): error : Required file "" is missing.
+        run: |
+          # PowerShell script to set registry key
+          $regPath32 = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows"
+          # Path to installed SDK
+          $newInstallFolder = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1" # 7.1 is required to bypass error. 7.0 doesn't work.
+          Set-ItemProperty -Path $regPath32 -Name "CurrentInstallFolder" -Value $newInstallFolder
+          Write-Output "Registry key set successfully."
+
+      - name: Copy all SDK library files to source directory # TODO fix PATH
+        run: |
+          $SDKLib = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1\Lib"
+          $SourceLib = Join-Path $env:GITHUB_WORKSPACE "CvGameCoreDLL_Expansion2"
+          Write-Output "SDKLib path: $SDKLib"
+          Write-Output "SourceLib path: $SourceLib"
+          
+          if (Test-Path $SDKLib) {
+            Copy-Item -Path "$SDKLib\*" -Destination $SourceLib -Recurse -Force
+            Write-Output "All SDK library files copied successfully."
+          } else {
+            Write-Output "SDK library path not found: $SDKLib"
+          }
+        shell: pwsh
+
+      - name: Setup Visual Studio environment and build msvc debug
+        shell: cmd
+        run: |
+          set SDKVersion=7.1
+          echo SDKVersion is set to: %SDKVersion%
+          
+          set IncludePath=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Include;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include
+          echo IncludePath is set to: %IncludePath%
+          
+          set SDKLib=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Lib
+          echo SDKLib is set to: %SDKLib%
+          set SDKLibPath=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Lib
+          echo SDKLibPath is set to: %SDKLibPath%
+          
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          set INCLUDE=%IncludePath%;%INCLUDE%
+          set LIB=%SDKLib%;%LIB%
+          set LIBPATH=%SDKLibPath%;%LIBPATH%
+          
+          REM Display LIB for verification
+          echo LIB is set to: %LIB%
+          REM Display LIBPATH for verification
+          echo LIBPATH is set to: %LIBPATH%
+          
+          devenv VoxPopuli_vs2013.sln /build Debug
+
+      - name: Setup Visual Studio environment and build msvc release
+        shell: cmd
+        run: |
+          set SDKVersion=7.1
+          echo SDKVersion is set to: %SDKVersion%
+          
+          set IncludePath=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Include;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include
+          echo IncludePath is set to: %IncludePath%
+          
+          set SDKLib=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Lib
+          echo SDKLib is set to: %SDKLib%
+          set SDKLibPath=C:\Program Files (x86)\Microsoft SDKs\Windows\v%SDKVersion%\Lib
+          echo SDKLibPath is set to: %SDKLibPath%
+          
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          set INCLUDE=%IncludePath%;%INCLUDE%
+          set LIB=%SDKLib%;%LIB%
+          set LIBPATH=%SDKLibPath%;%LIBPATH%
+          
+          REM Display LIB for verification
+          echo LIB is set to: %LIB%
+          REM Display LIBPATH for verification
+          echo LIBPATH is set to: %LIBPATH%
+          
+          devenv VoxPopuli_vs2013.sln /build Release
+
+      - name: Create msvc debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VP_MSVC_Debug
+          path: 'BuildOutput/Debug'
+
+      - name: Create msvc release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VP_MSVC_Release
+          path: 'BuildOutput/Release'

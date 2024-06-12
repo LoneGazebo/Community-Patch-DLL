@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -869,8 +869,12 @@ int CvLuaTeam::lGetNumTurnsAtWar(lua_State* L)
 	int iValue = 0;
 	if(eTeam != NO_TEAM)
 	{
-		iValue =  pkTeam->GetNumTurnsAtWar(eTeam);
-		
+		iValue = pkTeam->GetNumTurnsAtWar(eTeam);
+		if (iValue == INT_MAX)
+		{
+			lua_pushnumber(L, -1);
+			return 1;
+		}
 	}
 	lua_pushnumber(L, iValue);
 	return 1;

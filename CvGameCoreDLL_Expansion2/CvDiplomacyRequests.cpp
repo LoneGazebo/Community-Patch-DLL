@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -127,7 +127,6 @@ FDataStream& operator<<(FDataStream& stream, const CvDiplomacyRequests& diplomac
 /// Update - called from within CvPlayer
 void CvDiplomacyRequests::Update(void)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		if (HasActiveRequest()) 
@@ -162,27 +161,11 @@ void CvDiplomacyRequests::Update(void)
 			m_aRequests.pop_front();
 		}
 	}
-#else
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	// If we are active, send out the requests
-	if(m_aRequests.size() && m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
-	{
-		CvDiplomacyRequests::Request& kRequest = m_aRequests.front();
-
-		// Make sure the player this is from is still alive.
-		if(kRequest.m_eFromPlayer != NO_PLAYER && GET_PLAYER(kRequest.m_eFromPlayer).isAlive())
-		{
-			Send(kRequest.m_eFromPlayer, kRequest.m_eDiploType, kRequest.m_strMessage, kRequest.m_eAnimationType, kRequest.m_iExtraGameData);
-		}
-		m_aRequests.pop_front();
-	}
-#endif
 }
 //	----------------------------------------------------------------------------
 //	Called from within CvPlayer at the beginning of the turn
 void CvDiplomacyRequests::BeginTurn(void)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if (m_aRequests.size() > 0)
 	{
 		// JdH: change requests to notifications
@@ -206,9 +189,6 @@ void CvDiplomacyRequests::BeginTurn(void)
 	{
 		m_eNextAIPlayer = (PlayerTypes)0;
 	}
-#else
-	m_eNextAIPlayer = (PlayerTypes)0;
-#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -475,7 +455,6 @@ bool CvDiplomacyRequests::HasActiveRequest() const
 //	----------------------------------------------------------------------------
 bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		for (RequestList::const_iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
@@ -484,17 +463,10 @@ bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 				return true;
 		}
 	}
-	else
-	{
-		return m_bRequestActive && m_eRequestActiveFromPlayer == eFromPlayer;
-	}
-	return m_bRequestActive && m_eRequestActiveFromPlayer == eFromPlayer;
-#else
-	return m_bRequestActive && m_eRequestActiveFromPlayer == eFromPlayer;
-#endif
+
+	return m_bRequestActive && (m_eRequestActiveFromPlayer == eFromPlayer);
 }
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 //	---------------------------------------------------------------------------
 //	Have all the AIs do a diplomacy evaluation with the turn active human players.
 //	Please note that the destination player may not be the active player.
@@ -523,7 +495,7 @@ void CvDiplomacyRequests::ClearAllRequests() {
 	m_aRequests.clear();
 }
 /*static*/ std::vector<PlayerTypes> CvDiplomacyRequests::s_aDiploHumans;
-#endif
+
 //	----------------------------------------------------------------------------
 //	Send a request from a player to another player.
 //	If the toPlayer is the active human player, it will be sent right away, else
@@ -531,7 +503,6 @@ void CvDiplomacyRequests::ClearAllRequests() {
 // static
 void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
@@ -563,20 +534,6 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 				pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 		}
 	}
-#else
-	CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
-	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-	if(pkDiploRequests)
-	{
-		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
-		{
-			// Target is the active player, just send it right now
-			pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-		}
-		else
-			pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-	}
-#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -587,7 +544,6 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if (pkDeal->GetNumItems() <= 0)
 		return;
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		CvAssert(eFromPlayer != NO_PLAYER);
@@ -625,15 +581,6 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 			}
 		}
 	}
-#else
-	// Deals must currently happen on the active player's turn...
-	if(GC.getGame().getActivePlayer() == eToPlayer && pkDeal->GetNumItems() > 0)
-	{
-		CvInterfacePtr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
-		GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
-		SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
-	}
-#endif
 }
 
 //	---------------------------------------------------------------------------

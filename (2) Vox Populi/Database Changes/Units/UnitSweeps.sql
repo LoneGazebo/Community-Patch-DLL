@@ -13,14 +13,15 @@ SET
 	AirUnitCap = 0,
 	-- unused
 	IgnoreBuildingDefense = 0,
+	NoBadGoodies = 0,
+	-- disabled
 	Mechanized = 0,
 	AdvancedStartCost = 0,
 	CombatLimit = 0,
 	RangedCombatLimit = 0,
 	XPValueAttack = 0,
 	XPValueDefense = 0,
-	Conscription = 0,
-	NoBadGoodies = 0;
+	Conscription = 0;
 
 -----------------------------------------------------------------
 -- Ancient Ruin upgrade class (Recon only)

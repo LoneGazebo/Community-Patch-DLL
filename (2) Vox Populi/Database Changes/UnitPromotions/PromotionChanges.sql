@@ -40,6 +40,12 @@ VALUES
 
 -- Combat plot for melee, this unit's plot for ranged
 UPDATE UnitPromotions SET RoughFromMod = 10 WHERE Type = 'PROMOTION_WOODSMAN';
+DELETE FROM UnitPromotions_Features WHERE PromotionType = 'PROMOTION_WOODSMAN';
+INSERT INTO UnitPromotions_Features
+	(PromotionType, FeatureType, IgnoreTerrainCost)
+VALUES
+	('PROMOTION_WOODSMAN', 'FEATURE_FOREST', 1),
+	('PROMOTION_WOODSMAN', 'FEATURE_JUNGLE', 1);
 
 UPDATE UnitPromotions SET SameTileHealChange = 5, AdjacentTileHealChange = 5 WHERE RankList = 'MEDIC';
 UPDATE UnitPromotions SET NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_MEDIC_II';
@@ -700,8 +706,6 @@ VALUES
 
 UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
-UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
-
 -- Reconnaissance
 UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECON_EXPERIENCE';
 
@@ -908,6 +912,9 @@ UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_
 
 -- Pracinha: Pride of the Nation
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 1000 WHERE Type = 'PROMOTION_MANY_GOLDEN_AGE_POINTS';
+
+-- Minuteman, Berber Cavalry: Ignores Terrain Cost
+UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
 
 -- Mehal Sefari, Berber Cavalry: Homeland Guardian
 UPDATE UnitPromotions SET FriendlyLandsModifier = 25 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN';

@@ -228,11 +228,7 @@ void CvAICityStrategies::DeleteArray()
 /// Get a specific entry
 CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
-	return (index!=NO_AICITYSTRATEGY) ? m_paAICityStrategyEntries[index] : NULL;
-#else
-	return m_paAICityStrategyEntries[index];
-#endif
+	return (index != NO_AICITYSTRATEGY) ? m_paAICityStrategyEntries[index] : NULL;
 }
 
 //=====================================
@@ -2607,14 +2603,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 					if(pCity->GetCityCitizens()->IsCanWork(pLoopPlot))
 					{
 						// Does this Tile already have a Resource, and if so, is it already improved?
-#if defined(MOD_BALANCE_CORE)
 						ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
-#else
-						ResourceTypes eResource = pLoopPlot->getResourceType();
-#endif
 						if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
-							if (!kPlayer.NeedWorkerToImproveResource(eResource))
+							if (!kPlayer.NeedWorkboatToImproveResource(eResource))
 								continue;
 
 							iNumUnimprovedWaterResources++;
@@ -3160,14 +3152,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				// GPP from resource monopolies
 				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 				if (eGreatPerson != NO_GREATPERSON)
 				{
 					iGPPChange += pCity->GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
 				}
-#endif
 
 				if (iGPPChange > 0)
 				{
@@ -3261,7 +3251,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						{
 							iMod += 25;
 						}
-					}					
+					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
 						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
@@ -3273,7 +3263,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						{
 							iMod += 25;
 						}
-					}					
+					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
@@ -3307,11 +3297,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if (iTotalGPPChange >= 2500)
-#else
-	if (iTotalGPPChange >= 800)
-#endif
 	{
 		return true;
 	}

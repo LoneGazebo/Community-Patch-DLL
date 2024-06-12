@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -71,8 +71,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iAllFeatureProduction(0),
 	m_iImprovementCostModifier(0),
 	m_iImprovementUpgradeRateModifier(0),
-	m_iSpecialistProductionModifier(0),
-	m_iSpecialistUpgradeModifier(0),
 	m_iMilitaryProductionModifier(0),
 	m_iBaseFreeUnits(0),
 	m_iBaseFreeMilitaryUnits(0),
@@ -160,7 +158,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappyPerMilitaryUnit(0),
 	m_iFreeSpecialist(0),
 	m_iTechPrereq(NO_TECH),
-	m_iMaxConscript(0),
 	m_iExpModifier(0),
 	m_iExpInBorderModifier(0),
 	m_iMinorQuestFriendshipMod(0),
@@ -434,7 +431,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
 
-//	SAFE_DELETE_ARRAY(m_pabHurry);
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 #if defined(MOD_BALANCE_CORE)
@@ -558,8 +554,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iAllFeatureProduction = kResults.GetInt("AllFeatureProduction");
 	m_iImprovementCostModifier = kResults.GetInt("ImprovementCostModifier");
 	m_iImprovementUpgradeRateModifier = kResults.GetInt("ImprovementUpgradeRateModifier");
-	m_iSpecialistProductionModifier = kResults.GetInt("SpecialistProductionModifier");
-	m_iSpecialistUpgradeModifier = kResults.GetInt("SpecialistUpgradeModifier");
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_iBaseFreeUnits = kResults.GetInt("BaseFreeUnits");
 	m_iBaseFreeMilitaryUnits = kResults.GetInt("BaseFreeMilitaryUnits");
@@ -670,7 +664,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iDefenseBoost = kResults.GetInt("DefenseBoostAllCities");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
-	m_iMaxConscript = kResults.GetInt("MaxConscript");
 	m_iWoundedUnitDamageMod = kResults.GetInt("WoundedUnitDamageMod");
 	m_iUnitUpgradeCostMod = kResults.GetInt("UnitUpgradeCostMod");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
@@ -1707,18 +1700,6 @@ int CvPolicyEntry::GetImprovementUpgradeRateModifier() const
 	return m_iImprovementUpgradeRateModifier;
 }
 
-/// Specialist production boost
-int CvPolicyEntry::GetSpecialistProductionModifier() const
-{
-	return m_iSpecialistProductionModifier;
-}
-
-/// Increase rate of Specialist growth
-int CvPolicyEntry::GetSpecialistUpgradeModifier() const
-{
-	return m_iSpecialistUpgradeModifier;
-}
-
 /// Military unit production boost
 int CvPolicyEntry::GetMilitaryProductionModifier() const
 {
@@ -2153,12 +2134,6 @@ int CvPolicyEntry::GetFreeSpecialist() const
 int CvPolicyEntry::GetTechPrereq() const
 {
 	return m_iTechPrereq;
-}
-
-/// Number of units that may be conscripted
-int CvPolicyEntry::GetMaxConscript() const
-{
-	return m_iMaxConscript;
 }
 
 /// Modifier to experience
@@ -2970,14 +2945,6 @@ int CvPolicyEntry::GetTourismByUnitClassCreated(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiTourismOnUnitCreation ? m_paiTourismOnUnitCreation[i] : -1;
 }
-
-/// Is this hurry type now enabled?
-//bool CvPolicyEntry::IsHurry(int i) const
-//{
-//	FAssertMsg(i < GC.getNumHurryInfos(), "Index out of bounds");
-//	FAssertMsg(i > -1, "Index out of bounds");
-//	return m_pabHurry ? m_pabHurry[i] : false;
-//}
 
 /// Modifier to Hurry cost
 int CvPolicyEntry::GetHurryModifier(int i) const

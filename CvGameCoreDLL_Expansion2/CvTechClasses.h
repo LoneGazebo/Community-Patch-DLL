@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -34,10 +34,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	// Accessor Functions (Non-Arrays)
-	int GetAIWeight() const;
-	int GetAITradeModifier() const;
 	int GetResearchCost() const;
-	int GetAdvancedStartCost() const;
 	int GetEra() const;
 	int GetFeatureProductionModifier() const;
 	int GetUnitFortificationModifier() const;
@@ -117,10 +114,7 @@ public:
 #endif
 
 private:
-	int m_iAIWeight;
-	int m_iAITradeModifier;
 	int m_iResearchCost;
-	int m_iAdvancedStartCost;
 	int m_iEra;
 	int m_iFeatureProductionModifier;
 	int m_iUnitFortificationModifier;

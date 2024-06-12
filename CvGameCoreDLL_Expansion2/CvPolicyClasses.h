@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -81,8 +81,6 @@ public:
 	int GetAllFeatureProduction() const;
 	int GetImprovementCostModifier() const;
 	int GetImprovementUpgradeRateModifier() const;
-	int GetSpecialistProductionModifier() const;
-	int GetSpecialistUpgradeModifier() const;
 	int GetMilitaryProductionModifier() const;
 	int GetBaseFreeUnits() const;
 	int GetBaseFreeMilitaryUnits() const;
@@ -169,7 +167,6 @@ public:
 	int GetHappyPerMilitaryUnit() const;
 	int GetFreeSpecialist() const;
 	int GetTechPrereq() const;
-	int GetMaxConscript() const;
 	int GetExpModifier() const;
 	int GetExpInBorderModifier() const;
 	int GetMinorQuestFriendshipMod() const;
@@ -547,8 +544,6 @@ private:
 	int m_iAllFeatureProduction;
 	int m_iImprovementCostModifier;
 	int m_iImprovementUpgradeRateModifier;
-	int m_iSpecialistProductionModifier;
-	int m_iSpecialistUpgradeModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iBaseFreeUnits;
 	int m_iBaseFreeMilitaryUnits;
@@ -655,7 +650,6 @@ private:
 	bool m_bMinorScienceAllies;
 	bool m_bMinorResourceBonus;
 	int m_iFreeSpecialist;
-	int m_iMaxConscript;
 	int m_iPolicyBranchType;
 	int m_iNumExtraBranches;
 	int m_iWoundedUnitDamageMod;
@@ -860,7 +854,6 @@ private:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 #endif
-//	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiPlotYieldChanges;

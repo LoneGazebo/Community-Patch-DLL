@@ -312,7 +312,6 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 /// Deal has been accepted
 void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
@@ -322,10 +321,6 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 		GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
 	}
-#else
-	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
-#endif
 
 	if (GET_PLAYER(eFromPlayer).isHuman())
 	{
@@ -600,8 +595,8 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 	CvGameDeals& kGameDeals = kGame.GetGameDeals();
 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
 	const PlayerTypes ePlayer = GetPlayer()->GetID();
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+
+	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		kGameDeals.FinalizeMPDeal(kDeal, true);
 	}
@@ -610,10 +605,7 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 		kGameDeals.AddProposedDeal(kDeal);
 		kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
 	}
-#else
-	kGameDeals.AddProposedDeal(kDeal);
-	kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
-#endif
+
 	if(eActivePlayer == eFromPlayer || eActivePlayer == ePlayer)
 	{
 		GC.GetEngineUserInterface()->makeInterfaceDirty();
@@ -1918,10 +1910,6 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if (pkUnitClassInfo == NULL)
-			continue;
-
 		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 		if (eUnit == NO_UNIT)
 			continue;
@@ -2901,77 +2889,64 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 /// What is the value of war with eWithPlayer?
 int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool /*bLogging*/)
 {
-	PlayerTypes ePlayerDeclaringWar = bFromMe ? m_pPlayer->GetID() : eOtherPlayer;
-	TeamTypes eTeamDeclaringWar = GET_PLAYER(ePlayerDeclaringWar).getTeam();
+	PlayerTypes ePlayerDeclaringWar = bFromMe ? GetPlayer()->GetID() : eOtherPlayer;
+	CvPlayer& kPlayerDeclaringWar = GET_PLAYER(ePlayerDeclaringWar);
+	TeamTypes eTeamDeclaringWar = kPlayerDeclaringWar.getTeam();
 	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
-	CvCity* pCapital = GET_PLAYER(ePlayerDeclaringWar).getCapitalCity();
+	CvCity* pCapital = kPlayerDeclaringWar.getCapitalCity();
 	if (!pCapital)
-	{
 		return INT_MAX;
-	}
+
 	// No deals if there is a denouncement in either direction
 	CvDiplomacyAI* pOurDiploAI = GetPlayer()->GetDiplomacyAI();
 	CivApproachTypes eApproachTowardsAskingPlayer = pOurDiploAI->GetCivApproach(eOtherPlayer);
 	if (pOurDiploAI->IsDenouncedPlayer(eOtherPlayer) || pOurDiploAI->IsDenouncedByPlayer(eOtherPlayer))
-	{
 		return INT_MAX;
-	}
+
 	// No war deals with backstabbers - it's a trap!
 	if (pOurDiploAI->IsUntrustworthy(eOtherPlayer))
-	{
 		return INT_MAX;
-	}
 
-	//Minor Civ?
-	if(GET_PLAYER(eWithPlayer).isMinorCiv())
+	// Minor Civ?
+	CvDiplomacyAI* pDiploAI = kPlayerDeclaringWar.GetDiplomacyAI();
+	if (GET_PLAYER(eWithPlayer).isMinorCiv())
 	{
-		CivApproachTypes eMinorApproachTowardsWarPlayer = GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI()->GetCivApproach(eWithPlayer);
+		CivApproachTypes eMinorApproachTowardsWarPlayer = pDiploAI->GetCivApproach(eWithPlayer);
 		if (eMinorApproachTowardsWarPlayer == CIV_APPROACH_FRIENDLY)
 			return INT_MAX;
 	}
+
 	// If we're in bad shape to start a war, no wars
-	if (GET_PLAYER(ePlayerDeclaringWar).IsNoNewWars())
-	{
+	if (kPlayerDeclaringWar.IsNoNewWars())
 		return INT_MAX;
-	}
+
 	// Don't get distracted by bribed wars when we're close to winning
-	if (GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
-	{
+	if (pDiploAI->IsCloseToAnyVictoryCondition())
 		return INT_MAX;
-	}
 
 	//do we even have a target to attack?
-	if (!GET_PLAYER(ePlayerDeclaringWar).GetMilitaryAI()->HavePreferredAttackTarget(eWithPlayer))
-	{
+	if (!kPlayerDeclaringWar.GetMilitaryAI()->HavePreferredAttackTarget(eWithPlayer))
 		return INT_MAX;
-	}
+
 	//don't get into additional wars if we cannot afford it
-	if (GET_PLAYER(ePlayerDeclaringWar).IsAtWarAnyMajor() && GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_WINNING)
-	{
+	if (kPlayerDeclaringWar.IsAtWarAnyMajor() && pDiploAI->GetStateAllWars() != STATE_ALL_WARS_WINNING)
 		return INT_MAX;
-	}
 
 	// Player must be a potential war target
-	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI();
 	if (GET_PLAYER(eWithPlayer).isMajorCiv() && !pDiploAI->IsPotentialWarTarget(eWithPlayer))
-	{
 		return INT_MAX;
-	}
+
 	// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
 	if (!pDiploAI->IsWarSane(eWithPlayer))
-	{
 		return INT_MAX;
-	}
-	// already planning a coop war against the target? then we aren't interested! (reduce the chance of a premature declaration...)
+
+	// Already planning a coop war against the target? then we aren't interested! (reduce the chance of a premature declaration...)
 	if (pDiploAI->GetGlobalCoopWarAgainstState(eWithPlayer) >= COOP_WAR_STATE_PREPARING)
-	{
 		return INT_MAX;
-	}
-	// can't be too far away
-	if (GET_PLAYER(ePlayerDeclaringWar).GetProximityToPlayer(eWithPlayer) < PLAYER_PROXIMITY_CLOSE)
-	{
+
+	// Can't be too far away
+	if (kPlayerDeclaringWar.GetProximityToPlayer(eWithPlayer) < PLAYER_PROXIMITY_CLOSE)
 		return INT_MAX;
-	}
 
 	// Don't accept war bribes if we recently made peace.
 	if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
@@ -2980,31 +2955,30 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = 23 + GC.getGame().randRangeExclusive(0, 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed());
+			int iPeaceDampenerTurns = 23 + GC.getGame().randRangeExclusive(0, 15, kPlayerDeclaringWar.GetPseudoRandomSeed());
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
-			{
 				return INT_MAX;
-			}
 		}
 	}
 
 	// AI sanity check - who else would we go to war with?
-	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
+	if (!kPlayerDeclaringWar.isHuman())
 	{
-		vector<PlayerTypes> vDefensiveWarAllies = pDiploAI->GetDefensiveWarAllies(eWithPlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
-		for (std::vector<PlayerTypes>::iterator it = vDefensiveWarAllies.begin(); it != vDefensiveWarAllies.end(); it++)
+		CivsList vDefensiveWarAllies = pDiploAI->GetDefensiveWarAllies(eWithPlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
+		for (CivsList::iterator it = vDefensiveWarAllies.begin(); it != vDefensiveWarAllies.end(); ++it)
 		{
 			// Would we be declaring war on a powerful neighbor?
-			if (GET_PLAYER(*it).GetProximityToPlayer(ePlayerDeclaringWar) >= PLAYER_PROXIMITY_CLOSE)
+			CvPlayer& kDefensiveWarAlly = GET_PLAYER(*it);
+			if (kDefensiveWarAlly.GetProximityToPlayer(ePlayerDeclaringWar) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				if (GET_PLAYER(*it).isMajorCiv())
+				if (kDefensiveWarAlly.isMajorCiv())
 				{
 					if (pDiploAI->GetCivApproach(*it) == CIV_APPROACH_AFRAID)
 					{
 						return INT_MAX;
 					}
 					// If we're already planning a war/demand against them, then we don't care.
-					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetDemandTargetPlayer() != *it)
 					{
 						if (pDiploAI->GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 						{
@@ -3016,29 +2990,26 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					if (!pDiploAI->IsWarSane(*it))
 						return INT_MAX;
 				}
-				else
+				else if (pDiploAI->GetCivApproach(*it) > CIV_APPROACH_HOSTILE)
 				{
-					if (pDiploAI->GetCivApproach(*it) > CIV_APPROACH_HOSTILE)
+					if (pDiploAI->GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 					{
-						if (pDiploAI->GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
-						{
-							return INT_MAX;
-						}
+						return INT_MAX;
 					}
 				}
 			}
 		}
 	}
 
-	//what does a basic unit cost these days, use that as a base
-	UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayerDeclaringWar, true, true, false, false, true, false);
-	int iItemValue = pCapital->GetPurchaseCost(eUnit);
+	// What does a basic unit cost these days, use that as a base
+	UnitTypes eUnit = kPlayerDeclaringWar.GetCompetitiveSpawnUnitType(true, true, true, true);
+	int iItemValue = eUnit != NO_UNIT ? pCapital->GetPurchaseCost(eUnit) : 100;
 
 	// Scale with WarmongerHate flavor
 	// Rationale: If the AI hates warmongers, they'll require more in order to go to war, and they'll also pay more to have others wage their battles
 	iItemValue *= bFromMe ? GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() : GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() / 2;
 
-	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
+	if (!kPlayerDeclaringWar.isHuman())
 	{
 		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
 		{

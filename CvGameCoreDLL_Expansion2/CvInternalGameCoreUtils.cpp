@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -60,16 +60,6 @@ int limitedWonderClassLimit(const CvBuildingClassInfo& kBuildingClass)
 	return bIsLimited ? iCount : -1;
 }
 //------------------------------------------------------------------------------
-int getWorldSizeMaxConscript(const CvPolicyEntry& kPolicy)
-{
-	int iMaxConscript = kPolicy.GetMaxConscript();
-
-	iMaxConscript *= std::max(0, (GC.getMap().getWorldInfo().getMaxConscriptModifier() + 100));
-	iMaxConscript /= 100;
-
-	return iMaxConscript;
-}
-
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 ResourceTypes getWonderResource()
 {

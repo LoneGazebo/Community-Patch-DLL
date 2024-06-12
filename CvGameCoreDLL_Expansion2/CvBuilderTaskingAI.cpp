@@ -2138,7 +2138,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
-		iWeight = iWeight *= 10;
+		iWeight *= 10;
 
 	iWeight /= 10;
 
@@ -2616,7 +2616,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity
 	return 0;
 }
 
-/// Does this city want to rush a unit?
+/// Does this city want to rush a build?
 bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 {
 	CvCity* pCity = NULL;
@@ -2644,7 +2644,7 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 static int GetNumAdjacent(CvPlot* pPlot, ImprovementTypes eImprovement, SBuilderState sState)

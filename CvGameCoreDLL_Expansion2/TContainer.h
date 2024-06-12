@@ -70,9 +70,17 @@ public:
 	void Write( FDataStream* pStream ) const;
 
 private:
-	//hide copy constructor and assignment operator
-	TContainer(const TContainer& other) {}
-	const TContainer& operator=(const TContainer& rhs) {}
+    //hide copy constructor and assignment operator
+    TContainer(const TContainer& other) {}
+    const TContainer& operator=(const TContainer& rhs) 
+    {
+        if (this != &rhs) {
+            // Copy the contents
+            m_items = rhs.m_items;
+            m_order = rhs.m_order;
+        }
+        return *this;
+    }
 
 protected:
 	std::tr1::unordered_map<int,T*> m_items; //for lookup by id

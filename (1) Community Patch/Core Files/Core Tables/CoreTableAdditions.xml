@@ -13,7 +13,6 @@
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>YieldAtlas_128_Tourism.dds</ImageTexture>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<!-- DO NOT CHANGE! MUST correspond to the value in CvGameCoreEnums.h -->
@@ -24,7 +23,6 @@
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>YieldAtlas_128_GoldenAge.dds</ImageTexture>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
 	<Table name="SpyPassiveBonuses">
@@ -448,6 +446,11 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 	<Table name="Trait_YieldFromMinorDemand">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_YieldFromLuxuryResourceGain">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
@@ -2338,7 +2341,6 @@
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>yieldatlas_128_general.dds</ImageTexture>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>9</ID>
@@ -2348,7 +2350,6 @@
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>yieldatlas_128_admiral.dds</ImageTexture>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>10</ID>
@@ -2356,7 +2357,6 @@
 			<Description>TXT_KEY_YIELD_POPULATION</Description>
 			<IconString>[ICON_CITIZEN]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>11</ID>
@@ -2366,7 +2366,6 @@
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>yieldatlas_128_culturelocal.dds</ImageTexture>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>12</ID>
@@ -2374,7 +2373,6 @@
 			<Description>TXT_KEY_YIELD_JFD_HEALTH</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>13</ID>
@@ -2382,7 +2380,6 @@
 			<Description>TXT_KEY_YIELD_JFD_DISEASE</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>14</ID>
@@ -2390,7 +2387,6 @@
 			<Description>TXT_KEY_YIELD_JFD_CRIME</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>15</ID>
@@ -2398,7 +2394,6 @@
 			<Description>TXT_KEY_YIELD_JFD_LOYALTY</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>16</ID>
@@ -2406,7 +2401,6 @@
 			<Description>TXT_KEY_YIELD_JFD_SOVEREIGNTY</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
 	<Notifications>

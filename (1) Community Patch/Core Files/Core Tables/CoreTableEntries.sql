@@ -305,6 +305,9 @@ UPDATE GameSpeeds SET DifficultyBonusPercent = 300 WHERE Type = 'GAMESPEED_MARAT
 -- (10 = 1%)
 ALTER TABLE GameSpeeds ADD COLUMN 'MilitaryRatingDecayPercent' INTEGER DEFAULT 0;
 
+-- Bonus XP to Gold-purchased military units, scaling with era.
+ALTER TABLE Traits ADD COLUMN 'PurchasedUnitsBonusXP' INTEGER DEFAULT 0;
+
 -- Trade Route yields no longer scale from distance.
 ALTER TABLE Traits ADD COLUMN 'IgnoreTradeDistanceScaling' BOOLEAN DEFAULT 0;
 
@@ -1759,11 +1762,8 @@ ALTER TABLE Builds ADD COLUMN 'CultureBoost' BOOLEAN DEFAULT 0;
 -- When a unit (civilian or combat) with this promotion is stationed in a City, City gains X% modifier towards building military units.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryProductionModifier' INTEGER DEFAULT 0;
 
--- Unit gets the "HighSeaRaider" Promotion Entry (if defined) when it plunders a Trade Route.
+-- Unit gains 3x gold when it plunders a Trade Route.
 ALTER TABLE Units ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
-
--- Units gains this promotion when its Unit Entry is a HighSeaRaider
-ALTER TABLE UnitPromotions ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
 
 -- Unit gets a CS modifier if not adjacent to any Friendly Unit
 ALTER TABLE UnitPromotions ADD COLUMN 'NoAdjacentUnitMod' INTEGER DEFAULT 0;

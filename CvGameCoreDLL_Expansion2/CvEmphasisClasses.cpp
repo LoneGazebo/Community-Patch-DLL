@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -102,11 +102,7 @@ void CvEmphasisXMLEntries::DeleteArray()
 /// Get a specific entry
 CvEmphasisEntry* CvEmphasisXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
-	return (index!=NO_EMPHASIZE) ? m_paEmphasisEntries[index] : NULL;
-#else
-	return m_paEmphasisEntries[index];
-#endif
+	return (index != NO_EMPHASIZE) ? m_paEmphasisEntries[index] : NULL;
 }
 
 //=====================================

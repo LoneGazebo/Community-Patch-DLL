@@ -103,8 +103,6 @@ public:
 	bool canDoControl(ControlTypes eControl);
 	void doControl(ControlTypes eControl);
 
-	int getProductionPerPopulation(HurryTypes eHurry);
-
 	int getAdjustedPopulationPercent(VictoryTypes eVictory) const;
 	int getAdjustedLandPercent(VictoryTypes eVictory) const;
 
@@ -164,9 +162,6 @@ public:
 
 	int getMaxCityElimination() const;
 	void setMaxCityElimination(int iNewValue) const;
-
-	int getNumAdvancedStartPoints() const;
-	void setNumAdvancedStartPoints(int iNewValue) const;
 
 	int getStartTurn() const;
 	void setStartTurn(int iNewValue);
@@ -488,8 +483,6 @@ public:
 	bool isNukesValid() const;
 	void makeNukesValid(bool bValid = true);
 
-	bool isInAdvancedStart() const;
-
 	const CvString& getName();
 	void setName(const char* szName);
 
@@ -676,13 +669,7 @@ public:
 	int GetBarbarianReleaseTurn() const;
 	void SetBarbarianReleaseTurn(int iValue);
 
-	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false, bool bRandom = true, bool bMinorCivGift = false);
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, bool bMinorCivGift, CvSeeder seed);
-	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
-
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);
-	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvCitySiteEvaluator* GetStartSiteEvaluator();
