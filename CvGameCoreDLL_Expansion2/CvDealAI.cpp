@@ -3003,7 +3003,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// What does a basic unit cost these days, use that as a base
 	UnitTypes eUnit = kPlayerDeclaringWar.GetCompetitiveSpawnUnitType(true, true, true, true);
-	int iItemValue = pCapital->GetPurchaseCost(eUnit);
+	int iItemValue = eUnit != NO_UNIT ? pCapital->GetPurchaseCost(eUnit) : 100;
 
 	// Scale with WarmongerHate flavor
 	// Rationale: If the AI hates warmongers, they'll require more in order to go to war, and they'll also pay more to have others wage their battles

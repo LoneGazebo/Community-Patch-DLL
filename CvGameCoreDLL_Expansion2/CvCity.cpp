@@ -7504,7 +7504,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				// In hundreds
 				int iNumRecruits = pkEventChoiceInfo->getFreeScaledUnits();
 
-				SpawnPlayerUnitsNearby(getOwner(), iNumRecruits, false, isCoastal());
+				SpawnPlayerUnitsNearby(getOwner(), iNumRecruits, true, isCoastal());
 			}
 			if (pkEventChoiceInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
 			{
@@ -34972,17 +34972,20 @@ bool CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber
 	{
 		UnitTypes eUnit = kPlayer.GetCompetitiveSpawnUnitType(bCanBeRanged, bIncludeShips, false, bIncludeUUs, this, bNoResource, false, true);
 		bCanBeRanged = !bCanBeRanged;
-		CvUnit* pUnit = kPlayer.initUnit(eUnit, pPlot->getX(), pPlot->getY());
-		if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+		if (eUnit != NO_UNIT)
 		{
-			pUnit->kill(false); // Could not find a spot!
-		}
-		else
-		{
-			bUnitCreated = true;
-			pUnit->finishMoves();
-			if (!kPlayer.isBarbarian())
-				addProductionExperience(pUnit);
+			CvUnit* pUnit = kPlayer.initUnit(eUnit, pPlot->getX(), pPlot->getY());
+			if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+			{
+				pUnit->kill(false); // Could not find a spot!
+			}
+			else
+			{
+				bUnitCreated = true;
+				pUnit->finishMoves();
+				if (!kPlayer.isBarbarian())
+					addProductionExperience(pUnit);
+			}
 		}
 	}
 
