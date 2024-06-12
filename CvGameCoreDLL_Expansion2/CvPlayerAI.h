@@ -13,6 +13,7 @@
 #define CIV5_PLAYER_AI_H
 
 #include "CvPlayer.h"
+#include "CvPlot.h"
 
 class CvEventTriggerInfo;
 
@@ -80,6 +81,9 @@ public:
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
 	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
 
+	std::priority_queue<SPlotWithScore> GetBestCultureBombPlots(BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable, bool bCheckDanger);
+	const vector<CvPlot*>& GetTopCitadelPlotsCached();
+	bool IsNicePlotForCitadel(const CvPlot* pPlot);
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pMusician);
 
@@ -102,6 +106,10 @@ public:
 
 protected:
 	void AI_doResearch();
+
+	//cache these
+	vector<CvPlot*> m_vCurrentCitadelTargets;
+	int m_iCurrentCitadelTargetsTurn;
 };
 
 // helper for accessing static functions
