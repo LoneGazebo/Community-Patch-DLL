@@ -362,6 +362,10 @@ struct SBuilderState {
 	map<int, int> mExtraDamageToAdjacent;
 
 	SBuilderState(){};
+	static const SBuilderState& DefaultInstance() {
+		static SBuilderState defaultInstance;
+		return defaultInstance;
+	}
 };
 
 namespace HomelandAIHelpers

@@ -15732,7 +15732,7 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	return iStrategicValue * 100;
 }
 
-int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState) const
+int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, const SBuilderState& sState) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(eOwner);
 	TeamTypes eTeam = kPlayer.getTeam();
@@ -15788,12 +15788,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			// try to leave room around improvements that damage adjacent units
 			CvImprovementEntry* pkAdjacentImprovement = GC.getImprovementInfo(pLoopAdjacentPlot->getImprovementType());
 			int iNearbyDamage = pkAdjacentImprovement ? pkAdjacentImprovement->GetNearbyEnemyDamage() : 0;
-			iNearbyDamage += sState.mExtraDamageToAdjacent[pLoopAdjacentPlot->GetPlotIndex()];
+			map<int, int>::const_iterator it = sState.mExtraDamageToAdjacent.find(pLoopAdjacentPlot->GetPlotIndex());
+			if (it != sState.mExtraDamageToAdjacent.end())
+				iNearbyDamage += it->second;
 			if (iNearbyDamage > 0)
 				iMaxAdjacentDamage = max(iMaxAdjacentDamage, iNearbyDamage);
 
 			int iDefenseModifier = pkAdjacentImprovement ? pkAdjacentImprovement->GetDefenseModifier() : 0;
-			iDefenseModifier += sState.mExtraDefense[pLoopAdjacentPlot->GetPlotIndex()];
+			it = sState.mExtraDefense.find(pLoopAdjacentPlot->GetPlotIndex());
+			if (it != sState.mExtraDefense.end())
+				iDefenseModifier += it->second;
 			if (iDefenseModifier > 0)
 				iMaxAdjacentDefenseModifier = max(iMaxAdjacentDefenseModifier, iDefenseModifier);
 		}
@@ -15832,7 +15836,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 			CvImprovementEntry* pkNearbyImprovement = GC.getImprovementInfo(pLoopNearbyPlot->getImprovementType());
 			int iDefenseModifier = pkNearbyImprovement ? pkNearbyImprovement->GetDefenseModifier() : 0;
-			iDefenseModifier += sState.mExtraDefense[pLoopNearbyPlot->GetPlotIndex()];
+			map<int, int>::const_iterator it = sState.mExtraDefense.find(pLoopNearbyPlot->GetPlotIndex());
+			if (it != sState.mExtraDefense.end())
+				iDefenseModifier += it->second;
 			if (iDefenseModifier > 0)
 				iMaxNearbyDefenseModifier += max(iMaxNearbyDefenseModifier, iDefenseModifier);
 		}
