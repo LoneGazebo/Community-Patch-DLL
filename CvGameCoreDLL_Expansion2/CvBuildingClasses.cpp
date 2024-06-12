@@ -253,8 +253,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bMountain(false),
 	m_bHill(false),
 	m_bFlat(false),
-	m_bFoundsReligion(false),
-	m_bIsReligious(false),
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
 	m_iCityAirStrikeDefense(0),
@@ -614,8 +612,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bMountain = kResults.GetBool("Mountain");
 	m_bHill = kResults.GetBool("Hill");
 	m_bFlat = kResults.GetBool("Flat");
-	m_bFoundsReligion = kResults.GetBool("FoundsReligion");
-	m_bIsReligious = kResults.GetBool("IsReligious");
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
 	m_iCityAirStrikeDefense = kResults.GetInt("CityAirStrikeDefense");
@@ -2728,18 +2724,6 @@ bool CvBuildingEntry::IsHill() const
 bool CvBuildingEntry::IsFlat() const
 {
 	return m_bFlat;
-}
-
-/// Does this Building Found a Religion?
-bool CvBuildingEntry::IsFoundsReligion() const
-{
-	return m_bFoundsReligion;
-}
-
-/// Is this a "Religous" Building? (qualifies it for Production bonuses for Policies, etc.)
-bool CvBuildingEntry::IsReligious() const
-{
-	return m_bIsReligious;
 }
 
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for you AND your teammates

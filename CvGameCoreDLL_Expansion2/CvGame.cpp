@@ -840,23 +840,6 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 		}
 	}
 
-	// Which Tech unlocks the Religion Race? (based on a CvBuildingEntry)
-	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if(pkBuildingInfo)
-		{
-			if(pkBuildingInfo->IsFoundsReligion())
-			{
-				const TechTypes eReligionTech = (TechTypes) pkBuildingInfo->GetPrereqAndTech();
-				SetReligionTech(eReligionTech);
-				break;
-			}
-		}
-	}
-
-	DoUpdateTotalReligionTechCost();
 	DoCacheMapScoreMod();
 
 	// Diplomacy Victory
@@ -1108,8 +1091,6 @@ void CvGame::uninit()
 	m_iInitTech = 0;
 	m_iInitWonders = 0;
 	m_iAIAutoPlay = 0;
-	m_iTotalReligionTechCost = 0;
-	m_iCachedWorldReligionTechProgress = 0;
 	m_iUnitedNationsCountdown = 0;
 	m_iNumVictoryVotesTallied = 0;
 	m_iNumVictoryVotesExpected = 0;
@@ -1157,7 +1138,6 @@ void CvGame::uninit()
 	m_eBestWondersPlayer = NO_PLAYER;
 	m_eBestPoliciesPlayer = NO_PLAYER;
 	m_eBestGreatPeoplePlayer = NO_PLAYER;
-	m_eReligionTech = NO_TECH;
 	m_eIndustrialRoute = NO_ROUTE;
 	m_eGameEra = NO_ERA;
 	m_eTeamThatCircumnavigated = NO_TEAM;
@@ -7897,107 +7877,6 @@ int CvGame::GetWorldMilitaryStrengthAverage(PlayerTypes ePlayer, bool bIncludeMe
 	return iWorldMilitaryStrength;
 }
 
-//	--------------------------------------------------------------------------------
-/// Returns the cached Total Research cost for the Religion Victory Competition
-int CvGame::GetTotalReligionTechCost() const
-{
-	return m_iTotalReligionTechCost;
-}
-
-//	--------------------------------------------------------------------------------
-/// Updates the cached Total Research cost for the Religion Victory Competition
-void CvGame::DoUpdateTotalReligionTechCost()
-{
-	TechTypes ePrereqTech = GetReligionTech();
-
-	// If it's been removed, then we're done here
-	if(ePrereqTech == NO_TECH)
-	{
-		m_iTotalReligionTechCost = -1;
-		return;
-	}
-
-	if(ePrereqTech != NO_TECH)
-	{
-		m_iTotalReligionTechCost = GetResearchLeftToTech(NO_TEAM, ePrereqTech);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Returns the cached World Average Tech Progress towards the Religion Victory Competition
-int CvGame::GetCachedWorldReligionTechProgress() const
-{
-	return m_iCachedWorldReligionTechProgress;
-}
-
-//	--------------------------------------------------------------------------------
-/// Updates the cached World Average Tech Progress towards the Religion Victory Competition
-void CvGame::DoUpdateCachedWorldReligionTechProgress()
-{
-	TechTypes ePrereqTech = GetReligionTech();
-
-	// If it's been removed, then we're done here
-	if(ePrereqTech == NO_TECH)
-	{
-		m_iCachedWorldReligionTechProgress = -1;
-		return;
-	}
-
-	TeamTypes eTeam;
-	int iNumTeams = 0;
-
-	int iResearchLeftToReligionTech = 0;
-
-	// Look at every Team's progress
-	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-	{
-		eTeam = (TeamTypes) iTeamLoop;
-
-		if(GET_TEAM(eTeam).isAlive() && !GET_TEAM(eTeam).isMinorCiv())
-		{
-			iNumTeams++;
-			iResearchLeftToReligionTech += GetResearchLeftToReligionTech(eTeam);
-		}
-	}
-
-	CvAssert(iNumTeams > 0);
-	m_iCachedWorldReligionTechProgress = iResearchLeftToReligionTech / iNumTeams;
-}
-
-//	--------------------------------------------------------------------------------
-/// What Tech unlocks the Religion Race?
-TechTypes CvGame::GetReligionTech() const
-{
-	return m_eReligionTech;
-}
-
-//	--------------------------------------------------------------------------------
-/// Sets what Tech unlocks the Religion Race
-void CvGame::SetReligionTech(TechTypes eTech)
-{
-	// This function should only be called once under normal circumstances
-	CvAssert(m_eReligionTech == NO_TECH);
-
-	m_eReligionTech = eTech;
-}
-
-//	--------------------------------------------------------------------------------
-/// How much Research is left to get to the Tech which unlocks the Religious Race
-int CvGame::GetResearchLeftToReligionTech(TeamTypes eTeam)
-{
-	TechTypes eReligionTech = GetReligionTech();
-
-	// Didn't find anything
-	if(eReligionTech == NO_TECH)
-	{
-		return -1;
-	}
-
-	int iResearchLeft = GetResearchLeftToTech(eTeam, eReligionTech);
-
-	return iResearchLeft;
-}
-
 
 //	--------------------------------------------------------------------------------
 /// Recursive function to see how much Research is left to get to a Tech
@@ -8680,8 +8559,6 @@ void CvGame::doTurn()
 #endif
 
 	doUpdateCacheOnTurn();
-
-	DoUpdateCachedWorldReligionTechProgress();
 
 	updateScore();
 
@@ -10998,8 +10875,6 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iInitWonders);
 	visitor(game.m_iAIAutoPlay);
 
-	visitor(game.m_iTotalReligionTechCost);
-	visitor(game.m_iCachedWorldReligionTechProgress);
 	visitor(game.m_iUnitedNationsCountdown);
 	visitor(game.m_iNumVictoryVotesTallied);
 	visitor(game.m_iNumVictoryVotesExpected);
@@ -11042,7 +10917,6 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_eBestWondersPlayer);
 	visitor(game.m_eBestPoliciesPlayer);
 	visitor(game.m_eBestGreatPeoplePlayer);
-	visitor(game.m_eReligionTech);
 	visitor(game.m_eIndustrialRoute);
 	visitor(game.m_eGameEra);
 
