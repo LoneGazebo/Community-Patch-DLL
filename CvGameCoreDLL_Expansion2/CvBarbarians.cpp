@@ -910,10 +910,7 @@ void CvBarbarians::DoCamps()
 	do
 	{
 		// Bias towards coastal if we don't have the desired % of coastal camps (and there are valid plots)
-		bool bWantsCoastal = !vValidCoastalPlots.empty();
-		if (((iNumCampsInExistence * iCoastPercent) / 100) >= iNumCoastalCamps)
-			bWantsCoastal = false;
-
+		bool bWantsCoastal = !vValidCoastalPlots.empty() && ((iNumCoastalCamps * 100) / max(iNumCampsInExistence,1)) < iCoastPercent;
 		std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vValidCoastalPlots : vValidPlots;
 
 		// No valid plots to place a camp? We're done.
