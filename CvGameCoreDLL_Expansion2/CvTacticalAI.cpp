@@ -10942,6 +10942,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)
 {
 	static const BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+	static const BuildTypes eOrdo = (BuildTypes)GC.getInfoTypeForString("BUILD_MONGOLIA_ORDO");
 
 	//take the assigned moves one by one and try to execute them faithfully. 
 	//may fail if a melee kill unexpectedly happens or does not happen
@@ -11062,6 +11063,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_USE_POWER:
 			if (pUnit->canBuild(pUnit->plot(), eCitadel))
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eCitadel);
+			else if (eOrdo != NO_BUILD && pUnit->canBuild(pUnit->plot(), eOrdo))
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eOrdo);
 			else
 				bPrecondition = false;
 		case A_FINISH:
