@@ -4688,6 +4688,9 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 	if(eTeam == NO_TEAM)
 		return true;
+	else if (isBarbarian() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		// Barbarians cannot enter owned plots in the beginning
+		return false;
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
@@ -5065,16 +5068,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		return true;
 	}
 	*/
-
-	// Barbarians have special restrictions early in the game
-	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
-	{
-		//do not capture settlers early in the game ...
-		if (plot.isOwned() || plot.getFirstUnitOfAITypeOtherTeam(BARBARIAN_TEAM, UNITAI_SETTLE) != NULL)
-		{
-			return false;
-		}
-	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && !IsCivilianUnit())
