@@ -28002,10 +28002,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 				{
-					if (eYield != ePassYield)
-						continue;
-
-					iValue += iPassYield;
+					iValue = iPassYield * GetPlayerTraits()->GetYieldFromLuxuryResourceGain(eYield);
 					break;
 				}
 			}
@@ -39072,67 +39069,32 @@ void CvPlayer::SetHighestResourceQuantity(ResourceTypes eIndex, int iValue)
 
 void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 {
-	if (eResource != NO_RESOURCE)
-	{
-		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo == NULL)
-			return;
-
-		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-			return;
-
-		int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false);
-		int iPreviousQuantity = GetHighestResourceQuantity(eResource);
-		if (iCurrentQuantity > iPreviousQuantity)
-		{
-			SetHighestResourceQuantity(eResource, iCurrentQuantity);
-			int iMultiplier = iCurrentQuantity - iPreviousQuantity;
-
-			CvPlayerTraits* pTraits = GetPlayerTraits();
-			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-			{
-				YieldTypes eYield = (YieldTypes)iYield;
-				int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
-				if (iVal > 0)
-				{
-					doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, false, false, eYield);
-				}
-			}
-		}
-	}
-	else
+	if (eResource == NO_RESOURCE)
 	{
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-			if (eResource == NO_RESOURCE)
-				continue;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CheckForLuxuryResourceGainInstantYields(eResource);
+		}
+		return;
+	}
 
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo == NULL)
-				continue;
+	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	if (!pkResourceInfo)
+		return;
 
-			if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+	if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+		return;
 
-			int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false);
-			int iPreviousQuantity = GetHighestResourceQuantity(eResource);
-			if (iCurrentQuantity > iPreviousQuantity)
-			{
-				SetHighestResourceQuantity(eResource, iCurrentQuantity);
-				int iMultiplier = iCurrentQuantity - iPreviousQuantity;
-
-				CvPlayerTraits* pTraits = GetPlayerTraits();
-				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-				{
-					YieldTypes eYield = (YieldTypes)iYield;
-					int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
-					if (iVal > 0)
-					{
-						doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, false, false, eYield);
-					}
-				}
-			}
+	int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false) + getResourceExport(eResource);
+	int iPreviousQuantity = GetHighestResourceQuantity(eResource);
+	if (iCurrentQuantity > iPreviousQuantity)
+	{
+		SetHighestResourceQuantity(eResource, iCurrentQuantity);
+		int iMultiplier = iCurrentQuantity - iPreviousQuantity;
+		if (iMultiplier > 0)
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iMultiplier, true, NO_PLAYER, NULL, false, getCapitalCity());
 		}
 	}
 }
