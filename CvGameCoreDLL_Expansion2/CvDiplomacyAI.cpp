@@ -26975,18 +26975,18 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_TEAM(eMyTeam).IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone())
 		return PEACE_BLOCK_REASON_VASSALAGE;
 
-	// Locked into war?
-	if (GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) > 0)
-		return PEACE_BLOCK_REASON_WAR_DEAL;
-
 	// At war with City-State's ally?
 	bool bMinor = GET_PLAYER(ePlayer).isMinorCiv();
 	if (bMinor && GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllyAtWar(eMyTeam))
 		return PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY;
 
 	// Some game rule blocking this from occurring?
-	if (!GET_TEAM(eMyTeam).canChangeWarPeace(eTeam))
+	if (!GET_TEAM(eMyTeam).canChangeWarPeace(eTeam) && GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) <= 0)
 		return PEACE_BLOCK_REASON_SCENARIO;
+
+	// Locked into war?
+	if (GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) > 0)
+		return PEACE_BLOCK_REASON_WAR_DEAL;
 
 	// Too soon to make peace
 	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eMyTeam).GetNumTurnsAtWar(eTeam) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
@@ -27062,11 +27062,11 @@ void CvDiplomacyAI::FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPl
 	case PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY:
 		str.Format("We're at war with this City-State's ally!");
 		break;
-	case PEACE_BLOCK_REASON_WAR_DEAL:
-		str.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GET_PLAYER(eThisPlayer).getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eAtWarPlayer).getTeam()));
-		break;
 	case PEACE_BLOCK_REASON_SCENARIO:
 		str.Format("Cannot change war/peace status due to special scenario rule!");
+		break;
+	case PEACE_BLOCK_REASON_WAR_DEAL:
+		str.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GET_PLAYER(eThisPlayer).getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eAtWarPlayer).getTeam()));
 		break;
 	case PEACE_BLOCK_REASON_TOO_SOON:
 		str.Format("Too early to make peace!");
