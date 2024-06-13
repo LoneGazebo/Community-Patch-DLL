@@ -196,7 +196,7 @@ SET Text = 'Militarism'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_TRADITION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Militarism[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +2 [ICON_CULTURE] Culture in Cities with at least 10 Strength.[NEWLINE][ICON_BULLET]-15% [ICON_GOLD] Unit Maintenance.[NEWLINE][ICON_BULLET]-50% [ICON_GOLD] Route Maintenance.'
+SET Text = '[COLOR_POSITIVE_TEXT]Militarism[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +2 [ICON_CULTURE] Culture in Cities with at least 10 [ICON_STRENGTH] Strength.[NEWLINE][ICON_BULLET]-15% [ICON_GOLD] Unit Maintenance.[NEWLINE][ICON_BULLET]-50% [ICON_GOLD] Route Maintenance.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_TRADITION_HELP';
 
 UPDATE Language_en_US
