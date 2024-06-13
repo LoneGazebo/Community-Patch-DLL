@@ -25626,11 +25626,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 					CvString strPeaceBlockReason;
 					FmtPeaceBlockReasonLogStr(strPeaceBlockReason, GetID(), eLoopPlayer, GetPeaceBlockReason(eLoopPlayer));
-
-					CvString strOutBuf;
-					strOutBuf.Format("PEACE BLOCKED! ");
-					strOutBuf += strPeaceBlockReason;
-					strLogMessage += strOutBuf;
+					strLogMessage.Format("PEACE BLOCKED! ");
+					strLogMessage += strPeaceBlockReason;
 
 					if (GET_PLAYER(eLoopPlayer).isMinorCiv())
 						LogPeaceWillingnessReason(eLoopPlayer, strLogMessage);
@@ -25724,6 +25721,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 			if (!bCriticalState)
 			{
+				bool bProceed = false;
 				// When not in a critical state, don't make peace with a City-State for the above reasons if a key city of theirs is in major danger from us specifically
 				// Key cities: Their capital, a city they captured from us, or a city we want to liberate from them
 				for (CvCity* pLoopCity = GET_PLAYER(eMinor).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMinor).nextCity(&iLoop))
@@ -25731,9 +25729,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam() || IsTryingToLiberate(pLoopCity))
 					{
 						if ((pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()) && pLoopCity->IsInDangerFromPlayers(vMyTeam))
-							continue;
+						{
+							bProceed = true;
+							break;
+						}
 					}
 				}
+				if (bProceed)
+					continue;
 			}
 
 			GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eMinor).getTeam(), true, false, GetID());
