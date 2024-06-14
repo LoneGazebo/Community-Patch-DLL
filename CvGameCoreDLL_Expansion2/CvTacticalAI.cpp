@@ -8792,7 +8792,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//pillaging must have a positive score
 			if (newAssignment.iScore > 0 && (newAssignment.iRemainingMoves>0 || couldEndTurnAfterThisAssignment(newAssignment)))
 				gPossibleMoves.push_back(newAssignment);
-			else if (refAssignment.iScore > 0)
+			else if (refAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 			{
 				int iBonus = 0;
 				//give a bonus for potential fortifying/healing
@@ -8848,13 +8848,15 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			if (!bCanEndTurnHereOrFlee)
 				continue;
 
-			//important normalization step
-			newAssignment.iScore -= refAssignment.iScore;
-
 			//score functions are biased so that only scores > 0 are interesting moves
 			//still allow mildly negative moves here, maybe we want to do combo moves later!
 			if (newAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
+			{
+				//important normalization step (after we check the cutoff in case ref score is negative!)
+				newAssignment.iScore -= refAssignment.iScore;
+
 				gPossibleMoves.push_back(newAssignment);
+			}
 		}
 	}
 
