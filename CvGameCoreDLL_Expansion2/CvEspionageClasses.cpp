@@ -770,7 +770,7 @@ void CvPlayerEspionage::CreateSpy(PlayerTypes eAsDiplomatInCapitalOfPlayer)
 void CvPlayerEspionage::MoveDiplomatVassalToNewCity(PlayerTypes eVassal, CvCity* pNewCity)
 {
 	// find the spy we want to move
-	for (int uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
+	for (uint uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
 	{
 		CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 		if (pSpy->GetVassalDiplomatPlayer() == eVassal)
@@ -787,7 +787,7 @@ void CvPlayerEspionage::MoveDiplomatVassalToNewCity(PlayerTypes eVassal, CvCity*
 void CvPlayerEspionage::DeleteDiplomatForVassal(PlayerTypes eFormerVassal)
 {
 	// go through the list of spies and delete the one assigned as diplomat to eFormerVassal
-	for (int uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
+	for (uint uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
 	{
 		CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 		if (pSpy->GetVassalDiplomatPlayer() == eFormerVassal)
