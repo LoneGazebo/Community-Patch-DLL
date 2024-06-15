@@ -33,8 +33,6 @@ If the new release is savegame incompatible:
 - For (2), (3a), (3b), and (4a), increment the .civ5proj file's minimum version of the Community Patch (required as a dependency) by 1.
 - Increment the version numbers at the beginning of the CvGameCoreDLL_Expansion2/CustomMods.h file by 1.
 
-NOTE: .gitignore is set to ignore the Vox Populi Installer Files/(1) Community Patch (v. #) between n and n+10, inclusive, where n is the current version number. Should the version number rise by more than 10, .gitignore will need updating.
-
 
 
 [STEP 4]
@@ -43,6 +41,7 @@ A. Change the displayed version number on the teasers for the following mods:
 - (2) Vox Populi
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
+- (4a) Squads for VP
 
 Remember that the version number format is "X.Y.Z"
 WHERE X = major version number,
@@ -53,7 +52,7 @@ Z = savegame compatible release
 B. Change the current version number on ISSUE_TEMPLATE in the main folder to match the new version number.
 
 
-C. Change MyAppVersion in CPPSetupData.iss to match the new version number.
+C. Change MyAppVersion in VPSetupData.iss to match the new version number.
 
 Tip: Notepad++'s Find in Files feature can be useful for this step, but it will not update ISSUE_TEMPLATE.
 Find what: {Old Version Number}
@@ -122,50 +121,40 @@ A. Build the following mods in ModBuddy:
 - (2) Vox Populi
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
-- (4a) UI - Promotion Tree for VP
+- (4a) Squads for VP
 
-B. Copy the compiled mods from your MODS folder and place them in the Vox Populi Installer Files folder.
-
-C. Remove the version numbers at the end of the mod folder names.
+NOTE: The autoinstaller will use the versions from the Build folder in the main directory. ModBuddy will also create a copy in your MODS folder, which you can delete.
 
 
 
 [STEP 10]
-A. Cut and paste the LUA folder in the (1) Community Patch mod into the "LUA for (1) CP" folder.
-
-
-B. Cut and paste the LUA folder in the (2) Vox Populi mod into the "LUA for (2) VP" folder.
+If you've done everything correctly, you can open the VPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
 
 
 
 [STEP 11]
-If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
-
-
-
-[STEP 12]
-Copy the newly compiled .modinfo files for the following mods from Vox Populi Installer Files to the mods' individual folders in the main folder:
+Copy the newly compiled .modinfo files for the following mods from Build to the mods' individual folders in the main folder:
 - (1) Community Patch
 - (2) Vox Populi
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
-- (4a) UI - Promotion Free for VP
+- (4a) Squads for VP
 
 
 
-[STEP 13]
+[STEP 12]
 Create a commit for the new release, and tag it as shown below.
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
 
 
 
-[STEP 14]
+[STEP 13]
 Push the release commit to GitHub.
 
 
 
-[STEP 15]
+[STEP 14]
 A. Go to Releases on GitHub and draft a new release. Upload the compiled autoinstaller and zipped Debug folder to the release binaries.
 
 
@@ -195,7 +184,7 @@ F. Publish the release.
 
 
 
-[STEP 16]
+[STEP 15]
 IF NOT SAVEGAME COMPATIBLE: Make a new version thread on CivFanatics, including the changelog.
 
 IF SAVEGAME COMPATIBLE: Edit the existing release thread on CivFanatics. Edit the title, add the changelog to the OP, and also make a new post in the thread (including the changelog) to alert everyone.
@@ -206,5 +195,5 @@ After making the thread, copy and paste the forum thread link next to "**Release
 
 
 
-[STEP 17]
+[STEP 16]
 Announce the new version on Vox Populi's Discord server. If the new release is NOT savegame compatible, ping @everyone in your announcement.
