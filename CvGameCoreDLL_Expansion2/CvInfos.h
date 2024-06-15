@@ -3381,11 +3381,11 @@ public:
 	CvCityEventLinkingInfo() :
 	  m_bCheckWorld(false),
 	  m_bActive(false),
+	  m_bOnlyActiveCity(false),
 	  m_iEvent(-1),
 	  m_iEventChoice(-1),
 	  m_iCityEvent(-1),
-	  m_iCityEventChoice(-1),
-	  m_bOnlyActiveCity(false)
+	  m_iCityEventChoice(-1)
 	  {
 	  };
 	  int GetLinkingEvent() {return m_iEvent;};
@@ -3563,10 +3563,13 @@ class CvCityEventNotificationInfo
 
 public:
 	CvCityEventNotificationInfo() :
-	  m_bWorldEvent(false),
-	  m_bEspionageEvent(false),
 	  m_bNeedCityCoordinates(false),
 	  m_iVariable(-1),
+	  m_strNotificationType(""),
+	  m_strDescription(""),
+	  m_strShortDescription(""),
+	  m_bWorldEvent(false),
+	  m_bEspionageEvent(false),
 	  m_bNeedPlayerID(false)
 	  {
 	  };
@@ -3601,11 +3604,11 @@ public:
 	CvCityEventChoiceLinkingInfo() :
 	  m_bCheckWorld(false),
 	  m_bActive(false),
+	  m_bOnlyActiveCity(false),
 	  m_iEvent(-1),
 	  m_iEventChoice(-1),
 	  m_iCityEvent(-1),
-	  m_iCityEventChoice(-1),
-	  m_bOnlyActiveCity(false)
+	  m_iCityEventChoice(-1)
 	  {
 	  };
 	  int GetLinkingEvent() {return m_iEvent;};

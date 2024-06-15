@@ -16,21 +16,21 @@ class CvBitfield
 public:
 
 	CvBitfield()
-		: m_pBits(NULL)
-		, m_uiByteSize(0)
+		: m_uiByteSize(0)
+		, m_pBits(NULL)
 	{
 	}
 
 	CvBitfield(uint uiSize)
-		: m_pBits(NULL)
-		, m_uiByteSize(0)
+		: m_uiByteSize(0)
+		, m_pBits(NULL)
 	{
 		SetSize(uiSize);
 	}
 
 	CvBitfield(const CvBitfield& src)
-		: m_pBits(NULL)
-		, m_uiByteSize(0)
+		: m_uiByteSize(0)
+		, m_pBits(NULL)
 	{
 		*this = src;
 	}

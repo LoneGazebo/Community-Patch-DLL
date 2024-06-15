@@ -3216,7 +3216,7 @@ PlayerTypes GetCurrentPlayer();
 class MyStackWalker : public StackWalker
 {
 public:
-	MyStackWalker() : m_pLog(NULL), StackWalker() {}
+	MyStackWalker() : StackWalker(), m_pLog(NULL) {}
 	void SetLog(FILogFile* pLog) { m_pLog=pLog; }
 protected:
 	virtual void OnSymInit(LPCSTR, DWORD, LPCSTR) { /*dummy*/ }
