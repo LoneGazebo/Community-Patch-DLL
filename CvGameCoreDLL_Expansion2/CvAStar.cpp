@@ -977,7 +977,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		kToNodeCacheData.bUnitStackingLimitReached = true;
 
 	//do not use DestinationReached() here, approximate destination won't do
-	bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
+	bool bIsDestination = (node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY()) || !finder->HasValidDestination();
 
 	//use the flags mostly as provided
 	//destination will be handled later once we know whether we would like to end the turn here
@@ -1568,7 +1568,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			return FALSE;
 
 		//do not use DestinationReached() here, approximate destination won't do (also we don't use MOVEFLAG_DESTINATION in pathfinder)
-		bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
+		bool bIsDestination = (node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY()) || !finder->HasValidDestination();
 
 		//don't allow moves through enemy cities (but allow them as attack targets for melee)
 		if (kToNodeCacheData.bIsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
