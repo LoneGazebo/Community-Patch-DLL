@@ -578,6 +578,7 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 	// Init containers
 	m_areas.RemoveAll();
 	m_landmasses.RemoveAll();
+	m_rivers.RemoveAll();
 
 	//--------------------------------
 	// Init non-saved data
@@ -752,6 +753,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 
 	m_areas.RemoveAll();
 	m_landmasses.RemoveAll();
+	m_rivers.RemoveAll();
 
 	m_vDeferredFogPlots.clear();
 
