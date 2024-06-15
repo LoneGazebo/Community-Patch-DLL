@@ -34858,14 +34858,15 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 			}
 
 			//exclude items that can't be renewed:
-			if (it->m_eItemType ==
-				TRADE_ITEM_GOLD ||
-				TRADE_ITEM_GOLD_PER_TURN ||
-				TRADE_ITEM_RESOURCES ||
-				TRADE_ITEM_OPEN_BORDERS ||
-				TRADE_ITEM_ALLOW_EMBASSY ||
-				TRADE_ITEM_DEFENSIVE_PACT)
-				continue;
+			if (it->m_eItemType == TRADE_ITEM_GOLD ||
+				it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN ||
+				it->m_eItemType == TRADE_ITEM_RESOURCES ||
+				it->m_eItemType == TRADE_ITEM_OPEN_BORDERS ||
+				it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY ||
+				it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
+			{
+			continue;
+			}
 				
 			//otherwise remove it.
 			pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);

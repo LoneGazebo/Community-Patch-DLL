@@ -136,7 +136,21 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePath(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), eEnemy(NO_PLAYER), iUnitID(0), eBuild(NO_BUILD), eRoute(NO_ROUTE), eRoutePurpose(NO_ROUTE_PURPOSE), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
+	SPathFinderUserData()
+		: ePath(PT_GENERIC_SAME_AREA)
+		, eRoute(NO_ROUTE)
+		, eBuild(NO_BUILD)
+		, eRoutePurpose(NO_ROUTE_PURPOSE)
+		, bUseRivers(false)
+		, iFlags(0)
+		, ePlayer(NO_PLAYER)
+		, eEnemy(NO_PLAYER)
+		, iUnitID(0)
+		, iMaxTurns(INT_MAX)
+		, iMaxNormalizedDistance(INT_MAX)
+		, iMinMovesLeft(0)
+		, iStartMoves(60)
+	{}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX); // PT_AIR_REBASE (special case, set after construction)
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType); // PT_TRADE_WATER, PT_TRADE_LAND, PT_LANDMASS_CONNECTION, PT_CITY_CONNECTION_WATER
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iMaxTurns); // PT_AREA_CONNECTION (iMaxTurns is simple vs complex check (0/1)), PT_CITY_INFLUENCE
