@@ -49,6 +49,11 @@ WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT
 -- Cities
 
 UPDATE Language_en_US	
+SET Text = 'Do you want to annex the puppet of {@1_CityName} into your empire? It will allow you to choose Production, but will increase your [ICON_HAPPINESS_4] Unhappiness and slow your acquisition of new Policies and Technologies. You will not be able to reverse this.'
+WHERE Tag = 'TXT_KEY_POPUP_ANNEX_PUPPET';
+
+
+UPDATE Language_en_US	
 SET Text = '[NEWLINE]Requires {TXT_KEY_GRAMMAR_A_AN << {1_BuildingName:textkey}} in this City.'
 WHERE Tag = 'TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING';
 
