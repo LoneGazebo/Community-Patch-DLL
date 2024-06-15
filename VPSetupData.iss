@@ -46,15 +46,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 FinishedLabel=Setup has finished installing [name] on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, and click 'Next.' Have fun!
 
 [Files]
-Source: "(1) Community Patch\*"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "(2) Vox Populi\*"; DestDir: "{app}\MODS\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
-Source: "(3a) VP - EUI Compatibility Files\*"; DestDir: "{app}\MODS\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(4a) Squads for VP\*"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "LUA for (1) CP\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly
-Source: "LUA for (2) VP\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
+Source: "Build\(1) Community Patch\*"; Excludes: "Build\(1) Community Patch\LUA\*,Build\(1) Community Patch\Community Patch.civ5proj,Build\(1) Community Patch\Community Patch.civ5sln,Build\(1) Community Patch\Community Patch.civ5suo,Build\(1) Community Patch\MANUAL INSTALL.txt"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "Build\(2) Vox Populi\*"; Excludes: "Build\(2) Vox Populi\LUA\*,Build\(2) Vox Populi\INSTRUCTIONS.txt,Build\(2) Vox Populi\Promotion Icons for VP.txt,Build\(2) Vox Populi\Vox Populi.civ5proj,Build\(2) Vox Populi\Vox Populi.civ5sln,Build\(2) Vox Populi\Vox Populi.civ5suo"; DestDir: "{app}\MODS\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
+Source: "Build\(3a) EUI Compatibility Files\*"; Excludes: "Build\(3a) EUI Compatibility Files\INSTRUCTIONS.txt,Build\(3a) EUI Compatibility Files\VP EUI Compatibility.civ5proj,Build\(3a) EUI Compatibility Files\VP EUI Compatibility.civ5sln,Build\(3a) EUI Compatibility Files\VP EUI Compatibility.civ5suo"; DestDir: "{app}\MODS\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "Build\(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "Build\(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "Build\(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "Build\(4a) Squads for VP\*"; Excludes: "Build\(4a) Squads for VP\Squads.civ5proj,Build\(4a) Squads for VP\Squads.civ5sln,Build\(4a) Squads for VP\Squads.civ5suo"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly
+Source: "Build\(2) Vox Populi\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI FullNoEUI Civ43NoEUI
 Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI FullEUI FullNoEUI
@@ -152,7 +152,7 @@ begin
   S := S + MemoComponentsInfo
   Result := S;
 end;
- 
+
 function GetCIVDir(Param: String): String;
 begin
   { Return the selected CIVDir }
