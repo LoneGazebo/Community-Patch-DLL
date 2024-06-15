@@ -5703,10 +5703,9 @@ void CvPlayerTrade::AddTradeConnectionWasPlundered(const TradeConnection& kTrade
 	if (!bAdded)
 	{
 		TradeConnectionWasPlundered kWasPlundered;
-		uint uiIndex = m_aTradeConnectionWasPlundered.size();
+		kWasPlundered.m_kTradeConnection = kTradeConnection;
+		kWasPlundered.m_iTurnPlundered = GC.getGame().getGameTurn();
 		m_aTradeConnectionWasPlundered.push_back(kWasPlundered);
-		m_aTradeConnectionWasPlundered[uiIndex].m_kTradeConnection = kTradeConnection;
-		m_aTradeConnectionWasPlundered[uiIndex].m_iTurnPlundered = GC.getGame().getGameTurn();
 	}
 }
 

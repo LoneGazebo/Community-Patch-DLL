@@ -46306,14 +46306,14 @@ void CvPlayer::AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, int i
 void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 {
 	bool bChanged = false;
-	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	for (std::vector<SPlayerActiveEspionageEvent>::iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end();)
 	{
-		if ((*it).eOtherPlayer == ePlayer)
+		if (it->eOtherPlayer == ePlayer)
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications)
 			{
-				CvYieldInfo* pYield = GC.getYieldInfo((*it).eYield);
+				CvYieldInfo* pYield = GC.getYieldInfo(it->eYield);
 				if (pYield)
 				{
 					Localization::String localizedSiphonText;
@@ -46333,8 +46333,12 @@ void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
 				}
 			}
-			m_vActiveEspionageEventsList.erase(it--);
+			it = m_vActiveEspionageEventsList.erase(it);
 			bChanged = true;
+		}
+		else
+		{
+			++it; // Only increment if no erase
 		}
 	}
 	if (bChanged)
@@ -46347,11 +46351,11 @@ void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 void CvPlayer::ProcessEspionageEvents()
 {
 	int iTurn = GC.getGame().getGameTurn();
-	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	for (std::vector<SPlayerActiveEspionageEvent>::iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end();)
 	{
-		if ((*it).iEndTurn == iTurn)
+		if (it->iEndTurn == iTurn)
 		{
-			bool bIncoming = (*it).bIncoming;
+			bool bIncoming = it->bIncoming;
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications)
 			{
@@ -46379,8 +46383,12 @@ void CvPlayer::ProcessEspionageEvents()
 
 				}
 			}
-			m_vActiveEspionageEventsList.erase(it--);
+			it = m_vActiveEspionageEventsList.erase(it);
 			UpdateEspionageYields(bIncoming);
+		}
+		else
+		{
+			++it; // Only increment if no erase
 		}
 	}
 }
