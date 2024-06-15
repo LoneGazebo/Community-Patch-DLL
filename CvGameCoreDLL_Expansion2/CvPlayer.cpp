@@ -28003,6 +28003,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 				{
 					iValue = iPassYield * GetPlayerTraits()->GetYieldFromLuxuryResourceGain(eYield);
+					if (bEraScale)
+						iValue *= iEra;
 					break;
 				}
 			}
