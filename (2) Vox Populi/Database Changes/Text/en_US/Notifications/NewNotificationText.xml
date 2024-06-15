@@ -723,11 +723,23 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_MISSIONS_AVAILABLE">
 			<Text>{1_SpyRank} {2_SpyName} has collected enough Network Points in {3_City} to conduct the following {4_Num: plural 1?Spy Mission; other?Spy Missions;}, if the other mission conditions are fulfilled:[NEWLINE]{5_Missions}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED_VASSAL_DIPLOMAT">
+			<Text>A diplomat has been recruited!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CREATED_VASSAL_DIPLOMAT">
+			<Text>{1_SpyName} has been recruited to serve as a Diplomat in the Capital of your newly acquired Vassal {2_CivName}.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S">
 			<Text>New Passive Spy Bonus unlocked</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS">
 			<Text>{1_SpyRank} {2_SpyName} has collected enough Network Points in {3_City} to unlock the following passive bonuses:[NEWLINE][NEWLINE] {4_Missions}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_DIPLOMAT_S">
+			<Text>New Diplomat Bonus unlocked</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_DIPLOMAT">
+			<Text>Diplomat {2_SpyName} has collected enough Network Points in {3_City} to unlock the following bonuses:[NEWLINE][NEWLINE] {4_Missions}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
 			<Text>MAKE EVENT CHOICE</Text>
