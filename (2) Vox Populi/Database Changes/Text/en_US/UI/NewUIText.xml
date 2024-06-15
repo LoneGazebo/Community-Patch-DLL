@@ -99,6 +99,9 @@
 		<Row Tag="TXT_KEY_EO_COUNTERSPY_TRAVELING_TOOLTIP">
 			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, you can select a counterspy focus.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_VASSAL_DIPLOMAT_CANNOT_MOVE_TT">
+			<Text>{1_Rank} {2_Spy} is permanently assigned as a diplomat to the capital of {3_Civ} and cannot be moved anywhere else.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_COUNTERSPY_CANNOT_MOVE_TT">
 			<Text>Because you recently selected a new counterspy focus, {1_Rank} {2_Spy} cannot move for {3_NumTurns} more {3_NumTurns: plural 1?turn; other?turns;}.</Text>
 		</Row>

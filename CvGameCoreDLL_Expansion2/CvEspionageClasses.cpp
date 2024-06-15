@@ -241,6 +241,7 @@ CvEspionageSpy::CvEspionageSpy()
 	, m_iReviveCounter(0)
 	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 	, m_bIsDiplomat(false)
+	, m_eVassalDiplomatPlayer(NO_PLAYER)
 	, m_bEvaluateReassignment(true)
 	, m_bPassive(false)
 	, m_iTurnCounterspyMissionChanged(0)
@@ -269,6 +270,11 @@ int CvEspionageSpy::GetSpyRank(PlayerTypes eSpyOwner) const
 CvSpyState CvEspionageSpy::GetSpyState() const
 {
 	return m_eSpyState;
+}
+
+PlayerTypes CvEspionageSpy::GetVassalDiplomatPlayer() const
+{
+	return m_eVassalDiplomatPlayer;
 }
 
 void CvEspionageSpy::SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState)
@@ -334,7 +340,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 
 	loadFrom >> writeTo.m_iReviveCounter;
 	loadFrom >> writeTo.m_bIsDiplomat;
-	
+	loadFrom >> writeTo.m_eVassalDiplomatPlayer;
 	loadFrom >> writeTo.m_bEvaluateReassignment;
 
 	MOD_SERIALIZE_READ(23, loadFrom, writeTo.m_bPassive, false);
@@ -362,6 +368,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvEspionageSpy& readFrom)
 	saveTo << (int)readFrom.m_eSpyFocus;
 	saveTo << readFrom.m_iReviveCounter;
 	saveTo << readFrom.m_bIsDiplomat;
+	saveTo << readFrom.m_eVassalDiplomatPlayer;
 	saveTo << readFrom.m_bEvaluateReassignment;
 
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_bPassive);
@@ -676,12 +683,32 @@ void CvPlayerEspionage::LogSpyStatus()
 }
 
 /// AddSpy - Grants the player a spy to use
-void CvPlayerEspionage::CreateSpy()
+void CvPlayerEspionage::CreateSpy(PlayerTypes eAsDiplomatInCapitalOfPlayer)
 {
 	// don't create spies if espionage is disabled
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 	{
 		return;
+	}
+
+	CvCity* pOtherPlayerCapital = NULL;
+	if (eAsDiplomatInCapitalOfPlayer != NO_PLAYER)
+	{
+		pOtherPlayerCapital = GET_PLAYER(eAsDiplomatInCapitalOfPlayer).getCapitalCity();
+		if (pOtherPlayerCapital)
+		{
+			// if a spy is already there, kick him out
+			int iOtherSpyIndex = GetSpyIndexInCity(pOtherPlayerCapital);
+			if (iOtherSpyIndex != -1)
+			{
+				ExtractSpyFromCity(iOtherSpyIndex);
+			}
+		}
+		else
+		{
+			// no capital
+			return;
+		}
 	}
 
 	if (m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted == -1)
@@ -692,23 +719,43 @@ void CvPlayerEspionage::CreateSpy()
 	CvEspionageSpy kNewSpy;
 	kNewSpy.m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
 	kNewSpy.m_iExperience = 0;
-	kNewSpy.m_eSpyState = SPY_STATE_UNASSIGNED;
 	kNewSpy.m_eSpyFocus = NO_EVENT_CHOICE_CITY;
 	GetNextSpyName(&kNewSpy);
-	kNewSpy.m_bEvaluateReassignment = true;
+	if (eAsDiplomatInCapitalOfPlayer != NO_PLAYER)
+	{
+		kNewSpy.m_eVassalDiplomatPlayer = eAsDiplomatInCapitalOfPlayer;
+	}
+	else
+	{
+		kNewSpy.m_bEvaluateReassignment = true;
+	}
 	kNewSpy.m_bPassive = false;
 	kNewSpy.m_iTurnCounterspyMissionChanged = 0;
 	kNewSpy.m_iTurnActiveMissionConducted = 0;
 
 	m_aSpyList.push_back(kNewSpy);
 
+	if (eAsDiplomatInCapitalOfPlayer != NO_PLAYER)
+	{
+		MoveSpyTo(pOtherPlayerCapital, m_aSpyList.size() - 1, /*bAsDiplomat*/ true, /*bForce*/ true);
+	}
+
 	CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 	if(pNotifications)
 	{
 		const char* szSpyName = kNewSpy.GetSpyName(m_pPlayer);
-		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED", szSpyName);
-		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED", szSpyName);
-		pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
+		if (eAsDiplomatInCapitalOfPlayer == NO_PLAYER)
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED", szSpyName);
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED", szSpyName);
+			pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
+		}
+		else
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED_VASSAL_DIPLOMAT", szSpyName, GET_PLAYER(eAsDiplomatInCapitalOfPlayer).getNameKey());
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED_VASSAL_DIPLOMAT", szSpyName);
+			pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
+		}
 	}
 
 	if(GC.getLogging())
@@ -717,6 +764,38 @@ void CvPlayerEspionage::CreateSpy()
 		strMsg.Format("New Spy, %d,", m_aSpyList.size() - 1);
 		strMsg += GetLocalizedText(kNewSpy.GetSpyName(m_pPlayer));
 		LogEspionageMsg(strMsg);
+	}
+}
+
+void CvPlayerEspionage::MoveDiplomatVassalToNewCity(PlayerTypes eVassal, CvCity* pNewCity)
+{
+	// find the spy we want to move
+	for (uint uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
+	{
+		CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
+		if (pSpy->GetVassalDiplomatPlayer() == eVassal)
+		{
+			ExtractSpyFromCity(uiSpyIndex);
+			if (pNewCity)
+			{
+				MoveSpyTo(pNewCity, uiSpyIndex, /*bAsDiplomat*/ true, /*bForce*/ true);
+			}
+		}
+	}
+}
+
+void CvPlayerEspionage::DeleteDiplomatForVassal(PlayerTypes eFormerVassal)
+{
+	// go through the list of spies and delete the one assigned as diplomat to eFormerVassal
+	for (uint uiSpyIndex = 0; uiSpyIndex < m_aSpyList.size(); uiSpyIndex++)
+	{
+		CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
+		if (pSpy->GetVassalDiplomatPlayer() == eFormerVassal)
+		{
+			ExtractSpyFromCity(uiSpyIndex);
+			// spies are deleted by giving them the TERMINATED state, then they are no longer shown in the espionage menu
+			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_TERMINATED);
+		}
 	}
 }
 
@@ -2633,8 +2712,14 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 }
 
 /// CanMoveSpyTo - May a spy move into this city
-bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat)
+bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
+	CvAssertMsg(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	if (uiSpyIndex >= m_aSpyList.size())
+	{
+		return false;
+	}
+
 	if (uiSpyIndex >= 0)
 	{
 		CvCity* pCurrentCity = GetCityWithSpy(uiSpyIndex);
@@ -2644,24 +2729,29 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 				return false;
 		}
 	}
+
+	// spies that are assigned as diplomats to vassals can't be moved anywhere
+	if (GetSpyByID(uiSpyIndex)->GetVassalDiplomatPlayer() != NO_PLAYER && !bForce)
+	{
+		return false;
+	}
+
 	// This allows the player to move the spy off the board
 	if(!pCity)
 	{
 		return true;
 	}
 
+	if (bForce && pCity->plot())
+	{
+		pCity->plot()->setRevealed(m_pPlayer->getTeam(), true);
+	}
 	if(!CanEverMoveSpyTo(pCity))
 	{
 		return false;
 	}
 
 	if (GetNumTurnsSpyMovementBlocked(uiSpyIndex) > 0)
-	{
-		return false;
-	}
-
-	CvAssertMsg(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
-	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
 	}
@@ -2701,14 +2791,14 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 }
 
 /// MoveSpyTo - Move a spy into this city
-bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat)
+bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
 	CvAssertMsg(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
 	}
-	if (!CanMoveSpyTo(pCity, uiSpyIndex, bAsDiplomat))
+	if (!CanMoveSpyTo(pCity, uiSpyIndex, bAsDiplomat, bForce))
 	{
 		return false;
 	}
@@ -4431,12 +4521,6 @@ bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncl
 	if (!pTheirCapital)
 	{
 		return false;
-	}
-
-	// They are our vassal, so yes, we have a diplomat already
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
-	{
-		return true;
 	}
 
 	int iSpyIndex = GetSpyIndexInCity(pTheirCapital);
@@ -7210,12 +7294,12 @@ void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionag
 				CvNotifications* pNotifications = GET_PLAYER(eSpyOwner).GetNotifications();
 				if (pNotifications)
 				{
-					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS");
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_DIPLOMAT");
 					strNotification << pPlayer->GetEspionage()->GetSpyRankName(pSpy->m_eRank);
 					strNotification << pSpy->GetSpyName(pPlayer);
 					strNotification << m_pCity->getNameKey();
 					strNotification << pPassiveBonusInfo->GetHelp();
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S");
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_DIPLOMAT_S");
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
 				}
 			}
@@ -7740,7 +7824,7 @@ void CvEspionageAI::DoTurn()
 		{
 			CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
 			// don't process dead spies
-			if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0)
+			if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0 || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 			{
 				continue;
 			}
@@ -7882,11 +7966,13 @@ void CvEspionageAI::DoTurn()
 		for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
 		{
 			// if the spy is flagged to be reassigned
-			if (!pEspionage->m_aSpyList[uiSpy].m_bEvaluateReassignment)
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(uiSpy);
+
+			if (!pSpy->m_bEvaluateReassignment)
 				continue;
 
 			// dead spies are not processed
-			if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_DEAD || pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(uiSpy) > 0)
+			if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(uiSpy) > 0 || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 			{
 				continue;
 			}
@@ -9545,7 +9631,7 @@ void CvEspionageAI::EvaluateSpiesAssignedToTargetPlayer(PlayerTypes ePlayer)
 	{
 		CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
 		// don't process dead spies
-		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED)
+		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 		{
 			continue;
 		}
@@ -9573,7 +9659,7 @@ void CvEspionageAI::EvaluateUnassignedSpies(void)
 	{
 		CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
 		// don't process dead spies
-		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0)
+		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0 || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 		{
 			continue;
 		}
@@ -9601,7 +9687,7 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 	{
 		CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
 		// don't process dead spies
-		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0)
+		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0 || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 		{
 			continue;
 		}
@@ -9630,7 +9716,7 @@ void CvEspionageAI::EvaluateDiplomatSpies(void)
 	{
 		CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
 		// don't process dead spies
-		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0)
+		if (pSpy->GetSpyState() == SPY_STATE_DEAD || pSpy->GetSpyState() == SPY_STATE_TERMINATED || pEspionage->GetNumTurnsSpyMovementBlocked(ui) > 0 || pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 		{
 			continue;
 		}

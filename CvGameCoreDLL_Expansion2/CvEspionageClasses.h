@@ -195,6 +195,7 @@ public:
 
 	const char* GetSpyName(CvPlayer* pPlayer);
 
+	PlayerTypes GetVassalDiplomatPlayer() const;
 	CvSpyState GetSpyState() const;
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
 	void SetSpyFocus(CityEventChoiceTypes eEventChoice);
@@ -217,6 +218,7 @@ public:
 	CvSpyState m_eSpyState;
 	int m_iReviveCounter; // after killed, counter to reincarnate a spy
 	bool m_bIsDiplomat;
+	PlayerTypes m_eVassalDiplomatPlayer; // for spies that are diplomats in the capital of a vassal
 	bool m_bEvaluateReassignment; // used by the AI. Flag to indicate if the spy should be evaluated to be reassigned
 	bool m_bPassive;
 	int m_iTurnCounterspyMissionChanged;
@@ -305,7 +307,9 @@ public:
 	void DoTurn(void);
 	void LogSpyStatus();
 
-	void CreateSpy(void);
+	void CreateSpy(PlayerTypes eAsDiplomatInCapitalOfPlayer = NO_PLAYER);
+	void MoveDiplomatVassalToNewCity(PlayerTypes eVassal, CvCity* pNewCity);
+	void DeleteDiplomatForVassal(PlayerTypes eFormerVassal);
 	void ProcessSpy(uint uiSpyIndex);
 	bool TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
 	bool DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTargetPlayer);
@@ -326,8 +330,8 @@ public:
 	CvEspionageSpy* GetSpyByID(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
 	bool CanEverMoveSpyTo(CvCity* pCity);
-	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
-	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
+	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce = false);
+	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce = false);
 	int GetNumTurnsSpyMovementBlocked(uint uiSpyIndex);
 	int GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex);
 	bool ExtractSpyFromCity(uint uiSpyIndex);

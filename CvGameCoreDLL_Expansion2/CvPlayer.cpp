@@ -32790,6 +32790,22 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 		//add the non-capital bonus
 		if (pOldCapitalCity)
 			pOldCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(false);
+
+		//if this is a vassal, move diplomats from the masters to the new capital
+		if (IsVassalOfSomeone() && !GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		{
+			TeamTypes eMasterTeam = GET_TEAM(getTeam()).GetMaster();
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayerLoop);
+				if (kPlayer.isAlive() && kPlayer.getTeam() == eMasterTeam)
+				{
+					CvPlayerEspionage* pMasterEspionage = kPlayer.GetEspionage();
+					pMasterEspionage->MoveDiplomatVassalToNewCity(GetID(), pNewCapitalCity);
+				}
+			}
+		}
 	}
 }
 
