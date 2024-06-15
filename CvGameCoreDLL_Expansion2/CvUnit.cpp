@@ -27572,7 +27572,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iHotKeyNumber);
 	visitor(unit.m_iDeployFromOperationTurn);
 	visitor(unit.m_iLastMoveTurn);
-	visitor(unit.m_iCycleOrder);
 	visitor(unit.m_iReconX);
 	visitor(unit.m_iReconY);
 	visitor(unit.m_iReconCount);

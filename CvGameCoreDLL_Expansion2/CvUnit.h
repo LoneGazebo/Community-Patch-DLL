@@ -2046,7 +2046,7 @@ protected:
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
 	int m_iLastMoveTurn;
-	int m_iCycleOrder;
+	int m_iCycleOrder; // not serialized
 	int m_iReconX;
 	int m_iReconY;
 	int m_iReconCount;
@@ -2499,7 +2499,6 @@ SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)
 SYNC_ARCHIVE_VAR(int, m_iHotKeyNumber)
 SYNC_ARCHIVE_VAR(int, m_iDeployFromOperationTurn)
 SYNC_ARCHIVE_VAR(int, m_iLastMoveTurn)
-//SYNC_ARCHIVE_VAR(int, m_iCycleOrder) don't sync this, it's used for the UI only
 SYNC_ARCHIVE_VAR(int, m_iReconX)
 SYNC_ARCHIVE_VAR(int, m_iReconY)
 SYNC_ARCHIVE_VAR(int, m_iReconCount)
