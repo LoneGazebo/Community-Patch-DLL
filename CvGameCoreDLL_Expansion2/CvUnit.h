@@ -2499,7 +2499,7 @@ SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)
 SYNC_ARCHIVE_VAR(int, m_iHotKeyNumber)
 SYNC_ARCHIVE_VAR(int, m_iDeployFromOperationTurn)
 SYNC_ARCHIVE_VAR(int, m_iLastMoveTurn)
-SYNC_ARCHIVE_VAR(int, m_iCycleOrder)
+//SYNC_ARCHIVE_VAR(int, m_iCycleOrder) don't sync this, it's used for the UI only
 SYNC_ARCHIVE_VAR(int, m_iReconX)
 SYNC_ARCHIVE_VAR(int, m_iReconY)
 SYNC_ARCHIVE_VAR(int, m_iReconCount)
