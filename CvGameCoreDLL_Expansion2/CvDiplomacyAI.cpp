@@ -56361,15 +56361,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		}
 	}
 
-	// Do not accept voluntary capitulation if we need their capitals to win.
-	/* - commented out due to change with vassal logic
-	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
-	{
-		if (iNumCaps > 0)
-			return false;
-	}
-	*/
-
 	// We must be willing to go to war with everyone they're currently at war with.
 	vector<PlayerTypes> vNewWarPlayers;
 
@@ -56412,7 +56403,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		if (GET_PLAYER(*it).isMinorCiv())
 		{
 			PeaceBlockReasons eReason = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it);
-			if (eReason == PEACE_BLOCK_REASON_ALWAYS_WAR || eReason == PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY)
+			if (eReason == PEACE_BLOCK_REASON_ALWAYS_WAR || eReason == PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY || eReason == PEACE_BLOCK_REASON_SCENARIO)
 			{
 				if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE && GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 					return false;
