@@ -25576,7 +25576,7 @@ void CvPlayer::DoProcessVotes()
 			return;
 
 		int iFollowingCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eStateReligion);
-		ChangeFaithToVotesTimes100(iFollowingCities * GetVotesPerFollowingCityTimes100());
+		ChangeFaithToVotesTimes100(iTestFaith + iFollowingCities * GetVotesPerFollowingCityTimes100());
 	}
 }
 
