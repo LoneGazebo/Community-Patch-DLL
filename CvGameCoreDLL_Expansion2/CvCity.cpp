@@ -31728,7 +31728,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 
 	// m_orderQueue
 	{
-		uint32 uLength;
+		uint32 uLength = 0;
 		if (bSaving)
 			uLength = uint32(city.m_orderQueue.getLength());
 		visitor(uLength);

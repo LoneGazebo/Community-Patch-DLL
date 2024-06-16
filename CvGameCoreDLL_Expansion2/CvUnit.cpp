@@ -27901,7 +27901,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 
 	// Mission queue
 	{
-		uint32 uSize;
+		uint32 uSize = 0;
 		if (bSaving)
 			uSize = unit.m_missionQueue.getLength();
 

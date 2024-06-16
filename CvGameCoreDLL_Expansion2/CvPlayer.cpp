@@ -45923,7 +45923,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		if (bLoading)
 			mutAIOperations.clear();
 
-		uint32 operationCount;
+		uint32 operationCount = 0;
 		if (bSaving)
 			operationCount = player.m_AIOperations.size();
 		visitor(operationCount);
