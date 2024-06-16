@@ -1225,8 +1225,8 @@ public:
 	PeaceBlockReasons GetPeaceBlockReason(PlayerTypes ePlayer) const;
 	void FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPlayer, PlayerTypes eAtWarPlayer, PeaceBlockReasons eReason);
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
-	void RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessage);
-	void LogPeaceWillingnessReason(PlayerTypes ePlayer, CvString strLogMessage);
+	void RefusePeaceTreaty(PlayerTypes ePlayer, const CvString& strLogMessage);
+	void LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvString& strLogMessage);
 
 	// ------------------------------------
 	// Vassal Taxation

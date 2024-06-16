@@ -27104,7 +27104,7 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 }
 
 /// Disables the possibility of AI making peace with a major civ & logs the reason why
-void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessage)
+void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, const CvString& strLogMessage)
 {
 	SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
 	SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
@@ -27113,7 +27113,7 @@ void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessag
 }
 
 /// Logs the reason for a peace refusal or automatic peace offer by this AI
-void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, CvString strLogMessage)
+void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvString& strLogMessage)
 {
 	CvString strLogName = GC.getDiploPeaceLogFileName(GetPlayer());
 	CvString playerName = GetPlayer()->getCivilizationShortDescription();
