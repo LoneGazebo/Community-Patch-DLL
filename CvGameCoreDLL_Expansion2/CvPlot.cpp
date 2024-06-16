@@ -13304,7 +13304,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 			PLOT_BIT_FLAG_IS_IMPASSABLE					= (1 << 14),
 		};
 
-		uint16 plotBits;
+		uint16 plotBits = 0;
 		if (bLoading)
 		{
 			visitor >> plotBits;
@@ -13408,7 +13408,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	// Script data
 	{
 		// FIXME - This is simply dreadful.
-		bool hasScriptData;
+		bool hasScriptData = false;
 		if (bSaving)
 			hasScriptData = (plot.m_szScriptData != NULL);
 		visitor(hasScriptData);
@@ -13429,7 +13429,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 
 	// m_units
 	{
-		uint32 uLength;
+		uint32 uLength = 0;
 		if (bSaving)
 			uLength = uint32(plot.m_units.getLength());
 		visitor(uLength);
