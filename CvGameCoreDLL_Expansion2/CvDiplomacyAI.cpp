@@ -9911,7 +9911,7 @@ bool CvDiplomacyAI::IsSeriousAboutVictory() const
 	bDontCareAboutWinning = bDontCareAboutWinning || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 	bDontCareAboutWinning = bDontCareAboutWinning || !IsCompetingForVictory();
 	bDontCareAboutWinning = bDontCareAboutWinning || iGameEra < 3;
-	bDontCareAboutWinning = bDontCareAboutWinning || eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0;
+	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0);
 
 	return !bDontCareAboutWinning;
 }

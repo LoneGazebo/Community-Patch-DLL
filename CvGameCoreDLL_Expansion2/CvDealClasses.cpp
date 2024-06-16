@@ -5418,8 +5418,8 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 		for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 		{
 			// Players on this deal match? Are peace treaties canceled as well?
-			if((it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer ||
-			        it->m_eFromPlayer == eToPlayer && it->m_eToPlayer == eFromPlayer) && (bCancelPeaceTreaties || !it->IsPeaceTreatyTrade(eFromPlayer)))
+			if(((it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer) ||
+			        (it->m_eFromPlayer == eToPlayer && it->m_eToPlayer == eFromPlayer)) && (bCancelPeaceTreaties || !it->IsPeaceTreatyTrade(eFromPlayer)))
 			{
 				// Change final turn
 				it->m_iFinalTurn = GC.getGame().getGameTurn();

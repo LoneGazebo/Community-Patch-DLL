@@ -881,7 +881,7 @@ void CvHomelandAI::PlotWorkerMoves()
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
-						if (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType()))
+						if ((pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i)) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType()))
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -2953,7 +2953,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			bool bImprovementStateChanged = false;
 
 			// Improvement considerations
-			if (eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType() || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
+			if ((eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType()) || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
 			{
 				sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
 				bImprovementStateChanged = true;
@@ -5499,8 +5499,8 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		if(pLoopUnit)
 		{
 			// Make sure domain matches
-			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
-				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
+			if((pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater()) ||
+				(pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater()))
 			{
 				it->SetMovesToTarget(MAX_INT);
 				continue;

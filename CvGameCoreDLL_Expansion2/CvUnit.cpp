@@ -31746,7 +31746,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetInterceptionCombatModifier();
 	// aF: +33 Ace Pilot (Interception) 2 - 3, +34 Ace Pilot 4.
-	if (iTemp != 0 && canAirPatrol(NULL) || getInterceptChance() > 0)		// not sure about this
+	if ((iTemp != 0 && canAirPatrol(NULL)) || getInterceptChance() > 0)		// not sure about this
 	{
 
 		iExtra = (iTemp) * (iFlavorDefense + 2 * iFlavorAntiAir);
@@ -31761,7 +31761,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetInterceptChanceChange();
 	// AA + aF + nM + C: +25 Interceptor (interception) I - IV, +25 Ace Pilot (interception) 1 - 3.
-	if (iTemp != 0 && GetAirInterceptRange() > 0 || getInterceptChance() > 0)
+	if ((iTemp != 0 && GetAirInterceptRange() > 0) || getInterceptChance() > 0)
 	{
 		iExtra = iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
 		iExtra *= getInterceptChance() + 100;
