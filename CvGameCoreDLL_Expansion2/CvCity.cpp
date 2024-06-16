@@ -9862,7 +9862,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 			bNeedAnyOr = true;
 
 			// City has resource locally
-			if (!IsHasResourceLocal(eOrResource, bTestVisible))
+			if (IsHasResourceLocal(eOrResource, bTestVisible))
 			{
 				bHasAnyOr = true;
 				continue;
@@ -9878,6 +9878,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 		// Hope nobody puts both AND and OR requirements onto the same building...
 		if (toolTipSink)
 			*toolTipSink += tempTooltip;
+
 		return false;
 	}
 

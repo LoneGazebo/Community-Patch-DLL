@@ -149,6 +149,7 @@
 			<Label ID="CityIsResistance" Anchor="C,C" Offset="-17,-17" String="[ICON_RESISTANCE]"/>
 			<Label ID="CityIsRazing" Anchor="C,C" Offset="-17,-17" String="[ICON_RAZING]"/>
 			<Label ID="CityIsConnected" Anchor="C,C" Offset="-17,17" String="[ICON_CONNECTED]"/>
+			<Label ID="CityIsIndustrialConnected" Anchor="C,C" Offset="-17,17" String="[ICON_INDUSTRIAL_CONNECTED]"/>
 			<Label ID="CityIsBlockaded" Anchor="C,C" Offset="-17,17" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED"/>
 			<Label ID="CityFocus" Anchor="C,C" Offset="17,17"/>
 			<Label ID="CityIsAutomated" Anchor="C,C" Offset="-17,17" String="[ICON_AUTOMATED]"/>

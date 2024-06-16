@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.8) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.9) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="130" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="131" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -53,7 +53,7 @@
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
     <File md5="A87ADB40348735E120B60ECF9CE8BB2D" import="1">LUA/NotificationPanel.lua</File>
     <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
-    <File md5="DBBE408637561A84B7BBAC7D312A278E" import="1">LUA/PlotHelpManager.lua</File>
+    <File md5="9C09FE18B1B5AEC6811EFBEB5E5BCDD4" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="A96E1CBCE39C50FB82E40C64BFD03270" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="6E49A0D32531F2F121FD579F817C271B" import="1">LUA/TechButtonInclude.lua</File>
@@ -62,7 +62,7 @@
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="99B31813275001E935824B00277F5631" import="1">LUA/UnitPanel.lua</File>
     <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>
-    <File md5="E2EB22365D80AD1BA0E01143870CD2C0" import="1">LUA/UnitPanel_small.xml</File>
+    <File md5="BAEAE4CE4E8B8BEAA2267E1E89EB6D2E" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="C5086E6289D8DC365D343C7BE312D802" import="1">LUA/YieldIconManager.lua</File>
     <File md5="645B31579AD0E8018CAA2CA895C9B299" import="0">ImprovedTopPanel/FontIconsITP.xml</File>
     <File md5="CBF5CA4731D74890572CF98197BD1301" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>

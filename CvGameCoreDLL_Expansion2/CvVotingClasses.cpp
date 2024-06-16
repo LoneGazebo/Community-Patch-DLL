@@ -4016,19 +4016,6 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 						}
 					}
 				}
-
-				// They are our vassal, so yes, we have a diplomat already
-				else if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
-				{
-					int iPercent = 25;
-					iVotes *= iPercent;
-					iVotes /= 100;
-					if (iVotes <= 0)
-					{
-						iVotes = 1;
-					}
-					return iVotes;
-				}
 			}
 		}
 	}

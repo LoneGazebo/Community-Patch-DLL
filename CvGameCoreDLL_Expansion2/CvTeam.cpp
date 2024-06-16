@@ -9533,6 +9533,21 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 			GET_TEAM(eTeam).SetVassalTax(eOurPlayer, 0);
 			GET_TEAM(eTeam).SetNumTurnsSinceVassalTaxSet(eOurPlayer, -1);
 		}
+
+		// remove spies as diplomats
+		if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		{
+			for (int iMasterPlayerLoop = 0; iMasterPlayerLoop < MAX_CIV_PLAYERS; iMasterPlayerLoop++)
+			{
+				PlayerTypes eMasterPlayer = (PlayerTypes)iMasterPlayerLoop;
+				CvPlayer* pMasterPlayer = &GET_PLAYER(eMasterPlayer);
+				if (pMasterPlayer->isAlive() && pMasterPlayer->getTeam() == eTeam)
+				{
+					CvPlayerEspionage* pMasterEspionage = pMasterPlayer->GetEspionage();
+					pMasterEspionage->DeleteDiplomatForVassal(eOurPlayer);
+				}
+			}
+		}
 	}
 
 	//Break embassy and open borders
@@ -10041,6 +10056,16 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
 		locString << GET_PLAYER(*it).getName();
 		GET_TEAM(eTeam).AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, *it);
+
+		// create spies as diplomats for the masters in the vassals' capitals
+		if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		{
+			for (std::vector<PlayerTypes>::iterator it2 = aMasterTeam.begin(); it2 != aMasterTeam.end(); it2++)
+			{
+				CvPlayerEspionage* pMasterEspionage = GET_PLAYER(*it2).GetEspionage();
+				pMasterEspionage->CreateSpy(*it);
+			}
+		}
 	}
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

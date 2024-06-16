@@ -16054,6 +16054,11 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 	for(uint uiSpy = 0; uiSpy < pkPlayerEspionage->m_aSpyList.size(); ++uiSpy)
 	{
 		CvEspionageSpy* pSpy = &(pkPlayerEspionage->m_aSpyList[uiSpy]);
+		if (pSpy->GetSpyState() == SPY_STATE_TERMINATED)
+		{
+			// terminated spies are permanently dead and are not shown in the UI
+			continue;
+		}
 
 		lua_createtable(L, 0, 0);
 		const int t = lua_gettop(L);
@@ -16163,6 +16168,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 
 		lua_pushboolean(L, pkPlayerEspionage->IsDiplomat(uiSpy));
 		lua_setfield(L, t, "IsDiplomat");
+
+		lua_pushinteger(L, pSpy->GetVassalDiplomatPlayer());
+		lua_setfield(L, t, "VassalDiplomatPlayer");
 
 		lua_pushboolean(L, pSpy->m_bPassive);
 		lua_setfield(L, t, "Passive");

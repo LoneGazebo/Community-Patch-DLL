@@ -25626,11 +25626,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 					CvString strPeaceBlockReason;
 					FmtPeaceBlockReasonLogStr(strPeaceBlockReason, GetID(), eLoopPlayer, GetPeaceBlockReason(eLoopPlayer));
-
-					CvString strOutBuf;
-					strOutBuf.Format("PEACE BLOCKED! ");
-					strOutBuf += strPeaceBlockReason;
-					strLogMessage += strOutBuf;
+					strLogMessage.Format("PEACE BLOCKED! ");
+					strLogMessage += strPeaceBlockReason;
 
 					if (GET_PLAYER(eLoopPlayer).isMinorCiv())
 						LogPeaceWillingnessReason(eLoopPlayer, strLogMessage);
@@ -25724,6 +25721,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 			if (!bCriticalState)
 			{
+				bool bProceed = false;
 				// When not in a critical state, don't make peace with a City-State for the above reasons if a key city of theirs is in major danger from us specifically
 				// Key cities: Their capital, a city they captured from us, or a city we want to liberate from them
 				for (CvCity* pLoopCity = GET_PLAYER(eMinor).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMinor).nextCity(&iLoop))
@@ -25731,9 +25729,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam() || IsTryingToLiberate(pLoopCity))
 					{
 						if ((pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()) && pLoopCity->IsInDangerFromPlayers(vMyTeam))
-							continue;
+						{
+							bProceed = true;
+							break;
+						}
 					}
 				}
+				if (bProceed)
+					continue;
 			}
 
 			GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eMinor).getTeam(), true, false, GetID());
@@ -26972,18 +26975,18 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_TEAM(eMyTeam).IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone())
 		return PEACE_BLOCK_REASON_VASSALAGE;
 
-	// Locked into war?
-	if (GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) > 0)
-		return PEACE_BLOCK_REASON_WAR_DEAL;
-
 	// At war with City-State's ally?
 	bool bMinor = GET_PLAYER(ePlayer).isMinorCiv();
 	if (bMinor && GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllyAtWar(eMyTeam))
 		return PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY;
 
 	// Some game rule blocking this from occurring?
-	if (!GET_TEAM(eMyTeam).canChangeWarPeace(eTeam))
+	if (!GET_TEAM(eMyTeam).canChangeWarPeace(eTeam) && GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) <= 0)
 		return PEACE_BLOCK_REASON_SCENARIO;
+
+	// Locked into war?
+	if (GET_TEAM(eMyTeam).GetNumTurnsLockedIntoWar(eTeam) > 0)
+		return PEACE_BLOCK_REASON_WAR_DEAL;
 
 	// Too soon to make peace
 	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eMyTeam).GetNumTurnsAtWar(eTeam) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
@@ -27059,11 +27062,11 @@ void CvDiplomacyAI::FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPl
 	case PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY:
 		str.Format("We're at war with this City-State's ally!");
 		break;
-	case PEACE_BLOCK_REASON_WAR_DEAL:
-		str.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GET_PLAYER(eThisPlayer).getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eAtWarPlayer).getTeam()));
-		break;
 	case PEACE_BLOCK_REASON_SCENARIO:
 		str.Format("Cannot change war/peace status due to special scenario rule!");
+		break;
+	case PEACE_BLOCK_REASON_WAR_DEAL:
+		str.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GET_PLAYER(eThisPlayer).getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eAtWarPlayer).getTeam()));
 		break;
 	case PEACE_BLOCK_REASON_TOO_SOON:
 		str.Format("Too early to make peace!");
@@ -34855,14 +34858,15 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 			}
 
 			//exclude items that can't be renewed:
-			if (it->m_eItemType ==
-				TRADE_ITEM_GOLD ||
-				TRADE_ITEM_GOLD_PER_TURN ||
-				TRADE_ITEM_RESOURCES ||
-				TRADE_ITEM_OPEN_BORDERS ||
-				TRADE_ITEM_ALLOW_EMBASSY ||
-				TRADE_ITEM_DEFENSIVE_PACT)
-				continue;
+			if (it->m_eItemType == TRADE_ITEM_GOLD ||
+				it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN ||
+				it->m_eItemType == TRADE_ITEM_RESOURCES ||
+				it->m_eItemType == TRADE_ITEM_OPEN_BORDERS ||
+				it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY ||
+				it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
+			{
+			continue;
+			}
 				
 			//otherwise remove it.
 			pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);
@@ -56357,15 +56361,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		}
 	}
 
-	// Do not accept voluntary capitulation if we need their capitals to win.
-	/* - commented out due to change with vassal logic
-	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
-	{
-		if (iNumCaps > 0)
-			return false;
-	}
-	*/
-
 	// We must be willing to go to war with everyone they're currently at war with.
 	vector<PlayerTypes> vNewWarPlayers;
 
@@ -56408,7 +56403,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		if (GET_PLAYER(*it).isMinorCiv())
 		{
 			PeaceBlockReasons eReason = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it);
-			if (eReason == PEACE_BLOCK_REASON_ALWAYS_WAR || eReason == PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY)
+			if (eReason == PEACE_BLOCK_REASON_ALWAYS_WAR || eReason == PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY || eReason == PEACE_BLOCK_REASON_SCENARIO)
 			{
 				if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE && GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 					return false;

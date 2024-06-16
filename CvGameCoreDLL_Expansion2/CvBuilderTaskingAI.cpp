@@ -2647,7 +2647,7 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 	return true;
 }
 
-static int GetNumAdjacent(CvPlot* pPlot, ImprovementTypes eImprovement, SBuilderState sState)
+static int GetNumAdjacent(CvPlot* pPlot, ImprovementTypes eImprovement, const SBuilderState& sState)
 {
 	int iNumAdjacent = 0;
 
@@ -2661,7 +2661,8 @@ static int GetNumAdjacent(CvPlot* pPlot, ImprovementTypes eImprovement, SBuilder
 
 		int iAdjacentPlotIndex = pAdjacentPlot->GetPlotIndex();
 
-		ImprovementTypes eAdjacentImprovement = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex) != sState.mChangedPlotImprovements.end() ? sState.mChangedPlotImprovements[iAdjacentPlotIndex] : NO_IMPROVEMENT;
+		map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex);
+		ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
 
 		// If we are not planning on building an improvement here, use the one that exists already
 		if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
@@ -2674,7 +2675,7 @@ static int GetNumAdjacent(CvPlot* pPlot, ImprovementTypes eImprovement, SBuilder
 	return iNumAdjacent;
 }
 
-int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState)
+int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
 {
 	const CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 
@@ -2766,10 +2767,19 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	int iExtraResource = 0;
 	if ((pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE)
 	{
+		map<ResourceTypes, int>::const_iterator it;
 		if (eResourceFromImprovement != NO_RESOURCE)
-			iExtraResource = sState.mExtraResources[eResourceFromImprovement];
+		{
+			it = sState.mExtraResources.find(eResourceFromImprovement);
+			if (it != sState.mExtraResources.end())
+				iExtraResource = it->second;
+		}
 		else
-			iExtraResource = sState.mExtraResources[eResource];
+		{
+			it = sState.mExtraResources.find(eResource);
+			if (it != sState.mExtraResources.end())
+				iExtraResource = it->second;
+		}
 	}
 
 	/*
@@ -2909,7 +2919,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 					{
 						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), ((DirectionTypes)iDirectionLoop));
 						int iAdjacentPlotIndex = pCityAdjacentPlot->GetPlotIndex();
-						FeatureTypes eAdjacentFeature = sState.mChangedPlotFeatures.find(iAdjacentPlotIndex) != sState.mChangedPlotFeatures.end() ? sState.mChangedPlotFeatures[iAdjacentPlotIndex] : pCityAdjacentPlot->getFeatureType();
+						map<int, FeatureTypes>::const_iterator it = sState.mChangedPlotFeatures.find(iAdjacentPlotIndex);
+						FeatureTypes eAdjacentFeature = it != sState.mChangedPlotFeatures.end() ? it->second : pCityAdjacentPlot->getFeatureType();
 						if (pCityAdjacentPlot && eAdjacentFeature == eFeature && pCityAdjacentPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
 							iAdjacentForests++;
@@ -2963,7 +2974,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 						iTempYieldScore += iAdjacentTerrainYieldChange;
 				}
 
-				ImprovementTypes eAdjacentImprovement = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex) != sState.mChangedPlotImprovements.end() ? sState.mChangedPlotImprovements[iAdjacentPlotIndex] : NO_IMPROVEMENT;
+				map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex);
+				ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
 
 				// If we are not planning on building an improvement here, use the one that exists already
 				if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())

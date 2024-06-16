@@ -25576,7 +25576,7 @@ void CvPlayer::DoProcessVotes()
 			return;
 
 		int iFollowingCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eStateReligion);
-		ChangeFaithToVotesTimes100(iFollowingCities * GetVotesPerFollowingCityTimes100());
+		ChangeFaithToVotesTimes100(iTestFaith + iFollowingCities * GetVotesPerFollowingCityTimes100());
 	}
 }
 
@@ -28002,10 +28002,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 				{
-					if (eYield != ePassYield)
-						continue;
-
-					iValue += iPassYield;
+					iValue = iPassYield * GetPlayerTraits()->GetYieldFromLuxuryResourceGain(eYield);
+					if (bEraScale)
+						iValue *= iEra;
 					break;
 				}
 			}
@@ -28016,7 +28015,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY)
 					{
 						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
 						{
@@ -32791,6 +32790,22 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 		//add the non-capital bonus
 		if (pOldCapitalCity)
 			pOldCapitalCity->UpdateYieldsFromExistingFriendsAndAllies(false);
+
+		//if this is a vassal, move diplomats from the masters to the new capital
+		if (IsVassalOfSomeone() && !GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		{
+			TeamTypes eMasterTeam = GET_TEAM(getTeam()).GetMaster();
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayerLoop);
+				if (kPlayer.isAlive() && kPlayer.getTeam() == eMasterTeam)
+				{
+					CvPlayerEspionage* pMasterEspionage = kPlayer.GetEspionage();
+					pMasterEspionage->MoveDiplomatVassalToNewCity(GetID(), pNewCapitalCity);
+				}
+			}
+		}
 	}
 }
 
@@ -39072,67 +39087,32 @@ void CvPlayer::SetHighestResourceQuantity(ResourceTypes eIndex, int iValue)
 
 void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 {
-	if (eResource != NO_RESOURCE)
-	{
-		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo == NULL)
-			return;
-
-		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-			return;
-
-		int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
-		int iPreviousQuantity = GetHighestResourceQuantity(eResource);
-		if (iCurrentQuantity > iPreviousQuantity)
-		{
-			SetHighestResourceQuantity(eResource, iCurrentQuantity);
-			int iMultiplier = iCurrentQuantity - iPreviousQuantity;
-
-			CvPlayerTraits* pTraits = GetPlayerTraits();
-			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-			{
-				YieldTypes eYield = (YieldTypes)iYield;
-				int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
-				if (iVal > 0)
-				{
-					doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
-				}
-			}
-		}
-	}
-	else
+	if (eResource == NO_RESOURCE)
 	{
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-			if (eResource == NO_RESOURCE)
-				continue;
+			ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CheckForLuxuryResourceGainInstantYields(eResource);
+		}
+		return;
+	}
 
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo == NULL)
-				continue;
+	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	if (!pkResourceInfo)
+		return;
 
-			if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+	if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+		return;
 
-			int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ true);
-			int iPreviousQuantity = GetHighestResourceQuantity(eResource);
-			if (iCurrentQuantity > iPreviousQuantity)
-			{
-				SetHighestResourceQuantity(eResource, iCurrentQuantity);
-				int iMultiplier = iCurrentQuantity - iPreviousQuantity;
-
-				CvPlayerTraits* pTraits = GetPlayerTraits();
-				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-				{
-					YieldTypes eYield = (YieldTypes)iYield;
-					int iVal = pTraits->GetYieldFromLuxuryResourceGain(eYield) * iMultiplier;
-					if (iVal > 0)
-					{
-						doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, NULL, false, false, false, eYield);
-					}
-				}
-			}
+	int iCurrentQuantity = getNumResourceTotal(eResource, /*bIncludeImport*/ false) + getResourceExport(eResource);
+	int iPreviousQuantity = GetHighestResourceQuantity(eResource);
+	if (iCurrentQuantity > iPreviousQuantity)
+	{
+		SetHighestResourceQuantity(eResource, iCurrentQuantity);
+		int iMultiplier = iCurrentQuantity - iPreviousQuantity;
+		if (iMultiplier > 0)
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN, false, NO_GREATPERSON, NO_BUILDING, iMultiplier, true, NO_PLAYER, NULL, false, getCapitalCity());
 		}
 	}
 }
@@ -40169,9 +40149,6 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 
 		CvAssert(getResourceImportFromMajor(eIndex) >= 0);
 
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
-
 		CalculateNetHappiness();
 
 		if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
@@ -40212,9 +40189,6 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 		m_paiResourceFromMinors[eIndex] = m_paiResourceFromMinors[eIndex] + iChange;
 		CvAssert(getResourceFromMinors(eIndex) >= 0);
 
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
-
 		CalculateNetHappiness();
 
 		if (IsCSResourcesCountMonopolies())
@@ -40243,9 +40217,6 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 	{
 		m_paiResourcesSiphoned[eIndex] = m_paiResourcesSiphoned[eIndex] + iChange;
 		CvAssert(getResourceSiphoned(eIndex) >= 0);
-
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
 
 		CalculateNetHappiness();
 	}
@@ -46353,14 +46324,14 @@ void CvPlayer::AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, int i
 void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 {
 	bool bChanged = false;
-	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	for (std::vector<SPlayerActiveEspionageEvent>::iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end();)
 	{
-		if ((*it).eOtherPlayer == ePlayer)
+		if (it->eOtherPlayer == ePlayer)
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications)
 			{
-				CvYieldInfo* pYield = GC.getYieldInfo((*it).eYield);
+				CvYieldInfo* pYield = GC.getYieldInfo(it->eYield);
 				if (pYield)
 				{
 					Localization::String localizedSiphonText;
@@ -46380,8 +46351,12 @@ void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
 				}
 			}
-			m_vActiveEspionageEventsList.erase(it--);
+			it = m_vActiveEspionageEventsList.erase(it);
 			bChanged = true;
+		}
+		else
+		{
+			++it; // Only increment if no erase
 		}
 	}
 	if (bChanged)
@@ -46394,11 +46369,11 @@ void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
 void CvPlayer::ProcessEspionageEvents()
 {
 	int iTurn = GC.getGame().getGameTurn();
-	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	for (std::vector<SPlayerActiveEspionageEvent>::iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end();)
 	{
-		if ((*it).iEndTurn == iTurn)
+		if (it->iEndTurn == iTurn)
 		{
-			bool bIncoming = (*it).bIncoming;
+			bool bIncoming = it->bIncoming;
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications)
 			{
@@ -46426,8 +46401,12 @@ void CvPlayer::ProcessEspionageEvents()
 
 				}
 			}
-			m_vActiveEspionageEventsList.erase(it--);
+			it = m_vActiveEspionageEventsList.erase(it);
 			UpdateEspionageYields(bIncoming);
+		}
+		else
+		{
+			++it; // Only increment if no erase
 		}
 	}
 }

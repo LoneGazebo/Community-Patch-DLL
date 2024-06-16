@@ -14056,7 +14056,7 @@ PlayerTypes CvGame::GetPotentialFreeCityPlayer(CvCity* pCity)
 			if (pCity->GetNumTimesOwned(ePlayer) <= 0)
 				continue;
 
-				return ePlayer;
+			return ePlayer;
 		}
 	}
 

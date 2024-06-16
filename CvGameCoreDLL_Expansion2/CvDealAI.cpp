@@ -1954,7 +1954,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		int iUnitValue = pkUnitInfo->GetPower();
 		if (bWar)
 		{
-			iUnitValue *= 3;
+			iUnitValue *= 2;
 		}
 		// scaling with deal length
 		iUnitValue *= iNumTurns;

@@ -161,8 +161,9 @@ public:
 	explicit FFastList( const TYPE& rhs ) : BASE_TYPE( rhs ) {};
 
 	//Copy operator
-	const TYPE& operator = ( const TYPE& rhs ){  
-		return BASE_TYPE::operator= ( rhs );  
+	const TYPE& operator=(const TYPE& rhs) { 
+		BASE_TYPE::operator=(rhs);
+		return *this;
 	};
 
 	////////////////////////////////////////////////////////////////////////

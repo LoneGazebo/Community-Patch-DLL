@@ -127,7 +127,7 @@ public:
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
-	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
+	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState = SBuilderState::DefaultInstance());
 	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
 	BuildTypes GetRepairBuild(void);
