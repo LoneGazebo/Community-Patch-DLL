@@ -2945,10 +2945,7 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 //======================================================================================================
 bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
-		return false;
-
-	return true;
+	return CvBaseInfo::CacheResults(kResults, kUtility);
 }
 
 
@@ -5845,10 +5842,7 @@ bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //======================================================================================================
 bool CvResourceClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
-		return false;
-
-	return true;
+	return CvBaseInfo::CacheResults(kResults, kUtility);
 }
 
 //======================================================================================================
