@@ -10403,7 +10403,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 		case UNITAI_ASSAULT_SEA:
 		case UNITAI_SKIRMISHER:
 		case UNITAI_SUBMARINE:
-			if (pUnit->GetRange() > 2 || MOD_AI_UNIT_PRODUCTION && pUnit->canIntercept()) // MOD_AI_UNIT_PRODUCTION : AA to back
+			if (pUnit->GetRange() > 2 || (MOD_AI_UNIT_PRODUCTION && pUnit->canIntercept())) // MOD_AI_UNIT_PRODUCTION : AA to back
 				eStrategy = MS_THIRDLINE;
 			else if (pUnit->GetRange() == 2)
 				eStrategy = MS_SECONDLINE;

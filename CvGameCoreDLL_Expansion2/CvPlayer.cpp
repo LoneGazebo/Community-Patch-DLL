@@ -42301,7 +42301,7 @@ bool CvPlayer::NeedWorkboatToImproveResource(ResourceTypes eResource) const
 		int iLoopUnit = 0;
 		for (const CvUnit* pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit->getUnitInfo().GetBuilds(eBuild) && GetPlayerTraits()->IsNoBuild(eBuild) || GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pLoopUnit->getUnitInfo().GetUnitClassType()))
+			if ((pLoopUnit->getUnitInfo().GetBuilds(eBuild) && GetPlayerTraits()->IsNoBuild(eBuild)) || GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pLoopUnit->getUnitInfo().GetUnitClassType()))
 			{
 				// Can improve resource without a worker, so we don't need to build one
 				return false;
@@ -45923,7 +45923,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		if (bLoading)
 			mutAIOperations.clear();
 
-		uint32 operationCount;
+		uint32 operationCount = 0;
 		if (bSaving)
 			operationCount = player.m_AIOperations.size();
 		visitor(operationCount);
