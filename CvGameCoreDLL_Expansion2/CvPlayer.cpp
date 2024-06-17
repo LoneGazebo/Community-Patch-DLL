@@ -47806,7 +47806,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//--------
 	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging;
 	std::stringstream dump;
-	int iDanger=0, iFertility=0;
+	int iDanger=0;
+	int iFertility=0;
 
 	bLogging &= MOD_BALANCE_CORE_MILITARY_LOGGING;
 	//--------

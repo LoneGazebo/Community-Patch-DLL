@@ -3298,12 +3298,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 		}
 	}
 
-	if (iTotalGPPChange >= 2500)
-	{
-		return true;
-	}
-
-	return false;
+	return iTotalGPPChange >= 2500;
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute (CvCity* pCity, DomainTypes eDomain)

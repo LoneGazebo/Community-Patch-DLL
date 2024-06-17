@@ -11438,7 +11438,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	}
 	// We could se the plot before but not anymore
 	// With delayed visibility we do this in setTurnActive()
-	else if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility == true && !isVisible(eTeam))
+	else if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
 	{
 		eResult = VISIBILITY_CHANGE_TO_INVISIBLE;
 		if (eTeam == GC.getGame().getActiveTeam())

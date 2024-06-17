@@ -1410,7 +1410,8 @@ void CvHomelandAI::PlotUpgradeMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						CvString strTemp1, strTemp2;
+						CvString strTemp1;
+						CvString strTemp2;
 						strTemp1 = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
 						strTemp2 = GC.getUnitInfo(pNewUnit->getUnitType())->GetDescription();
 						strLogString.Format("Upgrading unit from type %s to type %s, X: %d, Y: %d", strTemp1.GetCString(), strTemp2.GetCString(), pNewUnit->getX(), pNewUnit->getY());

@@ -12243,12 +12243,7 @@ bool CvUnit::canRepairFleet(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) cons
 
 	bool bHasSkill = !MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL && IsGreatAdmiral();
 	bHasSkill = bHasSkill || (MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL && m_pUnitInfo->IsCanRepairFleet());
-	if (!bHasSkill)
-	{
-		return false;
-	}
-
-	return true;
+	return bHasSkill;
 }
 
 //	--------------------------------------------------------------------------------
