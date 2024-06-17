@@ -596,6 +596,8 @@ function RefreshAgents()
 			agentEntry.AgentLocationActionsPanel:SetHide(false);
 			agentEntry.AgentActivityPanel:SetHide(false);
 			agentEntry.AgentKIAPanel:SetHide(true);
+			
+			agentEntry.RelocateButton:SetHide(false);
 
 			agentEntry.AgentLocation:SetText(v.AgentLocation);
 			agentEntry.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NEEDS_ASSIGNMENT_TT");
