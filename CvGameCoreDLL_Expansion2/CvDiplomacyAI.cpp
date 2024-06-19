@@ -12691,6 +12691,10 @@ void CvDiplomacyAI::DoExpansionBickering()
 		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 			continue;
 
+		// No point in updating this while at war
+		if (IsAtWar(ePlayer))
+			continue;
+
 		// Don't bother checking if they ignored/broke a promise, if bicker range is 0, or if they're our master.
 		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0 || IsVassal(ePlayer))
 		{

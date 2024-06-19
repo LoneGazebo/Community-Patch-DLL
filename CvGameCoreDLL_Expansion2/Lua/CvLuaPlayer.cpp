@@ -14396,7 +14396,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// Timer to avoid backstabbing penalties
 		if (pDiplo->IsDoFBroken(ePlayer) && !pDiplo->IsAtWar(ePlayer) && !GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		{
-			if (!pDiplo->IsFriendDenouncedUs(ePlayer) && !pDiplo->IsFriendDeclaredWarOnUs(ePlayer))
+			if (!pDiplo->IsFriendDenouncedUs(ePlayer) || !pDiplo->IsFriendDeclaredWarOnUs(ePlayer))
 			{
 				int iTurns = pDiplo->GetTurnsSinceDoFBroken(ePlayer);
 				int iTimer = /*10*/ GD_INT_GET(DOF_BROKEN_BACKSTAB_TIMER);
