@@ -8064,12 +8064,6 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 						return result;
 				}
 			}
-			else if (testPlot.isNicePlotForCitadel() && pUnit->IsGreatGeneral() && movePlot.iMovesLeft > 0)
-			{
-				result.eAssignmentType = A_USE_POWER;
-				result.iRemainingMoves = 0;
-				iScore += 100;
-			}
 			else if (!pTestPlot->isFriendlyCity(*pUnit)) //cities are considered safe
 				return result;
 
@@ -8085,6 +8079,10 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			if (pUnit->getDomainType() != pTestPlot->getDomain())
 				iScore -= 3;
 		}
+
+		//place to be!
+		if (testPlot.isNicePlotForCitadel() && pUnit->IsGreatGeneral())
+			iScore += 23;
 
 		//points for supported units (count only the first ring for performance ...)
 		int iFriends = testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
@@ -8788,10 +8786,23 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		}
 		else if (unit.iPlotIndex == it->iPlotIndex)
 		{
-			STacticalAssignment newAssignment = ScorePlotForPillageMove(unit, testPlot, *it, *this);
-			//pillaging must have a positive score
-			if (newAssignment.iScore > 0 && (newAssignment.iRemainingMoves>0 || couldEndTurnAfterThisAssignment(newAssignment)))
+			STacticalAssignment newAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, it->iMovesLeft,unit.eMoveStrategy,0,A_BLOCKED);
+
+			//maybe we can do something special here?
+			if (testPlot.isNicePlotForCitadel() && pUnit->IsGreatGeneral())
+			{
+				newAssignment.eAssignmentType = A_USE_POWER;
+				newAssignment.iScore = 1000;
+			}
+			else
+				newAssignment = ScorePlotForPillageMove(unit, testPlot, *it, *this);
+
+			//special action must have a positive score
+			if (newAssignment.iScore > 0 && (newAssignment.iRemainingMoves > 0 || couldEndTurnAfterThisAssignment(newAssignment)))
+			{
 				gPossibleMoves.push_back(newAssignment);
+			}
+			//stay in plot but do nothing special
 			else if (refAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 			{
 				int iBonus = 0;
@@ -10366,7 +10377,7 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 {
-	if (!pUnit || !pUnit->canMove() || !pUnit->canEndTurnAtPlot(pUnit->plot()))
+	if (!pUnit || !pUnit->canMove())
 		return false;
 
 	eUnitMovementStrategy eStrategy = MS_NONE;
@@ -10780,6 +10791,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	for(vector<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
+		//if the add fails we might have marked a tactical plot as available but now suddenly it's occupied by a non-sim unit
+		//but should not happen with the pre-checks above and it's not a big problem anyway
 		if (initialPosition->addAvailableUnit(pUnit))
 		{
 			//make sure we know the immediate surroundings of every unit
@@ -10981,7 +10994,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 				//see if we can indeed reach the target plot this turn ... 
 				pUnit->ClearPathCache(); 
 				if (!pUnit->GeneratePath(pToPlot, iMoveflags) || pUnit->GetPathEndFirstTurnPlot() != pToPlot)
-					OutputDebugString("ouch, pathfinding problem\n");
+					CUSTOMLOG("ouch, pathfinding problem for u%d at (%d:%d)\n", pUnit->GetID(), pToPlot->getX(), pToPlot->getY());
 			}
 #endif
 			if (bPrecondition)
@@ -10991,7 +11004,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 #ifdef TACTDEBUG
 			//check this only for moves, eg melee kills can fail this check because the pathfinder assumes attacks end the turn!
 			if (vAssignments[i].iRemainingMoves != pUnit->getMoves() && bPostcondition)
-				OutputDebugString("ouch, inconsistent movement points\n");
+				CUSTOMLOG("ouch, inconsistent movement points for u%d at (%d:%d)\n", pUnit->GetID(), pToPlot->getX(), pToPlot->getY());
 #endif
 			break;
 		case A_MOVE_SWAP:
