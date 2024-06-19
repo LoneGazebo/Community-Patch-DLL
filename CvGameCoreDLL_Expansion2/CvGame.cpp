@@ -1577,7 +1577,7 @@ void CvGame::update()
 					doTurn();
 			}
 
-			if(!isPaused()) // Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
+			if(!isPaused() && !bExternalPause) // Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
 			{
 				updateScore();
 

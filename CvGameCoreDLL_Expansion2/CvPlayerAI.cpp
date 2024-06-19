@@ -3104,7 +3104,7 @@ std::priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(BuildTyp
 
 const vector<CvPlot*>& CvPlayerAI::GetTopCitadelPlotsCached()
 {
-	const int MAX_CANDIDATES = 13;
+	const int MAX_CANDIDATES = 5;
 
 	if (m_iCurrentCitadelTargetsTurn == GC.getGame().getGameTurn())
 		return m_vCurrentCitadelTargets;
@@ -3120,8 +3120,8 @@ const vector<CvPlot*>& CvPlayerAI::GetTopCitadelPlotsCached()
 		m_vCurrentCitadelTargets.push_back(candidate.pPlot);
 		goodPlots.pop();
 
-		//give up if the rest is much worse than what we have
-		if (goodPlots.top().score < candidate.score / 2)
+		//give up if the rest is much worse than what we just had
+		if (goodPlots.top().score < candidate.score * 0.7f)
 			break;
 	}
 

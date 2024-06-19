@@ -4877,11 +4877,19 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		if (!GET_PLAYER(ePlayer).isAlive())
+			continue;
 
 		bool bFriends = false;
 		bool bAllies = false;
 		if (IsFriendshipAboveFriendsThreshold(ePlayer, GetEffectiveFriendshipWithMajor(ePlayer)))
 		{
+			//make sure we are consistent
+			if (bAlive && !IsFriends(ePlayer))
+			{
+				CUSTOMLOG("inconsistent friendship state after resurrection!");
+				SetFriends(ePlayer, true);
+			}
 			bFriends = true;
 		}
 		if(GetAlly() == ePlayer)
@@ -4891,6 +4899,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 		}
 		if(bFriends || bAllies)
 		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), bAlive ? "restore bonus yields after resurrection" : "remove bonus yields after elimination");
 			DoSetBonus(ePlayer, bAlive, bFriends, bAllies);
 		}
 	}
