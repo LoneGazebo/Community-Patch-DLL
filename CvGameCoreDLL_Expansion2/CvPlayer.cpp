@@ -234,8 +234,6 @@ CvPlayer::CvPlayer() :
 	, m_iMaxTeamBuildingProductionModifier()
 	, m_iMaxPlayerBuildingProductionModifier()
 	, m_iFreeExperience()
-	, m_iFreeExperienceFromBldgs()
-	, m_iFreeExperienceFromMinors()
 	, m_iFeatureProductionModifier()
 	, m_iWorkerSpeedModifier()
 	, m_iImprovementCostModifier()
@@ -1446,8 +1444,6 @@ void CvPlayer::uninit()
 	m_iMaxTeamBuildingProductionModifier = 0;
 	m_iMaxPlayerBuildingProductionModifier = 0;
 	m_iFreeExperience = 0;
-	m_iFreeExperienceFromBldgs = 0;
-	m_iFreeExperienceFromMinors = 0;
 	m_iFeatureProductionModifier = 0;
 	m_iWorkerSpeedModifier = 0;
 	m_iImprovementCostModifier = 0;
@@ -16843,7 +16839,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	recomputeGreatPeopleModifiers();
 
 	changeGoldenAgeModifier(pBuildingInfo->GetGoldenAgeModifier() * iChange);
-	changeFreeExperienceFromBldgs(pBuildingInfo->GetGlobalFreeExperience() * iChange);
+	changeFreeExperience(pBuildingInfo->GetGlobalFreeExperience() * iChange);
 	changeWorkerSpeedModifier(pBuildingInfo->GetWorkerSpeedModifier() * iChange);
 	ChangeSpecialistCultureChange(pBuildingInfo->GetSpecialistExtraCulture() * iChange);
 	changeBorderObstacleCount(pBuildingInfo->IsPlayerBorderObstacle() * iChange);
@@ -30247,25 +30243,10 @@ int CvPlayer::getFreeExperience() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeFreeExperienceFromBldgs(int iChange)
+void CvPlayer::changeFreeExperience(int iChange)
 {
-	m_iFreeExperienceFromBldgs += iChange;
+	m_iFreeExperience += iChange;
 }
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeFreeExperienceFromMinors(int iChange)
-{
-	m_iFreeExperienceFromMinors += iChange;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::recomputeFreeExperience()
-{
-	m_iFreeExperience = m_iFreeExperienceFromBldgs;
-	m_iFreeExperience = m_iFreeExperienceFromMinors;
-	m_iFreeExperience += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_FREE_EXPERIENCE);
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getFeatureProductionModifier() const
@@ -43945,6 +43926,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
 	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
 	ChangeInternalTRTourism(pPolicy->IsInternalTRTourism() * iChange);
+	changeFreeExperience(pPolicy->GetFreeExperience() * iChange);
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
@@ -45118,7 +45100,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	GetTrade()->UpdateTradeConnectionValues();
 	recomputeGreatPeopleModifiers();
 	recomputePolicyCostModifier();
-	recomputeFreeExperience();
 
 	CvCity* pLoopCity2 = NULL;
 	int iLoop2 = 0;
@@ -45739,8 +45720,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMaxTeamBuildingProductionModifier);
 	visitor(player.m_iMaxPlayerBuildingProductionModifier);
 	visitor(player.m_iFreeExperience);
-	visitor(player.m_iFreeExperienceFromBldgs);
-	visitor(player.m_iFreeExperienceFromMinors);
 	visitor(player.m_iFeatureProductionModifier);
 	visitor(player.m_iWorkerSpeedModifier);
 	visitor(player.m_iImprovementCostModifier);

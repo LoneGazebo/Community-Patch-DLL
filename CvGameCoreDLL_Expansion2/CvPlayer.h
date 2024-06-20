@@ -1142,9 +1142,7 @@ public:
 	void changeMaxPlayerBuildingProductionModifier(int iChange);
 
 	int getFreeExperience() const;
-	void changeFreeExperienceFromBldgs(int ichange);
-	void changeFreeExperienceFromMinors(int ichange);
-	void recomputeFreeExperience();
+	void changeFreeExperience(int ichange);
 
 	void doUpdateBarbarianCampVisibility();
 
@@ -3224,8 +3222,6 @@ protected:
 	int m_iMaxTeamBuildingProductionModifier;
 	int m_iMaxPlayerBuildingProductionModifier;
 	int m_iFreeExperience;
-	int m_iFreeExperienceFromBldgs;
-	int m_iFreeExperienceFromMinors;
 	int m_iFeatureProductionModifier;
 	int m_iWorkerSpeedModifier;
 	int m_iImprovementCostModifier;
@@ -4060,8 +4056,6 @@ SYNC_ARCHIVE_VAR(int, m_iMaxGlobalBuildingProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMaxTeamBuildingProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMaxPlayerBuildingProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iFreeExperience)
-SYNC_ARCHIVE_VAR(int, m_iFreeExperienceFromBldgs)
-SYNC_ARCHIVE_VAR(int, m_iFreeExperienceFromMinors)
 SYNC_ARCHIVE_VAR(int, m_iFeatureProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iWorkerSpeedModifier)
 SYNC_ARCHIVE_VAR(int, m_iImprovementCostModifier)
