@@ -43700,6 +43700,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
 	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
+	ChangeInternalTRTourism(pPolicy->IsInternalTRTourism() * iChange);
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
