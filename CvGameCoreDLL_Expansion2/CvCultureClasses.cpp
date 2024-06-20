@@ -4692,10 +4692,10 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	}
 
 	// Shared Religion with this player
-	ReligionTypes ePlayerReligion = m_pPlayer->GetReligions()->GetStateReligion();
-	if (ePlayerReligion != NO_RELIGION && kTargetPlayer.GetReligions()->GetStateReligion() == ePlayerReligion)
+	int iSharedReligionModifier = GetTourismModifierSharedReligion(eTargetPlayer);
+	if (iSharedReligionModifier > 0)
 	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", GetTourismModifierSharedReligion()) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", iSharedReligionModifier) + "[ENDCOLOR]";
 	}
 
 	// Diplomat in this player's Capital City
@@ -4818,7 +4818,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", 0) + "[ENDCOLOR]";
 	}
-	if (ePlayerReligion == NO_RELIGION || kTargetPlayer.GetReligions()->GetStateReligion() != ePlayerReligion)
+	if (iSharedReligionModifier <= 0)
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", 0) + "[ENDCOLOR]";
 	}
@@ -4870,9 +4870,37 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 }
 
 /// Tourism modifier (base plus policy boost) - shared religion
-int CvPlayerCulture::GetTourismModifierSharedReligion() const
+int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer) const
 {
-	return /*25*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION) + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER) + m_pPlayer->GetPlayerTraits()->GetSharedReligionTourismModifier();
+	ReligionTypes eMyReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eMyReligion <= RELIGION_PANTHEON || eTargetPlayer == NO_PLAYER)
+		return 0;
+	
+	int iModifier = /*25*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION);
+	int iModifierMax = /*0*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_MAX);
+	int iMultiplier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER) + m_pPlayer->GetPlayerTraits()->GetSharedReligionTourismModifier();
+	
+	switch (/*0*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_TYPE))
+	{
+		case 0:
+			// Flat value if both players have the same religion
+			return GET_PLAYER(eTargetPlayer).GetReligions()->GetStateReligion() == eMyReligion ? iModifier + iMultiplier : 0;
+		case 1:
+			// Scales with number of cities following religion
+			iModifier *= GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eMyReligion, eTargetPlayer);
+			break;
+		case 2:
+			// Scales with percentage of followers of religion in population
+			int iFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eMyReligion, eTargetPlayer);
+			int iPopulation = GET_PLAYER(eTargetPlayer).getTotalPopulation();
+			iModifier = iModifier * 100 * iFollowers / iPopulation;
+			break;
+	}
+	
+	if (iModifierMax > 0)
+		iModifier = min(iModifierMax, iModifier);
+	
+	return iModifier * (100 + iMultiplier) / 100;
 }
 
 /// Tourism modifier (base plus policy boost) - trade route
@@ -6216,12 +6244,8 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes eTargetPlayer, bool bIgnoreR
 
 	if (!bIgnoreReligion)
 	{
-		// City shares religion with this player
-		ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetStateReligion();
-		if (ePlayerReligion != NO_RELIGION && kTargetPlayer.GetReligions()->GetStateReligion() == ePlayerReligion)
-		{
-			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierSharedReligion();
-		}
+		// they share (at least some of) this player's religion
+		iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierSharedReligion(eTargetPlayer);
 	}
 
 	if (!bIgnoreOpenBorders)
