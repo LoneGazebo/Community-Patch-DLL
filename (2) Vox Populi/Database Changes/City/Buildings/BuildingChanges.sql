@@ -1176,7 +1176,7 @@ UPDATE Buildings
 SET
 	EspionageModifier = 0,
 	SpySecurityModifier = 20,
-	SpySecurityModifierPerXPop = 2,
+	SpySecurityModifierPerXPop = 1,
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1186,7 +1186,7 @@ SET
 	PrereqTech = 'TECH_ELECTRONICS',
 	EspionageModifier = 0,
 	SpySecurityModifier = 10,
-	SpySecurityModifierPerXPop = 2,
+	SpySecurityModifierPerXPop = 1,
 	DistressFlatReduction = 1,
 	PovertyFlatReduction = 1,
 	IlliteracyFlatReduction = 1,
