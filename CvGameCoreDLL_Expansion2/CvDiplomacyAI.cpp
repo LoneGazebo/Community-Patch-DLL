@@ -34842,10 +34842,10 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 		}
 
 		// if the deal can be fully renewed
+		TradedItemList tradedItems = pCurrentDeal->m_TradedItems;
 		TradedItemList::iterator it;
-		CvDeal kTempDeal;
 
-		for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
+		for(it = tradedItems.begin(); it != tradedItems.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer;
 			if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
