@@ -9911,7 +9911,7 @@ bool CvDiplomacyAI::IsSeriousAboutVictory() const
 	bDontCareAboutWinning = bDontCareAboutWinning || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 	bDontCareAboutWinning = bDontCareAboutWinning || !IsCompetingForVictory();
 	bDontCareAboutWinning = bDontCareAboutWinning || iGameEra < 3;
-	bDontCareAboutWinning = bDontCareAboutWinning || eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0;
+	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0);
 
 	return !bDontCareAboutWinning;
 }
@@ -12689,6 +12689,10 @@ void CvDiplomacyAI::DoExpansionBickering()
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
+			continue;
+
+		// No point in updating this while at war
+		if (IsAtWar(ePlayer))
 			continue;
 
 		// Don't bother checking if they ignored/broke a promise, if bicker range is 0, or if they're our master.
@@ -27104,7 +27108,7 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 }
 
 /// Disables the possibility of AI making peace with a major civ & logs the reason why
-void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessage)
+void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, const CvString& strLogMessage)
 {
 	SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
 	SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
@@ -27113,7 +27117,7 @@ void CvDiplomacyAI::RefusePeaceTreaty(PlayerTypes ePlayer, CvString strLogMessag
 }
 
 /// Logs the reason for a peace refusal or automatic peace offer by this AI
-void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, CvString strLogMessage)
+void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvString& strLogMessage)
 {
 	CvString strLogName = GC.getDiploPeaceLogFileName(GetPlayer());
 	CvString playerName = GetPlayer()->getCivilizationShortDescription();
@@ -34842,10 +34846,10 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 		}
 
 		// if the deal can be fully renewed
+		TradedItemList tradedItems = pCurrentDeal->m_TradedItems;
 		TradedItemList::iterator it;
-		CvDeal kTempDeal;
 
-		for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
+		for(it = tradedItems.begin(); it != tradedItems.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer;
 			if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)

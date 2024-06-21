@@ -961,7 +961,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	// if bEqualize is true and the deal is a peace deal (no white peace), the valuation of the winning player is taken
 	
 	// bEqualize isn't applied to gold or gold per turn, as they have the same value for all players. it's also not applied to peace treaties and vassalage
-	if (!bEqualize || eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN || eItem == TRADE_ITEM_PEACE_TREATY ||eItem == TRADE_ITEM_VASSALAGE)
+	if (!bEqualize || eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN || eItem == TRADE_ITEM_PEACE_TREATY ||eItem == TRADE_ITEM_VASSALAGE ||eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
 		// not for sale modmod
 		if (MOD_NOT_FOR_SALE && GetPlayer()->isHuman() && bFromMe)

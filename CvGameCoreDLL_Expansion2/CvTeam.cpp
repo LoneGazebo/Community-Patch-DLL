@@ -6275,62 +6275,62 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								if(pLoopPlot->getResourceType(m_eID) != NO_RESOURCE)
 								{
 									// Only update for active team
-									if(bIsActiveTeam)
+									if (bIsActiveTeam)
 									{
 										// If we've force revealed the resource for this team, then don't send another event
-										if(!pLoopPlot->IsResourceForceReveal(GetID()))
+										if (!pLoopPlot->IsResourceForceReveal(GetID()))
 										{
 											pLoopPlot->setLayoutDirty(true);
 										}
+									}
 
-										for (int iI = 0; iI < MAX_PLAYERS; iI++)
+									for (int iI = 0; iI < MAX_PLAYERS; iI++)
+									{
+										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+										CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+										if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
 										{
-											const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-											CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-											if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+											// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+											if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 											{
-												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-												{
-													// revealed resources are unimproved unless this tech also makes the resource improvable, which is checked later
-													kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot);
-												}
+												// revealed resources are unimproved unless this tech also makes the resource improvable, which is checked later
+												kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot);
 											}
 										}
+									}
 
-										// Notify the player that owns this Plot
-										if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer() && pLoopPlot->getTeam() == GetID())
+									// Notify the player that owns this Plot
+									if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer() && pLoopPlot->getTeam() == GetID())
+									{
+										if(!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 										{
-											if(!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
-											{
-												// notifications for antiquity sites are handled elsewhere
-												ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
-												ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
-												if (eResource == eArtifactResource || eResource == eHiddenArtifactResource)
-													continue;
+											// notifications for antiquity sites are handled elsewhere
+											ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
+											ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
+											if (eResource == eArtifactResource || eResource == eHiddenArtifactResource)
+												continue;
 
-												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 									
-												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
-												switch(pResourceInfo->getResourceUsage())
-												{
-												case RESOURCEUSAGE_LUXURY:
-													eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
-													break;
-												case RESOURCEUSAGE_STRATEGIC:
-													eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
-													break;
-												case RESOURCEUSAGE_BONUS:
-													eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
-													break;
-												}
+											switch(pResourceInfo->getResourceUsage())
+											{
+											case RESOURCEUSAGE_LUXURY:
+												eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+												break;
+											case RESOURCEUSAGE_STRATEGIC:
+												eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+												break;
+											case RESOURCEUSAGE_BONUS:
+												eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+												break;
+											}
 
-												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-												if(pNotifications)
-												{
-													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
-												}
+											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+											if(pNotifications)
+											{
+												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 											}
 										}
 									}
@@ -6404,19 +6404,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								if (pLoopPlot->getResourceType() != NO_RESOURCE)
 								{
-									// Only update for active team
-									if (bIsActiveTeam)
+									for (int iI = 0; iI < MAX_PLAYERS; iI++)
 									{
-										for (int iI = 0; iI < MAX_PLAYERS; iI++)
+										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+										CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+										if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
 										{
-											const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-											CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-											if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+											if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 											{
-												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-												{
-													kLoopPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
-												}
+												kLoopPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
 											}
 										}
 									}

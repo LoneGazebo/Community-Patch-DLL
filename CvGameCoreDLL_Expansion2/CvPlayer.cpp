@@ -42301,7 +42301,7 @@ bool CvPlayer::NeedWorkboatToImproveResource(ResourceTypes eResource) const
 		int iLoopUnit = 0;
 		for (const CvUnit* pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit->getUnitInfo().GetBuilds(eBuild) && GetPlayerTraits()->IsNoBuild(eBuild) || GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pLoopUnit->getUnitInfo().GetUnitClassType()))
+			if ((pLoopUnit->getUnitInfo().GetBuilds(eBuild) && GetPlayerTraits()->IsNoBuild(eBuild)) || GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pLoopUnit->getUnitInfo().GetUnitClassType()))
 			{
 				// Can improve resource without a worker, so we don't need to build one
 				return false;
@@ -43700,6 +43700,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
 	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
+	ChangeInternalTRTourism(pPolicy->IsInternalTRTourism() * iChange);
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
@@ -45923,7 +45924,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		if (bLoading)
 			mutAIOperations.clear();
 
-		uint32 operationCount;
+		uint32 operationCount = 0;
 		if (bSaving)
 			operationCount = player.m_AIOperations.size();
 		visitor(operationCount);
@@ -47806,7 +47807,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//--------
 	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging;
 	std::stringstream dump;
-	int iDanger=0, iFertility=0;
+	int iDanger=0;
+	int iFertility=0;
 
 	bLogging &= MOD_BALANCE_CORE_MILITARY_LOGGING;
 	//--------

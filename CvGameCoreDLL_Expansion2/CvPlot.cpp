@@ -9807,7 +9807,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 
 	// impassable terrain has no base yield (but do allow coast)
 	// if worked by a city, it should have a yield.
-	if( (!isValidMovePlot(ePlayer) && getOwner()!=ePlayer && (!isShallowWater()) || getTerrainType()==NO_TERRAIN))
+	if( ((!isValidMovePlot(ePlayer) && getOwner()!=ePlayer && (!isShallowWater())) || getTerrainType()==NO_TERRAIN))
 	{
 		iYield = 0;
 	} 
@@ -11438,7 +11438,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	}
 	// We could se the plot before but not anymore
 	// With delayed visibility we do this in setTurnActive()
-	else if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility == true && !isVisible(eTeam))
+	else if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
 	{
 		eResult = VISIBILITY_CHANGE_TO_INVISIBLE;
 		if (eTeam == GC.getGame().getActiveTeam())
@@ -13304,7 +13304,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 			PLOT_BIT_FLAG_IS_IMPASSABLE					= (1 << 14),
 		};
 
-		uint16 plotBits;
+		uint16 plotBits = 0;
 		if (bLoading)
 		{
 			visitor >> plotBits;
@@ -13408,7 +13408,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	// Script data
 	{
 		// FIXME - This is simply dreadful.
-		bool hasScriptData;
+		bool hasScriptData = false;
 		if (bSaving)
 			hasScriptData = (plot.m_szScriptData != NULL);
 		visitor(hasScriptData);
@@ -13429,7 +13429,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 
 	// m_units
 	{
-		uint32 uLength;
+		uint32 uLength = 0;
 		if (bSaving)
 			uLength = uint32(plot.m_units.getLength());
 		visitor(uLength);

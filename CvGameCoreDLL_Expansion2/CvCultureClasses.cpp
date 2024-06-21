@@ -1906,7 +1906,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 								bool bArtOk = false;
 
 								//exception! art/artifacts can be swapped
-								if (eClass1 == 1 && eClass2 == 2 || eClass1 == 2 && eClass2 == 1)
+								if ((eClass1 == 1 && eClass2 == 2) || (eClass1 == 2 && eClass2 == 1))
 									bArtOk = true;
 
 								if (!bArtOk)
@@ -2404,7 +2404,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 									bool bArtOk = false;
 
 									//exception! art/artifacts can be swapped
-									if (eClass1 == 1 && eClass2 == 2 || eClass1 == 2 && eClass2 == 1)
+									if ((eClass1 == 1 && eClass2 == 2) || (eClass1 == 2 && eClass2 == 1))
 										bArtOk = true;
 
 									if (!bArtOk)

@@ -635,7 +635,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iWarValue += 15;
 					}
 
-					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || !MOD_AI_UNIT_PRODUCTION && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
+					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || (!MOD_AI_UNIT_PRODUCTION && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER) || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
 					{
 						CvUnit* pLoopUnit2 = NULL;
 						for (int iUnitLoop = 0; iUnitLoop < m_pCity->plot()->getNumUnits(); iUnitLoop++)
@@ -693,7 +693,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Air defense needed?
-		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetAirInterceptRange() > 0 || pkUnitEntry->GetBaseLandAirDefense() > 20)
+		if ((eDomain == DOMAIN_LAND && pkUnitEntry->GetAirInterceptRange() > 0) || pkUnitEntry->GetBaseLandAirDefense() > 20)
 		{
 			int iNeedAir = 0;
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();

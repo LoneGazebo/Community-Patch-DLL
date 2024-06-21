@@ -1387,7 +1387,7 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (bDiploFocus && pkUnitInfo->IsTrade() || pkUnitInfo->GetBaseGold() > 0 || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_MESSENGER)
+				if ((bDiploFocus && pkUnitInfo->IsTrade()) || pkUnitInfo->GetBaseGold() > 0 || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
