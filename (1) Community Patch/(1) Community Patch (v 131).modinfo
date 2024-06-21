@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="131">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.9) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.9.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -237,7 +237,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="1B6504B7FD006DD1D32FB7647C5EE3EA" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="228A5101B5ADD3C810C0E4D26814F2FF" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="519C6EB28865F62FE56A1BCDEBC58197" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="00B63978B691444A4A18E67716E77FA7" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="8DD2E86E1078C1C39E6CF59B78AE761F" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
