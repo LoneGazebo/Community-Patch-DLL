@@ -51021,7 +51021,16 @@ UnitTypes CvPlayer::GetCompetitiveSpawnUnitType(const bool bIncludeRanged, const
 
 		CvUnitClassInfo* pUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if (!bIncludeUUs)
-			eUnit = static_cast<UnitTypes>(pUnitClassInfo->getDefaultUnitIndex());
+		{
+			UnitTypes eReplaceUnit = static_cast<UnitTypes>(pUnitClassInfo->getDefaultUnitIndex());
+			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eReplaceUnit);
+
+			// Cross check in case mods forget to change unit classes after repurposing default units
+			if (pUnitInfo->GetUnitClassType() != eUnitClass)
+				continue;
+
+			eUnit = eReplaceUnit;
+		}
 
 		CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
 		if (!pUnitInfo)
