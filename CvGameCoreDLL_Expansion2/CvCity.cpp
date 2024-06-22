@@ -25134,7 +25134,8 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 		iValue /= 100;
 	}
 
-	return iValue;
+	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
+	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
 /// Base yield rate from CS Alliances
@@ -25181,7 +25182,8 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 		iValue /= 100;
 	}
 
-	return iValue;
+	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
+	return iValue + iBonus;
 
 }
 void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
@@ -31153,7 +31155,7 @@ bool CvCity::CrosscheckYieldsFromMinors()
 			}
 
 			//bonuses based on minor traits (currently food only). do not consider any major-trait specific modifiers here!
-			if (eYield == YIELD_FOOD)
+			if (eYield == YIELD_FOOD && pMinorLoop->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 			{
 				if (isCapital())
 				{
