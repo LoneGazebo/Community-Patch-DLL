@@ -1,0 +1,123 @@
+name: cppcheck
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: cppcheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analysis:
+    runs-on: ubuntu-22.04
+    env:
+      TIMEOUT_EXIT_CODE: 124  # exit code for timeout command
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Debug TIMEOUT_EXIT_CODE
+        run: |
+          echo "Timeout exit code: $TIMEOUT_EXIT_CODE"
+
+      - name: Make build-dir # Cppcheck work folder
+        run: mkdir build-dir
+
+      # - name: Install latest cppcheck for distro # cppcheck 2.7 is the latest for ubuntu-22.04 https://packages.ubuntu.com/search?keywords=cppcheck
+        # run: |
+          # sudo apt-get update
+          # sudo apt-get --yes install cppcheck
+          # cppcheck --version
+
+      - name: Build cppcheck 2.14.1 # https://stackoverflow.com/a/72307265
+        run: |
+          cd /tmp
+          git clone https://github.com/danmar/cppcheck.git
+          cd cppcheck 
+          git checkout 2.14.1
+          sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
+          cd /tmp
+          sudo rm -rf /tmp/cppcheck
+          sudo ldconfig
+          cppcheck --version
+
+      - uses: actions/cache@v4
+        id: cache-build-dir  # Check if the cache hit-or-not
+        with:
+          path: ./build-dir/  # Path of folder to cache, Cppcheck work folder
+          key: build-dir-${{ hashFiles('**/*.*') }}
+          restore-keys: |
+            build-dir-
+
+      - name: Determine number of CPU threads
+        id: cpu-info
+        run: echo "cpu_count=$(nproc)" >> $GITHUB_OUTPUT
+
+      - name: Run cppcheck analysis
+        id: cppcheck
+        run: |
+          timeout --signal=SIGTERM 350m cppcheck -j ${{ steps.cpu-info.outputs.cpu_count }} --project=VoxPopuli_vs2013.sln --check-level=exhaustive --max-ctu-depth=9999 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --verbose --xml 2> cppcheck.xml || exit_code=$?
+          echo "exit_code=$exit_code" >> $GITHUB_ENV
+          if [ $exit_code -eq $TIMEOUT_EXIT_CODE ]; then
+            echo "cppcheck timed out but continuing"
+          fi
+
+      - name: Debug exit code
+        run: |
+          echo "Exit code: $exit_code"
+
+      # - name: Upload cppcheck xml on success # TODO enable when retry_analysis can detect exit code
+        # if: ${{ env.exit_code != env.TIMEOUT_EXIT_CODE }}
+        # uses: actions/upload-artifact@v4
+        # with:
+          # name: cppcheck-xml
+          # path: ./cppcheck.xml
+
+  retry_analysis:
+    runs-on: ubuntu-22.04
+    needs: analysis
+    # if: needs.analysis.outputs.exit_code == 124 # FIXME condition, doesn't detect prior exit code
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make build-dir # Cppcheck work folder
+        run: mkdir build-dir
+
+      - name: Build cppcheck 2.14.1 # https://stackoverflow.com/a/72307265
+        run: |
+          cd /tmp
+          git clone https://github.com/danmar/cppcheck.git
+          cd cppcheck 
+          git checkout 2.14.1
+          sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
+          cd /tmp
+          sudo rm -rf /tmp/cppcheck
+          sudo ldconfig
+          cppcheck --version
+
+      - uses: actions/cache@v4
+        id: cache-build-dir  # Check if the cache hit-or-not
+        with:
+          path: ./build-dir/  # Path of folder to cache, Cppcheck work folder
+          key: build-dir-${{ hashFiles('**/*.*') }}
+          restore-keys: |
+            build-dir-
+
+      - name: Determine number of CPU threads
+        id: cpu-info
+        run: echo "cpu_count=$(nproc)" >> $GITHUB_OUTPUT
+
+      - name: Run cppcheck analysis
+        id: cppcheck
+        run: |
+          timeout --signal=SIGTERM 350m cppcheck -j ${{ steps.cpu-info.outputs.cpu_count }} --project=VoxPopuli_vs2013.sln --check-level=exhaustive --max-ctu-depth=9999 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --verbose --xml 2> cppcheck.xml || echo "cppcheck timed out but continuing"
+
+      - name: Upload cppcheck xml
+        uses: actions/upload-artifact@v4
+        with:
+          name: cppcheck-xml
+          path: ./cppcheck.xml # Place cppcheck.xml in local source directory and open in cppcheck-gui
