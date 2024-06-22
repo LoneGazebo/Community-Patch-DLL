@@ -967,7 +967,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 		HashToOptionMap::const_iterator itr = s_GameOptionsHash.find((uint)eOption);
 		if(itr != s_GameOptionsHash.end())
 		{
-			if(itr->second <= s_GameOptions.size())
+			if(itr->second < s_GameOptions.size())
 			{
 				iValue = s_GameOptions[itr->second].GetValue();
 				return true;
