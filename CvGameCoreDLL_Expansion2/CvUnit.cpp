@@ -30711,29 +30711,37 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		{
 			aNumEnemies.insert(make_pair((*it)->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()), (*it)));
 		}
-		// remove plots that have more enemies than the minimum
-		multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
-		aNumEnemies.erase(itRemove, aNumEnemies.end());
 
-		if (aNumEnemies.size() == 1)
-			pDestPlot = aNumEnemies.begin()->second;
-		else
+		if (!aNumEnemies.empty())
 		{
-			// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
-			multimap<int, CvPlot*> aNumFriendlies;
-			for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
-			{
-				aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
-			}
-			// remove plots that have fewer friendlies than the maximum
-			itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
-			aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
+			// remove plots that have more enemies than the minimum
+			multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
+			aNumEnemies.erase(itRemove, aNumEnemies.end());
 
-			// make a random selection from the remaining plots
-			multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
-			if (aNumFriendlies.size() > 1)
-				advance(itChosenPlot, GC.getGame().urandLimitExclusive(aNumFriendlies.size(), CvSeeder(plot()->GetPseudoRandomSeed()).mix(GetID()).mix(getDamage())));
-			pDestPlot = itChosenPlot->second;
+			if (aNumEnemies.size() == 1)
+				pDestPlot = aNumEnemies.begin()->second;
+			else
+			{
+				// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
+				multimap<int, CvPlot*> aNumFriendlies;
+				for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
+				{
+					aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
+				}
+
+				if (!aNumFriendlies.empty())
+				{
+					// remove plots that have fewer friendlies than the maximum
+					itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
+					aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
+
+					// make a random selection from the remaining plots
+					multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
+					if (aNumFriendlies.size() > 1)
+						advance(itChosenPlot, GC.getGame().urandLimitExclusive(aNumFriendlies.size(), CvSeeder(plot()->GetPseudoRandomSeed()).mix(GetID()).mix(getDamage())));
+					pDestPlot = itChosenPlot->second;
+				}
+			}
 		}
 	}
 
