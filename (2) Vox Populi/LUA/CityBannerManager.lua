@@ -834,7 +834,7 @@ function CheckCityBannerRebuild( instance, iActiveTeam, iActivePlayer )
 		if Game:GetObserverUIOverridePlayer() == -1 then
 			bWantActive = true;
 		else
-			bWantActive = cityTeam == Players[Game:GetObserverUIOverridePlayer()]:getTeam();
+			bWantActive = cityTeam == Players[Game:GetObserverUIOverridePlayer()]:GetTeam();
 		end
 	end
 	if (instance.IsActiveType ~= bWantActive) then

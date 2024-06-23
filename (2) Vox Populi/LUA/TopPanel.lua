@@ -1770,6 +1770,7 @@ Controls.HappinessString:RegisterCallback( Mouse.eLClick, OpenEcon );
 --end
 
 function OnAIPlayerChanged(iPlayerID, szTag)
+	local oldActivePlayerObserver = g_activePlayerObserver;
 	local player = Players[Game.GetActivePlayer()];
 	if player:IsObserver() then
 		if (Game:GetObserverUIOverridePlayer() > -1) then
@@ -1777,6 +1778,10 @@ function OnAIPlayerChanged(iPlayerID, szTag)
 		else
 			g_activePlayerObserver = Players[iPlayerID]:IsMajorCiv() and iPlayerID or -1;
 		end
+	else
+		g_activePlayerObserver = Game.GetActivePlayer();
+	end
+	if g_activePlayerObserver ~= oldActivePlayerObserver then
 		UpdateData()
 	end
 end
