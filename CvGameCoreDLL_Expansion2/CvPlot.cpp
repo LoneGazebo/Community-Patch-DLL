@@ -4488,10 +4488,6 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible() const
 {
-	if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
-		//this is relevant for animations etc, do not show them in observer mode, makes everything faster
-		return false;
-
 	return isVisible(GC.getGame().getActiveTeam());
 }
 
@@ -11448,6 +11444,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		}
 	}
 
+	PlayerTypes eObserverUIPlayer = GC.getGame().getObserverUIOverridePlayer();
+	if (eObserverUIPlayer != NO_PLAYER && GET_PLAYER(eObserverUIPlayer).getTeam() == eTeam && GET_PLAYER(GC.getGame().getActivePlayer()).isObserver())
+	{
+		// observer UI following eTeam? update visibility also for observer
+		changeVisibilityCount(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam(), iChange, eSeeInvisible, bInformExplorationTracking, bAlwaysSeeInvisible);
+	}
+
 	return eResult;
 }
 
@@ -11807,7 +11810,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 		// Natural Wonder
-		if(eTeam != BARBARIAN_TEAM && bNewValue)
+		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())
 		{
 			if(getFeatureType() != NO_FEATURE)
 			{
@@ -12172,6 +12175,13 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		}
 	}
 #endif
+
+	PlayerTypes eObserverUIPlayer = GC.getGame().getObserverUIOverridePlayer();
+	if (eObserverUIPlayer != NO_PLAYER && GET_PLAYER(eObserverUIPlayer).getTeam() == eTeam && GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && !GET_TEAM(eTeam).isObserver())
+	{
+		// observer UI following eTeam? update revealed status also for observer
+		setRevealed(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam(), bNewValue, NULL, bTerrainOnly, eTeam);
+	}
 
 	return bVisibilityUpdated;
 }

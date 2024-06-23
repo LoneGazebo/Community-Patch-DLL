@@ -830,6 +830,13 @@ function CheckCityBannerRebuild( instance, iActiveTeam, iActivePlayer )
 
     -- If the city banner was instanced for the active team and now its not or vice versa, rebuild the banner
 	local bWantActive = cityTeam == iActiveTeam;
+	if Players[iActivePlayer]:IsObserver() then
+		if Game:GetObserverUIOverridePlayer() == -1 then
+			bWantActive = true;
+		else
+			bWantActive = cityTeam == Players[Game:GetObserverUIOverridePlayer()]:getTeam();
+		end
+	end
 	if (instance.IsActiveType ~= bWantActive) then
 		-- rebuild the banner
 		local controlTable = {};

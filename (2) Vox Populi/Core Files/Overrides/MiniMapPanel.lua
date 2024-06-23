@@ -111,22 +111,7 @@ Controls.Minimap:RegisterCallback( Mouse.eLClick, OnMinimapClick );
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 function OnStrategicView()
-	local bIsObserver = PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER;
-	if (bIsObserver) then
-		-- Observer gets to toggle the world view completely off.
-		local eViewType = GetGameViewRenderType();
-		if (eViewType == GameViewTypes.GAMEVIEW_NONE) then
-			SetGameViewRenderType(GameViewTypes.GAMEVIEW_STANDARD);			
-		else
-			if (eViewType == GameViewTypes.GAMEVIEW_STANDARD) then
-				SetGameViewRenderType(GameViewTypes.GAMEVIEW_STRATEGIC);
-			else
-				SetGameViewRenderType(GameViewTypes.GAMEVIEW_NONE);
-			end
-		end
-	else
-		ToggleStrategicView();
-	end		
+	ToggleStrategicView();	
 end
 Controls.StrategicViewButton:RegisterCallback( Mouse.eLClick, OnStrategicView );
 

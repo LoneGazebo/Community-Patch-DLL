@@ -130,6 +130,7 @@ CvGame::CvGame() :
 #endif
 	, m_bArchaeologyTriggered(false)
 	, m_bIsDesynced(false)
+	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
@@ -1144,6 +1145,7 @@ void CvGame::uninit()
 	m_bCombatWarned = false;
 	m_bArchaeologyTriggered = false;
 	m_bIsDesynced = false;
+	m_eObserverUIOverridePlayer = NO_PLAYER;
 
 	m_eHandicap = NO_HANDICAP;
 	m_ePausePlayer = NO_PLAYER;
@@ -3374,6 +3376,9 @@ bool CvGame::canDoControl(ControlTypes eControl)
 	case CONTROL_PREVCITY:
 	case CONTROL_RELIGION_OVERVIEW:
 	case CONTROL_ESPIONAGE_OVERVIEW:
+	case CONTROL_TOGGLE_OBSERVER_MODE:
+	case CONTROL_TOGGLE_AI_TAKEOVER:
+	case CONTROL_SWITCH_TO_NEXT_PLAYER:
 		return true;
 		break;
 
@@ -3738,6 +3743,129 @@ void CvGame::doControl(ControlTypes eControl)
 	case CONTROL_SAVE_NORMAL:
 		gDLL->SaveGame(SAVEGAME_NORMAL);
 		break;
+
+	case CONTROL_TOGGLE_OBSERVER_MODE:
+	{
+		if (!(isNetworkMultiPlayer()))	// SP only!
+		{
+			// use this control only if ObserverUIOverridePlayer not set
+			if (getObserverUIOverridePlayer() == NO_PLAYER) 
+			{
+				PlayerTypes eActivePlayer = getActivePlayer();
+				// already in observer mode? exit it
+				if (GET_PLAYER(eActivePlayer).isObserver())
+				{
+					PlayerTypes eReturnPlayer = NO_PLAYER;
+
+					// return as the currently active player
+					for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+					{
+						CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)i);
+						if (kCurrentPlayer.isAlive() && kCurrentPlayer.isTurnActive())
+						{
+							eReturnPlayer = (PlayerTypes)i;
+							break;
+						}
+					}
+
+					if (eReturnPlayer != NO_PLAYER)
+					{
+						setAIAutoPlay(0, eReturnPlayer);
+
+						// Reset observer slot
+						CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
+						CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+
+						CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
+						CvPreGame::VerifyHandicap(eReturnPlayer);
+						GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					}
+				}
+				else
+				{
+					// enter observer mode
+					setAIAutoPlay(getMaxTurns(), eActivePlayer);
+				}
+			}
+		}
+		break;
+	}
+
+	case CONTROL_TOGGLE_AI_TAKEOVER:
+	{
+		if (!(isNetworkMultiPlayer()))	// SP only!
+		{
+			if (!GET_PLAYER(getActivePlayer()).isObserver())
+			{
+				// if we're not in observer mode, we set ObserverUIOverridePlayer to the active player and enter observer mode
+				setObserverUIOverridePlayer(GC.getGame().getActivePlayer());
+				setAIAutoPlay(getMaxTurns(), GC.getGame().getActivePlayer());
+			}
+			else
+			{				
+				// if in observer mode, we give control back to the original player
+				if (getObserverUIOverridePlayer() != NO_PLAYER)
+				{
+					PlayerTypes eReturnPlayer = getObserverUIOverridePlayer();
+					setAIAutoPlay(0, eReturnPlayer);
+					setObserverUIOverridePlayer(NO_PLAYER);
+
+					// Reset observer slot
+					CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
+					CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+
+					CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
+					CvPreGame::VerifyHandicap(eReturnPlayer);
+					GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+				}
+			}
+		}
+	}
+	break;
+
+	case CONTROL_SWITCH_TO_NEXT_PLAYER:
+	{
+		// give the human control over the next AI player
+		if (!(isNetworkMultiPlayer()))	// SP only!
+		{
+			PlayerTypes eActivePlayer = getActivePlayer();
+			// only allowed if it's a human player's turn
+			if (GET_PLAYER(eActivePlayer).isTurnActive() && !GET_PLAYER(eActivePlayer).isObserver())
+			{
+				PlayerTypes eNextPlayer = NO_PLAYER;
+				for (int iJ = (GET_PLAYER(eActivePlayer).GetID() + 1); iJ < MAX_PLAYERS; iJ++)
+				{
+					CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
+					if (kLoopPlayer.isAlive() && kLoopPlayer.isMajorCiv())
+					{
+						eNextPlayer = (PlayerTypes)iJ;
+						break;
+					}
+				}
+				if (eNextPlayer == NO_PLAYER)
+				{
+					for (int iJ = 0; iJ < GET_PLAYER(eActivePlayer).GetID(); iJ++)
+					{
+						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
+						if (kLoopPlayer.isAlive() && kLoopPlayer.isMajorCiv())
+						{
+							eNextPlayer = (PlayerTypes)iJ;
+							break;
+						}
+					}
+				}
+				if (eNextPlayer != NO_PLAYER)
+				{
+					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+					CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
+					CvPreGame::setSlotStatus(eNextPlayer, SS_TAKEN);
+					CvPreGame::VerifyHandicap(eNextPlayer);
+					GC.getGame().setActivePlayer(eNextPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+				}
+			}
+		}
+	}
+	break;
 
 	case CONTROL_QUICK_SAVE:
 		if(!(isNetworkMultiPlayer()))	// SP only!
@@ -5219,12 +5347,8 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 				{
 					// Set current active player to a computer player
 					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
-
-					// Move the active player to the observer slot
+					CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
 					iObserver = iI;
-					CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
-					setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
-
 					break;
 				}
 			}
@@ -5242,30 +5366,50 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 						GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
 						//make sure the team flags are set correctly 
 						GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
-						//make sure the new player can see everything
-						SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
-
 						// Set current active player to a computer player
 						CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+						CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
 
 						// Move the active player to the observer slot
 						iObserver = iI;
-						CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
-						setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+						break;
 					}
 				}
 			}
 
-			//if we didn't find a slot, replace the active player
-			//don't know if that makes sense ...
+			//we didn't find a slot...
 			if (iObserver==NO_PLAYER)
 			{
-				GET_PLAYER(getActivePlayer()).killUnits();
-				GET_PLAYER(getActivePlayer()).killCities();
-				//make sure the new player can see everything
-				SetAllPlotsVisible( GET_PLAYER(getActivePlayer()).getTeam() );
-				CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+				m_iAIAutoPlay = 0;
+				return;
 			}
+
+			if (getObserverUIOverridePlayer() == NO_PLAYER)
+			{
+				SetAllPlotsVisible(GET_PLAYER((PlayerTypes)iObserver).getTeam());
+			}
+			else
+			{
+				// for all plots we have to copy visibility/revealed status from the team of eTurnActivePlayer to the team of getActivePlayer
+				TeamTypes eObserverTeam = GET_PLAYER((PlayerTypes)iObserver).getTeam();
+				TeamTypes ePlayerTeam = GET_PLAYER(getObserverUIOverridePlayer()).getTeam();
+				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
+				for (int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
+				{
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
+					pLoopPlot->changeVisibilityCount(eObserverTeam, pLoopPlot->getVisibilityCount(ePlayerTeam) - pLoopPlot->getVisibilityCount(eObserverTeam), NO_INVISIBLE, true, false);
+					pLoopPlot->flipVisibility(eObserverTeam);
+					pLoopPlot->changeInvisibleVisibilityCountUnit(eObserverTeam, pLoopPlot->getInvisibleVisibilityCountUnit(ePlayerTeam) - pLoopPlot->getInvisibleVisibilityCountUnit(eObserverTeam));
+					for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
+					{
+						pLoopPlot->changeInvisibleVisibilityCount(eObserverTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(ePlayerTeam, ((InvisibleTypes)iJ)) - pLoopPlot->getInvisibleVisibilityCount(eObserverTeam, ((InvisibleTypes)iJ)));
+					}
+					pLoopPlot->setRevealed(eObserverTeam, pLoopPlot->isRevealed(ePlayerTeam));
+				}
+			}
+
+			CvPreGame::setSlotClaim((PlayerTypes)iObserver, SLOTCLAIM_ASSIGNED);
+			setActivePlayer((PlayerTypes)iObserver, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 		}
 	}
 }
@@ -6076,6 +6220,16 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 			theUI->setDirty(BlockadedPlots_DIRTY_BIT, true);
 		}
 	}
+}
+
+PlayerTypes CvGame::getObserverUIOverridePlayer() const
+{
+	return m_eObserverUIOverridePlayer;
+}
+
+void CvGame::setObserverUIOverridePlayer(PlayerTypes ePlayer)
+{
+	m_eObserverUIOverridePlayer = ePlayer;
 }
 
 //	--------------------------------------------------------------------------------

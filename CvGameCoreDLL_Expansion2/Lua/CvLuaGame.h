@@ -173,6 +173,8 @@ protected:
 
 	static int lGetActivePlayer(lua_State* L);
 	static int lSetActivePlayer(lua_State* L);
+	static int lGetObserverUIOverridePlayer(lua_State* L);
+	static int lSetObserverUIOverridePlayer(lua_State* L);
 	static int lGetPausePlayer(lua_State* L);
 	static int lSetPausePlayer(lua_State* L);
 	static int lIsPaused(lua_State* L);

@@ -3069,7 +3069,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		else
 		{
 			if (activePlayer.isObserver() ||
-				(activePlayer.isAlive() &&
+				(activePlayer.isAlive() && 
 					pCity->isRevealed(activePlayer.getTeam(), false, false) &&
 					GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) &&
 					GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
@@ -14182,9 +14182,28 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		}
 	}
 
-	if(!strBuffer.empty() && GC.getGame().getActivePlayer() == GetID())
+	if (!strBuffer.empty())
 	{
-		GC.GetEngineUserInterface()->AddPlotMessage(0, pPlot->GetPlotIndex(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+		if (GC.getGame().getActivePlayer() == GetID())
+		{
+			GC.GetEngineUserInterface()->AddPlotMessage(0, pPlot->GetPlotIndex(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+		}
+		// in observer mode without quick movement, show a notification
+		else if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && !CvPreGame::quickMovement())
+		{
+			if (GC.getGame().getObserverUIOverridePlayer() == NO_PLAYER || GC.getGame().getObserverUIOverridePlayer() == GetID())
+			{
+				CvNotifications* pNotify = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
+				if (pNotify)
+				{
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_MISC_OTHER_RECEIVED_GOODY");
+					strNotification << getCivilizationShortDescriptionKey();
+					strNotification << strBuffer.c_str();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_OTHER_RECEIVED_GOODY_S");
+					pNotify->Add(NOTIFICATION_GOODY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+			}
+		}
 	}
 
 	// If it's the active player then show the popup
@@ -34567,6 +34586,19 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
 			setEndTurn(false);
+
+			if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && !CvPreGame::quickMovement())
+			{
+				// in observer mode without quick movement, move the camera to the plot of the the capital on turn start
+				if (GC.getGame().getObserverUIOverridePlayer() == NO_PLAYER)
+				{
+					if (getCapitalCity())
+					{
+						CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(getCapitalCity()->plot());
+						GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+					}
+				}
+			}
 
 			DoUnitAttrition();
 

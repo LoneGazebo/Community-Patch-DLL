@@ -1221,6 +1221,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(CONTROL_ESPIONAGE_OVERVIEW);
 	RegisterEnum(CONTROL_RELIGION_OVERVIEW);
 	RegisterEnum(CONTROL_RESTART_GAME);
+	RegisterEnum(CONTROL_TOGGLE_OBSERVER_MODE);
+	RegisterEnum(CONTROL_TOGGLE_AI_TAKEOVER);
+	RegisterEnum(CONTROL_SWITCH_TO_NEXT_PLAYER);
 	EnumEnd(L);
 
 	// TradeConnectionTypes

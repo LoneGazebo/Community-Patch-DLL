@@ -324,6 +324,8 @@ public:
 
 	PlayerTypes getActivePlayer() const;
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
+	PlayerTypes getObserverUIOverridePlayer() const;
+	void setObserverUIOverridePlayer(PlayerTypes ePlayer);
 
 	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
@@ -898,6 +900,7 @@ protected:
 	bool m_bTunerEverConnected;
 	bool m_bDynamicTurnsSimultMode;		//if playing dynamic turn mode, are we currently running simultaneous turns?
 	bool m_bIsDesynced; // whether the game was desynced or not as a result of the very last sync
+	PlayerTypes m_eObserverUIOverridePlayer;
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
 

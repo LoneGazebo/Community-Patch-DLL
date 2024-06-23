@@ -8075,6 +8075,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_MODIFIER">
 			<Text>[ICON_CULTURE] Culture: +{1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_OTHER_RECEIVED_GOODY">
+			<Text>{1_Civ:textkey} {@1_CivName: plural 1?has; other?have;} received rewards from Ancient Ruins: {@2_Reward}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_OTHER_RECEIVED_GOODY_S">
+			<Text>Bonus from Ancient Ruins</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">
