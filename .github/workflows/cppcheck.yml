@@ -31,7 +31,7 @@ jobs:
           # sudo apt-get --yes install cppcheck
           # cppcheck --version
 
-      - name: Build cppcheck 2.14.1 # https://stackoverflow.com/a/72307265
+      - name: Build cppcheck 2.14.2 # https://stackoverflow.com/a/72307265
         run: |
           cd /tmp
           git clone https://github.com/danmar/cppcheck.git
@@ -87,7 +87,7 @@ jobs:
       - name: Make build-dir # Cppcheck work folder
         run: mkdir build-dir
 
-      - name: Build cppcheck 2.14.1 # https://stackoverflow.com/a/72307265
+      - name: Build cppcheck 2.14.2 # https://stackoverflow.com/a/72307265
         run: |
           cd /tmp
           git clone https://github.com/danmar/cppcheck.git
