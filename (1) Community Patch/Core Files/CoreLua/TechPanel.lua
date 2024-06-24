@@ -54,6 +54,17 @@ Controls.BigTechButton:RegisterCallback( Mouse.eRClick, OnTechnologyButtonRClick
 function OnTechPanelUpdated()
 	
 	if g_activePlayerObserver < 0 then
+		researchStatus = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
+		
+		Controls.ActiveStyle:SetHide( true );
+		--Controls.ResearchLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH" )  );
+		Controls.ActiveStyle:SetToolTipString( helpTT );
+		Controls.TechButton:SetToolTipString( helpTT );
+		Controls.BigTechButton:SetToolTipString( helpTT );
+		Controls.ResearchMeter:SetPercents( 0, 0 );
+		Controls.TechIcon:SetHide( true );
+		Controls.TechText:SetText("");
+		Controls.FinishedTechText:SetText("");
 		return
 	end
 	
@@ -214,10 +225,12 @@ Events.SerialEventGameMessagePopup.Add( OnPopup );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function UpdatePlayerData()
-	local playerID = g_activePlayerObserver;	
-	local player = Players[playerID];
-	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
-	GatherInfoAboutUniqueStuff( civType );
+	local playerID = g_activePlayerObserver;
+	if playerID > -1 then
+		local player = Players[playerID];
+		local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+		GatherInfoAboutUniqueStuff( civType );
+	end
 end
 
 ----------------------------------------------------------------
@@ -230,6 +243,7 @@ function OnTechPanelActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 end
 
 function OnAIPlayerChanged(iPlayerID, szTag)
+	local oldActivePlayerObserver = g_activePlayerObserver;
 	local player = Players[Game.GetActivePlayer()];
 	if player:IsObserver() then
 		if (Game:GetObserverUIOverridePlayer() > -1) then
@@ -237,10 +251,12 @@ function OnAIPlayerChanged(iPlayerID, szTag)
 		else
 			g_activePlayerObserver = Players[iPlayerID]:IsMajorCiv() and iPlayerID or -1;
 		end
-		if g_activePlayerObserver > -1 then
-			UpdatePlayerData();    
-			OnTechPanelUpdated();
-		end
+	else
+		g_activePlayerObserver = Game.GetActivePlayer();
+	end
+	if g_activePlayerObserver ~= oldActivePlayerObserver then
+		UpdatePlayerData();    
+		OnTechPanelUpdated();
 	end
 end
 Events.GameplaySetActivePlayer.Add(OnTechPanelActivePlayerChanged);

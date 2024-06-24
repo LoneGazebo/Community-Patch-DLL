@@ -764,7 +764,11 @@ function OnCityCreated( hexPos, playerID, cityID, cultureType, eraType, continen
     local gridPosX, gridPosY = ToGridFromHex( hexPos.x, hexPos.y );
 
 	local isActiveType = false;
-	if(iActiveTeam ~= team and PreGame.GetSlotStatus( Game.GetActivePlayer() ) ~= SlotStatus.SS_OBSERVER) then
+	if(iActiveTeam == team or (PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER and (Game:GetObserverUIOverridePlayer() == -1 or Players[Game:GetObserverUIOverridePlayer()]:GetTeam() == team))) then
+		isActiveType = true;
+	end
+	
+	if(isActiveType == false) then
 	    controlTable = g_OtherIM:GetInstance();
 	    controlTable.BannerButton:RegisterCallback( Mouse.eLClick, OnBannerClick );
 	    controlTable.BannerButton:SetVoid1( gridPosX );
@@ -790,7 +794,6 @@ function OnCityCreated( hexPos, playerID, cityID, cultureType, eraType, continen
 		svStrikeButton.CityRangeStrikeButton:SetVoid2(cityID);
 
 		SVInstances[playerID][cityID] = svStrikeButton;
-		isActiveType = true;
 	end
 
 	local cityBanner = {

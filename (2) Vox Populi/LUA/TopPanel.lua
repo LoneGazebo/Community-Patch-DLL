@@ -1483,7 +1483,7 @@ function FaithTipHandler( control )
 		if (Game.GetNumReligionsStillToFound(false, g_activePlayerObserver) < 0) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", 0);
 		else
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, g_activePlayer));
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, g_activePlayerObserver));
 		end
 		
 		if (pPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then

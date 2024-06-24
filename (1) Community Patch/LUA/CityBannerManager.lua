@@ -202,8 +202,10 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		elseif (player:IsMinorCiv()) then
 			local strStatusTT = GetCityStateStatusToolTip(iActivePlayer, cityBanner.playerID, false);
 			strToolTip = strToolTip .. strStatusTT;	
-			controls.StatusIconBG:SetToolTipString(strStatusTT);
-			controls.StatusIcon:SetToolTipString(strStatusTT);
+			if(PreGame.GetSlotStatus( Game.GetActivePlayer() ) ~= SlotStatus.SS_OBSERVER) then
+				controls.StatusIconBG:SetToolTipString(strStatusTT);
+				controls.StatusIcon:SetToolTipString(strStatusTT);
+			end
 		elseif (not Teams[Game.GetActiveTeam()]:IsHasMet(player:GetTeam())) then
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_HAVENT_MET");
 		else
@@ -609,7 +611,11 @@ function OnCityCreated( hexPos, playerID, cityID, cultureType, eraType, continen
     local gridPosX, gridPosY = ToGridFromHex( hexPos.x, hexPos.y );
 		
 	local isActiveType = false;
-	if(iActiveTeam ~= team) then
+	if(iActiveTeam == team or (PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER and (Game:GetObserverUIOverridePlayer() == -1 or Players[Game:GetObserverUIOverridePlayer()]:GetTeam() == team))) then
+		isActiveType = true;
+	end
+
+	if(isActiveType == false) then
 	    controlTable = g_OtherIM:GetInstance();
 	    controlTable.BannerButton:RegisterCallback( Mouse.eLClick, OnBannerClick );
 	    controlTable.BannerButton:SetVoid1( gridPosX );
@@ -635,7 +641,6 @@ function OnCityCreated( hexPos, playerID, cityID, cultureType, eraType, continen
 		svStrikeButton.CityRangeStrikeButton:SetVoid2(cityID);
 				
 		SVInstances[playerID][cityID] = svStrikeButton;
-		isActiveType = true;
 	end
 	
 	local cityBanner = {
@@ -674,7 +679,14 @@ function CheckCityBannerRebuild( instance, iActiveTeam, iActivePlayer )
 	local cityTeam = Players[instance.playerID]:GetTeam();		
 	
     -- If the city banner was instanced for the active team and now its not or vice versa, rebuild the banner
-	local bWantActive = cityTeam == iActiveTeam;	
+	local bWantActive = cityTeam == iActiveTeam;
+	if Players[iActivePlayer]:IsObserver() then
+		if Game:GetObserverUIOverridePlayer() == -1 then
+			bWantActive = true;
+		else
+			bWantActive = cityTeam == Players[Game:GetObserverUIOverridePlayer()]:GetTeam();
+		end
+	end	
 	if (instance.IsActiveType ~= bWantActive) then
 		-- rebuild the banner
 		local controlTable = {};
