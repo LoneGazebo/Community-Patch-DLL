@@ -16777,7 +16777,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
 	{
 		BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pBuildingInfo->GetFreeBuildingClass());
-		changeFreeBuildingCount(eFreeBuilding, iChange);
+		CvBuildingEntry* pFreeBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
+		if (pFreeBuildingInfo)
+			changeFreeBuildingCount(eFreeBuilding, iChange);
 	}
 
 	// Unit upgrade cost mod
@@ -40542,7 +40544,8 @@ void CvPlayer::changeFreeBuildingCount(BuildingTypes eIndex, int iChange)
 
 			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eIndex, 1);
+				if (pLoopCity->isValidBuildingLocation(eIndex)) // Don't create coastal buildings in inland cities, etc.
+					pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eIndex, 1);
 			}
 		}
 		else if(getFreeBuildingCount(eIndex) == 0)
