@@ -2416,7 +2416,7 @@ int CvBuildingEntry::GetSpySecurityModifier() const
 	return m_iSpySecurityModifier;
 }
 
-/// Modifier to Security against espionage per ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER population
+/// Modifier to Security against espionage based on ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER
 int CvBuildingEntry::GetSpySecurityModifierPerXPop() const
 {
 	return m_iSpySecurityModifierPerXPop;

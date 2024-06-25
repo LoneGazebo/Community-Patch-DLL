@@ -25725,7 +25725,7 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 
 	// Local Buildings
 	iTempMod = GetSpySecurityModifier();
-	iTempMod += GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) != 0 ? getPopulation() * GetSpySecurityModifierPerXPop() / /*2*/ GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) : 0;
+	iTempMod += GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) != 0 ? getPopulation() * GetSpySecurityModifierPerXPop() / /*360*/ GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER) : 0;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_BUILDINGS_TT", iTempMod);
 	iCitySecurity += iTempMod;
 

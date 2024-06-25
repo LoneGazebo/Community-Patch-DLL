@@ -1301,12 +1301,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
-			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
-				return false;
-
 			// Vassalage is disabled
 			if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
 				return false;
 
 			// Must be able to end all vassals
