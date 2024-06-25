@@ -1176,7 +1176,7 @@ UPDATE Buildings
 SET
 	EspionageModifier = 0,
 	SpySecurityModifier = 20,
-	SpySecurityModifierPerXPop = 1,
+	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1186,7 +1186,7 @@ SET
 	PrereqTech = 'TECH_ELECTRONICS',
 	EspionageModifier = 0,
 	SpySecurityModifier = 10,
-	SpySecurityModifierPerXPop = 1,
+	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
 	DistressFlatReduction = 1,
 	PovertyFlatReduction = 1,
 	IlliteracyFlatReduction = 1,
