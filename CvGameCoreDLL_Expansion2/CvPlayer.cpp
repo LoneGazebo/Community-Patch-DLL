@@ -44735,9 +44735,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						continue;
 
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+					if (!pUnitEntry)
+						continue;
 
 					// No settling units for One City Challenge
-					if (isHuman() && pUnitEntry != NULL && pUnitEntry->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman() && pUnitEntry->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					// For Venice, replace any spawned settling unit with Merchant of Venice

@@ -34877,14 +34877,30 @@ int CvCity::GetVassalLevyEra() const
 // Spawn one eUnit on city plot (moved to nearest valid plot)
 void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 {
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	ASSERT(pkUnitInfo);
+
 	// Great Prophet goes the other path for proper initialization and popup notification
-	if (GC.getUnitInfo(eUnit)->IsFoundReligion())
+	if (pkUnitInfo->IsFoundReligion())
 	{
 		GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, MOD_GLOBAL_TRULY_FREE_GP);
 		return;
 	}
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	// Free non-Prophet religious units (from buildings and policies) take on the state religion. If no state religion, use the city's religion.
+	ReligionTypes eReligion = NO_RELIGION;
+	if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+	{
+		eReligion = kPlayer.GetReligions()->GetStateReligion(false);
+		if (eReligion == NO_RELIGION)
+			eReligion = GetCityReligions()->GetReligiousMajority();
+
+		if (eReligion == NO_RELIGION || eReligion == RELIGION_PANTHEON)
+			return;
+	}
+
 	CvUnit* pFreeUnit = kPlayer.initUnit(eUnit, getX(), getY());
 
 	if (pFreeUnit->isTrade())
@@ -34912,6 +34928,10 @@ void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 		pFreeUnit->kill(false);
 		return;
 	}
+
+	// Set up religious units properly
+	if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+		pFreeUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(), pFreeUnit->getUnitInfo(), eReligion);
 
 	pFreeUnit->DoGreatPersonSpawnBonus(this);
 	addProductionExperience(pFreeUnit);
