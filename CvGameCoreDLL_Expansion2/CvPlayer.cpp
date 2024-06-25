@@ -34605,8 +34605,19 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			if (MOD_CORE_DELAYED_VISIBILITY)
 			{
 				// Force update in case one of our units was killed or moved
+				TeamTypes eTeam = getTeam();
 				for (int iI = 0; iI < theMap.numPlots(); iI++)
-					theMap.plotByIndexUnchecked(iI)->flipVisibility(getTeam());
+					theMap.plotByIndexUnchecked(iI)->flipVisibility(eTeam);
+
+				// also update observer
+				if (GET_PLAYER(kGame.getActivePlayer()).isObserver() && kGame.getObserverUIOverridePlayer() == m_eID)
+				{
+					TeamTypes eObserverTeam = GET_PLAYER(kGame.getActivePlayer()).getTeam();
+					for (int iI = 0; iI < theMap.numPlots(); iI++)
+					{
+						theMap.plotByIndexUnchecked(iI)->flipVisibility(eObserverTeam);
+					}
+				}
 			}
 
 			if(kGame.getActivePlayer() == m_eID)
