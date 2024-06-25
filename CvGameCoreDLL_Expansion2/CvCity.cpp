@@ -34893,6 +34893,9 @@ void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 	ReligionTypes eReligion = NO_RELIGION;
 	if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return;
+
 		eReligion = kPlayer.GetReligions()->GetStateReligion(false);
 		if (eReligion == NO_RELIGION)
 			eReligion = GetCityReligions()->GetReligiousMajority();

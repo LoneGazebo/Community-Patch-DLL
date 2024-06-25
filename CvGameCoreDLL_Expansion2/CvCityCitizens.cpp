@@ -3215,6 +3215,9 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 {
 	CvAssert(eUnit != NO_UNIT);
 
+	if (GC.getUnitInfo(eUnit)->IsFoundReligion() && GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+		return;
+
 	// Not a great person
 	if (GC.getUnitInfo(eUnit)->GetSpecialUnitType() != static_cast<SpecialUnitTypes>(GC.getInfoTypeForString("SPECIALUNIT_PEOPLE")))
 		return;
