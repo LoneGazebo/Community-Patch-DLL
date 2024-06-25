@@ -3,10 +3,11 @@ print("This is the modded TopPanel from CBP- CSD")
 -- TopPanel.lua
 -------------------------------
 
+local g_activePlayerObserver = Game.GetActivePlayer();
+
 function UpdateData()
 
-	local iPlayerID = Game.GetActivePlayer();
-
+	local iPlayerID = g_activePlayerObserver;
 	if( iPlayerID >= 0 ) then
 		local pPlayer = Players[iPlayerID];
 		local pTeam = Teams[pPlayer:GetTeam()];
@@ -295,6 +296,8 @@ function UpdateData()
 		end
 		
 		Controls.CurrentDate:SetText(date);
+	else
+		Controls.TopPanelInfoStack:SetHide(true);
 	end
 end
 
@@ -335,8 +338,9 @@ Controls.MenuButton:RegisterCallback( Mouse.eLClick, OnMenu );
 -------------------------------------------------
 -------------------------------------------------
 function OnCultureClicked()
-	
-	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY } );
+
+	local isObserver = Players[Game.GetActivePlayer()]:IsObserver();
+	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY, Data3 = isObserver and 1 or 0, Data4 = g_activePlayerObserver } );
 
 end
 Controls.CultureString:RegisterCallback( Mouse.eLClick, OnCultureClicked );
@@ -345,8 +349,9 @@ Controls.CultureString:RegisterCallback( Mouse.eLClick, OnCultureClicked );
 -------------------------------------------------
 -------------------------------------------------
 function OnTechClicked()
-	
-	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_TECH_TREE, Data2 = -1} );
+
+	local isObserver = Players[Game.GetActivePlayer()]:IsObserver();
+	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_TECH_TREE, Data2 = -1, Data4 = isObserver and 1 or 0, Data5 = g_activePlayerObserver} );
 
 end
 Controls.SciencePerTurn:RegisterCallback( Mouse.eLClick, OnTechClicked );
@@ -432,7 +437,7 @@ function ScienceTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_SCIENCE_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
@@ -665,7 +670,7 @@ end
 function GoldTipHandler( control )
 
 	local strText = "";
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
@@ -842,7 +847,7 @@ end
 function HappinessTipHandler( control )
 
 	local strText = "";
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS) or not pPlayer:IsAlive()) then
@@ -1037,7 +1042,7 @@ end
 function GoldenAgeTipHandler( control )
 
 	local strText = "";
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS) or not pPlayer:IsAlive()) then
@@ -1121,7 +1126,7 @@ function CultureTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
     
 	    local iTurns;
@@ -1353,7 +1358,7 @@ end
 -- Tourism Tooltip
 function TourismTipHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	local iTotalGreatWorks = pPlayer:GetNumGreatWorks();
@@ -1392,7 +1397,7 @@ function FaithTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 
 	    if (pPlayer:IsAnarchy()) then
@@ -1457,7 +1462,7 @@ function FaithTipHandler( control )
 		strText = strText .. "[NEWLINE]";
 
 		if (pPlayer:HasCreatedPantheon()) then
-			if (Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) > 0 or pPlayer:OwnsReligion()) then
+			if (Game.GetNumReligionsStillToFound(false, g_activePlayerObserver) > 0 or pPlayer:OwnsReligion()) then
 				if (pPlayer:GetCurrentEra() < GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
 					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_NEXT_PROPHET", pPlayer:GetMinimumFaithNextGreatProphet());
 					strText = strText .. "[NEWLINE]";
@@ -1475,10 +1480,10 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 		end
 
-		if (Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) < 0) then
+		if (Game.GetNumReligionsStillToFound(false, g_activePlayerObserver) < 0) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", 0);
 		else
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()));
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, g_activePlayerObserver));
 		end
 		
 		if (pPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
@@ -1520,7 +1525,7 @@ end
 function UnitSupplyHandler(control)
 
 	local strUnitSupplyToolTip = "";
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 
 	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
@@ -1580,7 +1585,7 @@ end
 
 function InstantYieldHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 
 	local strInstantYieldToolTip = pPlayer:GetInstantYieldHistoryTooltip(10);
@@ -1599,7 +1604,7 @@ end
 -- Spy Points Tooptip (hidden for now)
 --[[function SpyPointsTipHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	local strSpiesStr;
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
@@ -1623,7 +1628,7 @@ end]]
 function ResourcesTipHandler( control )
 
 	local strText;
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
@@ -1690,7 +1695,7 @@ end
 -- International Trade Route Tooltip
 function InternationalTradeRoutesTipHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	local strTT = "";
@@ -1764,8 +1769,30 @@ Controls.HappinessString:RegisterCallback( Mouse.eLClick, OpenEcon );
 	--Controls.HelpTextBox:SetHide( true );
 --end
 
+function OnAIPlayerChanged(iPlayerID, szTag)
+	local oldActivePlayerObserver = g_activePlayerObserver;
+	local player = Players[Game.GetActivePlayer()];
+	if player:IsObserver() then
+		if (Game:GetObserverUIOverridePlayer() > -1) then
+			g_activePlayerObserver = Game:GetObserverUIOverridePlayer()
+		else
+			g_activePlayerObserver = Players[iPlayerID]:IsMajorCiv() and iPlayerID or -1;
+		end
+	else
+		g_activePlayerObserver = Game.GetActivePlayer();
+	end
+	if g_activePlayerObserver ~= oldActivePlayerObserver then
+		UpdateData()
+	end
+end
+
+function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
+	g_activePlayer = iActivePlayer;
+end
 
 -- Register Events
+Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);
+Events.AIProcessingStartedForPlayer.Add(OnAIPlayerChanged);
 Events.SerialEventGameDataDirty.Add(OnTopPanelDirty);
 Events.SerialEventTurnTimerDirty.Add(OnTopPanelDirty);
 Events.SerialEventCityInfoDirty.Add(OnTopPanelDirty);

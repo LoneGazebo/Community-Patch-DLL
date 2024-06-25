@@ -837,7 +837,8 @@ local function OnBannerClick( plotIndex )
 			UI.DoSelectCityAtPlot( plot )
 
 		-- Observers get to look at anything
-		elseif Game.IsDebugMode() or g_activePlayer:IsObserver() then
+		elseif Game.IsDebugMode() or (g_activePlayer:IsObserver() and 
+			Game:GetObserverUIOverridePlayer() == -1) then
 			UI.SelectCity( city )
 			UI.LookAt( plot )
 			UI.SetCityScreenUp( true )
@@ -972,7 +973,7 @@ local function RefreshCityBannersNow()
 --		return
 --	end
 	ContextPtr:ClearUpdate()
-	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
+	local isDebug = Game.IsDebugMode() or (g_activePlayer:IsObserver() and Game:GetObserverUIOverridePlayer() == -1)
 	------------------------------
 	-- Loop all dirty city banners
 	local bUpdated = false;
@@ -984,8 +985,8 @@ local function RefreshCityBannersNow()
 		if city then
 			local cityOwnerID = city:GetOwner()
 			local cityOwner = Players[ cityOwnerID ]
-			local isActiveType = isDebug or city:GetTeam() == g_activeTeamID
-			local isActivePlayerCity = cityOwnerID == g_activePlayerID
+			local isActiveType = isDebug or city:GetTeam() == g_activeTeamID or (g_activePlayer:IsObserver() and Game:GetObserverUIOverridePlayer() == cityOwnerID)
+			local isActivePlayerCity = (cityOwnerID == g_activePlayerID) or (g_activePlayer:IsObserver() and Game:GetObserverUIOverridePlayer() == cityOwnerID)
 
 			-- Incompatible banner type ? Destroy !
 			if instance and isActiveType ~= instance[1] then
@@ -1742,7 +1743,7 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID, previousActivePlay
 	g_activeTeamID = Game.GetActiveTeam()
 	g_activeTeam = Teams[ g_activeTeamID ]
 	ClearHexHighlights()
-	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
+	local isDebug = Game.IsDebugMode() or (g_activePlayer:IsObserver() and Game:GetObserverUIOverridePlayer() == -1)
 	-- Update all city banners
 	for playerID = 0, #Players do
 		local player = Players[ playerID ]
@@ -1752,7 +1753,7 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID, previousActivePlay
 				local isRevealed = plot:IsRevealed( g_activeTeamID, true )
 				local plotIndex = plot:GetPlotIndex()
 				local instance = g_cityBanners[ plotIndex ]
-				local isActiveType = isDebug or city:GetTeam() == g_activeTeamID
+				local isActiveType = isDebug or city:GetTeam() == g_activeTeamID or (g_activePlayer:IsObserver() and Game:GetObserverUIOverridePlayer() == player)
 
 				-- If city banner is hidden or type no longer matches, destroy the banner
 				if instance and not(isRevealed and isActiveType == instance[1]) then

@@ -128,6 +128,7 @@
     <File md5="F8C4EA5F5115D338290C136AB27F5505" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
+    <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/Controls.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
     <File md5="6D3ED0847A027D5DC6D237B9251D7F70" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
     <File md5="7C30CC1DF34775CEBEFEBCD73697630A" import="0">Core Files/Core Values/New_CIV5AICityStrategies.xml</File>
@@ -183,6 +184,7 @@
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/CoreLua/SaveMenu.lua</File>
     <File md5="FB5ADB053B50EFAC805CCB9EE0425137" import="1">Core Files/CoreLua/SaveMenu.xml</File>
     <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/CoreLua/StagingRoom.lua</File>
+    <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/CoreLua/TechPanel.lua</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/CoreLua/WorldView.lua</File>
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Core Files/CoreLua/GlobalCityBombardRange.lua</File>
     <File md5="8335771F2F933D06C126C246A481A978" import="0">Core Files/PNM Mods DB/API/Achievements.xml</File>
@@ -636,6 +638,7 @@
       <UpdateDatabase>Core Files/Core Changes/SaneTerrain.sql</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Values/MinorCivQuestRewards.xml</UpdateDatabase>
       <UpdateDatabase>Core Files/Core Values/DummyTrigger.sql</UpdateDatabase>
+      <UpdateDatabase>Core Files/Core Values/Controls.sql</UpdateDatabase>
       <UpdateDatabase>Core Files/Text/CoreText_en_US.sql</UpdateDatabase>
       <UpdateDatabase>Core Files/Text/CoreText_en_US.xml</UpdateDatabase>
       <UpdateDatabase>Core Files/PNM Mods DB/PROMOTIONS/DeepWater.xml</UpdateDatabase>

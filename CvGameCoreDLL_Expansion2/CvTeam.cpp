@@ -4084,7 +4084,27 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (isObserver())
-		return true;
+	{
+		if (GC.getGame().getObserverUIOverridePlayer() == NO_PLAYER)
+		{
+			return true;
+		}
+		else
+		{
+			return GET_TEAM(GET_PLAYER(GC.getGame().getObserverUIOverridePlayer()).getTeam()).isHasMet(eIndex);
+		}
+	}
+	else if (GET_TEAM(eIndex).isObserver())
+	{
+		if (GC.getGame().getObserverUIOverridePlayer() == NO_PLAYER)
+		{
+			return true;
+		}
+		else
+		{
+			return GET_TEAM(GET_PLAYER(GC.getGame().getObserverUIOverridePlayer()).getTeam()).isHasMet(GetID());
+		}
+	}
 
 	return m_abHasMet[eIndex];
 }

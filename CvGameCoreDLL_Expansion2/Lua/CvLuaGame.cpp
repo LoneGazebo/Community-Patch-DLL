@@ -192,6 +192,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetActivePlayer);
 	Method(SetActivePlayer);
+	Method(GetObserverUIOverridePlayer);
+	Method(SetObserverUIOverridePlayer);
 	Method(GetPausePlayer);
 	Method(SetPausePlayer);
 	Method(IsPaused);
@@ -1335,6 +1337,18 @@ int CvLuaGame::lGetActivePlayer(lua_State* L)
 int CvLuaGame::lSetActivePlayer(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::setActivePlayer);
+}
+//------------------------------------------------------------------------------
+//PlayerTypes getActivePlayerUI();
+int CvLuaGame::lGetObserverUIOverridePlayer(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::getObserverUIOverridePlayer);
+}
+//------------------------------------------------------------------------------
+//PlayerTypes setObserverUIOverridePlayer();
+int CvLuaGame::lSetObserverUIOverridePlayer(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::setObserverUIOverridePlayer);
 }
 //------------------------------------------------------------------------------
 //int getPausePlayer();

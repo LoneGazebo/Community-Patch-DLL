@@ -2,9 +2,11 @@
 -- TopPanel.lua
 -------------------------------
 
+local g_activePlayerObserver = Game.GetActivePlayer();
+
 function UpdateData()
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 
 	if( iPlayerID >= 0 ) then
 		local pPlayer = Players[iPlayerID];
@@ -263,6 +265,8 @@ function UpdateData()
 		end
 		
 		Controls.CurrentDate:SetText(date);
+	else
+		Controls.TopPanelInfoStack:SetHide(true);
 	end
 end
 
@@ -386,7 +390,7 @@ function ScienceTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_SCIENCE_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
@@ -511,7 +515,7 @@ end
 function GoldTipHandler( control )
 
 	local strText = "";
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
@@ -610,7 +614,7 @@ function HappinessTipHandler( control )
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
 	else
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
@@ -821,7 +825,7 @@ function GoldenAgeTipHandler( control )
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
 	else
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
@@ -877,7 +881,7 @@ function CultureTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
     
 	    local iTurns;
@@ -1049,7 +1053,7 @@ end
 -- Tourism Tooltip
 function TourismTipHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	local iTotalGreatWorks = pPlayer:GetNumGreatWorks();
@@ -1088,7 +1092,7 @@ function FaithTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP");
 	else
 	
-		local iPlayerID = Game.GetActivePlayer();
+		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
 
 	    if (pPlayer:IsAnarchy()) then
@@ -1192,7 +1196,7 @@ end
 function ResourcesTipHandler( control )
 
 	local strText;
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
@@ -1259,7 +1263,7 @@ end
 -- International Trade Route Tooltip
 function InternationalTradeRoutesTipHandler( control )
 
-	local iPlayerID = Game.GetActivePlayer();
+	local iPlayerID = g_activePlayerObserver;
 	local pPlayer = Players[iPlayerID];
 	
 	local strTT = "";
@@ -1324,8 +1328,25 @@ end
 	--Controls.HelpTextBox:SetHide( true );
 --end
 
+function OnAIPlayerChanged(iPlayerID, szTag)
+	local player = Players[Game.GetActivePlayer()];
+	if player:IsObserver() then
+		if (Game:GetObserverUIOverridePlayer() > -1) then
+			g_activePlayerObserver = Game:GetObserverUIOverridePlayer()
+		else
+			g_activePlayerObserver = Players[iPlayerID]:IsMajorCiv() and iPlayerID or -1;
+		end
+		UpdateData()
+	end
+end
+
+function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
+	g_activePlayer = iActivePlayer;
+end
 
 -- Register Events
+Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);
+Events.AIProcessingStartedForPlayer.Add(OnAIPlayerChanged);
 Events.SerialEventGameDataDirty.Add(OnTopPanelDirty);
 Events.SerialEventTurnTimerDirty.Add(OnTopPanelDirty);
 Events.SerialEventCityInfoDirty.Add(OnTopPanelDirty);
