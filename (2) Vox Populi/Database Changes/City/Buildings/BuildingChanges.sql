@@ -385,7 +385,7 @@ SET
 	NoUnhappfromXSpecialists = 2
 WHERE BuildingClass = 'BUILDINGCLASS_HOSPITAL';
 
-INSERT INTO Building_SpecialistYieldChanges
+INSERT INTO Building_SpecialistYieldChangesLocal
 	(BuildingType, SpecialistType, YieldType, Yield)
 SELECT
 	a.Type, b.Type, 'YIELD_FOOD', 1
