@@ -2221,7 +2221,9 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	//this is stupid but we need extra code for scout healing 
 	if (pUnit->shouldHeal(true))
 	{
-		CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+		CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,true);
+		if (!pPlot)
+			pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,false);
 		if (!pPlot)
 			pPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 
@@ -3211,9 +3213,18 @@ void CvHomelandAI::ExecuteHeals()
 		if (!pUnit)
 			continue;
 
-		CvPlot* pBestPlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit,true) : TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+		//this is not optimal, ideally we would decide on a target plot and then pillage along the way if possible
+		//but it should be good enough
+		CvPlot* pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, true);
+		if (!pBestPlot)
+			pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, false);
+		if (!pBestPlot)
+			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
 		if (pBestPlot && pBestPlot!=pUnit->plot())
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+		if (pUnit->shouldPillage(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		UnitProcessed(pUnit->GetID());
@@ -4485,7 +4496,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 				//disband (captured) missionaries with the wrong religion
-				if (pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canScrap() && pUnit->GetReligionData()->GetReligion() != m_pPlayer->GetReligionAI()->GetReligionToSpread(true))
+				if (pUnit->canScrap() && pUnit->GetReligionData()->GetReligion() != m_pPlayer->GetReligionAI()->GetReligionToSpread(true))
 					pUnit->scrap();
 				else
 					UnitProcessed(pUnit->GetID());

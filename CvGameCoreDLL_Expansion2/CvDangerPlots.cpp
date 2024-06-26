@@ -207,10 +207,12 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
 
-	//units we know from last turn (maintained only for AI, humans must remember on their own)
-	UnitSet previousKnownUnits = m_knownUnits;
-	if (!bKeepKnownUnits || thisPlayer.isHuman())
-		m_knownUnits.clear();
+	//units we know from last turn are reset on turn change but not on war state change
+	if (!bKeepKnownUnits)
+		m_knownUnitsPrevTurn = m_knownUnits;
+
+	//about to be refreshed
+	m_knownUnits.clear();
 
 	// for each opposing civ
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
@@ -270,7 +272,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	}
 
 	// now compare the new known units with the previous known units
-	for (UnitSet::iterator it = previousKnownUnits.begin(); it != previousKnownUnits.end(); ++it)
+	for (UnitSet::iterator it = m_knownUnitsPrevTurn.begin(); it != m_knownUnitsPrevTurn.end(); ++it)
 	{
 		//might have made peace ...
 		if (ShouldIgnorePlayer(it->first))
@@ -579,6 +581,7 @@ void CvDangerPlots::Serialize(DangerPlots& dangerPlots, Visitor& visitor)
 	if (bLoading)
 		mutDangerPlots.Init(dangerPlots.m_ePlayer, true);
 	visitor(dangerPlots.m_knownUnits);
+	visitor(dangerPlots.m_knownUnitsPrevTurn);
 }
 
 /// reads in danger plots info

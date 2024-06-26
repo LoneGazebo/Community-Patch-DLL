@@ -11234,7 +11234,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		UpdatePlots();
 		UpdateAreaEffectUnits();
 		UpdateAreaEffectPlots();
-		UpdateDangerPlots(false);
+		UpdateDangerPlots(true);
 		GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 		UpdateMilitaryStats();
 		GET_TEAM(getTeam()).ClearWarDeclarationCache();
@@ -47173,6 +47173,21 @@ void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 int CvPlayer::GetDangerPlotAge() const
 {
 	return m_pDangerPlots->GetTurnSliceBuilt();
+}
+
+std::vector<CvUnit*> CvPlayer::GetPrevTurnKnownEnemyUnits() const
+{
+	std::vector<CvUnit*> result;
+
+	const UnitSet& units = m_pDangerPlots->GetPrevTurnKnownEnemyUnits();
+	for (UnitSet::const_iterator it = units.begin(); it != units.end(); ++it)
+	{
+		result.push_back(GET_PLAYER(it->first).getUnit(it->second));
+		if (result.back() == NULL)
+			result.pop_back();
+	}
+
+	return result;
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck)

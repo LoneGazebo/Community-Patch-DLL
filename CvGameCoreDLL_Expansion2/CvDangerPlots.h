@@ -129,6 +129,7 @@ public:
 	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
 	bool IsKnownAttacker(const CvUnit* pUnit) const;
 	bool AddKnownAttacker(const CvUnit* pUnit);
+	const UnitSet& GetPrevTurnKnownEnemyUnits() const { return m_knownUnitsPrevTurn; }
 
 	void SetDirty();
 	bool IsDirty() const { return m_bDirty; }
@@ -158,6 +159,7 @@ protected:
 	int m_iTurnSliceBuilt;
 	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
+	UnitSet m_knownUnitsPrevTurn;
 };
 
 FDataStream& operator>>(FDataStream&, CvDangerPlots&);
