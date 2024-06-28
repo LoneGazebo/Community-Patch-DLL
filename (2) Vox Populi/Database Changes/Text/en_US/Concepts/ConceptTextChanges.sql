@@ -181,7 +181,7 @@ SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread y
 [NEWLINE][NEWLINE]Your [ICON_TOURISM] Tourism is multiplied with each player in the following ways [COLOR_YELLOW](minimum [COLOR_NEGATIVE_TEXT]-100%[COLOR_YELLOW])[ENDCOLOR]:
 [NEWLINE][ICON_BULLET]Any Trade Route connecting your City with their City [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+10%[COLOR_YELLOW])[ENDCOLOR].
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Trade Open Borders to the player ([COLOR_POSITIVE_TEXT]+15%[COLOR_YELLOW]).[ENDCOLOR]
-[NEWLINE][ICON_BULLET]Have the same Religion as the player ([COLOR_POSITIVE_TEXT]+25%[ENDCOLOR]).
+[NEWLINE][ICON_BULLET]Share your Religion with the player [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+X%[COLOR_YELLOW], the percent of its followers in their empire, maximum [COLOR_POSITIVE_TEXT]+50%[COLOR_YELLOW])[ENDCOLOR].
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Have a Diplomat in their Capital City ([COLOR_POSITIVE_TEXT]+20%[COLOR_YELLOW]).[ENDCOLOR]
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Have less Boredom in your Empire ([COLOR_POSITIVE_TEXT]+X%[COLOR_YELLOW], the difference in Boredom between your two Empires).[ENDCOLOR]
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Expend a Great Musician inside their borders ([COLOR_POSITIVE_TEXT]+100%[COLOR_YELLOW], and [COLOR_POSITIVE_TEXT]+50%[COLOR_YELLOW] with everyone else).[ENDCOLOR]

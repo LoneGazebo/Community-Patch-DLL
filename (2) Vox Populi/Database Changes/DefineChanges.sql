@@ -371,6 +371,9 @@ UPDATE Defines SET Value = 15 WHERE Name = 'TOURISM_MODIFIER_OPEN_BORDERS';
 UPDATE Defines SET Value = 10 WHERE Name = 'TOURISM_MODIFIER_TRADE_ROUTE';
 UPDATE Defines SET Value = -10 WHERE Name = 'TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES';
 UPDATE Defines SET Value = 20 WHERE Name = 'TOURISM_MODIFIER_DIPLOMAT';
+UPDATE Defines SET Value = 1 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION'; -- percentage
+UPDATE Defines SET Value = 50 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION_MAX';
+UPDATE Defines SET Value = 2 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION_TYPE'; -- 0 = no scaling, 1 = scaling per city, 2 = scaling per population
 
 -------------------------------------------------------------------------------------------------------------------
 -- Religion
