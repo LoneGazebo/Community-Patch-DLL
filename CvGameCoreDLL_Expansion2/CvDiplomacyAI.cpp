@@ -34845,45 +34845,6 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 			continue;
 		}
 
-		// if the deal can be fully renewed
-		TradedItemList tradedItems = pCurrentDeal->m_TradedItems;
-		TradedItemList::iterator it;
-
-		for(it = tradedItems.begin(); it != tradedItems.end(); ++it)
-		{
-			PlayerTypes eOtherPlayer;
-			if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
-			{
-				eOtherPlayer = pCurrentDeal->m_eToPlayer;
-			}
-			else
-			{
-				eOtherPlayer = pCurrentDeal->m_eFromPlayer;
-			}
-
-			//exclude items that can't be renewed:
-			if (it->m_eItemType == TRADE_ITEM_GOLD ||
-				it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN ||
-				it->m_eItemType == TRADE_ITEM_RESOURCES ||
-				it->m_eItemType == TRADE_ITEM_OPEN_BORDERS ||
-				it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY ||
-				it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
-			{
-			continue;
-			}
-				
-			//otherwise remove it.
-			pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);
-				
-		}
-
-		//we emptied the deal? whoops.
-		if (pCurrentDeal->GetNumItems() <= 0)
-		{
-			badDeals.push_back(pCurrentDeal);
-			continue;
-		}
-
 		//Set as considered for renewal.
 		pCurrentDeal->m_iFinalTurn = -1;
 			

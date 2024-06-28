@@ -19,6 +19,7 @@ local g_bAlwaysWar = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR );
 local g_bAlwaysPeace = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_PEACE );
 local g_bNoChangeWar = Game.IsOption( GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE );
 
+local g_PeaceDealDuration = GameInfo.GameSpeeds[PreGame.GetGameSpeed()].PeaceDealDuration;
 local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
 local g_bDisableScience = Game.IsOption("GAMEOPTION_NO_SCIENCE");
 local g_bDisableTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
@@ -439,8 +440,8 @@ function OnOpenPlayerDealScreen( iOtherPlayer )
     	g_Deal:SetToPlayer( g_iThem );
     	
         if( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
-            g_Deal:AddPeaceTreaty( g_iUs, GameDefines.PEACE_TREATY_LENGTH );
-            g_Deal:AddPeaceTreaty( g_iThem, GameDefines.PEACE_TREATY_LENGTH );
+            g_Deal:AddPeaceTreaty( g_iUs, g_PeaceDealDuration );
+            g_Deal:AddPeaceTreaty( g_iThem, g_PeaceDealDuration );
         end
         
     	DoUpdateButtons();
@@ -4288,7 +4289,7 @@ function LeaderSelected( iOtherPlayer, isUs )
 	if( mode == WAR ) then
     	g_Deal:AddThirdPartyWar( iWho, iOtherTeam );
 	else
-    	g_Deal:AddThirdPartyPeace( iWho, iOtherTeam, GameDefines.PEACE_TREATY_LENGTH );
+    	g_Deal:AddThirdPartyPeace( iWho, iOtherTeam, g_PeaceDealDuration );
     end
     
     DisplayDeal();
@@ -4461,10 +4462,10 @@ end
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
-Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
-Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
-Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
-Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 15 );
+Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
+Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
+Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
+Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
 
 ResetDisplay();
 DisplayDeal();
