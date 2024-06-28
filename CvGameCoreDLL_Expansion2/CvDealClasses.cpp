@@ -3808,10 +3808,10 @@ bool CvDeal::IsPotentiallyRenewable()
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		if (GetItemTradeableState(it->m_eItemType) == DEAL_RENEWABLE)
-			return true;
+		if (GetItemTradeableState(it->m_eItemType) == DEAL_NONRENEWABLE)
+			return false;
 	}
-	return false;
+	return true;
 }
 
 bool CvDeal::IsCheckedForRenewal()
@@ -5119,7 +5119,7 @@ void CvGameDeals::DoTurn()
 
 		int iGameTurn = GC.getGame().getGameTurn();
 
-		// Check to see if any of our RENEWABLE TradeItems in any of our Deals expire this turn
+		// Find the deals which don't have any non-renewable items and for which one of the trade items expires this turn
 		for (it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
 			it->m_bConsideringForRenewal = false;
@@ -5129,7 +5129,7 @@ void CvGameDeals::DoTurn()
 			if (GET_PLAYER(it->GetFromPlayer()).isHuman() && GET_PLAYER(it->GetToPlayer()).isHuman())
 				bHumanToHuman = true;
 
-			//if we can renew this deal, we're going to send it to the Diplo AI first.
+			// if there are non-renewable items in the deal, move on
 			if (!bHumanToHuman && !it->IsPotentiallyRenewable())
 				continue;
 
