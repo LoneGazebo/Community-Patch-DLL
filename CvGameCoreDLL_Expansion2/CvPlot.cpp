@@ -11059,7 +11059,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		eRoute = NO_ROUTE;
 
 	FeatureTypes eFeature = getFeatureType();
-	ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
+	ResourceTypes eResource = bDisplay ? getResourceType(GC.getGame().getActiveTeam())  : getResourceType(GET_PLAYER(ePlayer).getTeam());
 
 	int iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, pOwningCity, bDisplay);
 	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);

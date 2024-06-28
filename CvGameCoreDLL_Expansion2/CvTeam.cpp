@@ -6302,6 +6302,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										{
 											pLoopPlot->setLayoutDirty(true);
 										}
+										pLoopPlot->updateSymbols();
 									}
 
 									for (int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -6424,6 +6425,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								if (pLoopPlot->getResourceType() != NO_RESOURCE)
 								{
+									if (bIsActiveTeam)
+									{
+										pLoopPlot->updateSymbols();
+									}
 									for (int iI = 0; iI < MAX_PLAYERS; iI++)
 									{
 										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
