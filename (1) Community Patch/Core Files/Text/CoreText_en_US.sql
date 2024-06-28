@@ -717,11 +717,6 @@ UPDATE Language_en_US
 SET Text = 'We''re having issues with our growing population, so we needn''t build growth buildings in our cities.'
 WHERE Tag = 'TXT_KEY_ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS';
 
--- Reversed Tourism for Open Borders
-UPDATE Language_en_US
-SET Text = '+{1_Num}% Bonus for Open Borders from:[NEWLINE]   '
-WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS';
-
 -- Barbarians
 UPDATE Language_en_US
 SET Text = 'Crom'
@@ -1985,6 +1980,8 @@ UPDATE Language_en_US
 SET Text = '{1_Num} [ICON_TOURISM] Tourism from buildings purchased with [ICON_PEACE] Faith'
 WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS';
 
-
+UPDATE Language_en_US
+SET Text = '+{1_Num}% Bonus from Trade Route between Empires[NEWLINE]'
+WHERE Tag = 'TXT_KEY_CO_PLAYER_TOURISM_TRADE_ROUTE';
 
 

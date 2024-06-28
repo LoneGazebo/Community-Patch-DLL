@@ -246,6 +246,11 @@ UPDATE Defines SET Value = 6 WHERE Name = 'RELIGION_BELIEF_SCORE_CITY_MULTIPLIER
 UPDATE Defines SET Value = 4 WHERE Name = 'RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER'; -- Unowned but in range more valuable than before to make sure AI knows it's in a good position
 UPDATE Defines SET Value = 8 WHERE Name = 'RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER'; -- Owned slightly more valuable than before
 
+-- Tourism Stuff
+UPDATE Defines SET Value = 25 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION'; -- percentage
+INSERT INTO Defines (Name, Value) SELECT 'TOURISM_MODIFIER_SHARED_RELIGION_MAX', 0; -- maximum base percentage allowed (0 is no max)
+INSERT INTO Defines (Name, Value) SELECT 'TOURISM_MODIFIER_SHARED_RELIGION_TYPE', 0; -- 0 = no scaling, 1 = scaling per city, 2 = scaling per population
+
 -- AI Grand Strategy
 UPDATE Defines SET Value = 10 WHERE Name = 'AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE';
 UPDATE Defines SET Value = 50 WHERE Name = 'AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT';

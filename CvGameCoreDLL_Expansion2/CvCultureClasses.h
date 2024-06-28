@@ -275,8 +275,8 @@ public:
 	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& szRank, PlayerTypes ePlayer);
 	int GetTourism();
 	int GetTourismModifierWith(PlayerTypes ePlayer) const;
-	CvString GetTourismModifierWithTooltip(PlayerTypes ePlayer) const;
-	int GetTourismModifierSharedReligion() const;
+	CvString GetTourismModifierWithTooltip(PlayerTypes eTargetPlayer) const;
+	int GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer) const;
 	int GetTourismModifierTradeRoute() const;
 	int GetTourismModifierOpenBorders() const;
 	int GetFranchiseModifier(PlayerTypes ePlayer, bool bJustCheckOne = false) const;
@@ -382,7 +382,7 @@ public:
 	void CalculateBaseTourism();
 #endif
 
-	int GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const;
+	int GetTourismMultiplier(PlayerTypes eTargetPlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const;
 
 	CvString GetTourismTooltip();
 	CvString GetFilledSlotsTooltip();
