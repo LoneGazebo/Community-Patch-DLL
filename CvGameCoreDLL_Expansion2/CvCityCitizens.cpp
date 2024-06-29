@@ -2099,7 +2099,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 		if (pPlot != NULL)
 		{
-			// can't work the the center tile of another city
+			// can't work the center tile of another city
 			if (pPlot->isCity())
 				return;
 
