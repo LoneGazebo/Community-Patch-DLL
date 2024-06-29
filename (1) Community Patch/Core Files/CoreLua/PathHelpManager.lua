@@ -41,7 +41,7 @@ function BuildNode( data )
 		instance.RemainingMoves:SetText("");
 	else
 		instance.TurnLabel:SetText( "<" .. (wholeturns+1) );
-		instance.RemainingMoves:SetText("(" .. remainder .. "/" .. totalmovementpoints .. ")");
+		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remainder .. "/" .. totalmovementpoints);
 	end
     
     local plot = Map.GetPlot( data.x, data.y );
