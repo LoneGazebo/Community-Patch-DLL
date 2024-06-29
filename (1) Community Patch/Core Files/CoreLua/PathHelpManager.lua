@@ -29,14 +29,19 @@ Events.UIPathFinderUpdate.Add( OnPath );
 -------------------------------------------------
 function BuildNode( data )
     local instance = m_InstanceManager:GetInstance();
-	
-	local wholeturns = math.floor(data.turn/10);
-	local remainder = data.turn - wholeturns*10;
+
+    -- see CvDllGameContext::TEMPCalculatePathFinderUpdates
+	local wholeturns = math.floor(data.turn/100);
+	local tmp = data.turn - wholeturns*100;
+	local totalmovementpoints = math.floor(tmp/10);
+	local remainder = tmp - totalmovementpoints*10;
 
 	if ( remainder == 0) then
 		instance.TurnLabel:SetText( wholeturns );
+		instance.RemainingMoves:SetText("");
 	else
 		instance.TurnLabel:SetText( "<" .. (wholeturns+1) );
+		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remainder .. "/" .. totalmovementpoints);
 	end
     
     local plot = Map.GetPlot( data.x, data.y );
