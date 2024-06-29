@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+
+    <Instance Name="TurnIndicator" >
+        <WorldAnchor ID="Anchor" >
+            
+            <Label Anchor="C,C" Offset="0.0" Font="TwCenMT20" FontStyle="Stroke" ColorSet="Beige_Black" ID="TurnLabel" />
+			<Label Anchor="C,C" Offset="0.40" Font="TwCenMT14" FontStyle="Stroke" ColorSet="Beige_Black" ID="RemainingMoves" />
+
+
+        </WorldAnchor>
+    </Instance>
+
+    <Container ID="Container" />
+
+</Context>

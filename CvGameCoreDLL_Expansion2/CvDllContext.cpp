@@ -1106,9 +1106,16 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
 
-			update.iTurnNumber = path.vPlots[i].turns * 10; //fixed point float
+			// Structure of iTurnNumber:
+			// ones digit: the remaining movement points of the unit (rounded up if not an integer)
+			// tens digit: the total movement points of the unit
+			// all higher digits: the number of turns to reach the plot
+
+			CvPlot* pPlot = GC.getMap().plotUnchecked(path.vPlots[i].x, path.vPlots[i].y);
+			update.iTurnNumber = path.vPlots[i].turns * 100;
+			update.iTurnNumber += 10 * (min(pkUnit->baseMoves(pPlot->needsEmbarkation(pkUnit)), 9));
 			if (path.vPlots[i].moves>0)
-				update.iTurnNumber += 5; //indicate that there are movement points left
+				update.iTurnNumber += min(((int)path.vPlots[i].moves-1)/GD_INT_GET(MOVE_DENOMINATOR)+1, 9); //movement points left
 
 			//in debug mode just use the raw number, it's actually the known cost
 			if (eMode==TC_DEBUG)
