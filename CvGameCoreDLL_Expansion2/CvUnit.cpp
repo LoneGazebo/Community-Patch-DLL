@@ -20216,10 +20216,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					//it might happen that we liberate the city right after acquiring it
 					//in that case our unit is teleported somewhere or killed if that fails
 					//if it's killed, we have an invalid pointer here, let's hope that the plot() check catches it
-					//other workarounds: 
-					//	- don't instakill unit after failed teleport (might have other side effects)
-					//  - don't liberate immediately after conquest ...
-					if (plot() == NULL)
+					//if it was teleported, setXY was called again from acquireCity and we don't want to overwrite what happened there
+					if (plot() == NULL || plot() != pNewPlot)
 						return;
 				}
 			}

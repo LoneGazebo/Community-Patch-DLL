@@ -4419,7 +4419,12 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 	for (size_t i = 0; i < ownedPlots.size(); i++)
 	{
-		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), (bBumpUnits || ownedPlots[i]->isCity()), true);
+		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), bBumpUnits, true);
+		// need to explicitly remove units from the city plot as its ownership has already been set in CvCity::init, so bBumpUnits won't work here
+		if (ownedPlots[i]->isCity())
+		{
+			ownedPlots[i]->verifyUnitValidPlot(NO_PLAYER, true);
+		}
 	}
 
 	// Update Player Proximity
