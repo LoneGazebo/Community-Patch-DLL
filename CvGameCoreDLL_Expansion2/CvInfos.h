@@ -2435,6 +2435,7 @@ public:
 	int GetNumCitiesTechCostMod() const;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int GetNumCitiesTourismCostMod() const;
+	int GetNumCitiesUnitSupplyMod() const;
 	int getTradeRouteDistanceMod() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2482,6 +2483,7 @@ protected:
 	int m_iNumCitiesTechCostMod;
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iNumCitiesTourismCostMod;
+	int m_iNumCitiesUnitSupplyMod;
 	int m_iTradeRouteDistanceMod;
 #endif
 #if defined(MOD_BALANCE_CORE)

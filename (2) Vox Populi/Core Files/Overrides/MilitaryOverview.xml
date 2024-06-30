@@ -107,6 +107,10 @@
 					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TECH_SUPPLY" />
 					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="TechReductionValue" />
 				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="EmpireSizeReduction" ToolTip="TXT_KEY_EMPIRE_SIZE_SUPPLY_TT" >
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_EMPIRE_SIZE_SUPPLY" />
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="EmpireSizeReductionValue" />
+				</Box>
 				<!-- Infixo VP specific end -->
 				<Image Anchor="C,B" Offset="-2,0" TextureOffset="55.0" Texture="bar300x2.dds" Size="190.1"/>
 				<Box Size="200,24" Color="0.0.0.0" ID="SupplyCap" ToolTip="TXT_KEY_SUPPLY_CAP_TT">

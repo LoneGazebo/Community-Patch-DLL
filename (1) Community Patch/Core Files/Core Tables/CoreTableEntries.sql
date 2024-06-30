@@ -1560,6 +1560,7 @@ ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
 ALTER TABLE Worlds ADD COLUMN 'NumCitiesTourismCostMod' INTEGER DEFAULT 0;
+ALTER TABLE Worlds ADD COLUMN 'NumCitiesUnitSupplyMod' INTEGER DEFAULT 0;
 
 -- New City Plot Yields Method
 ALTER TABLE Yields ADD COLUMN 'MinCityFlatFreshWater' INTEGER DEFAULT 0;
@@ -1569,7 +1570,7 @@ ALTER TABLE Yields ADD COLUMN 'MinCityHillNoFreshWater' INTEGER DEFAULT 0;
 ALTER TABLE Yields ADD COLUMN 'MinCityMountainFreshWater' INTEGER DEFAULT 0;
 ALTER TABLE Yields ADD COLUMN 'MinCityMountainNoFreshWater' INTEGER DEFAULT 0;
 
--- Policy Initialize Number of best units in captial. Requries 'IncludesOneShotFreeUnits' Set to true.
+-- Policy which initializes N of the best units in a category in capital. Requires 'IncludesOneShotFreeUnits' set to true.
 ALTER TABLE Policies ADD COLUMN 'BestNumberLandCombatUnitClass' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'BestNumberLandRangedUnitClass' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'BestNumberSeaCombatUnitClass' INTEGER DEFAULT 0;

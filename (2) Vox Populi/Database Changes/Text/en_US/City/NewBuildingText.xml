@@ -226,7 +226,7 @@
 
 		<!-- Walls -->
 		<Row Tag="TXT_KEY_BUILDING_WALLS_HELP">
-			<Text>+1 City's [ICON_RANGE_STRENGTH] Ranged Strike Range. +10% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
+			<Text>+1 [ICON_RANGE_STRENGTH] City Strike Range. +10% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
 		</Row>
 
 		<!-- Arena -->

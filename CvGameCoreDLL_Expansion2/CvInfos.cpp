@@ -8111,6 +8111,7 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesTechCostMod(5),
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iNumCitiesTourismCostMod(5),
+	m_iNumCitiesUnitSupplyMod(5),
 	m_iTradeRouteDistanceMod(100),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -8213,6 +8214,11 @@ int CvWorldInfo::GetNumCitiesTourismCostMod() const
 	return m_iNumCitiesTourismCostMod;
 }
 //------------------------------------------------------------------------------
+int CvWorldInfo::GetNumCitiesUnitSupplyMod() const
+{
+	return m_iNumCitiesUnitSupplyMod;
+}
+//------------------------------------------------------------------------------
 int CvWorldInfo::getTradeRouteDistanceMod() const
 {
 	return m_iTradeRouteDistanceMod;
@@ -8290,6 +8296,7 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumCitiesTourismCostMod = kResults.GetInt("NumCitiesTourismCostMod");
+	m_iNumCitiesUnitSupplyMod = kResults.GetInt("NumCitiesUnitSupplyMod");
 	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
 	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
 	m_iReformationPercent = kResults.GetInt("ReformationPercentRequired");
@@ -8324,6 +8331,7 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
+	if (m_iNumCitiesUnitSupplyMod != rhs.m_iNumCitiesUnitSupplyMod) return false;
 	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
 	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
 	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
@@ -8359,6 +8367,7 @@ void CvWorldInfo::Serialize(WorldInfo& worldInfo, Visitor& visitor)
 	visitor(worldInfo.m_iNumCitiesTechCostMod);
 	visitor(worldInfo.m_iTradeRouteDistanceMod);
 	visitor(worldInfo.m_iNumCitiesTourismCostMod);
+	visitor(worldInfo.m_iNumCitiesUnitSupplyMod);
 	visitor(worldInfo.m_iMinDistanceCities);
 	visitor(worldInfo.m_iMinDistanceCityStates);
 	visitor(worldInfo.m_iReformationPercent);

@@ -136,11 +136,12 @@ function UpdateScreen()
 	local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 	local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
 	local iTechReduction = pPlayer:GetTechSupplyReduction();
+	local iEmpireSizeReduction = pPlayer:GetEmpireSizeSupplyReduction();
 	local iWarWearinessReduction = pPlayer:GetSupplyReductionFromWarWeariness();
 	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
 	-- Bonuses from unlisted sources are added to the handicap value
-	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessReduction);
+	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iEmpireSizeReduction - iWarWearinessReduction);
 	iPerHandicap = iPerHandicap + iExtra;
 
 	Controls.HandicapSupplyValue:SetText(iPerHandicap);
@@ -149,6 +150,7 @@ function UpdateScreen()
 	Controls.GreatPeopleSupplyValue:SetText(iSupplyFromGreatPeople);
 	Controls.WarWearinessReductionValue:SetText(-iWarWearinessReduction);
 	Controls.TechReductionValue:SetText(-iTechReduction);
+	Controls.EmpireSizeReductionValue:SetText(-iEmpireSizeReduction);
 	Controls.SupplyCapValue:SetText(iUnitsSupplied);
 	Controls.SupplyUseValue:SetText(iUnitsTotal);
 
