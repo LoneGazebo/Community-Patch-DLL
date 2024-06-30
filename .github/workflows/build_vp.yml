@@ -85,6 +85,14 @@ jobs:
       - name: Display debug build log
         run: cat clang-output/Debug/build.log
 
+      - name: Check if build failed in log
+        if: always()
+        run: |
+          if (Select-String -Path "clang-output/Debug/build.log" -Pattern "error:") {
+            Write-Error "Build failed with error."
+            exit 1
+          }
+
       - name: Run release build
         run: python build_vp_clang_sdk.py --config release
 
