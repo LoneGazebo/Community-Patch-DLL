@@ -1,5 +1,5 @@
 -- New City Yields
--- Base = max(2 Food 1 Prod, the tile it's on), below criteria give flat increases 
+-- Base = 2 Food 1 Prod, below criteria give flat increases. If the city was settled on a resource, the resource's base yields are also added to this.
 UPDATE Yields
 SET MinCityFlatFreshWater = 1, MinCityMountainFreshWater = 1
 WHERE Type = 'YIELD_FOOD';
@@ -9,7 +9,7 @@ SET MinCityFlatNoFreshWater = 1, MinCityMountainNoFreshWater = 1
 WHERE Type = 'YIELD_GOLD';
 
 UPDATE Yields
-SET MinCityMountainNoFreshWater = 1
+SET MinCityHillFreshWater = 1, MinCityHillNoFreshWater = 1, MinCityMountainNoFreshWater = 1
 WHERE Type = 'YIELD_PRODUCTION';
 
 -- Lake: +1 Food/Prod over Coast

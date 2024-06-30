@@ -9907,7 +9907,25 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 
 	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
 	{
-		iYield = std::max(iYield, kYield.getMinCity());
+		// VP: Set natural tile yields to 2 Food, 1 Production + resource yields + increases below, ignore everything above
+		if (MOD_BALANCE_VP)
+		{
+			iYield = kYield.getMinCity();
+			if (eTeam != NO_TEAM)
+			{
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+				if (eResource != NO_RESOURCE && pkResourceInfo)
+				{
+					iYield += pkResourceInfo->getYieldChange(eYield);
+				}
+			}
+		}
+		// Community Patch only: Min. 2 Food & 1 Production for city center tile yields
+		else
+		{
+			iYield = std::max(iYield, kYield.getMinCity());
+		}
 
 		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 		{
@@ -9980,6 +9998,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonStrength) / 8);
 				}
 			}
+			//fixme: this code looks broken? How can a city have a fort or citadel on the city center tile?
 			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
 			{
 			// Don't provide yield if tile is pillaged
