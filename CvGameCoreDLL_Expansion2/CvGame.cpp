@@ -11021,6 +11021,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	// m_bPlayerOptionsSent not saved
 	visitor(game.m_bNukesValid);
 	visitor(game.m_bEndGameTechResearched);
+	visitor(game.m_eObserverUIOverridePlayer);
 	visitor(game.m_bTunerEverConnected);
 	visitor(game.m_bSavedOnce);
 	visitor(game.m_bTutorialEverAttacked);
