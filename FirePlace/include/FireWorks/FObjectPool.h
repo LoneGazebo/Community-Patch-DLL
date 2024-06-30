@@ -155,6 +155,10 @@ FObjectPool<T>::FObjectPool( const FObjectPool<T>& source )
 template<class T> 
 FObjectPool<T>& FObjectPool<T>::operator=( const FObjectPool<T>& source )
 {
+	// Self-assignment check
+	if (this == &source)
+		return *this;
+
 	// Lock for thread safety
 	Lock();
 	source.Lock();
@@ -180,8 +184,8 @@ FObjectPool<T>& FObjectPool<T>::operator=( const FObjectPool<T>& source )
 		if (i >= m_uiSize)
 			m_pStorage[i].pObject = FNEW( T(), c_eMPoolTypeContainer, 0 );
         
-		// Set the data
-		m_pStorage[i].pObject = source.m_pStorage[i].pObject;
+		// Deep copy the data
+		*m_pStorage[i].pObject = *source.m_pStorage[i].pObject;
 		m_pStorage[i].bFree = source.m_pStorage[i].bFree;
 	}
 
@@ -192,6 +196,8 @@ FObjectPool<T>& FObjectPool<T>::operator=( const FObjectPool<T>& source )
 
 	source.Unlock();
 	Unlock();
+
+	return *this;
 }
 
 //---------------------------------------------------------------------------------------
