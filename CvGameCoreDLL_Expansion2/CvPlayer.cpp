@@ -17529,6 +17529,10 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		iUnitSupply += GetNumUnitsSuppliedByPopulation();
 		iUnitSupply += GetUnitSupplyFromExpendedGreatPeople();
 
+		int iEmpireSizeReduction = max(getNumCities() * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0);
+		iUnitSupply *= 100;
+		iUnitSupply /= (100 + iEmpireSizeReduction);
+
 		if (isMajorCiv())
 		{
 			if (isHuman())
@@ -17687,8 +17691,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 	{
 		int iTechProgress = range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
 
-		iTechProgress *= /*0 in CP, 5 in VP*/ GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
-		iTechProgress /= /*1 in CP, 6 in VP*/ max(1, GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_DIVISOR));
+		iTechProgress *= /*0 in CP, 83 in VP*/ GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
+		iTechProgress /= 100;
 
 		iSupply *= 100;
 		iSupply /= max(100 + iTechProgress, 1);

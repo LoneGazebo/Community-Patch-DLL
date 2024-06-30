@@ -417,6 +417,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitCostIncreaseFromWarWeariness);
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetTechSupplyReduction);
+	Method(GetEmpireSizeSupplyReduction);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
@@ -4488,6 +4489,29 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	int iTotalSupplyWithReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
 	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByCities();
 	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
+
+	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
+
+	lua_pushinteger(L, iTotalSupply);
+	return 1;
+}
+
+int CvLuaPlayer::lGetEmpireSizeSupplyReduction(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iReductionPercent = max(pkPlayer->getNumCities() * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0);
+	if (iReductionPercent == 0)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	int iTotalSupplyWithoutReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByCities();
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
+	iTotalSupplyWithoutReduction += pkPlayer->GetUnitSupplyFromExpendedGreatPeople();
+
+	int TotalSupplyWithReduction = iTotalSupplyWithoutReduction * 100 / (100 + iReductionPercent);
 
 	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
 

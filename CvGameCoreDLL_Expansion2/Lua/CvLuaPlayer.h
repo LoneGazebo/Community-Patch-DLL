@@ -403,6 +403,7 @@ protected:
 	LUAAPIEXTN(GetUnitCostIncreaseFromWarWeariness, int);
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
+	LUAAPIEXTN(GetEmpireSizeSupplyReduction, int);
 
 	LUAAPIEXTN(GetWarDuration, int);
 	LUAAPIEXTN(GetLongestWarDuration, int);
