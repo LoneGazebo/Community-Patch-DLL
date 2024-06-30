@@ -4882,6 +4882,9 @@ int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer)
 	
 	switch (/*0 in CP, 2 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_TYPE))
 	{
+		case 0:
+			// Flat value if both players have the same religion
+			return GET_PLAYER(eTargetPlayer).GetReligions()->GetStateReligion() == eMyReligion ? iModifier + iMultiplier : 0;
 		case 1:
 			// Scales with number of cities following religion
 			iModifier *= GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eMyReligion, eTargetPlayer);
@@ -4892,9 +4895,6 @@ int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer)
 			int iPopulation = GET_PLAYER(eTargetPlayer).getTotalPopulation();
 			iModifier = iModifier * 100 * iFollowers / iPopulation;
 			break;
-		default:
-			// Flat value if both players have the same religion
-			return GET_PLAYER(eTargetPlayer).GetReligions()->GetStateReligion() == eMyReligion ? iModifier + iMultiplier : 0;
 	}
 	
 	if (iModifierMax > 0)

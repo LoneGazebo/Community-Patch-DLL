@@ -4511,7 +4511,7 @@ int CvLuaPlayer::lGetEmpireSizeSupplyReduction(lua_State* L)
 	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
 	iTotalSupplyWithoutReduction += pkPlayer->GetUnitSupplyFromExpendedGreatPeople();
 
-	int TotalSupplyWithReduction = iTotalSupplyWithoutReduction * 100 / (100 + iReductionPercent);
+	int iTotalSupplyWithReduction = iTotalSupplyWithoutReduction * 100 / (100 + iReductionPercent);
 
 	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
 
