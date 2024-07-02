@@ -330,6 +330,7 @@ def build_cl_config_args(config: Config) -> list[str]:
         args.append('-flto')
     else:
         args.append('/Od')
+        args.append('-g')
     for predef in PREDEFS[config]:
         args.append(f'/D{predef}')
     for include_dir in INCLUDE_DIRS:
