@@ -462,11 +462,6 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 }
 
 //------------------------------------------------------------------------------
-void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B);
-pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B);
-pair<int,int> AddFractions(vector<int>& dividendList, vector<int>& divisorList);
-
-//------------------------------------------------------------------------------
 class fraction
 {
 private:
