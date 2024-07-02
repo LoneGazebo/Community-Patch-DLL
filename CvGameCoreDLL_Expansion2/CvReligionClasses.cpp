@@ -10226,17 +10226,17 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 
 	int iNumImprovementInfos = GC.getNumImprovementInfos();
-	pair<int, int> fVoteRatio = make_pair(0, 1);
+	fraction fVoteRatio = 0;
 	for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
 	{
-		int potentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
-		if (potentialVotes > 0)
+		int iPotentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
+		if (iPotentialVotes > 0)
 		{
-			int numImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
-			AddFractionToReference(fVoteRatio, make_pair(numImprovements, potentialVotes));
+			int iNumImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
+			fVoteRatio += fraction(iNumImprovements, iPotentialVotes);
 		}
 	}
-	iDiploTemp += 80 * fVoteRatio.first / fVoteRatio.second;
+	iDiploTemp += (fVoteRatio * 80).Truncate();
 		
 	if (pEntry->GetCityStateInfluenceModifier() > 0)
 	{

@@ -4597,11 +4597,11 @@ int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity,
 }
 
 /// Get votes per improvement (fractional) from belief
-std::pair<int, int> CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+fraction CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	
-	std::pair<int, int> fVotes = std::make_pair(0, 1);
+	fraction fVotes = 0;
 	
 	// if two beliefs give fractional votes for the same improvement, then the fractional vote gets larger (1/2 + 1/3 = 5/6)
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
@@ -4610,7 +4610,7 @@ std::pair<int, int> CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTy
 		int iValue = pBeliefs->GetEntry(*it)->GetImprovementVoteChange(eImprovement);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			AddFractionToReference(fVotes, std::make_pair(1, iValue));
+			fVotes += fraction(1, iValue);
    		}
 	}
 
