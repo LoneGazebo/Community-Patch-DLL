@@ -6928,7 +6928,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							if (!pkBuildingInfo || pkBuildingInfo->IsDummy())
 								continue;
 
-							if (GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
+							if (pkBuildingInfo->IsNukeImmune() || GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
 								continue;
 
 							int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
