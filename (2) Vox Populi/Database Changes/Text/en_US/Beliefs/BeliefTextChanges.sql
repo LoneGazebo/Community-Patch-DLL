@@ -130,7 +130,7 @@ SET Text = 'Goddess of Springtime'
 WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLD] Gold from Plantations. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from Herbalists.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLD] Gold from Plantations. +2 [ICON_PEACE] Faith and +1 [ICON_RESEARCH] Science from Herbalists.'
 WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION';
 
 UPDATE Language_en_US
