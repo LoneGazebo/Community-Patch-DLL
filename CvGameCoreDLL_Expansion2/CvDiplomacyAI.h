@@ -241,7 +241,7 @@ public:
 
 	// Approach
 	CivApproachTypes GetCivApproach(PlayerTypes ePlayer) const;
-	void SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
+	void SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproach, bool bResetAttackOperations = true);
 
 	CivApproachTypes GetCivStrategicApproach(PlayerTypes ePlayer) const;
 	void SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
@@ -414,7 +414,6 @@ public:
 	// Would we potentially attack ePlayer if someone else asked us to?
 	bool IsPotentialWarTarget(PlayerTypes ePlayer) const;
 	void SetPotentialWarTarget(PlayerTypes ePlayer, bool bValue);
-	void DoResetPotentialWarTargets();
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
