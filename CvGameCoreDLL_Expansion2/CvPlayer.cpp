@@ -44028,17 +44028,20 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if (pPolicy->GetXPopulationConscription() > 0)
 		{
 			changeXPopulationConscription(pPolicy->GetXPopulationConscription() * iChange);
-			int iLoop = 0;
-			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			if (iChange < 0)
 			{
-				if (pLoopCity->getPopulation() < GetXPopulationConscription())
-					continue;
-				if (pLoopCity->IsRazing())
-					continue;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity->getPopulation() < GetXPopulationConscription())
+						continue;
+					if (pLoopCity->IsRazing())
+						continue;
 
-				int iNumConscript = pLoopCity->getPopulation() / GetXPopulationConscription();
-				for (int iI = 0; iI < iNumConscript; iI++)
-					DoXPopulationConscription(pLoopCity);
+					int iNumConscript = pLoopCity->getPopulation() / GetXPopulationConscription();
+					for (int iI = 0; iI < iNumConscript; iI++)
+						DoXPopulationConscription(pLoopCity);
+				}
 			}
 		}
 	}
