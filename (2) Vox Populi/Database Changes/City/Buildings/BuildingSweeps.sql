@@ -234,7 +234,7 @@ UPDATE Buildings SET MinAreaSize = (
 ) WHERE Water = 1;
 
 -----------------------------------------------------------------
--- Nuke Immunity (unused in VP, as nukes don't destroy buildings)
+-- Nuke Immunity (only used by "destroy random buildings" event in VP, as nukes don't destroy buildings)
 -----------------------------------------------------------------
 
 -- Only wonders, dummy buildings, and Strategic Defense System are nuke immune
