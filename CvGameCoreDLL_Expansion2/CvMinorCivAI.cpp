@@ -1568,12 +1568,12 @@ bool CvMinorCivQuest::IsComplete()
 	case MINOR_CIV_QUEST_HORDE:
 	{
 		// Are all the Barbarians dead?
-		return GetEndTurn() <= GC.getGame().getGameTurn() && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(true) == 0;
+		return GetEndTurn() <= GC.getGame().getGameTurn() && !pMinor->GetMinorCivAI()->IsAnyBarbarianInBorders();
 	}
 	case MINOR_CIV_QUEST_REBELLION:
 	{
 		// Are all the Barbarians eliminated?
-		if (GetEndTurn() <= GC.getGame().getGameTurn() && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(false) == 0)
+		if (GetEndTurn() <= GC.getGame().getGameTurn() && !pMinor->GetMinorCivAI()->IsAnyBarbarianInBorders())
 			return true;
 
 		// Has the City-State's ally changed?
@@ -1661,6 +1661,33 @@ bool CvMinorCivQuest::IsRevoked(bool bWar, bool bHeavyTribute)
 }
 
 /// Is this quest now expired (i.e. time limit is up or condition is no longer valid)?
+bool CvMinorCivQuest::IsExpiredGlobal()
+{
+	CvMinorCivAI* pMinorAI = GET_PLAYER(m_eMinor).GetMinorCivAI();
+	if (!pMinorAI->IsGlobalQuest(m_eType))
+		return IsExpired();
+
+	// Global quests are only cancelled if they are invalid for ALL players they were assigned to.
+	bool bNotExpired = false;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (pMinorAI->IsActiveQuestForPlayer(eLoopPlayer, m_eType))
+		{
+			for (uint iQuestLoop = 0; iQuestLoop < pMinorAI->m_QuestsGiven[eLoopPlayer].size(); iQuestLoop++)
+			{
+				if (pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].GetType() == m_eType && !pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].IsExpired())
+				{
+					bNotExpired = true;
+					break;
+				}
+			}
+		}
+	}
+
+	return !bNotExpired;
+}
+
 bool CvMinorCivQuest::IsExpired()
 {
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
@@ -2122,17 +2149,10 @@ bool CvMinorCivQuest::IsExpired()
 		break;
 	}
 	case MINOR_CIV_QUEST_HORDE:
-	{
-		// The Horde is still in the City-State's threat-radius - oh no!
-		if (GC.getGame().getGameTurn() >= GetEndTurn() && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(true) > 0)
-			return true;
-
-		break;
-	}
 	case MINOR_CIV_QUEST_REBELLION:
 	{
-		// Are there still rebels milling about? You lose!
-		if (GC.getGame().getGameTurn() >= GetEndTurn() && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(true) > 0)
+		// The Horde is still in the City-State's borders - oh no!
+		if (GC.getGame().getGameTurn() >= GetEndTurn() && pMinor->GetMinorCivAI()->IsAnyBarbarianInBorders())
 			return true;
 
 		break;
@@ -2274,7 +2294,7 @@ bool CvMinorCivQuest::IsExpired()
 
 bool CvMinorCivQuest::IsObsolete(bool bWar, bool bHeavyTribute)
 {
-	return (IsRevoked(bWar, bHeavyTribute) || IsExpired());
+	return (IsRevoked(bWar, bHeavyTribute) || IsExpiredGlobal());
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
@@ -5716,22 +5736,19 @@ int CvMinorCivAI::GetNumThreateningMajors()
 }
 
 /// Barbs in our borders?
-int CvMinorCivAI::GetNumBarbariansInBorders(bool bOnlyAdjacentToCity)
+bool CvMinorCivAI::IsAnyBarbarianInBorders()
 {
 	if (GetPlayer()->getCapitalCity() == NULL)
 		return 0;
 
-	int iCount = 0;
-
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
-		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
-			if (!bOnlyAdjacentToCity || pLoopUnit->plot()->IsAdjacentCity())
-				iCount++;
+		if (!pLoopUnit->isDelayedDeath() && !pLoopUnit->IsCivilianUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
+			return true;
 	}
 
-	return iCount;
+	return false;
 }
 
 /// Barbarians threatening this Minor?
@@ -6358,7 +6375,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCancelled = itr_quest->DoCancelQuest();
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				
+
 				if (bCancelled)
 				{
 					if (itr_quest->IsRevoked(bWar))

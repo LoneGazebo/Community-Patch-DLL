@@ -186,6 +186,7 @@ public:
 	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 	bool IsComplete();
 	bool IsRevoked(bool bWar = false, bool bHeavyTribute = false);
+	bool IsExpiredGlobal();
 	bool IsExpired();
 	bool IsObsolete(bool bWar = false, bool bHeavyTribute = false);
 	bool IsHandled() const;
@@ -399,7 +400,7 @@ public:
 	bool IsThreateningBarbariansEventActiveForPlayer(PlayerTypes ePlayer);
 	int GetNumThreateningBarbarians();
 	int GetNumThreateningMajors();
-	int GetNumBarbariansInBorders(bool bOnlyAdjacentToCity);
+	bool IsAnyBarbarianInBorders();
 
 	void DoTestThreatenedAnnouncement();
 	int GetTurnsSinceThreatenedAnnouncement() const;
