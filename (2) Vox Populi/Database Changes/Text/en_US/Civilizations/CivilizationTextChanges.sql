@@ -178,7 +178,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when the number of Luxury Resources connected to your trade network increases, scaling with Era. +5 Experience to Military Units purchased with [ICON_GOLD] Gold, scaling with Era. +100% Resource Diversity modifier for [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your number of connected Luxury Resources increases, scaling with Era. +5 XP to Military Units purchased with [ICON_GOLD] Gold, scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ SET Text = 'Perfidious Albion'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger when stationed in a foreign city. Starts with a [ICON_SPY] Spy.'
+SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
@@ -897,7 +897,7 @@ WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'Cities claim up to 4 additional tiles when acquired, and claim adjacent unowned tiles when their borders expand to a land tile of the same type. All Recon Units can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
+SET Text = 'Claim adjacent unowned land tiles of the same type when your borders expand, and up to 4 tiles when you gain a City. Can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 
 UPDATE Language_en_US
