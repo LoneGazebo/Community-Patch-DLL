@@ -44028,7 +44028,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if (pPolicy->GetXPopulationConscription() > 0)
 		{
 			changeXPopulationConscription(pPolicy->GetXPopulationConscription() * iChange);
-			if (iChange < 0)
+			if (iChange > 0)
 			{
 				int iLoop = 0;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
