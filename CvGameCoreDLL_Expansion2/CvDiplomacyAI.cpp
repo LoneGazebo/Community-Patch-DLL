@@ -15993,10 +15993,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Only apply some DECEPTIVE bonuses if that's a valid approach for this AI to shift into WAR from (see DoUpdateWarTargets())
-	bool bApplyDeception = IsBackstabber() || bCloseToWorldConquest || IsEndgameAggressiveTo(ePlayer);
+	bool bApplyDeception = bCloseToWorldConquest || IsEndgameAggressiveTo(ePlayer);
 	if (!bApplyDeception && (eOurProximity == PLAYER_PROXIMITY_NEIGHBORS || (GetPlayer()->CanCrossOcean() && eOurProximity >= PLAYER_PROXIMITY_CLOSE)))
 	{
-		if (GetDenounceWillingness() > 8 || vApproachBias[CIV_APPROACH_DECEPTIVE] > vApproachBias[CIV_APPROACH_FRIENDLY] + 100 || IsGoingForWorldConquest())
+		if (IsBackstabber() || GetDenounceWillingness() > 8 || vApproachBias[CIV_APPROACH_DECEPTIVE] > vApproachBias[CIV_APPROACH_FRIENDLY] + 100 || IsGoingForWorldConquest())
 			bApplyDeception = true;
 	}
 	// Also only apply it if it'd be worth our time
