@@ -491,7 +491,8 @@ int calcActiveSlotCount(const std::vector<SlotStatus>& slotStatus, const std::ve
 {
 	int iCount = 0;
 	int i = 0;
-	for(i = 0; i < MAX_PLAYERS; ++i)
+	int maxPlayers = std::min(slotStatus.size(), slotClaims.size());
+	for(i = 0; i < maxPlayers; ++i)
 	{
 		SlotStatus eStatus = slotStatus[i];
 		SlotClaim eClaim = slotClaims[i];
@@ -564,8 +565,8 @@ int readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion)
 	std::vector<CivilizationTypes>	dummyCivilizations;
 	std::vector<CvString> dummyNicknames;
 	std::vector<TeamTypes> dummyTeamTypes;
-	std::vector<SlotStatus> slotStatus;
-	std::vector<SlotClaim> slotClaims;
+	std::vector<SlotStatus> slotStatus(MAX_PLAYERS);
+	std::vector<SlotClaim> slotClaims(MAX_PLAYERS);
 	std::vector<HandicapTypes> dummyHandicapTypes;
 	std::vector<CvString> civilizationKeys;
 	std::vector<CvString> leaderKeys;
@@ -966,7 +967,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 		HashToOptionMap::const_iterator itr = s_GameOptionsHash.find((uint)eOption);
 		if(itr != s_GameOptionsHash.end())
 		{
-			if(itr->second <= s_GameOptions.size())
+			if(itr->second < s_GameOptions.size())
 			{
 				iValue = s_GameOptions[itr->second].GetValue();
 				return true;
