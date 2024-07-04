@@ -4,10 +4,6 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
-concurrency:
-  group: cppcheck-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   analysis:
     runs-on: ubuntu-22.04
