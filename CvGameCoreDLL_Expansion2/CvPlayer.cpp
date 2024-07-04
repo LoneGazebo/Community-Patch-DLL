@@ -3777,7 +3777,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		GET_PLAYER(eOldOwner).GetMinorCivAI()->DoUpdateAlliesResourceBonus(GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly(), GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly());
 	}
 
-	if (GET_PLAYER(eOriginalOwner).isMinorCiv() && pCity->IsOriginalCapital())
+	if (GET_PLAYER(eOriginalOwner).isMinorCiv() && pCity->IsOriginalCapitalForPlayer(eOriginalOwner))
 	{
 		if (isMajorCiv() && GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 		{

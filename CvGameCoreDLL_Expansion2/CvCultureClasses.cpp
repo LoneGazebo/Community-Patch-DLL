@@ -4893,7 +4893,7 @@ int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer)
 			// Scales with percentage of followers of religion in population
 			int iFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eMyReligion, eTargetPlayer);
 			int iPopulation = GET_PLAYER(eTargetPlayer).getTotalPopulation();
-			iModifier = iModifier * 100 * iFollowers / iPopulation;
+			iModifier = iModifier * 100 * iFollowers / max(iPopulation, 1);
 			break;
 	}
 	

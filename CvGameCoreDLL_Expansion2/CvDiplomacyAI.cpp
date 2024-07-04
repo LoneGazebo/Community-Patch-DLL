@@ -44026,6 +44026,10 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	// close both embassies
 	GET_TEAM(eMyTeam).CloseEmbassyAtTeam(eTheirTeam);
 	GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(eMyTeam);
+
+	// cancel Defensive Pacts
+	GET_TEAM(eMyTeam).SetHasDefensivePact(eTheirTeam, false);
+	GET_TEAM(eTheirTeam).SetHasDefensivePact(eMyTeam, false);
 	
 	// End all coop war agreements with this player
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->CancelCoopWarsWithPlayer(eMyPlayer, true);

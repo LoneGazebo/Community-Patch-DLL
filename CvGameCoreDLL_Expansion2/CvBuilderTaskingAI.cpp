@@ -99,7 +99,7 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_plotRoutePurposes);
 	visitor(builderTaskingAI.m_anyRoutePlanned);
 	visitor(builderTaskingAI.m_canalWantedPlots);
-	visitor(builderTaskingAI.m_m_uniqueImprovements);
+	visitor(builderTaskingAI.m_uniqueImprovements);
 }
 
 /// Serialization read

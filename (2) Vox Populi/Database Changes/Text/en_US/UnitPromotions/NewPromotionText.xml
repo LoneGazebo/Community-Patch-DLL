@@ -922,7 +922,7 @@
 			<Text>Focus Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking for each attack done to the target during this turn.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking for each previous attack on the target during this turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT">
