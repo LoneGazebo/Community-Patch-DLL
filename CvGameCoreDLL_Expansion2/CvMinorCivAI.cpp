@@ -1672,15 +1672,13 @@ bool CvMinorCivQuest::IsExpiredGlobal()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if (pMinorAI->IsActiveQuestForPlayer(eLoopPlayer, m_eType))
+		int iNumQuests = pMinorAI->m_QuestsGiven[eLoopPlayer].size();
+		for (uint iQuestLoop = 0; iQuestLoop < iNumQuests; iQuestLoop++)
 		{
-			for (uint iQuestLoop = 0; iQuestLoop < pMinorAI->m_QuestsGiven[eLoopPlayer].size(); iQuestLoop++)
+			if (pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].GetType() == m_eType && !pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].IsExpired())
 			{
-				if (pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].GetType() == m_eType && !pMinorAI->m_QuestsGiven[eLoopPlayer][iQuestLoop].IsExpired())
-				{
-					bNotExpired = true;
-					break;
-				}
+				bNotExpired = true;
+				break;
 			}
 		}
 	}
