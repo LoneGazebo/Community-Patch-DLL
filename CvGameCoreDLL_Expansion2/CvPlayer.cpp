@@ -22584,7 +22584,7 @@ int CvPlayer::GetFoodInCapitalPerTurnFromAnnexedMinors() const
 /// Update the food yields in the capital from annexed City-States (Rome UA)
 void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 {
-	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && getCapitalCity())
 	{
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
 		int iBonus = GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
@@ -22607,11 +22607,11 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 		iBonus /= 100;
 
 		//update if necessary
-		if (iBonus != m_iFoodInCapitalFromAnnexedMinors && getCapitalCity())
+		if (iBonus != m_iFoodInCapitalFromAnnexedMinors)
 		{
+			//bonus food is tracked on city level
 			getCapitalCity()->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInCapitalFromAnnexedMinors);
 			m_iFoodInCapitalFromAnnexedMinors = iBonus;
-			updateYield();
 		}
 	}
 }
@@ -22647,12 +22647,12 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 		//update if necessary
 		if (iBonus != m_iFoodInOtherCitiesFromAnnexedMinors)
 		{
+			//bonus food is tracked on city level
 			int iLoop;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				if (pLoopCity->GetID()!=getCapitalCityID())
 					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInOtherCitiesFromAnnexedMinors);
 			m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
-			updateYield();
 		}
 	}
 }
