@@ -207,10 +207,7 @@ protected:
 	BuildTypes m_eRemoveRouteBuild;
 
 	//some player dependent flags for unique improvements
-	ImprovementTypes m_aeUniqueFeatureImprovement[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)
-	ImprovementTypes m_eUniqueCityAdjacentImprovement; // serialized
-	ImprovementTypes m_eUniqueCoastalImprovement; // serialized
-	ImprovementTypes m_eUniqueHillImprovement; // serialized
+	vector<ImprovementTypes> m_uniqueImprovements; // serialized
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);

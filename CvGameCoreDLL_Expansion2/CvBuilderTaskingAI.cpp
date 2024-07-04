@@ -44,17 +44,6 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 
 	m_bLogging = GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging();
 
-	// if we get a unique improvement that needs a certain feature, leave that feature until tech is researched
-	for (int i = 0; i < NUM_FEATURE_TYPES; i++)
-	{
-		m_aeUniqueFeatureImprovement[i] = NO_IMPROVEMENT;
-	}
-
-	// special case to evaluate plots adjacent to city
-	m_eUniqueCityAdjacentImprovement = NO_IMPROVEMENT;
-	m_eUniqueCoastalImprovement = NO_IMPROVEMENT;
-	m_eUniqueHillImprovement = NO_IMPROVEMENT;
-
 	CivilizationTypes eCiv = m_pPlayer->getCivilizationType();
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
@@ -83,25 +72,8 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 			CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
 			if (eRequiredCiv == eCiv)
 			{
-				for (int i = 0; i < NUM_FEATURE_TYPES; i++)
-				{
-					if (pkImprovementInfo->GetFeatureMakesValid(i))
-					{
-						m_aeUniqueFeatureImprovement[i] = eImprovement;
-					}
-				}
-				if (pkImprovementInfo->IsAdjacentCity())
-				{
-					m_eUniqueCityAdjacentImprovement = eImprovement;
-				}
-				if (pkImprovementInfo->IsCoastal())
-				{
-					m_eUniqueCoastalImprovement = eImprovement;
-				}
-				if (pkImprovementInfo->IsHillsMakesValid())
-				{
-					m_eUniqueHillImprovement = eImprovement;
-				}
+				// Store this civ's unique improvements for special placement considerations as necessary
+				m_uniqueImprovements.push_back(eImprovement);
 			}
 		}
 	}
@@ -117,11 +89,7 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_eFalloutFeature = NO_FEATURE;
 	m_eFalloutRemove = NO_BUILD;
 
-	for (int i = 0; i < NUM_FEATURE_TYPES; i++)
-		m_aeUniqueFeatureImprovement[i] = NO_IMPROVEMENT;
-	m_eUniqueCityAdjacentImprovement = NO_IMPROVEMENT;
-	m_eUniqueCoastalImprovement = NO_IMPROVEMENT;
-	m_eUniqueHillImprovement = NO_IMPROVEMENT;
+	m_uniqueImprovements.clear();
 }
 
 template<typename BuilderTaskingAI, typename Visitor>
@@ -131,10 +99,7 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_plotRoutePurposes);
 	visitor(builderTaskingAI.m_anyRoutePlanned);
 	visitor(builderTaskingAI.m_canalWantedPlots);
-	visitor(builderTaskingAI.m_aeUniqueFeatureImprovement);
-	visitor(builderTaskingAI.m_eUniqueCityAdjacentImprovement);
-	visitor(builderTaskingAI.m_eUniqueCoastalImprovement);
-	visitor(builderTaskingAI.m_eUniqueHillImprovement);
+	visitor(builderTaskingAI.m_m_uniqueImprovements);
 }
 
 /// Serialization read
@@ -1015,23 +980,24 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 
 ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot) const
 {
-	FeatureTypes eFeature = pPlot->getFeatureType();
+	if (m_uniqueImprovements.empty())
+		return NO_IMPROVEMENT;
 
-	if (eFeature != NO_FEATURE && pPlot->canHaveImprovement(m_aeUniqueFeatureImprovement[eFeature], m_pPlayer->GetID(), false, true))
+	FeatureTypes eFeature = pPlot->getFeatureType();
+	ImprovementTypes eImprovement = NO_IMPROVEMENT;
+	for (size_t i = 0; i < m_uniqueImprovements.size(); ++i)
 	{
-		return m_aeUniqueFeatureImprovement[eFeature];
-	}
-	else if (m_eUniqueCityAdjacentImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity() && pPlot->canHaveImprovement(m_eUniqueCityAdjacentImprovement, m_pPlayer->GetID(), false, true))
-	{
-		return m_eUniqueCityAdjacentImprovement;
-	}
-	else if (m_eUniqueCoastalImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand() && pPlot->canHaveImprovement(m_eUniqueCoastalImprovement, m_pPlayer->GetID(), false, true))
-	{
-		return m_eUniqueCoastalImprovement;
-	}
-	else if (m_eUniqueHillImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS && pPlot->canHaveImprovement(m_eUniqueHillImprovement, m_pPlayer->GetID(), false, true))
-	{
-		return m_eUniqueHillImprovement;
+		eImprovement = m_uniqueImprovements[i];
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+		if ((pkImprovementInfo->GetFeatureMakesValid(eFeature)) ||
+			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
+			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
+			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
+		{
+			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), false, true))
+				return eImprovement;
+		}
 	}
 
 	return NO_IMPROVEMENT;
