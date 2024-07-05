@@ -13481,6 +13481,13 @@ void CvDiplomacyAI::DoTestPromises()
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_S");
 						pNotifications->Add(NOTIFICATION_EXPANSION_PROMISE_EXPIRED, strBuffer, strSummary, -1, -1, GetID(), eLoopPlayer);
 					}
+					pNotifications = GetPlayer()->GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM_S", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+						pNotifications->Add(NOTIFICATION_EXPANSION_PROMISE_EXPIRED, strBuffer, strSummary, -1, -1, eLoopPlayer, GetID());
+					}
 				}
 			}
 			else if (IsPlayerIgnoredExpansionPromise(eLoopPlayer))

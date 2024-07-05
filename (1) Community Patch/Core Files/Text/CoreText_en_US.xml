@@ -3862,6 +3862,12 @@
 		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS">
 			<Text>If you denounce them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM">
+			<Text>It has been many years since {1_CivDesc}'s promise to not settle near you. They consider that promise to be fulfilled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM_S">
+			<Text>{1_CivDesc} kept their expansion promise.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
 		</Row>
