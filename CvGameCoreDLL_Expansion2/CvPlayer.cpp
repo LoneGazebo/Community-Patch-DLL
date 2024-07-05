@@ -3271,8 +3271,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
 				if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
 					pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
-				if (pOldOwnerDiploAI->GetCoopWarScore(GetID()) > 0)
-					pOldOwnerDiploAI->SetCoopWarScore(GetID(), 0);
+				if (pOldOwnerDiploAI->GetCoopWarAgreementScore(GetID()) > 0)
+					pOldOwnerDiploAI->SetCoopWarAgreementScore(GetID(), 0);
 			}
 			else if (GET_PLAYER(eOldOwner).isMinorCiv())
 			{
@@ -9664,14 +9664,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 				pDiploAI->SetNumDemandsMade(*it, 0);
 
-				if (pDiploAI->GetCoopWarScore(*it) < 0)
+				if (pDiploAI->GetCoopWarAgreementScore(*it) < 0)
 				{
-					pDiploAI->SetCoopWarScore(*it, 0);
+					pDiploAI->SetCoopWarAgreementScore(*it, 0);
 				}
 
-				if (pMemberDiploAI->GetCoopWarScore(ePlayer) < 0)
+				if (pMemberDiploAI->GetCoopWarAgreementScore(ePlayer) < 0)
 				{
-					pDiploAI->SetCoopWarScore(ePlayer, 0);
+					pDiploAI->SetCoopWarAgreementScore(ePlayer, 0);
 				}
 
 				// Forget war history

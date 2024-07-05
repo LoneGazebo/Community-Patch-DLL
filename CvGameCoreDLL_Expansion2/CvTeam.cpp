@@ -4863,7 +4863,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 							if (pDiplo->IsPlayerValid(eThirdParty, true) && pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
 							{
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarAgreementScore(eLoopPlayer, -2);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
 
 								CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();

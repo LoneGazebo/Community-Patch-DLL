@@ -10949,9 +10949,9 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		iAlignment -= pDiplo->GetWarmongerThreat(ePlayer);
 	}
-	if (pDiplo->GetCoopWarScore(ePlayer) > 0)
+	if (pDiplo->GetCoopWarAgreementScore(ePlayer) > 0)
 	{
-		iAlignment += pDiplo->GetCoopWarScore(ePlayer);
+		iAlignment += pDiplo->GetCoopWarAgreementScore(ePlayer);
 	}
 
 	// Backstabber?

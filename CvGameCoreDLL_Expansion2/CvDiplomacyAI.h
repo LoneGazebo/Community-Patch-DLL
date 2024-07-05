@@ -398,9 +398,9 @@ public:
 	void SetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, int iTurn);
 	bool IsCoopWarMessageTooSoon(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const;
 
-	int GetCoopWarScore(PlayerTypes ePlayer) const;
-	void SetCoopWarScore(PlayerTypes ePlayer, int iValue);
-	void ChangeCoopWarScore(PlayerTypes ePlayer, int iChange);
+	int GetCoopWarAgreementScore(PlayerTypes ePlayer) const;
+	void SetCoopWarAgreementScore(PlayerTypes ePlayer, int iValue);
+	void ChangeCoopWarAgreementScore(PlayerTypes ePlayer, int iChange);
 
 	// ------------------------------------
 	// War
@@ -1957,7 +1957,7 @@ private:
 	// Coop Wars
 	char m_aaeCoopWarState[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
 	int m_aaiCoopWarStateChangeTurn[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
-	char m_aiCoopWarScore[MAX_MAJOR_CIVS];
+	char m_aiCoopWarAgreementScore[MAX_MAJOR_CIVS];
 
 	// War
 	bool m_abSaneDiplomaticTarget[MAX_CIV_PLAYERS];
