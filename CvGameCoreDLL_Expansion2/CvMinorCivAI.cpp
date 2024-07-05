@@ -5737,7 +5737,7 @@ int CvMinorCivAI::GetNumThreateningMajors()
 bool CvMinorCivAI::IsAnyBarbarianInBorders()
 {
 	if (GetPlayer()->getCapitalCity() == NULL)
-		return 0;
+		return false;
 
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
