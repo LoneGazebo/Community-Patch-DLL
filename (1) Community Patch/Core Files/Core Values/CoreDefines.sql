@@ -3,6 +3,9 @@
 INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', 1;
 INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', 0;
 
+-- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
+INSERT INTO Defines(Name, Value) SELECT 'COMPLETE_KILLS_TURN_TIMER', -1;
+
 -- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
 INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_1', 7;
 INSERT INTO Defines(Name, Value) SELECT 'MAX_NUM_TENETS_LEVEL_2', 4;

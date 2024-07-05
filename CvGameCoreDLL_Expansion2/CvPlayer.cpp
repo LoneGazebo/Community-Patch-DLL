@@ -366,6 +366,7 @@ CvPlayer::CvPlayer() :
 	, m_bExtendedGame()
 	, m_bFoundedFirstCity()
 	, m_iNumCitiesFounded()
+	, m_iCompleteKillsTimerTurn()
 	, m_bStrike()
 	, m_bCramped()
 	, m_bLostCapital()
@@ -1709,6 +1710,7 @@ void CvPlayer::uninit()
 	m_bExtendedGame = false;
 	m_bFoundedFirstCity = false;
 	m_iNumCitiesFounded = 0;
+	m_iCompleteKillsTimerTurn = -1;
 	m_bStrike = false;
 	m_bCramped = false;
 	m_bLostCapital = false;
@@ -2652,7 +2654,7 @@ void CvPlayer::initFreeUnits()
 
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount)
+void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, bool bCompleteKills)
 {
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestUnitValue = 0;
@@ -2670,7 +2672,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount)
 
 		// Starting Settler is the only unit that doesn't require a canTrainUnit check
 		bool bIsSettler = (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SETTLER"));
-		if ((bGameStart && bIsSettler) || canTrainUnit(eLoopUnit))
+		if (((bGameStart || bCompleteKills) && bIsSettler) || canTrainUnit(eLoopUnit))
 		{
 			int iValue = 0;
 
@@ -2682,7 +2684,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount)
 			// Not default, but still possible?
 			else if (pkUnitInfo->GetUnitAIType(eUnitAI))
 			{
-				if (!bGameStart)
+				if (!bGameStart && !bCompleteKills)
 					iValue += pkUnitInfo->GetProductionCost();
 				else if (eUnitAI != UNITAI_SETTLE && eUnitAI != UNITAI_WORKER && eUnitAI != UNITAI_WORKER_SEA) // Never spawn in secondary Settlers or Workers at game start
 					iValue += pkUnitInfo->GetProductionCost();
@@ -2700,14 +2702,14 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount)
 	{
 		for (int iI = 0; iI < iCount; iI++)
 		{
-			addFreeUnit(eBestUnit, bGameStart, eUnitAI);
+			addFreeUnit(eBestUnit, bGameStart, eUnitAI, bCompleteKills);
 		}
 	}
 }
 
 //	--------------------------------------------------------------------------------
 /// Returns plot where new unit was created
-CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI)
+CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI, bool bCompleteKills)
 {
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if (!pkUnitInfo)
@@ -2756,6 +2758,72 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	else
 	{
 		pStartingPlot = getStartingPlot();
+	}
+
+	// If this is a Complete Kills spawn, pick a plot occupied by one of the AI's existing land units
+	if (bCompleteKills)
+	{
+		int iBestPlotValue = 0;
+		int iLoop = 0;
+		pStartingPlot = NULL;
+		// Try to spawn on top of an existing land combat unit
+		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		{
+			if (!pLoopUnit->IsCanDefend())
+				continue;
+
+			CvPlot* pUnitPlot = pLoopUnit->plot();
+			if (!pUnitPlot || pUnitPlot->isWater())
+				continue;
+
+			int iValue = pLoopUnit->GetMaxDefenseStrength(pUnitPlot, NULL, NULL, false, true);
+			if (iValue > iBestPlotValue)
+			{
+				iBestPlotValue = iValue;
+				pStartingPlot = pUnitPlot;
+			}
+		}
+		// Try to spawn on top of an existing land non-combat unit
+		if (!pStartingPlot)
+		{
+			for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			{
+				if (pLoopUnit->isDelayedDeath() || !pLoopUnit->IsCivilianUnit())
+					continue;
+
+				CvPlot* pUnitPlot = pLoopUnit->plot();
+				if (!pUnitPlot || pUnitPlot->isWater())
+					continue;
+
+				int iValue = max(1, pLoopUnit->getUnitInfo().GetProductionCost());
+				if (iValue > iBestPlotValue)
+				{
+					iBestPlotValue = iValue;
+					pStartingPlot = pUnitPlot;
+				}
+			}
+		}
+		// Just pick the first plot that a city can be founded on
+		if (!pStartingPlot)
+		{
+			CvMap& theMap = GC.getMap();
+			int iNumWorldPlots = theMap.numPlots();
+			for (int iI = 0; iI < iNumWorldPlots; iI++)
+			{
+				CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
+				if (pLoopPlot->isWater() || pLoopPlot->isOwned() || pLoopPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) || !pLoopPlot->isValidMovePlot(GetID()))
+					continue;
+
+				if (pLoopPlot->getNumUnits() > 0 || pLoopPlot->IsEnemyUnitAdjacent(getTeam()))
+					continue;
+
+				if (!canFoundCity(pLoopPlot->getX(), pLoopPlot->getY()))
+					continue;
+
+				pStartingPlot = pLoopPlot;
+				break;
+			}
+		}
 	}
 
 	if (!pStartingPlot)
@@ -34723,6 +34791,40 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 			setAlive(true);
 		}
 	}
+
+	if (/*-1 in CP, 10 in VP*/ GD_INT_GET(COMPLETE_KILLS_TURN_TIMER) > -1)
+		checkCompleteKillsTimer();
+}
+
+void CvPlayer::checkCompleteKillsTimer()
+{
+	if (!isBarbarian() && isAlive() && getNumCities() == 0 && getNumUnits() > 0 && GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !HasActiveSettler())
+	{
+		int iTurn = GC.getGame().getGameTurn();
+		if (GetCompleteKillsTimerTurn() == -1)
+			SetCompleteKillsTimerTurn(iTurn);
+
+		int iTurnDifference = iTurn - GetCompleteKillsTimerTurn();
+		if (iTurnDifference >= GD_INT_GET(COMPLETE_KILLS_TURN_TIMER))
+		{
+			// Spawn a Settler somewhere!
+			addFreeUnitAI(UNITAI_SETTLE, false, 1, true);
+			if (HasActiveSettler())
+				SetCompleteKillsTimerTurn(-1);
+		}
+	}
+	else if (GetCompleteKillsTimerTurn() != -1)
+		SetCompleteKillsTimerTurn(-1);
+}
+
+int CvPlayer::GetCompleteKillsTimerTurn() const
+{
+	return m_iCompleteKillsTimerTurn;
+}
+
+void CvPlayer::SetCompleteKillsTimerTurn(int iTurn)
+{
+	m_iCompleteKillsTimerTurn = iTurn;
 }
 
 //	--------------------------------------------------------------------------------
@@ -45946,6 +46048,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bExtendedGame);
 	visitor(player.m_bFoundedFirstCity);
 	visitor(player.m_iNumCitiesFounded);
+	visitor(player.m_iCompleteKillsTimerTurn);
 	visitor(player.m_bStrike);
 	visitor(player.m_bCramped);
 	visitor(player.m_bLostCapital);

@@ -98,8 +98,8 @@ public:
 
 	void initFreeState(CvGameInitialItemsOverrides& kOverrides);
 	void initFreeUnits();
-	void addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount);
-	CvPlot* addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI);
+	void addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, bool bCompleteKills = false);
+	CvPlot* addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI, bool bCompleteKills = false);
 
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
@@ -1631,6 +1631,9 @@ public:
 	void setEverAlive(bool bNewValue);
 	void setAlive(bool bNewValue, bool bNotify = true);
 	void verifyAlive(PlayerTypes eKiller = NO_PLAYER);
+	void checkCompleteKillsTimer();
+	int GetCompleteKillsTimerTurn() const;
+	void SetCompleteKillsTimerTurn(int iTurn);
 	bool isAlive() const
 	{
 		return m_bAlive;
@@ -3456,6 +3459,7 @@ protected:
 	bool m_bExtendedGame;
 	bool m_bFoundedFirstCity;
 	int m_iNumCitiesFounded;
+	int m_iCompleteKillsTimerTurn;
 	bool m_bStrike;
 	bool m_bCramped;
 	bool m_bLostCapital;
@@ -4267,6 +4271,7 @@ SYNC_ARCHIVE_VAR(bool, m_bPbemNewTurn)
 SYNC_ARCHIVE_VAR(bool, m_bExtendedGame)
 SYNC_ARCHIVE_VAR(bool, m_bFoundedFirstCity)
 SYNC_ARCHIVE_VAR(int, m_iNumCitiesFounded)
+SYNC_ARCHIVE_VAR(int, m_iCompleteKillsTimerTurn)
 SYNC_ARCHIVE_VAR(bool, m_bStrike)
 SYNC_ARCHIVE_VAR(bool, m_bCramped)
 SYNC_ARCHIVE_VAR(bool, m_bLostCapital)
