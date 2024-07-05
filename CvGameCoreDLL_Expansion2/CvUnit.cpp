@@ -20919,6 +20919,11 @@ int CvUnit::getDamage() const
 int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText, bool bDontShow)
 {
 	VALIDATE_OBJECT
+
+	// Avoid a build warning for unreferenced formal parameter. azum4roll fix this pls
+	if (fAdditionalTextDelay > 0.0f)
+		fAdditionalTextDelay = 0.0f;
+
 	int iOldValue = getDamage();
 
 	m_iDamage = range(iNewValue, 0, GetMaxHitPoints());
