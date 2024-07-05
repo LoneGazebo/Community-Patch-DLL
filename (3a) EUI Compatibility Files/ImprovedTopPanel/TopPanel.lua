@@ -2536,7 +2536,7 @@ local function ResourcesToolTip( control )
 									tip = tip .. " [COLOR_CYAN]" .. L(tech.Description) .. "[ENDCOLOR]"
 								end
 								local policyBranch = building.PolicyBranchType and GameInfo.PolicyBranchTypes[ building.PolicyBranchType ]
-								if policyBranch and not g_activePlayer:GetPolicyBranchChosen( policyBranch.ID ) then
+								if policyBranch and not g_activePlayer:IsPolicyBranchUnlocked( policyBranch.ID ) then
 									tip = tip .. " [COLOR_MAGENTA]" .. L(policyBranch.Description) .. "[ENDCOLOR]"
 								end
 							end
@@ -2809,7 +2809,7 @@ local function ResourcesToolTip( control )
 								tip = S( "%s [COLOR_CYAN]%s[ENDCOLOR]", tip, L(tech.Description) )
 							end
 							local policyBranch = civ5bnw_mode and building.PolicyBranchType and GameInfo.PolicyBranchTypes[ building.PolicyBranchType ]
-							if policyBranch and not g_activePlayer:GetPolicyBranchChosen( policyBranch.ID ) then
+							if policyBranch and not g_activePlayer:IsPolicyBranchUnlocked( policyBranch.ID ) then
 								tip = S( "%s [COLOR_MAGENTA]%s[ENDCOLOR]", tip, L(policyBranch.Description) )
 							end
 							if civBE_mode then

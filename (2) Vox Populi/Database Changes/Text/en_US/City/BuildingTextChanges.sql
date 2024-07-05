@@ -833,3 +833,16 @@ SET Text = '+1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers'' M
 	|| (SELECT GROUP_CONCAT(r.IconString) FROM Corporation_ResourceYieldChanges c, Resources r WHERE c.CorporationType = 'CORPORATION_CIVILIZED_JEWELERS' AND c.ResourceType = r.Type)
 	|| ') near the City. {TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS}'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP';
+
+-- Theming bonuses
+UPDATE Language_en_US
+SET Text = '{2_CivAdjective} Museum of the {1_EraAdjective} Era'
+WHERE Tag = 'TXT_KEY_THEMING_BONUS_MUSEUM_5';
+
+UPDATE Language_en_US
+SET Text = 'Museum of {2_CivAdjective} Art'
+WHERE Tag = 'TXT_KEY_THEMING_BONUS_MUSEUM_7';
+
+UPDATE Language_en_US
+SET Text = 'Museum of {2_CivAdjective} Warfare'
+WHERE Tag = 'TXT_KEY_THEMING_BONUS_MUSEUM_8';

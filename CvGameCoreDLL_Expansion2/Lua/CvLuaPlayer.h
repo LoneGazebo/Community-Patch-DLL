@@ -548,8 +548,6 @@ protected:
 	static int lIsPolicyBranchUnlocked(lua_State* L);
 	static int lSetPolicyBranchUnlocked(lua_State* L);
 	static int lGetNumPolicyBranchesUnlocked(lua_State* L);
-	static int lGetPolicyBranchChosen(lua_State* L);
-	static int lGetNumPolicyBranchesAllowed(lua_State* L);
 	static int lGetNumPolicies(lua_State* L);
 	static int lGetNumPoliciesInBranch(lua_State* L);
 	static int lGetNumPoliciesPurchasedInBranch(lua_State* L);

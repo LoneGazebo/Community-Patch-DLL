@@ -835,9 +835,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if(eTestDomain != NO_DOMAIN)
 			{
 				int iTempBonus = 0;
-#if defined(MOD_BALANCE_CORE)
 				int iTempMod = 0;
-#endif
+
 				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
 					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain));
@@ -850,7 +849,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
 				}
-#if defined(MOD_BALANCE_CORE)
 				if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
 				{
 					iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
@@ -862,7 +860,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 				iTempBonus *= (100 + iTempMod);
 				iTempBonus /= 100;
-#endif
 				if(iTempBonus > 0)
 				{
 					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
@@ -879,6 +876,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 	}
+
 	//Unitcombat Bonuses should stack too.
 	if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{

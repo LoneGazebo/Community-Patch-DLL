@@ -331,7 +331,7 @@ protected:
 	static int lSetPlannedRouteState(lua_State* L);
 
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);
-	LUAAPIEXTN(AddPopupMessage, void, sMessage, fDelay, iNotifyPlayer);
+	LUAAPIEXTN(AddPopupMessage, void, sMessage, fDelay /*unused*/, iNotifyPlayer);
 
 	LUAAPIEXTN(IsCivilization, bool, iCivilizationType);
 	LUAAPIEXTN(HasFeature, bool, iFeatureType);

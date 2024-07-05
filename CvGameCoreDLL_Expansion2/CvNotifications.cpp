@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -419,27 +419,22 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 			case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
 			case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 			case NOTIFICATION_CHOOSE_IDEOLOGY:
-#if defined(MOD_BALANCE_CORE)
 			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
-#endif
 				return false;
 				break;
 
-#if defined(MOD_UI_CITY_EXPANSION)
 			// We'll let the user right click the End Turn button to ignore this, as the notification will be sent again next turn 
 			case NOTIFICATION_CITY_TILE:
 				// We could just let this drop through as the default is true anyway
 				return true;
 				break;
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 			case -364200720:
 			case 826076831:
 			case 419811917:
 			case -1608954742:
 				return false;
 				break;
-#endif
 
 			case NOTIFICATION_POLICY:
 				if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))

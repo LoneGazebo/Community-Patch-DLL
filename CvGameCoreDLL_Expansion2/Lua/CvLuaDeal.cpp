@@ -218,7 +218,6 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 	CvDeal* pkDeal = GetInstance(L);
 	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
-	CvPlayerAI* pkThisPlayer = &GET_PLAYER(eFromPlayer);
 
 	int iDealValueToMe = 0;
 	bool bCantMatchOffer = false;

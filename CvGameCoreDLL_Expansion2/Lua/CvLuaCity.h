@@ -224,7 +224,6 @@ protected:
 	static int lSetHighestPopulation(lua_State* L);
 	//static int lGetWorkingPopulation(lua_State* L);
 	//static int lGetSpecialistPopulation(lua_State* L);
-	static int lGetNumGreatPeople(lua_State* L);
 	static int lGetBaseGreatPeopleRate(lua_State* L);
 	static int lGetGreatPeopleRate(lua_State* L);
 	static int lGetEventGPPFromSpecialists(lua_State* L);

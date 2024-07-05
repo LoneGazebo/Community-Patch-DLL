@@ -350,8 +350,6 @@ public:
 	bool IsMountain() const;
 	bool IsHill() const;
 	bool IsFlat() const;
-	bool IsFoundsReligion() const;
-	bool IsReligious() const;
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
@@ -908,8 +906,6 @@ private:
 	bool m_bMountain;
 	bool m_bHill;
 	bool m_bFlat;
-	bool m_bFoundsReligion;
-	bool m_bIsReligious;
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
 	int m_iCityAirStrikeDefense;
@@ -1215,8 +1211,8 @@ public:
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eSlotType) const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
 	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
-	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
-	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
+	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes& eBuildingClass, int& iSlot) const;
+	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes& eBuildingClass, int& iSlot) const;
 
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 	int GetCultureFromGreatWorks() const;

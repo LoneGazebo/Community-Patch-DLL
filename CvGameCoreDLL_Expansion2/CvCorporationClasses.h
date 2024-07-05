@@ -251,20 +251,21 @@ public:
 	CorporationTypes GetFoundedCorporation() const;
 	void SetFoundedCorporation(CorporationTypes eCorporation);
 
+	bool IsCorporationOfficesAsFranchises() const;
 	int GetCorporationOfficesAsFranchises() const;
-	void SetCorporationOfficesAsFranchises(int iValue);
+	void ChangeCorporationOfficesAsFranchises(int iValue);
 
 	int GetCorporationRandomForeignFranchiseMod() const;
-	void SetCorporationRandomForeignFranchiseMod(int iValue);
+	void ChangeCorporationRandomForeignFranchiseMod(int iValue);
 
 	int GetCorporationFreeFranchiseAbovePopular() const;
-	void SetCorporationFreeFranchiseAbovePopular(int iValue);
+	void ChangeCorporationFreeFranchiseAbovePopular(int iValue);
 
 	bool IsNoForeignCorpsInCities() const;
-	void SetNoForeignCorpsInCities(bool bValue);
+	void ChangeNoForeignCorpsInCities(int iValue);
 
 	bool IsNoFranchisesInForeignCities() const;
-	void SetNoFranchisesInForeignCities(bool bValue);
+	void ChangeNoFranchisesInForeignCities(int iValue);
 
 	int GetFranchisesPerImprovement(ImprovementTypes eIndex) const;
 	void ChangeFranchisesPerImprovement(ImprovementTypes eIndex, int iValue);
@@ -287,8 +288,8 @@ private:
 
 	std::vector<int> m_aiFranchisesPerImprovement;
 
-	bool m_bIsNoForeignCorpsInCities;
-	bool m_bIsNoFranchisesInForeignCities;
+	int m_iNoForeignCorpsInCities;
+	int m_iNoFranchisesInForeignCities;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerCorporations&);

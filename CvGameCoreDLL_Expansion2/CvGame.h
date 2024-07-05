@@ -409,14 +409,6 @@ public:
 
 	int GetWorldMilitaryStrengthAverage(PlayerTypes ePlayer, bool bIncludeMe, bool bIncludeOnlyKnown);
 
-	int GetTotalReligionTechCost() const;
-	void DoUpdateTotalReligionTechCost();
-	int GetCachedWorldReligionTechProgress() const;
-	void DoUpdateCachedWorldReligionTechProgress();
-
-	TechTypes GetReligionTech() const;
-	void SetReligionTech(TechTypes eTech);
-	int GetResearchLeftToReligionTech(TeamTypes eTeam);
 	int GetResearchLeftToTech(TeamTypes eTeam, TechTypes eTech);
 
 	GameStateTypes getGameState();
@@ -873,8 +865,6 @@ protected:
 	int m_iInitTech;
 	int m_iInitWonders;
 	int m_iAIAutoPlay;
-	int m_iTotalReligionTechCost;
-	int m_iCachedWorldReligionTechProgress;
 	int m_iUnitedNationsCountdown;
 	int m_iNumVictoryVotesTallied;
 	int m_iNumVictoryVotesExpected;
@@ -929,7 +919,6 @@ protected:
 	PlayerTypes m_eBestWondersPlayer;
 	PlayerTypes m_eBestPoliciesPlayer;
 	PlayerTypes m_eBestGreatPeoplePlayer;
-	TechTypes m_eReligionTech;
 	RouteTypes m_eIndustrialRoute;
 	EraTypes m_eGameEra;
 	bool m_bArchaeologyTriggered;

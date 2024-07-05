@@ -322,14 +322,7 @@ function AddBuildingButton( pCity, building )
 		end
 		
 		-- Name
-		local strBuildingName;
-		
-		-- Religious Buildings have special names
-		if (building.IsReligious) then
-			strBuildingName = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_BUILDING", building.Description, pPlayer:GetStateReligionKey());
-		else
-			strBuildingName = Locale.ConvertTextKey(building.Description);
-		end
+		local strBuildingName = Locale.ConvertTextKey(building.Description);
 
 		-- Building is free, add an asterisk to the name
 		if (bIsBuildingFree) then

@@ -1142,9 +1142,10 @@ int CvLuaUnit::lRebaseAt(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const int iX = lua_tointeger(L, 2);
 	const int iY = lua_tointeger(L, 3);
-	const bool bResult = pkUnit->rebase(iX,iY);
+	const bool bResult = pkUnit->rebase(iX, iY);
 
-	return 0;
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool canScrap();
@@ -1890,31 +1891,25 @@ int CvLuaUnit::lCanDiscover(lua_State* L)
 int CvLuaUnit::lGetDiscoverAmount(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
 	const int iResult = pkUnit->GetScienceBlastStrength();
-#else
-	const int iResult = pkUnit->getDiscoverAmount();
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int GetHurryProduction(CvPlot* pPlot);
+//int GetHurryProduction();
 int CvLuaUnit::lGetHurryProduction(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 
 	const int iResult = pkUnit->GetHurryStrength();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int GetTradeGold(CyPlot* pPlot);
+//int GetTradeGold();
 int CvLuaUnit::lGetTradeGold(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2); // not used anymore
 
 	const int iResult = pkUnit->getTradeGold();
 	lua_pushinteger(L, iResult);
@@ -1982,7 +1977,7 @@ int CvLuaUnit::lCanRepairFleet(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+
 //------------------------------------------------------------------------------
 //bool canChangePort(CvPlot* pPlot);
 int CvLuaUnit::lCanChangePort(lua_State* L)
@@ -1994,7 +1989,7 @@ int CvLuaUnit::lCanChangePort(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //bool CanBuildSpaceship(CyPlot* pPlot, bool bVisible);
 int CvLuaUnit::lCanBuildSpaceship(lua_State* L)
@@ -6271,7 +6266,6 @@ int CvLuaUnit::lCanStartMission(lua_State* L)
 	const int iData2 = lua_tointeger(L, 4);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 5, false);
 	const bool bTestVisible = luaL_optint(L, 6, 0);
-	const bool bUseCache = luaL_optint(L, 7, 0);
 
 	const bool bResult = pkUnit->CanStartMission(iMission, iData1, iData2, pkPlot, bTestVisible);
 	lua_pushboolean(L, bResult);

@@ -17,7 +17,9 @@ VALUES
 
 -- Opener (now Progress)
 UPDATE Policies
-SET CulturePerCity = 0
+SET
+	CulturePerCity = 0,
+	OneShot = 1
 WHERE Type = 'POLICY_LIBERTY';
 
 INSERT INTO Policy_YieldFromBirthCapital
@@ -47,6 +49,7 @@ WHERE PolicyType = 'POLICY_COLLECTIVE_RULE';
 UPDATE Policies
 SET
 	CapitalSettlerProductionModifier = 0,
+	IncludesOneShotFreeUnits = 0,
 	PortraitIndex = 29,
 	IconAtlas = 'POLICY_ATLAS',
 	IconAtlasAchieved = 'POLICY_A_ATLAS'

@@ -2367,7 +2367,6 @@ int CvLuaPlot::lAddPopupMessage(lua_State* L)
 {
 	CvPlot* pPlot = GetInstance(L);
 	const char* szMessage = lua_tostring(L, 2);
-	const float fDelay = (float) luaL_optnumber(L, 3, 0.0);
 	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 4, GC.getGame().getActivePlayer());
 
 	SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage);

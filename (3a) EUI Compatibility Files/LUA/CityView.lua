@@ -1062,9 +1062,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
 		end
 
-		if civ5_mode and building.IsReligious then
-			buildingName = L( "TXT_KEY_RELIGIOUS_BUILDING", buildingName, Players[city:GetOwner()]:GetStateReligionKey() )
-		end
 		if city:GetNumFreeBuilding( buildingID ) > 0 then
 			buildingName = buildingName .. " ([COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_FREE" .. "[ENDCOLOR])"
 		else

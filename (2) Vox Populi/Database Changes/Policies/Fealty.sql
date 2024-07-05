@@ -128,7 +128,9 @@ VALUES
 	('POLICY_PIETY_FINISHER', 'UNITCLASS_ARTIST');
 
 UPDATE Policies
-SET SharedReligionTourismModifier = 50
+SET
+	SharedReligionTourismModifier = 50,
+	IncludesOneShotFreeUnits = 0
 WHERE Type = 'POLICY_PIETY_FINISHER';
 
 INSERT INTO Policy_ReligionYieldMod

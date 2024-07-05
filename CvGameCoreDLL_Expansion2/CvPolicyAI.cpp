@@ -850,61 +850,34 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 /// What's the total Happiness benefit we could get from all policies/tenets in the branch based on our current buildings?
 int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 {
-	// Policy Building Mods
-	int iSpecialPolicyBuildingHappiness = 0;
-	int iBuildingClassLoop = 0;
-	BuildingClassTypes eBuildingClass;
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	int iTotalHappiness = 0;
+	for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
 	{
-		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
+		PolicyTypes ePolicy = static_cast<PolicyTypes>(iI);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if (!pkPolicyInfo)
+			continue;
+
+		if (pkPolicyInfo->GetPolicyBranchType() == eBranch)
 		{
-			if (pkPolicyInfo->GetPolicyBranchType() == eBranch)
+			for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
 			{
-				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+				BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
+				int iHappiness = pkPolicyInfo->GetBuildingClassHappiness(iJ);
+				if (pkPolicyInfo->GetBuildingClassHappiness(iJ) != 0)
 				{
-					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if (!pkBuildingClassInfo)
+					int iLoop = 0;
+					for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 					{
-						continue;
-					}
-
-					if (pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
-					{
-						BuildingTypes eBuilding = NO_BUILDING;
-
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-						{
-							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						}
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
-						{
-							int iLoop = 0;
-							for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
-							{
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-								{
-									eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-									if (eBuilding == NO_BUILDING)
-									{
-										continue;
-									}
-								}
-								if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-								{
-									iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass);
-								}
-							}
-						}
+						int iNumBuilding = pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass);
+						iTotalHappiness += iHappiness * iNumBuilding;
 					}
 				}
 			}
 		}
 	}
-	return iSpecialPolicyBuildingHappiness;
+
+	return iTotalHappiness;
 }
 
 /// How many policies in this branch help happiness?

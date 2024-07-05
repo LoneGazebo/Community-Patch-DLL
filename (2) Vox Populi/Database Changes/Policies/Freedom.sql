@@ -75,14 +75,15 @@ SET
 	SharedIdeologyTradeGoldChange = 6
 WHERE Type = 'POLICY_ECONOMIC_UNION';
 
- -- Universal Suffrage 
+-- Universal Suffrage 
 UPDATE Policies
 SET
 	Level = 1,
 	HalfSpecialistUnhappiness = 0,
 	GoldenAgeTurns = 10,
 	-- GoldenAgeDurationMod = 50,
-	ExtraHappinessPerCity = 1
+	ExtraHappinessPerCity = 1,
+	OneShot = 1
 WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
 
 ------------------

@@ -9250,7 +9250,7 @@ bool CvUnit::createGreatWork()
 	GreatWorkClass eClass = CultureHelpers::GetGreatWorkClass(eGreatWorkType);
 	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eGreatWorkType);
 	
-	CvCity *pCity = kPlayer.GetCulture()->GetClosestAvailableGreatWorkSlot(getX(), getY(), eGreatWorkSlot, &eBuildingClass, &iSlot);
+	CvCity *pCity = kPlayer.GetCulture()->GetClosestAvailableGreatWorkSlot(getX(), getY(), eGreatWorkSlot, eBuildingClass, iSlot);
 	if (pCity)
 	{
 		int iGWindex = pCulture->CreateGreatWork(eGreatWorkType, eClass, m_eOwner, kPlayer.GetCurrentEra(), getName());
@@ -12688,7 +12688,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			// Instant yield from tiles gained by culture bombing
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -12729,16 +12729,9 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
 				}
 			}
-#endif
+
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			//CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
-			//if(pCapitalCity != NULL)
-			//{
-			//	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
-			//}
-#endif
 		}
 	}
 
@@ -14056,31 +14049,33 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const
 {
 	// Does the Unit actually upgrade into anything?
-	if(eUpgradeUnitType == NO_UNIT)
+	if (eUpgradeUnitType == NO_UNIT)
 		return false;
 
-	CvUnitEntry* pUpgradeUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
-	if(pUpgradeUnitInfo == NULL)
+	CvUnitEntry* pkUpgradeUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
+	if (!pkUpgradeUnitInfo)
 		return false;
 
 	// Tech requirement
-	TechTypes ePrereqTech = (TechTypes) pUpgradeUnitInfo->GetPrereqAndTech();
-
-	if(ePrereqTech != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+	TechTypes ePrereqTech = static_cast<TechTypes>(pkUpgradeUnitInfo->GetPrereqAndTech());
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	if (ePrereqTech != NO_TECH && !kOwner.HasTech(ePrereqTech))
 		return false;
 
 	// Project requirement
-	ProjectTypes ePrereqProject = (ProjectTypes) pUpgradeUnitInfo->GetProjectPrereq();
-	if (ePrereqProject != NO_PROJECT) {
+	ProjectTypes ePrereqProject = static_cast<ProjectTypes>(pkUpgradeUnitInfo->GetProjectPrereq());
+	CvTeam& kTeam = GET_TEAM(getTeam());
+	if (ePrereqProject != NO_PROJECT)
+	{
 		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(ePrereqProject);
-		if (pkProjectInfo && GET_TEAM(getTeam()).getProjectCount(ePrereqProject) == 0)
+		if (pkProjectInfo && kTeam.getProjectCount(ePrereqProject) == 0)
 			return false;
 	}
 
 	CvPlot* pPlot = plot();
 
 	// Show the upgrade, but don't actually allow it
-	if(!bOnlyTestVisible)
+	if (!bOnlyTestVisible)
 	{
 		if (!canEndTurnAtPlot(pPlot))
 			return false;
@@ -14088,88 +14083,47 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if (!CanUpgradeInTerritory(bOnlyTestVisible))
 			return false;
 
-		if(isEmbarked() || ((plot()->isWater() && getDomainType() != DOMAIN_SEA) && !isCargo()))
-		{
+		if (isEmbarked() || pPlot->needsEmbarkation(this))
 			return false;
-		}
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
-		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes)pUpgradeUnitInfo->GetUnitClassType();
+		UnitClassTypes eUpgradeUnitClassType = static_cast<UnitClassTypes>(pkUpgradeUnitInfo->GetUnitClassType());
 
 		// Maxed out unit class for Game
-		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
+		if (GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
 			return false;
 
 		// Maxed out unit class for Team
-		if(GET_TEAM(getTeam()).isUnitClassMaxedOut(eUpgradeUnitClassType))
+		if (kTeam.isUnitClassMaxedOut(eUpgradeUnitClassType))
 			return false;
 
 		// Maxed out unit class for Player
-		if(GET_PLAYER(getOwner()).isUnitClassMaxedOut(eUpgradeUnitClassType))
+		if (kOwner.isUnitClassMaxedOut(eUpgradeUnitClassType))
 			return false;
 
-		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
-		{
-			SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes)GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
-			if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() == eSpedcialStealth)
-			{
-				if (!pPlot->isCity())
-					return false;
+		// Can't upgrade into something that our current transporter can't carry (e.g. base game Stealth Bomber)
+		SpecialUnitTypes eSpecialUnit = static_cast<SpecialUnitTypes>(pkUpgradeUnitInfo->GetSpecialUnitType());
+		if (isCargo() && !getTransportUnit()->CanHaveCargo(eSpecialUnit, pkUpgradeUnitInfo->GetDomainType()))
+			return false;
 
-				CvPlot* pPlot = NULL;
-				const IDInfo* pUnitNode = NULL;
-				const CvUnit* pLoopUnit = NULL;
-
-				pPlot = plot();
-				pUnitNode = pPlot->headUnitNode();
-
-				while (pUnitNode != NULL)
-				{
-					pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-					pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-					if (pLoopUnit && pLoopUnit->getTransportUnit() == this)
-					{
-						return false;
-					}
-				}
-			}
-		}
-
-		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+		// Can't have cargo on board, in case it upgrades into something that can't carry cargo
+		if (hasCargo())
+			return false;
 
 		// Player must have enough Gold
-		if((kPlayer.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kPlayer.isMinorCiv()))
+		if (kOwner.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kOwner.isMinorCiv())
 			return false;
 
 		// Resource Requirements
-		if (kPlayer.isMajorCiv() && !kPlayer.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType()))
+		if (kOwner.isMajorCiv() && !kOwner.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType()))
 			return false;
 
-		if(getDomainType() == DOMAIN_AIR)
+		if (getDomainType() == DOMAIN_AIR)
 		{
 			// Yes! upgrade if in territory and on a carrier. Community Patch knows how to Retrofit bitch on a Carrier!
-			if(!pPlot->isCity() && !isCargo())
-			{
+			if (!pPlot->isCity() && !isCargo())
 				return false;
-			}
-		}
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(((int)getOwner()));
-			args->Push(GetID());
-
-			bool bResult = false;
-			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult)) {
-				if (!bResult)
-				{
-					return false;
-				}
-			}
 		}
 	}
 
@@ -14187,14 +14141,14 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if (pkScriptSystem)
 		{
 			CvLuaArgsHandle args;
-			args->Push(((int)getOwner()));
+			args->Push(getOwner());
 			args->Push(GetID());
 
 			bool bResult = false;
-			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult)) {
-				if (!bResult) {
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult))
+			{
+				if (!bResult)
 					return false;
-				}
 			}
 		}
 	}
@@ -14404,7 +14358,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 	int iUpgradeCost = upgradePrice(eUnitType);
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
 
-	if (!bFree) 
+	if (!bFree)
 	{
 		thisPlayer.GetTreasury()->LogExpenditure(getUnitInfo().GetText(), iUpgradeCost, 3);
 		thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
@@ -14421,7 +14375,6 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			DLLUI->selectUnit(pDllNewUnit.get(), true, false, false);
 		}
 
-#if defined(MOD_EVENTS_UNIT_UPGRADES)
 		// MUST call the event before convert() as that kills the old unit
 		if (MOD_EVENTS_UNIT_UPGRADES)
 		{
@@ -14429,7 +14382,6 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		}
 		else
 		{
-#endif
 			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 			if (pkScriptSystem) 
 			{
@@ -14442,10 +14394,8 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 			}
-#if defined(MOD_EVENTS_UNIT_UPGRADES)
 		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 		if(isCultureFromExperienceDisbandUpgrade())
 		{
 			int iExperience = getExperienceTimes100() / 100;
@@ -14460,21 +14410,18 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				}
 			}
 		}
-#endif
-#if defined(MOD_SQUADS)
+
 		if (MOD_SQUADS && GetSquadNumber() > -1)
 		{
 			pNewUnit->AssignToSquad(GetSquadNumber());
 		}
-#endif
+
 		pNewUnit->convert(this, true);
 		pNewUnit->setupGraphical();
 		
 		// Can't move after upgrading
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 		if (MOD_GLOBAL_MOVE_AFTER_UPGRADE && pNewUnit->getUnitInfo().CanMoveAfterUpgrade())
 		{
-			pNewUnit->setSetUpForRangedAttack(isSetUpForRangedAttack());
 			pNewUnit->m_iAttacksMade = m_iAttacksMade;
 			pNewUnit->m_iMadeInterceptionCount = m_iMadeInterceptionCount;
 			pNewUnit->m_eActivityType = m_eActivityType;
@@ -14483,8 +14430,9 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			pNewUnit->m_bFortified = m_bFortified;
 		}
 		else
-#endif
-		pNewUnit->finishMoves();
+		{
+			pNewUnit->finishMoves();
+		}
 
 		kill(true);
 	}
@@ -19595,25 +19543,33 @@ bool CvUnit::isFull() const
 	return (getCargo() >= cargoSpace());
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
+{
+	VALIDATE_OBJECT
+	if (!CanHaveCargo(eSpecialCargo, eDomainCargo))
+		return 0;
+
+	return std::max(0, (cargoSpace() - getCargo()));
+}
+
+// This ignores number of slots
+bool CvUnit::CanHaveCargo(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	VALIDATE_OBJECT
 	if (specialCargo() != NO_SPECIALUNIT && specialCargo() != eSpecialCargo)
 	{
 		if (!MOD_CARGO_SHIPS || specialUnitCargoLoad() == NO_SPECIALUNIT || specialUnitCargoLoad() != eSpecialCargo)
 		{
-			return 0;
+			return false;
 		}
 	}
 
 	if (domainCargo() != NO_DOMAIN && domainCargo() != eDomainCargo)
-		return 0;
+		return false;
 
-	return std::max(0, (cargoSpace() - getCargo()));
+	return true;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::hasCargo() const
@@ -19706,7 +19662,7 @@ void CvUnit::SetID(int iID)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getHotKeyNumber()
+int CvUnit::getHotKeyNumber() const
 {
 	VALIDATE_OBJECT
 	return m_iHotKeyNumber;
@@ -20955,7 +20911,7 @@ int CvUnit::getDamage() const
 
 	@param	iNewValue				New damage value
 	@param	ePlayer					The player doing the damage, can be NO_PLAYER.
-	@param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
+	@param	fAdditionalTextDelay	The additional text delay. UNUSED
 	@param [in]	pAppendText 	If non-null, the text to append to the popup text.
 
 	@return	The difference in the damage.
@@ -20964,7 +20920,6 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 {
 	VALIDATE_OBJECT
 	int iOldValue = getDamage();
-	float fDelay = 0.0f + fAdditionalTextDelay;
 
 	m_iDamage = range(iNewValue, 0, GetMaxHitPoints());
 	int iDiff = m_iDamage - iOldValue;
@@ -21012,7 +20967,6 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 				if(iNewValue < iOldValue)
 				{
 					text.Format("[COLOR_GREEN]+%d", iDiff);
-					fDelay = /*2.0f*/ GD_FLOAT_GET(POST_COMBAT_TEXT_DELAY) * 2;
 				}
 				else
 				{
@@ -21091,16 +21045,15 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
 	@param	iChange					Delta added to the current damage.
 	@param	ePlayer					The player doing the damage, can be NO_PLAYER
-	@param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
+	@param	fAdditionalTextDelay	The additional text delay. UNUSED
 	@param [in]	pAppendText 		If non-null, the text to append to the popup.
 
 	@return	the final delta change to the units damage.
  */
 int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
-	VALIDATE_OBJECT;
+	VALIDATE_OBJECT
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	//if (GC.getLogging() && GC.getAILogging())
 	//{
 	//	CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
@@ -21108,7 +21061,6 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalText
 	//	FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 	//	pLog->Msg( info.c_str() );
 	//}
-#endif
 
 	return setDamage((getDamage() + iChange), ePlayer, fAdditionalTextDelay, pAppendText);
 }
@@ -21505,7 +21457,7 @@ int CvUnit::getCargo() const
 void CvUnit::changeCargo(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iCargo = (m_iCargo + iChange);
+	m_iCargo += iChange;
 	CvAssert(getCargo() >= 0);
 }
 

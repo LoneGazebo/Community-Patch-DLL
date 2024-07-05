@@ -4353,8 +4353,6 @@ function SelectBuildingOrWonderArticle( buildingID )
 		if thisBuilding.NearbyTerrainRequired ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Requires [COLOR_CYAN]"..Locale.Lookup(GameInfo.Terrains[thisBuilding.NearbyTerrainRequired].Description).."[ENDCOLOR]"; end
 		--AnalyzeBuilding("ProhibitedCityTerrain");
 		if thisBuilding.ProhibitedCityTerrain ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Prohibited [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Terrains[thisBuilding.ProhibitedCityTerrain].Description).."[ENDCOLOR]"; end
-		AnalyzeBuilding("FoundsReligion");
-		AnalyzeBuilding("IsReligious");
 		AnalyzeBuilding("BorderObstacle", "");
 		AnalyzeBuilding("PlayerBorderObstacle", "");
 		AnalyzeBuilding("Capital");
