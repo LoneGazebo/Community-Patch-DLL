@@ -1442,7 +1442,7 @@ bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
 
 	PlayerTypes eDefendingPlayer = pPlayerCity->getOwner();
 
-	BuildingClassTypes eGWBuildingClass; //passed by ref
+	BuildingClassTypes eGWBuildingClass = NO_BUILDINGCLASS; //passed by ref
 	int iSlot = -1; // Passed by reference below
 	GreatWorkType eType = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGWID].m_eType;
 	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eType);
@@ -1457,7 +1457,7 @@ bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
 	}
 	BuildingClassTypes eTargetBuildingClass = GC.getBuildingInfo(eTargetBuilding)->GetBuildingClassType();
 
-	CvCity *pArtCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eGreatWorkSlot, &eGWBuildingClass, &iSlot);
+	CvCity *pArtCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eGreatWorkSlot, eGWBuildingClass, iSlot);
 	if (pArtCity)
 	{
 		// remove the work from the targeted city ...
@@ -2999,7 +2999,7 @@ void CvPlayerEspionage::SetPassive(uint uiSpyIndex, bool bPassive) {
 	m_aSpyList[uiSpyIndex].m_bPassive = bPassive;
 }
 
-/// UpdateCity - This is called when a policy is adopted that modifies how quickly spies can steal technology
+/// UpdateSpies - This is called when a policy is adopted that modifies how quickly spies can steal technology
 void CvPlayerEspionage::UpdateSpies()
 {
 	for(uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
@@ -4329,7 +4329,11 @@ int CvPlayerEspionage::GetNumUnassignedSpies(void)
 std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 {
 	std::vector<int> GWIds;
-	if (pCity == NULL || pCity->GetCityBuildings()->GetNumGreatWorks() <= 0)
+	if (!pCity)
+		return GWIds;
+
+	int iNumGreatWorks = pCity->GetCityBuildings()->GetNumGreatWorks();
+	if (iNumGreatWorks <= 0)
 		return GWIds;
 
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
@@ -4347,86 +4351,43 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 		iOpenMusicSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eMusicSlot);
 		iOpenWritingSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eWritingSlot);
 	}
+
 	if (iOpenArtSlots <= 0 && iOpenWritingSlots <= 0 && iOpenMusicSlots <= 0)
 		return GWIds;
 
-	int iNumGreatWorks = pCity->GetCityBuildings()->GetNumGreatWorks();
-
-	if (iNumGreatWorks <= 0)
-		return GWIds;
-
-	PlayerTypes ePlayer = pCity->getOwner();
-
 	for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-		BuildingTypes eBuilding = NO_BUILDING;
-		// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
+		BuildingTypes eBuilding = pCity->GetBuildingTypeFromClass(eBuildingClass);
+		if (eBuilding == NO_BUILDING)
+			continue;
+
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (!pkBuildingInfo)
+			continue;
+
+		if (!pCity->HasBuilding(eBuilding))
+			continue;
+
+		if ((pkBuildingInfo->GetGreatWorkSlotType() == eArtArtifactSlot && iOpenArtSlots > 0) ||
+			(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot && iOpenMusicSlots > 0) ||
+			(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot && iOpenWritingSlots > 0))
 		{
-			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-		}
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-			if (pkBuilding)
+			int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
+			if (iNumSlots > 0)
 			{
-				if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				for (int iI = 0; iI < iNumSlots; iI++)
 				{
-					if (pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot && iOpenArtSlots > 0)
+					int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, iI);
+					if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
-						if (iNumSlots > 0)
-						{
-							for (int iI = 0; iI < iNumSlots; iI++)
-							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
-								{
-									GWIds.push_back(iGreatWorkIndex);
-								}
-							}
-						}
-					}
-					else if (pkBuilding->GetGreatWorkSlotType() == eMusicSlot && iOpenMusicSlots > 0)
-					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
-						if (iNumSlots > 0)
-						{
-							for (int iI = 0; iI < iNumSlots; iI++)
-							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
-								{
-									GWIds.push_back(iGreatWorkIndex);
-								}
-							}
-						}
-					}
-					else if (pkBuilding->GetGreatWorkSlotType() == eWritingSlot && iOpenWritingSlots > 0)
-					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
-						if (iNumSlots > 0)
-						{
-							for (int iI = 0; iI < iNumSlots; iI++)
-							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-								if (iGreatWorkIndex != -1 && !m_pPlayer->GetCulture()->ControlsGreatWork(iGreatWorkIndex))
-								{
-									// add to list!
-									GWIds.push_back(iGreatWorkIndex);
-								}
-							}
-						}
+						GWIds.push_back(iGreatWorkIndex);
 					}
 				}
 			}
 		}
 	}
+
 	return GWIds;
 }
 

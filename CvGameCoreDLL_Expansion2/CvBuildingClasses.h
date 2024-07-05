@@ -1211,8 +1211,8 @@ public:
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eSlotType) const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
 	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
-	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
-	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
+	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes& eBuildingClass, int& iSlot) const;
+	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes& eBuildingClass, int& iSlot) const;
 
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 	int GetCultureFromGreatWorks() const;

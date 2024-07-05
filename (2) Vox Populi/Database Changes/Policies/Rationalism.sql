@@ -40,7 +40,8 @@ VALUES
 UPDATE Policies
 SET
 	GreatScientistRateModifier = 0,
-	NumFreeTechs = 1
+	NumFreeTechs = 1,
+	OneShot = 1
 WHERE Type = 'POLICY_HUMANISM';
 
 INSERT INTO Policy_BuildingClassHappiness

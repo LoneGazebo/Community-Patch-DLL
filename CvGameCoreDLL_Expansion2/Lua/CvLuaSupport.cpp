@@ -62,7 +62,6 @@ void LuaSupport::DumpCallStack(lua_State* L, FILogFile* pLog)
 
 	while (lua_getstack(L, depth, &entry))
 	{
-		int status = lua_getinfo(L, "Sln", &entry);
 		szTemp.Format("%s (%d): %s\n", entry.source ? entry.source : "?", entry.currentline, entry.name ? entry.name : "?");
 		depth++;
 

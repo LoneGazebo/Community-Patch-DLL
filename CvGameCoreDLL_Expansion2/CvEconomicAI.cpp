@@ -4713,42 +4713,41 @@ bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)
 /// We have the tech for guilds but haven't built them yet
 bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 {
-	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
 	const CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
+	BuildingTypes eWritersGuild = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD")));
+	BuildingTypes eArtistsGuild = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD")));
+	BuildingTypes eMusiciansGuild = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD")));
 
-	BuildingTypes eWritersGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
-	BuildingTypes eArtistsGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
-	BuildingTypes eMusiciansGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
-
-	CvBuildingEntry *pkBuilding = NULL;
-	pkBuilding = GC.getBuildingInfo(eWritersGuild);
-	if (pkBuilding)
+	CvBuildingEntry* pkWritersGuildInfo = GC.getBuildingInfo(eWritersGuild);
+	if (pkWritersGuildInfo)
 	{
-		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+		if (pPlayer->HasTech(static_cast<TechTypes>(pkWritersGuildInfo->GetPrereqAndTech())))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
+			if (!pPlayer->HasBuildingClass(pkWritersGuildInfo->GetBuildingClassType()))
 			{
 				return true;
 			}
 		}
 	}
-	pkBuilding = GC.getBuildingInfo(eArtistsGuild);
-	if (pkBuilding)
+
+	CvBuildingEntry* pkArtistsGuildInfo = GC.getBuildingInfo(eArtistsGuild);
+	if (pkArtistsGuildInfo)
 	{
-		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+		if (pPlayer->HasTech(static_cast<TechTypes>(pkArtistsGuildInfo->GetPrereqAndTech())))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
+			if (!pPlayer->HasBuildingClass(pkArtistsGuildInfo->GetBuildingClassType()))
 			{
 				return true;
 			}
 		}
 	}
-	pkBuilding = GC.getBuildingInfo(eMusiciansGuild);
-	if (pkBuilding)
+
+	CvBuildingEntry* pkMusiciansGuildInfo = GC.getBuildingInfo(eMusiciansGuild);
+	if (pkMusiciansGuildInfo)
 	{
-		if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
+		if (pPlayer->HasTech(static_cast<TechTypes>(pkMusiciansGuildInfo->GetPrereqAndTech())))
 		{
-			if (pPlayer->GetFirstCityWithBuildingClass(pkBuilding->GetBuildingClassType()) == NULL)
+			if (!pPlayer->HasBuildingClass(pkMusiciansGuildInfo->GetBuildingClassType()))
 			{
 				return true;
 			}
@@ -4777,10 +4776,9 @@ bool EconomicAIHelpers::IsTestStrategy_StartedPiety(CvPlayer* pPlayer)
 
 bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
 {
-	if(!pPlayer->isMinorCiv() || eStrategy==NO_ECONOMICAISTRATEGY)
-	{
+	if (!pPlayer->isMinorCiv() || eStrategy == NO_ECONOMICAISTRATEGY)
 		return false;
-	}
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	return (pStrategy->IsNoMinorCivs() != 0);
+
+	CvEconomicAIStrategyXMLEntry* pkStrategyInfo = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
+	return pkStrategyInfo->IsNoMinorCivs();
 }

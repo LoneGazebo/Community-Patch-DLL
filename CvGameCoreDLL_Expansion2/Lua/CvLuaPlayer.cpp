@@ -478,8 +478,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsPolicyBranchUnlocked);
 	Method(SetPolicyBranchUnlocked);
 	Method(GetNumPolicyBranchesUnlocked);
-	Method(GetPolicyBranchChosen);
-	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
 	Method(GetNumPoliciesInBranch);
 	Method(GetNumPoliciesPurchasedInBranch);
@@ -3700,7 +3698,7 @@ int CvLuaPlayer::lGetCityOfClosestGreatWorkSlot(lua_State* L)
 	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 4));
 	BuildingClassTypes eBuildingClass;
 	int iSlot;
-	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, &eBuildingClass, &iSlot);
+	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, eBuildingClass, iSlot);
 	if (pkCity)
 	{
 		CvLuaCity::Push(L, pkCity);
@@ -3719,21 +3717,12 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	int iX = lua_tointeger(L, 2);
 	int iY = lua_tointeger(L, 3);
 	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 4));
-	BuildingClassTypes eBuildingClass;
+	BuildingClassTypes eBuildingClass = NO_BUILDINGCLASS;
 	int iSlot;
-	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, &eBuildingClass, &iSlot);
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(pkPlayer->getCivilizationType());
-	if (pkCity && pkCivInfo)
+	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, eBuildingClass, iSlot);
+	if (pkCity && eBuildingClass != NO_BUILDINGCLASS)
 	{
-		int iBuilding = -1;
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-		{
-			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			iBuilding = pkCivInfo->getCivilizationBuildings(eBuildingClass);
-		}
+		int iBuilding = pkCity->GetBuildingTypeFromClass(eBuildingClass);
 		lua_pushinteger(L, iBuilding);
 		return 1;
 	}
@@ -6447,56 +6436,45 @@ int CvLuaPlayer::lGetNumPolicyDifference(lua_State* L)
 int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatWorkClass eGreatWorkClass = (GreatWorkClass)lua_tointeger(L, 2);
+	GreatWorkClass eGreatWorkClass = static_cast<GreatWorkClass>(lua_tointeger(L, 2));
 
 	lua_createtable(L, 0, 0);
 	int index = 1;
 
 	int iCityLoop;
-	CvCity* pCity = NULL;
-	for (pCity = pkPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = pkPlayer->nextCity(&iCityLoop))
+	for (CvCity* pCity = pkPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = pkPlayer->nextCity(&iCityLoop))
 	{
-		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+		for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
-			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
-			BuildingTypes eBuilding = NO_BUILDING;
+			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
+			BuildingTypes eBuilding = pCity->GetBuildingTypeFromClass(eBuildingClass);
+			if (eBuilding == NO_BUILDING)
+				continue;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-			{
-				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-			}
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (!pkBuildingInfo)
+				continue;
 
-			if (eBuilding != NO_BUILDING)
+			if (pCity->HasBuilding(eBuilding))
 			{
-				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-				if (pkBuilding)
+				int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
+				for (int iI = 0; iI < iNumSlots; iI++)
 				{
-					if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, iI);
+					if (iGreatWorkIndex != -1)
 					{
-						int iNumSlots = pkBuilding->GetGreatWorkCount();
-						for (int iI = 0; iI < iNumSlots; iI++)
+						if (GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_eClassType == eGreatWorkClass)
 						{
-							int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-							if (iGreatWorkIndex != -1)
-							{
-								if (GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_eClassType == eGreatWorkClass)
-								{
-									lua_createtable(L, 0, 0);
-									const int t = lua_gettop(L);
-									lua_pushinteger(L, iGreatWorkIndex);
-									lua_setfield(L, t, "Index");
-									lua_pushinteger(L, GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_ePlayer);
-									lua_setfield(L, t, "Creator");
-									int iEra = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_eEra;
-									lua_pushinteger(L, iEra);
-									lua_setfield(L, t, "Era");
-									lua_rawseti(L, -2, index++);
-								}
-							}
+							lua_createtable(L, 0, 0);
+							const int t = lua_gettop(L);
+							lua_pushinteger(L, iGreatWorkIndex);
+							lua_setfield(L, t, "Index");
+							lua_pushinteger(L, GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_ePlayer);
+							lua_setfield(L, t, "Creator");
+							int iEra = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex].m_eEra;
+							lua_pushinteger(L, iEra);
+							lua_setfield(L, t, "Era");
+							lua_rawseti(L, -2, index++);
 						}
 					}
 				}
@@ -6857,30 +6835,6 @@ int CvLuaPlayer::lGetNumPolicyBranchesUnlocked(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
-//------------------------------------------------------------------------------
-//int GetNumPolicyBranchesAllowed();
-int CvLuaPlayer::lGetNumPolicyBranchesAllowed(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPolicyBranchesAllowed();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
-//------------------------------------------------------------------------------
-//bool GetPolicyBranchChosen(PolicyTypes  iIndex);
-int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iID = lua_tointeger(L, 2);
-
-	const int iResult = pkPlayer->GetPlayerPolicies()->GetPolicyBranchChosen(iID);
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
 
 //------------------------------------------------------------------------------
 //int GetNumPolicies();
@@ -12886,65 +12840,32 @@ int CvLuaPlayer::lGetPlayerBuildingClassYieldChange(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 {
-	const BuildingClassTypes eOtherBuildingClass = (BuildingClassTypes)luaL_checkint(L, 2);
-
-	CvPlayer* pkPlayer = GetInstance(L);
-	if (pkPlayer)
+	CvPlayer* pPlayer = GetInstance(L);
+	const BuildingClassTypes eOtherBuildingClass = static_cast<BuildingClassTypes>(luaL_checkint(L, 2));
+	int iChange = 0;
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		int iChange = 0;
-
-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+		if (pPlayer->getBuildingClassCount(eBuildingClass) > 0)
 		{
-			BuildingClassTypes eParentBuildingClass = (BuildingClassTypes) iI;
-
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eParentBuildingClass);
-			if (!pkBuildingClassInfo)
-				continue;
-
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			int iLoop = 0;
+			for (const CvCity* pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
 			{
-				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
-				{
-					int iLoop = 0;
+				BuildingTypes eBuilding = pLoopCity->GetBuildingTypeFromClass(eBuildingClass);
+				if (eBuilding == NO_BUILDING)
+					continue;
 
-					for (const CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
-					{
-						if (pLoopCity->HasBuildingClass(eParentBuildingClass))
-						{
-							BuildingTypes eParentBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eParentBuildingClass);
-							if (eParentBuilding != NO_BUILDING)
-							{
-								CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
-								if (pkParentBuilding)
-								{
-									iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass);
-								}
-							}
-						}
-					}
-
-				}
-			}
-			else
-			{
-				BuildingTypes eParentBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(eParentBuildingClass);
-				if (eParentBuilding != NO_BUILDING && pkPlayer->countNumBuildings(eParentBuilding) > 0)
+				int iNumBuilding = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pkBuildingInfo)
 				{
-					CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
-					if (pkParentBuilding)
-					{
-						iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass) * pkPlayer->getNumBuildings(eParentBuilding);
-					}
+					iChange += pkBuildingInfo->GetBuildingClassHappiness(eOtherBuildingClass) * iNumBuilding;
 				}
 			}
 		}
-
-		lua_pushinteger(L, iChange);
-
-		return 1;
 	}
-
-	return 0;
+	lua_pushinteger(L, iChange);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

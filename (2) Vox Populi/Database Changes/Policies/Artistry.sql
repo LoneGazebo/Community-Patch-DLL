@@ -67,7 +67,9 @@ DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_ARTISTIC_GENIUS';
 
 UPDATE Policies
-SET NumFreeGreatPeople = 1
+SET
+	NumFreeGreatPeople = 1,
+	IncludesOneShotFreeUnits = 1
 WHERE Type = 'POLICY_ARTISTIC_GENIUS';
 
 INSERT INTO Policy_ArtifactYieldChanges

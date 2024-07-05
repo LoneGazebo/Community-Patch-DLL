@@ -214,6 +214,9 @@ public:
 	void ChangeEventHappiness(int iValue);
 	int GetEventHappiness() const;
 
+	void CheckActivePlayerEvents();
+	void ApplyPlayerEventChoice(const EventChoiceTypes eEventChoice);
+
 	virtual void AI_DoEventChoice(CityEventTypes eEvent) = 0;
 
 	int maxXPValue() const;
@@ -609,9 +612,6 @@ public:
 
 	int getHighestPopulation() const;
 	void setHighestPopulation(int iNewValue);
-
-	int getNumGreatPeople() const;
-	void changeNumGreatPeople(int iChange);
 
 	int getBaseGreatPeopleRate() const;
 	int getGreatPeopleRate() const;
@@ -1769,6 +1769,10 @@ public:
 	void SpawnFreeUnit(UnitTypes eUnit);
 	bool SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, const bool bIncludeShips = false, const bool bNoResource = false) const;
 
+	bool SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue, const bool bRefund = true, const bool bValidate = true);
+	BuildingTypes GetBuildingTypeFromClass(const BuildingClassTypes eBuildingClass, const bool bFallback = false) const;
+	void AddFreeCapitalBuildings(const bool bRemoveFromCurrent = false);
+
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
@@ -1789,7 +1793,6 @@ protected:
 	int m_iHighestPopulation;
 	int m_iExtraHitPoints;
 
-	int m_iNumGreatPeople;
 	int m_iBaseGreatPeopleRate;
 	int m_iGreatPeopleRateModifier;
 	int m_iJONSCultureStored;
@@ -2195,7 +2198,6 @@ SYNC_ARCHIVE_VAR(int, m_iGameTurnLastExpanded)
 SYNC_ARCHIVE_VAR(int, m_iPopulation)
 SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
-SYNC_ARCHIVE_VAR(int, m_iNumGreatPeople)
 SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)

@@ -214,7 +214,6 @@ public:
 	bool IsMinorScienceAllies() const;
 	bool IsMinorResourceBonus() const;
 	int GetPolicyBranchType() const;
-	int GetNumExtraBranches() const;
 	int GetHappinessToCulture() const;
 	int GetHappinessToScience() const;
 	int GetNumCitiesFreeCultureBuilding() const;
@@ -259,7 +258,6 @@ public:
 	// Accessor Functions (Arrays)
 	int GetPrereqOrPolicies(int i) const;
 	int GetPrereqAndPolicies(int i) const;
-	int GetPolicyDisables(int i) const;
 	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetCityYieldChange(int i) const;
@@ -278,7 +276,7 @@ public:
 	int* GetGreatWorkYieldChangeArray() const;
 	int GetSpecialistExtraYield(int i) const;
 	int* GetSpecialistExtraYieldArray() const;
-	int IsFreePromotion(int i) const;
+	bool IsFreePromotion(int i) const;
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	bool HasFaithPurchaseUnitClasses() const;
@@ -492,6 +490,11 @@ public:
 
 	int GetGreatGeneralExtraBonus() const;
 
+	set<int> GetPolicyDisables() const
+	{
+		return m_siPolicyDisables;
+	}
+
 private:
 	int m_iTechPrereq;
 	int m_iCultureCost;
@@ -651,7 +654,6 @@ private:
 	bool m_bMinorResourceBonus;
 	int m_iFreeSpecialist;
 	int m_iPolicyBranchType;
-	int m_iNumExtraBranches;
 	int m_iWoundedUnitDamageMod;
 	int m_iUnitUpgradeCostMod;
 	int m_iBarbarianCombatBonus;
@@ -734,7 +736,7 @@ private:
 #endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;
-	int* m_piPolicyDisables;
+	set<int> m_siPolicyDisables;
 	int* m_piYieldModifier;
 	int* m_piCityYieldChange;
 	int* m_piCoastalCityYieldChange;
@@ -1162,13 +1164,6 @@ public:
 	bool IsPolicyBranchFinished(PolicyBranchTypes eBranchType) const;
 	bool WillFinishBranchIfAdopted(PolicyTypes eType) const;
 
-	PolicyBranchTypes GetPolicyBranchChosen(int iID) const;
-	void SetPolicyBranchChosen(int iID, PolicyBranchTypes eBranchType);
-	int GetNumPolicyBranchesAllowed() const;
-
-	int GetNumExtraBranches() const;
-	void ChangeNumExtraBranches(int iChange);
-
 	// Below is used to determine the "title" for the player
 	void DoNewPolicyPickedForHistory(PolicyTypes ePolicy);
 	PolicyBranchTypes GetDominantPolicyBranchForTitle() const;
@@ -1223,13 +1218,10 @@ private:
 	bool* m_pabPolicyBranchFinished;
 	int* m_paiPolicyBranchBlockedCount;
 	int* m_paiPolicyBlockedCount;
-	PolicyBranchTypes* m_paePolicyBranchesChosen;
 	PolicyBranchTypes* m_paePolicyBlockedBranchCheck;
 	CvPolicyXMLEntries* m_pPolicies;
 	CvPolicyAI* m_pPolicyAI;
 	CvPlayer* m_pPlayer;
-
-	int m_iNumExtraBranches;
 
 	PolicyBranchTypes m_eBranchPicked1;
 	PolicyBranchTypes m_eBranchPicked2;

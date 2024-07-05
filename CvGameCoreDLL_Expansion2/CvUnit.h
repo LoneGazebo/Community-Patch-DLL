@@ -335,6 +335,7 @@ public:
 	void changeCargoSpace(int iChange);
 	bool isFull() const;
 	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const;
+	bool CanHaveCargo(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const;
 	bool hasCargo() const;
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
@@ -1037,7 +1038,7 @@ public:
 	IDInfo GetIDInfo() const;
 	void SetID(int iID);
 
-	int getHotKeyNumber();
+	int getHotKeyNumber() const;
 	void setHotKeyNumber(int iNewValue);
 
 	inline int getX() const

@@ -39,7 +39,8 @@ WHERE PolicyType = 'POLICY_TRADITION';
 UPDATE Policies
 SET
 	PlotCultureExponentModifier = 0,
-	FreePopulationCapital = 2
+	FreePopulationCapital = 2,
+	OneShot = 1
 WHERE Type = 'POLICY_TRADITION';
 
 INSERT INTO Policy_CapitalYieldChanges

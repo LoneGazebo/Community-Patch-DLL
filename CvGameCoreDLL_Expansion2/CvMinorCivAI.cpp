@@ -16879,7 +16879,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			}
 			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 			int iGold = 0;
-			float fDelay = 0.0f;
 			CvString bullyText;
 			if (pBullyCapital != NULL)
 			{
@@ -16904,7 +16903,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = { 0 };
-							fDelay += 1.5f;
 							bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
 							sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_GOLD]", bullyText.c_str(), iGold);
 							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);

@@ -5304,7 +5304,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			{
 				GC.getGame().makeNukesValid(true);
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			bool bFirst = true;
 			if(!pkProject->IsSpaceship())
 			{
@@ -5325,59 +5325,34 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 					}
 				}
 			}
-			if(bFirst)
+
+			if (bFirst)
 			{
 				BuildingClassTypes eBuildingClass = pkProject->GetFreeBuilding();
-				if(eBuildingClass != NO_BUILDINGCLASS)
+				PolicyTypes ePolicy = pkProject->GetFreePolicy();
+				const CivsList& veMembers = getPlayers();
+				for (CivsList::const_iterator it = veMembers.begin(); it != veMembers.end(); ++it)
 				{
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(pkBuildingClassInfo)
+					CvPlayer& kMember = GET_PLAYER(*it);
+					if (!kMember.isAlive())
+						continue;
+
+					if (eBuildingClass != NO_BUILDINGCLASS)
 					{
-						for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+						CvCity* pCapital = kMember.getCapitalCity();
+						if (pCapital)
 						{
-							if(GET_PLAYER((PlayerTypes)iJ).isAlive())
-							{
-								if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
-								{
-									BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-									CvCity* pCapital = GET_PLAYER((PlayerTypes)iJ).getCapitalCity();
-
-									if(pCapital == NULL)
-										continue;
-
-									if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES) && pCapital->HasBuildingClass(eBuildingClass))
-									{
-										eBuilding = pCapital->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-									}
-
-									CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
-									if (pBuildingEntry == NULL)
-										continue;
-
-									pCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-									pCapital->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-								}
-							}
+							BuildingTypes eBuilding = pCapital->GetBuildingTypeFromClass(eBuildingClass);
+							pCapital->SetNumFreeBuilding(eBuilding, 1, true, false);
 						}
+					}
+
+					if (ePolicy != NO_POLICY)
+					{
+						kMember.setHasPolicy(ePolicy, true);
 					}
 				}
-				PolicyTypes ePolicy = pkProject->GetFreePolicy();
-				if(ePolicy != NO_POLICY)
-				{
-					for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
-					{
-						if(GET_PLAYER((PlayerTypes)iJ).isAlive())
-						{
-							if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
-							{
-								GET_PLAYER((PlayerTypes)iJ).setHasPolicy(ePolicy, true);
-							}
-						}
-					}
-				}	
 			}
-#endif
 
 			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
@@ -7116,7 +7091,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									{
 										TechTypes eTechReveal = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 										if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 										{
 											TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
@@ -7125,7 +7099,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												eTechReveal = eAltTech;
 											}
 										}
-#endif
+
 										if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 										{
 											bRevealed = true;
@@ -7200,7 +7174,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									{
 										TechTypes eTechReveal = eDefaultTech;
 
-#if defined(MOD_BALANCE_CORE)
 										if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 										{
 											TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResourceDemanded).m_eTechReveal;
@@ -7209,7 +7182,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												eTechReveal = eAltTech;
 											}
 										}
-#endif
+
 										if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 										{
 											bRevealed = true;
@@ -7264,8 +7237,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							BuildingTypes eFreeCultureBuilding = pLoopCity->ChooseFreeCultureBuilding();
 							if (eFreeCultureBuilding != NO_BUILDING)
 							{
-								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeCultureBuilding, 1);
-								pLoopCity->SetOwedCultureBuilding(false);
+								bool bRefund = MOD_BALANCE_VP;
+								bool bValidate = MOD_BALANCE_VP;
+								if (pLoopCity->SetNumFreeBuilding(eFreeCultureBuilding, 1, bRefund, bValidate))
+								{
+									pLoopCity->SetOwedCultureBuilding(false);
+								}
 							}
 						}
 
@@ -7274,8 +7251,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							BuildingTypes eFreeFoodBuilding = pLoopCity->ChooseFreeFoodBuilding();
 							if (eFreeFoodBuilding != NO_BUILDING)
 							{
-								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeFoodBuilding, 1);
-								pLoopCity->SetOwedFoodBuilding(false);
+								bool bRefund = MOD_BALANCE_VP;
+								bool bValidate = MOD_BALANCE_VP;
+								if (pLoopCity->SetNumFreeBuilding(eFreeFoodBuilding, 1, bRefund, bValidate))
+								{
+									pLoopCity->SetOwedFoodBuilding(false);
+								}
 							}
 						}
 					}
@@ -8107,159 +8088,72 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 					}
 				}
 			}
-			if(kPlayer.getCapitalCity() != NULL)
-			{
-				//Free Happiness
-				if (pTech->GetHappiness() != 0)
-				{
-					int iLoop = 0;
-					CvCity* pLoopCity = NULL;
-					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						pLoopCity->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
-					}
-				}
 
-				//Free building in capital unlocked via tech?
-				if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
+			// Free Happiness
+			if (pTech->GetHappiness() != 0)
+			{
+				int iLoop = 0;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 				{
-					BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
-					if(eFreeCapitalBuilding != NO_BUILDING)
+					pLoopCity->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+				}
+			}
+
+			// Free building in capital unlocked via tech?
+			CvCity* pCapital = kPlayer.getCapitalCity();
+			if (pCapital)
+			{
+				if (kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
+				{
+					BuildingTypes eBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+					if (eBuilding != NO_BUILDING && pCapital->GetCityBuildings()->GetNumFreeBuilding(eBuilding) < 1)
 					{
-						CvBuildingEntry* pkFreeCapitalBuildingInfo = GC.getBuildingInfo(eFreeCapitalBuilding);
-						if(pkFreeCapitalBuildingInfo && kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
-						{
-							if (pkFreeCapitalBuildingInfo->IsFaithPurchaseOnly())
-							{
-								int iFaithRefund = kPlayer.getCapitalCity()->GetFaithPurchaseCost(eFreeCapitalBuilding);
-								kPlayer.doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
-							}
-							else
-							{
-								int iProductionRefund = kPlayer.getCapitalCity()->getProductionNeeded(eFreeCapitalBuilding);
-								kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
-							}
-							kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
-						}
-						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
+						pCapital->SetNumFreeBuilding(eBuilding, 1);
 					}
 				}
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			// Free buildings (once unlocked via tech)
-			CvCity* pLoopCity = NULL;
-			const CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
-			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
+			if (kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
 			{
-				for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+				for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 				{
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-					if(!pkBuildingClassInfo)
+					BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+					int iLoop = 0;
+					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					{
-						continue;
-					}
-					
-					if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
-					{
-						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings((BuildingClassTypes)iI)));
+						BuildingTypes eBuilding = pLoopCity->GetBuildingTypeFromClass(eBuildingClass, true);
+						if (eBuilding == NO_BUILDING)
+							continue;
 
-						if(eBuilding != NO_BUILDING)
+						if (kPlayer.GetNumCitiesFreeChosenBuilding(eBuildingClass) <= 0 && !kPlayer.isBuildingFree(eBuilding))
+							break;
+
+						if (!pLoopCity->isValidBuildingLocation(eBuilding))
+							continue;
+
+						if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+							continue;
+
+						if (pLoopCity->SetNumFreeBuilding(eBuilding, 1) && kPlayer.GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0)
 						{
-							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-							if(pkBuildingInfo)
-							{
-								int iLoop = 0;
-								for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-								{
-									bool bHasBuildingClass = pLoopCity->HasBuildingClass((BuildingClassTypes)iI);
-									BuildingTypes eReplacedBuilding = eBuilding;
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-									{
-										if (bHasBuildingClass)
-										{
-											eReplacedBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
-										}
-									}
-									if(pLoopCity->isValidBuildingLocation(eBuilding) || (eBuilding != eReplacedBuilding && pLoopCity->isValidBuildingLocation(eReplacedBuilding)))
-									{
-										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
-										{
-											if (eBuilding != eReplacedBuilding)
-											{
-												CvBuildingEntry* pkReplacedBuildingInfo = GC.getBuildingInfo(eReplacedBuilding);
-												if (pkReplacedBuildingInfo && pLoopCity->GetCityBuildings()->GetNumRealBuilding(eReplacedBuilding) > 0)
-												{
-													if (pkReplacedBuildingInfo->IsFaithPurchaseOnly())
-													{
-														int iFaithRefund = pLoopCity->GetFaithPurchaseCost(eReplacedBuilding);
-														kPlayer.doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pLoopCity);
-													}
-													else
-													{
-														int iProductionRefund = pLoopCity->getProductionNeeded(eReplacedBuilding);
-														kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pLoopCity);
-													}
-													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eReplacedBuilding, 0);
-												}
-												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) <= 0)
-												{
-													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eReplacedBuilding, 1);
-												}
-												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) > 0)
-												{
-													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
-												}
-												if (pLoopCity->getFirstBuildingOrder(eReplacedBuilding) == 0)
-												{
-													pLoopCity->clearOrderQueue();
-													pLoopCity->chooseProduction();
-													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-												}
-											}
-											else
-											{
-												if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-												{
-													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-												}
-												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
-												{
-													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-												}
-												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-												{
-													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
-												}
-												if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-												{
-													pLoopCity->clearOrderQueue();
-													pLoopCity->chooseProduction();
-													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-												}
-											}
-										}
-									}
-								}
-							}
+							kPlayer.ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 						}
 					}
 				}
 			}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 			if(!bNoBonus)
 			{
 				// call one for era scaling, another for no era scaliing
 				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_TECH, false, NO_GREATPERSON, NO_BUILDING, 0, true);
 				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_TECH, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 			}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 			int iLoop2 = 0;
 			for(CvCity* pLoopCity2 = kPlayer.firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = kPlayer.nextCity(&iLoop2))
 				pLoopCity2->UpdateAllNonPlotYields(false);
-#endif
 		}
 	}
 
