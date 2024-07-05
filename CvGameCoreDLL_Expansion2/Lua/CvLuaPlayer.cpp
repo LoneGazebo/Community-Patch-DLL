@@ -14371,7 +14371,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		////////////////////////////////////
 
 		// Human Promises
-		iValue = pDiplo->GetNumTurnsMilitaryPromise(ePlayer);
+		iValue = pDiplo->GetNumTurnsMilitaryPromise(ePlayer); // This is a mutual promise and the turn counter will always be the same on both sides
 		if (iValue > 0)
 		{
 			Opinion kOpinion;
@@ -14399,15 +14399,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		
 		// AI Promises
-		iValue = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTurnsMilitaryPromise(pkPlayer->GetID());
-		if (iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS", iValue);
-			aOpinions.push_back(kOpinion);
-		}
-
 		iValue = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTurnsExpansionPromise(pkPlayer->GetID());
 		if (iValue > 0)
 		{

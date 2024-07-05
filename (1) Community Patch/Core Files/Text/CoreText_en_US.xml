@@ -3022,16 +3022,13 @@
 
 		<!-- Promises LUA -->
 		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
-			<Text>You promised not to declare war on them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
+			<Text>You promised not to declare war on each other for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
 			<Text>You promised not to settle near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
 			<Text>You promised not to buy land near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS">
-			<Text>They promised not to declare war on you for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
 			<Text>They promised not to settle near you for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
