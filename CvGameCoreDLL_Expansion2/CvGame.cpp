@@ -4488,7 +4488,7 @@ bool CvGame::canTrainNukes() const
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 				if(pkUnitInfo)
 				{
-					if(pkUnitInfo->GetNukeDamageLevel() != -1)
+					if(pkUnitInfo->GetNukeDamageLevel() > 0)
 					{
 						if(GET_PLAYER(ePlayer).canTrainUnit(eUnit))
 						{

@@ -1585,6 +1585,7 @@ public:
 	//power is military + economic
 	int getPower() const;
 	int GetMilitaryMight() const;
+	int GetNuclearMight() const;
 	int GetEconomicMight() const;
 	int GetProductionMight() const;
 	void ResetMightCalcTurn();
@@ -2896,6 +2897,8 @@ public:
 
 	UnitTypes GetCompetitiveSpawnUnitType(const bool bIncludeRanged = false, const bool bIncludeShips = false, const bool bIncludeRecon = false, const bool bIncludeUUs = false, const CvCity* pSpawnCity = NULL, const bool bNoResource = false, const bool bMinorCivGift = false, const bool bRandom = false, CvSeeder* pSeed = NULL, const vector<int> viUnitCombat = vector<int>()) const;
 
+	int calculateNuclearMight(PlayerTypes ePlayer = NO_PLAYER, bool bComputeShelterNumbers = false, int iBombShelterPercent = 0, int iNukeModifier = 0, int iInterceptionChance = 0) const;
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -3362,6 +3365,7 @@ protected:
 	int m_iCitiesLost;
 	int m_iMilitaryRating;
 	int m_iMilitaryMight;
+	int m_iNuclearMight;
 	int m_iEconomicMight;
 	int m_iProductionMight;
 	int m_iTurnSliceMightRecomputed;
@@ -4186,6 +4190,7 @@ SYNC_ARCHIVE_VAR(int, m_iCapitalCityID)
 SYNC_ARCHIVE_VAR(int, m_iCitiesLost)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryRating)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryMight)
+SYNC_ARCHIVE_VAR(int, m_iNuclearMight)
 SYNC_ARCHIVE_VAR(int, m_iEconomicMight)
 SYNC_ARCHIVE_VAR(int, m_iProductionMight)
 SYNC_ARCHIVE_VAR(int, m_iTurnSliceMightRecomputed)

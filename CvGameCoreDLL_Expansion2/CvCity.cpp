@@ -11968,7 +11968,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 
 	if (MOD_BALANCE_VP)
 	{
-		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0;
 		bool bSettler = pkUnitInfo->IsFound() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate() || pkUnitInfo->IsFoundAbroad();
 
 		if (bCombat)
@@ -12246,7 +12246,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 	else
 	{
-		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0;
 		if (bCombat)
 		{
 			iCost *= GET_PLAYER(getOwner()).getHandicapInfo().getTrainPercent();
@@ -12338,7 +12338,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 	if (MOD_BALANCE_VP)
 	{
-		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0;
 		bool bSettler = pkUnitInfo->IsFound() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate() || pkUnitInfo->IsFoundAbroad();
 
 		if (bCombat)
@@ -13112,7 +13112,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
 		int iTempMod = 0;
-		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
+		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() > 0;
 		bool bSettler = pUnitEntry->IsFound() || pUnitEntry->IsFoundMid() || pUnitEntry->IsFoundLate() || pUnitEntry->IsFoundAbroad();
 
 		if (bCombat)

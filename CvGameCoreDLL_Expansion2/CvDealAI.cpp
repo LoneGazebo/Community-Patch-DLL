@@ -1933,7 +1933,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			continue;
 
 		// nuclear non-proliferation?
-		if (pkUnitInfo->GetNukeDamageLevel() > 0 && GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(pPlayer->GetID()))
+		if (pkUnitInfo->GetNukeDamageLevel() > 0 && (GC.getGame().isNoNukes() || GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(pPlayer->GetID())))
 			continue;
 
 		// don't have prereq tech?
@@ -7249,7 +7249,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GetPlayer()->GetDiplomacyAI()->IsMaster(eLoopPlayer))
 			{
-				iItemValue += GET_PLAYER(eLoopPlayer).GetMilitaryMight() + GET_PLAYER(eLoopPlayer).GetEconomicMight();
+				iItemValue += GET_PLAYER(eLoopPlayer).GetMilitaryMight() / 4 + GET_PLAYER(eLoopPlayer).GetEconomicMight();
 				iVassalsControlled++;
 
 				int iCityLoop = 0;
@@ -7383,7 +7383,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 							if(eVassalPlayer != NO_PLAYER && GET_PLAYER(eVassalPlayer).getTeam() != eLoopTeam)
 								continue;
 
-							iItemValue += (GET_PLAYER(eVassalPlayer).GetMilitaryMight() + GET_PLAYER(eVassalPlayer).GetEconomicMight());
+							iItemValue += GET_PLAYER(eVassalPlayer).GetMilitaryMight() / 4 + GET_PLAYER(eVassalPlayer).GetEconomicMight();
 
 							// Did the vassal previously resurrect or liberate us?
 							if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer) || GetPlayer()->GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(eVassalPlayer))

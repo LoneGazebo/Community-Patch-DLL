@@ -2649,7 +2649,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 			if(pNuke && pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
 			{
 				//try to save any units we have nearby
-				int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
+				int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 				for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot,i);
@@ -2736,7 +2736,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			int iThisCityValue = 0;
 
 			// check to see if there is anything good or bad in the radius that we should account for
-			int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
+			int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 			for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pCityPlot,i);

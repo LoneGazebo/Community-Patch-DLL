@@ -837,7 +837,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
-	if(getUnitInfo().GetNukeDamageLevel() != -1)
+	if(getUnitInfo().GetNukeDamageLevel() > 0)
 	{
 		kPlayer.changeNumNukeUnits(1);
 	}
@@ -2689,7 +2689,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	GET_PLAYER(eUnitOwner).changeExtraUnitCost(-(getUnitInfo().GetExtraMaintenanceCost()));
 
-	if(getUnitInfo().GetNukeDamageLevel() != -1)
+	if(getUnitInfo().GetNukeDamageLevel() > 0)
 	{
 		GET_PLAYER(eUnitOwner).changeNumNukeUnits(-1);
 	}
@@ -8389,7 +8389,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 		return false;
 	}
 
-	int iBlastRadius = /*2*/ GD_INT_GET(NUKE_BLAST_RADIUS);
+	int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 
 	for(iDX = -(iBlastRadius); iDX <= iBlastRadius; iDX++)
 	{
@@ -8420,7 +8420,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 bool CvUnit::canNuke() const
 {
 	VALIDATE_OBJECT
-	return GetNukeDamageLevel() != -1;
+	return GetNukeDamageLevel() > 0;
 }
 
 

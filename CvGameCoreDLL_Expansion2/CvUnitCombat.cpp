@@ -2815,7 +2815,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	}
 
 	// Then the terrain effects
-	int iBlastRadius = /*2*/ GD_INT_GET(NUKE_BLAST_RADIUS);
+	int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 
 	for(int iDX = -(iBlastRadius); iDX <= iBlastRadius; iDX++)
 	{
@@ -3028,7 +3028,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 //	The attacker is optional, this is also called for a meltdown
 void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers)
 {
-	int iBlastRadius = /*2*/ GD_INT_GET(NUKE_BLAST_RADIUS);
+	int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 
 #if defined(MOD_EVENTS_BATTLES)
 	CvCity* pDefenderCity = NULL;
@@ -3203,7 +3203,7 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 
 	if(pkAttacker && !pkAttacker->isDelayedDeath())
 	{
-		// Make sure we are disconnected from any unit transporting the attacker (i.e. its a missile)
+		// Make sure we are disconnected from any unit transporting the attacker (i.e. it's a missile)
 		pkAttacker->setTransportUnit(NULL);
 
 		if(pkTargetPlot)

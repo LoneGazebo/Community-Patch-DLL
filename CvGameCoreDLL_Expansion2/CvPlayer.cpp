@@ -303,6 +303,7 @@ CvPlayer::CvPlayer() :
 	, m_iCitiesLost()
 	, m_iMilitaryRating()
 	, m_iMilitaryMight()
+	, m_iNuclearMight()
 	, m_iEconomicMight()
 	, m_iProductionMight()
 	, m_iTurnSliceMightRecomputed()
@@ -1619,6 +1620,7 @@ void CvPlayer::uninit()
 	m_iCitiesLost = 0;
 	m_iMilitaryRating = 0;
 	m_iMilitaryMight = 0;
+	m_iNuclearMight = 0;
 	m_iEconomicMight = 0;
 	m_iProductionMight = 0;
 	m_iTurnSliceMightRecomputed = -1;
@@ -2762,7 +2764,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	CvPlot* pBestPlot = NULL;
 
 	// If this is a civilian or air unit, spawn it on the starting plot
-	bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+	bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0;
 	if (!bCombat || pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 	{
 		pBestPlot = pStartingPlot;
@@ -14970,7 +14972,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 
 		if(GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
 		{
-			if(pUnitInfo.GetNukeDamageLevel() != -1)
+			if(pUnitInfo.GetNukeDamageLevel() > 0)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NUKES");
 				if(toolTipSink == NULL)
@@ -14978,7 +14980,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			}
 		}
 
-		if(pUnitInfo.GetNukeDamageLevel() != -1)
+		if(pUnitInfo.GetNukeDamageLevel() > 0)
 		{
 			if(GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(GetID()))
 			{
@@ -15670,7 +15672,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 				for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
 				{
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo((UnitTypes)iI);
-					if(pkUnitEntry && pkUnitEntry->GetNukeDamageLevel() != -1)
+					if(pkUnitEntry && pkUnitEntry->GetNukeDamageLevel() > 0)
 					{
 						return false;
 					}
@@ -15923,7 +15925,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 	if (pkUnitClassInfo == NULL)
 		return 0;
 
-	bool bCombat = pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetNukeDamageLevel() != -1;
+	bool bCombat = pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetNukeDamageLevel() > 0;
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
 
 	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
@@ -30522,8 +30524,10 @@ int CvPlayer::getNumNukeUnits() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeNumNukeUnits(int iChange)
 {
-	m_iNumNukeUnits = (m_iNumNukeUnits + iChange);
-	CvAssert(getNumNukeUnits() >= 0);
+	m_iNumNukeUnits += iChange;
+	ASSERT(m_iNumNukeUnits >= 0);
+	if (iChange != 0)
+		updateMightStatistics(); // force an immediate update of might statistics, nukes are powerful
 }
 
 
@@ -33648,7 +33652,8 @@ void CvPlayer::DoMilitaryRatingDecay()
 void CvPlayer::updateMightStatistics()
 {
 	m_iTurnSliceMightRecomputed = GC.getGame().getGameTurn();
-	m_iMilitaryMight = calculateMilitaryMight();
+	m_iNuclearMight = calculateNuclearMight();
+	m_iMilitaryMight = calculateMilitaryMight() + m_iNuclearMight;
 	m_iEconomicMight = calculateEconomicMight();
 	m_iProductionMight = calculateProductionMight();
 
@@ -33678,6 +33683,15 @@ int CvPlayer::GetMilitaryMight() const
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iMilitaryMight;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNuclearMight() const
+{
+	// more lazy evaluation
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
+
+	return m_iNuclearMight;
 }
 #if defined(MOD_BATTLE_ROYALE)
 //	--------------------------------------------------------------------------------
@@ -33743,18 +33757,199 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 			continue;
 
-		if (pLoopUnit->IsCivilianUnit())
+		// Don't handle nukes here - they are processed in calculateNuclearMight()
+		if (pLoopUnit->isDelayedDeath() || pLoopUnit->canNuke() || pLoopUnit->IsCivilianUnit())
 			continue;
 
-		int iPower = pLoopUnit->GetPower();
-		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		//we are interested in the offensive capabilities of the player
+		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
+
+		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
+		if (pLoopUnit->getLevel()>3)
 		{
-			iPower /= 2;
+			iPower *= 100 + (pLoopUnit->getLevel() * 10 - 30);
+			iPower /= 100;
 		}
+
 		iSum += iPower;
 	}
 
-	return (iSum / 4);
+	return iSum;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::calculateNuclearMight(PlayerTypes ePlayer, bool bComputeShelterNumbers, int iBombShelterPercent, int iNukeModifier, int iInterceptionChance) const
+{
+	if (getNumNukeUnits() == 0)
+		return 0;
+
+	int iHighestLandOrSeaPower = 0;
+	int iHighestAirPower = 0;
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
+	{
+		// For global military might calculation (once per turn, or whenever a nuke is added or removed)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam())
+			{
+				int iLoop = 0;
+				for (const CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
+				{
+					if (pLoopUnit->isDelayedDeath() || pLoopUnit->canNuke() || pLoopUnit->IsCivilianUnit())
+						continue;
+
+					//we are interested in the offensive capabilities of the player
+					int iPower = pLoopUnit->GetBestAttackStrength() / 100;
+
+					//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
+					if (pLoopUnit->getLevel()>3)
+					{
+						iPower *= 100 + (pLoopUnit->getLevel() * 10 - 30);
+						iPower /= 100;
+					}
+
+					DomainTypes eDomain = pLoopUnit->getDomainType();
+					if (eDomain == DOMAIN_LAND || eDomain == DOMAIN_SEA)
+					{
+						if (iPower > iHighestLandOrSeaPower)
+							iHighestLandOrSeaPower = iPower;
+					}
+					else if (eDomain == DOMAIN_AIR)
+					{
+						if (iPower > iHighestAirPower)
+							iHighestAirPower = iPower;
+					}
+				}
+			}
+		}
+	}
+	else if (GET_PLAYER(ePlayer).isAlive())
+	{
+		int iLoop = 0;
+		for (const CvUnit* pLoopUnit = GET_PLAYER(ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(ePlayer).nextUnit(&iLoop))
+		{
+			if (pLoopUnit->isDelayedDeath() || pLoopUnit->canNuke() || pLoopUnit->IsCivilianUnit())
+				continue;
+
+			//we are interested in the offensive capabilities of the player
+			int iPower = pLoopUnit->GetBestAttackStrength() / 100;
+
+			//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
+			if (pLoopUnit->getLevel()>3)
+			{
+				iPower *= 100 + (pLoopUnit->getLevel() * 10 - 30);
+				iPower /= 100;
+			}
+
+			DomainTypes eDomain = pLoopUnit->getDomainType();
+			if (eDomain == DOMAIN_LAND || eDomain == DOMAIN_SEA)
+			{
+				if (iPower > iHighestLandOrSeaPower)
+					iHighestLandOrSeaPower = iPower;
+			}
+			else if (eDomain == DOMAIN_AIR)
+			{
+				if (iPower > iHighestAirPower)
+					iHighestAirPower = iPower;
+			}
+		}
+	}
+
+	if (bComputeShelterNumbers)
+	{
+		ASSERT(ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER);
+		int iNumTheirCities = 0;
+		int iNumTheirShelteredCities = 0;
+		iNukeModifier = 0;
+		iInterceptionChance = 0;
+		iBombShelterPercent = 0;
+		if (GET_PLAYER(ePlayer).getNumCities() > 0)
+		{
+			int iLoop = 0;
+			for (const CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				// Factor in how well their cities are protected against nuclear attacks
+				iNumTheirCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
+				int iCityInterceptionChance = pLoopCity->getNukeInterceptionChance();
+				int iCityNukeModifier = pLoopCity->getNukeModifier() * -1;
+				if (iCityNukeModifier > 0 || iCityInterceptionChance > 0)
+				{
+					iNumTheirShelteredCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
+					iNukeModifier += iCityNukeModifier;
+					iInterceptionChance += iCityInterceptionChance;
+				}
+			}
+			iNukeModifier /= max(iNumTheirShelteredCities, 1);
+			iInterceptionChance /= max(iNumTheirShelteredCities, 1);
+			iBombShelterPercent = iNumTheirShelteredCities * 100 / iNumTheirCities;
+		}
+	}
+
+	// Protect against modder stupidity
+	iNukeModifier = range(iNukeModifier, 0, 100);
+	iInterceptionChance = range(iInterceptionChance, 0, 100);
+
+	// Loop through all nukes and assign a damage value to each of them
+	int iSum = 0;
+	int iLoop = 0;
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->isDelayedDeath())
+			continue;
+
+		int iNukeDamageLevel = pLoopUnit->GetNukeDamageLevel();
+		if (iNukeDamageLevel < 1)
+			continue;
+
+		int iBlastMultiplier = RING_PLOTS[/*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5)] - 1;
+
+		// Assume the nuke destroys one land unit and four air units on the city plot
+		// Reduced by 75% with a Bomb Shelter
+		int iBasePower = iHighestLandOrSeaPower * 3 + iHighestAirPower * 12;
+		if (iBombShelterPercent != 0 && iNukeModifier != 0)
+		{
+			iBasePower *= 100 - (iBombShelterPercent * iNukeModifier / 100);
+			iBasePower /= 100;
+		}
+
+		// Atomic Bombs deal ~70 average damage to units in the blast radius, so add 2x the combat strength of the strongest unit, multiplied by the blast radius
+		// Nuclear Missiles destroy units in the blast radius, so add 3x the combat strength of the strongest unit, multiplied by the blast radius
+		// Not all tiles will be occupied in practice, but that's okay - the total power serves as a rough approximation of the strength versus cities as well - nukes are strong!
+		int iBlastPower = iNukeDamageLevel == 1 ? iHighestLandOrSeaPower * iBlastMultiplier * 2 : iHighestLandOrSeaPower * iBlastMultiplier * 3;
+
+		// Factor in Bomb Shelters in this approximation
+		// Nuke Damage Level 1: Reduce total strength by 50% (50% chance of destroying the nuke outright), plus 17% (multiplicative) to account for the pop loss reduction
+		// Nuke Damage Level 2: Reduce strength of the BLAST by 17% (50% chance of downgrading the nuke to Level 1, which inflicts 16.7% less damage on avg)
+		// For Level 2, also reduce total strength by another 17% (multiplicative) to account for the pop loss reduction
+		int iTotalPower = 0;
+		if (iBombShelterPercent != 0)
+		{
+			int iPopFactorReduction = (iNukeModifier * 100 / 75) * 17 / 100;
+			if (iNukeDamageLevel == 1)
+			{
+				iTotalPower = iBasePower + iBlastPower;
+				iTotalPower *= 100 - (iBombShelterPercent * iInterceptionChance / 100);
+				iTotalPower /= 100;
+				iTotalPower *= 100 - (iBombShelterPercent * iPopFactorReduction / 100);
+				iTotalPower /= 100;
+			}
+			else
+			{
+				iBlastPower *= 100 - (iBombShelterPercent * (34 * iInterceptionChance / 100) / 100);
+				iBlastPower /= 100;
+				iTotalPower = iBasePower + iBlastPower;
+				iTotalPower *= 100 - (iBombShelterPercent * iPopFactorReduction / 100);
+				iTotalPower /= 100;
+			}
+		}
+		else
+			iTotalPower = iBasePower + iBlastPower;
+
+		iSum += iTotalPower;
+	}
+
+	return iSum;
 }
 
 //	--------------------------------------------------------------------------------
@@ -33762,22 +33957,18 @@ int CvPlayer::calculateEconomicMight() const
 {
 	int iEconomicMight = 5;
 	iEconomicMight += getTotalPopulation();
-
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
 	iEconomicMight += calculateTotalYield(YIELD_CULTURE);
-
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	// Finally, reduce our power for each city we own - the more we have, the less we can defend.
 	int iNumCities = (getNumCities() * 10) + 100;
 	if (iNumCities > 0)
 	{
 		iEconomicMight *= 100;
 		iEconomicMight /= min(300, iNumCities);
 	}
-
-	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
 	return iEconomicMight;
 }
 
@@ -45678,6 +45869,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCitiesLost);
 	visitor(player.m_iMilitaryRating);
 	visitor(player.m_iMilitaryMight);
+	visitor(player.m_iNuclearMight);
 	visitor(player.m_iEconomicMight);
 	visitor(player.m_iProductionMight);
 	visitor(player.m_iTurnSliceMightRecomputed);
@@ -50788,7 +50980,7 @@ void CvPlayer::SetHasUUPeriod()
 							continue;
 
 						// Must be a combat or combat support unit
-						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() > 0)
 						{
 							//obsolete? This no longer applies.
 							if (pkUnitEntry->GetObsoleteTech() != NO_TECH && HasTech((TechTypes)pkUnitEntry->GetObsoleteTech()))
