@@ -358,7 +358,6 @@ CvPlayer::CvPlayer() :
 	, m_bDynamicTurnsSimultMode(true)
 	, m_bPbemNewTurn()
 	, m_bExtendedGame()
-	, m_bFoundedFirstCity()
 	, m_iNumCitiesFounded()
 	, m_iCompleteKillsTimerTurn()
 	, m_bStrike()
@@ -1691,7 +1690,6 @@ void CvPlayer::uninit()
 	m_bDynamicTurnsSimultMode = true;
 	m_bPbemNewTurn = false;
 	m_bExtendedGame = false;
-	m_bFoundedFirstCity = false;
 	m_iNumCitiesFounded = 0;
 	m_iCompleteKillsTimerTurn = -1;
 	m_bStrike = false;
@@ -2643,9 +2641,16 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, b
 		if (!pkUnitInfo)
 			continue;
 
+		if ((bGameStart || bCompleteKills) && eUnitAI == UNITAI_SETTLE)
+		{
+			// Starting settlers cannot also be combatants
+			if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0)
+				continue;
+		}
+
 		// Starting Settler is the only unit that doesn't require a canTrainUnit check
-		bool bIsSettler = (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SETTLER"));
-		if (((bGameStart || bCompleteKills) && bIsSettler) || canTrainUnit(eLoopUnit))
+		bool bAllowSettler = (bGameStart || bCompleteKills) && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SETTLER");
+		if (bAllowSettler || canTrainUnit(eLoopUnit))
 		{
 			int iValue = 0;
 
@@ -2657,10 +2662,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, b
 			// Not default, but still possible?
 			else if (pkUnitInfo->GetUnitAIType(eUnitAI))
 			{
-				if (!bGameStart && !bCompleteKills)
-					iValue += pkUnitInfo->GetProductionCost();
-				else if (eUnitAI != UNITAI_SETTLE && eUnitAI != UNITAI_WORKER && eUnitAI != UNITAI_WORKER_SEA) // Never spawn in secondary Settlers or Workers at game start
-					iValue += pkUnitInfo->GetProductionCost();
+				iValue += pkUnitInfo->GetProductionCost();
 			}
 
 			if (iValue > iBestUnitValue)
@@ -2775,11 +2777,12 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 				}
 			}
 		}
-		// Just pick the first plot that a city can be founded on
+		// Just pick a random plot that a city can be founded on
 		if (!pStartingPlot)
 		{
 			CvMap& theMap = GC.getMap();
 			int iNumWorldPlots = theMap.numPlots();
+			vector<CvPlot*> vPlots;
 			for (int iI = 0; iI < iNumWorldPlots; iI++)
 			{
 				CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
@@ -2792,8 +2795,12 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 				if (!canFoundCity(pLoopPlot->getX(), pLoopPlot->getY()))
 					continue;
 
-				pStartingPlot = pLoopPlot;
-				break;
+				vPlots.push_back(pLoopPlot);
+			}
+			if (!vPlots.empty())
+			{
+				uint uRandIndex = GC.getGame().urandLimitExclusive(vPlots.size(), CvSeeder::fromRaw(0xf302652d).mix(GetID()));
+				pStartingPlot = vPlots[uRandIndex];
 			}
 		}
 	}
@@ -11594,11 +11601,6 @@ void CvPlayer::disband(CvCity* pCity)
 	bool bIsBarbarian = pPlot && pPlot->getOwner() == BARBARIAN_PLAYER;
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
-
-	if (getNumCities() == 1)
-	{
-		setFoundedFirstCity(false);
-	}
 
 	GC.getGame().addDestroyedCityName(pCity->getNameKey());
 
@@ -32215,9 +32217,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			setEverAlive(true);
 		}
 
-		if (getNumCities() == 0)
-			setFoundedFirstCity(false);
-
 		GET_TEAM(getTeam()).SetKilledByTeam(NO_TEAM);
 	}
 	else
@@ -32407,7 +32406,7 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 		if (getNumCities() == 0)
 		{
 			if ((GC.getGame().getMaxCityElimination() > 0 && getCitiesLost() >= GC.getGame().getMaxCityElimination()) ||
-				(getNumUnits() == 0 || ((isFoundedFirstCity() || !HasActiveSettler()) && !GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !GetPlayerTraits()->IsStaysAliveZeroCities())))
+				(getNumUnits() == 0 || ((GetNumCitiesFounded() > 0 || !HasActiveSettler()) && !GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS) && !GetPlayerTraits()->IsStaysAliveZeroCities())))
 			{
 				if (eKiller != NO_PLAYER)
 				{
@@ -33038,25 +33037,6 @@ void CvPlayer::makeExtendedGame()
 	m_bExtendedGame = true;
 }
 
-bool CvPlayer::isFoundedFirstCity() const
-{
-	return m_bFoundedFirstCity;
-}
-
-void CvPlayer::setFoundedFirstCity(bool bNewValue)
-{
-	if(isFoundedFirstCity() != bNewValue)
-	{
-		m_bFoundedFirstCity = bNewValue;
-
-		if(GetID() == GC.getGame().getActivePlayer())
-		{
-			GC.GetEngineUserInterface()->setDirty(PercentButtons_DIRTY_BIT, true);
-			GC.GetEngineUserInterface()->setDirty(ResearchButtons_DIRTY_BIT, true);
-		}
-	}
-}
-
 int CvPlayer::GetNumCitiesFounded() const
 {
 	return m_iNumCitiesFounded;
@@ -33065,6 +33045,12 @@ int CvPlayer::GetNumCitiesFounded() const
 void CvPlayer::ChangeNumCitiesFounded(int iValue)
 {
 	m_iNumCitiesFounded += iValue;
+
+	if (m_iNumCitiesFounded == 1 && GetID() == GC.getGame().getActivePlayer())
+	{
+		GC.GetEngineUserInterface()->setDirty(PercentButtons_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(ResearchButtons_DIRTY_BIT, true);
+	}
 }
 
 // check to see if we defeated this other player
@@ -42710,7 +42696,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bDynamicTurnsSimultMode);
 	visitor(player.m_bPbemNewTurn);
 	visitor(player.m_bExtendedGame);
-	visitor(player.m_bFoundedFirstCity);
 	visitor(player.m_iNumCitiesFounded);
 	visitor(player.m_iCompleteKillsTimerTurn);
 	visitor(player.m_bStrike);
@@ -44869,7 +44854,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 				iScale = 0;
 		}
 
-		if (iScale==0)
+		if (iScale==0 && getNumCities()>0)
 		{
 			//--------------
 			if (bLogging)
@@ -44894,7 +44879,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 			iValue = pPlot->getFoundValue(eOwner);
 		}
 
-		if (iValue<=0)
+		if ((getNumCities()==0 && iValue<0) || (getNumCities()>0 && iValue<=0))
 			continue;
 
 		//factor in the distance

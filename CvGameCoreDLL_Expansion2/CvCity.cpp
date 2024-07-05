@@ -758,7 +758,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	if (bInitialFounding)
 	{
-		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
 		// Free resources under city?

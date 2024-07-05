@@ -1405,7 +1405,7 @@ void CvPlayerTechs::SetGSPriorities()
 bool CvPlayerTechs::IsResearch() const
 {
 	// Have we founded a city?
-	return m_pPlayer->isFoundedFirstCity();
+	return m_pPlayer->GetNumCitiesFounded() > 0;
 }
 
 /// Accessor: Is this tech disabled?

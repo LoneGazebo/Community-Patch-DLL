@@ -1671,8 +1671,6 @@ public:
 	bool isExtendedGame() const;
 	void makeExtendedGame();
 
-	bool isFoundedFirstCity() const;
-	void setFoundedFirstCity(bool bNewValue);
 	int GetNumCitiesFounded() const;
 	void ChangeNumCitiesFounded(int iValue);
 
@@ -3439,7 +3437,6 @@ protected:
 	bool m_bDynamicTurnsSimultMode;
 	bool m_bPbemNewTurn;
 	bool m_bExtendedGame;
-	bool m_bFoundedFirstCity;
 	int m_iNumCitiesFounded;
 	int m_iCompleteKillsTimerTurn;
 	bool m_bStrike;
@@ -4245,7 +4242,6 @@ SYNC_ARCHIVE_VAR(bool, m_bEndTurn)
 SYNC_ARCHIVE_VAR(bool, m_bDynamicTurnsSimultMode)
 SYNC_ARCHIVE_VAR(bool, m_bPbemNewTurn)
 SYNC_ARCHIVE_VAR(bool, m_bExtendedGame)
-SYNC_ARCHIVE_VAR(bool, m_bFoundedFirstCity)
 SYNC_ARCHIVE_VAR(int, m_iNumCitiesFounded)
 SYNC_ARCHIVE_VAR(int, m_iCompleteKillsTimerTurn)
 SYNC_ARCHIVE_VAR(bool, m_bStrike)

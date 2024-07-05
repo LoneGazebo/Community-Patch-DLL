@@ -9499,7 +9499,10 @@ int CvLuaPlayer::lIsExtendedGame(lua_State* L)
 //bool isFoundedFirstCity();
 int CvLuaPlayer::lIsFoundedFirstCity(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::isFoundedFirstCity);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetNumCitiesFounded() > 0;
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

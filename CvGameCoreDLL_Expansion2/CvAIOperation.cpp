@@ -2037,7 +2037,7 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit)
 
 	int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
 	int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
-	if (iNewQ < GET_PLAYER(m_eOwner).GetMinAcceptableSettleQuality())
+	if (iNewQ < GET_PLAYER(m_eOwner).GetMinAcceptableSettleQuality() && GET_PLAYER(m_eOwner).getNumCities() > 0)
 		return NULL;
 
 	if (!GetTargetPlot())

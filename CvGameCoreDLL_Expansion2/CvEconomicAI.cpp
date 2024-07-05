@@ -3742,7 +3742,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 
-	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
+	if (pPlayer->GetNumCitiesFounded() == 0) //in this case homeland (first settler moves) should apply
 		return false;
 
 	// Never run this strategy for a human player

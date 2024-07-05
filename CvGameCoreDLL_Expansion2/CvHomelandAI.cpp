@@ -563,26 +563,25 @@ void CvHomelandAI::PlotExplorerMoves()
 void CvHomelandAI::PlotFirstTurnSettlerMoves()
 {
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SETTLE);
+	if (m_pPlayer->GetNumCitiesFounded() > 0)
+		return;
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && !pUnit->isHuman())
+		if (pUnit && !pUnit->isHuman())
 		{
-			if(m_pPlayer->getNumCities() == 0)
+			if (pUnit->canFoundCity(NULL))
 			{
-				if(pUnit->canFoundCity(NULL))
-				{
-					CvHomelandUnit unit;
-					unit.SetID(pUnit->GetID());
-					m_CurrentMoveUnits.push_back(unit);
-				}
+				CvHomelandUnit unit;
+				unit.SetID(pUnit->GetID());
+				m_CurrentMoveUnits.push_back(unit);
 			}
 		}
 	}
 
-	if(!m_CurrentMoveUnits.empty())
+	if (!m_CurrentMoveUnits.empty())
 	{
 		ExecuteFirstTurnSettlerMoves();
 	}

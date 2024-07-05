@@ -908,7 +908,7 @@ void CvGame::regenerateMap()
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		GET_PLAYER((PlayerTypes)iI).setFoundedFirstCity(false);
+		GET_PLAYER((PlayerTypes)iI).ChangeNumCitiesFounded(-GET_PLAYER((PlayerTypes)iI).GetNumCitiesFounded());
 		GET_PLAYER((PlayerTypes)iI).setStartingPlot(NULL);
 	}
 
@@ -14202,7 +14202,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 	//	pNewCity->setName(strCityName, false, true);
 	//}
 
-	kPlayer.setFoundedFirstCity(true);
+	kPlayer.ChangeNumCitiesFounded(1);
 	pNewCity->SetOccupied(false);
 
 	if (!pNewCity->IsNoOccupiedUnhappiness())
