@@ -2627,7 +2627,6 @@ void CvPlayer::initFreeUnits()
 	}
 }
 
-//	--------------------------------------------------------------------------------
 void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, bool bCompleteKills)
 {
 	UnitTypes eBestUnit = NO_UNIT;
