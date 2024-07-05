@@ -202,14 +202,11 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 
 	int iCityPlotA = pOriginCity->plot()->GetPlotIndex();
 	int iCityPlotB = pDestCity->plot()->GetPlotIndex();
-	if (HaveTradePathInCache(cache, iCityPlotA, iCityPlotB))
-	{
-		if (pPathOut)
-			*pPathOut = cache[iCityPlotA][iCityPlotB];
-		return true;
-	}
+	bool hasPath = HaveTradePathInCache(cache, iCityPlotA, iCityPlotB);
+	if (hasPath && pPathOut)
+		*pPathOut = cache[iCityPlotA][iCityPlotB];
 
-	return false;
+	return hasPath;
 }
 
 void CvGameTrade::InvalidateTradePathCache()

@@ -4298,9 +4298,11 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 
 	if (IsHasFoundPlayersTerritory(ePlayer) != bValue)
 	{
+		// Update the player's territory discovery status and return true indicating a change
 		m_abHasFoundPlayersTerritory[ePlayer] = bValue;
 		return true;
 	}
+	// Return false indicating no change
 	return false;
 }
 

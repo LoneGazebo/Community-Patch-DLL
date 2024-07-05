@@ -8487,10 +8487,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 	}
 
 	BuildingTypes ePrereqBuilding = static_cast<BuildingTypes>(pkBuildingInfo->GetNeedBuildingThisCity());
-	if (ePrereqBuilding != NO_BUILDING && !HasBuilding(ePrereqBuilding))
-		return false;
-
-	return true;
+	return !(ePrereqBuilding != NO_BUILDING && !HasBuilding(ePrereqBuilding));
 }
 
 
