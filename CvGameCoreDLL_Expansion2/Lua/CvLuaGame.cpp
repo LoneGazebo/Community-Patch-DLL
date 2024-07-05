@@ -341,7 +341,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetScienceMedianModifierBuildingGlobal);
 	Method(GetCultureMedianModifierBuildingGlobal);
 	Method(GetReligiousUnrestModifierBuildingGlobal);
-	Method(GetPromiseDuration);
+	Method(GetMilitaryPromiseDuration);
+	Method(GetExpansionPromiseDuration);
+	Method(GetBorderPromiseDuration);
 	Method(GetCorporationFounder);
 	Method(GetCorporationHeadquarters);
 	Method(GetNumCorporationsFounded);
@@ -2531,9 +2533,22 @@ int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 	lua_pushinteger(L, iYieldChange);
 	return 1;
 }
-int CvLuaGame::lGetPromiseDuration(lua_State* L)
+int CvLuaGame::lGetMilitaryPromiseDuration(lua_State* L)
+{
+	// This promise does not scale with game speed!
+	int iTimeOutTurns = /*20*/ GD_INT_GET(MOVE_TROOPS_MEMORY_TURN_EXPIRATION);
+	lua_pushinteger(L, iTimeOutTurns);
+	return 1;
+}
+int CvLuaGame::lGetExpansionPromiseDuration(lua_State* L)
 {
 	int iTimeOutTurns = (/*50*/ GD_INT_GET(EXPANSION_PROMISE_TURNS_EFFECTIVE) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	lua_pushinteger(L, iTimeOutTurns);
+	return 1;
+}
+int CvLuaGame::lGetBorderPromiseDuration(lua_State* L)
+{
+	int iTimeOutTurns = (/*50*/ GD_INT_GET(BORDER_PROMISE_TURNS_EFFECTIVE) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 	lua_pushinteger(L, iTimeOutTurns);
 	return 1;
 }

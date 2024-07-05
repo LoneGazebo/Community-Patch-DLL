@@ -8983,6 +8983,10 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return true;
 
+	// Exploit avoidance: No giving humans indirect backstabbing penalties
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return true;
+
 	return false;
 }
 
@@ -30007,14 +30011,17 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam()))
 			{
 				SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 			}
 			else
 			{
-				if (GET_PLAYER(ePlayer).getFirstOffensiveAIOperation(GetID()) != NULL || GET_PLAYER(ePlayer).GetDiplomacyAI()->AvoidExchangesWithPlayer(GetID(), /*bWarOnly*/ true))
+				MoveTroopsResponseTypes eResponse = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMoveTroopsRequestResponse(GetID(), /*bJustChecking*/ false);
+				if (eResponse == MOVE_TROOPS_RESPONSE_REFUSE)
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 					{
 						SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 					}
 					else
 					{
@@ -30024,6 +30031,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				else
 				{
 					SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 				}
 			}
 		}
@@ -33784,6 +33792,18 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (GetMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
 			return;
 
+		// AI teammates of humans can't send this, otherwise the humans on our team might get a backstabbing penalty for something they weren't aware of
+		if (GetPlayer()->IsAITeammateOfHuman())
+			return;
+
+		// Don't send this to AI teammates of humans, otherwise the humans on their team might get a backstabbing penalty for something they weren't aware of
+		if (GET_PLAYER(ePlayer).IsAITeammateOfHuman())
+			return;
+
+		// This promise is mutual, so don't send the statement if we (or our teammates) are planning war
+		if (AvoidExchangesWithPlayer(ePlayer, /*bWarOnly*/ true))
+			return;
+
 		// Check other player status
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 		{
@@ -33852,6 +33872,10 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 	{
 		// They must be able to declare war on us
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
+			return;
+
+		// Don't send this to AI teammates of humans, otherwise the humans on their team might get a backstabbing penalty for something they weren't aware of
+		if (GET_PLAYER(ePlayer).IsAITeammateOfHuman())
 			return;
 
 		if (GetOtherPlayerAttackedProtectedMinorTurn(ePlayer) == GC.getGame().getGameTurn())
@@ -38898,6 +38922,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if (iArg1 == 1)
 		{
 			SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -40499,11 +40524,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				// Make sure all players on this team get this check, so that teammates don't screw each other over.
 				for (int iI=0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					TeamTypes eLoopTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
+					PlayerTypes eTeammate = (PlayerTypes)iI;
+					TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
 					if (eLoopTeam == GetTeam())
 					{
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState((PlayerTypes)iI, PROMISE_STATE_MADE);
+						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40530,10 +40557,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				// Make sure all players on this team get this check, so that teammates don't screw each other over.
 				for (int iI=0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					TeamTypes eLoopTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
+					PlayerTypes eTeammate = (PlayerTypes)iI;
+					TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
 					if (eLoopTeam == GetTeam())
 					{
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState((PlayerTypes)iI, PROMISE_STATE_MADE);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40547,6 +40576,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else if (eResponse == MOVE_TROOPS_RESPONSE_REFUSE)
 			{
 				// Declare war on human!
+				bool bWasDeceptive = GetCivApproach(eFromPlayer) == CIV_APPROACH_DECEPTIVE || (GetCivApproach(eFromPlayer) == CIV_APPROACH_WAR && GetSurfaceApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY);
 				if (DeclareWar(eFromTeam))
 				{
 					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
@@ -40558,7 +40588,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_MOVE_TROOPS_REJECT_CONQUEST);
 						}
 						// Was deceptive
-						else if (GetCivApproach(eFromPlayer) == CIV_APPROACH_DECEPTIVE)
+						else if (bWasDeceptive)
 						{
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_MOVE_TROOPS_REJECT_DECEPTIVE);
 						}
@@ -40576,10 +40606,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					// AI agrees not to attack
 					for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 					{
-						TeamTypes eLoopTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
+						PlayerTypes eTeammate = (PlayerTypes)iI;
+						TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
 						if (eLoopTeam == GetTeam())
 						{
-							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState((PlayerTypes)iI, PROMISE_STATE_MADE);
+							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+							GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 						}
 					}
 
@@ -58151,7 +58183,6 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	// Prevent human from abusing AI to declare war on a human
 	if(!bJustChecking)
 	{
-		MoveTroopsResponseTypes eTeammateResponse;
 		int iYes = 0;
 		int iNeutral = 0;
 		int iNo = 0;
@@ -58164,7 +58195,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 			if(IsTeammate(eLoopPlayer))
 			{
 				// bJustChecking = true to prevent infinite loop
-				eTeammateResponse = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMoveTroopsRequestResponse(ePlayer, /*bJustChecking*/ true);
+				MoveTroopsResponseTypes eTeammateResponse = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMoveTroopsRequestResponse(ePlayer, /*bJustChecking*/ true);
 
 				switch (eTeammateResponse)
 				{

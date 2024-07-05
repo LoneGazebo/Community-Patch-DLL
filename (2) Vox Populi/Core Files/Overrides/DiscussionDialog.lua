@@ -483,6 +483,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AGGRESSIVE_MILITARY_WARNING) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_WE_MEAN_NO_HARM" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_TIME_TO_DIE" );
+-- CBP
+			local iTimeOutTurns = Game:GetMilitaryPromiseDuration();
+			strButton1Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_MILITARY_PROMISE", iTimeOutTurns);
+-- END
 			bHideBackButton = true;
 		-- AI attacked a Minor the Human is friends with
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_I_ATTACKED_YOUR_MINOR_CIV) then
@@ -510,6 +514,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_ATTACKED_MINOR_CIV) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_NOT_YOUR_BUSINESS" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_WILL_WITHDRAW" );
+			strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DURATION_ATTACK_MINOR_PROMISE" );
 			bHideBackButton = true;
 		-- Human killed a Protected Minor
 		--elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_KILLED_MINOR_CIV) then
@@ -531,7 +536,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE") ;
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING") ;
 -- CBP
-			local iTimeOutTurns = Game:GetPromiseDuration();
+			local iTimeOutTurns = Game:GetExpansionPromiseDuration();
 			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
 -- END
 			bHideBackButton = true;
@@ -545,7 +550,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_NOT_YOUR_BUSINESS" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_CLAIMING" );
 -- CBP
-			local iTimeOutTurns = Game:GetPromiseDuration();
+			local iTimeOutTurns = Game:GetBorderPromiseDuration();
 			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
 -- END
 			bHideBackButton = true;

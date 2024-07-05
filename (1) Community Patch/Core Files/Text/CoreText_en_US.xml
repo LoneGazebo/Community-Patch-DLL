@@ -5,6 +5,15 @@
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
 			<Text>What do you think of...</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT">
+			<Text>Ask the leader to remove their troops from your border. If the leader agrees to your request, [COLOR_WARNING_TEXT]both of you[ENDCOLOR] will promise not to declare war on each other for 20 turns. If you break this promise, other leaders might view you as a backstabber![NEWLINE][NEWLINE]If the leader rejects your request, they may choose to declare war on you, so be careful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS">
+			<Text>Please move your troops from our borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE">
+			<Text>Going to attack us, swine?</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_1">
 			<Text>As you wish, I shall move my troops from your border. My apologies for any trouble caused by this incident.</Text>
 		</Row>
@@ -2961,7 +2970,13 @@
 
 		<!-- Promise Duration -->
 		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
-			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Turns. If you violate this Promise during this time, this player will feel betrayed!</Text>
+			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] {1_Num: plural 1?Turn; other?Turns;}. If you violate this Promise during this time, this player will feel betrayed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DURATION_MILITARY_PROMISE">
+			<Text>Selecting this option creates a [COLOR_WARNING_TEXT]mutual[ENDCOLOR] promise not to declare war on each other for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] {1_Num: plural 1?Turn; other?Turns;}. If you break this promise, other leaders might view you as a backstabber!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DURATION_ATTACK_MINOR_PROMISE">
+			<Text>This Promise [COLOR_WARNING_TEXT]does not expire[ENDCOLOR]. If you violate this Promise, other leaders might view you as a backstabber!</Text>
 		</Row>
 
 		<!-- Civilopedia Jazz-->

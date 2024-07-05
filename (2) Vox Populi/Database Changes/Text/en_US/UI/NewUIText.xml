@@ -1886,15 +1886,6 @@
 		</Row>
 
 		<!-- Discussion/Dialogue options -->
-		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT">
-			<Text>Ask the leader to remove their troops from your border. If the leader rejects your request, they may choose to declare war on you, so be careful!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS">
-			<Text>Please move your troops from our borders.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE">
-			<Text>Going to attack us, swine?</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_DONT_ALLOW_VASSAL_INDEPENDENCE">
 			<Text>It's time you learned some respect. (DECLARE WAR!)</Text>
 		</Row>

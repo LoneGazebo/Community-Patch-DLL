@@ -325,7 +325,9 @@ protected:
 	static int lGetCultureMedianModifierBuildingGlobal(lua_State* L);
 	static int lGetReligiousUnrestModifierBuildingGlobal(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
-	static int lGetPromiseDuration(lua_State* L);
+	static int lGetMilitaryPromiseDuration(lua_State* L);
+	static int lGetExpansionPromiseDuration(lua_State* L);
+	static int lGetBorderPromiseDuration(lua_State* L);
 	static int lGetCorporationFounder(lua_State* L);
 	static int lGetCorporationHeadquarters(lua_State* L);
 	static int lGetNumCorporationsFounded(lua_State* L);
