@@ -1951,6 +1951,8 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 			}
 		}
 	}
+	else
+		m_bWasHumanLastTurn = true;
 
 	// Now that we've picked our flavors, select our default Victory Pursuit.
 	SelectDefaultVictoryPursuits();
