@@ -6867,14 +6867,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		}
 	}
 
-	if(pkTechInfo->IsResearchAgreementTradingAllowed())
-	{
-		if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
-		{
-			iTechMod += 2;
-		}
-	}
-
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
 	iItemValue = max(10, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra)), (double) /*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT) ) );

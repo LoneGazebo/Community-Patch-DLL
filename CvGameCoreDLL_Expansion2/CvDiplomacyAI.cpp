@@ -7040,18 +7040,6 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenBorderPromise(ePlayer))
-	{
-		if (bCheckDuration)
-		{
-			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
-			if (iTurnDifference <= iWithinXTurns)
-				return true;
-		}
-		else
-			return true;
-	}
-
 	if (IsPlayerBrokenBullyCityStatePromise(ePlayer))
 	{
 		if (bCheckDuration)
@@ -7149,18 +7137,6 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 		if (bCheckDuration)
 		{
 			int iTurnDifference = iGameTurn - GetPlayerExpansionPromiseTurn(ePlayer);
-			if (iTurnDifference <= iWithinXTurns)
-				return true;
-		}
-		else
-			return true;
-	}
-
-	if (IsPlayerIgnoredBorderPromise(ePlayer))
-	{
-		if (bCheckDuration)
-		{
-			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}

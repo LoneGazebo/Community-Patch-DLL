@@ -8488,12 +8488,8 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 	// Check if a specific prerequisite building is needed in this city
 	BuildingTypes ePrereqBuilding = static_cast<BuildingTypes>(pkBuildingInfo->GetNeedBuildingThisCity());
 
-	// Determine if no prerequisite building is needed or the prerequisite building is present
-	bool bNoPrereqBuilding = (ePrereqBuilding == NO_BUILDING);
-	bool bHasPrereqBuilding = HasBuilding(ePrereqBuilding);
-
 	// Return true if no specific prerequisite building is needed or it is present in the city
-	return bNoPrereqBuilding || bHasPrereqBuilding;
+	return (ePrereqBuilding == NO_BUILDING) || HasBuilding(ePrereqBuilding);
 }
 
 //	--------------------------------------------------------------------------------
