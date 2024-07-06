@@ -25301,6 +25301,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
 				{
+					if (eYield != ePassYield)
+						continue;
+
 					iValue = iPassYield;
 					if (bEraScale)
 						iValue *= iEra;
