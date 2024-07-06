@@ -15505,7 +15505,7 @@ void CvUnit::SetSquadDestination(CvPlot* pDestPlot)
 //  --------------------------------------------------------------------------------
 bool CvUnit::HasSquadDestination()
 {
-	return m_iSquadDestinationX >= 0 && m_iSquadDestinationX >= 0;
+	return m_iSquadDestinationX >= 0 && m_iSquadDestinationY >= 0;
 }
 
 //  --------------------------------------------------------------------------------
