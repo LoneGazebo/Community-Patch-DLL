@@ -115,8 +115,14 @@ class FSTLBlockAllocatorMT
 		template <typename U, unsigned int uBlockCountU, unsigned int pool_typeU, unsigned int uAlignmentU>
 		FSTLBlockAllocatorMT& operator=(const FSTLBlockAllocatorMT<U, uBlockCountU, pool_typeU, uAlignmentU> & rhs)
 		{
-			return * this;
-		}
+			if (this != &rhs)
+			{
+				// Perform assignment for all other members if any
+				// Assign the m_pFreeStack member
+				m_pFreeStack = rhs.m_pFreeStack;
+			}
+		return *this;
+	}
 
 	//-------------------------------------------------------------------------
 	// Standard Allocator Interface (C++ Standard 20.1.5)

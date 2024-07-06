@@ -40,7 +40,7 @@ struct ResourceMonopolySettings
 
 	bool operator==(const ResourceMonopolySettings& t) const
 	{
-		return this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bGlobalMonopoly == t.m_bGlobalMonopoly;
+		return this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bStrategicMonopoly == t.m_bStrategicMonopoly;
 	}
 
 	bool m_bGlobalMonopoly;

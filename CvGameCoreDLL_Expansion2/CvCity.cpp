@@ -13598,7 +13598,7 @@ SPlotStats CvCity::getPlotStats() const
 		if (pLoopPlot->getFeatureType() != NO_FEATURE)
 			result.vFeatureCount[pLoopPlot->getFeatureType()]++;
 
-		if (pLoopPlot->getResourceType(getTeam())!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+		if (pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 			result.vResourceCount[pLoopPlot->getResourceType(getTeam())]++;
 	}
 

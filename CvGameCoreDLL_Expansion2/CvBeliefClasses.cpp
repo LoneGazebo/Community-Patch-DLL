@@ -1864,19 +1864,20 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 //=====================================
 /// Constructor
 CvReligionBeliefs::CvReligionBeliefs() :
-m_ReligionBeliefs(),
-m_BeliefLookup(),
-m_eReligion(NO_RELIGION)
+	m_ReligionBeliefs(),
+	m_BeliefLookup(GC.GetGameBeliefs()->GetNumBeliefs(), 0),
+	m_eReligion(NO_RELIGION)
 {
 	Reset();
 }
 
 /// Copy Constructor with typical parameters
-CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
+CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source) :
+	m_ReligionBeliefs(source.m_ReligionBeliefs),
+	m_BeliefLookup(source.m_BeliefLookup),
+	m_eReligion(source.m_eReligion)
 {
-	m_ReligionBeliefs = source.m_ReligionBeliefs;
-	m_BeliefLookup = source.m_BeliefLookup;
-	m_eReligion = source.m_eReligion;
+	// No need to call Reset here since we're copying the state from source
 }
 
 /// Reset data members

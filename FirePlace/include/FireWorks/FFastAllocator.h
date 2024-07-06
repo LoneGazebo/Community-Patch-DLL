@@ -555,8 +555,17 @@ public:
 
 	//Don't allow copying
 private:
-	void operator = (const FFixedBlockAllocator& rhs){}
-
+	void operator=(const FFixedBlockAllocator& rhs)
+	{
+		if (this != &rhs)
+		{
+			m_uiSize = rhs.m_uiSize;
+			m_uiFirstEmpty = rhs.m_uiFirstEmpty;
+			m_uiCapacity = rhs.m_uiCapacity;
+			m_uiMaxActiveIndex = rhs.m_uiMaxActiveIndex;
+			m_pData = rhs.m_pData;
+		}
+	}
 
 public:
 	T& operator[] ( unsigned int ui ) 

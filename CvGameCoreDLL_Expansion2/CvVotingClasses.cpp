@@ -2159,20 +2159,20 @@ CvLeague::~CvLeague(void)
 {
 }
 
-CvLeague::Member::Member(void)
+CvLeague::Member::Member(void) :
+	ePlayer(NO_PLAYER),
+	iExtraVotes(0),
+	sVoteSources(""),
+	bMayPropose(false),
+	iProposals(0),
+	iVotes(0),
+	iAbstainedVotes(0),
+	bEverBeenHost(false),
+	bAlwaysBeenHost(true),
+	m_startingVotesCacheTime(0),
+	m_startingVotesCached(0),
+	m_startingVotesCachedIfUN(0)
 {
-	ePlayer = NO_PLAYER;
-	iExtraVotes = 0;
-	sVoteSources = "";
-	bMayPropose = false;
-	iProposals = 0;
-	iVotes = 0;
-	iAbstainedVotes = 0;
-	bEverBeenHost = false;
-	bAlwaysBeenHost = true;
-	m_startingVotesCacheTime = 0;
-	m_startingVotesCached = 0;
-	m_startingVotesCachedIfUN = 0;
 }
 
 CvLeague::Member::~Member(void)
