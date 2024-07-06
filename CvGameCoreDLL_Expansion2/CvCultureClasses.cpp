@@ -6914,10 +6914,7 @@ bool CvCityCulture::IsThemingBonusPossible(BuildingClassTypes eBuildingClass) co
 {
 	const BuildingTypes eBuilding = m_pCity->GetBuildingTypeFromClass(eBuildingClass, true);
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (pkBuildingInfo && pkBuildingInfo->GetThemingBonusInfo(0))
-		return true;
-
-	return false;
+	return pkBuildingInfo && pkBuildingInfo->GetThemingBonusInfo(0);
 }
 
 int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
