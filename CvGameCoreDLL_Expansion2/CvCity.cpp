@@ -20658,7 +20658,7 @@ int CvCity::GetEmpireSizeModifier() const
 	iEmpireMod *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() + GC.getGame().getHandicapInfo().getAIEmpireSizeUnhappinessMod();
 	iEmpireMod /= 100;
 
-	return std::max(iEmpireMod, 0);
+	return range(iEmpireMod, 0, /*100000*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CAP));
 }
 
 int CvCity::GetReducedEmpireSizeModifier(bool bForceRecalc, bool bCityOnly) const
