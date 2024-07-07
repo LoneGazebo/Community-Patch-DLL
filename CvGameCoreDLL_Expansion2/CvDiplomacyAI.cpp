@@ -6349,7 +6349,11 @@ bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const
 /// Which players have we agreed to avoid settling near?
 vector<PlayerTypes> CvDiplomacyAI::GetPlayersWithNoSettlePolicy() const
 {
+	// If AI has no cities, ignore the promise - they need a capital
 	vector<PlayerTypes> result;
+	if (GetPlayer()->getNumCities() == 0)
+		return result;
+
 	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayer;
@@ -43094,6 +43098,11 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	// Debug mode
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 		return true;
+
+	// Don't agree if AI has no cities, as AI will break the promise in order to settle their capital
+	// Also prevents a cheesy exploit: trying to get the AI to settle their initial capital in a worse position
+	if (GetPlayer()->getNumCities() == 0)
+		return false;
 	
 	// Always acceptable if they resurrected or liberated us
 	if (IsLiberator(ePlayer, true, true))

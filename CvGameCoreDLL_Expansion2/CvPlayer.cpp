@@ -2792,6 +2792,14 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 				if (pLoopPlot->getNumUnits() > 0 || pLoopPlot->IsEnemyUnitAdjacent(getTeam()))
 					continue;
 
+				// To avoid a bug, AI will not settle on Antiquity Sites even if they have no other options
+				if (!isHuman())
+				{
+					ResourceTypes ePlotResource = pLoopPlot->getResourceType(NO_TEAM);
+					if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) || ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
+						continue;
+				}
+
 				if (!canFoundCity(pLoopPlot->getX(), pLoopPlot->getY()))
 					continue;
 

@@ -305,8 +305,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
-	// AI does not settle on Antiquity Sites
-	ResourceTypes ePlotResource = pPlot->getResourceType(eTeam);
+	// To avoid a bug, AI does not settle on Antiquity Sites
+	ResourceTypes ePlotResource = pPlot->getResourceType(pPlayer->isHuman() ? eTeam : NO_TEAM);
 	if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) ||
 		ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 	{
