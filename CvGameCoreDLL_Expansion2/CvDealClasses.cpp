@@ -759,6 +759,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 				return false;
 
+			// Mutual embassies are required
+			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+
 			// Vassals cannot make Defensive Pacts.
 			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 				return false;
