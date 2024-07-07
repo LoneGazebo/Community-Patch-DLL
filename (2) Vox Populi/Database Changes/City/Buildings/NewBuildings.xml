@@ -1952,11 +1952,11 @@
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HELP</Help>
 			<EmpireSizeModifierReductionGlobal>-5</EmpireSizeModifierReductionGlobal>
-			<DistressFlatReductionGlobal>1</DistressFlatReductionGlobal>
-			<PovertyFlatReductionGlobal>1</PovertyFlatReductionGlobal>
-			<IlliteracyFlatReductionGlobal>1</IlliteracyFlatReductionGlobal>
-			<BoredomFlatReductionGlobal>1</BoredomFlatReductionGlobal>
-			<ReligiousUnrestFlatReductionGlobal>1</ReligiousUnrestFlatReductionGlobal>
+			<DistressFlatReduction>1</DistressFlatReduction>
+			<PovertyFlatReduction>1</PovertyFlatReduction>
+			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
+			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
