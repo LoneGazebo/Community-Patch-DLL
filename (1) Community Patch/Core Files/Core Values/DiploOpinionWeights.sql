@@ -239,6 +239,9 @@ UPDATE Defines SET Value = 10 WHERE Name = 'OPINION_WEIGHT_ASKED_STOP_SPYING';
 -- You made a trade demand of them!
 UPDATE Defines SET Value = 20 WHERE Name = 'OPINION_WEIGHT_MADE_DEMAND_OF_US';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT', 10; -- any after the first; must be a lesser penalty or equal to the initial value
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_DEMAND_YOU_NO_TAKE_DIVISOR', 200; -- decreases opinion weight if AI is not currently giving anything
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER', 200; -- increases opinion weight if AI is currently giving something AND is bankrupt (or will be soon)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS', 20; -- max turns for AI "soon" bankruptcy multiplier (penalty gradually increases as turns to bankruptcy decrease)
 
 
 --	//////////////////////////////////////

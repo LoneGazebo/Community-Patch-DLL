@@ -366,6 +366,13 @@ public:
 	void SetDemandTooSoonNumTurns(PlayerTypes ePlayer, int iValue);
 	bool IsDemandTooSoon(PlayerTypes ePlayer) const;
 
+	int GetNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer) const;
+	void SetNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer, int iValue);
+	void ChangeNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer, int iChange);
+	int GetDemandAcceptedTurn(PlayerTypes ePlayer) const;
+	void SetDemandAcceptedTurn(PlayerTypes ePlayer, int iTurn);
+	bool IsRecentDemandAccepted(PlayerTypes ePlayer) const;
+
 	// Assistance Values
 	int GetMaxRecentTradeValue() const;
 	int GetRecentTradeValue(PlayerTypes ePlayer) const;
@@ -1010,9 +1017,6 @@ public:
 	void SetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer, int iValue);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 
-	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
-	void SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue);
-
 	int GetMaxVassalProtectValue() const;
 	int GetVassalProtectValue(PlayerTypes ePlayer) const;
 	void SetVassalProtectValue(PlayerTypes ePlayer, int iValue);
@@ -1239,6 +1243,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateDemands();
+	bool IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueScore);
 	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
 
 	// ------------------------------------
@@ -1950,6 +1955,8 @@ private:
 	unsigned char m_aiNumDemandsMade[MAX_MAJOR_CIVS];
 	int m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
 	char m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumConsecutiveDemandsTheyAccepted[MAX_MAJOR_CIVS];
+	int m_aiDemandAcceptedTurn[MAX_MAJOR_CIVS];
 	unsigned short m_aiTradeValue[MAX_MAJOR_CIVS];
 	unsigned short m_aiCommonFoeValue[MAX_MAJOR_CIVS];
 	short m_aiAssistValue[MAX_MAJOR_CIVS];
@@ -2139,7 +2146,6 @@ private:
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];
 	bool m_abOfferedGift[MAX_MAJOR_CIVS];
-	bool m_abHasPaidTributeTo[MAX_MAJOR_CIVS];
 	int m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 	unsigned short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
 	unsigned short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];

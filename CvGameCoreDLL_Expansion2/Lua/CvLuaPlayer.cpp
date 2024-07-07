@@ -11324,7 +11324,7 @@ int CvLuaPlayer::lIsHasPaidTributeTo(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsHasPaidTributeTo(eOtherPlayer);
+	const bool bValue = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetNumConsecutiveDemandsTheyAccepted(pkPlayer->GetID()) > 0;
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -14933,8 +14933,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_iValue = iValue;
 			CvString str;
 
-			// Have we accepted a demand from our master? Then we've paid tribute.
-			if (pDiplo->IsHasPaidTributeTo(ePlayer))
+			// Streak of master demands accepted > 0? Then we were forced to pay tribute.
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumConsecutiveDemandsTheyAccepted(pkPlayer->GetID()) > 0)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE").toUTF8();
 			}

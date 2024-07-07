@@ -2899,7 +2899,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// No deals if there is a denouncement in either direction
 	CvDiplomacyAI* pOurDiploAI = GetPlayer()->GetDiplomacyAI();
-	CivApproachTypes eApproachTowardsAskingPlayer = pOurDiploAI->GetCivApproach(eOtherPlayer);
 	if (pOurDiploAI->IsDenouncedPlayer(eOtherPlayer) || pOurDiploAI->IsDenouncedByPlayer(eOtherPlayer))
 		return INT_MAX;
 
@@ -2907,12 +2906,18 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if (pOurDiploAI->IsUntrustworthy(eOtherPlayer))
 		return INT_MAX;
 
-	// Minor Civ?
+	// Friendly towards Minor Civ?
 	CvDiplomacyAI* pDiploAI = kPlayerDeclaringWar.GetDiplomacyAI();
+	CivApproachTypes eMajorApproachTowardsWarPlayer = pDiploAI->GetCivApproach(eWithPlayer);
 	if (GET_PLAYER(eWithPlayer).isMinorCiv())
 	{
-		CivApproachTypes eMinorApproachTowardsWarPlayer = pDiploAI->GetCivApproach(eWithPlayer);
-		if (eMinorApproachTowardsWarPlayer == CIV_APPROACH_FRIENDLY)
+		if (eMajorApproachTowardsWarPlayer == CIV_APPROACH_FRIENDLY)
+			return INT_MAX;
+	}
+	// Afraid of Major Civ?
+	else if (GET_PLAYER(eWithPlayer).isMajorCiv())
+	{
+		if (eMajorApproachTowardsWarPlayer == CIV_APPROACH_AFRAID)
 			return INT_MAX;
 	}
 
@@ -2938,10 +2943,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
 	if (!pDiploAI->IsWarSane(eWithPlayer))
-		return INT_MAX;
-
-	// Already planning a coop war against the target? then we aren't interested! (reduce the chance of a premature declaration...)
-	if (pDiploAI->GetGlobalCoopWarAgainstState(eWithPlayer) >= COOP_WAR_STATE_PREPARING)
 		return INT_MAX;
 
 	// Can't be too far away
@@ -3001,6 +3002,17 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 	}
 
+	// Already planning a coop war against the target? then we aren't interested! (reduce the chance of a premature declaration...)
+	vector<PlayerTypes> vMyTeam = GET_TEAM(kPlayerDeclaringWar.getTeam()).getPlayers();
+	for (size_t i=0; i<vMyTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vMyTeam[i]).isAlive() || !GET_PLAYER(vMyTeam[i]).isMajorCiv())
+			continue;
+
+		if (GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eWithPlayer) == COOP_WAR_STATE_PREPARING)
+			return INT_MAX;
+	}
+
 	// What does a basic unit cost these days, use that as a base
 	UnitTypes eUnit = kPlayerDeclaringWar.GetCompetitiveSpawnUnitType(true, true, true, true);
 	int iItemValue = eUnit != NO_UNIT ? pCapital->GetPurchaseCost(eUnit) : 100;
@@ -3021,48 +3033,27 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue /= 100;
 		}
 		// If not against a major competitor, don't accept if we don't like the other guy
-		else if (eApproachTowardsAskingPlayer < CIV_APPROACH_AFRAID)
+		else if (pDiploAI->GetCivApproach(eOtherPlayer) < CIV_APPROACH_AFRAID)
 		{
 			return INT_MAX;
 		}
 	}
 
 	// Modify for our feelings towards the player we're would go to war with
-	CivApproachTypes eMajorApproachTowardsWarPlayer = pDiploAI->GetCivApproach(eWithPlayer);
 	if (eMajorApproachTowardsWarPlayer == CIV_APPROACH_WAR)
 	{
 		iItemValue *= 75;
 		iItemValue /= 100;
 	}
-	else if (eMajorApproachTowardsWarPlayer <= CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= CIV_APPROACH_AFRAID)
+	else if (eMajorApproachTowardsWarPlayer <= CIV_APPROACH_HOSTILE)
 	{
 		iItemValue *= 90;
 		iItemValue /= 100;
 	}
-	else if (eMajorApproachTowardsWarPlayer <= CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == CIV_APPROACH_FRIENDLY)
+	else
 	{
 		iItemValue *= 125;
 		iItemValue /= 100;
-	}
-
-	// Modify for our feelings towards the asking player
-	switch (eApproachTowardsAskingPlayer)
-	{
-	case CIV_APPROACH_WAR:
-	case CIV_APPROACH_HOSTILE:
-	case CIV_APPROACH_DECEPTIVE:
-	case CIV_APPROACH_GUARDED:
-		break; // No change.
-	case CIV_APPROACH_FRIENDLY:
-	case CIV_APPROACH_AFRAID:
-		iItemValue *= 90;
-		iItemValue /= 100;
-		break;
-	case NO_CIV_APPROACH:
-	case CIV_APPROACH_NEUTRAL:
-		iItemValue *= 150;
-		iItemValue /= 100;
-		break;
 	}
 
 	return iItemValue;
@@ -4692,6 +4683,10 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 			bBlockPermanentItems = !GC.getGame().IsPermanentForTemporaryTradingAllowed();
 	}
 
+	// If this is a demand, can't ask for permanent items, so don't try
+	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
+		bBlockPermanentItems = true;
+
 	// Add items to the deal while the deal value is below the threshold value. Each item added increases the deal value. iThresholdValue should be 0 if we want to equalize the deal.
 	// We use a positive value for iThresholdValue if a previous attempt to equalize the deal using iThresholdValue=0 has failed and we're now trying to add items on both sides. 
 	if (!bGoldOnly)
@@ -5502,7 +5497,7 @@ int CvDealAI::GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, i
 		return 0;
 	}
 
-	if (iTotalValue <= 0 || iTotalValue >= INT_MAX)
+	if (iTotalValue <= 0 || iTotalValue == INT_MAX)
 	{
 		return 0;
 	}

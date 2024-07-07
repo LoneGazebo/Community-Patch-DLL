@@ -175,6 +175,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiNumDemandsMade[iI] = 0;
 		m_aiDemandMadeTurn[iI] = -1;
 		m_aiDemandTooSoonNumTurns[iI] = -1;
+		m_aiNumConsecutiveDemandsTheyAccepted[iI] = 0;
+		m_aiDemandAcceptedTurn[iI] = -1;
 		m_aiTradeValue[iI] = 0;
 		m_aiCommonFoeValue[iI] = 0;
 		m_aiAssistValue[iI] = 0;
@@ -350,7 +352,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiPlayerVassalageProtectValue[iI] = 0;
 		m_aiPlayerVassalagePeacefullyRevokedTurn[iI] = -1;
 		m_aiPlayerVassalageForcefullyRevokedTurn[iI] = -1;
-		m_abHasPaidTributeTo[iI] = false;
 		m_aiBrokenVassalAgreementTurn[iI] = -1;
 		m_aiMoveTroopsRequestAcceptedTurn[iI] = -1;
 		m_abOfferingGift[iI] = false;
@@ -484,6 +485,8 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiNumDemandsMade);
 	visitor(diplomacyAI.m_aiDemandMadeTurn);
 	visitor(diplomacyAI.m_aiDemandTooSoonNumTurns);
+	visitor(diplomacyAI.m_aiNumConsecutiveDemandsTheyAccepted);
+	visitor(diplomacyAI.m_aiDemandAcceptedTurn);
 	visitor(diplomacyAI.m_aiTradeValue);
 	visitor(diplomacyAI.m_aiCommonFoeValue);
 	visitor(diplomacyAI.m_aiAssistValue);
@@ -675,7 +678,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_aiPlayerVassalageProtectValue);
 	visitor(diplomacyAI.m_aiPlayerVassalagePeacefullyRevokedTurn);
 	visitor(diplomacyAI.m_aiPlayerVassalageForcefullyRevokedTurn);
-	visitor(diplomacyAI.m_abHasPaidTributeTo);
 	visitor(diplomacyAI.m_aiBrokenVassalAgreementTurn);
 	visitor(diplomacyAI.m_aiMoveTroopsRequestAcceptedTurn);
 	visitor(diplomacyAI.m_abOfferingGift);
@@ -3689,7 +3691,7 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 			}
 			else if (eSurfaceApproach == CIV_APPROACH_FRIENDLY)
 			{
-				if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
+				if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 				{
 					eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
 				}
@@ -3705,7 +3707,7 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 			// If we were just denounced or they ended our friendship, can't be better than GUARDED
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
 			{
-				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
+				if (eSurfaceApproach > CIV_APPROACH_GUARDED || eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_DECEPTIVE)
 				{
 					eSurfaceApproach = CIV_APPROACH_GUARDED;
 				}
@@ -3968,7 +3970,7 @@ CivApproachTypes CvDiplomacyAI::GetHighestValueApproach(PlayerTypes ePlayer, boo
 		}
 		if (eBestApproach == CIV_APPROACH_FRIENDLY || eBestApproach == CIV_APPROACH_DECEPTIVE)
 		{
-			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
+			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 			{
 				eBestApproach = (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY) ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
 			}
@@ -4673,7 +4675,6 @@ void CvDiplomacyAI::SetNumDemandsMade(PlayerTypes ePlayer, int iValue)
 	{
 		SetDemandMadeTurn(ePlayer, -1);
 		SetDemandTooSoonNumTurns(ePlayer, -1);
-		SetHasPaidTributeTo(ePlayer, false);
 	}
 }
 
@@ -4725,6 +4726,56 @@ bool CvDiplomacyAI::IsDemandTooSoon(PlayerTypes ePlayer) const
 	int iTurnDifference = GC.getGame().getGameTurn() - GetDemandMadeTurn(ePlayer);
 
 	return iTurnDifference < iDemandTooSoonNumTurns;
+}
+
+/// Returns the number of consecutive trade demands ePlayer accepted from us (resets to 0 on refusal)
+int CvDiplomacyAI::GetNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	return m_aiNumConsecutiveDemandsTheyAccepted[ePlayer];
+}
+
+void CvDiplomacyAI::SetNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiNumConsecutiveDemandsTheyAccepted[ePlayer] = range(iValue, 0, UCHAR_MAX);
+
+	if (iValue > 0)
+	{
+		SetDemandAcceptedTurn(ePlayer, GC.getGame().getGameTurn());
+	}
+	else
+	{
+		SetDemandAcceptedTurn(ePlayer, -1);
+	}
+}
+
+void CvDiplomacyAI::ChangeNumConsecutiveDemandsTheyAccepted(PlayerTypes ePlayer, int iChange)
+{
+	SetNumConsecutiveDemandsTheyAccepted(ePlayer, GetNumConsecutiveDemandsTheyAccepted(ePlayer) + iChange);
+}
+
+/// On what turn did ePlayer most recently accept a trade demand from us?
+int CvDiplomacyAI::GetDemandAcceptedTurn(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+	return m_aiDemandAcceptedTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetDemandAcceptedTurn(PlayerTypes ePlayer, int iTurn)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiDemandAcceptedTurn[ePlayer] = max(iTurn, -1);
+}
+
+/// Has ePlayer recently accepted a trade demand from us that we're still reaping benefits from?
+bool CvDiplomacyAI::IsRecentDemandAccepted(PlayerTypes ePlayer) const
+{
+	if (GetDemandAcceptedTurn(ePlayer) == -1)
+		return false;
+
+	int iTurnDifference = GC.getGame().getGameTurn() - GetDemandAcceptedTurn(ePlayer);
+	return iTurnDifference < GC.getGame().getGameSpeedInfo().GetDealDuration();
 }
 
 /// Returns the value of recent trades
@@ -9033,25 +9084,6 @@ bool CvDiplomacyAI::IsHelpRequestTooSoon(PlayerTypes ePlayer) const
 	int iTurnDifference = GC.getGame().getGameTurn() - iHelpRequestAcceptedTurn;
 
 	return iTurnDifference < iHelpRequestTooSoonNumTurns;
-}
-
-/// Returns if we accepted a demand from ePlayer while we were his vassal
-bool CvDiplomacyAI::IsHasPaidTributeTo(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-
-	if (IsVassal(ePlayer))
-	{
-		return m_abHasPaidTributeTo[ePlayer];
-	}
-
-	return false;
-}
-
-void CvDiplomacyAI::SetHasPaidTributeTo(PlayerTypes ePlayer, bool bValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_abHasPaidTributeTo[ePlayer] = bValue;
 }
 
 /// Returns value of vassal protection given
@@ -16544,7 +16576,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetNumDemandsMade(ePlayer);
 		vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetNumDemandsMade(ePlayer) / 2;
 
-		if (GetNumDemandsMade(ePlayer) > 1 || IsAtWar(ePlayer))
+		if (pTheirDiplo->IsRecentDemandAccepted(eMyPlayer) || GetNumDemandsMade(ePlayer) > 1 || IsAtWar(ePlayer))
 		{
 			bProvokedUs = true;
 		}
@@ -18888,8 +18920,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
 	int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
 
-	// Now add in value from ongoing trade deals
-	int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(eMyPlayer, ePlayer, false);
+	// Now add in value from ongoing trade deals (if we're on the lookout for an opportunity attack, we should exclude demands and peace treaties)
+	int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(eMyPlayer, ePlayer, false, bWantsOpportunityAttack);
 
 	// Scale based on personality - how much do we care about trade loyalty? 
 	// Netherlands always has maximum trade loyalty!
@@ -18920,6 +18952,44 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		vApproachScores[CIV_APPROACH_FRIENDLY] += iTradeDelta * 100;
 	}
+
+	//////////////////////////////////////////////
+	// WOULD YOU BE INTERESTED IN A TRADE DEMAND?
+	//////////////////////////////////////////////
+
+	// Only consider emphasizing a demand if we're not already targeting someone else, want an opportunity attack, and (performance shortcut) if they don't have any of our cities
+	int iDemandValueScore = 0;
+	if (bWantsOpportunityAttack && iNumOurCitiesTheyOwn == 0 && (GetDemandTargetPlayer() == NO_PLAYER || GetDemandTargetPlayer() == ePlayer))
+	{
+		// How much could we get from making a trade demand?
+		// NOTE: iDemandValueScore will only be > 0 if a demand is valid (this checks a lot of conditions) and would net at least half of the AI's desired demand value
+		if (IsValidDemandTarget(ePlayer, iDemandValueScore))
+		{
+			if (iDemandValueScore > 0)
+			{
+				iDemandValueScore *= GetBoldness() + GetMeanness();
+				iDemandValueScore *= GetNumConsecutiveDemandsTheyAccepted(ePlayer) + 1;
+
+				// Able to make a demand now or soon, or our previous demand was rebuffed? Add hostility weight.
+				// Otherwise, add guarded weight, since they're likely to want revenge.
+				int iTooSoonTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN) + /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND);
+				if (!IsRecentDemandAccepted(ePlayer) || GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) > iTooSoonTurns - 3)
+				{
+					vApproachScores[CIV_APPROACH_HOSTILE] += iDemandValueScore;
+				}
+				else
+				{
+					vApproachScores[CIV_APPROACH_GUARDED] += max(iDemandValueScore, vApproachBias[CIV_APPROACH_GUARDED] * 2 * iTheirAttackMultiplier);
+				}
+			}
+		}
+		else
+			iDemandValueScore = 0;
+	}
+
+	// If we didn't add any demand weight, but they accepted a demand recently, add guarded weight, since they're likely to want revenge.
+	if (iDemandValueScore == 0 && IsRecentDemandAccepted(ePlayer))
+		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iTheirAttackMultiplier;
 
 	////////////////////////////////////
 	// BANKRUPTCY
@@ -23871,10 +23941,18 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 					break;
 				}
 
-				// Also count any wars our AI teammates are planning
 				if (GET_PLAYER(vMyTeam[i]).GetID() == GetID())
+				{
+					// If we're planning war against our own vassal (!), trust the SelectApproachTowardsVassal() logic and treat this as an irrevocable commitment
+					if (IsMaster(vTeam[j]) && GetCivApproach(vTeam[j]) == CIV_APPROACH_WAR)
+					{
+						bWarPlans = true;
+						break;
+					}
 					continue;
+				}
 
+				// Also count any wars our AI teammates are planning
 				if (!GET_PLAYER(vMyTeam[i]).isHuman() && GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetCivApproach(vTeam[j]) == CIV_APPROACH_WAR)
 				{
 					bWarPlans = true;
@@ -24006,7 +24084,11 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 
 		for (std::vector<PlayerTypes>::iterator it = vNotAtWarPlayers.begin(); it != vNotAtWarPlayers.end(); it++)
 		{
-			// Recent peace treaty?
+			// Don't consider our own vassals here - cases where we would want to attack them are handled earlier in this function + they shouldn't count as recent peace treaties
+			if (IsMaster(*it))
+				continue;
+
+			// Recent peace treaty? Run this check first as if it's true for anyone, we won't select any last resort candidates
 			if (GetNumWarsFought(*it) > 0)
 			{
 				int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(*it).getTeam());
@@ -24097,21 +24179,32 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				}
 			}
 
-			// If approach is invalid, not a sane war choice, or a recent demand was made, only attack this player as a last resort if we need a target for world conquest...
-			if (!bValidApproach || !IsWarSane(*it) || GetNumTurnsSinceStatementSent(*it, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+			// If approach is invalid, not a sane war choice, or a recent demand was accepted, only attack this player as a last resort...
+			bool bPossibleSanityOverride = !IsWarSane(*it);
+			if (!bValidApproach || bPossibleSanityOverride || IsRecentDemandAccepted(*it))
 			{
 				// Don't select any last resort candidates if not going for world conquest, if there's a recent peace treaty we can wait out, or if unhappy
 				if (!bGoingForWorldConquest || bAnyPeaceTreaty || GetPlayer()->IsEmpireUnhappy())
 					continue;
 
-				if (!IsWarSane(*it))
+				if (bPossibleSanityOverride)
 				{
-					// Don't attack our own vassal as part of the sanity override
-					if (GetCivApproach(*it) != CIV_APPROACH_WAR && IsMaster(*it))
-						continue;
+					// Don't do this if we or one of our teammates would go bankrupt
+					// Also don't do this if teamed up with a human (don't want to give human teammates backstabbing penalties)
+					bool bNoOverride = false;
 
-					// Don't go bankrupt as part of the sanity override
-					if (IsWarWouldBankruptUs(*it))
+					for (size_t i=0; i<vMyTeam.size(); i++)
+					{
+						if (!GET_PLAYER(vMyTeam[i]).isAlive() || !GET_PLAYER(vMyTeam[i]).isMajorCiv())
+							continue;
+
+						if (GET_PLAYER(vMyTeam[i]).isHuman() || GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->IsWarWouldBankruptUs(*it))
+						{
+							bNoOverride = true;
+							break;
+						}
+					}
+					if (bNoOverride)
 						continue;
 				}
 
@@ -24366,13 +24459,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 						continue;
 					}
 				}
-			}
-
-			// Recent demand?
-			if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
-			{
-				SetPotentialWarTarget(ePlayer, false);
-				continue;
 			}
 
 			if (!IsUntrustworthy(ePlayer))
@@ -27587,69 +27673,33 @@ void CvDiplomacyAI::DoUpdateDemands()
 	CvWeightedVector<PlayerTypes> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
 	int iWarCount = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false);
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		// Must be a valid player
-		if (!IsPlayerValid(ePlayer))
+		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 			continue;
 
-		if (!GET_PLAYER(ePlayer).isMajorCiv())
+		// If we're planning a war or are friendly towards them, don't make a demand of them...doesn't mesh well
+		CivApproachTypes eApproach = GetCivApproach(ePlayer);
+		if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_FRIENDLY)
 			continue;
 
-		// Can't be at war
-		if (IsAtWar(ePlayer))
-			continue;
-
-		// Have to be able to declare war against this player
-		if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
-			continue;
-
-		// If we're planning a war, don't make a demand of them...doesn't mesh well
-		if (GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
-			continue;
-
-		// Don't make a demand if endgame aggressive, could interfere with future war plans
-		// And if we're endgame aggressive they're probably not weak enough to justify making a demand in the first place
-		if (IsEndgameAggressiveTo(ePlayer))
-			continue;
-
-		// Have to be able to contact this player
-		if (GET_PLAYER(ePlayer).isHuman() && (GC.getGame().IsDemandsDisabled() || GC.getGame().IsAllDiploStatementsDisabled() || GC.getGame().isReallyNetworkMultiPlayer()))
-			continue;
-
-		// Are we doing badly?
-		if (GetPlayer()->IsNoNewWars())
-			continue;
-
-		// Is this a potential war target?
-		if (!IsPotentialWarTarget(ePlayer))
+		// If approach is NEUTRAL and opinion is better than ENEMY, don't demand
+		if (eApproach == CIV_APPROACH_NEUTRAL && GetCivOpinion(ePlayer) > CIV_OPINION_ENEMY)
 			continue;
 
 		// Don't make demands of them too often
-		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < 40)
+		int iTooSoonTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN) + /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND);
+		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < max(iTooSoonTurns, 10))
 			continue;
 
-		// Can't make/accept demands if sanctioned
-		if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
-			continue;
-
-		// Is it sane to attack this player?
-		if (!IsWarSane(ePlayer))
-			continue;
-
-		// If one of us doesn't have a capital, then stop...
-		if (GetPlayer()->getCapitalCity() == NULL)
-			continue;
-
-		if (GET_PLAYER(ePlayer).getCapitalCity() == NULL)
-			continue;
-
-		// Good city attack target?
-		if (!GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
+		// Must be a valid demand target
+		// This checks a bunch of invalidating conditions; if something that's supposed to be checked here turns up below, it'll trigger an UNREACHABLE() crash
+		int iDemandValueScore = 0;
+		if (!IsValidDemandTarget(ePlayer, /*passed by reference*/ iDemandValueScore))
 			continue;
 
 		int iWeight = (GetBoldness()/2);
@@ -27663,7 +27713,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight -= 10;
 			break;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		// Bad approach?
@@ -27679,9 +27729,9 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight += 10;
 			break;
 		case CIV_APPROACH_NEUTRAL:
-			iWeight += (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY) ? -10 : -1000;
+			iWeight += -10;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		switch (GetCivOpinion(ePlayer))
@@ -27702,7 +27752,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight -= 15;
 			break;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		// Must be a favorable target.
@@ -27718,7 +27768,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight += 10;
 			break;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		// Can't be stronger than us militarily.
@@ -27737,7 +27787,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight -= 10;
 			break;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		// Better for us if we're stronger than them economically.
@@ -27762,7 +27812,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight -= 25;
 			break;
 		default:
-			continue;
+			UNREACHABLE();
 		}
 
 		// Easy target?
@@ -27781,22 +27831,6 @@ void CvDiplomacyAI::DoUpdateDemands()
 		{
 			continue;
 		}
-
-		int iDemandValueScore = GetPlayerDemandValueScore(ePlayer);
-		if (iDemandValueScore <= 0)
-		{
-			continue;
-		}
-
-		// Don't make demands if they're too far away...
-		// Do this check last, for performance
-		CvCity* pTheirClosestCity = GetPlayer()->GetClosestCityToUsByPlots(ePlayer);
-		if (pTheirClosestCity == NULL)
-			continue;
-
-		int iDistanceTurns = GetPlayer()->GetCityDistancePathLength(pTheirClosestCity->plot());
-		if (iDistanceTurns > 23)
-			continue;
 
 		iWeight += iDemandValueScore;
 
@@ -27825,6 +27859,88 @@ void CvDiplomacyAI::DoUpdateDemands()
 	{
 		SetDemandTargetPlayer(NO_PLAYER);
 	}
+}
+
+/// Returns if ePlayer is a valid target to make a demand
+/// Only checks some of the conditions, as this is called by both SelectBestApproachTowardsMajorCiv() and DoUpdateDemands() for different reasons
+bool CvDiplomacyAI::IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueScore)
+{
+	// Are we doing badly?
+	if (GetPlayer()->IsNoNewWars())
+		return false;
+
+	// Have to be able to contact this player
+	if (GET_PLAYER(ePlayer).isHuman() && (GC.getGame().IsDemandsDisabled() || GC.getGame().IsAllDiploStatementsDisabled() || GC.getGame().isReallyNetworkMultiPlayer()))
+		return false;
+
+	// Too friendly with them?
+	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer) || IsHasResearchAgreement(ePlayer) || GetCivOpinion(ePlayer) >= CIV_OPINION_FRIEND)
+		return false;
+
+	// Don't make a demand if endgame aggressive, could interfere with future war plans
+	// And if we're endgame aggressive they're probably not weak enough to justify making a demand in the first place
+	if (IsEndgameAggressiveTo(ePlayer))
+		return false;
+
+	// Can't be stronger than us militarily, or too hard to attack.
+	if (GetMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+		return false;
+
+	if (GetTargetValue(ePlayer) < TARGET_VALUE_FAVORABLE)
+		return false;
+
+	// Can't be extremely strong economically.
+	if (GetEconomicStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE)
+		return false;
+
+	// Have to be able to declare war against this player
+	if (IsAtWar(ePlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
+		return false;
+
+	// Too far away?
+	if (!GetPlayer()->getCapitalCity() || !GET_PLAYER(ePlayer).getCapitalCity())
+		return false;
+
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
+		return false;
+
+	// Can't make/accept demands if sanctioned
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
+		return false;
+
+	// Is it sane to attack this player?
+	if (!IsWarSane(ePlayer))
+		return false;
+
+	// Good city attack target?
+	if (!GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
+		return false;
+
+	// Do not make a demand if a coop war is planned, or if our AI teammates are planning war
+	if (AvoidExchangesWithPlayer(ePlayer, /*bWarOnly*/ true, /*bIgnoreSelfApproach*/ true))
+		return false;
+
+	// Do not make a demand if they own any of our cities - could interfere with future war plans
+	if (GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0)
+		return false;
+
+	// Do they even have anything worthwhile to give us?
+	iDemandValueScore = GetPlayerDemandValueScore(ePlayer);
+	if (iDemandValueScore <= 0)
+		return false;
+
+	// Don't make demands if they're too far away...
+	// Do this check last, for performance
+	CvCity* pTheirClosestCity = GetPlayer()->GetClosestCityToUsByPlots(ePlayer);
+	if (!pTheirClosestCity)
+		return false;
+
+	int iDistanceTurns = GetPlayer()->GetCityDistancePathLength(pTheirClosestCity->plot());
+	if (iDistanceTurns > 23)
+		return false;
+
+	return true;
 }
 
 /// How much value can we get from ePlayer if we made a demand of them?
@@ -27972,12 +28088,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			//it's possible for an operation to be ongoing here if it was a demand, so cancel it
 			//sneak attacks vs. major civs are aborted when DoUpdateWarTargets() calls SetCivApproach()
 			//sneak attacks vs. minor civs are aborted in SelectBestApproachTowardsMinorCiv() or DoUpdateMinorCivApproaches()
-			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
+			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
 			if (pCurrentDemandOperation)
 			{
 				pCurrentDemandOperation->LogOperationSpecialMessage("Show of force cancelled, probably preoccupied with something else");
-				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 		}
 	}
@@ -28009,12 +28125,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			//it's possible for an operation to be ongoing here if it was a demand, so cancel it
 			//sneak attacks vs. major civs are aborted when DoUpdateWarTargets() calls SetCivApproach()
 			//sneak attacks vs. minor civs are aborted in SelectBestApproachTowardsMinorCiv() or DoUpdateMinorCivApproaches()
-			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
+			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
 			if (pCurrentDemandOperation)
 			{
 				pCurrentDemandOperation->LogOperationSpecialMessage("Show of force cancelled, probably preoccupied with something else");
-				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 		}
 	}
@@ -29434,7 +29550,6 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 		if (GET_PLAYER(ePeacePlayer).getTeam() == eOtherTeam)
 		{
 			// In case we had an ongoing operation, kill it
-			SetArmyInPlaceForAttack(ePeacePlayer, false);
 			if (GetPlayer()->getFirstOffensiveAIOperation(ePeacePlayer) != NULL)
 			{
 				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePeacePlayer,AI_ABORT_WAR_STATE_CHANGE);
@@ -33727,7 +33842,7 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 	//set up the deal
 	if (GetPlayer()->GetDealAI()->IsMakeDemand(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 	{
-		int iTurnsBetweenStatements = 13;
+		int iTurnsBetweenStatements = 10;
 		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) >= iTurnsBetweenStatements)
 		{
 			DiploStatementTypes eStatement = DIPLO_STATEMENT_DEMAND;
@@ -42944,18 +43059,21 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 	if (eResponse == DEMAND_RESPONSE_ACCEPT)
 	{
 		ChangeNumDemandsMade(ePlayer, 1);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumConsecutiveDemandsTheyAccepted(GetID(), 1);
 
 		// See how long it'll be before we might agree to another demand
 		int iNumTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN);
 		iNumTurns += GC.getGame().randRangeInclusive(0, /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND), CvSeeder::fromRaw(0x0af32abc).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 		SetDemandTooSoonNumTurns(ePlayer, iNumTurns);
 
-		if (IsVassal(ePlayer))
-			SetHasPaidTributeTo(ePlayer, true);
+		DoReevaluatePlayer(ePlayer);
 	}
 	// We refused the demand
 	else
 	{
+		if (eResponse != DEMAND_RESPONSE_REFUSE_TOO_SOON) // Purely for human UI, since AI won't make demands often enough to trigger a DEMAND_RESPONSE_REFUSE_TOO_SOON response
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumConsecutiveDemandsTheyAccepted(GetID(), 0);
+
 		// Prevent exploit wherein the human spams the demand button to reduce AI Opinion - only allow for one penalty unless the demand is accepted
 		if (GetNumDemandsMade(ePlayer) <= 0)
 			SetNumDemandsMade(ePlayer, 1);
@@ -46972,9 +47090,38 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 		}
 
 		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
+		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
+
+		// Reduce the penalty if we're not currently giving them anything
+		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
+		{
+			iOpinionWeight *= 100;
+			iOpinionWeight /= /*200*/ max(GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_YOU_NO_TAKE_DIVISOR), 1);
+		}
+		// Increase the penalty if we are giving them something and we're also bankrupt
+		else if (GetPlayer()->GetTreasury()->GetGold() == 0 && GetPlayer()->getAvgGoldRate() <= 0)
+		{
+			iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
+			iOpinionWeight /= 100;
+		}
+		// If we're giving them something and going bankrupt soon, increase the penalty gradually
+		else
+		{
+			int iTurnsToBankruptcy = GetPlayer()->getTurnsToBankruptcy(0);
+			if (iTurnsToBankruptcy == 0)
+			{
+				iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
+				iOpinionWeight /= 100;
+			}
+			else if (iTurnsToBankruptcy < /*20*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS))
+			{
+				int iIncreasedPenalty = iOpinionWeight * GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER) / 100;
+				int iExtraPenalty = (iIncreasedPenalty - iOpinionWeight) * (GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS) - iTurnsToBankruptcy) / GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS);
+				iOpinionWeight += iExtraPenalty;
+			}
+		}
 	}
-	
+
 	return iOpinionWeight;
 }
 
@@ -57838,9 +57985,6 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 		
 		if (GET_PLAYER(ePlayer).getTeam() == eTeam)
 		{
-			// Reset tribute memory
-			SetHasPaidTributeTo(ePlayer, false);
-
 			// Reset our memory of GPT that was taxed from us
 			SetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer, 0);
 			SetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer, 0);

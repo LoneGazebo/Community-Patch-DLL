@@ -5394,9 +5394,13 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 	}
 }
 
-/// Deals between these two Players were interrupted (death or world congress sanctions)
+/// Deals between these two Players were interrupted (war, death or world congress sanctions)
 void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bCancelPeaceTreaties)
 {
+	// If deals were cancelled, AI should no longer be deterred from declaring war due to a recent accepted demand
+	GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNumConsecutiveDemandsTheyAccepted(eToPlayer, 0);
+	GET_PLAYER(eToPlayer).GetDiplomacyAI()->SetNumConsecutiveDemandsTheyAccepted(eFromPlayer, 0);
+
 	DealList::iterator it;
 	DealList tempDeals;
 
@@ -5442,11 +5446,11 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 			}
 		}
 
-		if(bSomethingChanged)
+		if (bSomethingChanged)
 		{
 			// Update UI if we were involved in the deal
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-			if(eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
+			if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
 				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
@@ -6487,7 +6491,7 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 	return false;
 }
 
-int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation)
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation, bool bExcludeConcessions)
 {
 	DealList::iterator iter;
 	DealList::iterator end = m_CurrentDeals.end();
@@ -6502,6 +6506,15 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			int iEndTurn = iter->GetEndTurn();
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
+
+			if (bExcludeConcessions)
+			{
+				if (iter->GetDemandingPlayer() != NO_PLAYER)
+					continue;
+
+				if (iter->IsPeaceTreatyTrade(ePlayer))
+					continue;
+			}
 
 			if (!bEmbargoEvaluation)
 			{
