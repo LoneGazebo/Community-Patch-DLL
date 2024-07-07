@@ -9593,7 +9593,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	{
 		if (!GetPlayer()->isHuman())
 		{
-			GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer));
+			GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, false);
 		}
 
 		// Their war declaration
@@ -9601,7 +9601,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		{
 			if (!GET_PLAYER(eAllyPlayer).isHuman())
 			{
-				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, GET_PLAYER(eAllyPlayer).HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer));
+				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, false);
 			}
 
 			int iMyTurnsAtWar = GET_TEAM(GetTeam()).GetNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
@@ -25489,10 +25489,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 	}
 
-	// If we're in bad shape, don't waste time trying to conquer City-States.
+	// If we're in bad shape, don't waste time trying to go after City-States.
 	if (GetPlayer()->IsNoNewWars() && (!bTheyCapturedFromUs || GetPlayer()->IsInTerribleShapeForWar()))
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
+	}
+	if (GetPlayer()->IsNoNewWars())
+	{
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 	}
 
 	// If we're already at war with this City-State and the war is going badly, abort!
@@ -27933,11 +27937,8 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
-		if (!GetPlayer()->IsNoNewWars())
-		{
-			bWantToAttack = GetCSWarTargetPlayer() == eTargetPlayer;
-			bWantShowOfForce = GetCSBullyTargetPlayer() == eTargetPlayer;
-		}
+		bWantToAttack = GetCSWarTargetPlayer() == eTargetPlayer;
+		bWantShowOfForce = GetCSBullyTargetPlayer() == eTargetPlayer;
 	}
 	// Major Civ
 	else
@@ -27968,11 +27969,16 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 		else
 		{
-			//hmm, seems we changed our mind. abort the operation if it's still ongoing
-			if (GET_PLAYER(eTargetPlayer).isMajorCiv())
-				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-			else
-				SetCivApproach(eTargetPlayer, CIV_APPROACH_NEUTRAL);
+			//it's possible for an operation to be ongoing here if it was a demand, so cancel it
+			//sneak attacks vs. major civs are aborted when DoUpdateWarTargets() calls SetCivApproach()
+			//sneak attacks vs. minor civs are aborted in SelectBestApproachTowardsMinorCiv() or DoUpdateMinorCivApproaches()
+			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
+			if (pCurrentDemandOperation)
+			{
+				pCurrentDemandOperation->LogOperationSpecialMessage("Show of force cancelled, probably preoccupied with something else");
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+			}
 		}
 	}
 	else
@@ -27984,21 +27990,13 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 			{
 				bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false) > 0;
-
-				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
-				{
-					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 1, bCareful);
-				}
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 1, bCareful);
 			}
 			// Attack on major
 			else
 			{
 				bool bCareful = (GetPlayer()->IsNoNewWars() || GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING;
-
-				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
-				{
-					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, bCareful);
-				}
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, bCareful);
 			}
 		}
 		//we just want to scare them
@@ -28006,13 +28004,18 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 		}
-		//we don't want to attack. abort any ongoing operation.
-		else if (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
+		else
 		{
-			if (GET_PLAYER(eTargetPlayer).isMajorCiv())
-				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-			else
-				SetCivApproach(eTargetPlayer, CIV_APPROACH_NEUTRAL);
+			//it's possible for an operation to be ongoing here if it was a demand, so cancel it
+			//sneak attacks vs. major civs are aborted when DoUpdateWarTargets() calls SetCivApproach()
+			//sneak attacks vs. minor civs are aborted in SelectBestApproachTowardsMinorCiv() or DoUpdateMinorCivApproaches()
+			CvAIOperation* pCurrentDemandOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
+			if (pCurrentDemandOperation)
+			{
+				pCurrentDemandOperation->LogOperationSpecialMessage("Show of force cancelled, probably preoccupied with something else");
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+			}
 		}
 	}
 }
@@ -30233,11 +30236,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						{
 							pDeal->ClearItems();
 							bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
-
-							if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
-							{
-								GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
-							}
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
 						}
 					}
 				}
@@ -30852,10 +30851,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if (!bCanBluff && DeclareWar(ePlayer))
 					{
 						bool bCareful = iCurrentWars > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
-						if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
-						{
-							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
-						}
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
 					}
 				}
 			}
@@ -38835,10 +38831,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (!bCanBluff && DeclareWar(eFromPlayer))
 			{
 				bool bCareful = iCurrentWars > 0 && GetGlobalCoopWarAgainstState(eFromPlayer) < COOP_WAR_STATE_PREPARING;
-				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eFromPlayer))
-				{
-					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer, 3, bCareful);
-				}
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer, 3, bCareful);
 			}
 			else
 				bDeclareWar = false;
