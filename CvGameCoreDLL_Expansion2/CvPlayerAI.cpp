@@ -2508,6 +2508,19 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !CanEmbark())
 		return 0;
 
+	//Is there a proposal (not resolution) involving a Sphere of Influence or Open Door?
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL) 
+	{
+		for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+		{
+			if ((it->GetEffects()->bSphereOfInfluence || it->GetEffects()->bOpenDoor) && it->GetProposerDecision()->GetDecision() == pCity->getOwner())
+			{
+				return 0;
+			}
+		}
+	}
+
 	//are we at war with a player close to this CS? Don't go near here!
 	vector<PlayerTypes> currentWars = GetPlayersAtWarWith();
 	for (size_t i = 0; i < currentWars.size(); i++)
