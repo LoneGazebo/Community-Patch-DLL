@@ -11227,41 +11227,6 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		iTheirMilitaryStrength *= 100 + ComputeDynamicStrengthModifier(ePlayer, eOurPlayer);
 		iTheirMilitaryStrength /= 100;
 
-		// Factor in nuclear power
-		int iTheirCityDefense = 0;
-		int iTheirBombShelterPercent = 0;
-		int iTheirAvgInterceptionChance = 0;
-		int iTheirAvgNukeModifier = 0;
-		if (GET_PLAYER(ePlayer).getNumCities() > 0)
-		{
-			int iNumTheirCities = 0;
-			int iNumTheirShelteredCities = 0;
-			int iLoop = 0;
-			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-			{
-				// Add city defensive strength to them
-				int iHitpoints = pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
-				int iPower = (pLoopCity->GetPower() * iHitpoints) / pLoopCity->GetMaxHitPoints();
-				iTheirCityDefense += (iPower * /*33*/ GD_INT_GET(MILITARY_STRENGTH_CITY_MOD)) / 100;
-
-				// Factor in how well their cities are protected against nuclear attacks
-				iNumTheirCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
-				int iInterceptionChance = pLoopCity->getNukeInterceptionChance();
-				int iNukeModifier = pLoopCity->getNukeModifier() * -1;
-				if (iNukeModifier > 0 || iInterceptionChance > 0)
-				{
-					iNumTheirShelteredCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
-					iTheirAvgNukeModifier += iNukeModifier;
-					iTheirAvgInterceptionChance += iInterceptionChance;
-				}
-			}
-			iTheirAvgNukeModifier /= max(iNumTheirShelteredCities, 1);
-			iTheirAvgInterceptionChance /= max(iNumTheirShelteredCities, 1);
-			iTheirBombShelterPercent = iNumTheirShelteredCities * 100 / iNumTheirCities;
-		}
-		iOurMilitaryStrength += GetPlayer()->calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
-		iTheirMilitaryStrength += GET_PLAYER(ePlayer).calculateNuclearMight(eOurPlayer, false, iOurBombShelterPercent, iOurAvgNukeModifier, iOurAvgInterceptionChance);
-
 		// Factor in military rating (combat skill)
 		int iOurRatingModifier = GC.getGame().ComputeRatingStrengthAdjustment(eOurPlayer, eOurPlayer);
 		int iTheirRatingModifier = 100;
@@ -11310,6 +11275,41 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		iTheirMilitaryStrength *= iTheirRatingModifier;
 		iTheirMilitaryStrength /= 100;
+
+		// Factor in nuclear power
+		int iTheirCityDefense = 0;
+		int iTheirBombShelterPercent = 0;
+		int iTheirAvgInterceptionChance = 0;
+		int iTheirAvgNukeModifier = 0;
+		if (GET_PLAYER(ePlayer).getNumCities() > 0)
+		{
+			int iNumTheirCities = 0;
+			int iNumTheirShelteredCities = 0;
+			int iLoop = 0;
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				// Add city defensive strength to them
+				int iHitpoints = pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
+				int iPower = (pLoopCity->GetPower() * iHitpoints) / pLoopCity->GetMaxHitPoints();
+				iTheirCityDefense += (iPower * /*33*/ GD_INT_GET(MILITARY_STRENGTH_CITY_MOD)) / 100;
+
+				// Factor in how well their cities are protected against nuclear attacks
+				iNumTheirCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
+				int iInterceptionChance = pLoopCity->getNukeInterceptionChance();
+				int iNukeModifier = pLoopCity->getNukeModifier() * -1;
+				if (iNukeModifier > 0 || iInterceptionChance > 0)
+				{
+					iNumTheirShelteredCities += pLoopCity->isCapital() ? 2 : 1; // Capital is 2x as important
+					iTheirAvgNukeModifier += iNukeModifier;
+					iTheirAvgInterceptionChance += iInterceptionChance;
+				}
+			}
+			iTheirAvgNukeModifier /= max(iNumTheirShelteredCities, 1);
+			iTheirAvgInterceptionChance /= max(iNumTheirShelteredCities, 1);
+			iTheirBombShelterPercent = iNumTheirShelteredCities * 100 / iNumTheirCities;
+		}
+		iOurMilitaryStrength += GetPlayer()->calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
+		iTheirMilitaryStrength += GET_PLAYER(ePlayer).calculateNuclearMight(eOurPlayer, false, iOurBombShelterPercent, iOurAvgNukeModifier, iOurAvgInterceptionChance);
 
 		// Factor in war allies
 		// If this is a City-State, we instead factor in the allies of their ally (if any)
@@ -11401,10 +11401,6 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			iTheirMight *= 100 + iTheirDynamicModifier;
 			iTheirMight /= 100;
 
-			// Factor in nuclear power
-			iAllyMight += GET_PLAYER(eAllyPlayer).calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
-			iTheirMight += GET_PLAYER(ePlayer).calculateNuclearMight(eAllyPlayer, true);
-
 			// Factor in military rating (combat skill)
 			// If we're an AI evaluating a human, modify the ally's strength estimate based on difficulty level if they're reasonably strong
 			if (!GetPlayer()->isHuman() && GET_PLAYER(eAllyPlayer).isHuman() && (GET_PLAYER(eAllyPlayer).getNumNukeUnits() > 0 || (!GET_PLAYER(eAllyPlayer).IsVassalOfSomeone() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eAllyPlayer) < WAR_STATE_OFFENSIVE)))
@@ -11452,6 +11448,10 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 			iTheirMight *= iTheirRatingModifier;
 			iTheirMight /= 100;
+
+			// Factor in nuclear power
+			iAllyMight += GET_PLAYER(eAllyPlayer).calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
+			iTheirMight += GET_PLAYER(ePlayer).calculateNuclearMight(eAllyPlayer, true);
 
 			// Careful in the early game when the number of units is very low ...
 			if (GET_PLAYER(eAllyPlayer).getNumMilitaryUnits() < 6 && GET_PLAYER(ePlayer).getNumMilitaryUnits() < 6
@@ -11644,10 +11644,6 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			iEnemyMight *= 100 + ComputeDynamicStrengthModifier(eEnemyPlayer, eOurPlayer);
 			iEnemyMight /= 100;
 
-			// Factor in nuclear power
-			iOurMight += GetPlayer()->calculateNuclearMight(eEnemyPlayer, true);
-			iEnemyMight += GET_PLAYER(eEnemyPlayer).calculateNuclearMight(eOurPlayer, false, iOurBombShelterPercent, iOurAvgNukeModifier, iOurAvgInterceptionChance);
-
 			// Factor in military rating (combat skill)
 			iOurMight *= iOurRatingModifier;
 			iOurMight /= 100;
@@ -11695,6 +11691,10 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 				iEnemyMight *= GC.getGame().ComputeRatingStrengthAdjustment(eEnemyPlayer, eOurPlayer);
 				iEnemyMight /= 100;
 			}
+
+			// Factor in nuclear power
+			iOurMight += GetPlayer()->calculateNuclearMight(eEnemyPlayer, true);
+			iEnemyMight += GET_PLAYER(eEnemyPlayer).calculateNuclearMight(eOurPlayer, false, iOurBombShelterPercent, iOurAvgNukeModifier, iOurAvgInterceptionChance);
 
 			// Careful in the early game when the number of units is very low ...
 			if (GET_PLAYER(eEnemyPlayer).getNumMilitaryUnits() < 6 && GetPlayer()->getNumMilitaryUnits() < 6
