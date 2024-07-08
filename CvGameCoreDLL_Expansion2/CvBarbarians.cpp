@@ -813,7 +813,7 @@ void CvBarbarians::DoCamps()
 		int iY = pLoopPlot->getY();
 		bool bTooClose = false;
 
-		for (std::vector<int>::iterator it = MajorCapitals.begin(); it != MajorCapitals.end(); it++)
+		for (std::vector<int>::iterator it = MajorCapitals.begin(); it != MajorCapitals.end(); ++it)
 		{
 			CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
 			int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
@@ -825,7 +825,7 @@ void CvBarbarians::DoCamps()
 		}
 		if (!bTooClose)
 		{
-			for (std::vector<int>::iterator it = BarbCamps.begin(); it != BarbCamps.end(); it++)
+			for (std::vector<int>::iterator it = BarbCamps.begin(); it != BarbCamps.end(); ++it)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
 				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
@@ -838,7 +838,7 @@ void CvBarbarians::DoCamps()
 		}
 		if (!bTooClose)
 		{
-			for (std::vector<int>::iterator it = RecentlyClearedBarbCamps.begin(); it != RecentlyClearedBarbCamps.end(); it++)
+			for (std::vector<int>::iterator it = RecentlyClearedBarbCamps.begin(); it != RecentlyClearedBarbCamps.end(); ++it)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
 				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
@@ -928,7 +928,7 @@ void CvBarbarians::DoCamps()
 		ActivateBarbSpawner(pPlot);
 
 		// Show the new camp to any who have the policy
-		for (std::vector<PlayerTypes>::iterator it = vThoseWhoSee.begin(); it != vThoseWhoSee.end(); it++)
+		for (std::vector<PlayerTypes>::iterator it = vThoseWhoSee.begin(); it != vThoseWhoSee.end(); ++it)
 		{
 			TeamTypes eTeam = GET_PLAYER(*it).getTeam();
 			if (pPlot->isRevealed(eTeam))

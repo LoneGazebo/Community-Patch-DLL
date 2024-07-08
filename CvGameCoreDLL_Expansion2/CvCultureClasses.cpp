@@ -430,7 +430,7 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 bool CvGameCulture::IsGreatWorkCreated(GreatWorkType eType) const
 {
 	GreatWorkList::const_iterator it;
-	for(it = m_CurrentGreatWorks.begin(); it != m_CurrentGreatWorks.end(); it++)
+	for(it = m_CurrentGreatWorks.begin(); it != m_CurrentGreatWorks.end(); ++it)
 	{
 		if ((*it).m_eType == eType)
 		{
@@ -1369,7 +1369,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 	// First building that are not endangered and not puppets
 	// CUSTOMLOG("  ... theming safe buildings");
 	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
-	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 	{
 		if (!itBuilding->m_bEndangered && !itBuilding->m_bPuppet)
 		{
@@ -1384,7 +1384,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 
 	// Next building that are not endangered and are puppets
 	// CUSTOMLOG("  ... theming safe buildings");
-	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 	{
 		if (!itBuilding->m_bEndangered && itBuilding->m_bPuppet)
 		{
@@ -1484,7 +1484,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 		if (eType != CvTypes::getGREAT_WORK_SLOT_MUSIC())
 		{
 			// CUSTOMLOG("  ... checking safe buildings for swaps");
-			for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+			for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 			{
 				if (!itBuilding->m_bEndangered && !itBuilding->m_bThemed)
 				{
@@ -1500,7 +1500,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 
 	// Then endangered ones
 	// CUSTOMLOG("  ... theming endangered buildings");
-	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 	{
 		if (itBuilding->m_bEndangered)
 		{
@@ -1518,7 +1518,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 	if(bSecondUpdate || bUpdate)
 	{
 		std::vector<CvCity*> CityList;
-		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 		{
 			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
 			if (pCity != NULL)
@@ -1603,7 +1603,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		else
 		{
 			worksToConsider = works1;
-			for (it = works2.begin(); it != works2.end(); it++)
+			for (it = works2.begin(); it != works2.end(); ++it)
 			{
 				worksToConsider.push_back(*it);
 			}
@@ -1617,7 +1617,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		}
 
 		// Try each of the works as the starter
-		for (it = worksToConsider.begin(); it != worksToConsider.end(); it++)
+		for (it = worksToConsider.begin(); it != worksToConsider.end(); ++it)
 		{
 			// First, make sure this "starter" is valid
 			if (pkBonusInfo->IsRequiresOwner() && it->m_ePlayer != m_pPlayer->GetID())
@@ -2067,7 +2067,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 	int iCountSlots = pkEntry->GetGreatWorkCount();
 
 	// Try each of the Artifacts as the starter
-	for (it = works2.begin(); it != works2.end(); it++)
+	for (it = works2.begin(); it != works2.end(); ++it)
 	{
 		// First, make sure this "starter" is valid
 		if (pkBonusInfo->IsRequiresOwner() && it->m_ePlayer != m_pPlayer->GetID())
@@ -2574,7 +2574,7 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 	vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsAny;
 	vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsNone;
 
-	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); ++itBuilding)
 	{
 		if (!itBuilding->m_bThemed) {
 			if (!itBuilding->m_bEndangered) {
@@ -2613,31 +2613,31 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 	}
 	bool bUpdate = false;
 
-	for (itBuilding = homelandBuildingsFocus.begin(); itBuilding != homelandBuildingsFocus.end(); itBuilding++) {
+	for (itBuilding = homelandBuildingsFocus.begin(); itBuilding != homelandBuildingsFocus.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = homelandBuildingsAny.begin(); itBuilding != homelandBuildingsAny.end(); itBuilding++) {
+	for (itBuilding = homelandBuildingsAny.begin(); itBuilding != homelandBuildingsAny.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = homelandBuildingsNone.begin(); itBuilding != homelandBuildingsNone.end(); itBuilding++) {
+	for (itBuilding = homelandBuildingsNone.begin(); itBuilding != homelandBuildingsNone.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = puppetBuildingsFocus.begin(); itBuilding != puppetBuildingsFocus.end(); itBuilding++) {
+	for (itBuilding = puppetBuildingsFocus.begin(); itBuilding != puppetBuildingsFocus.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = puppetBuildingsAny.begin(); itBuilding != puppetBuildingsAny.end(); itBuilding++) {
+	for (itBuilding = puppetBuildingsAny.begin(); itBuilding != puppetBuildingsAny.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = puppetBuildingsNone.begin(); itBuilding != puppetBuildingsNone.end(); itBuilding++) {
+	for (itBuilding = puppetBuildingsNone.begin(); itBuilding != puppetBuildingsNone.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = endangeredBuildingsFocus.begin(); itBuilding != endangeredBuildingsFocus.end(); itBuilding++) {
+	for (itBuilding = endangeredBuildingsFocus.begin(); itBuilding != endangeredBuildingsFocus.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = endangeredBuildingsAny.begin(); itBuilding != endangeredBuildingsAny.end(); itBuilding++) {
+	for (itBuilding = endangeredBuildingsAny.begin(); itBuilding != endangeredBuildingsAny.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
-	for (itBuilding = endangeredBuildingsNone.begin(); itBuilding != endangeredBuildingsNone.end(); itBuilding++) {
+	for (itBuilding = endangeredBuildingsNone.begin(); itBuilding != endangeredBuildingsNone.end(); ++itBuilding) {
 		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	return bUpdate;
@@ -2668,13 +2668,13 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 
 	worksToConsider = works1;
 	vector<CvGreatWorkInMyEmpire>::const_iterator it;
-	for (it = works2.begin(); it != works2.end(); it++)
+	for (it = works2.begin(); it != works2.end(); ++it)
 	{
 		worksToConsider.push_back(*it);
 	}
 
 	it = worksToConsider.begin();
-	for (int iI = 0; iI < iCountSlots && it != worksToConsider.end(); iI++, it++)
+	for (int iI = 0; iI < iCountSlots && it != worksToConsider.end(); iI++, ++it)
 	{
 		aWorksChosen.push_back(worksToConsider[iI].m_iGreatWorkIndex);
 		// CUSTOMLOG("  filling slot %i with Great Work %i", iI, worksToConsider[iI].m_iGreatWorkIndex);

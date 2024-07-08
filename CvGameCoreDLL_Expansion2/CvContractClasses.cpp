@@ -680,7 +680,7 @@ void CvGameContracts::DoUpdateContracts()
 	
 	//This is expensive, so do it sparingly!
 	ContractList::iterator it;
-	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
+	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); ++it)
 	{
 		CvContract kContract = (*it);
 		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
@@ -722,7 +722,7 @@ CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 		return NULL;
 
 	ContractList::iterator it;
-	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
+	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); ++it)
 	{
 		if(it->m_eContract == eContract)
 		{
@@ -738,7 +738,7 @@ CvContract* CvGameContracts::GetInactiveContract(ContractTypes eContract)
 		return NULL;
 
 	ContractList::iterator it;
-	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
+	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); ++it)
 	{
 		if(it->m_eContract == eContract)
 		{
@@ -772,7 +772,7 @@ bool CvGameContracts::IsContractActive(ContractTypes eContract)
 		return false;
 
 	ContractList::iterator it;
-	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
+	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); ++it)
 	{
 		CvContract kContract = (*it);
 		if(kContract.m_eContract == eContract)
@@ -788,7 +788,7 @@ bool CvGameContracts::IsContractAvailable(ContractTypes eContract)
 		return false;
 
 	ContractList::iterator it;
-	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
+	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); ++it)
 	{
 		CvContract kContract = (*it);
 		if(kContract.m_eContract == eContract)
@@ -807,7 +807,7 @@ void CvGameContracts::StartContract(CvContract kContract)
 
 	//And remove it from the inactive list.
 	ContractList::iterator it;
-	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
+	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); ++it)
 	{
 		CvContract kInactiveContract = (*it);
 		if(kContract.m_eContract == kInactiveContract.m_eContract)
@@ -821,7 +821,7 @@ void CvGameContracts::StartContract(CvContract kContract)
 void CvGameContracts::EndContract(ContractTypes eContract, PlayerTypes ePlayer)
 {
 	ContractList::iterator it;
-	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
+	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); ++it)
 	{
 		CvContract kContract = (*it);
 		if(kContract.m_eContract == eContract && kContract.m_eContractHolder == ePlayer)

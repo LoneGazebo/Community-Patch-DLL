@@ -1744,7 +1744,7 @@ void CvGameCorporations::DoTurn()
 CvCorporation* CvGameCorporations::GetCorporation(CorporationTypes eCorporation)
 {
 	CorporationList::iterator it;
-	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); it++)
+	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); ++it)
 	{
 		if(it->m_eCorporation == eCorporation)
 		{
@@ -1772,7 +1772,7 @@ void CvGameCorporations::DestroyCorporation(CorporationTypes eCorporation)
 		return;
 
 	CorporationList::iterator it;
-	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); it++)
+	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); ++it)
 	{
 		CvCorporation kCorporation = (*it);
 		if(kCorporation.m_eCorporation == eCorporation)
@@ -1930,7 +1930,7 @@ bool CvGameCorporations::CanFoundCorporation(PlayerTypes ePlayer, CorporationTyp
 bool CvGameCorporations::IsCorporationFounded(CorporationTypes eCorporation) const
 {
 	CorporationList::const_iterator it;
-	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); it++)
+	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); ++it)
 	{
 		if((*it).m_eCorporation == eCorporation)
 			return true;
@@ -1946,7 +1946,7 @@ bool CvGameCorporations::IsCorporationHeadquarters(CvCity* pCity) const
 		return false;
 
 	CorporationList::const_iterator it;
-	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); it++)
+	for(it = m_ActiveCorporations.begin(); it != m_ActiveCorporations.end(); ++it)
 	{
 		if((*it).m_iHeadquartersCityX == pCity->getX() &&
 			(*it).m_iHeadquartersCityY == pCity->getY())
