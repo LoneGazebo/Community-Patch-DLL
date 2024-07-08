@@ -3185,7 +3185,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		iTime += pkBuildInfo->getFeatureTime(getFeatureType());
 	}
 
-	// If repair, take the shorter time of repair and improve
+	// If repair, take the shorter time of repair and improve (but not for builds that kill the builder)
 	// We keep track of the improve time first, then compare at the end after all multipliers
 	if (pkBuildInfo->isRepair())
 	{
@@ -3195,7 +3195,8 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 
 		for (int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
 		{
-			CvBuildInfo* pkBuildInfoLoop = GC.getBuildInfo(static_cast<BuildTypes>(iBuildLoop));
+			BuildTypes eBuild = static_cast<BuildTypes>(iBuildLoop);
+			CvBuildInfo* pkBuildInfoLoop = GC.getBuildInfo(eBuild);
 			if (!pkBuildInfoLoop)
 				continue;
 
@@ -3203,14 +3204,22 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 			{
 				if (pkBuildInfoLoop->getImprovement() == eImprovement)
 				{
+					if (pkBuildInfoLoop->isKill())
+						continue;
+
 					iImproveTime = pkBuildInfoLoop->getTime();
+					break;
 				}
 			}
 			else if (IsRoutePillaged())
 			{
 				if (pkBuildInfoLoop->getRoute() == eRoute)
 				{
+					if (pkBuildInfoLoop->isKill())
+						continue;
+
 					iImproveTime = pkBuildInfoLoop->getTime();
+					break;
 				}
 			}
 		}
@@ -3288,16 +3297,13 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowEx
 //	--------------------------------------------------------------------------------
 int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 {
-	const IDInfo* pUnitNode = NULL;
-	const CvUnit* pLoopUnit = NULL;
 	int iBuildRate = 0;
 	int iBuildTime = getBuildTime(eBuild, ePlayer);
 
-	pUnitNode = headUnitNode();
-
-	while (pUnitNode != NULL)
+	const IDInfo* pUnitNode = headUnitNode();
+	while (pUnitNode)
 	{
-		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
 		if (pLoopUnit && pLoopUnit->getBuildType() == eBuild)
@@ -3310,7 +3316,7 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 		return INT_MAX;
 	}
 
-	iBuildTime = std::max(1, getBuildTime(eBuild, ePlayer));
+	iBuildTime = std::max(1, iBuildTime);
 
 	// Rounds up
 	return (iBuildTime - 1) / iBuildRate + 1;
