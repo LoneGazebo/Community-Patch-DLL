@@ -3013,7 +3013,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = NO_PLAYER */, ResourceTypes eResource /* = NO_RESOURCE */)
 {
 	TradedItemList::iterator it;
-	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); it++)
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == eItemType && (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom))
 		{
@@ -3034,7 +3034,7 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 bool CvDeal::ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom /* = NO_PLAYER */)
 {
 	TradedItemList::iterator it;
-	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); it++)
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom)
 		{
@@ -4398,7 +4398,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	bool bFromPlayerItem = false;
 	bool bToPlayerItem = false;
 
-	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
+	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 	{
 		if (it->m_iDuration > 0)
 		{
@@ -4464,7 +4464,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	bool bDoWarVictoryBonuses = true;
 
 	// Process each item in the deal!
-	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
+	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == TRADE_ITEM_NONE)
 			continue;

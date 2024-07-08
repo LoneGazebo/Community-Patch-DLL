@@ -304,7 +304,7 @@ void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes
 		}
 	}
 
-	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
+	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); ++it)
 	{
 		if ((*it)->IsCity())
 			continue;
@@ -315,7 +315,7 @@ void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes
 
 void CvFlavorManager::ChangeCityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
 {
-	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
+	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); ++it)
 	{
 		if ((*it)->IsCity())
 			(*it)->ChangeFlavors(piDeltaFlavorValues, reason, effectstart);
@@ -448,7 +448,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 /// Sends base personality flavor settings to all recipients
 void CvFlavorManager::BroadcastBaseFlavors()
 {
-	for(Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
+	for(Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); ++it)
 	{
 		(*it)->SetFlavors(m_piPersonalityFlavor, "BASEFLAVOR");
 	}

@@ -20524,7 +20524,7 @@ void CvCity::UpdateEventGPPFromSpecialistsCounters()
 		}
 		else
 		{
-			it++;
+			++it;
 		}
 	}
 }
@@ -32141,7 +32141,7 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 	CvWeightedVector<PlayerTypes> veEnemyOtherPowers;
 	std::map<PlayerTypes, int> vectorIndices;
 	int iIndex = 0;
-	for (std::vector<PlayerTypes>::iterator it = vWarAllies.begin(); it != vWarAllies.end(); it++)
+	for (std::vector<PlayerTypes>::iterator it = vWarAllies.begin(); it != vWarAllies.end(); ++it)
 	{
 		veEnemyLandPowers.push_back(*it, 0);
 		veEnemySeaPowers.push_back(*it, 0);
