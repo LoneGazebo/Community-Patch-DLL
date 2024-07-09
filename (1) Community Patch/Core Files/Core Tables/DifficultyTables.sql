@@ -1,3 +1,7 @@
+-- Delete the data in the difficulty tables, replaced in DifficultyTables.xml
+DELETE FROM HandicapInfo_FreeTechs;
+DELETE FROM HandicapInfo_AIFreeTechs;
+DELETE FROM HandicapInfo_Goodies; -- This one is replaced at the end of this file instead
 DELETE FROM HandicapInfos;
 
 -- This code is necessary to avoid a UI glitch where difficulty levels do not display properly on game creation, do not remove it
@@ -226,3 +230,53 @@ VALUES
 	('GOODY_GOLDEN_AGE', 'TXT_KEY_GOODY_GOLDEN_AGE', 'TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE', 0, 200, 0, 0),
 	('GOODY_TILES', 'TXT_KEY_GOODY_TILES', 'TXT_KEY_GOODY_CHOOSE_FREE_TILES', 0, 0, 4, 0),
 	('GOODY_SCIENCE', 'TXT_KEY_GOODY_SCIENCE', 'TXT_KEY_GOODY_CHOOSE_SCIENCE', 0, 0, 0, 35);
+
+-- Re-add Goody Hut rewards
+CREATE TEMP TABLE HandicapsList (
+	HandicapType text
+);
+
+INSERT INTO HandicapsList
+	(HandicapType)
+VALUES
+	('HANDICAP_SETTLER'),
+	('HANDICAP_CHIEFTAIN'),
+	('HANDICAP_WARLORD'),
+	('HANDICAP_PRINCE'),
+	('HANDICAP_KING'),
+	('HANDICAP_EMPEROR'),
+	('HANDICAP_IMMORTAL'),
+	('HANDICAP_DEITY'),
+	('HANDICAP_AI_DEFAULT');
+
+CREATE TEMP TABLE GoodyHutRewards (
+	GoodyType text
+);
+
+INSERT INTO GoodyHutRewards
+	(GoodyType)
+VALUES
+	('GOODY_POPULATION'),
+	('GOODY_CULTURE'),
+	('GOODY_PANTHEON_FAITH'),
+	('GOODY_PROPHET_FAITH'),
+	('GOODY_GOLD'),
+	('GOODY_MAP'),
+	('GOODY_TECH'),
+	('GOODY_REVEAL_NEARBY_BARBS'),
+	('GOODY_UPGRADE_UNIT');
+
+-- Settler-exclusive rewards
+INSERT INTO HandicapInfo_Goodies
+	('HANDICAP_SETTLER', 'GOODY_WORKER'),
+	('HANDICAP_SETTLER', 'GOODY_SETTLER');
+
+-- General rewards
+INSERT INTO HandicapInfo_Goodies
+	(HandicapType, GoodyType)
+SELECT
+	a.HandicapType, b.GoodyType
+FROM HandicapsList a, GoodyHutRewards b;
+
+DROP TABLE HandicapsList;
+DROP TABLE GoodyHutRewards;

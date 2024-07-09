@@ -966,6 +966,9 @@ public:
 	bool IsIgnoreWarmonger() const;
 	void SetIgnoreWarmonger(bool bValue);
 
+	PlayerTypes GetVassalPlayerToLiberate() const;
+	void SetVassalPlayerToLiberate(PlayerTypes ePlayer);
+
 	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer) const;
 	void SetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer, PlayerTypes eBulliedPlayer);
 
@@ -1566,7 +1569,8 @@ public:
 	VassalTreatmentTypes GetVassalTreatmentLevel(PlayerTypes ePlayer);
 	CvString GetVassalTreatmentToolTip(PlayerTypes ePlayer);
 
-	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
+	void DetermineVassalToLiberate();
+	bool IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLiberate) const;
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation); // can be called in either direction, for the master or the vassal
 	bool IsCapitulationAcceptable(PlayerTypes ePlayer); // vassal only
@@ -1908,6 +1912,7 @@ private:
 	// Other Global Memory
 	bool m_bAvoidDeals; // Not serialized!
 	bool m_bIgnoreWarmonger; // Not serialized!
+	PlayerTypes m_eVassalPlayerToLiberate; // Not serialized!
 	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;

@@ -10297,71 +10297,103 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Compute the cost of policies for this turn
 	DoUpdateNextPolicyCost();
 
-	// if this is the human player, have the popup come up so that he can choose a new policy
-	if(isAlive() && isHuman() && getNumCities() > 0)
+	// Anarchy counter
+	if (GetAnarchyNumTurns() > 0)
+		ChangeAnarchyNumTurns(-1);
+
+	if (isAlive() && isMajorCiv() && getNumCities() > 0)
 	{
-		if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+		if (!isHuman())
 		{
-			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+			if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 			{
-				CvNotifications* pNotifications = GetNotifications();
-				if(pNotifications)
+				if (GetPlayerTraits()->IsAdoptionFreeTech())
 				{
-					CvString strBuffer;
+					AI_chooseFreeTech();
+				}
 
-					if(kGame.isOption(GAMEOPTION_POLICY_SAVING))
-						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
-					else
-						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+				GetPlayerPolicies()->DoChooseIdeology();
+			}
 
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
-					pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+			GetPlayerPolicies()->DoPolicyAI();
+		}
+		// if this is the human player, have the popup come up so that he can choose a new policy
+		else
+		{
+			if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+			{
+				if (getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				{
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer;
+
+						if (kGame.isOption(GAMEOPTION_POLICY_SAVING))
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+						else
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+						pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+					}
 				}
 			}
-		}
 
-		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-		{
-			if(GetPlayerTraits()->IsAdoptionFreeTech())
+			if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 			{
-				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
-				chooseTech(1, strBuffer.GetCString());
-			}
-
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				CvString strBuffer;
-				if (GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN VP*/ GD_INT_GET(IDEOLOGY_START_ERA))
+				// Vassals are forced to choose the master's ideology
+				bool bForcedIdeology = false;
+				TeamTypes eMasterTeam = GET_TEAM(getTeam()).GetMaster();
+				if (eMasterTeam != NO_TEAM)
 				{
-					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA");
+					vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
+					for (size_t i=0; i<vMasterTeam.size(); i++)
+					{
+						PlayerTypes eMaster = GET_PLAYER(vMasterTeam[i]).GetID();
+
+						// First player on the master's team that is alive and has > 0 cities is the one that counts
+						if (GET_PLAYER(eMaster).isAlive() && GET_PLAYER(eMaster).getNumCities() > 0)
+						{
+							if (GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+							{
+								GetPlayerPolicies()->SetPolicyBranchUnlocked(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree(), true, false);
+								bForcedIdeology = true;
+								break;
+							}
+						}
+					}
 				}
-				else
+
+				if (GetPlayerTraits()->IsAdoptionFreeTech())
 				{
-					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_FACTORIES");
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
+					chooseTech(1, strBuffer.GetCString());
 				}
-				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_IDEOLOGY");
-				pNotifications->Add(NOTIFICATION_CHOOSE_IDEOLOGY, strBuffer, strSummary, -1, -1, GetID());
+
+				if (!bForcedIdeology)
+				{
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer;
+						if (GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN VP*/ GD_INT_GET(IDEOLOGY_START_ERA))
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA");
+						}
+						else
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_FACTORIES");
+						}
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_IDEOLOGY");
+						pNotifications->Add(NOTIFICATION_CHOOSE_IDEOLOGY, strBuffer, strSummary, -1, -1, GetID());
+					}
+				}
 			}
+
+			// Force an ideology update for human vassals, if applicable
+			GetPlayerPolicies()->DoPolicyAI();
 		}
-	}
-
-	if (isAlive() && getNumCities() > 0 && !isHuman() && !isMinorCiv())
-	{
-		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-		{
-			if(GetPlayerTraits()->IsAdoptionFreeTech())
-			{
-				AI_chooseFreeTech();
-			}
-
-			GetPlayerPolicies()->DoChooseIdeology();
-		}
-	}
-
-	if (!isBarbarian() && !isHuman() && !isMinorCiv())
-	{
-		GetPlayerPolicies()->DoPolicyAI();
 	}
 
 	// Science
@@ -10378,10 +10410,6 @@ void CvPlayer::doTurnPostDiplomacy()
 		// Leagues
 		CvGameLeagues* pGameLeagues = kGame.GetGameLeagues();
 		pGameLeagues->DoPlayerTurn(*this);
-
-		// Anarchy counter
-		if(GetAnarchyNumTurns() > 0)
-			ChangeAnarchyNumTurns(-1);
 	}
 
 	const int iGameTurn = kGame.getGameTurn();
@@ -31339,7 +31367,8 @@ int CvPlayer::GetNumOurCitiesOwnedBy(PlayerTypes ePlayer)
 	int iCount = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if (pLoopCity->getOriginalOwner() == m_eID)
+		PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
+		if (GET_PLAYER(eOriginalOwner).getTeam() == getTeam())
 			iCount++;
 	}
 

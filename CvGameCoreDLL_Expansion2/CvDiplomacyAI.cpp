@@ -398,6 +398,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 	m_bAvoidDeals = false;
 	m_bIgnoreWarmonger = false;
+	m_eVassalPlayerToLiberate = NO_PLAYER;
 	
 	m_aGreetPlayers.clear();
 
@@ -8840,6 +8841,17 @@ void CvDiplomacyAI::SetIgnoreWarmonger(bool bValue)
 	m_bIgnoreWarmonger = bValue;
 }
 
+// Do we want to liberate this player on this turn? Temporary non-serialized value.
+PlayerTypes CvDiplomacyAI::GetVassalPlayerToLiberate() const
+{
+	return m_eVassalPlayerToLiberate;
+}
+
+void CvDiplomacyAI::SetVassalPlayerToLiberate(PlayerTypes ePlayer)
+{
+	m_eVassalPlayerToLiberate = ePlayer;
+}
+
 /// Who was the last Minor ePlayer bullied that we were protecting?
 PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer) const
 {
@@ -14232,7 +14244,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 	// Vassal taxes?
 	if (IsMaster(ePlayer))
 	{
-		iGPT += GetPlayer()->GetTreasury()->GetVassalTaxContributionTimes100(ePlayer);
+		iGPT += GetPlayer()->GetTreasury()->GetMyShareOfVassalTaxes(GET_PLAYER(ePlayer).getTeam());
 	}
 
 	vector<PlayerTypes> vDefensiveWarAllies = GetDefensiveWarAllies(ePlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
@@ -29119,13 +29131,14 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 					if (GET_PLAYER(*it).GetDiplomacyAI()->IsPlayerCapturedCapital(vMyTeam[i]) || GET_PLAYER(*it).GetDiplomacyAI()->IsPlayerCapturedHolyCity(vMyTeam[i]))
 						return true;
 					// Run these checks last because they're more expensive.
-					if (GET_PLAYER(*it).GetNumOurCitiesOwnedBy(vMyTeam[i]) > 0)
-						return true;
 					if (GET_PLAYER(*it).GetDiplomacyAI()->IsUntrustworthy(vMyTeam[i]))
 						return true;
 					if (bVassal && pDiplo->GetVassalTreatmentLevel(*it) <= VASSAL_TREATMENT_MISTREATED)
 						return true;
 				}
+
+				if (GET_PLAYER(*it).GetNumOurCitiesOwnedBy(GetID()) > 0)
+					return true;
 			}
 		}
 	}
@@ -32222,6 +32235,8 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 /// Any Major Civs we want to chat with?
 void CvDiplomacyAI::DoContactMajorCivs()
 {
+	DetermineVassalToLiberate();
+
 	// NOTE: This function is broken up into two sections: AI contact opportunities, and then human contact opportunities
 	// This is to prevent a nasty bug where the AI will continue making decisions as the diplo screen is firing up. Making humans
 	// handled at the end prevents the Diplo AI from having this problem
@@ -55400,224 +55415,386 @@ void CvDiplomacyAI::DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatem
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		// Has to be my vassal
-		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetID()))
+		if (GetVassalPlayerToLiberate() == ePlayer)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_LIBERATE_VASSAL;
-			int iTurnsBetweenStatement = 25;
+			int iTurnsBetweenStatement = 1;
 
-			if(IsWantToLiberateVassal(ePlayer))
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
 			{
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
-				{
-					eStatement = eTempStatement;
-				}
+				eStatement = eTempStatement;
 			}
 		}
 	}
 }
 
-/// Do we want to liberate ePlayer's team?
-bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
+void CvDiplomacyAI::DetermineVassalToLiberate()
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return;
 
-	TeamTypes eMyTeam = GetTeam();
-	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
+	// Humans make all the decisions!
+	if (m_pPlayer->IsAITeammateOfHuman())
+	{
+		SetVassalPlayerToLiberate(NO_PLAYER);
+		return;
+	}
 
-	TeamTypes eVassalTeam = GET_PLAYER(ePlayer).getTeam();
-	CvTeam& kVassalTeam = GET_TEAM(eVassalTeam);
+	// Only run this check if we're the team leader
+	PlayerTypes eMasterTeamLeader = GET_TEAM(GetTeam()).getLeaderID();
+	if (eMasterTeamLeader != GetID())
+	{
+		SetVassalPlayerToLiberate(NO_PLAYER);
+		return;
+	}
 
-	// Can't liberate? Abort!
-	if(!kMyTeam.CanLiberateVassal(eVassalTeam))
-		return false;
-
-	// Shadow AI can't make this decision for teammate
-	if(kMyTeam.isHuman() && !m_pPlayer->isHuman())
-		return false;
-
-	//World conqueror and this guy lost his capital? He's a perma-vassal.
-	if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && GET_PLAYER(ePlayer).IsHasLostCapital())
-		return false;
-
-	std::vector<CvPlayerAI*> m_Masters;
-	std::vector<CvPlayerAI*> m_Vassals;
-
+	int iBestScoreForLiberate = INT_MIN;
+	PlayerTypes eBestCandidate = NO_PLAYER;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() == 0)
+			continue;
+
+		if (GET_PLAYER(eLoopPlayer).IsAITeammateOfHuman())
+			continue;
+
+		// Must be either human or the team leader
+		TeamTypes eTeam = GET_PLAYER(eLoopPlayer).getTeam();
+		if (GET_TEAM(eTeam).getLeaderID() == eLoopPlayer || GET_PLAYER(eLoopPlayer).isHuman())
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(GET_PLAYER(eLoopPlayer).getTeam() == eMyTeam)
-				m_Masters.push_back(&GET_PLAYER(eLoopPlayer));
-			if(GET_PLAYER(eLoopPlayer).getTeam() == eVassalTeam)
-				m_Vassals.push_back(&GET_PLAYER(eLoopPlayer));
+			// If human, must be contactable
+			if (GET_PLAYER(eLoopPlayer).isHuman())
+			{
+				if (GC.getGame().IsAllDiploStatementsDisabled())
+					continue;
+
+				if (GC.getGame().isReallyNetworkMultiPlayer() && !MOD_ACTIVE_DIPLOMACY)
+					continue;
+			}
+
+			int iScoreForLiberate = 0;
+			if (IsWantToLiberateVassal(eLoopPlayer, iScoreForLiberate))
+			{
+				if (iScoreForLiberate > iBestScoreForLiberate)
+				{
+					eBestCandidate = eLoopPlayer;
+					iBestScoreForLiberate = iScoreForLiberate;
+				}
+			}
 		}
 	}
 
-	CvAssertMsg(m_Masters.size() > 0, "master team expected to be greater than size 0");
-	CvAssertMsg(m_Vassals.size() > 0, "vassal team expected to be greater than size 0");
+	SetVassalPlayerToLiberate(eBestCandidate);
+}
 
-	CivApproachTypes eMasterApproach = NO_CIV_APPROACH;
-	CivOpinionTypes eMasterOpinion = NO_CIV_OPINION;
+/// Do we want to liberate ePlayer's team?
+bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLiberate) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) UNREACHABLE();
+
+	// Can't liberate? Abort!
+	TeamTypes eVassalTeam = GET_PLAYER(ePlayer).getTeam();
+	if (!GET_TEAM(GetTeam()).CanLiberateVassal(eVassalTeam))
+		return false;
+
+	// Do not liberate if they have at least 90% of our population
+	int iNumPop = GET_TEAM(GetTeam()).getTotalPopulation();
+	int iNumVassalPop = GET_TEAM(eVassalTeam).getTotalPopulation();
+	if ((iNumVassalPop * 100) >= (iNumPop * 90))
+		return false;
+
+	// Do not liberate if they own other players' capitals
+	if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+		return false;
+
+	// Do not liberate if they own any of our cities
+	if (m_pPlayer->GetNumOurCitiesOwnedBy(ePlayer) > 0)
+		return false;
+
+	// If someone else previously resurrected this vassal and that team is alive, don't liberate
+	// They will probably fly into the arms of their former protector and come after us for revenge!
+	TeamTypes eLiberatedByTeam = GET_TEAM(eVassalTeam).GetLiberatedByTeam();
+	if (eLiberatedByTeam != NO_TEAM && eLiberatedByTeam != GetTeam() && GET_TEAM(eLiberatedByTeam).isAlive())
+		return false;
+
+	// Refuse if they aren't following the one true ideology
+	if (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && !IsPlayerSameIdeology(ePlayer))
+		return false;
+
+	vector<PlayerTypes> vMasterTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vVassalTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+	CivApproachTypes eWorstMasterApproach = NO_CIV_APPROACH;
+	int iWorstMasterOpinion = SHRT_MIN;
 	StrengthTypes eVassalStrength = NO_STRENGTH_VALUE;
 	StrengthTypes eVassalEcoStrength = NO_STRENGTH_VALUE;
-
-	int iTotalGPTTimes100 = 0;
-	int iApproachScore = 0;
-	int iOpinionScore = 0;
-	int iStrengthScore = 0;
-	int iEcoStrengthScore = 0;
-
 	InfluenceLevelTypes eMasterInfluence = NO_INFLUENCE_LEVEL;
 	InfluenceLevelTypes eVassalInfluence = NO_INFLUENCE_LEVEL;
 
-	// Calculate averages for master
-	for(std::vector<CvPlayerAI*>::iterator it = m_Masters.begin(); it != m_Masters.end(); ++it)
+	ReligionTypes eMasterReligion = NO_RELIGION;
+	int iMostFollowers = 0;
+	for (size_t i=0; i<vMasterTeam.size(); i++)
 	{
-		CvPlayer* pMaster = (*it);
+		PlayerTypes eMaster = GET_PLAYER(vMasterTeam[i]).GetID();
+		if (!GET_PLAYER(eMaster).isAlive() || !GET_PLAYER(eMaster).isMajorCiv() || GET_PLAYER(eMaster).getNumCities() == 0)
+			continue;
 
-		iTotalGPTTimes100 += pMaster->calculateGoldRateTimes100();
-
-		// How does one master see each vassal?
-		int iAverageApproachForOneMaster = 0;
-		int iAverageOpinionForOneMaster = 0;
-		int iAverageStrengthScoreForOneMaster = 0;
-		int iAverageEcoStrengthScoreForOneMaster = 0;
-
-		for(std::vector<CvPlayerAI*>::iterator vIt = m_Vassals.begin(); vIt != m_Vassals.end(); vIt++)
+		ReligionTypes eReligion = GET_PLAYER(eMaster).GetReligions()->GetOwnedReligion();
+		if (eReligion != NO_RELIGION)
 		{
-			CvPlayer* pVassal = (*vIt);
+			// Performance optimization - only consider followers if there's more than one person on the master team
+			if (iMostFollowers == 0 && i + 1 >= vMasterTeam.size())
+			{
+				eMasterReligion = eReligion;
+				continue;
+			}
 
-			// Did they denounce us?
-			if(pVassal->GetDiplomacyAI()->IsDenouncedPlayer(pMaster->GetID()))
-				return false;
-
-			// Did we denounce them?
-			if(pMaster->GetDiplomacyAI()->IsDenouncedPlayer(pVassal->GetID()))
-				return false;
-
-			iAverageApproachForOneMaster += (int) pMaster->GetDiplomacyAI()->GetCivApproach(pVassal->GetID());
-			iAverageOpinionForOneMaster += (int) pMaster->GetDiplomacyAI()->GetCivOpinion(pVassal->GetID());
-			iAverageStrengthScoreForOneMaster += (int) pMaster->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(pVassal->GetID());
-			iAverageEcoStrengthScoreForOneMaster += (int) pMaster->GetDiplomacyAI()->GetEconomicStrengthComparedToUs(pVassal->GetID());
-			
-			// Only care about the highest
-			InfluenceLevelTypes eMasterInfluenceOverVassal = pMaster->GetCulture()->GetInfluenceLevel(pVassal->GetID());
-			if(eMasterInfluenceOverVassal > eMasterInfluence)
-				eMasterInfluence = eMasterInfluenceOverVassal;
-
-			// Only care about the highest
-			InfluenceLevelTypes eVassalInfluenceOverMaster = pVassal->GetCulture()->GetInfluenceLevel(pMaster->GetID());
-			if(eVassalInfluenceOverMaster > eVassalInfluence)
-				eVassalInfluence = eVassalInfluenceOverMaster;
+			int iFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eMasterReligion);
+			if (iFollowers > iMostFollowers)
+			{
+				eMasterReligion = eReligion;
+				iMostFollowers = iFollowers;
+			}
 		}
-
-		iApproachScore += iAverageApproachForOneMaster;
-		iApproachScore /= m_Vassals.size();
-
-		iOpinionScore += iAverageOpinionForOneMaster;
-		iOpinionScore /= m_Vassals.size();
-
-		iStrengthScore += iAverageStrengthScoreForOneMaster;
-		iStrengthScore /= m_Vassals.size();
-
-		iEcoStrengthScore += iAverageEcoStrengthScoreForOneMaster;
-		iEcoStrengthScore /= m_Vassals.size();
 	}
 
-	iApproachScore /= m_Masters.size();
-	iOpinionScore /= m_Masters.size();
-	iStrengthScore /= m_Masters.size();
-	iEcoStrengthScore /= m_Masters.size();
-
-	eMasterApproach = (CivApproachTypes) iApproachScore;
-	eMasterOpinion = (CivOpinionTypes) iOpinionScore;
-	eVassalStrength = (StrengthTypes) iStrengthScore;
-	eVassalEcoStrength = (StrengthTypes) iEcoStrengthScore;
-
-	CvAssertMsg(eMasterApproach >= NO_CIV_APPROACH && eMasterApproach < NUM_CIV_APPROACHES, "Something went wrong with the evaluation for approaches.");
-	CvAssertMsg(eMasterOpinion >= NO_CIV_OPINION && eMasterOpinion < NUM_CIV_OPINIONS, "Something went wrong with the evaluation for opinions.");
-	CvAssertMsg(eVassalStrength >= NO_STRENGTH_VALUE && eVassalStrength < NUM_STRENGTH_VALUES, "Something went wrong with the evaluation for strengths.");
-	CvAssertMsg(eMasterInfluence >= NO_INFLUENCE_LEVEL && eMasterInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
-	CvAssertMsg(eVassalInfluence >= NO_INFLUENCE_LEVEL && eVassalInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
-
-	// If team doesn't like them, don't consider it.
-	if (eMasterApproach <= CIV_APPROACH_GUARDED)
+	for (size_t i=0; i<vMasterTeam.size(); i++)
 	{
+		PlayerTypes eMaster = GET_PLAYER(vMasterTeam[i]).GetID();
+		if (!GET_PLAYER(eMaster).isAlive() || !GET_PLAYER(eMaster).isMajorCiv())
+			continue;
+
+		if (GET_PLAYER(eMaster).getNumCities() == 0)
+			return false;
+
+		// Do not liberate if we're in bad shape - we might need the help
+		if (GET_PLAYER(eMaster).IsAnarchy() || GET_PLAYER(eMaster).IsNoNewWars())
+			return false;
+
+		// Do not liberate if we have the policy that prevents capitulated vassals from rebelling
+		if (GET_PLAYER(eMaster).IsVassalsNoRebel())
+			return false;
+
+		CvDiplomacyAI* pDiplo = GET_PLAYER(eMaster).GetDiplomacyAI();
+
+		// Do not liberate if we're going for world conquest
+		if (pDiplo->IsGoingForWorldConquest() || GET_PLAYER(eMaster).GetNumCapitalCities() > 0)
+			return false;
+
+		// If we're close to winning, now is not the time to be liberating vassals!
+		if (pDiplo->IsCloseToAnyVictoryCondition())
+			return false;
+
+		// Separate check for World Conquest if the game is already won, since IsCloseToAnyVictoryCondition() will return false
+		if (GC.getGame().getWinner() != NO_TEAM && pDiplo->IsCloseToWorldConquest())
+			return false;
+
+		for (size_t j=0; j<vVassalTeam.size(); j++)
+		{
+			PlayerTypes eVassal = GET_PLAYER(vVassalTeam[j]).GetID();
+			if (!GET_PLAYER(eVassal).isAlive() || !GET_PLAYER(eVassal).isMajorCiv())
+				continue;
+
+			// Check opinion and approach - care only about the worst
+			// Only liberate if everyone on both teams has neutral and positive values towards each other
+			// If vassal hates the master (due to mistreatment), master will continue mistreating them
+			int iCachedOpinionWeight = pDiplo->GetCachedOpinionWeight(eVassal) - pDiplo->GetMasterScore(eVassal); // exclude the diplo bonus they have for just being our vassal
+			CivApproachTypes eApproach = pDiplo->GetCivApproach(eVassal);
+			CivApproachTypes eVisibleApproach = GET_PLAYER(eVassal).isHuman() ? CIV_APPROACH_NEUTRAL : pDiplo->GetVisibleApproachTowardsUs(eVassal);
+			if (eApproach <= CIV_APPROACH_AFRAID || eVisibleApproach <= CIV_APPROACH_GUARDED || iCachedOpinionWeight >= /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
+				return false;
+			if (eApproach < eWorstMasterApproach)
+				eWorstMasterApproach = eApproach;
+			if (iCachedOpinionWeight > iWorstMasterOpinion)
+				iWorstMasterOpinion = iCachedOpinionWeight;
+
+			// Check strength compared to us - care only about the highest
+			// Do not liberate if stronger than us - could be a threat
+			StrengthTypes eStrength = pDiplo->GetRawMilitaryStrengthComparedToUs(eVassal);
+			if (eVassal > STRENGTH_AVERAGE)
+				return false;
+			if (eStrength > eVassalStrength)
+				eVassalStrength = eStrength;
+
+			eStrength = pDiplo->GetEconomicStrengthComparedToUs(eVassal);
+			if (eVassal > STRENGTH_AVERAGE)
+				return false;
+			if (eStrength > eVassalEcoStrength)
+				eVassalEcoStrength = eStrength;
+
+			// Do not liberate if endgame aggressive
+			if (pDiplo->IsEndgameAggressiveTo(eVassal))
+				return false;
+
+			// Denouncement in either direction?
+			if (pDiplo->IsDenouncedPlayer(eVassal) || pDiplo->IsDenouncedByPlayer(eVassal))
+				return false;
+
+			// Refuse if it says they're a HERETIC!
+			if (eMasterReligion != NO_RELIGION && GET_PLAYER(eVassal).GetReligions()->GetStateReligion(false) != eMasterReligion)
+				return false;
+
+			// Check cultural influence - only care about the highest / lowest
+			InfluenceLevelTypes eVassalInfluenceOverMaster = GET_PLAYER(eVassal).GetCulture()->GetInfluenceLevel(eMaster);
+
+			// Don't liberate if influential or rising towards us - could be a threat
+			if (eVassalInfluenceOverMaster >= INFLUENCE_LEVEL_INFLUENTIAL || GET_PLAYER(eVassal).GetCulture()->GetInfluenceTrend(eMaster) == INFLUENCE_TREND_RISING)
+				return false;
+			if (eVassalInfluenceOverMaster > eVassalInfluence)
+				eVassalInfluence = eVassalInfluenceOverMaster;
+
+			InfluenceLevelTypes eMasterInfluenceOverVassal = GET_PLAYER(eMaster).GetCulture()->GetInfluenceLevel(eVassal);
+
+			// Don't liberate if not influential yet and going for Cultural Victory - we could use the Tourism boost
+			if (eMasterInfluenceOverVassal < INFLUENCE_LEVEL_INFLUENTIAL && (pDiplo->IsGoingForCultureVictory() || pDiplo->IsCloseToCultureVictory()))
+				return false;
+			if (eMasterInfluenceOverVassal < eMasterInfluence)
+				eMasterInfluence = eMasterInfluenceOverVassal;
+		}
+	}
+
+	// Do not liberate if it would cause unhappiness or financial problems!
+	int iTotalHappinessBoost = 0;
+	bool bGoodRevenueSource = false;
+	bool bNuclearGandhiException = false;
+	int iNecessaryRevenueSource = 0;
+	int iFinancialLiability = 0;
+	for (size_t i=0; i<vVassalTeam.size(); i++)
+	{
+		PlayerTypes eVassal = GET_PLAYER(vVassalTeam[i]).GetID();
+		if (!GET_PLAYER(eVassal).isAlive() || !GET_PLAYER(eVassal).isMajorCiv())
+			continue;
+
+		// Do not liberate a vassal that could nuke us!!
+		if (GET_PLAYER(eVassal).getNumNukeUnits() > 0)
+			return false;
+		if (GET_PLAYER(eVassal).GetDiplomacyAI()->IsNuclearGandhi(true))
+			bNuclearGandhiException = true;
+
+		iTotalHappinessBoost += GetPlayer()->GetHappinessFromVassal(eVassal);
+	}
+	for (size_t i=0; i<vMasterTeam.size(); i++)
+	{
+		PlayerTypes eMaster = GET_PLAYER(vMasterTeam[i]).GetID();
+		if (!GET_PLAYER(eMaster).isAlive() || !GET_PLAYER(eMaster).isMajorCiv() || GET_PLAYER(eMaster).getNumCities() == 0)
+			continue;
+
+		if (iTotalHappinessBoost > 0 && GET_PLAYER(eMaster).IsEmpireUnhappy())
+			return false;
+
+		int iUnhappy = GET_PLAYER(eMaster).GetUnhappinessFromCitizenNeeds();
+		int iHappy = GET_PLAYER(eMaster).GetHappinessFromCitizenNeeds() - iTotalHappinessBoost;
+		if (((iHappy * 100) / max(1, iUnhappy) / 2) < /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD))
+			return false;
+
+		bool bSkip = false;
+		int iRevenue = GET_PLAYER(eMaster).GetTreasury()->GetMyShareOfVassalTaxes(eVassalTeam);
+		int iExpense = GET_PLAYER(eMaster).GetTreasury()->GetVassalGoldMaintenance(eVassalTeam);
+		if (iRevenue < iExpense)
+		{
+			// We're losing more than we're gaining from this vassal, and we're going bankrupt. Not good!
+			if (GET_PLAYER(eMaster).getTurnsToBankruptcy(0) != INT_MAX)
+			{
+				// Hmm...can we rectify the situation by raising taxes on them?
+				if (GET_TEAM(GetTeam()).GetVassalTax(ePlayer) < /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM))
+				{
+					int iNewRevenue = GET_PLAYER(eMaster).GetTreasury()->GetMyShareOfVassalTaxes(eVassalTeam, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
+					int iDifference = iNewRevenue - iRevenue;
+					if (iNewRevenue >= iExpense || GET_PLAYER(eMaster).getTurnsToBankruptcy(-iDifference) != INT_MAX)
+					{
+						// If raising taxes would bring us out of bankruptcy or equalize the expenses, don't liberate
+						return false;
+					}
+					// No? Then this vassal's bad to keep.
+					else
+					{
+						iFinancialLiability++;
+						bSkip = true;
+					}
+				}
+				else
+				{
+					iFinancialLiability++;
+					bSkip = true;
+				}
+			}
+		}
+		if (!bSkip)
+		{
+			// Good revenue source?
+			int iGoldRate = GET_PLAYER(eMaster).calculateGoldRateTimes100();
+			if (iRevenue * 100 > iGoldRate * 20)
+				bGoodRevenueSource = true;
+
+			// Necessary revenue source?
+			if (iGoldRate - iRevenue <= 0)
+				iNecessaryRevenueSource++;
+		}
+	}
+
+	if (iNecessaryRevenueSource > iFinancialLiability)
 		return false;
-	}
 
-	// Bad opinion?
-	if (eMasterOpinion <= CIV_OPINION_COMPETITOR)
-	{
-		return false;
-	}
+	// Base liberation score is determined by approach - either FRIENDLY or NEUTRAL
+	iScoreForLiberate = eWorstMasterApproach == CIV_APPROACH_FRIENDLY ? 10 : 0;
 
-	int iScoreForLiberate = 0;
-		
-	// Initial score based on remaining approach
-	switch(eMasterApproach)
-	{
-	case CIV_APPROACH_AFRAID:
-		iScoreForLiberate = 100;
-		break;
-	case CIV_APPROACH_FRIENDLY:
-		iScoreForLiberate = 50;
-		break;
-	case CIV_APPROACH_NEUTRAL:
-		iScoreForLiberate = 20;
-		break;
-	default:
-		CvAssertMsg(false, "IsWantToLiberateVassal(): Something went terribly wrong");
-	}
+	// Mod based on opinion - usually the most important factor
+	CivOpinionTypes eWorstMasterOpinion = CIV_OPINION_ALLY;
+	if (iWorstMasterOpinion > /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
+		eWorstMasterOpinion = CIV_OPINION_NEUTRAL;
+	else if (iWorstMasterOpinion > /*-80*/ GD_INT_GET(OPINION_THRESHOLD_FRIEND))
+		eWorstMasterOpinion = CIV_OPINION_FAVORABLE;
+	else if (iWorstMasterOpinion > /*-160*/ GD_INT_GET(OPINION_THRESHOLD_ALLY))
+		eWorstMasterOpinion = CIV_OPINION_FRIEND;
 
-	// mod based on opinion
-	switch(eMasterOpinion)
+	switch (eWorstMasterOpinion)
 	{
 	case CIV_OPINION_NEUTRAL:
 		iScoreForLiberate += 0;
 		break;
 	case CIV_OPINION_FAVORABLE:
-		iScoreForLiberate += 10;
+		iScoreForLiberate += 5;
 		break;
 	case CIV_OPINION_FRIEND:
-		iScoreForLiberate += 15;
+		iScoreForLiberate += 20;
 		break;
 	case CIV_OPINION_ALLY:
-		iScoreForLiberate += 25;
+		iScoreForLiberate += 40;
 		break;
 	default:
-		CvAssertMsg(false, "IsWantToLiberateVassal(): Something went terribly wrong");
+		UNREACHABLE();
 	}
 
-	int iGoldFromTaxesTimes100 = 0;
-	// Good source of revenue for us - not so likely to break off
-	for(std::vector<CvPlayerAI*>::iterator it = m_Vassals.begin(); it != m_Vassals.end(); ++it)
+	// Financial liability - go away
+	if (iFinancialLiability > 0 && iNecessaryRevenueSource == 0)
 	{
-		iGoldFromTaxesTimes100 += (*it)->GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();
+		iScoreForLiberate += 1000;
 	}
-
-	// more than 20 percent of our net GPT - less likely
-	if(iGoldFromTaxesTimes100 * 100 > iTotalGPTTimes100 * 20)
+	// But also a necessary revenue source? More likely, but not guaranteed.
+	else if (iFinancialLiability > 0 && iFinancialLiability >= iNecessaryRevenueSource)
+	{
+		iScoreForLiberate *= 200;
+		iScoreForLiberate /= 100;
+	}
+	// Don't liberate voluntary vassals unless they're a financial liability - they can choose to leave on their own if they don't like us
+	// Also don't liberate Gandhi unless we need to or he can't go nuclear on our ass
+	else if (bNuclearGandhiException || IsVoluntaryVassalage(ePlayer))
+	{
+		iScoreForLiberate = 0;
+		return false;
+	}
+	// Good source of revenue for us - not so likely to break off
+	else if (bGoodRevenueSource)
 	{
 		iScoreForLiberate *= 50;
 		iScoreForLiberate /= 100;
 	}
 
-	// don't liberate a strong vassal - he could be a threat
-	if(eVassalStrength > STRENGTH_AVERAGE ||
-		eVassalEcoStrength > STRENGTH_AVERAGE)
-		return false;
-
-	switch(eVassalStrength)
+	switch (eVassalStrength)
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -55634,16 +55811,12 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		iScoreForLiberate *= 90;
 		iScoreForLiberate /= 100;
 		break;
-	case STRENGTH_STRONG:
-	case STRENGTH_POWERFUL:
-	case STRENGTH_IMMENSE:
-		break; // Not applicable.
+	default:
+		UNREACHABLE();
 	}
 
-	switch(eVassalEcoStrength)
+	switch (eVassalEcoStrength)
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -55660,14 +55833,12 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		iScoreForLiberate *= 90;
 		iScoreForLiberate /= 100;
 		break;
-	case STRENGTH_STRONG:
-	case STRENGTH_POWERFUL:
-	case STRENGTH_IMMENSE:
-		break; // Not applicable.
+	default:
+		UNREACHABLE();
 	}
 
 	// Mod based on proximity
-	switch(m_pPlayer->GetProximityToPlayer(ePlayer))
+	switch (m_pPlayer->GetProximityToPlayer(ePlayer))
 	{
 	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
@@ -55689,23 +55860,17 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	}
 
 	// City comparison modifier
-	int iNumPop = kMyTeam.getTotalPopulation();
-	int iNumVassalPop = kVassalTeam.getTotalPopulation();
-
-	if(iNumVassalPop >= iNumPop)
-		return false;
-
-	if(iNumVassalPop * 100 > iNumPop * 75)
+	if (iNumVassalPop * 100 > iNumPop * 75)
 	{
 		iScoreForLiberate *= 75;
 		iScoreForLiberate /= 100;
 	}
-	else if(iNumVassalPop * 100 > iNumPop * 50)
+	else if (iNumVassalPop * 100 > iNumPop * 50)
 	{
 		iScoreForLiberate *= 100;
 		iScoreForLiberate /= 100;
 	}
-	else if(iNumVassalPop * 100 > iNumPop * 33)
+	else if (iNumVassalPop * 100 > iNumPop * 33)
 	{
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -55719,35 +55884,29 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	int iDominanceOverVassal = eMasterInfluence - eVassalInfluence;
 
 	// someone is pretty dominant over vassal (not too much of a modifier, but helps our chances of liberation)
-	if(iDominanceOverVassal > 0)
+	if (iDominanceOverVassal > 0)
 	{
 		iScoreForLiberate *= 120;
 		iScoreForLiberate /= 100;
 	}
-	else if(iDominanceOverVassal < 0)
+	else if (iDominanceOverVassal < 0)
 	{
 		iScoreForLiberate *= 50;
 		iScoreForLiberate /= 100;
 	}
 
-	// Someone influential over one of our vassals
-	if(eMasterInfluence >= INFLUENCE_LEVEL_INFLUENTIAL)
+	// We're influential over them
+	if (eMasterInfluence >= INFLUENCE_LEVEL_INFLUENTIAL)
 	{
 		iScoreForLiberate *= 150;
 		iScoreForLiberate /= 100;
 	}
 
-	// A vassal is influential over us!!! Them being a vassal will be good for us
-	if(eVassalInfluence >= INFLUENCE_LEVEL_INFLUENTIAL)
-	{
-		iScoreForLiberate *= 50;
-		iScoreForLiberate /= 100;
-	}
-
 	// The longer they've been our vassal, give a very small boost toward liberation
-	iScoreForLiberate += 3 * (kVassalTeam.GetNumTurnsIsVassal() / 50);	// 3% per 50 turns
+	iScoreForLiberate *= 100 + (GET_TEAM(eVassalTeam).GetNumTurnsIsVassal() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 1000); // 1% per 10 turns (standard speed)
+	iScoreForLiberate /= 100;
 
-	return iScoreForLiberate > 100;
+	return iScoreForLiberate > /*100*/ GD_INT_GET(VASSALAGE_LIBERATE_BASE_THRESHOLD);
 }
 
 /// Possible Contact Statement - Third-party offer for ePlayer to liberate their vassals

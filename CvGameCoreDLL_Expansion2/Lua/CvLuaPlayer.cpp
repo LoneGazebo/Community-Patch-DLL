@@ -16613,7 +16613,7 @@ int CvLuaPlayer::lGetVassalGoldMaintenance(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->GetTreasury()->GetVassalGoldMaintenance();
+	const int iResult = pkPlayer->GetTreasury()->GetVassalGoldMaintenance(NO_TEAM);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -16683,7 +16683,7 @@ int CvLuaPlayer::lGetMyShareOfVassalTaxes(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
-	lua_pushinteger(L, pkPlayer->GetTreasury()->GetMyShareOfVassalTaxes());
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetMyShareOfVassalTaxes(NO_TEAM, -1));
 	return 1;
 }
 

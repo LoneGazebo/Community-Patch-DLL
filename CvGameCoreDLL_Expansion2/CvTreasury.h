@@ -103,13 +103,14 @@ public:
 	int AverageIncome100(int iTurns);
 	void LogExpenditure(const CvString& strExpenditure, int iAmount, int iColumn);
 
-	int GetVassalGoldMaintenance() const;
+	int GetVassalGoldMaintenance(TeamTypes eTeam = NO_TEAM) const;
 
-	int GetMyShareOfVassalTaxes() const;
+	int GetMyShareOfVassalTaxes(TeamTypes eTeam = NO_TEAM, int iProjectedTaxRate = -1) const;
 	int GetVassalTaxContributionTimes100(PlayerTypes ePlayer) const;
 	int GetVassalTaxContribution(PlayerTypes ePlayer) const;
 
 	void CalculateExpensePerTurnFromVassalTaxes();
+	int CalculateProjectedExpensePerTurnFromVassalTaxes(int iProjectedTaxRate);
 	
 	int GetExpensePerTurnFromVassalTaxesTimes100() const;
 	int GetExpensePerTurnFromVassalTaxes() const;

@@ -10737,6 +10737,12 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
+	// If prophet has started spreading religion, can't do other functions (possible with India)
+	if (m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
+	{
+		return false;
+	}
+
 	if(GET_PLAYER(getOwner()).GetReligions()->IsFoundingReligion())
 	{
 		return false;
@@ -10916,7 +10922,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 	}
 
 	// If prophet has started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
+	if (m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
 		return false;
 	}
@@ -12810,8 +12816,8 @@ bool CvUnit::canGoldenAge(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
+	// If prophet has started spreading religion, can't do other functions
+	if (m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
 		return false;
 	}
@@ -12974,8 +12980,8 @@ bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) con
 		return false;
 	}
 
-	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
+	// If prophet has started spreading religion, can't do other functions
+	if (m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
 		return false;
 	}
@@ -13366,13 +13372,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		return false;
 
 	// If prophet has started spreading religion, can't do other functions
-	if (m_pUnitInfo->IsSpreadReligion())
-	{
-		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed() > 0)
-		{
-			return false;
-		}
-	}
+	if (m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed() > 0)
+		return false;
 
 	if (!pPlot)
 		return true;
@@ -13576,11 +13577,12 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 
 				bool bIndiaException = false;
-				ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
-				if (eImprovement == eHolySite && GET_PLAYER(getOwner()).GetPlayerTraits()->IsProphetFervor())
+				if (m_pUnitInfo->IsFoundReligion() && GET_PLAYER(getOwner()).GetPlayerTraits()->IsProphetFervor())
 				{
 					GetReligionDataMutable()->IncrementSpreadsUsed();
-					if (GetReligionData()->GetSpreadsLeft(this) > 0)
+
+					// Test for > 1 total spreads here, not spreads left, because it's possible to create a Holy Site before founding a religion
+					if (getUnitInfo().GetReligionSpreads() > 1)
 						bIndiaException = true;
 
 					if (bIndiaException && pPlot->isActiveVisible())

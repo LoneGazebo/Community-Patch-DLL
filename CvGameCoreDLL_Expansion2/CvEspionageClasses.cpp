@@ -9296,6 +9296,23 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		if (pMinorCapital->IsRazing())
 			continue;
 
+		//Is there a proposal (not resolution) involving a Sphere of Influence or Open Door?
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		bool bBlockingProposal = false;
+		if (pLeague != NULL) 
+		{
+			for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+			{
+				if ((it->GetEffects()->bSphereOfInfluence || it->GetEffects()->bOpenDoor) && it->GetProposerDecision()->GetDecision() == eTargetPlayer)
+				{
+					bBlockingProposal = true;
+					break;
+				}
+			}
+		}
+		if (bBlockingProposal)
+			continue;
+
 		CivApproachTypes eApproach = pDiploAI->GetCivApproach(eTargetPlayer);
 
 		// how much influence for rigging an election (not taking into account streaks)
@@ -9774,6 +9791,28 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 					strMsg.Format("Re-eval: minor civ at war, %d,", ui);
 					strMsg += GetLocalizedText(pCity->getNameKey());
 					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
+			//Is there a proposal (not resolution) involving a Sphere of Influence or Open Door?
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL) 
+			{
+				for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+				{
+					if ((it->GetEffects()->bSphereOfInfluence || it->GetEffects()->bOpenDoor) && it->GetProposerDecision()->GetDecision() == pCity->getOwner())
+					{
+						CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+						pSpy->m_bEvaluateReassignment = true;
+						if (GC.getLogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Re-eval: SoI or Open Door resolution proposed, %d,", ui);
+							strMsg += GetLocalizedText(pCity->getNameKey());
+							pEspionage->LogEspionageMsg(strMsg);
+						}
+						break;
+					}
 				}
 			}
 		}

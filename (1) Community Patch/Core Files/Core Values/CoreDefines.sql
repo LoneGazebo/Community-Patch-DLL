@@ -1497,6 +1497,7 @@ INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_VASSAL_MASTER_CITY_PERCENT_T
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD', 60;
 
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_CAPITULATE_BASE_THRESHOLD', 100; -- How likely is a vassal to voluntarily capitulate?
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_LIBERATE_BASE_THRESHOLD', 100; -- How likely is a master to voluntarily liberate a vassal?
 
 -- Border growth tile selection
 UPDATE Defines SET Value = 200 WHERE Name = 'PLOT_INFLUENCE_RING_COST';

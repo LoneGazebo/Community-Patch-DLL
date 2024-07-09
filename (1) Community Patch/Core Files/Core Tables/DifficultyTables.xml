@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-	The following is a list of all values that can be added to each difficulty level.
+	For a list of all values that can be added to each difficulty level, see the end of this file.
 	The default value is what the game will use if the value is not specified in this table.
 
 	NOTE: The following values must be specified for all difficulty levels, or they will default to 0:
@@ -17,226 +17,8 @@
 	- AIWorldTrainPercent
 	- AIConstructPercent
 	- AICreatePercent
-
-    [Player Bonuses]
-	MapPlacementPriority: Determines the order in which players are added to pregenerated maps. Lower numbers = higher priority. Default 3.
-	StartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
-	StartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
-	AdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
-	HappinessDefault: Free Global Happiness. Default 0.
-	HappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
-	ExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
-	EmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
-	PopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
-	FreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
-	MaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
-	UnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
-	UnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
-	UnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
-	UnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
-	UnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with UnitSupplyBonusPercent. Default 0.
-	UnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with UnitSupplyPerEraModifier. Default 0.
-	StartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
-	StartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
-	StartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
-	StartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
-	WorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
-	ImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 0; the normal value must be specified.
-	BuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
-	UnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
-	InflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
-	UnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 100.
-	UnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with UnitUpgradePercent. Default 0.
-	GrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
-	GrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with GrowthPercent. Default 0.
-	ResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 0; the normal value must be specified.
-	ResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with ResearchPercent. Default 0.
-	TechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
-	PolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 0; the normal value must be specified.
-	PolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with PolicyPercent. Default 0.
-	PolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
-	ProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
-	GreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
-	GoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
-	CivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
-	CivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CivilianPercent. Default 0.
-	TrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
-	TrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with TrainPercent. Default 0.
-	WorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 100.
-	ConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
-	ConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with ConstructPercent. Default 0.
-	WorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 100.
-	CreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
-	CreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CreatePercent. Default 0.
-	WorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 100.
-	ProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
-	ProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with ProcessBonus and other modifiers to Process yields. Default 0.
-	FreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
-	FreeXPPercent: % modifier to XP gained from combat. Default 0.
-	FreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with FreeXPPercent. Default 0.
-	CombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
-	ResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against this player when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
-	VisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
-	DifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_PLAYER_TURNS_PASSED trigger will occur for this player every DifficultyBonusTurnInterval turns. Default 0.
-
-	[AI Bonuses]
-	AIStartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
-	AIStartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
-	AIAdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
-	AIHappinessDefault: Free Global Happiness. Default 0.
-	AIHappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
-	AIExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
-	AIEmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
-	AIPopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
-	AIFreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
-	AIMaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
-	AIUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
-	AIUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
-	AIUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
-	AIUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
-	AIUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with AIUnitSupplyBonusPercent. Default 0.
-	AIUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with AIUnitSupplyPerEraModifier. Default 0.
-	AIStartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
-	AIStartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
-	AIStartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
-	AIStartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
-	AIWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
-	AIImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 100.
-	AIBuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
-	AIUnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
-	AIInflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
-	AIUnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 0; the normal value must be specified.
-	AIUnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with AIUnitUpgradePercent. Default 0.
-	AIGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 0; the normal value must be specified.
-	AIGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with AIGrowthPercent. Default 0.
-	AIResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 100.
-	AIResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with AIResearchPercent. Default 0.
-	AITechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
-	AIPolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 100.
-	AIPolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with AIPolicyPercent. Default 0.
-	AIPolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
-	AIProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
-	AIGreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
-	AIGoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
-	AICivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
-	AICivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with AICivilianPercent. Default 0.
-	AITrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 0; the normal value must be specified.
-	AITrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with AITrainPercent. Default 0.
-	AIWorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
-	AIConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 0; the normal value must be specified.
-	AIConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with AIConstructPercent. Default 0.
-	AIWorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
-	AICreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 0; the normal value must be specified.
-	AICreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with AICreatePercent. Default 0.
-	AIWorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 0; the normal value must be specified.
-	AIProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
-	AIProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with AIProcessBonus and other modifiers to Process yields. Default 0.
-	AIFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
-	AIFreeXPPercent: % modifier to XP gained from combat. Default 0.
-	AIFreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with AIFreeXPPercent. Default 0.
-	AICombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
-	AIResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against the AI when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
-	AIVisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
-	AIDifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_AI_TURNS_PASSED trigger will occur for this player every AIDifficultyBonusTurnInterval turns. Default 0.
-
-	[City-States]
-	StartingCityStateWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
-	StartingCityStateDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
-	CityStateUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
-	CityStateUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
-	CityStateUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
-	CityStateUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
-	CityStateUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with CityStateUnitSupplyBonusPercent. Default 0.
-	CityStateUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with CityStateUnitSupplyPerEraModifier. Default 0.
-	CityStateWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
-	CityStateGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
-	CityStateGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with CityStateGrowthPercent. Default 0.
-	CityStateCivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
-	CityStateCivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateCivilianPercent. Default 0.
-	CityStateTrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
-	CityStateTrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateTrainPercent. Default 0.
-	CityStateConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
-	CityStateConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with CityStateConstructPercent. Default 0.
-	CityStateCreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
-	CityStateCreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CityStateCreatePercent. Default 0.
-	CityStateFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
-	CityStateFreeXPPercent: % modifier to XP gained from combat. Default 0.
-	CityStateCombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
-	CityStateVisionBonus: Extra Sight (in tiles) given to this City-State's non-trade units. Default 0.
-
-	[Barbarians]
-	EarliestBarbarianReleaseTurn: The earliest game turn # that Barbarians can enter owned tiles, enter tiles with Settler units, or spawn from events. A random number between 0 and 14 is added to this number. Default 0.
-	BonusVSBarbarians: Human players' combat bonus VS Barbarians. Default 0.
-	AIBonusVSBarbarians: AI players' combat bonus VS Barbarians. Default 0.
-	BarbarianCampGold: The amount of Gold that human players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
-	AIBarbarianCampGold: The amount of Gold that AI players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
-	BarbarianSpawnDelay: The # of base turns added to the spawn timer of Barbarian units from Encampments and Cities. Scales with game speed. Default 0.
-	BarbarianLandTargetRange: Pathfinder range for land Barbarian units (they will roam towards a target up to BarbarianLandTargetRange turns away). Default 0.
-	BarbarianSeaTargetRange: Pathfinder range for sea Barbarian units (they will roam towards a target up to BarbarianSeaTargetRange turns away). Default 0.
-
-	[AI Behavior Modifiers]
-	- Weighted Randomized Choices -
-	CityProductionChoiceCutoffThreshold: The % of the top scoring choice that a City Production choice must have to be included in the weighted randomization. Default 90.
-	TechChoiceCutoffThreshold: The % of the top scoring choice that a Technology choice must have to be included in the weighted randomization. Default 90.
-	PolicyChoiceCutoffThreshold: The % of the top scoring choice that a Policy choice must have to be included in the weighted randomization. Default 90.
-	BeliefChoiceCutoffThreshold: The % of the top scoring choice that a Belief choice must have to be included in the weighted randomization. Default 90.
-
-	- Tactical AI -
-	TacticalSimMaxCompletedPositions: Controls the Tactical AI simulator's search depth. Default 512.
-	TacticalSimMaxBranches: Controls the Tactical AI simulator's search depth. Default 4.
-	TacticalSimMaxChoicesPerUnit: Controls the Tactical AI simulator's search depth. Default 4.
-
-	- Diplomacy AI -
-	LandDisputePercent: Controls how aggressive the AI is about territorial disputes and reckless expansion (100 = normal aggression). Default 100.
-	WonderDisputePercent: Controls how aggressive the AI is about World Wonder competition (100 = normal aggression). Default 100.
-	MinorCivDisputePercent: Controls how aggressive the AI is about City-State Influence competition (100 = normal aggression). Default 100.
-	VictoryDisputePercent: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
-	VictoryDisputeMod: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled). Default 0.
-	VictoryBlockPercent: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
-	VictoryBlockMod: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled). Default 0.
-	WonderBlockPercent: Controls how aggressive the AI is about World Wonder spamming (100 = normal aggression). Default 100.
-	WonderBlockMod: Added to the threshold at which the AI will consider another player to be World Wonder spamming. Default 0.
-	TechBlockPercent: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled; 100 = normal aggression). Default 100.
-	TechBlockMod: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled). Default 0.
-	PolicyBlockPercent: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled; 100 = normal aggression). Default 100.
-	PolicyBlockMod: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled). Default 0.
-	PeaceTreatyDampenerTurns: Controls for how many turns after a Peace Treaty is signed the AI will be docile for, but also unwilling to make Declarations of Friendship or Defensive Pacts. Default 20.
-	AggressionIncrease: A value which, if above 0, increases AI's desire to expand and its diplomatic aggression towards players that it has an unfavorable Opinion of. Default 0.
-	HumanStrengthPerceptionMod: % modifier to the strength perception of human players. If the human is doing poorly enough, this modifier may only be partially applied, or not at all. Default 0.
-	HumanTradeModifier: % modifier to the selling price of AI items in trade when selling to human players. Default 0.
-	HumanOpinionChange: Change to the AI's Opinion score for human players. Negative = good, positive = bad. Default 0.
-	HumanWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanNeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanNeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	HumanFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	HumanFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for human players. High values do not guarantee adopting the approach. Default 0.
-	AIOpinionChange: Change to the AI's Opinion score for AI players. Negative = good, positive = bad. Default 0.
-	AIWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AIHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AIDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AIGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AIAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AINeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AINeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for AI players. High values do not guarantee adopting the approach. Default 0.
-	AIFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
-	AIFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for AI players. High values do not guarantee adopting the approach. Default 0.
 -->
 <GameData>
-	<!-- Table data -->
 	<HandicapInfos>
 		<Row>
 			<ID>0</ID>
@@ -1065,348 +847,224 @@
 			<TechType>TECH_ARCHERY</TechType>
 		</Row>
 	</HandicapInfo_AIFreeTechs>
-	<HandicapInfo_Goodies>
-		<!-- Settler -->
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Rewards exclusive to Settler -->
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_WORKER</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_SETTLER</GoodyType>
-		</Row>
-		<!-- Chieftain -->
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Warlord -->
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Prince -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- King -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Emperor -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Immortal -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- Deity -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<!-- AI Players -->
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-	</HandicapInfo_Goodies>
 </GameData>
+<!--
+	Below is a list of all values that can be added to each difficulty level.
+
+    [Player Bonuses]
+	MapPlacementPriority: Determines the order in which players are added to pregenerated maps. Lower numbers = higher priority. Default 3.
+	StartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
+	StartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
+	AdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
+	HappinessDefault: Free Global Happiness. Default 0.
+	HappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
+	ExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
+	EmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
+	PopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
+	FreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
+	MaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
+	UnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	UnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	UnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	UnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	UnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with UnitSupplyBonusPercent. Default 0.
+	UnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with UnitSupplyPerEraModifier. Default 0.
+	StartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
+	StartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	StartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	StartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
+	WorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	ImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	BuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	UnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	InflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
+	UnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 100.
+	UnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with UnitUpgradePercent. Default 0.
+	GrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
+	GrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with GrowthPercent. Default 0.
+	ResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 0; the normal value must be specified.
+	ResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with ResearchPercent. Default 0.
+	TechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
+	PolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 0; the normal value must be specified.
+	PolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with PolicyPercent. Default 0.
+	PolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
+	ProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
+	GreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
+	GoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
+	CivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	CivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CivilianPercent. Default 0.
+	TrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
+	TrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with TrainPercent. Default 0.
+	WorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 100.
+	ConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
+	ConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with ConstructPercent. Default 0.
+	WorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 100.
+	CreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
+	CreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CreatePercent. Default 0.
+	WorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 100.
+	ProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
+	ProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with ProcessBonus and other modifiers to Process yields. Default 0.
+	FreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	FreeXPPercent: % modifier to XP gained from combat. Default 0.
+	FreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with FreeXPPercent. Default 0.
+	CombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	ResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against this player when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
+	VisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
+	DifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_PLAYER_TURNS_PASSED trigger will occur for this player every DifficultyBonusTurnInterval turns. Default 0.
+
+	[AI Bonuses]
+	AIStartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
+	AIStartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
+	AIAdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
+	AIHappinessDefault: Free Global Happiness. Default 0.
+	AIHappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
+	AIExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
+	AIEmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
+	AIPopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
+	AIFreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
+	AIMaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
+	AIUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	AIUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	AIUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	AIUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	AIUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with AIUnitSupplyBonusPercent. Default 0.
+	AIUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with AIUnitSupplyPerEraModifier. Default 0.
+	AIStartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
+	AIStartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	AIStartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	AIStartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
+	AIWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	AIImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 100.
+	AIBuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	AIUnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	AIInflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
+	AIUnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 0; the normal value must be specified.
+	AIUnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with AIUnitUpgradePercent. Default 0.
+	AIGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 0; the normal value must be specified.
+	AIGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with AIGrowthPercent. Default 0.
+	AIResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 100.
+	AIResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with AIResearchPercent. Default 0.
+	AITechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
+	AIPolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 100.
+	AIPolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with AIPolicyPercent. Default 0.
+	AIPolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
+	AIProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
+	AIGreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
+	AIGoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
+	AICivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	AICivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with AICivilianPercent. Default 0.
+	AITrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 0; the normal value must be specified.
+	AITrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with AITrainPercent. Default 0.
+	AIWorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AIConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 0; the normal value must be specified.
+	AIConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with AIConstructPercent. Default 0.
+	AIWorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AICreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 0; the normal value must be specified.
+	AICreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with AICreatePercent. Default 0.
+	AIWorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AIProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
+	AIProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with AIProcessBonus and other modifiers to Process yields. Default 0.
+	AIFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	AIFreeXPPercent: % modifier to XP gained from combat. Default 0.
+	AIFreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with AIFreeXPPercent. Default 0.
+	AICombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	AIResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against the AI when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
+	AIVisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
+	AIDifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_AI_TURNS_PASSED trigger will occur for this player every AIDifficultyBonusTurnInterval turns. Default 0.
+
+	[City-States]
+	StartingCityStateWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	StartingCityStateDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	CityStateUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	CityStateUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	CityStateUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	CityStateUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	CityStateUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with CityStateUnitSupplyBonusPercent. Default 0.
+	CityStateUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with CityStateUnitSupplyPerEraModifier. Default 0.
+	CityStateWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	CityStateGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
+	CityStateGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with CityStateGrowthPercent. Default 0.
+	CityStateCivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	CityStateCivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateCivilianPercent. Default 0.
+	CityStateTrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
+	CityStateTrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateTrainPercent. Default 0.
+	CityStateConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
+	CityStateConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with CityStateConstructPercent. Default 0.
+	CityStateCreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
+	CityStateCreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CityStateCreatePercent. Default 0.
+	CityStateFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	CityStateFreeXPPercent: % modifier to XP gained from combat. Default 0.
+	CityStateCombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	CityStateVisionBonus: Extra Sight (in tiles) given to this City-State's non-trade units. Default 0.
+
+	[Barbarians]
+	EarliestBarbarianReleaseTurn: The earliest game turn # that Barbarians can enter owned tiles, enter tiles with Settler units, or spawn from events. A random number between 0 and 14 is added to this number. Default 0.
+	BonusVSBarbarians: Human players' combat bonus VS Barbarians. Default 0.
+	AIBonusVSBarbarians: AI players' combat bonus VS Barbarians. Default 0.
+	BarbarianCampGold: The amount of Gold that human players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
+	AIBarbarianCampGold: The amount of Gold that AI players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
+	BarbarianSpawnDelay: The # of base turns added to the spawn timer of Barbarian units from Encampments and Cities. Scales with game speed. Default 0.
+	BarbarianLandTargetRange: Pathfinder range for land Barbarian units (they will roam towards a target up to BarbarianLandTargetRange turns away). Default 0.
+	BarbarianSeaTargetRange: Pathfinder range for sea Barbarian units (they will roam towards a target up to BarbarianSeaTargetRange turns away). Default 0.
+
+	[AI Behavior Modifiers]
+	- Weighted Randomized Choices -
+	CityProductionChoiceCutoffThreshold: The % of the top scoring choice that a City Production choice must have to be included in the weighted randomization. Default 90.
+	TechChoiceCutoffThreshold: The % of the top scoring choice that a Technology choice must have to be included in the weighted randomization. Default 90.
+	PolicyChoiceCutoffThreshold: The % of the top scoring choice that a Policy choice must have to be included in the weighted randomization. Default 90.
+	BeliefChoiceCutoffThreshold: The % of the top scoring choice that a Belief choice must have to be included in the weighted randomization. Default 90.
+
+	- Tactical AI -
+	TacticalSimMaxCompletedPositions: Controls the Tactical AI simulator's search depth. Default 512.
+	TacticalSimMaxBranches: Controls the Tactical AI simulator's search depth. Default 4.
+	TacticalSimMaxChoicesPerUnit: Controls the Tactical AI simulator's search depth. Default 4.
+
+	- Diplomacy AI -
+	LandDisputePercent: Controls how aggressive the AI is about territorial disputes and reckless expansion (100 = normal aggression). Default 100.
+	WonderDisputePercent: Controls how aggressive the AI is about World Wonder competition (100 = normal aggression). Default 100.
+	MinorCivDisputePercent: Controls how aggressive the AI is about City-State Influence competition (100 = normal aggression). Default 100.
+	VictoryDisputePercent: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
+	VictoryDisputeMod: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled). Default 0.
+	VictoryBlockPercent: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
+	VictoryBlockMod: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled). Default 0.
+	WonderBlockPercent: Controls how aggressive the AI is about World Wonder spamming (100 = normal aggression). Default 100.
+	WonderBlockMod: Added to the threshold at which the AI will consider another player to be World Wonder spamming. Default 0.
+	TechBlockPercent: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled; 100 = normal aggression). Default 100.
+	TechBlockMod: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled). Default 0.
+	PolicyBlockPercent: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled; 100 = normal aggression). Default 100.
+	PolicyBlockMod: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled). Default 0.
+	PeaceTreatyDampenerTurns: Controls for how many turns after a Peace Treaty is signed the AI will be docile for, but also unwilling to make Declarations of Friendship or Defensive Pacts. Default 20.
+	AggressionIncrease: A value which, if above 0, increases AI's desire to expand and its diplomatic aggression towards players that it has an unfavorable Opinion of. Default 0.
+	HumanStrengthPerceptionMod: % modifier to the strength perception of human players (EXCLUDING NUKES). If the human is doing poorly enough, this modifier may only be partially applied, or not at all. Default 0.
+	HumanTradeModifier: % modifier to the selling price of AI items in trade when selling to human players. Default 0.
+	HumanOpinionChange: Change to the AI's Opinion score for human players. Negative = good, positive = bad. Default 0.
+	HumanWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanNeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanNeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	AIOpinionChange: Change to the AI's Opinion score for AI players. Negative = good, positive = bad. Default 0.
+	AIWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AINeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AINeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+-->

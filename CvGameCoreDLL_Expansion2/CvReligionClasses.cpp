@@ -1232,8 +1232,8 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
 			bool bSubtractOne = false;
-			// If player is India, subtract one charge from the prophet who founded
-			if (kPlayer.GetPlayerTraits()->IsProphetFervor() && pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsUsed() > 0)
+			// If player is India, subtract one charge from any prophets who used one (either by founding or by building a Holy Site)
+			if (kPlayer.GetPlayerTraits()->IsProphetFervor() && pLoopUnit->GetReligionData()->GetSpreadsUsed() > 0)
 				bSubtractOne = true;
 
 			pLoopUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(), pLoopUnit->getUnitInfo(), eReligion);
@@ -1241,7 +1241,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			if (bSubtractOne)
 			{
 				pLoopUnit->GetReligionDataMutable()->IncrementSpreadsUsed();
-				if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) <= 0)
+				if (pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) <= 0)
 				{
 					kPlayer.DoGreatPersonExpended(pLoopUnit->getUnitType(), pLoopUnit);
 					pLoopUnit->kill(true);
@@ -7011,8 +7011,8 @@ bool CvReligionAI::DoFaithPurchases()
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
-			if ( pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
+		if (pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
+			if (pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
 				iNumMissionaries++;
 	}
 
@@ -8173,6 +8173,9 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool b
 
 int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 {
+	if (m_pPlayer->getCapitalCity() == NULL)
+		return 0;
+
 	// the different yield types are valued using ScoreYieldForReligionTimes100
 	// happiness is valued with iHappinessNeedFactor (see below)
 	// great person points are valued with iGPValue (see below)
@@ -8637,6 +8640,9 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 /// AI's evaluation of this belief's usefulness at this city
 int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 {
+	if (m_pPlayer->getCapitalCity() == NULL)
+		return 0;
+
 	int iRtnValue = 0;
 	int iTempValue = 0;
 	int iMinPop = 0;

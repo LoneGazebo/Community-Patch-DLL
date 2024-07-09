@@ -6398,7 +6398,7 @@ bool CvGame::IsNuclearGandhiEnabled() const
 	if (isNoNukes())
 		return false;
 
-	if (isOption(GAMEOPTION_RANDOM_PERSONALITIES) && GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) < 1)
+	if (isOption(GAMEOPTION_RANDOM_PERSONALITIES) && GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) < 2)
 		return false;
 
 	return GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) > 0;

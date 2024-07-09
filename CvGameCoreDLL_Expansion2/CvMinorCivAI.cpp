@@ -3618,8 +3618,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 	bool bRevoked = IsRevoked();
 	bool bExpired = IsExpired();
 
-	Localization::String strMessage;
-	Localization::String strSummary;
+	// General "Quest Expired" catch statement, overridden below
+	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_OTHER");
+	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_OTHER");
 	CivsList veNamesToShow;
 
 	// If quest was revoked due to bullying, notification is handled elsewhere (to allow condensing)
@@ -3762,12 +3763,17 @@ bool CvMinorCivQuest::DoCancelQuest()
 	case MINOR_CIV_QUEST_LIBERATION:
 	{
 		CvPlot* pPlot = GC.getMap().plot(m_iData1, m_iData2);
-		const char* strTargetNameKey = pPlot->getPlotCity()->getNameKey();
+		PlayerTypes eTargetPlayer = (PlayerTypes)m_iData3;
+		CvCity* pCity = pPlot->getPlotCity();
+		if (pCity && pCity->getOriginalOwner() == eTargetPlayer)
+		{
+			const char* strTargetNameKey = pCity->getNameKey();
 
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_LIBERATION");
-		strMessage << strTargetNameKey;
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_LIBERATION");
-		strSummary << strTargetNameKey;
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_LIBERATION");
+			strMessage << strTargetNameKey;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_LIBERATION");
+			strSummary << strTargetNameKey;
+		}
 		break;
 	}
 	case MINOR_CIV_QUEST_HORDE:
@@ -3853,12 +3859,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 		break;
 	}
 	default:
-	{
-		// General "Quest Expired" catch statement
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_OTHER");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_OTHER");
 		break;
-	}
 	}
 
 	strMessage << pMinor->getNameKey();

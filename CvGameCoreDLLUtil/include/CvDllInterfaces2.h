@@ -103,8 +103,7 @@ public:
 	virtual void DLLCALL ResponseGoodyChoice(PlayerTypes ePlayer, int iPlotX, int iPlotY, GoodyTypes eGoody, int iUnitID) = 0;
 	virtual void DLLCALL ResponseSetSwappableGreatWork(PlayerTypes ePlayer, int iWorkClass, int iWorkIndex) = 0;
 	virtual void DLLCALL ResponseSwapGreatWorks(PlayerTypes ePlayer1, int iWorkIndex1, PlayerTypes PlayerTypes2, int iWorkIndex2) = 0;
-	virtual void DLLCALL ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
-																																	 int iCity2, int iBuildingClass2, int iWorkIndex2) = 0;
+	virtual void DLLCALL ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2) = 0;
 	virtual void DLLCALL ResponseChangeIdeology(PlayerTypes ePlayer) = 0;
 };
 

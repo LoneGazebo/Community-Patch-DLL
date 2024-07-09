@@ -6431,7 +6431,10 @@ void CvPlayerPolicies::DoPolicyAI()
 {
 	CvString strBuffer;
 
+	// Force an ideology update for human vassals, if applicable
 	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
+	if (m_pPlayer->isHuman())
+		return;
 
 	// Do we have enough points to buy a new policy?
 	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
