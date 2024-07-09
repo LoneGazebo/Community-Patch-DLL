@@ -55614,13 +55614,13 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLi
 			// Check strength compared to us - care only about the highest
 			// Do not liberate if stronger than us - could be a threat
 			StrengthTypes eStrength = pDiplo->GetRawMilitaryStrengthComparedToUs(eVassal);
-			if (eVassal > STRENGTH_AVERAGE)
+			if (eStrength > STRENGTH_AVERAGE)
 				return false;
 			if (eStrength > eVassalStrength)
 				eVassalStrength = eStrength;
 
 			eStrength = pDiplo->GetEconomicStrengthComparedToUs(eVassal);
-			if (eVassal > STRENGTH_AVERAGE)
+			if (eStrength > STRENGTH_AVERAGE)
 				return false;
 			if (eStrength > eVassalEcoStrength)
 				eVassalEcoStrength = eStrength;
