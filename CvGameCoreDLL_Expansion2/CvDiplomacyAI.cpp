@@ -21969,7 +21969,6 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 		}
 
 		SetMajorCompetitor(ePlayer, false);
-		continue;
 	}
 }
 
@@ -27953,10 +27952,7 @@ bool CvDiplomacyAI::IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueSc
 		return false;
 
 	int iDistanceTurns = GetPlayer()->GetCityDistancePathLength(pTheirClosestCity->plot());
-	if (iDistanceTurns > 23)
-		return false;
-
-	return true;
+	return iDistanceTurns <= 23;
 }
 
 /// How much value can we get from ePlayer if we made a demand of them?

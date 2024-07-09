@@ -1032,7 +1032,6 @@ void CvHomelandAI::ExecuteUnitGift()
 		}
 	}
 
-	return;
 }
 
 /// Try to send a valid unit gift for the specified domain; return true if successful
@@ -1460,7 +1459,6 @@ void CvHomelandAI::PlotUpgradeMoves()
 		}
 	}
 
-	return;
 }
 
 /// Find moves for great writers

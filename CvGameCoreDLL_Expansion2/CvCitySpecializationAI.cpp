@@ -423,7 +423,6 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 		}
 	}
 
-	return;
 }
 
 /// Which city should build the next wonder?
@@ -777,7 +776,6 @@ void CvCitySpecializationAI::AssignSpecializations()
 		LogSpecializationAssignment(pCity, GetEconomicDefaultSpecialization());
 	}
 
-	return;
 }
 
 /// Evaluate strength of an existing city for providing a specific type of yield
