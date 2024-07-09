@@ -133,7 +133,7 @@
 			<Text>If all units are given orders, you can press W to deselect the currently selected unit. This will keep you from accidentally issuing a move order while browsing the map.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_32">
-			<Text>Check the Monopoly Overview before building the East India Company. An extra luxury from the right city might give you a new monopoly.</Text>
+			<Text>Check the Monopoly Overview before building the Chartered Company. An extra luxury from the right city might give you a new monopoly.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_33">
 			<Text>Vox Populi has many shortcuts to simplify repetitive tasks! Check the Civilopedia Game Concepts "Input Shortcuts" section to learn more.</Text>
