@@ -690,7 +690,7 @@ SET Text = 'Unique Dutch {TXT_KEY_UNIT_PRIVATEER} that specializes in attacking 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing the {TXT_KEY_UNIT_PRIVATEER}. It has immense [ICON_STRENGTH] strength against cities, can heal anywhere, and may capture defeated enemy ships. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_ASTRONOMY_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_PRIVATEER}.[NEWLINE][NEWLINE]Make use of the early advantage to take down rival navies and cities, and grow your navy with prize ships!'
+SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing the {TXT_KEY_UNIT_PRIVATEER}. It has immense [ICON_STRENGTH] strength against cities, can heal anywhere, and may capture defeated enemy ships.[NEWLINE][NEWLINE]Make use of its strong promotions to take down rival navies and cities, and grow your navy with prize ships!'
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
