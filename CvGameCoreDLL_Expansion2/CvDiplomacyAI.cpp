@@ -21969,7 +21969,6 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 		}
 
 		SetMajorCompetitor(ePlayer, false);
-		continue;
 	}
 }
 

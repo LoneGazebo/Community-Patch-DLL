@@ -6544,7 +6544,7 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 
 void CvPlayerPolicies::LogFlavorChange(FlavorTypes, int, const char*, bool)
 {
-	return; // Now using personality flavors, so this is unnecessary (or is it?)
+	// Now using personality flavors, so this is unnecessary (or is it?)
 }
 
 // HELPER CLASSES

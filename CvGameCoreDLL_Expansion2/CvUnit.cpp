@@ -6877,7 +6877,7 @@ bool CvUnit::isSetUpForRangedAttack() const
 //	--------------------------------------------------------------------------------
 void CvUnit::setSetUpForRangedAttack(bool /*bValue*/)
 {
-	return; //no longer used
+	//no longer used
 }
 
 //	--------------------------------------------------------------------------------

@@ -6458,8 +6458,6 @@ bool CvCityBuildings::CheckForSevenAncientWondersBuilt()
 void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 {
 	// JON: Disabling this notification
-	return;
-
 	// is this city starting a wonder? If so, send a notification
 	//CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
 	//if (isLimitedWonderClass((BuildingClassTypes)(buildingEntry->GetBuildingClassType())) && GetBuildingProductionTimes100(eIndex) == 0)

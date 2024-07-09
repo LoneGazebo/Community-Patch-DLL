@@ -164,7 +164,6 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		AI_setChooseProductionDirty(false);
 	}
 
-	return;
 }
 
 bool CvCityAI::AI_isChooseProductionDirty()

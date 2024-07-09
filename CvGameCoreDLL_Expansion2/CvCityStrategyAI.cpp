@@ -1167,8 +1167,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		kPlayer.GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
 	else
 		kPlayer.GetMilitaryAI()->BumpNumberOfTimesSettlerBuildSkippedOver();
-
-	return;
 }
 
 /// Pick the next build for a city (unit, building)

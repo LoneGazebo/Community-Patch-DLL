@@ -6055,7 +6055,6 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 		}
 	}
 	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
-	return;
 }
 
 void CvCityCulture::CalculateBaseTourism()
