@@ -331,6 +331,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		}
 
 		int iScore = GET_PLAYER(eTeamMember).GetScore();
+		if (GET_PLAYER(eTeamMember).GetDiplomacyAI()->IsCloseToCultureVictory())
+			iScore += 100000;
+
 		if (iScore > iBestScore && iScore * 2 >= iMyScore * 3) // Must be at least 50% higher to justify this
 		{
 			eTeamLeader = eTeamMember;
@@ -847,6 +850,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			}
 
 			int iScore = GET_PLAYER(eTeamMember).GetScore();
+			if (GET_PLAYER(eTeamMember).GetDiplomacyAI()->IsCloseToCultureVictory())
+				iScore += 100000;
+
 			if (iScore > iBestScore && iScore * 2 >= iMyScore * 3) // Must be at least 50% higher to justify this
 			{
 				eTeamLeader = eTeamMember;
