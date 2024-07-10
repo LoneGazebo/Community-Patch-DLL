@@ -11721,7 +11721,7 @@ bool CvReligionAIHelpers::PassesTeammateReligionCheck(ReligionTypes eReligion, P
 			}
 		}
 	}
-	else
+	else if (pReligion)
 	{
 		eController = pReligion->m_eFounder;
 	}

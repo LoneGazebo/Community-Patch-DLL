@@ -18434,7 +18434,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							}
 						}
 					}
-					else
+					else if (pReligion)
 					{
 						eController = pReligion->m_eFounder;
 					}
@@ -47809,6 +47809,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			// Someone else's?
 			else
 			{
+				// Who controls the Holy City?
 				PlayerTypes eController = NO_PLAYER;
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
 				if (MOD_BALANCE_VP)
@@ -47822,7 +47823,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 						}
 					}
 				}
-				else
+				else if (pReligion)
 				{
 					eController = pReligion->m_eFounder;
 				}
