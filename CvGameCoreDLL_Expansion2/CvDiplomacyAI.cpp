@@ -27762,6 +27762,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			break;
 		case CIV_APPROACH_NEUTRAL:
 			iWeight += -10;
+			break;
 		default:
 			UNREACHABLE();
 		}
