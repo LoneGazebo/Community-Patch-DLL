@@ -1643,8 +1643,6 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
 
-		iValue /= 10;
-
 		AddRouteOrRepairDirective(aDirectives, pPlot, eRoute, iValue, plotPurposes[pPlot]);
 	}
 
@@ -2015,8 +2013,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		{
 			continue;
 		}
-
-		iScore /= 10;
 		
 		if (iScore > iMinScore)
 		{
@@ -2105,8 +2101,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
 		iWeight *= 10;
-
-	iWeight /= 10;
 
 	BuilderDirective directive(BuilderDirective::REMOVE_ROAD, m_eRemoveRouteBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 
@@ -2389,8 +2383,6 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 
 	int iWeight = ScorePlotBuild(pPlot, pPlot->getImprovementType(), m_eRepairBuild);
 
-	iWeight /= 10;
-
 	if (iWeight > 0)
 	{
 		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
@@ -2440,8 +2432,6 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 	if(pPlot->getFeatureType() == m_eFalloutFeature && m_pPlayer->canBuild(pPlot, m_eFalloutRemove))
 	{
 		int iWeight =/*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT);
-
-		iWeight /= 10;
 
 		BuilderDirective directive(BuilderDirective::CHOP, m_eFalloutRemove, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
@@ -3054,26 +3044,72 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	//Improvement grants or connects resource
 	//Don't give any bonus if we are creating a resource on top of an existing one
-	if (pOwningCity && ((eResourceFromImprovement != NO_RESOURCE && eResource == NO_RESOURCE) || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource))))
+	bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
+	bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
+	bool bNewCreatesResource = eResourceFromImprovement != NO_RESOURCE;
+	bool bNewConnectsResource = eNaturalResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eNaturalResource);
+	if (pOwningCity)
 	{
-		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
-		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
-		int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount, iExtraResource);
-		iSecondaryScore += iResourceWeight;
-
-		CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);
-		//amp up monopoly alloc!
-		if (pkConnectedResource && pkConnectedResource->isMonopoly())
+		ResourceTypes eRemovedResource = NO_RESOURCE;
+		ResourceTypes eCreatedResource = NO_RESOURCE;
+		if (bOldCreatedResource)
 		{
-			if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			eRemovedResource = eResourceFromOldImprovement;
+		}
+		if (bOldConnectedResource && !bNewConnectsResource)
+		{
+			eRemovedResource = eNaturalResource;
+		}
+		if (!bOldConnectedResource && bNewConnectsResource)
+		{
+			eCreatedResource = eNaturalResource;
+		}
+		if (bNewCreatesResource)
+		{
+			eCreatedResource = eResourceFromImprovement;
+		}
+
+		if (eCreatedResource)
+		{
+			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+			int iResourceWeight = GetResourceWeight(eCreatedResource, iResourceAmount, iExtraResource);
+			iSecondaryScore += iResourceWeight;
+
+			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eCreatedResource);
+			//amp up monopoly alloc!
+			if (pkConnectedResource && pkConnectedResource->isMonopoly())
 			{
-				if (m_pPlayer->GetMonopolyPercent(eConnectedResource) > 0 && m_pPlayer->GetMonopolyPercent(eConnectedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
-					iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eConnectedResource)) / 25;
+				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eCreatedResource) > 0 && m_pPlayer->GetMonopolyPercent(eCreatedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eCreatedResource)) / 25;
+				}
+				else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eCreatedResource) > 0 && m_pPlayer->GetMonopolyPercent(eCreatedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eCreatedResource)) / 25;
+				}
 			}
-			else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		}
+		if (eRemovedResource)
+		{
+			int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+			int iResourceWeight = GetResourceWeight(eRemovedResource, iResourceAmount, iExtraResource);
+			iSecondaryScore -= iResourceWeight;
+
+			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eRemovedResource);
+			if (pkConnectedResource && pkConnectedResource->isMonopoly())
 			{
-				if (m_pPlayer->GetMonopolyPercent(eConnectedResource) > 0 && m_pPlayer->GetMonopolyPercent(eConnectedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
-					iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eConnectedResource)) / 25;
+				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eRemovedResource) > 0 && m_pPlayer->GetMonopolyPercent(eRemovedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore -= (iResourceWeight * m_pPlayer->GetMonopolyPercent(eRemovedResource)) / 25;
+				}
+				else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eRemovedResource) > 0 && m_pPlayer->GetMonopolyPercent(eRemovedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore -= (iResourceWeight * m_pPlayer->GetMonopolyPercent(eRemovedResource)) / 25;
+				}
 			}
 		}
 	}
@@ -3129,8 +3165,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 
 	// Do we want a canal here?
-	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && WantCanalAtPlot(pPlot) && pkImprovementInfo->GetNearbyEnemyDamage() == 0)
-		iSecondaryScore += 3000;
+	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+	{
+		if (pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && (pkImprovementInfo->GetNearbyEnemyDamage() == 0 || eBuild == NO_BUILD))
+			iSecondaryScore += 3000;
+		if (pkOldImprovementInfo && pkOldImprovementInfo->IsMakesPassable())
+			iSecondaryScore -= 3000;
+	}
 
 	// TODO flesh out culture bomb logic and move it from TacticalAI?
 	// Currently this is only for human player recommendations.
