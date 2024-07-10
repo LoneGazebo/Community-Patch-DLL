@@ -2500,6 +2500,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsQuestInfluenceDisabled(GetID()))
 		return 0;
 
+	// Don't compete with our teammates for Influence.
+	PlayerTypes eAlliedPlayer = pMinorCivAI->GetAlly();
+	if (eAlliedPlayer != NO_PLAYER && eAlliedPlayer != GetID() && GET_PLAYER(eAlliedPlayer).getTeam() == getTeam() && GET_PLAYER(eAlliedPlayer).getNumCities() > 0)
+		return 0;
+
 	// They captured one of our cities? Do not raise influence; we want to recapture.
 	if (GetNumOurCitiesOwnedBy(kMinor.GetID()) > 0)
 		return 0;
@@ -2730,7 +2735,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// **************************
 
 	int iFriendshipWithMinor = pMinorCivAI->GetBaseFriendshipWithMajor(GetID());
-	PlayerTypes eAlliedPlayer = pMinorCivAI->GetAlly();
 
 	int iHighestInfluence = 0;
 	// Loop through other players to see if we can pass them in influence

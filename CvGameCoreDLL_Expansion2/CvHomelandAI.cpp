@@ -4522,7 +4522,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		{
 			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
-			if (pUnit->CanRemoveHeresy(pTarget->plot()) && CvReligionAIHelpers::ShouldRemoveHeresy(pTarget,pUnit->GetReligionData()->GetReligion()))
+			if (pUnit->CanRemoveHeresy(pTarget->plot()) && CvReligionAIHelpers::ShouldRemoveHeresy(pTarget,pUnit->GetReligionData()->GetReligion(),m_pPlayer->GetID()))
 			{
 				if (iTargetTurns == 0)
 				{

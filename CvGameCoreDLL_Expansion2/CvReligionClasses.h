@@ -597,7 +597,8 @@ namespace CvReligionAIHelpers
 	CvCity *GetBestCityFaithUnitPurchase(CvPlayer &kPlayer, UnitTypes eUnit, ReligionTypes eReligion);
 	CvCity *GetBestCityFaithBuildingPurchase(CvPlayer &kPlayer, BuildingTypes eBuilding, ReligionTypes eReligion);
 	bool DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, UnitTypes eUnit);
-	bool ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion);
+	bool ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion, PlayerTypes ePlayer);
+	bool PassesTeammateReligionCheck(ReligionTypes eReligion, PlayerTypes ePlayer, bool bMustBeHuman);
 }
 
 #endif //CIV5_RELIGION_CLASSES_H

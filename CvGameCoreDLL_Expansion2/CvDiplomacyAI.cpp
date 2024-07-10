@@ -18420,22 +18420,39 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// Someone else's?
 				else if (!bIgnoreReligionDifferences)
 				{
+					// Who controls the Holy City?
+					PlayerTypes eController = NO_PLAYER;
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
+					if (MOD_BALANCE_VP)
+					{
+						if (pReligion)
+						{
+							CvCity* pHolyCity = pReligion->GetHolyCity();
+							if (pHolyCity != NULL)
+							{
+								eController = pHolyCity->getOwner();
+							}
+						}
+					}
+					else
+					{
+						eController = pReligion->m_eFounder;
+					}
 
-					// If the religion's founder is our teammate, don't apply a penalty if that teammate is still alive.
-					if (!IsTeammate((PlayerTypes)pReligion->m_eFounder) || GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() <= 0)
+					// If the religion's controller is our teammate, don't apply a penalty.
+					if (eController == NO_PLAYER || IsTeammate(eController))
 					{
 						bDifferentReligions = true;
 
-						// If the religion's founder is THEIR teammate, treat it like a state religion.
-						if (pTheirDiplo->IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
+						// If the religion's founder is THEIR teammate, treat it like an opposing state religion.
+						if (eController != NO_PLAYER && pTheirDiplo->IsTeammate(eController))
 						{
 							vApproachScores[CIV_APPROACH_WAR] += (vApproachBias[CIV_APPROACH_WAR] * 2) + iReligiosityScore;
 							vApproachScores[CIV_APPROACH_DECEPTIVE] += (vApproachBias[CIV_APPROACH_DECEPTIVE] * 2) + iReligiosityScore;
 							vApproachScores[CIV_APPROACH_GUARDED] += (vApproachBias[CIV_APPROACH_GUARDED] * 2) + iReligiosityScore;
 
 							// If it's the World Religion and their teammate controls its Holy City, we should work against them
-							if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirStateReligion) > 0)
+							if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(eController, eTheirStateReligion) > 0)
 							{
 								vApproachScores[CIV_APPROACH_WAR] += (vApproachBias[CIV_APPROACH_WAR] * 2) + iReligiosityScore;
 								vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachBias[CIV_APPROACH_HOSTILE] * 2) + iReligiosityScore;
@@ -44195,7 +44212,7 @@ bool CvDiplomacyAI::IsPlayerOpposingReligion(PlayerTypes ePlayer) const
 		return false;
 	
 	if (eOurReligion != eTheirReligion)
-		return true;
+		return CvReligionAIHelpers::PassesTeammateReligionCheck(eTheirReligion, GetID(), false);
 	
 	return false;
 }
@@ -47796,16 +47813,30 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			// Someone else's?
 			else
 			{
+				PlayerTypes eController = NO_PLAYER;
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
-				if (!pReligion)
+				if (MOD_BALANCE_VP)
+				{
+					if (pReligion)
+					{
+						CvCity* pHolyCity = pReligion->GetHolyCity();
+						if (pHolyCity != NULL)
+						{
+							eController = pHolyCity->getOwner();
+						}
+					}
+				}
+				else
+				{
+					eController = pReligion->m_eFounder;
+				}
+
+				// If the religion's founder is our teammate, don't apply a penalty.
+				if (eController != NO_PLAYER && IsTeammate(eController))
 					return 0;
 
-				// If the religion's founder is our teammate, don't apply a penalty if that teammate is still alive.
-				if (IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
-					return 0;
-
-				// If the religion's founder is THEIR teammate, treat it like a state religion.
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
+				// If the religion's founder is THEIR teammate, treat it like an opposing state religion.
+				if (eController != NO_PLAYER && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate(eController))
 				{
 					iOpinionWeight = /*5*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
 

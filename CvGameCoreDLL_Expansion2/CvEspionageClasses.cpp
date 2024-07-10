@@ -9296,6 +9296,11 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		if (pMinorCapital->IsRazing())
 			continue;
 
+		// Don't mess with our teammates' allies.
+		PlayerTypes eAlly = pMinorCivAI->GetAlly();
+		if (eAlly != NO_PLAYER && pDiploAI->IsTeammate(eAlly))
+			continue;
+
 		//Is there a proposal (not resolution) involving a Sphere of Influence or Open Door?
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		bool bBlockingProposal = false;
@@ -9449,7 +9454,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		}
 
 		// Influence status
-		PlayerTypes eAlly = pMinorCivAI->GetAlly();
 		bool bAllied = eAlly == m_pPlayer->GetID();
 		int iAllyInfluence = (eAlly != NO_PLAYER) ? pMinorCivAI->GetFriendshipLevelWithMajor(eAlly) : 0;
 		int iOurInfluence = pMinorCivAI->GetFriendshipLevelWithMajor(m_pPlayer->GetID());
@@ -9789,6 +9793,21 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 				{
 					CvString strMsg;
 					strMsg.Format("Re-eval: minor civ at war, %d,", ui);
+					strMsg += GetLocalizedText(pCity->getNameKey());
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
+			// Don't mess with our teammates' allies.
+			PlayerTypes eAlly = pMinorCivAI->GetAlly();
+			if (eAlly != NO_PLAYER && eAlly != m_pPlayer->GetID() && GET_PLAYER(eAlly).getTeam() == m_pPlayer->getTeam())
+			{
+				CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: teammate is minor civ ally, %d,", ui);
 					strMsg += GetLocalizedText(pCity->getNameKey());
 					pEspionage->LogEspionageMsg(strMsg);
 				}

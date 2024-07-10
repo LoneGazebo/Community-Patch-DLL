@@ -6393,7 +6393,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		int iHeretics = pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion,true) + pLoopCity->GetCityReligions()->GetNumFollowers(NO_RELIGION);
 		int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
-		if (eMajorityReligion == eReligion)
+		if (eMajorityReligion == eReligion || !CvReligionAIHelpers::PassesTeammateReligionCheck(eMajorityReligion, m_pPlayer->GetID(), true))
 			continue;
 		else
 		{
@@ -6476,6 +6476,9 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 
 					ReligionTypes eMajorityReligion = pCR->GetReligiousMajority();
 					if (eMajorityReligion == eReligion)
+						continue;
+
+					if (!CvReligionAIHelpers::PassesTeammateReligionCheck(eMajorityReligion, m_pPlayer->GetID(), false))
 						continue;
 
 					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion));
@@ -10796,7 +10799,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 		}
 	}
 
-	if (pCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+	ReligionTypes eMajorityReligion = pCity->GetCityReligions()->GetReligiousMajority();
+	if (!CvReligionAIHelpers::PassesTeammateReligionCheck(eMajorityReligion, m_pPlayer->GetID(), pCity->getOwner() == m_pPlayer->GetID()))
+		return 0;
+
+	if (eMajorityReligion <= RELIGION_PANTHEON)
 	{
 		//fifty percent bonus if not religion at the moment
 		iScore *= 3;
@@ -10866,7 +10873,7 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	//Inquisitors are more expensive than Missionaries, so don't be overly zealous here
 
 	//Looking to remove heresy?
-	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
+	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion,m_pPlayer->GetID()))
 	{
 		// How much impact would using the inquistor have? let's ignore resilience here ...
 		int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
@@ -10912,7 +10919,7 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 		return 0;
 
 	//sometimes we need more active measures
-	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
+	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion,m_pPlayer->GetID()))
 		return 0;
 
 	//see how much we want to defend passively here
@@ -11661,7 +11668,7 @@ bool CvReligionAIHelpers::DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, Unit
 	return bRtnValue;
 }
 
-bool CvReligionAIHelpers::ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion)
+bool CvReligionAIHelpers::ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueReligion, PlayerTypes ePlayer)
 {
 	ReligionTypes eMajorityReligion = pCity->GetCityReligions()->GetReligiousMajority();
 	if (eMajorityReligion == NO_RELIGION)
@@ -11669,10 +11676,15 @@ bool CvReligionAIHelpers::ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueR
 		ReligionTypes eMostPowerfulReligion = pCity->GetCityReligions()->GetReligionByAccumulatedPressure(0);
 		if (eMostPowerfulReligion <= RELIGION_PANTHEON)
 			return false;
+		if (!CvReligionAIHelpers::PassesTeammateReligionCheck(eMostPowerfulReligion, ePlayer, true))
+			return false;
 		if (eMostPowerfulReligion != eTrueReligion)
 			return true;
 
 		ReligionTypes eRunnerUpReligion = pCity->GetCityReligions()->GetReligionByAccumulatedPressure(1);
+		if (!CvReligionAIHelpers::PassesTeammateReligionCheck(eRunnerUpReligion, ePlayer, true))
+			return false;
+
 		int iPPT1 = pCity->GetCityReligions()->GetPressurePerTurn(eTrueReligion);
 		int iPPT2 = pCity->GetCityReligions()->GetPressurePerTurn(eRunnerUpReligion);
 		//want a missionary if we are losing ground
@@ -11684,11 +11696,41 @@ bool CvReligionAIHelpers::ShouldRemoveHeresy(CvCity* pCity, ReligionTypes eTrueR
 		//never waste an inquisitor on a pantheon city, use a missionary instead
 		return false;
 	}
-	else if (eMajorityReligion != eTrueReligion)
+	else if (eMajorityReligion != eTrueReligion && CvReligionAIHelpers::PassesTeammateReligionCheck(eMajorityReligion, ePlayer, true))
 	{
 		//the easy case
 		return true;
 	}
 
 	return false;
+}
+
+/// Avoid competing with our teammates' religions.
+bool CvReligionAIHelpers::PassesTeammateReligionCheck(ReligionTypes eReligion, PlayerTypes ePlayer, bool bMustBeHuman)
+{
+	PlayerTypes eController = NO_PLAYER;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+	if (MOD_BALANCE_VP)
+	{
+		if (pReligion)
+		{
+			CvCity* pHolyCity = pReligion->GetHolyCity();
+			if (pHolyCity != NULL)
+			{
+				eController = pHolyCity->getOwner();
+			}
+		}
+	}
+	else
+	{
+		eController = pReligion->m_eFounder;
+	}
+
+	if (eController == NO_PLAYER || eController == ePlayer)
+		return true;
+
+	if (bMustBeHuman && !GET_PLAYER(eController).isHuman())
+		return true;
+
+	return GET_PLAYER(eController).getTeam() != GET_PLAYER(ePlayer).getTeam();
 }
