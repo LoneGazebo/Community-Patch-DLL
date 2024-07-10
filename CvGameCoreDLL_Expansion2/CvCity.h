@@ -537,7 +537,7 @@ public:
 	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 
-	int getGrowthMods(CvString* toolTipSink = NULL) const;
+	int getGrowthMods(CvString* toolTipSink = NULL, int iAssumedLocalHappinessChange = 0) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeSpecialists();
 	int GetUnhappinessFromCitySpecialists();
@@ -862,17 +862,17 @@ public:
 	int GetUnhappinessFromOccupation() const;
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromPillagedTiles() const;
-	int GetDistress(bool bForceRecalc) const;
-	int GetDistressRaw(bool bForceRecalc) const;
+	int GetDistress(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
+	int GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const;
-	int GetPoverty(bool bForceRecalc) const;
-	int GetPovertyRaw(bool bForceRecalc) const;
+	int GetPoverty(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
+	int GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const;
-	int GetIlliteracy(bool bForceRecalc) const;
-	int GetIlliteracyRaw(bool bForceRecalc) const;
+	int GetIlliteracy(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
+	int GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const;
-	int GetBoredom(bool bForceRecalc) const;
-	int GetBoredomRaw(bool bForceRecalc) const;
+	int GetBoredom(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
+	int GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetCultureMedian(bool bForceRecalc, int iAdditionalModifier) const;
 	int GetUnhappinessFromReligiousUnrest() const;
 	int GetUnhappinessFromIsolation() const;

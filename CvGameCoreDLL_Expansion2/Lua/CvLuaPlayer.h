@@ -73,6 +73,9 @@ protected:
 	static int lIsResourceCityTradeable(lua_State* L);
 	static int lIsResourceImproveable(lua_State* L);
 	static int lIsResourceRevealed(lua_State* L);
+	static int lGetSpecialistValueCity(lua_State* L);
+	static int lGetCombinedChangeValue(lua_State* L);
+	static int lGetPlotValueCity(lua_State* L);
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
 
