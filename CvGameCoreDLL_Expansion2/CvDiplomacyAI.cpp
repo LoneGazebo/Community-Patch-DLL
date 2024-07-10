@@ -41920,10 +41920,6 @@ bool CvDiplomacyAI::CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarg
 	if (GetCoopWarState(eAllyPlayer, eTargetPlayer) == COOP_WAR_STATE_PREPARING)
 		return false;
 
-	// Do we already have a coop war planned against the guy we're asking?
-	if (GetGlobalCoopWarAgainstState(eAllyPlayer) >= COOP_WAR_STATE_PREPARING)
-		return false;
-
 	return IsValidCoopWarTarget(eTargetPlayer, false) && GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, false);
 }
 
