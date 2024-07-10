@@ -139,6 +139,7 @@ FDataStream& operator<<(FDataStream& stream, const CvBuilderTaskingAI& builderTa
 /// Update
 void CvBuilderTaskingAI::Update(void)
 {
+	SetupExtraXAdjacentPlots();
 	UpdateRoutePlots();
 	UpdateCanalPlots();
 	UpdateImprovementPlots();
@@ -978,7 +979,7 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 	return false;
 }
 
-ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot) const
+ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* pPlot) const
 {
 	if (m_uniqueImprovements.empty())
 		return NO_IMPROVEMENT;
@@ -997,6 +998,16 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 		{
 			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), false, true))
 				return eImprovement;
+		}
+
+		if (pkImprovementInfo->GetXSameAdjacentMakesValid() > 0)
+		{
+			std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_set<const CvPlot*>>::const_iterator it = m_extraPlotsForXAdjacentImprovements.find(eImprovement);
+			if (it != m_extraPlotsForXAdjacentImprovements.end())
+			{
+				if (it->second.find(pPlot) != it->second.end())
+					return eImprovement;
+			}
 		}
 	}
 
@@ -1643,8 +1654,6 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
 
-		iValue /= 10;
-
 		AddRouteOrRepairDirective(aDirectives, pPlot, eRoute, iValue, plotPurposes[pPlot]);
 	}
 
@@ -1976,12 +1985,18 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		if (pkImprovementInfo == NULL)
 			continue;
 
-		if (!m_pPlayer->canBuild(pPlot, eBuild, true))
-			continue;
-
 		//Check for test below.
 		if (pkImprovementInfo->IsSpecificCivRequired() && m_pPlayer->getCivilizationType() != pkImprovementInfo->GetRequiredCivilization())
 			continue;
+
+		if (!pPlot->canBuild(eBuild, m_pPlayer->GetID()))
+		{
+			if (pkImprovementInfo->GetXSameAdjacentMakesValid() == 0)
+				continue;
+
+			if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pPlot) == m_extraPlotsForXAdjacentImprovements[eImprovement].end())
+				continue;
+		}
 
 		ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 		bool bWillConnectResource = eResource != NO_RESOURCE && pkImprovementInfo->IsConnectsResource(eResource);
@@ -2015,8 +2030,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		{
 			continue;
 		}
-
-		iScore /= 10;
 		
 		if (iScore > iMinScore)
 		{
@@ -2105,8 +2118,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
 		iWeight *= 10;
-
-	iWeight /= 10;
 
 	BuilderDirective directive(BuilderDirective::REMOVE_ROAD, m_eRemoveRouteBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 
@@ -2389,8 +2400,6 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 
 	int iWeight = ScorePlotBuild(pPlot, pPlot->getImprovementType(), m_eRepairBuild);
 
-	iWeight /= 10;
-
 	if (iWeight > 0)
 	{
 		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
@@ -2440,8 +2449,6 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 	if(pPlot->getFeatureType() == m_eFalloutFeature && m_pPlayer->canBuild(pPlot, m_eFalloutRemove))
 	{
 		int iWeight =/*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT);
-
-		iWeight /= 10;
 
 		BuilderDirective directive(BuilderDirective::CHOP, m_eFalloutRemove, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
@@ -2555,10 +2562,10 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity
 
 		// We have plenty to spare
 		if (iNumResourceAvailable > 1)
-			iValue /= 10;
+			iValue /= 2;
 		// We have one already
 		else if (iNumResourceAvailable > 0)
-			iValue /= 2;
+			iValue = (iValue * 3) / 4;
 
 		return iValue;
 	}
@@ -2570,11 +2577,11 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
 		// We have plenty to spare
-		if (iNumResourceAvailable > 5)
-			iValue /= 10;
-		// We have some already
-		else if (iNumResourceAvailable > 0)
+		if (iNumResourceAvailable > 4)
 			iValue /= 2;
+		// We have some already
+		else if (iNumResourceAvailable > 1)
+			iValue = (iValue * 3) / 4;
 
 		return iValue;
 	}
@@ -2691,6 +2698,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 		}
 	}
+
+	bool bIsWorkingPlot = pOwningCity && pOwningCity->GetCityCitizens()->IsWorkingPlot(pPlot);
 
 	// Give a small bonus for claiming tiles
 	if (bIsTileClaim && pPlot->getOwner() != m_pPlayer->GetID())
@@ -2852,21 +2861,19 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				// If we are creating a feature, check if city gets any extra yield gains
 				if (eFeatureFromImprovement != NO_FEATURE)
 				{
-					// Give double value to this yield because we don't need to work the tile
-					iNewYieldTimes100 += pOwningCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeatureFromImprovement, eYield) * 2;
+					iNewYieldTimes100 += pOwningCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeatureFromImprovement, eYield);
 
 					if (pCityReligion)
-						iNewYieldTimes100 += pCityReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeatureFromImprovement, eYield) * 2;
+						iNewYieldTimes100 += pCityReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeatureFromImprovement, eYield);
 				}
 
 				// If we are removing a feature, check if city gets any extra yield losses
-				if (eFeature != NO_FEATURE)
+				if (eFeature != NO_FEATURE && bIsWorkingPlot)
 				{
-					// Give double value to this yield because we don't need to work the tile
-					iNewYieldTimes100 -= pOwningCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * 2;
+					iNewYieldTimes100 -= pOwningCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 
 					if (pCityReligion)
-						iNewYieldTimes100 -= pCityReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield) * 2;
+						iNewYieldTimes100 -= pCityReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield);
 				}
 			}
 		}
@@ -3054,26 +3061,72 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	//Improvement grants or connects resource
 	//Don't give any bonus if we are creating a resource on top of an existing one
-	if (pOwningCity && ((eResourceFromImprovement != NO_RESOURCE && eResource == NO_RESOURCE) || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource))))
+	bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
+	bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
+	bool bNewCreatesResource = eResourceFromImprovement != NO_RESOURCE;
+	bool bNewConnectsResource = eNaturalResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eNaturalResource);
+	if (pOwningCity)
 	{
-		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
-		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
-		int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount, iExtraResource);
-		iSecondaryScore += iResourceWeight;
-
-		CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);
-		//amp up monopoly alloc!
-		if (pkConnectedResource && pkConnectedResource->isMonopoly())
+		ResourceTypes eRemovedResource = NO_RESOURCE;
+		ResourceTypes eCreatedResource = NO_RESOURCE;
+		if (bOldCreatedResource)
 		{
-			if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			eRemovedResource = eResourceFromOldImprovement;
+		}
+		if (bOldConnectedResource && !bNewConnectsResource)
+		{
+			eRemovedResource = eNaturalResource;
+		}
+		if (!bOldConnectedResource && bNewConnectsResource)
+		{
+			eCreatedResource = eNaturalResource;
+		}
+		if (bNewCreatesResource)
+		{
+			eCreatedResource = eResourceFromImprovement;
+		}
+
+		if (eCreatedResource)
+		{
+			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+			int iResourceWeight = GetResourceWeight(eCreatedResource, iResourceAmount, iExtraResource);
+			iSecondaryScore += iResourceWeight;
+
+			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eCreatedResource);
+			//amp up monopoly alloc!
+			if (pkConnectedResource && pkConnectedResource->isMonopoly())
 			{
-				if (m_pPlayer->GetMonopolyPercent(eConnectedResource) > 0 && m_pPlayer->GetMonopolyPercent(eConnectedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
-					iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eConnectedResource)) / 25;
+				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eCreatedResource) > 0 && m_pPlayer->GetMonopolyPercent(eCreatedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eCreatedResource)) / 25;
+				}
+				else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eCreatedResource) > 0 && m_pPlayer->GetMonopolyPercent(eCreatedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eCreatedResource)) / 25;
+				}
 			}
-			else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		}
+		if (eRemovedResource)
+		{
+			int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+			int iResourceWeight = GetResourceWeight(eRemovedResource, iResourceAmount, iExtraResource - iResourceAmount);
+			iSecondaryScore -= iResourceWeight;
+
+			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eRemovedResource);
+			if (pkConnectedResource && pkConnectedResource->isMonopoly())
 			{
-				if (m_pPlayer->GetMonopolyPercent(eConnectedResource) > 0 && m_pPlayer->GetMonopolyPercent(eConnectedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
-					iSecondaryScore += (iResourceWeight * m_pPlayer->GetMonopolyPercent(eConnectedResource)) / 25;
+				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eRemovedResource) > 0 && m_pPlayer->GetMonopolyPercent(eRemovedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore -= (iResourceWeight * m_pPlayer->GetMonopolyPercent(eRemovedResource)) / 25;
+				}
+				else if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eRemovedResource) > 0 && m_pPlayer->GetMonopolyPercent(eRemovedResource) <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						iSecondaryScore -= (iResourceWeight * m_pPlayer->GetMonopolyPercent(eRemovedResource)) / 25;
+				}
 			}
 		}
 	}
@@ -3129,8 +3182,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 
 	// Do we want a canal here?
-	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && WantCanalAtPlot(pPlot) && pkImprovementInfo->GetNearbyEnemyDamage() == 0)
-		iSecondaryScore += 3000;
+	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+	{
+		if (pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && (pkImprovementInfo->GetNearbyEnemyDamage() == 0 || eBuild == NO_BUILD))
+			iSecondaryScore += 3000;
+		if (pkOldImprovementInfo && pkOldImprovementInfo->IsMakesPassable())
+			iSecondaryScore -= 3000;
+	}
 
 	// TODO flesh out culture bomb logic and move it from TacticalAI?
 	// Currently this is only for human player recommendations.
@@ -3243,6 +3301,101 @@ BuildTypes CvBuilderTaskingAI::GetBuildRoute(RouteTypes eRoute) const
 	}
 
 	return eRouteBuild;
+}
+
+void CvBuilderTaskingAI::SetupExtraXAdjacentPlots()
+{
+	m_extraPlotsForXAdjacentImprovements.clear();
+
+	vector<BuildTypes> aPossibleBuilds;
+	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	{
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+
+		if (!m_pPlayer->canBuild(NULL, eBuild, true))
+			continue;
+
+		int iLoopUnit = 0;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
+		{
+			if (pLoopUnit->canBuild(NULL, eBuild))
+			{
+				aPossibleBuilds.push_back(eBuild);
+				break;
+			}
+		}
+	}
+
+	for (vector<BuildTypes>::const_iterator it = aPossibleBuilds.begin(); it != aPossibleBuilds.end(); ++it)
+	{
+		BuildTypes eBuild = *it;
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+
+		if (!pkBuildInfo)
+			continue;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo)
+			continue;
+
+		if (pkImprovementInfo->GetXSameAdjacentMakesValid() == 0)
+			continue;
+
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+
+			if (!ShouldAnyBuilderConsiderPlot(pPlot))
+				continue;
+
+			if (pPlot->getOwner() != m_pPlayer->GetID())
+				continue;
+
+			SetupExtraXAdjacentBuildPlot(pPlot, eBuild, eImprovement, pkImprovementInfo->GetXSameAdjacentMakesValid());
+		}
+	}
+}
+
+bool CvBuilderTaskingAI::SetupExtraXAdjacentBuildPlot(const CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement, std::tr1::unordered_set<const CvPlot*> sIgnoredPlots)
+{
+	if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pPlot) != m_extraPlotsForXAdjacentImprovements[eImprovement].end())
+		return true;
+
+	if (sIgnoredPlots.find(pPlot) != sIgnoredPlots.end())
+		return false;
+
+	if (!pPlot->canBuild(eBuild, m_pPlayer->GetID(), false, true, true))
+		return false;
+
+	if (pPlot->canBuild(eBuild, m_pPlayer->GetID()))
+		return true;
+
+	std::tr1::unordered_set<const CvPlot*> newIgnoredPlots = sIgnoredPlots;
+	newIgnoredPlots.insert(pPlot);
+
+	int iAdjacentCanBuild = 0;
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		DirectionTypes eDirection = (DirectionTypes)iI;
+		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+
+		if (!pAdjacentPlot)
+			continue;
+
+		if (SetupExtraXAdjacentBuildPlot(pAdjacentPlot, eBuild, eImprovement, iAdjacencyRequirement, newIgnoredPlots))
+			iAdjacentCanBuild++;
+	}
+
+	bool bRet = iAdjacentCanBuild >= iAdjacencyRequirement;
+	if (bRet)
+		m_extraPlotsForXAdjacentImprovements[eImprovement].insert(pPlot);
+
+	return bRet;
 }
 
 /// Central logging repository!

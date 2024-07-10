@@ -125,7 +125,7 @@ public:
 	bool IsRoutePlanned(CvPlot* pPlot, RouteTypes eRoute, RoutePurpose ePurpose) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
-	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
+	ImprovementTypes SavePlotForUniqueImprovement(const CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState = SBuilderState::DefaultInstance());
 	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
@@ -177,6 +177,9 @@ protected:
 	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
 	int GetRouteMissingTiles(PlannedRoute plannedRoute) const;
 
+	void SetupExtraXAdjacentPlots();
+	bool SetupExtraXAdjacentBuildPlot(const CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement, std::tr1::unordered_set<const CvPlot*> sIgnoredPlots = std::tr1::unordered_set<const CvPlot*>());
+
 	void UpdateCanalPlots();
 
 	PlotPair GetPlotPair(int iPlotId1, int iPlotId2);
@@ -208,6 +211,8 @@ protected:
 
 	//some player dependent flags for unique improvements
 	vector<ImprovementTypes> m_uniqueImprovements; // serialized
+
+	std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_set<const CvPlot*>> m_extraPlotsForXAdjacentImprovements;
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);

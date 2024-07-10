@@ -168,10 +168,10 @@ public:
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
-	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false, bool bCheckAdjacency = false) const;
+	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false, bool bCheckAdjacency = false, bool bTestXAdjacent = false) const;
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 
-	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
+	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const;
