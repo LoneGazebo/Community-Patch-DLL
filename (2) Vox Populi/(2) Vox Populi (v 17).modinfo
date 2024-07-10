@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.12) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.12.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -951,7 +951,7 @@
     <File md5="9053CF957542871FF4A1718612485AFF" import="0">Database Changes/Concepts/NewConcepts.xml</File>
     <File md5="B36D6796F45A6189AE8AD57BDA38CC1D" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
     <File md5="4E2C899778F093B9F18667EFB45971AC" import="0">Database Changes/Corporations/NewCorporations.xml</File>
-    <File md5="53E07DAD13AEE065C4DAE3C38682CDC3" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
+    <File md5="9A97FE26472366159E16A5E77D83D58A" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
     <File md5="2F4C4C5033ED0C1A288994E3E47AEEB2" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
     <File md5="89DD8B1FCBDDCA4136BED038DF1581DA" import="0">Database Changes/Difficulty/PreDifficultyChanges.sql</File>
     <File md5="03C0630F6A422E938EFCF838D798BD4A" import="0">Database Changes/Espionage/SpyPassiveBonuses.xml</File>
