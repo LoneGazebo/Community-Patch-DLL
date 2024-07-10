@@ -268,6 +268,8 @@ VALUES
 
 -- Settler-exclusive rewards
 INSERT INTO HandicapInfo_Goodies
+	(HandicapType, GoodyType)
+VALUES
 	('HANDICAP_SETTLER', 'GOODY_WORKER'),
 	('HANDICAP_SETTLER', 'GOODY_SETTLER');
 
