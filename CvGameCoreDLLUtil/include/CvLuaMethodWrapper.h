@@ -22,6 +22,8 @@ protected:
 	static int BasicLuaMethod(lua_State* L, ret (FnInstanceType::*func)(arg1, arg2, arg3) const);
 	template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename FnInstanceType>
 	static int BasicLuaMethod(lua_State* L, ret (FnInstanceType::*func)(arg1, arg2, arg3, arg4) const);
+	template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename FnInstanceType>
+	static int BasicLuaMethod(lua_State* L, ret(FnInstanceType::* func)(arg1, arg2, arg3, arg4, arg5) const);
 
 	//regular variations (non const)
 	template<typename ret, typename FnInstanceType>
@@ -34,6 +36,8 @@ protected:
 	static int BasicLuaMethod(lua_State* L, ret (FnInstanceType::*func)(arg1, arg2, arg3));
 	template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename FnInstanceType>
 	static int BasicLuaMethod(lua_State* L, ret (FnInstanceType::*func)(arg1, arg2, arg3, arg4));
+	template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename FnInstanceType>
+	static int BasicLuaMethod(lua_State* L, ret(FnInstanceType::* func)(arg1, arg2, arg3, arg4, arg5));
 
 	//void variations (const)
 	template<typename FnInstanceType>
@@ -115,6 +119,16 @@ int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, ret 
 
 	return 1;
 }
+//------------------------------------------------------------------------------
+template<class Derived, class InstanceType> template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename FnInstanceType>
+int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, ret(FnInstanceType::* func)(arg1, arg2, arg3, arg4, arg5) const)
+{
+	const int idx = Derived::GetStartingArgIndex();
+	InstanceType* pkType = Derived::GetInstance(L);
+	CvLuaArgs::pushValue<ret>(L, (pkType->*func)(CvLuaArgs::toValue<arg1>(L, idx), CvLuaArgs::toValue<arg2>(L, idx + 1), CvLuaArgs::toValue<arg3>(L, idx + 2), CvLuaArgs::toValue<arg4>(L, idx + 3), CvLuaArgs::toValue<arg5>(L, idx + 4)));
+
+	return 1;
+}
 
 //------------------------------------------------------------------------------
 // regular variations (non const)
@@ -164,6 +178,16 @@ int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, ret 
 	const int idx = Derived::GetStartingArgIndex();
 	InstanceType* pkType = Derived::GetInstance(L);
 	CvLuaArgs::pushValue<ret>(L, (pkType->*func)(CvLuaArgs::toValue<arg1>(L, idx), CvLuaArgs::toValue<arg2>(L, idx + 1), CvLuaArgs::toValue<arg3>(L, idx + 2), CvLuaArgs::toValue<arg4>(L, idx + 3)));
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+template<class Derived, class InstanceType> template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4, typename arg5, typename FnInstanceType>
+int CvLuaMethodWrapper<Derived, InstanceType>::BasicLuaMethod(lua_State* L, ret(FnInstanceType::* func)(arg1, arg2, arg3, arg4, arg5))
+{
+	const int idx = Derived::GetStartingArgIndex();
+	InstanceType* pkType = Derived::GetInstance(L);
+	CvLuaArgs::pushValue<ret>(L, (pkType->*func)(CvLuaArgs::toValue<arg1>(L, idx), CvLuaArgs::toValue<arg2>(L, idx + 1), CvLuaArgs::toValue<arg3>(L, idx + 2), CvLuaArgs::toValue<arg4>(L, idx + 3), CvLuaArgs::toValue<arg5>(L, idx + 4)));
 
 	return 1;
 }

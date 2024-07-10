@@ -2471,7 +2471,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency) const
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency, bool bTestXAdjacent) const
 {
 	CvPlot* pLoopPlot = NULL;
 	bool bValid = false;
@@ -2670,18 +2670,25 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	{
 		int iAdjacentSameImprovement = 0;
 
-		for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		if (bTestXAdjacent)
 		{
-			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-			if (pLoopPlot && pLoopPlot->getImprovementType() == eImprovement)
+			bValid = true;
+		}
+		else
+		{
+			for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
-				iAdjacentSameImprovement++;
+				pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-				if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
+				if (pLoopPlot && pLoopPlot->getImprovementType() == eImprovement)
 				{
-					bValid = true;
-					break;
+					iAdjacentSameImprovement++;
+
+					if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
+					{
+						bValid = true;
+						break;
+					}
 				}
 			}
 		}
@@ -2857,7 +2864,7 @@ BuildTypes CvPlot::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) co
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner) const
+bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent) const
 {
 	static const ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
@@ -2944,7 +2951,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		// Player must be able to build this Improvement
-		if(!canHaveImprovement(eImprovement, ePlayer, bTestVisible))
+		if(!canHaveImprovement(eImprovement, ePlayer, bTestVisible, false, bTestXAdjacent))
 		{
 			return false;
 		}

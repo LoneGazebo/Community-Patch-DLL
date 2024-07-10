@@ -2516,11 +2516,11 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
-	int iScore = eDirective.GetScore();
+	int iScore = eDirective.GetScore() / 10;
 
 	// Try to avoid moving around too much with workers
 	if (!eDirective.m_bIsGreatPerson)
-		iMoveTurns *= 2;
+		iMoveTurns *= 4;
 
 	int iBuildTime = iBuildTurns + iMoveTurns;
 
@@ -2534,7 +2534,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return iScore * iScore;
 
 	const int iScoreWeightSquared = 1;
-	int iBuildTimeWeightSquared = eDirective.m_bIsGreatPerson ? 16 : 100;
+	int iBuildTimeWeightSquared = 100;
 
 	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
@@ -3024,7 +3024,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore /= 10;
 							// If we are planning to build something else here in the future, downscale the priority of this by 1/3
 							eOtherDirective.m_iScore = iScore;
 							eOtherDirective.m_iScorePenalty += iScore / 3;
@@ -3051,8 +3050,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					{
 						int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						iScore /= 10;
-
 						if (iScore != eOtherDirective.m_iScore)
 						{
 							eOtherDirective.m_iScore = iScore;
@@ -3075,8 +3072,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						if (eOtherFeature != pOtherPlot->getFeatureType())
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
-
-							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
@@ -3106,8 +3101,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore /= 10;
-
 							if (iScore != eOtherDirective.m_iScore)
 							{
 								eOtherDirective.m_iScore = iScore;
@@ -3126,8 +3119,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						if (eOtherImprovement != NO_IMPROVEMENT)
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
-
-							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
