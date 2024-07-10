@@ -20112,7 +20112,7 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 			if (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice)
 				iNumBuildingGlobal -= kPlayer.countNumBuildingsInPuppets(eBuildingGlobal);
 
-			iTotalHappiness += pkBuildingInfoGlobal->GetBuildingClassHappiness(*it) * iNumBuildingGlobal * iNumBuilding;
+			iTotalHappiness += pkBuildingInfoGlobal->GetBuildingClassHappiness(eBuildingClass) * iNumBuildingGlobal * iNumBuilding;
 		}
 	}
 
