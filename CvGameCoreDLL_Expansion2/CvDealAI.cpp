@@ -2006,11 +2006,15 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 	if (eResource == eAluminum)
 	{
-		// how many do we still need?
-		int iNumAluminumStillNeeded = GetPlayer()->GetNumAluminumStillNeededForSpaceship() + GetPlayer()->GetNumAluminumStillNeededForCoreCities();
-		for (int i = 0; i < iNumAluminumStillNeeded; i++)
+		ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+		if (eApolloProgram != NO_PROJECT && GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
 		{
-			vTotalWeightList.push_back(10000);
+			// how many do we still need?
+			int iNumAluminumStillNeeded = GetPlayer()->GetNumAluminumStillNeededForSpaceship() + GetPlayer()->GetNumAluminumStillNeededForCoreCities();
+			for (int i = 0; i < iNumAluminumStillNeeded; i++)
+			{
+				vTotalWeightList.push_back(10000);
+			}
 		}
 	}
 
@@ -2033,6 +2037,9 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	bool bPeaceDeal = GetPlayer()->IsAtWarWith(eOtherPlayer);
 
 	if (eResource == NO_RESOURCE)
+		return INT_MAX;
+
+	if (!GetPlayer()->IsResourceRevealed(eResource))
 		return INT_MAX;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
