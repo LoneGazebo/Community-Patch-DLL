@@ -2037,6 +2037,18 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	bool bIsHuman = GET_PLAYER(GetOwner()).isHuman();
 	bool bSpecialistForbidden = bIsHuman && IsNoAutoAssignSpecialists();
 
+	if (pLog)
+	{
+		pLog->Msg("==== starting optimization");
+		CvString strBaseString;
+		CvString strOutBuf;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf.Format("%s, focus %d%s, idle citizens %d",
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens());
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
+
 	gCachedNumbers.update(m_pCity);
 
 	//failsafe: if we have unassigned citizens get then assign them first
@@ -2226,7 +2238,16 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 	if (pLog)
+	{
 		pLog->Msg("==== starting reallocation");
+		CvString strBaseString;
+		CvString strOutBuf;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf.Format("%s, focus %d%s, idle citizens %d",
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens());
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
 
 	// initial assigment is quick and simple, we'll optimize it later
 	DoInitialAssigment(false, false, bLogging);
@@ -2245,9 +2266,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 			pLog->Msg("==== repeating initial allocation with even higher emphasis on food");
 		DoInitialAssigment(true, true, bLogging);
 	}
-
-	if (pLog)
-		pLog->Msg("==== starting optimization");
+		
 
 	// now we check if we can switch some of the tiles to optimize the result
 	OptimizeWorkedPlots(bLogging);
