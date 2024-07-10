@@ -315,9 +315,12 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	// Team Leader used FOLLOW ME!
 	TeamTypes eTeam = pPlayer->getTeam();
 	PlayerTypes eTeamLeader = pPlayer->GetID();
+	vector<PlayerTypes> vMyTeam = GET_TEAM(eTeam).getPlayers();
 	int iBestScore = 0;
 	int iMyScore = pPlayer->GetScore();
-	vector<PlayerTypes> vMyTeam = GET_TEAM(eTeam).getPlayers();
+	if (pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+		iMyScore += 100000;
+
 	for (size_t i=0; i<vMyTeam.size(); i++)
 	{
 		PlayerTypes eTeamMember = GET_PLAYER(vMyTeam[i]).GetID();
@@ -834,9 +837,12 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	bool bTeamLeaderSwitchAvoided = false;
 	if (!bSUnhappy)
 	{
+		vector<PlayerTypes> vMyTeam = GET_TEAM(eTeam).getPlayers();
 		int iBestScore = 0;
 		int iMyScore = pPlayer->GetScore();
-		vector<PlayerTypes> vMyTeam = GET_TEAM(eTeam).getPlayers();
+		if (pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+			iMyScore += 100000;
+
 		for (size_t i=0; i<vMyTeam.size(); i++)
 		{
 			PlayerTypes eTeamMember = GET_PLAYER(vMyTeam[i]).GetID();
