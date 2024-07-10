@@ -7699,6 +7699,11 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	case TASK_REMOVE_SLACKER:
 		if (GetCityCitizens()->GetNumDefaultSpecialists() > 0)
 		{
+			// remove forced laborer if possible
+			if (GetCityCitizens()->GetNumForcedDefaultSpecialists() > 0)
+			{
+				GetCityCitizens()->ChangeNumForcedDefaultSpecialists(-1);
+			}
 			GetCityCitizens()->ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_LOCAL);
 			GetCityCitizens()->DoReallocateCitizens(true);
 		}
@@ -16049,7 +16054,7 @@ int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSi
 	return iDifference;
 }
 
-int CvCity::getGrowthMods(CvString* toolTipSink) const
+int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChange) const
 {
 	int iTotalMod = 0;
 
@@ -16174,7 +16179,7 @@ int CvCity::getGrowthMods(CvString* toolTipSink) const
 
 	if (MOD_BALANCE_VP)
 	{
-		int iHappiness = getHappinessDelta();
+		int iHappiness = getHappinessDelta() + iAssumedLocalHappinessChange;
 
 		if (iHappiness > 0)
 			iHappiness *= /*2*/ GD_INT_GET(LOCAL_HAPPINESS_FOOD_MODIFIER);
@@ -21430,22 +21435,22 @@ int CvCity::getUnhappyCitizenCount() const
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness is this city generating from Distress?
 /// bForceRecalc computes the amount of Distress generated after this city's next growth
-int CvCity::GetDistress(bool bForceRecalc) const
+int CvCity::GetDistress(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iDistress = GetDistressRaw(bForceRecalc) - GetDistressFlatReduction() - GET_PLAYER(getOwner()).GetDistressFlatReductionGlobal();
+	int iDistress = GetDistressRaw(bForceRecalc, iAssumedExtraYieldRate) - GetDistressFlatReduction() - GET_PLAYER(getOwner()).GetDistressFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
 	return range(iDistress, 0, iLimit);
 }
 
-int CvCity::GetDistressRaw(bool bForceRecalc) const
+int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false) + getYieldRateTimes100(YIELD_PRODUCTION, false, false);
+	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false) + getYieldRateTimes100(YIELD_PRODUCTION, false, false) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -21477,22 +21482,22 @@ float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) co
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness is this city generating from Poverty?
 /// bForceRecalc computes the amount of Poverty generated after this city's next growth
-int CvCity::GetPoverty(bool bForceRecalc) const
+int CvCity::GetPoverty(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iPoverty = GetPovertyRaw(bForceRecalc) - GetPovertyFlatReduction() - GET_PLAYER(getOwner()).GetPovertyFlatReductionGlobal();
+	int iPoverty = GetPovertyRaw(bForceRecalc, iAssumedExtraYieldRate) - GetPovertyFlatReduction() - GET_PLAYER(getOwner()).GetPovertyFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
 	return range(iPoverty, 0, iLimit);
 }
 
-int CvCity::GetPovertyRaw(bool bForceRecalc) const
+int CvCity::GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false);
+	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -21524,22 +21529,22 @@ float CvCity::GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness is this city generating from Illiteracy?
 /// bForceRecalc computes the amount of Illiteracy generated after this city's next growth
-int CvCity::GetIlliteracy(bool bForceRecalc) const
+int CvCity::GetIlliteracy(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iIlliteracy = GetIlliteracyRaw(bForceRecalc) - GetIlliteracyFlatReduction() - GET_PLAYER(getOwner()).GetIlliteracyFlatReductionGlobal();
+	int iIlliteracy = GetIlliteracyRaw(bForceRecalc, iAssumedExtraYieldRate) - GetIlliteracyFlatReduction() - GET_PLAYER(getOwner()).GetIlliteracyFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
 	return range(iIlliteracy, 0, iLimit);
 }
 
-int CvCity::GetIlliteracyRaw(bool bForceRecalc) const
+int CvCity::GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false);
+	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -21571,22 +21576,22 @@ float CvCity::GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness is this city generating from Boredom?
 /// bForceRecalc computes the amount of Boredom generated after this city's next growth
-int CvCity::GetBoredom(bool bForceRecalc) const
+int CvCity::GetBoredom(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iBoredom = GetBoredomRaw(bForceRecalc) - GetBoredomFlatReduction() - GET_PLAYER(getOwner()).GetBoredomFlatReductionGlobal();
+	int iBoredom = GetBoredomRaw(bForceRecalc, iAssumedExtraYieldRate) - GetBoredomFlatReduction() - GET_PLAYER(getOwner()).GetBoredomFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
 	return range(iBoredom, 0, iLimit);
 }
 
-int CvCity::GetBoredomRaw(bool bForceRecalc) const
+int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getJONSCulturePerTurn(false) * 100;
+	int iTotalYield = getJONSCulturePerTurn(false) * 100 + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;

@@ -205,7 +205,6 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	YieldTypes GetMostDeficientYield() const;
 	YieldTypes GetMostAbundantYield() const;
-	int GetYieldModifierTimes100(YieldTypes eYield) const;
 	void PrecalcYieldStats();
 #endif
 

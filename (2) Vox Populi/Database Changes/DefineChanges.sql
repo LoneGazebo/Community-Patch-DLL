@@ -558,7 +558,8 @@ UPDATE Defines SET Value = 3 WHERE Name = 'SCORE_RELIGION_CITIES_MULTIPLIER';
 -- Don't rush workers until city has reached this population
 UPDATE Defines SET Value = 4 WHERE Name = 'AI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE';
 
-UPDATE Defines SET Value = 5 WHERE Name = 'AI_CITIZEN_VALUE_GPP';
+UPDATE Defines SET Value = 12 WHERE Name = 'AI_CITIZEN_VALUE_GPP';
+UPDATE Defines SET Value = 8 WHERE Name = 'AI_CITIZEN_VALUE_GOLD';
 
 -- War progress score modifier per % happiness below 50%
 UPDATE Defines SET Value = -2 WHERE Name = 'WAR_PROGRESS_PER_UNHAPPY';

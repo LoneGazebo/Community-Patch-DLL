@@ -637,14 +637,6 @@ YieldTypes CvCityStrategyAI::GetMostAbundantYield() const
 	return m_eMostAbundantYield;
 }
 
-int CvCityStrategyAI::GetYieldModifierTimes100(YieldTypes eYield) const
-{
-	CvAssertMsg(eYield > NO_YIELD, "Illegal yield");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Illegal yield");
-
-	return 100 + m_aiYieldModifier[eYield];
-}
-
 /// Get the average value of the yield for this city
 void CvCityStrategyAI::PrecalcYieldStats()
 {

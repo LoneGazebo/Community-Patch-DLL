@@ -81,6 +81,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsResourceCityTradeable);
 	Method(IsResourceImproveable);
 	Method(IsResourceRevealed);
+	Method(GetPlotValueCity);
+	Method(GetCombinedChangeValue);
+	Method(GetSpecialistValueCity);
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
 
@@ -1923,6 +1926,100 @@ int CvLuaPlayer::lIsResourceRevealed(lua_State* L)
 
 	return 1;
 }
+
+int CvLuaPlayer::lGetPlotValueCity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iCityID = lua_tointeger(L, 2);
+	const int iPlotX = lua_tointeger(L, 3);
+	const int iPlotY = lua_tointeger(L, 4);
+	const bool bAdd = lua_toboolean(L, 5);
+
+	CvCity* pCity = pkPlayer->getCity(iCityID);
+	if (pCity)
+	{
+		CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+		if (pPlot)
+		{
+			SPrecomputedExpensiveNumbers cache;
+			cache.update(pCity);
+			lua_pushinteger(L, pCity->GetCityCitizens()->GetPlotValue(pPlot, bAdd, cache));
+			return 1;
+		}
+	}
+	lua_pushinteger(L, -INT_MAX);
+	return 1;
+}
+
+int CvLuaPlayer::lGetSpecialistValueCity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iCityID = lua_tointeger(L, 2);
+	const int iSpecialist = lua_tointeger(L, 3);
+	const bool bAdd = lua_toboolean(L, 4);
+
+	CvCity* pCity = pkPlayer->getCity(iCityID);
+	if (pCity)
+	{
+		SPrecomputedExpensiveNumbers cache;
+		cache.update(pCity);
+		lua_pushinteger(L, pCity->GetCityCitizens()->GetSpecialistValue((SpecialistTypes)iSpecialist, bAdd, cache));
+		return 1;
+	}
+	lua_pushinteger(L, -INT_MAX);
+	return 1;
+}
+
+// for testing of the city governor. how is an option to remove something and add something else instead scored?
+int CvLuaPlayer::lGetCombinedChangeValue(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iCityID = lua_tointeger(L, 2);
+	// first two: remove something
+	// for a specialist: first value = -1, second value = specialist ID
+	// for a plot: first value iX, second value iY
+	const int iR1 = lua_tointeger(L, 3);
+	const int iR2 = lua_tointeger(L, 4);
+	// second two: remove something
+	const int iR3 = lua_tointeger(L, 5);
+	const int iR4 = lua_tointeger(L, 6);
+
+	CvCity* pCity = pkPlayer->getCity(iCityID);
+	if (!pCity)
+	{
+		lua_pushinteger(L, -INT_MAX);
+		return 1;
+	}
+
+	SPrecomputedExpensiveNumbers cache;
+	cache.update(pCity);
+
+	YieldAndGPPList change;
+	if (iR1 == -1)
+	{
+		// specialist
+		change = pCity->GetCityCitizens()->GetSpecialistYields((SpecialistTypes)iR2);
+	}
+	else
+	{
+		change = pCity->GetCityCitizens()->GetPlotYields(GC.getMap().plot(iR1, iR2), cache);
+	}
+
+	YieldAndGPPList change2;
+	if (iR3 == -1)
+	{
+		// specialist
+		change2 = pCity->GetCityCitizens()->GetSpecialistYields((SpecialistTypes)iR4);
+	}
+	else
+	{
+		change2 = pCity->GetCityCitizens()->GetPlotYields(GC.getMap().plot(iR3, iR4), cache);
+	}
+
+	lua_pushinteger(L, pCity->GetCityCitizens()->ScoreYieldChange(change.negative() + change2, cache));
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);
 int CvLuaPlayer::lDisbandUnit(lua_State* L)
