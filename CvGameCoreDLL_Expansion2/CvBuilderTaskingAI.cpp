@@ -1643,8 +1643,6 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
 
-		iValue /= 10;
-
 		AddRouteOrRepairDirective(aDirectives, pPlot, eRoute, iValue, plotPurposes[pPlot]);
 	}
 
@@ -2015,8 +2013,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		{
 			continue;
 		}
-
-		iScore /= 10;
 		
 		if (iScore > iMinScore)
 		{
@@ -2105,8 +2101,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
 		iWeight *= 10;
-
-	iWeight /= 10;
 
 	BuilderDirective directive(BuilderDirective::REMOVE_ROAD, m_eRemoveRouteBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 
@@ -2389,8 +2383,6 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 
 	int iWeight = ScorePlotBuild(pPlot, pPlot->getImprovementType(), m_eRepairBuild);
 
-	iWeight /= 10;
-
 	if (iWeight > 0)
 	{
 		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
@@ -2440,8 +2432,6 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 	if(pPlot->getFeatureType() == m_eFalloutFeature && m_pPlayer->canBuild(pPlot, m_eFalloutRemove))
 	{
 		int iWeight =/*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT);
-
-		iWeight /= 10;
 
 		BuilderDirective directive(BuilderDirective::CHOP, m_eFalloutRemove, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iWeight);
 		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
@@ -3054,7 +3044,9 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	//Improvement grants or connects resource
 	//Don't give any bonus if we are creating a resource on top of an existing one
-	if (pOwningCity && ((eResourceFromImprovement != NO_RESOURCE && eResource == NO_RESOURCE) || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource))))
+	if (pOwningCity &&
+		((eResourceFromImprovement != NO_RESOURCE && eResource == NO_RESOURCE) ||
+			(eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource) && (!pkOldImprovementInfo || !pkOldImprovementInfo->IsConnectsResource(eResource)))))
 	{
 		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
 		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
@@ -3129,8 +3121,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 
 	// Do we want a canal here?
-	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && WantCanalAtPlot(pPlot) && pkImprovementInfo->GetNearbyEnemyDamage() == 0)
-		iSecondaryScore += 3000;
+	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+	{
+		if (pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && (pkImprovementInfo->GetNearbyEnemyDamage() == 0 || eBuild == NO_BUILD))
+			iSecondaryScore += 3000;
+		if (pkOldImprovementInfo && pkOldImprovementInfo->IsMakesPassable())
+			iSecondaryScore -= 3000;
+	}
 
 	// TODO flesh out culture bomb logic and move it from TacticalAI?
 	// Currently this is only for human player recommendations.
