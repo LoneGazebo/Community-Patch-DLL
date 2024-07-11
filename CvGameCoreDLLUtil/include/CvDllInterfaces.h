@@ -1846,16 +1846,15 @@ public:
 		: m_ptr(ptr)
 	{}
 
-	// FIXME: This is rather horrendous as it violates the constness of `other`.
-	// This has been done because it mimics the interface of Microsoft's `auto_ptr`
-	// which avoids a cascade of complex changes being necessary.
+	// FIXME: This still violates the constness of `other` due to the need to nullify
+	// `other.m_ptr`. This approach mimics the behavior of Microsoft's `auto_ptr` to avoid 
+	// a cascade of complex changes being necessary.
 	// 
-	// Specifically there are numerous instances where an interface pointer is
-	// constructed from an rvalue reference which cannot be easily made correct
-	// without modifying the callsite rather dastically.
+	// Specifically, numerous instances construct an interface pointer from an rvalue reference
+	// which cannot be easily made correct without modifying the callsite drastically.
 	//
-	// With C++11 this would just be a move constructor but we still want to
-	// support VC90 so this'll do for now.
+	// Ideally, C++11 move semantics would be used here, but we must support VC90.
+	// The current solution minimizes side effects but does not completely resolve the issue.
 	CvInterfacePtr(CvInterfacePtr<T> const& other)
 		: m_ptr(other.m_ptr)
 	{
@@ -1865,8 +1864,12 @@ public:
 	// Same issues from CvInterfacePtr copy constructor apply here. See comment.
 	CvInterfacePtr<T>& operator=(CvInterfacePtr<T> const& rhs)
 	{
-		reset(rhs.m_ptr);
-		rhs.m_ptr = NULL;
+		if (this != &rhs) // Avoid self-assignment
+		{
+			T* tempPtr = rhs.m_ptr; // Temporarily store the rhs pointer
+			rhs.m_ptr = NULL; // Nullify rhs.m_ptr
+			reset(tempPtr); // Reset current object's pointer with tempPtr
+		}
 		return *this;
 	}
 
