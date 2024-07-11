@@ -3428,21 +3428,40 @@ void setTurnNotifyEmailAddress(PlayerTypes p, const CvString& emailAddress)
 		s_turnNotifyEmailAddress[p] = emailAddress;
 }
 
-void VerifyHandicap(PlayerTypes p)
+void VerifyHandicap(PlayerTypes p, bool bHumanPlayerSwap)
 {//Verifies that the current handicap is valid for the current player.
 	//non-ai players can't use the default ai handicap and ai players MUST use it.
 	if(slotStatus(p) == SS_COMPUTER){
 		setHandicap(p, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
 	}
-	else if(handicap(p) == GD_INT_GET(AI_HANDICAP)){
-		if(lastHumanHandicap(p) != NO_HANDICAP){
+	else if(handicap(p) == GD_INT_GET(AI_HANDICAP))
+	{
+		if (lastHumanHandicap(p) != NO_HANDICAP)
+		{
 			setHandicap(p, lastHumanHandicap(p));
 		}
-		else if(GC.getGame().isNetworkMultiPlayer()){
+		else if (GC.getGame().isNetworkMultiPlayer())
+		{
 			setHandicap(p, (HandicapTypes)GD_INT_GET(MULTIPLAYER_HANDICAP));
 		}
-		else{
-			setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
+		else
+		{
+			if (bHumanPlayerSwap)
+			{
+				// loop through the player to find the handicap the human player had
+				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+				{
+					if (lastHumanHandicap((PlayerTypes)i) > NO_HANDICAP)
+					{
+						setHandicap(p, lastHumanHandicap((PlayerTypes)i));
+						break;
+					}
+				}
+			}
+			else
+			{
+				setHandicap(p, (HandicapTypes)GD_INT_GET(STANDARD_HANDICAP));
+			}
 		}
 	}
 }

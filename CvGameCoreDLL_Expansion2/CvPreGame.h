@@ -275,7 +275,7 @@ void                                       setWhiteFlag(PlayerTypes p, bool flag
 void																			 setTurnNotifySteamInvite(PlayerTypes p, bool flag);
 void																			 setTurnNotifyEmail(PlayerTypes p, bool flag);
 void																			 setTurnNotifyEmailAddress(PlayerTypes p, const CvString& emailAddress);
-void																			 VerifyHandicap(PlayerTypes p);
+void																			 VerifyHandicap(PlayerTypes p, bool bHumanPlayerSwap = false);
 void                                       setWorldSize(WorldSizeTypes w, bool bResetSlots=true);
 void                                       setWorldSize(const CvString& w);
 SlotClaim                                  slotClaim(PlayerTypes p);

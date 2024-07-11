@@ -3757,7 +3757,7 @@ void CvGame::doControl(ControlTypes eControl)
 						CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
 
 						CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
-						CvPreGame::VerifyHandicap(eReturnPlayer);
+						CvPreGame::VerifyHandicap(eReturnPlayer, true);
 						GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 					}
 				}
@@ -3836,10 +3836,10 @@ void CvGame::doControl(ControlTypes eControl)
 				}
 				if (eNextPlayer != NO_PLAYER)
 				{
+					CvPreGame::setHandicap(eNextPlayer, CvPreGame::handicap(eActivePlayer));
 					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
 					CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
 					CvPreGame::setSlotStatus(eNextPlayer, SS_TAKEN);
-					CvPreGame::VerifyHandicap(eNextPlayer);
 					GC.getGame().setActivePlayer(eNextPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 				}
 			}
@@ -5307,23 +5307,23 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 		m_eAIAutoPlayReturnPlayer = eReturnAsPlayer;
 
 		//activating
-		if((iOldValue == 0) && (getAIAutoPlay() > 0))
+		if ((iOldValue == 0) && (getAIAutoPlay() > 0))
 		{
 			int iObserver = NO_PLAYER;
 			PlayerTypes activePlayer = CvPreGame::activePlayer();
 
 			// Is active player already in an observer slot?
-			if(CvPreGame::slotStatus(activePlayer) == SS_OBSERVER)
+			if (CvPreGame::slotStatus(activePlayer) == SS_OBSERVER)
 				return;
 
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			for (int iI = 0; iI < MAX_PLAYERS; iI++)
 				PrintPlayerInfo(iI);
 
 			// Observer has to be in a major slot, the "higher" players don't get notifications etc, leads to a crash (see CvPlayer::Init())
-			for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				// Found an observer slot
-				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
+				if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
 				{
 					// Set current active player to a computer player
 					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
@@ -5333,36 +5333,51 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 				}
 			}
 
-			if (iObserver==NO_PLAYER)
+			if (iObserver == NO_PLAYER)
 			{
 				//try to find a closed slot. start from the end, so we reduce the chance 
 				//to hit a killed player which might be revived. that would lead to problems.
-				for(int iI = MAX_MAJOR_CIVS-1; iI > 0; iI--)
+				for (int iI = MAX_MAJOR_CIVS - 1; iI > 0; iI--)
 				{
 					//open up a slot if required - it seems Really Advanced Setup does not leave observer slots but sets them all to closed
-					if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
+					if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
 					{
-						CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
-						GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
-						//make sure the team flags are set correctly 
-						GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
-						// Set current active player to a computer player
-						CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
-						CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
-
-						// Move the active player to the observer slot
 						iObserver = iI;
 						break;
+
 					}
 				}
 			}
 
 			//we didn't find a slot...
-			if (iObserver==NO_PLAYER)
+			if (iObserver == NO_PLAYER)
 			{
 				m_iAIAutoPlay = 0;
 				return;
 			}
+
+
+			CvPreGame::setSlotStatus((PlayerTypes)iObserver, SS_OBSERVER);
+			GET_PLAYER((PlayerTypes)iObserver).init((PlayerTypes)iObserver);
+			//make sure the team flags are set correctly 
+			GET_TEAM(GET_PLAYER((PlayerTypes)iObserver).getTeam()).updateTeamStatus();
+			// Set current active player to a computer player
+			PlayerTypes eNewAIPlayer = CvPreGame::activePlayer();
+			CvPreGame::setSlotStatus(eNewAIPlayer, SS_COMPUTER);
+			CvPreGame::VerifyHandicap(eNewAIPlayer);
+
+			// trigger some AI decisions for the new computer player
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
+			for (pLoopCity = GET_PLAYER(eNewAIPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eNewAIPlayer).nextCity(&iLoop))
+			{
+				if (!pLoopCity->isProduction() || pLoopCity->isProductionProcess())
+				{
+					pLoopCity->AI_chooseProduction(false /*bInterruptWonders*/, false);
+				}
+			}
+			GET_PLAYER(eNewAIPlayer).AI_chooseResearch();
+			GET_PLAYER(eNewAIPlayer).GetPlayerPolicies()->DoPolicyAI();
 
 			if (getObserverUIOverridePlayer() == NO_PLAYER)
 			{
