@@ -11363,10 +11363,6 @@ void CvPlayer::findNewCapital()
 {
 	CvCity* pOldCapital = getCapitalCity();
 
-	// If there's no old capital (is that even possible?), don't bother making a new one
-	if (!pOldCapital)
-		return;
-
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
 
