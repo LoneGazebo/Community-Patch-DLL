@@ -317,6 +317,7 @@ function AssignStartingPlots.Create()
 		AdjustTiles = AssignStartingPlots.AdjustTiles,
 		PlaceBonusResources = AssignStartingPlots.PlaceBonusResources,
 		IsEvenMoreResourcesActive = AssignStartingPlots.IsEvenMoreResourcesActive,
+		IsAloeVeraResourceActive = AssignStartingPlots.IsAloeVeraResourceActive,
 		IsReducedSupplyActive = AssignStartingPlots.IsReducedSupplyActive,
 		Plot_GetPlotsInCircle = AssignStartingPlots.Plot_GetPlotsInCircle,
 		Plot_GetFertilityInRange = AssignStartingPlots.Plot_GetFertilityInRange,
@@ -464,36 +465,37 @@ function AssignStartingPlots:__Init()
 			self.coral_ID = resourceID;
 		elseif resourceType == "RESOURCE_LAPIS" then
 			self.lapis_ID = resourceID;
-		elseif self:IsEvenMoreResourcesActive() then
 		-- Even More Resources for Vox Populi (luxuries)
-			if resourceType == "RESOURCE_LAVENDER" then
-				self.lavender_ID = resourceID;
-			elseif resourceType == "RESOURCE_OBSIDIAN" then
-				self.obsidian_ID = resourceID;
-			elseif resourceType == "RESOURCE_PLATINUM" then
-				self.platinum_ID = resourceID;
-			elseif resourceType == "RESOURCE_POPPY" then
-				self.poppy_ID = resourceID;
-			elseif resourceType == "RESOURCE_TIN" then
-				self.tin_ID = resourceID;
-			-- Even More Resources for Vox Populi (bonus)
-			elseif resourceType == "RESOURCE_COCONUT" then
-				self.coconut_ID = resourceID;
-			elseif resourceType == "RESOURCE_HARDWOOD" then
-				self.hardwood_ID = resourceID;
-			elseif resourceType == "RESOURCE_LEAD" then
-				self.lead_ID = resourceID;
-			elseif resourceType == "RESOURCE_PINEAPPLE" then
-				self.pineapple_ID = resourceID;
-			elseif resourceType == "RESOURCE_POTATO" then
-				self.potato_ID = resourceID;
-			elseif resourceType == "RESOURCE_RUBBER" then
-				self.rubber_ID = resourceID;
-			elseif resourceType == "RESOURCE_SULFUR" then
-				self.sulfur_ID = resourceID;
-			elseif resourceType == "RESOURCE_TITANIUM" then
-				self.titanium_ID = resourceID;
-			end
+		elseif resourceType == "RESOURCE_LAVENDER" then
+			self.lavender_ID = resourceID;
+		elseif resourceType == "RESOURCE_OBSIDIAN" then
+			self.obsidian_ID = resourceID;
+		elseif resourceType == "RESOURCE_PLATINUM" then
+			self.platinum_ID = resourceID;
+		elseif resourceType == "RESOURCE_POPPY" then
+			self.poppy_ID = resourceID;
+		elseif resourceType == "RESOURCE_TIN" then
+			self.tin_ID = resourceID;
+		-- Even More Resources for Vox Populi (bonus)
+		elseif resourceType == "RESOURCE_COCONUT" then
+			self.coconut_ID = resourceID;
+		elseif resourceType == "RESOURCE_HARDWOOD" then
+			self.hardwood_ID = resourceID;
+		elseif resourceType == "RESOURCE_LEAD" then
+			self.lead_ID = resourceID;
+		elseif resourceType == "RESOURCE_PINEAPPLE" then
+			self.pineapple_ID = resourceID;
+		elseif resourceType == "RESOURCE_POTATO" then
+			self.potato_ID = resourceID;
+		elseif resourceType == "RESOURCE_RUBBER" then
+			self.rubber_ID = resourceID;
+		elseif resourceType == "RESOURCE_SULFUR" then
+			self.sulfur_ID = resourceID;
+		elseif resourceType == "RESOURCE_TITANIUM" then
+			self.titanium_ID = resourceID;
+		-- Aloe Vera for Vox Populi
+		elseif resourceType == "RESOURCE_JAR_ALOE_VERA" then
+			self.aloevera_ID = resourceID;
 		end
 	end
 
@@ -10843,6 +10845,10 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 		print(self.titanium_ID, "Titanium: ", self.amounts_of_resources_placed[self.titanium_ID + 1]);
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAloeVeraResourceActive() then
+		print("- Aloe Vera for Vox Populi (Bonus) -");
+		print(self.aloevera_ID, "AloeVera: ", self.amounts_of_resources_placed[self.aloevera_ID + 1]);
+	end
 	print("-----------------------------------------------------");
 end
 ------------------------------------------------------------------------------
@@ -11057,6 +11063,13 @@ function AssignStartingPlots:PlaceBonusResources()
 
 	local resources_to_place = {};
 
+	if self:IsAloeVeraResourceActive() then
+		resources_to_place = {
+			{self.aloevera_ID, 1, 100, 1, 2}
+		};
+		self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.FLAT_DESERT_NO_FEATURE], resources_to_place);
+	end
+
 	if self:IsEvenMoreResourcesActive() then
 		resources_to_place = {
 			{self.deer_ID, 1, 100, 0, 2}
@@ -11201,7 +11214,6 @@ function AssignStartingPlots:PlaceBonusResources()
 		};
 		self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.HILLS_NO_FEATURE], resources_to_place);
 	-- Even More Resources for VP end
-
 		-- Placed last, since this blocks a large area
 		resources_to_place = {
 			{self.deer_ID, 1, 100, 3, 4}
@@ -11209,6 +11221,7 @@ function AssignStartingPlots:PlaceBonusResources()
 		self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_FOREST], resources_to_place);
 		self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.HILLS_FOREST], resources_to_place);
 	else
+		
 		resources_to_place = {
 			{self.deer_ID, 1, 100, 0, 2}
 		};
@@ -11349,6 +11362,27 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 
 	if not isUsingCommunityPatch then -- fallback method for modpack mode
 		for _ in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_POPPY'") do
+			return true;
+		end
+	end
+	return false;
+end
+--------------------------------------------------------------------------------
+function AssignStartingPlots:IsAloeVeraResourceActive()
+	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
+	local aloeVeraModID = "c2c3797b-2728-417c-94c8-f30410528bf2";
+	local isUsingCommunityPatch = false;
+
+	for _, mod in pairs(Modding.GetActivatedMods()) do
+		if mod.ID == communityPatchModID then -- if Community Patch is not activated, then we are running in modpack mode
+			isUsingCommunityPatch = true;
+		elseif mod.ID == aloeVeraModID then
+			return true;
+		end
+	end
+
+	if not isUsingCommunityPatch then -- fallback method for modpack mode
+		for _ in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_JAR_ALOE_VERA'") do
 			return true;
 		end
 	end

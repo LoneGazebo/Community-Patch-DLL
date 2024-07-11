@@ -922,6 +922,13 @@ function MapGlobals:New()
 
 			local resources_to_place = {};
 
+			if ASP:IsAloeVeraResourceActive() then
+				resources_to_place = {
+					{ASP.aloevera_ID, 1, 100, 1, 2}
+				};
+				ASP:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.FLAT_DESERT_NO_FEATURE], resources_to_place);
+			end
+
 			if ASP:IsEvenMoreResourcesActive() then
 				resources_to_place = {
 					{ASP.deer_ID, 1, 100, 0, 2}
