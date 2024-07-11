@@ -41435,7 +41435,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			continue;
 
 		// Will absolutely not work as intended if more than one policy give this effect
-		if (GetXPopulationConscription() > 0)
+		if (pkPolicyInfo->GetXPopulationConscription() > 0 && GetXPopulationConscription() > 0)
 		{
 			int iNumConscript = pLoopCity->getPopulation() / GetXPopulationConscription();
 			for (int iI = 0; iI < iNumConscript; iI++)
