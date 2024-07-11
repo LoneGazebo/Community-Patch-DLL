@@ -4492,6 +4492,10 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible() const
 {
+	if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && CvPreGame::quickCombat() && CvPreGame::quickMovement())
+		//this is relevant for animations etc, do not show them in observer mode, makes everything faster
+		return false;
+
 	return isVisible(GC.getGame().getActiveTeam());
 }
 
