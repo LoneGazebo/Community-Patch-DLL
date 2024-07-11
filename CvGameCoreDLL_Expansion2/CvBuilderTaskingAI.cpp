@@ -3094,7 +3094,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if (eRemovedResource)
 		{
 			int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
-			int iResourceWeight = GetResourceWeight(eRemovedResource, iResourceAmount, iExtraResource);
+			int iResourceWeight = GetResourceWeight(eRemovedResource, iResourceAmount, iExtraResource - iResourceAmount);
 			iSecondaryScore -= iResourceWeight;
 
 			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eRemovedResource);
