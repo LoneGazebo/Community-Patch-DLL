@@ -45562,6 +45562,10 @@ int CvPlayer::GetNumAluminumStillNeededForCoreCities() const
 				for (uint ui = 0; ui < vCoreCities.size(); ui++)
 				{
 					CvCity* pLoopCity = getCity(vCoreCities[ui]);
+					//no idea how this can happen but it does
+					if (!pLoopCity)
+						continue;
+
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 || pLoopCity->isBuildingInQueue(eBuilding))
 					{
 						iTotal -= pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
