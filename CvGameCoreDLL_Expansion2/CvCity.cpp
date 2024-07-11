@@ -13809,7 +13809,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			BuildingClassTypes eFreeBuildingClassThisCity = static_cast<BuildingClassTypes>(pBuildingInfo->GetFreeBuildingThisCity());
 			if (eFreeBuildingClassThisCity != NO_BUILDINGCLASS)
 			{
-				BuildingTypes eFreeBuildingThisCity = GetBuildingTypeFromClass(eFreeBuildingClassThisCity);
+				BuildingTypes eFreeBuildingThisCity = GetBuildingTypeFromClass(eFreeBuildingClassThisCity, true);
 				if (eFreeBuildingThisCity != NO_BUILDING)
 				{
 					SetNumFreeBuilding(eFreeBuildingThisCity, 1);
@@ -34496,7 +34496,7 @@ bool CvCity::SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue,
 		return false;
 
 	int iNumFreeBuilding = GetCityBuildings()->GetNumFreeBuilding(eBuilding);
-	int iNumNewFreeBuilding = iNumFreeBuilding - iValue;
+	int iNumNewFreeBuilding = iValue - iNumFreeBuilding;
 	if (iNumNewFreeBuilding == 0)
 		return true;
 
