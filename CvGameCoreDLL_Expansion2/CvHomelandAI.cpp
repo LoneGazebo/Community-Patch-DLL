@@ -959,7 +959,7 @@ void CvHomelandAI::ExecuteUnitGift()
 			CvUnit* pGiftedUnit = NULL;
 			int GiftedUnitID = -1;
 			int iLowestXP = INT_MAX;
-			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); ++it)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				int iXP = pUnit->getExperienceTimes100();
@@ -1083,7 +1083,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 			int GiftedUnitID = -1;
 			int iLowestXP = INT_MAX;
 			int iStrongestUnitComparison = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(eDomain) * 85;
-			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); ++it)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -5582,7 +5582,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
-	for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+	for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); ++it)
 	{
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 		if (pUnit->plot()==pTarget)
@@ -5658,7 +5658,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	// Erase this site from future contention
 	if (pBestTarget)
 	{
-		for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+		for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); ++it)
 		{
 			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
 			{

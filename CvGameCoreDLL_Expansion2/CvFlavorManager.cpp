@@ -261,7 +261,7 @@ void CvFlavorManager::RemoveFlavorRecipient(CvFlavorRecipient* pTargetObject)
 			m_FlavorTargetList.erase(iter);
 			return;
 		}
-		iter++;
+		++iter;
 	}
 }
 
