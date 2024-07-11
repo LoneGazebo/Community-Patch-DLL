@@ -14871,9 +14871,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 		{
 			if (pLoopCity->getNumWorldWonders() > 0)
 			{
-				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				const vector<BuildingTypes>& allBuildingsHere = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+
+				for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildingsHere.size(); iBuildingLoop++)
 				{
-					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+					const BuildingTypes eBuilding = allBuildingsHere[iBuildingLoop];
 					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkeBuildingInfo == NULL)
 					{
@@ -14882,37 +14884,34 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 					}
 
 					// Has this Building
-					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 					{
-						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+							continue;
+
+						CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+						if (pkTechInfo)
 						{
-							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+							// Loop through all eras and apply Building production mod based on how much time has passed
+							EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+							if (eBuildingUnlockedEra == NO_ERA)
 								continue;
 
-							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
-							if (pkTechInfo)
+							int iEraDifference = GetCurrentEra() - eBuildingUnlockedEra;
+							switch (iEraDifference)
 							{
-								// Loop through all eras and apply Building production mod based on how much time has passed
-								EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
-
-								if (eBuildingUnlockedEra == NO_ERA)
-									continue;
-
-								int iEraDifference = GetCurrentEra() - eBuildingUnlockedEra;
-								switch (iEraDifference)
-								{
-								case 0:
-									iProductionModifier += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
-									break;
-								case 1:
-									iProductionModifier += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								case 2:
-									iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								default:
-									iProductionModifier += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
-								}
+							case 0:
+								iProductionModifier += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
+								break;
+							case 1:
+								iProductionModifier += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
+								break;
+							case 2:
+								iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
+								break;
+							default:
+								iProductionModifier += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 							}
 						}
 					}
