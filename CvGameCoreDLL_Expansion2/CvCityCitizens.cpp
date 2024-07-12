@@ -967,18 +967,19 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		// working a process?
 		if (pkProcessInfo)
 		{
+			iYieldMod *= 3;
+			// if the process converts production to some other yield, use the valuation of that yield instead
 			for (int i = 0; i < YIELD_TOURISM; i++)
 			{
-				if (eYield != YIELD_PRODUCTION && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+				YieldTypes eLoopYield = (YieldTypes)i;
+				if (eLoopYield != YIELD_PRODUCTION && pkProcessInfo->getProductionToYieldModifier(eLoopYield) > 0)
 				{
-					// converting production into eYield? value production with the corresponding fraction of the value of eYield
-					iYieldMod = GetBaseValuePerYield(eYield, cache, bAssumeStarving, bAssumeBelowGrowthThreshold) * pkProcessInfo->getProductionToYieldModifier(eYield);
+					// converting production into eLoopYield? value production with the corresponding fraction of the value of eYield
+					iYieldMod = GetBaseValuePerYield(eLoopYield, cache, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt) * pkProcessInfo->getProductionToYieldModifier(eLoopYield);
 					iYieldMod /= 100;
 					break;
 				}
 			}
-			// process with no yield conversion? then it must give some other good rewards, use a high value for production
-			iYieldMod *= 3;
 			break;
 		}
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
@@ -986,14 +987,14 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		break;
 	case YIELD_GOLD:
 		iYieldMod = /*12 in CP, 8 in VP*/ GD_INT_GET(AI_CITIZEN_VALUE_GOLD);
-		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
+		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 			iYieldMod *= 3;
 		else if (bAssumeInDebt)
 			iYieldMod = /*24*/ GD_INT_GET(AI_CITIZEN_VALUE_GOLD_IN_DEBT);
 		break;
 	case YIELD_SCIENCE:
 		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_SCIENCE);
-		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
+		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 			iYieldMod *= 3;
 		else if (cache.bWantScience)
 			iYieldMod *= 2;
@@ -1001,14 +1002,14 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 	case YIELD_CULTURE:
 	case YIELD_TOURISM:
 		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_CULTURE);
-		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
+		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 			iYieldMod *= 3;
 		else if (cache.bWantArt)
 			iYieldMod *= 2;
 		break;
 	case YIELD_FAITH:
 		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH);
-		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
+		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 			iYieldMod *= 3;
 		break;
 	default:
@@ -1022,7 +1023,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 {
 	CityAIFocusTypes eFocus = GetFocusType();
 
-	int iValue = /*8 in CP, 12 in VP*/ GD_INT_GET(AI_CITIZEN_VALUE_GPP);
+	int iValue = /*8 in CP, 10 in VP*/ GD_INT_GET(AI_CITIZEN_VALUE_GPP);
 
 	int iMod = 0;
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
@@ -1043,7 +1044,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 	{
 		//Bonus for art-producing specialists
-		iMod += 100;
+		iMod += 200;
 		if (cache.bWantArt)
 		{
 			iMod += 50;
@@ -1052,7 +1053,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 	{
 		//Bonus for art-producing specialists
-		iMod += 100;
+		iMod += 200;
 		if (cache.bWantArt)
 		{
 			iMod += 50;
@@ -1062,7 +1063,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 	{
 		//Bonus for art-producing specialists
-		iMod += 100;
+		iMod += 200;
 		if (cache.bWantArt)
 		{
 			iMod += 50;
@@ -1091,7 +1092,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 	}
 
 	//Bonus for existing progress towards a Great Person of that type
-	iMod += 100 * GetSpecialistGreatPersonProgress(eSpecialist) / GetSpecialistUpgradeThreshold(eUnitClass);
+	iMod += 200 * GetSpecialistGreatPersonProgress(eSpecialist) / GetSpecialistUpgradeThreshold(eUnitClass);
 
 	// Bonus for total number of specialist slots: we like to have multiple specialists of the same type
 	iMod += 10 * cache.iRealNumSpecialistSlots[eSpecialist];
@@ -2014,9 +2015,9 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	{
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE)
-			return max(1000, 2 * m_pCity->getPopulation() * max(0, 70 - m_pCity->getPopulation()));
+			return max(1000, 500 + 2 * m_pCity->getPopulation() * max(0, 70 - m_pCity->getPopulation()));
 		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-			return 1000 + max(1000, 2 * m_pCity->getPopulation() * max(0, 70 - m_pCity->getPopulation()));
+			return 1000 + max(1000, 500 + 2 * m_pCity->getPopulation() * max(0, 70 - m_pCity->getPopulation()));
 		else if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 			return m_pCity->getPopulation() * 150;
 
