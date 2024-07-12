@@ -52,7 +52,7 @@ unsigned int saiRuntimeHistogram[100] = {0};
 struct SLogNode
 {
 	SLogNode( NodeState _type, int _round, int _x, int _y, int _kc, int _hc, int _turns, int _moves ) : 
-		type(_type), x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves)
+		x(_x), y(_y), round(_round), kc(_kc), hc(_hc), t(_turns), m(_moves), type(_type)
 	{
 		if (type == NS_INVALID)
 		{
@@ -107,10 +107,10 @@ CvAStar::CvAStar()
       udGetExtraChildrenFunc(NULL),
       udInitializeFunc(NULL),
       udUninitializeFunc(NULL),
+      m_iCurrentGenerationID(0),
       m_pBest(NULL),
       m_ppaaNodes(NULL),
       m_ppaaNeighbors(NULL),
-      m_iCurrentGenerationID(0),
       m_iProcessedNodes(0),
       m_iTestedNodes(0),
       m_iRounds(0),
@@ -3771,17 +3771,17 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 // Convenience constructor
 SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType)
     : ePath(_ePathType),
-      iFlags(0),
-      iMaxTurns(INT_MAX),
+      eRoute(NO_ROUTE),
+      eBuild(NO_BUILD),
       ePlayer(_ePlayer),
       eEnemy(NO_PLAYER),
+      eRoutePurpose(NO_ROUTE_PURPOSE),
       iUnitID(0),
-      eBuild(NO_BUILD),
-      eRoute(NO_ROUTE),
+      iFlags(0),
+      iMaxTurns(INT_MAX),
       iMaxNormalizedDistance(INT_MAX),
       iMinMovesLeft(0),
       iStartMoves(0),
-      eRoutePurpose(NO_ROUTE_PURPOSE),
       bUseRivers(false)
 {
 }

@@ -70,6 +70,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresPeace(false),
 	m_bConvertsBarbarians(false),
 	m_bFaithPurchaseAllGreatPeople(false),
+
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement(false),
 	m_bRequiresResource(false),
@@ -120,6 +121,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	m_eRequiredCivilization(NO_CIVILIZATION),
 #endif
@@ -162,11 +164,13 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromBarbarianKills(NULL),
 	m_ppiPlotYieldChange(NULL),
 	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
+
 #if defined(MOD_RELIGION_EXTENSIONS)
 	m_aiFreePromotions(),
 	m_pbiYieldFromImprovementBuild(),
 	m_pbiYieldFromPillageGlobal(),
 #endif
+
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
@@ -1864,18 +1868,18 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 //=====================================
 /// Constructor
 CvReligionBeliefs::CvReligionBeliefs() :
-	m_ReligionBeliefs(),
+	m_eReligion(NO_RELIGION),
 	m_BeliefLookup(GC.GetGameBeliefs()->GetNumBeliefs(), 0),
-	m_eReligion(NO_RELIGION)
+	m_ReligionBeliefs()
 {
 	Reset();
 }
 
 /// Copy Constructor with typical parameters
 CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source) :
-	m_ReligionBeliefs(source.m_ReligionBeliefs),
+	m_eReligion(source.m_eReligion),
 	m_BeliefLookup(source.m_BeliefLookup),
-	m_eReligion(source.m_eReligion)
+	m_ReligionBeliefs(source.m_ReligionBeliefs)
 {
 	// No need to call Reset here since we're copying the state from source
 }
