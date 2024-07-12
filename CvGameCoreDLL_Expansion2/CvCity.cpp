@@ -30630,7 +30630,7 @@ bool CvCity::CrosscheckYieldsFromMinors()
 
 		//roman UA adds yields from conquered city states ...
 		if (eYield == YIELD_FOOD)
-			iMajorBonus += isCapital() ? kMajor.GetFoodInCapitalPerTurnFromAnnexedMinors() : kMajor.GetFoodInOtherCitiesPerTurnFromAnnexedMinors();
+			iMajorBonus += isCapital() ? kMajor.GetFoodInCapitalPerTurnFromAnnexedMinors()*100 : kMajor.GetFoodInOtherCitiesPerTurnFromAnnexedMinors()*100;
 
 		if (m_aiBaseYieldRateFromCSAlliance[eYield]*100 + m_aiBaseYieldRateFromCSFriendship[eYield]*100 != iMajorBonus + iMinorBonus)
 		{
