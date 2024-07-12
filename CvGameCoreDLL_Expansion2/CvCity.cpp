@@ -8834,7 +8834,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 
 #if defined(MOD_BALANCE_CORE)
 	//Check for uniques of the same type.
-	vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(allBuildings[iI]);
@@ -15122,7 +15122,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					ChangeBaseYieldRateFromReligion((YieldTypes)iYield, pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this));
 				}
 
-				vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+				const std::vector<BuildingTypes>& allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 				for (size_t iI = 0; iI < allBuildings.size(); iI++)
 				{
 					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -15190,7 +15190,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldChangeTradeRoute((YieldTypes)iYield);
 						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionYieldChange);
 
-						vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+						const std::vector<BuildingTypes>& allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 						for (size_t iI = 0; iI < allBuildings.size(); iI++)
 						{
 							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);

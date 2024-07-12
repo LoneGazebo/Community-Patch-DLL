@@ -1389,7 +1389,8 @@ void CvPlayerCorporations::ClearAllCorporationsFromCity(CvCity* pCity)
 	if (pCity == NULL)
 		return;
 
-	const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
+	// don't use a reference variable here, we're changing which buildings are in the city
+	const std::vector<BuildingTypes> vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 	{
 		BuildingTypes eBuilding = vBuildings[jJ];
@@ -1447,7 +1448,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 	BuildingTypes eOffice = pCity->GetBuildingTypeFromClass(eOfficeClass);
 	BuildingTypes eFranchise = pCity->GetBuildingTypeFromClass(eFranchiseClass);
 
-	const std::vector<BuildingTypes>& veBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
+	// don't use a reference variable here, we're changing which buildings are in the city
+	const std::vector<BuildingTypes> veBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere(); 
 	for (vector<BuildingTypes>::const_iterator it = veBuildings.begin(); it != veBuildings.end(); ++it)
 	{
 		if (pCity->GetCityBuildings()->GetNumBuilding(*it) <= 0)
