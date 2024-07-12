@@ -1095,7 +1095,7 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 	iMod += 200 * GetSpecialistGreatPersonProgress(eSpecialist) / GetSpecialistUpgradeThreshold(eUnitClass);
 
 	// Bonus for total number of specialist slots: we like to have multiple specialists of the same type
-	iMod += 10 * cache.iRealNumSpecialistSlots[eSpecialist];
+	iMod += 10 * GetSpecialistSlots(eSpecialist);
 
 	iValue *= (100 + iMod);
 	iValue /= 100;
@@ -1486,7 +1486,7 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 					}
 					else
 					{
-						iNumSpecialists = cache.iRealNumSpecialistSlots[eSpecialist] - GetSpecialistCount(eSpecialist);
+						iNumSpecialists = GetSpecialistSlots(eSpecialist) - GetSpecialistCount(eSpecialist);
 						if (bNoTwoOptionsWithSameYields)
 						{
 							iNumSpecialists = min(1, iNumSpecialists);
@@ -3687,7 +3687,6 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(), INT_MAX)),
 	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(), INT_MAX)),
 	iSpecialistGPPRates(vector<int>(GC.getNumSpecialistInfos(), INT_MAX)),
-	iRealNumSpecialistSlots(vector<int>(GC.getNumSpecialistInfos(), INT_MAX)),
 	bAnySpecialistInOtherCity(vector<bool>(GC.getNumSpecialistInfos(), false)),
 	iYieldChangeAnySpecialist(YIELD_TOURISM, INT_MAX),
 	iDistress(0),
@@ -3777,30 +3776,6 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 				{
 					bAnySpecialistInOtherCity[i] = true;
 					break;
-				}
-			}
-		}
-
-		// GetSpecialistSlots was bugged all the time. The bug is now fixed but the values are still wrong in existing save games of this version.
-		// TODO: In the next major version, remove this variable and use GetSpecialistSlots instead
-		iRealNumSpecialistSlots.resize(GC.getNumSpecialistInfos());
-		for (size_t i = 0; i < iRealNumSpecialistSlots.size(); i++)
-			iRealNumSpecialistSlots[i] = 0;
-		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-			if (pkBuildingInfo)
-			{
-				// Have this Building in the City?
-				if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					SpecialistTypes eSpec = (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType();
-					if (eSpec != NO_SPECIALIST)
-					{
-						iRealNumSpecialistSlots[eSpec] += GC.getBuildingInfo(eBuilding)->GetSpecialistCount();
-					}
 				}
 			}
 		}

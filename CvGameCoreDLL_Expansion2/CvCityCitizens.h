@@ -46,7 +46,6 @@ struct SPrecomputedExpensiveNumbers
 	int iNetGold;
 
 	vector<int> iSpecialistGPPRates;
-	vector<int> iRealNumSpecialistSlots;
 	vector<bool> bAnySpecialistInOtherCity;
 	vector<int> iYieldChangeAnySpecialist;
 
