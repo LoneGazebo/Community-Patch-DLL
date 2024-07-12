@@ -6024,7 +6024,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 		}
 
 		// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
 			int iCount = m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
