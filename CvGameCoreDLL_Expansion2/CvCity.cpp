@@ -26889,9 +26889,8 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 	int iYieldLoop = 0;
 
-	// we have to use iMaxRange + 1 to find plots that are at up to iMaxRange tiles away because for influence pathfinding iStartMoves = 0 is used
-	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange + 1);
-	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach(pThisPlot, data);
+	// we have to use a larger value than iMaxRange because straight lines may be blocked by mountains etc.
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, 2 * iMaxRange);
 
 	int iWorkPlotDistance = getWorkPlotDistance();
 
@@ -26973,9 +26972,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					}
 				}
 
-				ReachablePlots::iterator it = influencePlots.find(pLoopPlot->GetPlotIndex());
-				int iInfluenceCost = (it != influencePlots.end()) ? (it->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase()) : -1;
+				SPath path = GC.GetStepFinder().GetPath(pThisPlot, pLoopPlot, data);
+				if (!path)
+					continue;
 
+				int iInfluenceCost = path.iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
 				if (iInfluenceCost >= 0)
 				{
 					iInfluenceCost *= iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
@@ -27096,8 +27097,10 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 								// Special handling for the trait that grabs extra land on border growth:
 								// Basically the same scoring scheme as above but without checking adjacent plots
 								// Score is capped at -1 since claiming more plots can't be worse
-								it = influencePlots.find(pAdjacentPlot->GetPlotIndex());
-								int iAdjacentCost = (it != influencePlots.end()) ? (it->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase()) : iMaxRange * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
+								SPath adjacentPath = GC.GetStepFinder().GetPath(pThisPlot, pAdjacentPlot, data);
+								int iAdjacentCost = iMaxRange * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
+								if (!adjacentPath.vPlots.empty())
+									iAdjacentCost = adjacentPath.iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
 
 								FeatureTypes eAdjacentFeature = pAdjacentPlot->getFeatureType();
 								if (eAdjacentResource != NO_RESOURCE)
