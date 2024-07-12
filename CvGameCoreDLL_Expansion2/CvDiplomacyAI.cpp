@@ -12181,8 +12181,6 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				// Decay slower if he's stronger than us, decay faster if he's not.
 				switch (GetMilitaryStrengthComparedToUs(eLoopPlayer))
 				{
-				case NO_STRENGTH_VALUE:
-					UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
 				case STRENGTH_IMMENSE:
 					iDecayModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_IMMENSE);
 					break;
@@ -12201,6 +12199,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				case STRENGTH_WEAK:
 					iDecayModifier = /*250*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_WEAK);
 					break;
+				case NO_STRENGTH_VALUE:
 				case STRENGTH_PATHETIC:
 					iDecayModifier = /*300*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_PATHETIC);
 					break;
@@ -15643,8 +15642,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			// Factor in military strength
 			switch (GetMilitaryStrengthComparedToUs(ePlayer))
 			{
-			case NO_STRENGTH_VALUE:
-				UNREACHABLE(); // Strengths are supposed to be evaluated by this point.
 			case STRENGTH_IMMENSE:
 				iAfraidScore += 30;
 				break;
@@ -15657,6 +15654,7 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			case STRENGTH_AVERAGE:
 			case STRENGTH_POOR:
 			case STRENGTH_WEAK:
+			case NO_STRENGTH_VALUE:
 			case STRENGTH_PATHETIC:
 				iAfraidScore -= 1000;
 				break;
@@ -23771,7 +23769,6 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	switch (GetMilitaryStrengthComparedToUs(eChoice))
 	{
 	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths need to have been evaluated by this point for a meaningful score.
 	case STRENGTH_PATHETIC:
 		iDPValue += -60;
 		break;
@@ -26683,8 +26680,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 					switch (GET_PLAYER(*iter).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(ePlayer))
 					{
-					case NO_STRENGTH_VALUE:
-						UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 					case STRENGTH_IMMENSE:
 					case STRENGTH_POWERFUL:
 					case STRENGTH_STRONG:
@@ -26697,6 +26692,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						iAlliesMod -= 10;
 						break;
 					case STRENGTH_PATHETIC:
+					case NO_STRENGTH_VALUE:
 						iAlliesMod -= 15;
 						break;
 					}
@@ -27506,8 +27502,6 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		// Strength compared to us matters
 		switch (GetEconomicStrengthComparedToUs(ePlayer))
 		{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -27525,14 +27519,13 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 			iScoreForLower += 200;
 			break;
 		case STRENGTH_PATHETIC:
+		case NO_STRENGTH_VALUE:
 			iScoreForLower += 300;
 			break;
 		}
 
 		switch (GetMilitaryStrengthComparedToUs(ePlayer))
 		{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -27549,6 +27542,7 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		case STRENGTH_WEAK:
 			iScoreForLower += 100;
 			break;
+		case NO_STRENGTH_VALUE:
 		case STRENGTH_PATHETIC:
 			iScoreForLower += 150;
 			break;
@@ -42422,7 +42416,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		switch (eLowestStrength)
 		{
 		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
 		case STRENGTH_PATHETIC:
 			iScore -= 30;
 			break;
@@ -42449,7 +42442,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		switch (eLowestStrength)
 		{
 		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
 		case STRENGTH_PATHETIC:
 			iScore += 20;
 			break;
@@ -43216,7 +43208,6 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	switch(GetMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_PATHETIC:
 		iMilitaryMod += /*-30*/ GD_INT_GET(DONT_SETTLE_STRENGTH_PATHETIC);
 		break;
@@ -54095,8 +54086,6 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 	// INCREASE if he's big and nasty, DECREASE if he's not.
 	switch (GET_PLAYER(eObserver).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eWarmonger))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -54116,6 +54105,7 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 		iWarmongerStrengthModifier = /*-25*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_WEAK);
 		break;
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		iWarmongerStrengthModifier = /*-50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC);
 		break;
 	}
@@ -54152,8 +54142,6 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			// DECREASE if opponent is big and nasty.
 			switch (eHighestStrength)
 			{
-			case NO_STRENGTH_VALUE:
-				UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 			case STRENGTH_IMMENSE:
 				iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 				break;
@@ -54169,6 +54157,7 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			case STRENGTH_POOR:
 			case STRENGTH_WEAK:
 			case STRENGTH_PATHETIC:
+			case NO_STRENGTH_VALUE:
 				break; // Not applicable.
 			}
 		}
@@ -54369,8 +54358,6 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	// INCREASE if he's big and nasty, DECREASE if he's not.
 	switch (pDiplo->GetMilitaryStrengthComparedToUs(eConqueror))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -54390,6 +54377,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		iWarmongerStrengthModifier = /*-25*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_WEAK);
 		break;
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		iWarmongerStrengthModifier = /*-50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC);
 		break;
 	}
@@ -54403,8 +54391,6 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		// DECREASE if opponent is big and nasty.
 		switch (pDiplo->GetMilitaryStrengthComparedToUs(eCityOwner))
 		{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -54420,6 +54406,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		case STRENGTH_POOR:
 		case STRENGTH_WEAK:
 		case STRENGTH_PATHETIC:
+		case NO_STRENGTH_VALUE:
 			break; // Not applicable.
 		}
 	}
@@ -54782,8 +54769,6 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	// Flip the values used for warmongering
 	switch (pDiplo->GetMilitaryStrengthComparedToUs(eLiberator))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*-50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC);
 		break;
@@ -54803,6 +54788,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		iWarmongerStrengthModifier = /*75*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL);
 		break;
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
 	}
@@ -54819,8 +54805,6 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		// DECREASE if liberated player is big and nasty.
 		switch (eLiberatedPlayerStrength)
 		{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -54836,6 +54820,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		case STRENGTH_POOR:
 		case STRENGTH_WEAK:
 		case STRENGTH_PATHETIC:
+		case NO_STRENGTH_VALUE:
 			break; // Not applicable.
 		}
 	}
@@ -56469,8 +56454,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// How strong are they compared to us?
 	switch (GetMilitaryStrengthComparedToUs(ePlayer))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths should have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
@@ -56482,13 +56465,12 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	case STRENGTH_POOR:
 	case STRENGTH_WEAK:
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		break;
 	}
 
 	switch (GetEconomicStrengthComparedToUs(ePlayer))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths should have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
@@ -56500,6 +56482,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	case STRENGTH_POOR:
 	case STRENGTH_WEAK:
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		break;
 	}
 
@@ -56984,8 +56967,6 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	// How strong are they compared to us? Military strength is a huge factor.
 	switch (GetMilitaryStrengthComparedToUs(ePlayer))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths should have been evaluated by this point.
 	case STRENGTH_IMMENSE:
 		iIndependenceScore -= 200;
 		break;
@@ -57005,6 +56986,7 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 		iIndependenceScore += 150;
 		break;
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		iIndependenceScore += 300;
 		break;
 	}
@@ -57225,8 +57207,6 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 
 	switch (GetMilitaryStrengthComparedToUs(ePlayer))
 	{
-	case NO_STRENGTH_VALUE:
-		UNREACHABLE(); // Strengths should have been evaluated at this point.
 	case STRENGTH_IMMENSE:
 		iChanceToGiveIn += 90;
 		break;
@@ -57246,6 +57226,7 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 		iChanceToGiveIn -= 60;
 		break;
 	case STRENGTH_PATHETIC:
+	case NO_STRENGTH_VALUE:
 		iChanceToGiveIn -= 90;
 		break;
 	}
@@ -58367,8 +58348,6 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	// The REAL meat of the strategy: military strength
 	switch(GetMilitaryStrengthComparedToUs(ePlayer))
 	{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths should have been evaulated by this point.
 		case STRENGTH_IMMENSE:		// if he's really strong let's pull out!
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 10;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 3;
@@ -58400,6 +58379,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 6;
 			break;
 		case STRENGTH_PATHETIC:
+		case NO_STRENGTH_VALUE:
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += -10;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -10;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 10;
