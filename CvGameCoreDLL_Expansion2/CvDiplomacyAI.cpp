@@ -3660,6 +3660,10 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 	// Planning war? Pick a surface approach to disguise our war plans.
 	if (eApproach == CIV_APPROACH_WAR)
 	{
+		// If we're targeting them for a demand, cancel that
+		if (bResetAttackOperations && GetDemandTargetPlayer() == ePlayer)
+			SetDemandTargetPlayer(NO_PLAYER);
+
 		// We don't need a surface approach while *at* war. Approaches are updated in DoWeMadePeaceWithSomeone(), so there's no need to store one for later.
 		if (IsAtWar(ePlayer))
 		{
