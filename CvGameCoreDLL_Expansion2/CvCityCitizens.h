@@ -53,7 +53,7 @@ struct SPrecomputedExpensiveNumbers
 	vector<vector<int>> bonusForXFeature; //updated on demand only
 
 	SPrecomputedExpensiveNumbers();
-	void update(CvCity* pCity, bool bKeepGlobalHappiness=false);
+	void update(CvCity* pCity, bool bInsideLoop=false);
 };
 
 // used for the yield changes corresponding to a change in tile/specialist assignment
