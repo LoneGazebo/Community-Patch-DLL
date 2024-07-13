@@ -10169,6 +10169,14 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 			continue;
 
+		// Must be buildable by normal means
+		if (pkBuildingInfo->IsUnlockedByLeague())
+			continue;
+
+		int iProductionCost = pkBuildingInfo->GetProductionCost();
+		if (iProductionCost <= 0)
+			continue;
+
 		// Must not be mutually exclusive
 		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
 			continue;
@@ -10210,6 +10218,8 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done
 		bool bFoundWonderTooFarAlong = false;
 		int iHighestPercentCompleted = 0;
+		iProductionCost *= GC.getGame().getGameSpeedInfo().getConstructPercent();
+		iProductionCost /= 100;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -10223,8 +10233,8 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				}
 
 				int iWonderProgress = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding);
-				//pLoopCity->getProductionNeeded(eBuilding) is quite expensive, just use the raw value
-				int iPercentCompleted = iWonderProgress * 100 / pkBuildingInfo->GetProductionCost();
+				//pLoopCity->getProductionNeeded(eBuilding) is quite expensive, just use the raw value scaling with game speed
+				int iPercentCompleted = iWonderProgress * 100 / iProductionCost;
 				if (iCompletionThreshold > 0 && iPercentCompleted >= iCompletionThreshold)
 				{
 					bFoundWonderTooFarAlong = true;

@@ -34,6 +34,10 @@
 			<Key>PROMOTION_MORALE</Key>
 			<Table>UnitPromotions</Table>
 		</Row>
+		<Row Name="NUKE_TRIGGER_PROJECT">
+			<Key>PROJECT_MANHATTAN_PROJECT</Key>
+			<Table>Projects</Table>
+		</Row>
 	</PostDefines>
 	<Natural_Wonder_Placement>
 		<Update>

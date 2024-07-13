@@ -8584,22 +8584,70 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 					{
 						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 						{
-							// city is constructing a wonder. check progress
-							if (pCity->getProduction() >= pBuildingInfo->GetProductionCost() / 2)
+							// city is constructing a wonder.
+							// are we spiteful enough to delay them just because? add a small bonus.
+							if (pDiplomacyAI->IsPlayerWonderSpammer(ePlayer) || (pDiplomacyAI->GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && pDiplomacyAI->GetCivOpinion(ePlayer) <= CIV_OPINION_COMPETITOR)
+								|| pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE
+								|| pDiplomacyAI->GetBiggestCompetitor() == ePlayer)
 							{
-								// are we constructing the same wonder somewhere
-								CvCity* pLoopCity = NULL;
-								int iLoop = 0;
-								for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+								iScore += 10;
+							}
+
+							// are we constructing the same wonder somewhere
+							CvCity* pLoopCity = NULL;
+							int iLoop = 0;
+							for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+							{
+								if (pLoopCity->getProductionBuilding() == eBuilding)
 								{
-									if (pLoopCity->getProductionBuilding() == eBuilding)
+									int iTheirProductionTurnsLeft = pCity->getProductionTurnsLeft();
+									int iOurProductionTurnsLeft = pLoopCity->getProductionTurnsLeft();
+
+									// Can we build the Wonder if we stall them for X turns?
+									if (iOurProductionTurnsLeft >= iTheirProductionTurnsLeft && iOurProductionTurnsLeft < (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns()))
 									{
-										// todo: compare progress. do mission only if it helps us
-										iScore += 100;
-										break;
+										iScore += 500;
 									}
+									else if (iOurProductionTurnsLeft > iTheirProductionTurnsLeft && iOurProductionTurnsLeft == (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns())
+											&& (m_pPlayer->GetID() < GET_PLAYER(ePlayer).GetID()))
+									{
+										iScore += 500;
+									}
+									// Might also be worth it if they're just behind us, to account for any instant Production boosts they might receive.
+									else if (iTheirProductionTurnsLeft > iOurProductionTurnsLeft && iTheirProductionTurnsLeft <= (iOurProductionTurnsLeft - 3))
+									{
+										iScore += 100;
+									}
+									break;
 								}
 							}
+						}
+					}
+				}
+				ProjectTypes eProject = pCity->getProductionProject();
+				CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
+				if (pkProject && !pkProject->IsRepeatable())
+				{
+					// Are they building the Apollo Program? Stop them!
+					if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
+					{
+						if (pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) > BLOCK_LEVEL_NONE)
+						{
+							iScore += 50;
+						}
+					}
+					// Are they building the Manhattan Project?
+					else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
+					{
+						// At war, planning war, or they've declared war on us before? Let's make it harder for them to nuke us.
+						if (m_pPlayer->IsAtWarWith(ePlayer) || pDiplomacyAI->GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
+						{
+							iScore += 30;
+						}
+						else if (!GET_PLAYER(ePlayer).IsVassalOfSomeone())
+						{
+							if (pDiplomacyAI->GetNumWarsDeclaredOnUs(ePlayer) > 0 || pDiplomacyAI->GetNumCitiesCapturedBy(ePlayer) > 0 || pDiplomacyAI->GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
+								iScore += 15;
 						}
 					}
 				}

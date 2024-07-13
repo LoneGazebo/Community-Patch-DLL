@@ -18438,7 +18438,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 
 					// If the religion's controller is our teammate, don't apply a penalty.
-					if (eController == NO_PLAYER || IsTeammate(eController))
+					if (eController == NO_PLAYER || !IsTeammate(eController))
 					{
 						bDifferentReligions = true;
 
