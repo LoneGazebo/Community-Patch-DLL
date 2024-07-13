@@ -11,109 +11,131 @@ CustomMods::CustomMods() :
 {
 }
 
-
-// I would rather have all of this shit here (where it need never be read more than once) to make the calling of events cleaner in the main code
+// This function hooks an event with a variable number of arguments.
 int CustomMods::eventHook(const char* szName, const char* p, ...) {
+	// Initialize an argument handle for Lua.
 	CvLuaArgsHandle args;
 
-	va_list vl = NULL;
+	// Initialize the variable argument list.
+	va_list vl;
 	va_start(vl, p);
 
+	// Iterate through the format string to handle each argument.
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
-			// It's a boolean
+			// Handle boolean arguments.
 			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
-			// It's an int
+			// Handle integer arguments.
 			args->Push(va_arg(vl, int));
 		} else {
-			// Assume it's a string (char *)
+			// Assume it's a string argument.
 			char* s = va_arg(vl, char*);
 			args->Push(s, strlen(s));
-			break;
+			break; // Exit after processing the first string argument.
 		}
 	}
 
+	// Clean up the variable argument list.
 	va_end(vl);
 
+	// Call the event hook with the constructed arguments.
 	return eventHook(szName, args);
 }
 
+// This function tests all conditions for an event with a variable number of arguments.
 int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
+	// Initialize an argument handle for Lua.
 	CvLuaArgsHandle args;
 
-	va_list vl = NULL;
-	va_start(vl, p);
+	// Initialize the variable argument list.
+    va_list vl;
+    va_start(vl, p);
 
+	// Iterate through the format string to handle each argument.
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
-			// It's a boolean
+			// Handle boolean arguments.
 			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
-			// It's an int
+			// Handle integer arguments.
 			args->Push(va_arg(vl, int));
 		} else {
-			// Assume it's a string (char *)
+			// Assume it's a string argument.
 			char* s = va_arg(vl, char*);
 			args->Push(s, strlen(s));
-			break;
+			break; // Exit after processing the first string argument.
 		}
 	}
 
+	// Clean up the variable argument list.
 	va_end(vl);
 
+	// Call the event test function with the constructed arguments.
 	return eventTestAll(szName, args);
 }
 
+// This function tests any condition for an event with a variable number of arguments.
 int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
+	// Initialize an argument handle for Lua.
 	CvLuaArgsHandle args;
 
-	va_list vl = NULL;
+	// Initialize the variable argument list.
+	va_list vl;
 	va_start(vl, p);
 
+	// Iterate through the format string to handle each argument.
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
-			// It's a boolean
+			// Handle boolean arguments.
 			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
-			// It's an int
+			// Handle integer arguments.
 			args->Push(va_arg(vl, int));
 		} else {
-			// Assume it's a string (char *)
+			// Assume it's a string argument.
 			char* s = va_arg(vl, char*);
 			args->Push(s, strlen(s));
-			break;
+			break; // Exit after processing the first string argument.
 		}
 	}
 
+	// Clean up the variable argument list.
 	va_end(vl);
 
+	// Call the event test function with the constructed arguments.
 	return eventTestAny(szName, args);
 }
 
+// This function accumulates results for an event with a variable number of arguments.
 int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p, ...) {
+	// Initialize an argument handle for Lua.
 	CvLuaArgsHandle args;
 
-	va_list vl = NULL;
+	// Initialize the variable argument list.
+	va_list vl;
 	va_start(vl, p);
 
+	// Iterate through the format string to handle each argument.
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
-			// It's a boolean
+			// Handle boolean arguments.
 			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
-			// It's an int
+			// Handle integer arguments.
 			args->Push(va_arg(vl, int));
 		} else {
-			// Assume it's a string (char *)
+			// Assume it's a string argument.
 			char* s = va_arg(vl, char*);
 			args->Push(s, strlen(s));
-			break;
+			break; // Exit after processing the first string argument.
 		}
 	}
 
+	// Clean up the variable argument list.
 	va_end(vl);
 
+	// Call the event accumulator with the constructed arguments.
 	return eventAccumulator(iValue, szName, args);
 }
 
