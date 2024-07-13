@@ -67,6 +67,8 @@ class CvSparseIDInfoGrid
 public:
 
 	CvSparseIDInfoGrid(uint uiWidth, uint uiHeight, CvIDInfoFixedVectorAllocator* pkAllocator);
+	CvSparseIDInfoGrid(const CvSparseIDInfoGrid& other); // Copy constructor
+	CvSparseIDInfoGrid& operator=(const CvSparseIDInfoGrid& other); // Assignment operator
 	~CvSparseIDInfoGrid();
 
 	const CvIDInfoFixedVector *Get(int iX, int iY) const;
