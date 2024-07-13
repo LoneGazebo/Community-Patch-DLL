@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="135">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.13) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.13.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -82,7 +82,7 @@
     <File md5="624BDBE7D7AB45A89721ADD2DB5786CB" import="0">Core Files/Core Changes/EraSpecificWriters.sql</File>
     <File md5="8FE70FBBA88020715C8DBFB120F11386" import="0">Core Files/Core Changes/EraSpecificArtists.sql</File>
     <File md5="93CBEA9AD036C434BDA35A5DEDE11F5F" import="0">Core Files/Core Changes/EraSpecificMusicians.sql</File>
-    <File md5="AAEEB4A436016D6D13EC248932892D0C" import="0">Core Files/Core Changes/CoreChanges.xml</File>
+    <File md5="FE71149EED2EE00E5B3DE973489CE69C" import="0">Core Files/Core Changes/CoreChanges.xml</File>
     <File md5="322C97A267C8FEDEE47565B4E2E42540" import="0">Core Files/Core Changes/DatabaseIndexes.sql</File>
     <File md5="541F264334839B2A7DE0523BCAF5EB80" import="1">Core Files/Core Changes/GreatArt/artifact.dds</File>
     <File md5="F772E5C5B3C34261AE26BAD47E06B448" import="1">Core Files/Core Changes/GreatArt/esp_thief_framedicon45.dds</File>
@@ -240,7 +240,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="AABD88EC01498977A6882B5C73D74B91" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="17CC9804705153F3544A7055FE710EDD" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="78A05E235A1C031A78EA4B4E5651C910" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="8DA1C5B3B1F627D6BEADFDD42F2123A7" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="0BEC69D4B15DC437584DBBEEAE14B570" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
