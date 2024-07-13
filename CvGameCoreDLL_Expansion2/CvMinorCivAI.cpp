@@ -5698,9 +5698,6 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
-		if (!pLoopUnit)
-			continue;
-
 		CvPlot* pPlot = pLoopUnit->plot();
 		if (!pPlot)
 			continue;
