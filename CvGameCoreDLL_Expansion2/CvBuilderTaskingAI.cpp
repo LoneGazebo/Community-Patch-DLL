@@ -3086,7 +3086,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			eCreatedResource = eResourceFromImprovement;
 		}
 
-		if (eCreatedResource)
+		if (eCreatedResource != NO_RESOURCE)
 		{
 			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
 			int iResourceWeight = GetResourceWeight(eCreatedResource, iResourceAmount, iExtraResource);
@@ -3108,7 +3108,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
-		if (eRemovedResource)
+		if (eRemovedResource != NO_RESOURCE)
 		{
 			int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
 			int iResourceWeight = GetResourceWeight(eRemovedResource, iResourceAmount, iExtraResource - iResourceAmount);
