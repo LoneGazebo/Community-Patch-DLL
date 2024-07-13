@@ -41956,7 +41956,7 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eC
 		if (GetBiggestCompetitor() != eTarget && GetCivApproach(eTarget) > CIV_APPROACH_DECEPTIVE)
 			continue;
 
-		int iScore = GetCoopWarDesireScore(eAllyPlayer, eTarget);
+		int iScore = GetCoopWarDesireScore(eAllyPlayer, eTarget, false);
 
 		if (iScore > iBestTargetScore)
 		{
@@ -41976,7 +41976,7 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eC
 }
 
 /// What is this AI's willingness to go to war with eAllyPlayer against eTargetPlayer?
-int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer)
+int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, bool bAllyRequest)
 {
 	// Must be a potential war target
 	if (!IsPotentialWarTarget(eTargetPlayer))
@@ -42002,10 +42002,13 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		return 0;
 
 	// We don't check our ally's war sanity as we can't know that, but let's explicitly check for a DoF, DP, and the backstabbing timer.
-	if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer))
+	if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer))
 		return 0;
 
 	if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsDoFBroken(eAllyPlayer) && GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->GetTurnsSinceDoFBroken(eAllyPlayer) < /*10*/ GD_INT_GET(DOF_BROKEN_BACKSTAB_TIMER))
+		return 0;
+
+	if (!bAllyRequest && GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer))
 		return 0;
 
 	// If we don't trust them, we're not interested.
@@ -42675,7 +42678,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	else
 	{
 		// A coop war is desirable
-		if (GetCoopWarDesireScore(eAskingPlayer, eTargetPlayer) >= /*40*/ GD_INT_GET(COOP_WAR_DESIRE_THRESHOLD))
+		if (GetCoopWarDesireScore(eAskingPlayer, eTargetPlayer, true) >= /*40*/ GD_INT_GET(COOP_WAR_DESIRE_THRESHOLD))
 		{
 			if (bBold && bCloseToTarget && GetTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE)
 			{
