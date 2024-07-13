@@ -42001,6 +42001,13 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	if (!IsWarSane(eTargetPlayer))
 		return 0;
 
+	// We don't check our ally's war sanity as we can't know that, but let's explicitly check for a DoF, DP, and the backstabbing timer.
+	if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer))
+		return 0;
+
+	if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsDoFBroken(eAllyPlayer) && GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->GetTurnsSinceDoFBroken(eAllyPlayer) < /*10*/ GD_INT_GET(DOF_BROKEN_BACKSTAB_TIMER))
+		return 0;
+
 	// If we don't trust them, we're not interested.
 	if (IsUntrustworthy(eAllyPlayer))
 		return 0;
