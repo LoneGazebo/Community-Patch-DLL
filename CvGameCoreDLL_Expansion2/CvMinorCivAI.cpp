@@ -1946,10 +1946,6 @@ bool CvMinorCivQuest::IsExpired()
 		if (pAssignedPlayer->GetReligions()->GetOwnedReligion() != eReligion)
 			return true;
 
-		// Player no longer has any cities following the religion
-		if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, m_eAssignedPlayer) == 0)
-			return true;
-
 		break;
 	}
 	case MINOR_CIV_QUEST_TRADE_ROUTE:
@@ -6959,10 +6955,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		// Minor must not already share player's religion
 		if (IsSameReligionAsMajor(ePlayer))
-			return false;
-
-		// Must have at least one of their cities following their owned religion
-		if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eOwnedReligion, ePlayer) == 0)
 			return false;
 
 		break;

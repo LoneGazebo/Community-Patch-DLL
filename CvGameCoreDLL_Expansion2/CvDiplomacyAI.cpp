@@ -12183,7 +12183,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				int iDecayModifier = 100;
 
 				// Decay slower if he's stronger than us, decay faster if he's not.
-				switch (GetMilitaryStrengthComparedToUs(eLoopPlayer))
+				switch (GetRawMilitaryStrengthComparedToUs(eLoopPlayer))
 				{
 				case STRENGTH_IMMENSE:
 					iDecayModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_IMMENSE);
