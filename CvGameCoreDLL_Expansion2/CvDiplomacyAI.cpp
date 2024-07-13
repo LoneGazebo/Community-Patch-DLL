@@ -14552,35 +14552,35 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 			{
 				if (bAggressive)
 				{
-					if (GetMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE)
-						return false;
-
-					if (GetEconomicStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE)
-						return false;
-				}
-				else
-				{
 					if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 						return false;
 
 					if (GetEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 						return false;
 				}
+				else
+				{
+					if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
+						return false;
+
+					if (GetEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
+						return false;
+				}
 			}
 			else if (bAggressive)
-			{
-				if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
-					return false;
-
-				if (GetEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_STRONG)
-					return false;
-			}
-			else
 			{
 				if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 					return false;
 
 				if (GetEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+					return false;
+			}
+			else
+			{
+				if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
+					return false;
+
+				if (GetEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
 					return false;
 			}
 		}
