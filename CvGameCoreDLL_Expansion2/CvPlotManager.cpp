@@ -14,6 +14,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 //	---------------------------------------------------------------------------
+/// Constructor
 CvSparseIDInfoGrid::CvSparseIDInfoGrid(uint uiWidth, uint uiHeight, CvIDInfoFixedVectorAllocator* pkAllocator)
 {
 	m_uiWidth = uiWidth;
@@ -25,6 +26,73 @@ CvSparseIDInfoGrid::CvSparseIDInfoGrid(uint uiWidth, uint uiHeight, CvIDInfoFixe
 	memset( &m_paEntries[0], 0, sizeof(CvIDInfoFixedVector*) * m_uiMaxIndex);
 
 	m_pkAllocator = pkAllocator;
+}
+
+//	---------------------------------------------------------------------------
+/// Copy constructor
+CvSparseIDInfoGrid::CvSparseIDInfoGrid(const CvSparseIDInfoGrid& other) :
+	m_uiWidth(other.m_uiWidth),
+	m_uiHeight(other.m_uiHeight),
+	m_uiMaxIndex(other.m_uiMaxIndex),
+	m_uiNumAllocated(other.m_uiNumAllocated),
+	m_pkAllocator(other.m_pkAllocator)
+{
+	m_paEntries = FNEW(CvIDInfoFixedVector*[m_uiMaxIndex], c_eCiv5GameplayDLL, 0);
+	for (uint i = 0; i < m_uiMaxIndex; ++i)
+	{
+		if (other.m_paEntries[i])
+		{
+			m_paEntries[i] = m_pkAllocator->GetFreeObject();
+			*m_paEntries[i] = *other.m_paEntries[i];
+		}
+		else
+		{
+			m_paEntries[i] = NULL;
+		}
+	}
+}
+
+//	---------------------------------------------------------------------------
+/// Assignment operator
+CvSparseIDInfoGrid& CvSparseIDInfoGrid::operator=(const CvSparseIDInfoGrid& other)
+{
+	if (this != &other)
+	{
+		// Release existing resources
+		if (m_paEntries)
+		{
+			for (uint i = 0; i < m_uiMaxIndex; ++i)
+			{
+				if (m_paEntries[i])
+				{
+					m_pkAllocator->Release(m_paEntries[i]);
+				}
+			}
+			delete[] m_paEntries;
+		}
+
+		// Copy new resources
+		m_uiWidth = other.m_uiWidth;
+		m_uiHeight = other.m_uiHeight;
+		m_uiMaxIndex = other.m_uiMaxIndex;
+		m_uiNumAllocated = other.m_uiNumAllocated;
+		m_pkAllocator = other.m_pkAllocator;
+
+		m_paEntries = FNEW(CvIDInfoFixedVector*[m_uiMaxIndex], c_eCiv5GameplayDLL, 0);
+		for (uint i = 0; i < m_uiMaxIndex; ++i)
+		{
+			if (other.m_paEntries[i])
+			{
+				m_paEntries[i] = m_pkAllocator->GetFreeObject();
+				*m_paEntries[i] = *other.m_paEntries[i];
+			}
+			else
+			{
+				m_paEntries[i] = NULL;
+			}
+		}
+	}
+	return *this;
 }
 
 //	---------------------------------------------------------------------------
