@@ -14871,9 +14871,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 		{
 			if (pLoopCity->getNumWorldWonders() > 0)
 			{
-				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				const vector<BuildingTypes>& allBuildingsHere = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+
+				for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildingsHere.size(); iBuildingLoop++)
 				{
-					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+					const BuildingTypes eBuilding = allBuildingsHere[iBuildingLoop];
 					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkeBuildingInfo == NULL)
 					{
@@ -14882,37 +14884,34 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 					}
 
 					// Has this Building
-					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 					{
-						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+							continue;
+
+						CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+						if (pkTechInfo)
 						{
-							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+							// Loop through all eras and apply Building production mod based on how much time has passed
+							EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+							if (eBuildingUnlockedEra == NO_ERA)
 								continue;
 
-							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
-							if (pkTechInfo)
+							int iEraDifference = GetCurrentEra() - eBuildingUnlockedEra;
+							switch (iEraDifference)
 							{
-								// Loop through all eras and apply Building production mod based on how much time has passed
-								EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
-
-								if (eBuildingUnlockedEra == NO_ERA)
-									continue;
-
-								int iEraDifference = GetCurrentEra() - eBuildingUnlockedEra;
-								switch (iEraDifference)
-								{
-								case 0:
-									iProductionModifier += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
-									break;
-								case 1:
-									iProductionModifier += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								case 2:
-									iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								default:
-									iProductionModifier += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
-								}
+							case 0:
+								iProductionModifier += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
+								break;
+							case 1:
+								iProductionModifier += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
+								break;
+							case 2:
+								iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
+								break;
+							default:
+								iProductionModifier += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 							}
 						}
 					}
@@ -22584,7 +22583,7 @@ int CvPlayer::GetFoodInCapitalPerTurnFromAnnexedMinors() const
 /// Update the food yields in the capital from annexed City-States (Rome UA)
 void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 {
-	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && getCapitalCity())
 	{
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
 		int iBonus = GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
@@ -22607,11 +22606,11 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 		iBonus /= 100;
 
 		//update if necessary
-		if (iBonus != m_iFoodInCapitalFromAnnexedMinors && getCapitalCity())
+		if (iBonus != m_iFoodInCapitalFromAnnexedMinors)
 		{
+			//bonus food is tracked on city level
 			getCapitalCity()->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInCapitalFromAnnexedMinors);
 			m_iFoodInCapitalFromAnnexedMinors = iBonus;
-			updateYield();
 		}
 	}
 }
@@ -22647,12 +22646,12 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 		//update if necessary
 		if (iBonus != m_iFoodInOtherCitiesFromAnnexedMinors)
 		{
+			//bonus food is tracked on city level
 			int iLoop;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				if (pLoopCity->GetID()!=getCapitalCityID())
 					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInOtherCitiesFromAnnexedMinors);
 			m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
-			updateYield();
 		}
 	}
 }
@@ -45563,6 +45562,10 @@ int CvPlayer::GetNumAluminumStillNeededForCoreCities() const
 				for (uint ui = 0; ui < vCoreCities.size(); ui++)
 				{
 					CvCity* pLoopCity = getCity(vCoreCities[ui]);
+					//no idea how this can happen but it does
+					if (!pLoopCity)
+						continue;
+
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 || pLoopCity->isBuildingInQueue(eBuilding))
 					{
 						iTotal -= pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
@@ -47868,7 +47871,7 @@ UnitTypes CvPlayer::GetCompetitiveSpawnUnitType(const bool bIncludeRanged, const
 				continue;
 
 			// Cross check in case mods forget to change unit classes after repurposing default units
-			if (pUnitInfo->GetUnitClassType() != eUnitClass)
+			if (!pUnitInfo || pUnitInfo->GetUnitClassType() != eUnitClass)
 				continue;
 
 			eUnit = eReplaceUnit;

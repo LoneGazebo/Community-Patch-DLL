@@ -803,11 +803,12 @@ public:
 	void ChangeConversionModifier(int iChange);
 #endif
 
-	// Extra Yields from Annexed Minors
+	// City-level Extra Yields from Annexed Minors
 	int GetFoodInCapitalPerTurnFromAnnexedMinors() const;
 	void UpdateFoodInCapitalPerTurnFromAnnexedMinors();
 	int GetFoodInOtherCitiesPerTurnFromAnnexedMinors() const;
 	void UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+	// Player-level Extra Yields from Annexed Minors
 	int GetGoldPerTurnFromAnnexedMinors() const;
 	void UpdateGoldPerTurnFromAnnexedMinors();
 	int GetCulturePerTurnFromAnnexedMinors() const;
@@ -3047,13 +3048,17 @@ protected:
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
+
+	//for bookkeeping only, yields are added to cities
 	int m_iFoodInCapitalFromAnnexedMinors;
 	int m_iFoodInOtherCitiesFromAnnexedMinors;
+	//real bonuses on player level
 	int m_iGoldPerTurnFromAnnexedMinors;
 	int m_iCulturePerTurnFromAnnexedMinors;
 	int m_iSciencePerTurnFromAnnexedMinors;
 	int m_iFaithPerTurnFromAnnexedMinors;
 	int	m_iHappinessFromAnnexedMinors;
+
 	int m_iExtraLeagueVotes;
 	int m_iImprovementLeagueVotes;
 	int m_iFaithToVotes;

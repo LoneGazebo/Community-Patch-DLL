@@ -10223,7 +10223,8 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				}
 
 				int iWonderProgress = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding);
-				int iPercentCompleted = iWonderProgress * 100 / pLoopCity->getProductionNeeded(eBuilding);
+				//pLoopCity->getProductionNeeded(eBuilding) is quite expensive, just use the raw value
+				int iPercentCompleted = iWonderProgress * 100 / pkBuildingInfo->GetProductionCost();
 				if (iCompletionThreshold > 0 && iPercentCompleted >= iCompletionThreshold)
 				{
 					bFoundWonderTooFarAlong = true;
