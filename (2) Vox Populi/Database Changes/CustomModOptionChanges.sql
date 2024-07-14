@@ -12,6 +12,10 @@ WHERE Name = 'BALANCE_PERMANENT_VOTE_COMMITMENTS';
 
 UPDATE CustomModOptions
 SET Value = 1
+WHERE Name = 'RIVER_TRADE_ROUTES';
+
+UPDATE CustomModOptions
+SET Value = 1
 WHERE Name = 'BALANCE_CORE_MINORS';
 
 UPDATE CustomModOptions
