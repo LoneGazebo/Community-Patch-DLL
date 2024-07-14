@@ -2530,11 +2530,8 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	if (iScore > SQRT_INT_MAX)
 		return INT_MAX; // Cap at INT_MAX if iScore squared would overflow
 
-	if (iBuildTime == 0)
-		return iScore * iScore;
-
 	const int iScoreWeightSquared = 1;
-	int iBuildTimeWeightSquared = 100;
+	int iBuildTimeWeightSquared = 25;
 
 	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
@@ -2552,6 +2549,9 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 	{
 		BuilderDirective eOtherDirective = *it;
 
+		if (eDirective.m_eBuild == eOtherDirective.m_eBuild)
+			continue;
+
 		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
 
 		if (pOtherPlot != pPlot)
@@ -2559,60 +2559,20 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 
 		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
 
-		if (!pkOtherBuildInfo)
-			continue;
-
-		RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
-		RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+		RouteTypes eRoute = pkBuildInfo ? (RouteTypes)pkBuildInfo->getRoute() : NO_ROUTE;
+		RouteTypes eOtherRoute = pkOtherBuildInfo ? (RouteTypes)pkOtherBuildInfo->getRoute() : NO_ROUTE;
 
 		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
 
-		if (eOtherDirective.GetScore() <= eDirective.GetScore())
+		if (eOtherDirective.GetScore() < eDirective.GetScore())
 			continue;
 
-		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
-			continue;
+		if (eOtherDirective.GetScore() == eDirective.GetScore())
+			if (eOtherDirective.m_eBuild > eDirective.m_eBuild)
+				continue;
 
-		return false;
-	}
-	return true;
-}
-
-static bool IsBestWeightedDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, int iDirectiveWeightedScore, int iBuilderDistance)
-{
-	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
-	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-
-	if (!pkBuildInfo)
-		return false;
-
-	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
-	{
-		BuilderDirective eOtherDirective = *it;
-
-		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
-
-		if (pOtherPlot != pPlot)
-			continue;
-
-		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
-
-		if (!pkOtherBuildInfo)
-			continue;
-
-		int iBuilderImprovementTime = pkBuildInfo->getRoute() == NO_ROUTE
-			? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective.m_eBuild, pPlot)
-			: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pPlot);
-		if (iBuilderImprovementTime == INT_MAX)
-			continue;
-
-		int iOtherDirectiveWeightedScore = GetDirectiveWeight(eOtherDirective, iBuilderImprovementTime, iBuilderDistance);
-		if (iOtherDirectiveWeightedScore <= iDirectiveWeightedScore)
-			continue;
-
-		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
+		if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
 			continue;
 
 		return false;
@@ -2638,6 +2598,12 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 		if (workedPlots.find(pDirectivePlot->GetPlotIndex()) != workedPlots.end())
 			continue;
+
+		if (eDirective.m_eBuild == NO_BUILD)
+		{
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			continue;
+		}
 
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
 		if (GetDirectiveWeight(eDirective, 0, 0) <= iBestWeightedScore)
@@ -2684,13 +2650,15 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		int iBestBuilderWeightedScore = INT_MIN;
 		int iBestBuilderTotalTurns = INT_MAX;
 		CvUnit* pBestBuilder = NULL;
+		
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 
 		// Loop over the sorted workers to find the one closest to the directive plot (including build time)
 		for (std::list<OptionWithScore<CvUnit*>>::iterator builderIterator = sortedWorkers.begin(); builderIterator != sortedWorkers.end() && iBestBuilderTotalTurns > 0; ++builderIterator)
 		{
 			CvUnit* pUnit = (*builderIterator).option;
 
-			int iBuilderImprovementTime = GC.getBuildInfo(eDirective.m_eBuild)->getRoute() == NO_ROUTE
+			int iBuilderImprovementTime = pkBuildInfo->getRoute() == NO_ROUTE
 				? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective.m_eBuild, pDirectivePlot)
 				: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pDirectivePlot);
 			if (iBuilderImprovementTime == INT_MAX)
@@ -2717,29 +2685,42 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			if (iCachedDistance)
 				iBuilderDistance = iCachedDistance - 1;
 			else if (iPlotDistance <= 9)
+			{
 				iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
+
+				if (iBuilderDistance == INT_MAX)
+					continue;
+
+				plotDistanceCache[plotPair] = iBuilderDistance + 1;
+			}
 			else if (pStartPlot->getLandmass() == pDirectivePlot->getLandmass() || pUnit->CanEverEmbark())
 				iBuilderDistance = iApproximateDistance;
 			else
 				continue;
 
-			if (iBuilderDistance == INT_MAX)
-				continue;
-
-			plotDistanceCache[plotPair] = iBuilderDistance + 1;
-
 			int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderDistance);
 
-			if (!IsBestWeightedDirectiveForBuilderAndPlot(eDirective, pUnit, pPlayer, aDirectives, iWeightedScore, iBuilderDistance))
+			// Use Unit ID as tie-breaker
+			if (iWeightedScore <= iBestBuilderWeightedScore)
 				continue;
 
-			// Use Unit ID as tie-breaker
-			if (iWeightedScore > iBestBuilderWeightedScore)
+			// We need to actually calculate distance now, since we may not be able to reach the target
+			if (!iCachedDistance && iPlotDistance > 9)
 			{
-				iBestBuilderWeightedScore = iWeightedScore;
-				iBestBuilderTotalTurns = iBuilderImprovementTime + iBuilderDistance;
-				pBestBuilder = pUnit;
+				iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
+
+				if (iBuilderDistance == INT_MAX)
+					continue;
+
+				plotDistanceCache[plotPair] = iBuilderDistance + 1;
+				iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderDistance);
+
+				if (iWeightedScore < iBestBuilderWeightedScore)
+					continue;
 			}
+			iBestBuilderWeightedScore = iWeightedScore;
+			iBestBuilderTotalTurns = iBuilderImprovementTime + iBuilderDistance;
+			pBestBuilder = pUnit;
 		}
 
 		if (iBestBuilderWeightedScore > iBestWeightedScore)
@@ -2751,35 +2732,6 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
 	CvAssert(aWeightedDirectives.size() == aDirectives.size());
-
-	bool bScoreUpdated = false;
-
-	// We need to double check if this best directive is actually reachable safely
-	for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aWeightedDirectives.begin(); it != aWeightedDirectives.end() && it->score != INT_MIN; ++it)
-	{
-		OptionWithScore<pair<CvUnit*, BuilderDirective>> optionWithScore = *it;
-		CvUnit* pUnit = optionWithScore.option.first;
-		BuilderDirective eDirective = optionWithScore.option.second;
-
-		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
-		int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
-
-		// If we are closer than 9 tiles away, we know that there is a path to the target
-		if (iPlotDistance <= 9)
-			break;
-
-		int iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective);
-
-		if (iBuilderDistance == INT_MAX)
-		{
-			it->score = INT_MIN;
-			bScoreUpdated = true;
-		}
-	}
-
-	if (bScoreUpdated)
-		std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
 	return aWeightedDirectives;
 }
@@ -2917,70 +2869,117 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (allWorkers.size() > processedWorkers.size())
 		{
 			// We may want to recalculate some of the other directive scores
-			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+			ImprovementTypes eOldImprovement = !pDirectivePlot->IsImprovementPillaged() ? pDirectivePlot->getImprovementType() : NO_IMPROVEMENT;
+			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+
 			if (eImprovement == NO_IMPROVEMENT && pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged())
 				eImprovement = pDirectivePlot->getImprovementType();
+
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 
 			vector<BuilderDirective> aNewBuilderDirectives;
 
 			// Resource considerations
-			ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
-			ResourceTypes eResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : pDirectivePlot->getResourceType(m_pPlayer->getTeam());
-			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
 			bool bResourceStateChanged = false;
-
-			if (eResource != NO_RESOURCE && iResourceAmount > 0)
+			const ResourceTypes eResource = pDirectivePlot->getResourceType(m_pPlayer->getTeam());
+			if (bCanBuild)
 			{
-				sState.mExtraResources[eResource] += iResourceAmount;
-				bResourceStateChanged = true;
+				const ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+				const ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+				const ResourceTypes eNaturalResource = eResourceFromOldImprovement == NO_RESOURCE ? eResource : NO_RESOURCE;
+
+				bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
+				bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
+				bool bNewCreatesResource = eResourceFromImprovement != NO_RESOURCE;
+				bool bNewConnectsResource = eNaturalResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eNaturalResource);
+
+				ResourceTypes eRemovedResource = NO_RESOURCE;
+				ResourceTypes eCreatedResource = NO_RESOURCE;
+				if (bOldCreatedResource)
+				{
+					eRemovedResource = eResourceFromOldImprovement;
+				}
+				if (bOldConnectedResource && !bNewConnectsResource)
+				{
+					eRemovedResource = eNaturalResource;
+				}
+				if (!bOldConnectedResource && bNewConnectsResource)
+				{
+					eCreatedResource = eNaturalResource;
+				}
+				if (bNewCreatesResource)
+				{
+					eCreatedResource = eResourceFromImprovement;
+				}
+
+				if (eCreatedResource != NO_RESOURCE)
+				{
+					int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+					sState.mExtraResources[eResource] += iResourceAmount;
+					bResourceStateChanged = true;
+				}
+				if (eRemovedResource != NO_RESOURCE)
+				{
+					int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+					sState.mExtraResources[eResource] -= iResourceAmount;
+					bResourceStateChanged = true;
+				}
 			}
 
 			// Feature considerations
-			FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
-			FeatureTypes eFeature = pkBuildInfo->isFeatureRemove(pDirectivePlot->getFeatureType()) ? NO_FEATURE : pDirectivePlot->getFeatureType();
-			eFeature = eFeatureFromImprovement != NO_FEATURE ? eFeatureFromImprovement : eFeature;
 			bool bFeatureStateChanged = false;
-
-			if (!MOD_BALANCE_VP && eFeature != pDirectivePlot->getFeatureType())
+			if (bCanBuild)
 			{
-				sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
-				bFeatureStateChanged = true;
+				FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
+				FeatureTypes eFeature = pkBuildInfo->isFeatureRemove(pDirectivePlot->getFeatureType()) ? NO_FEATURE : pDirectivePlot->getFeatureType();
+				eFeature = eFeatureFromImprovement != NO_FEATURE ? eFeatureFromImprovement : eFeature;
+
+				if (!MOD_BALANCE_VP && eFeature != pDirectivePlot->getFeatureType())
+				{
+					sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
+					bFeatureStateChanged = true;
+				}
 			}
 
-			bool bImprovementStateChanged = false;
-
 			// Improvement considerations
-			if ((eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType()) || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
+			bool bImprovementStateChanged = false;
+			if (bCanBuild)
 			{
-				sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
-				bImprovementStateChanged = true;
+				if ((eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType()) || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
+				{
+					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
+					bImprovementStateChanged = true;
+				}
 			}
 
 			// Defense considerations
 			bool bDefenseStateChanged = false;
-			if (bImprovementStateChanged)
+			if (bCanBuild)
 			{
-				ImprovementTypes eOldImprovement = pDirectivePlot->getImprovementType();
-				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-
-				int iOldDefenseModifier = pkOldImprovementInfo ? pkOldImprovementInfo->GetDefenseModifier() : 0;
-				int iOldImprovementDamage = pkOldImprovementInfo ? pkOldImprovementInfo->GetNearbyEnemyDamage() : 0;
-
-				int iNewDefenseModifier = pkImprovementInfo ? pkImprovementInfo->GetDefenseModifier() : 0;
-				int iNewImprovementDamage = pkImprovementInfo ? pkImprovementInfo->GetNearbyEnemyDamage() : 0;
-
-				if (iNewDefenseModifier != iOldDefenseModifier)
+				if (bImprovementStateChanged)
 				{
-					sState.mExtraDefense[pDirectivePlot->GetPlotIndex()] = iNewDefenseModifier - iOldDefenseModifier;
-					bDefenseStateChanged = true;
-				}
-				if (iNewImprovementDamage != iOldImprovementDamage)
-				{
-					sState.mExtraDamageToAdjacent[pDirectivePlot->GetPlotIndex()] = iNewImprovementDamage - iOldImprovementDamage;
-					bDefenseStateChanged = true;
+					ImprovementTypes eOldImprovement = pDirectivePlot->getImprovementType();
+					CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+
+					int iOldDefenseModifier = pkOldImprovementInfo ? pkOldImprovementInfo->GetDefenseModifier() : 0;
+					int iOldImprovementDamage = pkOldImprovementInfo ? pkOldImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+					int iNewDefenseModifier = pkImprovementInfo ? pkImprovementInfo->GetDefenseModifier() : 0;
+					int iNewImprovementDamage = pkImprovementInfo ? pkImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+					if (iNewDefenseModifier != iOldDefenseModifier)
+					{
+						sState.mExtraDefense[pDirectivePlot->GetPlotIndex()] = iNewDefenseModifier - iOldDefenseModifier;
+						bDefenseStateChanged = true;
+					}
+					if (iNewImprovementDamage != iOldImprovementDamage)
+					{
+						sState.mExtraDamageToAdjacent[pDirectivePlot->GetPlotIndex()] = iNewImprovementDamage - iOldImprovementDamage;
+						bDefenseStateChanged = true;
+					}
 				}
 			}
 
@@ -3003,9 +3002,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
 				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
-				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
+				ImprovementTypes eOtherImprovement = pkOtherBuildInfo ? (ImprovementTypes)pkOtherBuildInfo->getImprovement() : eOldImprovement;
 
-				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair() && pOtherPlot->IsImprovementPillaged())
+				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo && pkOtherBuildInfo->isRepair() && pOtherPlot->IsImprovementPillaged())
 					eOtherImprovement = pOtherPlot->getImprovementType();
 
 				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
@@ -3066,7 +3065,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (pOtherPlot->getFeatureType() == pDirectivePlot->getFeatureType())
 					{
 						FeatureTypes eFeatureFromOtherImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetCreatedFeature() : NO_FEATURE;
-						FeatureTypes eOtherFeature = pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
+						FeatureTypes eOtherFeature = pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
 						eOtherFeature = eFeatureFromOtherImprovement != NO_FEATURE ? eFeatureFromOtherImprovement : eOtherFeature;
 
 						if (eOtherFeature != pOtherPlot->getFeatureType())
@@ -3116,15 +3115,12 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// TODO check if we will actually change the yield value before we call ScorePlotBuild
 					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
-						if (eOtherImprovement != NO_IMPROVEMENT)
-						{
-							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+						int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							if (iScore != eOtherDirective.m_iScore)
-							{
-								eOtherDirective.m_iScore = iScore;
-								bDirectiveUpdated = true;
-							}
+						if (iScore != eOtherDirective.m_iScore)
+						{
+							eOtherDirective.m_iScore = iScore;
+							bDirectiveUpdated = true;
 						}
 					}
 				}
@@ -3134,7 +3130,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// If we are building a road, make sure all neighboring road builds get their value set to their full value.
 					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
-						RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+						RouteTypes eOtherRoute = pkOtherBuildInfo ? (RouteTypes)pkOtherBuildInfo->getRoute() : NO_ROUTE;
 						if (eOtherRoute != NO_ROUTE)
 						{
 							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteTypeAndValue(pOtherPlot).second;
