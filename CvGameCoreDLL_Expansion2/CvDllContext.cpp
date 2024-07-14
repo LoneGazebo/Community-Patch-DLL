@@ -54,16 +54,109 @@ CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-CvDllGameContext::CvDllGameContext()
-	: m_uiRngCounter(0)
-	, m_uiNetInitInfoCounter(0)
-	, m_uiNetLoadGameInfoCounter(0)
+// Constructor
+CvDllGameContext::CvDllGameContext() :
+	m_uiRngCounter(0),
+	m_uiNetInitInfoCounter(0),
+	m_uiNetLoadGameInfoCounter(0)
 {
 	m_pNetworkSyncronizer = new CvDllNetworkSyncronization();
 	m_pNetMessageHandler = new CvDllNetMessageHandler();
 	m_pScriptSystemUtility = new CvDllScriptSystemUtility();
 	m_pWorldBuilderMapLoader = new CvDllWorldBuilderMapLoader();
+}
+//------------------------------------------------------------------------------
+// Copy constructor
+CvDllGameContext::CvDllGameContext(const CvDllGameContext& other) :
+	m_uiRngCounter(other.m_uiRngCounter),
+	m_uiNetInitInfoCounter(other.m_uiNetInitInfoCounter),
+	m_uiNetLoadGameInfoCounter(other.m_uiNetLoadGameInfoCounter)
+{
+	m_pNetworkSyncronizer = new CvDllNetworkSyncronization(*other.m_pNetworkSyncronizer);
+	m_pNetMessageHandler = new CvDllNetMessageHandler(*other.m_pNetMessageHandler);
+	m_pScriptSystemUtility = new CvDllScriptSystemUtility(*other.m_pScriptSystemUtility);
+	m_pWorldBuilderMapLoader = new CvDllWorldBuilderMapLoader(*other.m_pWorldBuilderMapLoader);
+
+	for (std::vector<std::pair<uint, CvRandom*> >::const_iterator it = other.m_RandomNumberGenerators.begin();
+		it != other.m_RandomNumberGenerators.end(); ++it)
+	{
+		m_RandomNumberGenerators.push_back(std::make_pair(it->first, it->second->Clone()));
+	}
+
+	for (std::vector<std::pair<uint, CvDllNetInitInfo*> >::const_iterator it = other.m_NetInitInfos.begin();
+		it != other.m_NetInitInfos.end(); ++it)
+	{
+		m_NetInitInfos.push_back(std::make_pair(it->first, new CvDllNetInitInfo(*it->second)));
+	}
+
+	for (std::vector<std::pair<uint, CvDllNetLoadGameInfo*> >::const_iterator it = other.m_NetLoadGameInfos.begin();
+		it != other.m_NetLoadGameInfos.end(); ++it)
+	{
+		m_NetLoadGameInfos.push_back(std::make_pair(it->first, new CvDllNetLoadGameInfo(*it->second)));
+	}
+}
+//------------------------------------------------------------------------------
+// Assignment operator
+CvDllGameContext& CvDllGameContext::operator=(const CvDllGameContext& other)
+{
+	if (this != &other)
+	{
+		// Free existing resources
+		delete m_pNetworkSyncronizer;
+		delete m_pNetMessageHandler;
+		delete m_pScriptSystemUtility;
+		delete m_pWorldBuilderMapLoader;
+
+		for (std::vector<std::pair<uint, CvRandom*> >::iterator it = m_RandomNumberGenerators.begin();
+			it != m_RandomNumberGenerators.end(); ++it)
+		{
+			delete it->second;
+		}
+		m_RandomNumberGenerators.clear();
+
+		for (std::vector<std::pair<uint, CvDllNetInitInfo*> >::iterator it = m_NetInitInfos.begin();
+			it != m_NetInitInfos.end(); ++it)
+		{
+			delete it->second;
+		}
+		m_NetInitInfos.clear();
+
+		for (std::vector<std::pair<uint, CvDllNetLoadGameInfo*> >::iterator it = m_NetLoadGameInfos.begin();
+			it != m_NetLoadGameInfos.end(); ++it)
+		{
+			delete it->second;
+		}
+		m_NetLoadGameInfos.clear();
+
+		// Copy new resources
+		m_uiRngCounter = other.m_uiRngCounter;
+		m_uiNetInitInfoCounter = other.m_uiNetInitInfoCounter;
+		m_uiNetLoadGameInfoCounter = other.m_uiNetLoadGameInfoCounter;
+
+		m_pNetworkSyncronizer = new CvDllNetworkSyncronization(*other.m_pNetworkSyncronizer);
+		m_pNetMessageHandler = new CvDllNetMessageHandler(*other.m_pNetMessageHandler);
+		m_pScriptSystemUtility = new CvDllScriptSystemUtility(*other.m_pScriptSystemUtility);
+		m_pWorldBuilderMapLoader = new CvDllWorldBuilderMapLoader(*other.m_pWorldBuilderMapLoader);
+
+		for (std::vector<std::pair<uint, CvRandom*> >::const_iterator it = other.m_RandomNumberGenerators.begin();
+			it != other.m_RandomNumberGenerators.end(); ++it)
+		{
+			m_RandomNumberGenerators.push_back(std::make_pair(it->first, it->second->Clone()));
+		}
+
+		for (std::vector<std::pair<uint, CvDllNetInitInfo*> >::const_iterator it = other.m_NetInitInfos.begin();
+			it != other.m_NetInitInfos.end(); ++it)
+		{
+			m_NetInitInfos.push_back(std::make_pair(it->first, new CvDllNetInitInfo(*it->second)));
+		}
+
+		for (std::vector<std::pair<uint, CvDllNetLoadGameInfo*> >::const_iterator it = other.m_NetLoadGameInfos.begin();
+			it != other.m_NetLoadGameInfos.end(); ++it)
+		{
+			m_NetLoadGameInfos.push_back(std::make_pair(it->first, new CvDllNetLoadGameInfo(*it->second)));
+		}
+	}
+	return *this;
 }
 //------------------------------------------------------------------------------
 CvDllGameContext::~CvDllGameContext()

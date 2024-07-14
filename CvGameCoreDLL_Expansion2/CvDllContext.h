@@ -19,7 +19,10 @@ class CvDllWorldBuilderMapLoader;
 class CvDllGameContext : public ICvGameContext3
 {
 public:
-	virtual ~CvDllGameContext();
+    CvDllGameContext(); // Constructor
+    CvDllGameContext(const CvDllGameContext& other); // Copy constructor
+    CvDllGameContext& operator=(const CvDllGameContext& other); // Assignment operator
+    virtual ~CvDllGameContext(); // Destructor
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 
@@ -202,8 +205,6 @@ public:
 
 protected:
 	void DLLCALL Destroy();
-
-	CvDllGameContext();
 
 
 private:

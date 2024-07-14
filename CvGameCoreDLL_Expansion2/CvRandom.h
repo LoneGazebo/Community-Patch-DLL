@@ -95,6 +95,7 @@ class CvRandom
 
 public:
 	CvRandom(const std::string& name);
+	CvRandom* Clone() const;
 	virtual ~CvRandom();
 
 	void init(unsigned long long ullSeed);
