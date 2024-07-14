@@ -95,21 +95,21 @@ private:
 class CvStartRegion
 {
 public:
-	CvStartRegion()
+    CvStartRegion() :
+		m_uiFertility(0),
+		m_iAreaID(-1),
+		m_bLargeEnoughForMajorCiv(true),
+		m_iNumCivsPlaced(0)
 	{
-		m_uiFertility = 0;
-		m_iAreaID = -1;
-		m_bLargeEnoughForMajorCiv = true;
-		m_iNumCivsPlaced = 0;
 	}
 
-	CvStartRegion(const CvStartRegion& source)
+    CvStartRegion(const CvStartRegion& source) :
+		m_Boundaries(source.m_Boundaries),
+		m_uiFertility(source.m_uiFertility),
+		m_iAreaID(source.m_iAreaID),
+		m_bLargeEnoughForMajorCiv(source.m_bLargeEnoughForMajorCiv),
+		m_iNumCivsPlaced(source.m_iNumCivsPlaced)
 	{
-		m_Boundaries = source.m_Boundaries;
-		m_uiFertility = source.m_uiFertility;
-		m_iAreaID = source.m_iAreaID;
-		m_bLargeEnoughForMajorCiv = source.m_bLargeEnoughForMajorCiv;
-		m_iNumCivsPlaced = source.m_iNumCivsPlaced;
 	}
 
 	bool operator<(const CvStartRegion& continent) const
