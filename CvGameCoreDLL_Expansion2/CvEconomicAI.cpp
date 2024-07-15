@@ -2436,7 +2436,8 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());
 				if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
 				{
-					iWeight *= 2;
+					// make sure the core cities for spaceship production have the highest score
+					iWeight *= 10;
 				}
 				vCityEconomicWeights.push_back(pLoopCity, iWeight);
 			}
@@ -2446,7 +2447,16 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 				// start selling buildings in the worst cities
 				for (int i = vCityEconomicWeights.size() - 1; i >= 0; i--)
 				{
+
 					CvCity* pLoopCity = vCityEconomicWeights.GetElement(i);
+					// if this is a core city, sell buildings only if we need them for spaceship parts
+					if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
+					{
+						if (iNumAluminumWeNeed - iNumTotalAluminumNeededForCoreCities <= 0)
+						{
+							continue;
+						}
+					}
 					BuildingTypes eBestBuilding = NO_BUILDING;
 					int iNumAluminumInBuilding = 0;
 					int iWorstRefund = INT_MAX;
@@ -2458,6 +2468,14 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 
 						if (pkBuildingInfo && pkBuildingInfo->GetResourceQuantityRequirement(eAluminum) > 0)
 						{
+							// Building in queue? Cancel it.
+							if (pLoopCity->isBuildingInQueue(eBuilding))
+							{
+								eBestBuilding = eBuilding;
+								iNumAluminumInBuilding = pkBuildingInfo->GetResourceQuantityRequirement(eAluminum);
+								// canceling a building in queue is always better than selling an existing one, so don't consider other options anymore
+								break;
+							}
 							// Has this Building
 							if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && pLoopCity->GetCityBuildings()->IsBuildingSellable(*pkBuildingInfo))
 							{
@@ -2473,11 +2491,11 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 					}
 					if (eBestBuilding != NO_BUILDING)
 					{
-						pLoopCity->GetCityBuildings()->DoSellBuilding(eBestBuilding);
+						pLoopCity->isBuildingInQueue(eBestBuilding) ? pLoopCity->clearOrderQueue() : pLoopCity->GetCityBuildings()->DoSellBuilding(eBestBuilding);
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Selling building %s in %s to get aluminum for spaceship.  Aluminum available after disbanding: %d", GC.getBuildingInfo(eBestBuilding)->GetText(), pLoopCity->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+							strLogString.Format("Selling or canceling production of building %s in %s to get aluminum for spaceship. Aluminum available now: %d", GC.getBuildingInfo(eBestBuilding)->GetText(), pLoopCity->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
 							m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 						}
 						iNumAluminumWeNeed -= iNumAluminumInBuilding;
