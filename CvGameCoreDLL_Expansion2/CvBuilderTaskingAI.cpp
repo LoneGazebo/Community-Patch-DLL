@@ -702,7 +702,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		return;
 
 	ShortcutConnectionHelper(pCity1, pCity2, eBuild, eRoute, iPlotDistance, false);
-	if (MOD_BALANCE_VP && eRoute == ROUTE_ROAD)
+	if (MOD_RIVER_TRADE_ROUTES && eRoute == ROUTE_ROAD)
 		ShortcutConnectionHelper(pCity1, pCity2, eBuild, eRoute, iPlotDistance, true);
 }
 

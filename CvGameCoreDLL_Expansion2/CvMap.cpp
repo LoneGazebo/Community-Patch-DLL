@@ -2566,8 +2566,7 @@ void CvMap::RecalculateRivers()
 //	--------------------------------------------------------------------------------
 void CvMap::CalculateRivers()
 {
-	// No need to calculate rivers for CP
-	if (!MOD_BALANCE_VP)
+	if (!MOD_RIVER_TRADE_ROUTES)
 		return;
 
 	CvPlot* pLoopPlot = NULL;
