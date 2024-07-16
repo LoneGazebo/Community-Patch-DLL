@@ -31727,12 +31727,13 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	if (!pTargetPlot->isVisible(getTeam()))
 		return false;
 
-	int iAttackRange = getBombardRange();
+	bool bIndirectFire = false;
+	int iAttackRange = getBombardRange(bIndirectFire);
 
 	if (plotDistance(plot()->getX(), plot()->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > iAttackRange)
 		return false;
 
-	if (!plot()->canSeePlot(pTargetPlot, getTeam(), iAttackRange, NO_DIRECTION))
+	if (!bIndirectFire && !plot()->canSeePlot(pTargetPlot, getTeam(), iAttackRange, NO_DIRECTION))
 		return false;
 
 	// Can't attack other cities directly
