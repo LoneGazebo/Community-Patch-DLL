@@ -54088,7 +54088,6 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 		default:
 		{
 			return 0;
-			break;
 		}
 	}
 

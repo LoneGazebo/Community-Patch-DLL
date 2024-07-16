@@ -10,43 +10,38 @@
 #include "CvDllNetInitInfo.h"
 #include "CvDllContext.h"
 
-CvDllNetInitInfo::CvDllNetInitInfo()
-	: m_uiRefCount(1)
+CvDllNetInitInfo::CvDllNetInitInfo() :
+	m_uiRefCount(1),
+	m_szLoadFileName(CvPreGame::loadFileName()),
+	m_eLoadFileStorage(CvPreGame::loadFileStorage()),
+	m_szMapScriptName(CvPreGame::mapScriptName()),
+	m_bIsEarthMap(false),
+	m_bIsRandomMapScript(CvPreGame::randomMapScript()),
+	m_bIsRandomWorldSize(CvPreGame::randomWorldSize()),
+	m_bWBMapNoPlayers(CvPreGame::mapNoPlayers()),
+	m_eWorldSize(CvPreGame::worldSize()),
+	m_eClimate(CvPreGame::climate()),
+	m_eSeaLevel(CvPreGame::seaLevel()),
+	m_eEra(CvPreGame::era()),
+	m_eCalendar(CvPreGame::calendar()),
+	m_iGameTurn(CvPreGame::gameTurn()),
+	m_bGameStarted(CvPreGame::gameStarted()),
+	m_eGameSpeed(CvPreGame::gameSpeed()),
+	m_eTurnTimerEnabled(CvPreGame::turnTimer()),
+	m_iTurnTimerTime(CvPreGame::pitBossTurnTime()),
+	m_szGameName(CvPreGame::gameName()),
+	m_uiSyncRandSeed(CvPreGame::syncRandomSeed()),
+	m_uiMapRandSeed(CvPreGame::mapRandomSeed()),
+	m_abVictories(CvPreGame::victories()),
+	m_aGameOptions(CvPreGame::GetGameOptions()),
+	m_aMapOptions(CvPreGame::GetMapOptions()),
+	m_abMPOptions(CvPreGame::multiplayerOptions()),
+	m_iMaxTurns(CvPreGame::maxTurns()),
+	m_iMaxCityElimination(CvPreGame::maxCityElimination()),
+	m_iNumMinorCivs(CvPreGame::numMinorCivs()),
+	m_eMode(CvPreGame::gameMode()),
+	m_aiKnownPlayersTable(CvPreGame::GetKnownPlayersTable())
 {
-	m_szLoadFileName = CvPreGame::loadFileName();
-	m_eLoadFileStorage = CvPreGame::loadFileStorage();
-	m_szMapScriptName = CvPreGame::mapScriptName();
-	m_bIsEarthMap = false;
-	m_bIsRandomMapScript = CvPreGame::randomMapScript();
-	m_bIsRandomWorldSize = CvPreGame::randomWorldSize();
-	m_bWBMapNoPlayers = CvPreGame::mapNoPlayers();
-	m_eWorldSize = CvPreGame::worldSize();
-	m_eClimate = CvPreGame::climate();
-	m_eSeaLevel = CvPreGame::seaLevel();
-	m_eEra = CvPreGame::era();
-	m_eCalendar = CvPreGame::calendar();
-	m_iGameTurn = CvPreGame::gameTurn();
-	m_bGameStarted = CvPreGame::gameStarted();
-	m_eGameSpeed = CvPreGame::gameSpeed();
-	m_eTurnTimerEnabled = CvPreGame::turnTimer();
-	m_iTurnTimerTime = CvPreGame::pitBossTurnTime();
-	m_szGameName = CvPreGame::gameName();
-	m_uiSyncRandSeed = CvPreGame::syncRandomSeed();
-	m_uiMapRandSeed = CvPreGame::mapRandomSeed();
-
-	m_abVictories = CvPreGame::victories();
-
-	m_aGameOptions = CvPreGame::GetGameOptions();
-	m_aMapOptions = CvPreGame::GetMapOptions();
-	m_abMPOptions = CvPreGame::multiplayerOptions();
-
-	m_iMaxTurns = CvPreGame::maxTurns();
-	m_iMaxCityElimination = CvPreGame::maxCityElimination();
-	m_iNumMinorCivs = CvPreGame::numMinorCivs();
-	m_eMode = CvPreGame::gameMode();
-
-	m_aiKnownPlayersTable = CvPreGame::GetKnownPlayersTable();
-	
 	ZeroMemory(m_szDebugString, sizeof m_szDebugString);
 }
 //------------------------------------------------------------------------------

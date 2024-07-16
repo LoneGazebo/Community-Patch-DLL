@@ -10167,8 +10167,6 @@ CvRandom& CvGame::getJonRand()
 {
 	return m_jonRand;
 }
-
-
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
 /// Allows for logging.
@@ -10182,30 +10180,31 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
-/// Allows for logging.
-// Unfortunately we need to name the method differently so that the non-va one can still exist without
-// causing ambiguous call errors.  The non VA one is needed for use as a delegate
+/// Allows for logging with variable arguments.
+/// This method allows logging with formatted strings similar to printf.
+/// Unfortunately we need to name the method differently so that the non-va one can still exist without
+/// causing ambiguous call errors.  The non VA one is needed for use as a delegate.
 int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 {
 	if (pszLog)
 	{
-		const size_t uiOutputSize = 512;
-		char szOutput[uiOutputSize];
+		const size_t uiOutputSize = 512; // Buffer size for formatted log message
+		char szOutput[uiOutputSize]; // Buffer to hold the formatted log message
 
-		va_list vl = NULL;
-		va_start(vl, pszLog);
-		vsprintf_s(szOutput, uiOutputSize, pszLog, vl);
-		va_end(vl);
+		va_list vl; // Declare variable argument list
+		va_start(vl, pszLog); // Initialize the variable argument list
+		vsprintf_s(szOutput, uiOutputSize, pszLog, vl); // Format the log message into the buffer
+		va_end(vl); // Clean up the variable argument list
 
-		return getJonRandNum(iNum, szOutput);
+		return getJonRandNum(iNum, szOutput); // Call the non-variable argument method with the formatted log message
 	}
 	else
-		return getJonRandNum(iNum, NULL);
+		return getJonRandNum(iNum, NULL); // Call the non-variable argument method with no log message
 }
 
 //	--------------------------------------------------------------------------------
 /// Get an asynchronous random number in the range of 0...iNum-1
-/// This should only be called by operations that will not effect gameplay!
+/// This should only be called by operations that will not affect gameplay!
 int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 {
 	if (iNum > 0)
@@ -10213,7 +10212,6 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 
 	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
 }
-
 //	--------------------------------------------------------------------------------
 uint CvGame::randCore(const CvSeeder& extraSeed) const
 {

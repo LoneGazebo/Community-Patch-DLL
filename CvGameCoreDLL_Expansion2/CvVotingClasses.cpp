@@ -213,7 +213,6 @@ ResolutionTypes LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eTyp
 			if (it->GetType() == eType)
 			{
 				return eType;
-				break;
 			}
 		}
 	}

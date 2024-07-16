@@ -1082,20 +1082,21 @@ void CvDllDatabaseUtility::orderHotkeyInfo(int** ppiSortedIndex, int* pHotkeyInd
 //
 // PRIVATE FUNCTIONS
 //
-//
-// for logging
+// Function for logging messages to a log file.
+// Takes a format string and variable arguments similar to printf.
+// Writes formatted log messages to "xml.log".
 //
 void CvDllDatabaseUtility::LogMsg(const char* format, ...) const
 {
-	const size_t kBuffSize = 1024;
-	static char buf[kBuffSize];
-	const uint uiFlags = 0;    // Default (0) is to not write to console and to time stamp
+	const size_t kBuffSize = 1024; // Buffer size for the formatted log message
+	static char buf[kBuffSize]; // Static buffer to hold the log message
+	const uint uiFlags = 0; // Default (0) is to not write to console and to time stamp
 
-	va_list vl = NULL;
-	va_start(vl,format);
-	vsprintf_s(buf, format, vl);
-	va_end(vl);
+	va_list vl; // Declare variable argument list
+	va_start(vl, format); // Initialize the variable argument list
+	vsprintf_s(buf, format, vl); // Format the log message into the buffer
+	va_end(vl); // Clean up the variable argument list
 
+	// Write the formatted message to the log file
 	LOGFILEMGR.GetLog("xml.log", uiFlags)->Msg(buf);
 }
-
