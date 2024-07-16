@@ -1199,20 +1199,19 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
 
-			// Structure of iTurnNumber:
-			// ones digit: the remaining movement points of the unit (rounded up if not an integer)
-			// tens digit: the total movement points of the unit
-			// all higher digits: the number of turns to reach the plot
-
-			CvPlot* pPlot = GC.getMap().plotUnchecked(path.vPlots[i].x, path.vPlots[i].y);
-			update.iTurnNumber = path.vPlots[i].turns * 100;
-			update.iTurnNumber += 10 * (min(pkUnit->baseMoves(pPlot->needsEmbarkation(pkUnit)), 9));
-			if (path.vPlots[i].moves>0)
-				update.iTurnNumber += min(((int)path.vPlots[i].moves-1)/GD_INT_GET(MOVE_DENOMINATOR)+1, 9); //movement points left
-
-			//in debug mode just use the raw number, it's actually the known cost (in debug mode)
 			if (eMode==TC_DEBUG)
+				//in debug mode just use the raw number, it's actually the known cost (in debug mode)
 				update.iTurnNumber = path.vPlots[i].turns;
+			else
+			{
+				// We can only pass a single integer to the UI
+				// But we want to fit in turn count and remaining moves
+				// Use MOVE_DENOMINATOR as the multiplier b/c that's used internally as well
+				int iMultiplier = GC.getMOVE_DENOMINATOR();
+				int iRemaining = (int)path.vPlots[i].moves;
+				// Assume we will never have more than 60*60 remaining movement points ...
+				update.iTurnNumber = path.vPlots[i].turns * iMultiplier * iMultiplier + iRemaining;
+			}
 
 			pUpdateData.push_back(update);
 		}
