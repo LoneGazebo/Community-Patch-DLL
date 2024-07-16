@@ -1,4 +1,8 @@
 UPDATE Language_en_US
+SET Text = 'Although rich in biodiversity, marshes have little other than food to offer a hungry growing civilization, as they must be drained or otherwise altered before they provide any city bonuses.'
+WHERE Tag = 'TXT_KEY_CIV5_FEATURES_MARSH_TEXT';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
 WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA';
 
