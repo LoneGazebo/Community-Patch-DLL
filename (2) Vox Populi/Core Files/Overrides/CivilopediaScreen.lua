@@ -3510,7 +3510,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("MaxHitPointsModifier");
 		-- Domains
 		for row in DB.Query("SELECT Domains.Description, UnitPromotions_Domains.Modifier, UnitPromotions_Domains.Attack, UnitPromotions_Domains.Defense FROM UnitPromotions_Domains INNER JOIN Domains ON UnitPromotions_Domains.DomainType = Domains.Type WHERE PromotionType = ?", thisPromotion.Type) do
-			if row.Modifier ~= 0 then sText = sText.."[NEWLINE][ICON_BULLET]"..string.format("%+d", row.Modifier).."% strength against [COLOR_CYAN]"..Locale.Lookup(row.Description).."[ENDCOLOR]"; end
+			if row.Modifier and row.Modifier ~= 0 then sText = sText.."[NEWLINE][ICON_BULLET]"..string.format("%+d", row.Modifier).."% strength against [COLOR_CYAN]"..Locale.Lookup(row.Description).."[ENDCOLOR]"; end
 			if row.Attack ~= 0 then sText = sText.."[NEWLINE][ICON_BULLET]"..string.format("%+d", row.Attack).."% strength when attacking [COLOR_CYAN]"..Locale.Lookup(row.Description).."[ENDCOLOR]"; end
 			if row.Defense ~= 0 then sText = sText.."[NEWLINE][ICON_BULLET]"..string.format("%+d", row.Defense).."% strength when defending against [COLOR_CYAN]"..Locale.Lookup(row.Description).."[ENDCOLOR]"; end
 		end
