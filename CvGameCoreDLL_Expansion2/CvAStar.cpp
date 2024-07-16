@@ -755,9 +755,7 @@ SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 
 	CvAStarNode* pNode = m_pBest;
 	if (!pNode)
-	{
 		return ret;
-	}
 
 	ret.iTotalCost = pNode->m_iKnownCost;
 	ret.iNormalizedDistanceRaw = (pNode->m_iKnownCost * SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
