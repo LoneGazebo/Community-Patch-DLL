@@ -30,6 +30,15 @@ CvRandom::CvRandom(const std::string& name) :
 	reset();
 }
 
+CvRandom* CvRandom::Clone() const {
+    CvRandom* newRandom = new CvRandom(m_name);
+    newRandom->m_ullRandomSeed = m_ullRandomSeed;
+    newRandom->m_ulCallCount = m_ulCallCount;
+    newRandom->m_ulResetCount = m_ulResetCount;
+    newRandom->m_bSynchronous = m_bSynchronous;
+    return newRandom;
+}
+
 /*
 // private
 CvRandom::CvRandom(const CvRandom& source) :
