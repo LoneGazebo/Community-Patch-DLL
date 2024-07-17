@@ -2898,6 +2898,171 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
+		
+		// if we are in a modified state, we may want to change the yields in the current plot based on planned adjacent improvements
+		if (bIsWithinWorkRange)
+		{
+			CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
+			int iTwoAdjacentNewYieldGains = 0;
+			int iTwoAdjacentOldYieldGains = 0;
+			int iTwoAdjacentNewYieldLosses = 0;
+			int iTwoAdjacentOldYieldLosses = 0;
+
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				CvPlot* pAdjacentPlot = pAdjacentPlots[iI];
+
+				if (!pAdjacentPlot)
+					continue;
+
+				map<int, FeatureTypes>::const_iterator changedFeatureIt = sState.mChangedPlotFeatures.find(pAdjacentPlot->GetPlotIndex());
+				bool bFeatureChanged = changedFeatureIt != sState.mChangedPlotFeatures.end();
+
+				FeatureTypes eOldAdjacentFeature = pAdjacentPlot->getFeatureType();
+				FeatureTypes eNewAdjacentFeature = bFeatureChanged ? changedFeatureIt->second : eOldAdjacentFeature;
+				// The feature in an adjacent plot has been changed
+				if (eNewAdjacentFeature != eOldAdjacentFeature)
+				{
+
+					if (eOldAdjacentFeature != NO_FEATURE && pkImprovementInfo->GetAdjacentFeatureYieldChanges(eOldAdjacentFeature, eYield) > 0)
+					{
+						iNewYieldTimes100 -= 100 * pkImprovementInfo->GetAdjacentFeatureYieldChanges(eOldAdjacentFeature, eYield);
+					}
+					if (eNewAdjacentFeature != NO_FEATURE && pkImprovementInfo->GetAdjacentFeatureYieldChanges(eNewAdjacentFeature, eYield) > 0)
+					{
+						iNewYieldTimes100 += 100 * pkImprovementInfo->GetAdjacentFeatureYieldChanges(eNewAdjacentFeature, eYield);
+					}
+					if (eOldAdjacentFeature != NO_FEATURE && pkOldImprovementInfo && pkOldImprovementInfo->GetAdjacentFeatureYieldChanges(eOldAdjacentFeature, eYield) > 0)
+					{
+						iNewYieldTimes100 += 100 * pkOldImprovementInfo->GetAdjacentFeatureYieldChanges(eOldAdjacentFeature, eYield);
+					}
+					if (eNewAdjacentFeature != NO_FEATURE && pkOldImprovementInfo && pkOldImprovementInfo->GetAdjacentFeatureYieldChanges(eNewAdjacentFeature, eYield))
+					{
+						iNewYieldTimes100 -= 100 * pkOldImprovementInfo->GetAdjacentFeatureYieldChanges(eNewAdjacentFeature, eYield);
+					}
+				}
+
+				map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
+				bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
+
+				const ImprovementTypes eOldAdjacentImprovement = !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
+				const ImprovementTypes eNewAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : eOldAdjacentImprovement;
+
+				// Changes based on adjacent similar planned or planned to be removed improvements
+				if (pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield) > 0)
+				{
+					if (eImprovement == eOldAdjacentImprovement)
+					{
+						iTwoAdjacentOldYieldGains += pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
+					}
+					if (eImprovement == eNewAdjacentImprovement)
+					{
+						iTwoAdjacentNewYieldGains += pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
+					}
+				}
+
+				if (pkOldImprovementInfo && pkOldImprovementInfo->GetYieldAdjacentTwoSameType(eYield) > 0)
+				{
+					if (eOldImprovement == eOldAdjacentImprovement)
+					{
+						iTwoAdjacentOldYieldLosses += pkOldImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
+					}
+					if (eOldImprovement == eNewAdjacentImprovement)
+					{
+						iTwoAdjacentNewYieldLosses += pkOldImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
+					}
+				}
+
+				// The improvement in an adjacent plot has been changed
+				if (eNewAdjacentImprovement != eOldAdjacentImprovement)
+				{
+					if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) > 0)
+					{
+						if (eImprovement == eOldAdjacentImprovement)
+						{
+							iNewYieldTimes100 -= 100 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield);
+						}
+						else if (eImprovement == eNewAdjacentImprovement)
+						{
+							iNewYieldTimes100 += 100 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield);
+						}
+					}
+					if (pkOldImprovementInfo && pkOldImprovementInfo->GetAdjacentSameTypeYield(eYield) > 0)
+					{
+						if (eOldImprovement == eOldAdjacentImprovement)
+						{
+							iNewYieldTimes100 += 100 * pkOldImprovementInfo->GetAdjacentSameTypeYield(eYield);
+						}
+						if (eOldImprovement == eNewAdjacentImprovement)
+						{
+							iNewYieldTimes100 -= 100 * pkOldImprovementInfo->GetAdjacentSameTypeYield(eYield);
+						}
+					}
+
+					CvImprovementEntry* pkOldAdjacentImprovementInfo = GC.getImprovementInfo(eOldAdjacentImprovement);
+					CvImprovementEntry* pkNewAdjacentImprovementInfo = GC.getImprovementInfo(eNewAdjacentImprovement);
+
+					// Bonuses an adjacent improvement would give/gave to this improvement
+					if (eOldAdjacentImprovement != NO_IMPROVEMENT && pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 -= 100 * pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					}
+					if (eNewAdjacentImprovement != NO_IMPROVEMENT && pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 += 100 * pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					}
+					if (eOldImprovement != NO_IMPROVEMENT)
+					{
+						if (eOldAdjacentImprovement != NO_IMPROVEMENT && pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield) > 0)
+						{
+							iNewYieldTimes100 += 100 * pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield);
+						}
+						if (eNewAdjacentImprovement != NO_IMPROVEMENT && pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield) > 0)
+						{
+							iNewYieldTimes100 -= 100 * pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield);
+						}
+					}
+
+					ResourceTypes eResourceFromOldAdjacentImprovement = pkOldAdjacentImprovementInfo ? (ResourceTypes)pkOldAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					ResourceTypes eResourceFromNewAdjacentImprovement = pkNewAdjacentImprovementInfo ? (ResourceTypes)pkNewAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+
+					// Bonuses we would get based on adjacent a resource created by an adjacent improvement
+					if (eResourceFromOldAdjacentImprovement != NO_RESOURCE && pkImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromOldAdjacentImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 -= 100 * pkImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromOldAdjacentImprovement, eYield);
+					}
+					if (eResourceFromNewAdjacentImprovement != NO_RESOURCE && pkImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromNewAdjacentImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 += 100 * pkImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromNewAdjacentImprovement, eYield);
+					}
+					if (eResourceFromOldAdjacentImprovement != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromOldAdjacentImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 += 100 * pkOldImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromOldAdjacentImprovement, eYield);
+					}
+					if (eResourceFromNewAdjacentImprovement != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromNewAdjacentImprovement, eYield) > 0)
+					{
+						iNewYieldTimes100 -= 100 * pkOldImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromNewAdjacentImprovement, eYield);
+					}
+				}
+			}
+
+			if (iTwoAdjacentOldYieldGains > 1)
+			{
+				iNewYieldTimes100 -= 100 * (iTwoAdjacentOldYieldGains / 2);
+			}
+			if (iTwoAdjacentNewYieldGains > 1)
+			{
+				iNewYieldTimes100 += 100 * (iTwoAdjacentNewYieldGains / 2);
+			}
+			if (iTwoAdjacentOldYieldLosses > 1)
+			{
+				iNewYieldTimes100 += 100 * (iTwoAdjacentOldYieldLosses / 2);
+			}
+			if (iTwoAdjacentNewYieldLosses > 1)
+			{
+				iNewYieldTimes100 -= 100 * (iTwoAdjacentNewYieldLosses / 2);
+			}
+		}
 
 		// Bonuses yield that this improvement provides to adjacent improvements
 		CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
