@@ -753,7 +753,6 @@ function()
 	local plotX = plot:GetX();
 	local plotY = plot:GetY();
 	local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
-	local pUnitClass = pHeadSelectedUnit:GetUnitClassType()
 
 	if pHeadSelectedUnit ~= nil and showAlternativeMoveHighlights(pHeadSelectedUnit, plot) then
 		return;
@@ -808,8 +807,6 @@ function MovementRButtonUp()
 	local plotX = plot:GetX();
 	local plotY = plot:GetY();
 	local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
-	local pUnitClass = pHeadSelectedUnit:GetUnitClassType()
-	local pUnitID = pHeadSelectedUnit:GetID()
 	UpdatePathFromSelectedUnitToMouse();
 --	if bShift then
 --		UpdatePathFromWaypointToMouse();
@@ -818,6 +815,8 @@ function MovementRButtonUp()
 --	end
 
 	if pHeadSelectedUnit then
+		local pUnitClass = pHeadSelectedUnit:GetUnitClassType()
+		local pUnitID = pHeadSelectedUnit:GetID()
 		if UI.IsCameraMoving() and not Game.GetAllowRClickMovementWhileScrolling() then
 			print("Blocked by moving camera");
 			--Events.ClearHexHighlights();
