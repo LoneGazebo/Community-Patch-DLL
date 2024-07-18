@@ -1175,9 +1175,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pDefenderEspionageAI->m_aiNumSpiesKilled[m_pPlayer->GetID()]++;
 
 						// You broke the promise you made!
-						if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->IsPlayerMadeSpyPromise(m_pPlayer->GetID()))
+						if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->MadeSpyPromise(m_pPlayer->GetID()))
 						{
-							GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetPlayerSpyPromiseState(m_pPlayer->GetID(), PROMISE_STATE_BROKEN);
+							GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetSpyPromiseState(m_pPlayer->GetID(), PROMISE_STATE_BROKEN);
 						}
 					}
 
@@ -1243,9 +1243,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
 
 							// You broke the promise you made!
-							if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->IsPlayerMadeSpyPromise(m_pPlayer->GetID()))
+							if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->MadeSpyPromise(m_pPlayer->GetID()))
 							{
-								GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetPlayerSpyPromiseState(m_pPlayer->GetID(), PROMISE_STATE_BROKEN);
+								GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetSpyPromiseState(m_pPlayer->GetID(), PROMISE_STATE_BROKEN);
 							}
 						}
 					}
@@ -1669,9 +1669,9 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 			pDefenderEspionageAI->m_aiNumSpiesCaught[eSpyOwner]++;
 		}
 		// You broke the promise you made!
-		if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->IsPlayerMadeSpyPromise(eSpyOwner))
+		if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->MadeSpyPromise(eSpyOwner))
 		{
-			GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetPlayerSpyPromiseState(eSpyOwner, PROMISE_STATE_BROKEN);
+			GET_PLAYER(eCityOwner).GetDiplomacyAI()->SetSpyPromiseState(eSpyOwner, PROMISE_STATE_BROKEN);
 		}
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)

@@ -5865,7 +5865,7 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 			{
 				if(pLoopPlot->getOwner() != NO_PLAYER)
 				{
-					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->MadeNoDiggingPromise(pLoopPlot->getOwner()))
 					{
 						return true;
 					}

@@ -58,8 +58,8 @@
     <!-- If you enable this option, you will need to add back the abilities to the standard GA -->
     <Row Class="5" Name="GLOBAL_SEPARATE_GREAT_ADMIRAL" Value="0" DbUpdates="1"/>
 
-    <!-- Lets all Civs get trade routes along rivers. -->
-    <Row Class="5" Name="RIVER_TRADE_ROUTES" Value="0"/>
+    <!-- Lets all Civs get City Connections along rivers. -->
+    <Row Class="5" Name="RIVER_CITY_CONNECTIONS" Value="0"/>
 
     <!-- Permits units to have promotion trees different from their assigned CombatClass (v19) -->
     <!-- See also: "Promotions - Subs Silent Running" -->

@@ -9141,7 +9141,7 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 			}
 
 			//Ignore conversion requests.
-			if (!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(kLoopPlayer.GetID()))
+			if (!m_pPlayer->GetDiplomacyAI()->MadeNoConvertPromise(kLoopPlayer.GetID()))
 			{
 				int iNumCities = 0;
 				int iLoop = 0;

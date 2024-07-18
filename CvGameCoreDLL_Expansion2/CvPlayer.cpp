@@ -8697,15 +8697,15 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetNumTimesRobbedBy(*it, 0);
 
 				// Reset all promises
-				pDiploAI->SetPlayerMilitaryPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerExpansionPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerBorderPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerBullyCityStatePromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerAttackCityStatePromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerSpyPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerNoConvertPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerNoDiggingPromiseState(*it, NO_PROMISE_STATE);
-				pDiploAI->SetPlayerBrokenCoopWarPromise(*it, false);
+				pDiploAI->SetMilitaryPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetExpansionPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetBorderPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetBullyCityStatePromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetAttackCityStatePromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetSpyPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetNoConvertPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetNoDiggingPromiseState(*it, NO_PROMISE_STATE);
+				pDiploAI->SetBrokeCoopWarPromise(*it, false);
 
 				pDiploAI->SetOtherPlayerNumProtectedMinorsKilled(*it, 0);
 				pDiploAI->SetOtherPlayerNumProtectedMinorsAttacked(*it, 0);
@@ -8739,14 +8739,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetEverSanctionedUs(*it, false);
 
 				pDiploAI->SetVassalageForcefullyRevokedTurn(*it, -1);
-				pDiploAI->SetPlayerBrokenVassalAgreement(*it, false);
+				pDiploAI->SetBrokeVassalAgreement(*it, false);
 
 				// Clear this player's backstabbing penalties
 				pMemberDiploAI->SetDoFBroken(ePlayer, false, true);
 				pMemberDiploAI->SetFriendDenouncedUs(ePlayer, false);
 				pMemberDiploAI->SetFriendDeclaredWarOnUs(ePlayer, false);
 				pMemberDiploAI->SetVassalageForcefullyRevokedTurn(ePlayer, -1);
-				pMemberDiploAI->SetPlayerBrokenVassalAgreement(ePlayer, false);
+				pMemberDiploAI->SetBrokeVassalAgreement(ePlayer, false);
 
 				// Clear backstabbing mark
 				pDiploAI->SetBackstabbedBy(*it, false, false);
@@ -32470,9 +32470,9 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerNumProtectedMinorsKilled(eKiller, 1);
 
 									// Player broke a promise that he wasn't going to kill the Minor
-									if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(eKiller))
+									if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->MadeAttackCityStatePromise(eKiller))
 									{
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(eKiller, PROMISE_STATE_BROKEN);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetAttackCityStatePromiseState(eKiller, PROMISE_STATE_BROKEN);
 									}
 								}
 							}

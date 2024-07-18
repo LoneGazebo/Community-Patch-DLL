@@ -1415,7 +1415,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 					if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
 					{
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(eLoopPlayer2, true);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetBrokeVassalAgreement(eLoopPlayer2, true);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
 
 						// Friends of the vassal - penalty to recent assistance!
@@ -4864,7 +4864,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 
 							if (pDiplo->IsPlayerValid(eThirdParty, true) && pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer) == COOP_WAR_STATE_PREPARING)
 							{
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetBrokeCoopWarPromise(eLoopPlayer, true);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarAgreementScore(eLoopPlayer, -2);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
 

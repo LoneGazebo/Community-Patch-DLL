@@ -624,24 +624,24 @@ public:
 	// ------------------------------------
 
 	// Military Promise
-	PromiseStates GetPlayerMilitaryPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerMilitaryPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
+	PromiseStates GetMilitaryPromiseState(PlayerTypes ePlayer) const;
+	void SetMilitaryPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetMilitaryPromiseTurn(PlayerTypes ePlayer) const;
+	void SetMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeMilitaryPromise(PlayerTypes ePlayer) const;
 	int GetNumTurnsMilitaryPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
+	bool IgnoredMilitaryPromise(PlayerTypes ePlayer) const;
+	bool BrokeMilitaryPromise(PlayerTypes ePlayer) const;
 
 	// Expansion Promise
-	PromiseStates GetPlayerExpansionPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerExpansionPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	bool IsPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const;
+	PromiseStates GetExpansionPromiseState(PlayerTypes ePlayer) const;
+	void SetExpansionPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	bool MadeExpansionPromise(PlayerTypes ePlayer) const;
+	bool IgnoredExpansionPromise(PlayerTypes ePlayer) const;
+	bool BrokeExpansionPromise(PlayerTypes ePlayer) const;
 	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
-	int GetPlayerExpansionPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	int GetExpansionPromiseTurn(PlayerTypes ePlayer) const;
+	void SetExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	int GetNumTurnsExpansionPromise(PlayerTypes ePlayer) const;
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
 	bool IsAngryAboutExpansion(PlayerTypes ePlayer) const;
@@ -650,80 +650,80 @@ public:
 	void SetEverRequestedExpansionPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Border Promise
-	PromiseStates GetPlayerBorderPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerBorderPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	bool IsPlayerMadeBorderPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredBorderPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenBorderPromise(PlayerTypes ePlayer) const;
-	int GetPlayerBorderPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerBorderPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	PromiseStates GetBorderPromiseState(PlayerTypes ePlayer) const;
+	void SetBorderPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	bool MadeBorderPromise(PlayerTypes ePlayer) const;
+	bool IgnoredBorderPromise(PlayerTypes ePlayer) const;
+	bool BrokeBorderPromise(PlayerTypes ePlayer) const;
+	int GetBorderPromiseTurn(PlayerTypes ePlayer) const;
+	void SetBorderPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	int GetNumTurnsBorderPromise(PlayerTypes ePlayer) const;
-	AggressivePostureTypes GetPlayerBorderPromisePosture(PlayerTypes ePlayer) const;
-	void SetPlayerBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
+	AggressivePostureTypes GetBorderPromisePosture(PlayerTypes ePlayer) const;
+	void SetBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 	bool EverMadeBorderPromise(PlayerTypes ePlayer) const;
 	void SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Bully City-State Promise
-	PromiseStates GetPlayerBullyCityStatePromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerBullyCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerBullyCityStatePromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerBullyCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer) const;
+	PromiseStates GetBullyCityStatePromiseState(PlayerTypes ePlayer) const;
+	void SetBullyCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetBullyCityStatePromiseTurn(PlayerTypes ePlayer) const;
+	void SetBullyCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeBullyCityStatePromise(PlayerTypes ePlayer) const;
+	bool IgnoredBullyCityStatePromise(PlayerTypes ePlayer) const;
+	bool BrokeBullyCityStatePromise(PlayerTypes ePlayer) const;
 
 	// Attack City-State Promise
-	PromiseStates GetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerAttackCityStatePromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) const;
+	PromiseStates GetAttackCityStatePromiseState(PlayerTypes ePlayer) const;
+	void SetAttackCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetAttackCityStatePromiseTurn(PlayerTypes ePlayer) const;
+	void SetAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeAttackCityStatePromise(PlayerTypes ePlayer) const;
+	bool IgnoredAttackCityStatePromise(PlayerTypes ePlayer) const;
+	bool BrokeAttackCityStatePromise(PlayerTypes ePlayer) const;
 
 	// Spy Promise
-	PromiseStates GetPlayerSpyPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerSpyPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerSpyPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerSpyPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeSpyPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenSpyPromise(PlayerTypes ePlayer) const;
+	PromiseStates GetSpyPromiseState(PlayerTypes ePlayer) const;
+	void SetSpyPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetSpyPromiseTurn(PlayerTypes ePlayer) const;
+	void SetSpyPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeSpyPromise(PlayerTypes ePlayer) const;
+	bool IgnoredSpyPromise(PlayerTypes ePlayer) const;
+	bool BrokeSpyPromise(PlayerTypes ePlayer) const;
 	bool IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const;
 
 	// Religious Conversion Promise
-	PromiseStates GetPlayerNoConvertPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerNoConvertPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerNoConvertPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerNoConvertPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer) const;
+	PromiseStates GetNoConvertPromiseState(PlayerTypes ePlayer) const;
+	void SetNoConvertPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetNoConvertPromiseTurn(PlayerTypes ePlayer) const;
+	void SetNoConvertPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeNoConvertPromise(PlayerTypes ePlayer) const;
+	bool IgnoredNoConvertPromise(PlayerTypes ePlayer) const;
+	bool BrokeNoConvertPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const;
 	void SetPlayerAskedNotToConvert(PlayerTypes ePlayer, bool bValue);
 	bool HasEverConvertedCity(PlayerTypes ePlayer) const;
 	void SetEverConvertedCity(PlayerTypes ePlayer, bool bValue);
 
 	// Digging Promise
-	PromiseStates GetPlayerNoDiggingPromiseState(PlayerTypes ePlayer) const;
-	void SetPlayerNoDiggingPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
-	int GetPlayerNoDiggingPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerNoDiggingPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	bool IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer) const;
-	bool IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer) const;
+	PromiseStates GetNoDiggingPromiseState(PlayerTypes ePlayer) const;
+	void SetNoDiggingPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetNoDiggingPromiseTurn(PlayerTypes ePlayer) const;
+	void SetNoDiggingPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool MadeNoDiggingPromise(PlayerTypes ePlayer) const;
+	bool BrokeNoDiggingPromise(PlayerTypes ePlayer) const;
+	bool IgnoredNoDiggingPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerAskedNotToDig(PlayerTypes ePlayer) const;
 	void SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue);
 
 	// Coop War Promise
-	bool IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer) const;
-	void SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue);
-	int GetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer) const;
-	void SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn);
+	bool BrokeCoopWarPromise(PlayerTypes ePlayer) const;
+	void SetBrokeCoopWarPromise(PlayerTypes ePlayer, bool bValue);
+	int GetBrokeCoopWarPromiseTurn(PlayerTypes ePlayer) const;
+	void SetBrokeCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn);
 
 	// Global Promise Checks
-	bool IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
-	bool IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+	bool BrokeAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+	bool IgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
 
 	// ------------------------------------
 	// Event Flags
@@ -1040,11 +1040,11 @@ public:
 	int GetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer) const;
 	void SetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer, int iTurn);
 
-	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
-	void SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
+	bool BrokeVassalAgreement(PlayerTypes ePlayer) const;
+	void SetBrokeVassalAgreement(PlayerTypes ePlayer, bool bValue);
 
 	int GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const;
-	void SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iTurn);
+	void SetBrokeVassalAgreementTurn(PlayerTypes ePlayer, int iTurn);
 
 	bool IsVassalTaxRaised(PlayerTypes ePlayer) const;
 	void SetVassalTaxRaised(PlayerTypes ePlayer, bool bValue);

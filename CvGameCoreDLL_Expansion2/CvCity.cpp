@@ -26937,7 +26937,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					}
 
 					// Don't buy plots adjacent to another civ if a promise was made
-					if (bForPurchase && GET_PLAYER(eAdjacentPlotOwner).isMajorCiv() && GET_PLAYER(eAdjacentPlotOwner).GetDiplomacyAI()->IsPlayerMadeBorderPromise(getOwner()))
+					if (bForPurchase && GET_PLAYER(eAdjacentPlotOwner).isMajorCiv() && GET_PLAYER(eAdjacentPlotOwner).GetDiplomacyAI()->MadeBorderPromise(getOwner()))
 					{
 						bPromiseNeighbor = true;
 						break;

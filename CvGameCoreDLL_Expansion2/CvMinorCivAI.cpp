@@ -10040,7 +10040,7 @@ bool CvMinorCivAI::IsAcceptableQuestEnemy(MinorCivQuestTypes eQuest, PlayerTypes
 					pDiplo->IsVassal(vDefensiveWarAllies[j]) || pDiplo->IsMaster(vDefensiveWarAllies[j]) ||
 					pDiplo->WasResurrectedBy(vDefensiveWarAllies[j]) || pOtherDiplo->WasResurrectedBy(vPlayerTeam[i]) ||
 					(pOtherDiplo->IsDoFBroken(vPlayerTeam[i]) && pOtherDiplo->GetTurnsSinceDoFBroken(vPlayerTeam[i]) < /*10*/ GD_INT_GET(DOF_BROKEN_BACKSTAB_TIMER)) ||
-					pOtherDiplo->IsPlayerMadeMilitaryPromise(vPlayerTeam[i]) || pDiplo->GetGlobalCoopWarWithState(vDefensiveWarAllies[j]) >= COOP_WAR_STATE_PREPARING)
+					pOtherDiplo->MadeMilitaryPromise(vPlayerTeam[i]) || pDiplo->GetGlobalCoopWarWithState(vDefensiveWarAllies[j]) >= COOP_WAR_STATE_PREPARING)
 				{
 					return false;
 				}

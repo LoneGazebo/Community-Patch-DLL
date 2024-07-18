@@ -849,26 +849,26 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetStrategicTradePartner(ID, false);
 
 			// Terminate promises
-			SetPlayerMilitaryPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerExpansionPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerBorderPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerBullyCityStatePromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerAttackCityStatePromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerSpyPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerNoConvertPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerNoDiggingPromiseState(eMajor, NO_PROMISE_STATE);
-			SetPlayerBrokenCoopWarPromise(eMajor, false);
+			SetMilitaryPromiseState(eMajor, NO_PROMISE_STATE);
+			SetExpansionPromiseState(eMajor, NO_PROMISE_STATE);
+			SetBorderPromiseState(eMajor, NO_PROMISE_STATE);
+			SetBullyCityStatePromiseState(eMajor, NO_PROMISE_STATE);
+			SetAttackCityStatePromiseState(eMajor, NO_PROMISE_STATE);
+			SetSpyPromiseState(eMajor, NO_PROMISE_STATE);
+			SetNoConvertPromiseState(eMajor, NO_PROMISE_STATE);
+			SetNoDiggingPromiseState(eMajor, NO_PROMISE_STATE);
+			SetBrokeCoopWarPromise(eMajor, false);
 			SetPlayerAskedNotToConvert(eMajor, false);
 			SetPlayerAskedNotToDig(eMajor, false);
-			pOther->SetPlayerMilitaryPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerExpansionPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerBorderPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerBullyCityStatePromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerSpyPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerNoConvertPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerNoDiggingPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerBrokenCoopWarPromise(ID, false);
+			pOther->SetMilitaryPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetExpansionPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetBorderPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetBullyCityStatePromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetSpyPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetNoConvertPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetNoDiggingPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetBrokeCoopWarPromise(ID, false);
 			pOther->SetPlayerAskedNotToConvert(ID, false);
 			pOther->SetPlayerAskedNotToDig(ID, false);
 
@@ -1017,26 +1017,26 @@ void CvDiplomacyAI::SlotStateChange()
 					CancelCoopWarsWithPlayer(eLoopPlayer, false);
 
 					// Terminate promises made with other humans
-					SetPlayerMilitaryPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerExpansionPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerBorderPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerBullyCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerAttackCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerSpyPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerNoConvertPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerNoDiggingPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-					SetPlayerBrokenCoopWarPromise(eLoopPlayer, false);
+					SetMilitaryPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetExpansionPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetBorderPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetBullyCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetAttackCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetSpyPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetNoConvertPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetNoDiggingPromiseState(eLoopPlayer, NO_PROMISE_STATE);
+					SetBrokeCoopWarPromise(eLoopPlayer, false);
 					SetPlayerAskedNotToConvert(eLoopPlayer, false);
 					SetPlayerAskedNotToDig(eLoopPlayer, false);
-					pOther->SetPlayerMilitaryPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerExpansionPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerBorderPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerBullyCityStatePromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerSpyPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerNoConvertPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerNoDiggingPromiseState(ID, NO_PROMISE_STATE);
-					pOther->SetPlayerBrokenCoopWarPromise(ID, false);
+					pOther->SetMilitaryPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetExpansionPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetBorderPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetBullyCityStatePromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetSpyPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetNoConvertPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetNoDiggingPromiseState(ID, NO_PROMISE_STATE);
+					pOther->SetBrokeCoopWarPromise(ID, false);
 					pOther->SetPlayerAskedNotToConvert(ID, false);
 					pOther->SetPlayerAskedNotToDig(ID, false);
 				}
@@ -4412,7 +4412,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 				if (IsPlayerValid(eThirdParty, true) && eThirdParty != GetID() && GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
 				{
-					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(GetID(), true);
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetBrokeCoopWarPromise(GetID(), true);
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarAgreementScore(GetID(), -2);
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), 300);
 
@@ -6217,18 +6217,18 @@ void CvDiplomacyAI::SetEasyTarget(PlayerTypes ePlayer, bool bValue)
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's military promise to us?
-PromiseStates CvDiplomacyAI::GetPlayerMilitaryPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetMilitaryPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeMilitaryPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerMilitaryPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetMilitaryPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerMilitaryPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetMilitaryPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		if (ePromiseState != NO_PROMISE_STATE)
@@ -6248,11 +6248,11 @@ void CvDiplomacyAI::SetPlayerMilitaryPromiseState(PlayerTypes ePlayer, PromiseSt
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerMilitaryPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetMilitaryPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 		}
 		else
 		{
-			SetPlayerMilitaryPromiseTurn(ePlayer, -1);
+			SetMilitaryPromiseTurn(ePlayer, -1);
 		}
 
 		if (ePromiseState != PROMISE_STATE_MADE)
@@ -6261,41 +6261,41 @@ void CvDiplomacyAI::SetPlayerMilitaryPromiseState(PlayerTypes ePlayer, PromiseSt
 }
 
 /// On what turn did the state of ePlayer's military promise to us most recently change?
-int CvDiplomacyAI::GetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetMilitaryPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiMilitaryPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiMilitaryPromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeMilitaryPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerMilitaryPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetMilitaryPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredMilitaryPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerMilitaryPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetMilitaryPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeMilitaryPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerMilitaryPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetMilitaryPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// Return the number of turns since ePlayer has made a military promise to us
 int CvDiplomacyAI::GetNumTurnsMilitaryPromise(PlayerTypes ePlayer) const
 {
 	// Did they make a military promise?
-	if (!IsPlayerMadeMilitaryPromise(ePlayer))
+	if (!MadeMilitaryPromise(ePlayer))
 		return -1;
 
-	int iTurnDifference = GC.getGame().getGameTurn() - GetPlayerMilitaryPromiseTurn(ePlayer);
+	int iTurnDifference = GC.getGame().getGameTurn() - GetMilitaryPromiseTurn(ePlayer);
 
 	// this promise does not scale with gamespeed!
 	return std::max(/*20*/ GD_INT_GET(MOVE_TROOPS_MEMORY_TURN_EXPIRATION) - iTurnDifference, 0);
@@ -6306,55 +6306,55 @@ int CvDiplomacyAI::GetNumTurnsMilitaryPromise(PlayerTypes ePlayer) const
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's expansion promise to us?
-PromiseStates CvDiplomacyAI::GetPlayerExpansionPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetExpansionPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeExpansionPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerExpansionPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetExpansionPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerExpansionPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetExpansionPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeExpansionPromiseState[ePlayer] = ePromiseState;
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerExpansionPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetExpansionPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			if (ePromiseState != PROMISE_STATE_MADE)
 			{
 				// They ignored or broke an expansion promise! Cancel any commitment not to settle near them!
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()) && !GetPlayer()->isHuman())
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()) && !GetPlayer()->isHuman())
 				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerExpansionPromiseState(GetID(), NO_PROMISE_STATE);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetExpansionPromiseState(GetID(), NO_PROMISE_STATE);
 				}
 			}
 		}
 		else
 		{
-			SetPlayerExpansionPromiseTurn(ePlayer, -1);
+			SetExpansionPromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
-bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeExpansionPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerExpansionPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetExpansionPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredExpansionPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerExpansionPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetExpansionPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeExpansionPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerExpansionPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetExpansionPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// Which players have we agreed to avoid settling near?
@@ -6369,7 +6369,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetPlayersWithNoSettlePolicy() const
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayer;
 
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()))
 			result.push_back(ePlayer);
 		else if (IsTeammate(ePlayer) && GET_PLAYER(ePlayer).isHuman())
 			result.push_back(ePlayer);
@@ -6379,13 +6379,13 @@ vector<PlayerTypes> CvDiplomacyAI::GetPlayersWithNoSettlePolicy() const
 }
 
 /// On what turn did the state of ePlayer's expansion promise to us most recently change?
-int CvDiplomacyAI::GetPlayerExpansionPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetExpansionPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiExpansionPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiExpansionPromiseTurn[ePlayer] = max(iTurn, -1);
@@ -6394,10 +6394,10 @@ void CvDiplomacyAI::SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn
 /// Return the number of turns since ePlayer has made an expansion promise to us
 int CvDiplomacyAI::GetNumTurnsExpansionPromise(PlayerTypes ePlayer) const
 {
-	if (!IsPlayerMadeExpansionPromise(ePlayer))
+	if (!MadeExpansionPromise(ePlayer))
 		return -1;
 
-	int iTurnDifference = GC.getGame().getGameTurn() - GetPlayerExpansionPromiseTurn(ePlayer);
+	int iTurnDifference = GC.getGame().getGameTurn() - GetExpansionPromiseTurn(ePlayer);
 	int iTimeOutTurns = (/*50*/ GD_INT_GET(EXPANSION_PROMISE_TURNS_EFFECTIVE) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 	
 	int iValue = (iTimeOutTurns - iTurnDifference);
@@ -6414,7 +6414,7 @@ bool CvDiplomacyAI::IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const
 	if (IsTeammate(ePlayer))
 		return true;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()))
 		return true;
 
 	// Observer can't ask this
@@ -6459,73 +6459,73 @@ void CvDiplomacyAI::SetEverRequestedExpansionPromise(PlayerTypes ePlayer, bool b
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's border promise to us?
-PromiseStates CvDiplomacyAI::GetPlayerBorderPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetBorderPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeBorderPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBorderPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetBorderPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerBorderPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetBorderPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeBorderPromiseState[ePlayer] = ePromiseState;
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerBorderPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetBorderPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			if (ePromiseState == PROMISE_STATE_MADE)
 			{
-				SetPlayerBorderPromisePosture(ePlayer, GetPlotBuyingAggressivePosture(ePlayer));
+				SetBorderPromisePosture(ePlayer, GetPlotBuyingAggressivePosture(ePlayer));
 				SetEverMadeBorderPromise(ePlayer, true);
 			}
 			else
 			{
-				SetPlayerBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+				SetBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 
 				// They ignored or broke a border promise! Cancel any commitment not to buy land near them!
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeBorderPromise(GetID()) && !GetPlayer()->isHuman())
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeBorderPromise(GetID()) && !GetPlayer()->isHuman())
 				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBorderPromiseState(GetID(), NO_PROMISE_STATE);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBorderPromiseState(GetID(), NO_PROMISE_STATE);
 				}
 			}
 		}
 		else
 		{
-			SetPlayerBorderPromiseTurn(ePlayer, -1);
-			SetPlayerBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+			SetBorderPromiseTurn(ePlayer, -1);
+			SetBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
 }
 
-bool CvDiplomacyAI::IsPlayerMadeBorderPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeBorderPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBorderPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetBorderPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredBorderPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredBorderPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBorderPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetBorderPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenBorderPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeBorderPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBorderPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetBorderPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// On what turn did the state of ePlayer's border promise to us most recently change?
-int CvDiplomacyAI::GetPlayerBorderPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetBorderPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiBorderPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBorderPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetBorderPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiBorderPromiseTurn[ePlayer] = max(iTurn, -1);
@@ -6534,10 +6534,10 @@ void CvDiplomacyAI::SetPlayerBorderPromiseTurn(PlayerTypes ePlayer, int iTurn)
 /// Return the number of turns since ePlayer has made a border promise to us
 int CvDiplomacyAI::GetNumTurnsBorderPromise(PlayerTypes ePlayer) const
 {
-	if (!IsPlayerMadeBorderPromise(ePlayer))
+	if (!MadeBorderPromise(ePlayer))
 		return -1;
 
-	int iTurnDifference = GC.getGame().getGameTurn() - GetPlayerBorderPromiseTurn(ePlayer);
+	int iTurnDifference = GC.getGame().getGameTurn() - GetBorderPromiseTurn(ePlayer);
 	int iTimeOutTurns = (/*50*/ GD_INT_GET(BORDER_PROMISE_TURNS_EFFECTIVE) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 	
 	int iValue = (iTimeOutTurns - iTurnDifference);
@@ -6549,13 +6549,13 @@ int CvDiplomacyAI::GetNumTurnsBorderPromise(PlayerTypes ePlayer) const
 }
 
 /// What was the plot buying aggressive posture of ePlayer when they made a border promise to us?
-AggressivePostureTypes CvDiplomacyAI::GetPlayerBorderPromisePosture(PlayerTypes ePlayer) const
+AggressivePostureTypes CvDiplomacyAI::GetBorderPromisePosture(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return AGGRESSIVE_POSTURE_NONE;
 	return (AggressivePostureTypes) m_aeBorderPromisePosture[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
+void CvDiplomacyAI::SetBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePosture < AGGRESSIVE_POSTURE_NONE || ePosture >= NUM_AGGRESSIVE_POSTURE_TYPES) return;
@@ -6580,65 +6580,65 @@ void CvDiplomacyAI::SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's bully city-state promise to us
-PromiseStates CvDiplomacyAI::GetPlayerBullyCityStatePromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetBullyCityStatePromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeBullyCityStatePromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBullyCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetBullyCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerBullyCityStatePromiseState(ePlayer);
+	PromiseStates eCurrentState = GetBullyCityStatePromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeBullyCityStatePromiseState[ePlayer] = ePromiseState;
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerBullyCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetBullyCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// They ignored or broke a promise to stop bullying our protected City-States! Cancel any commitment not to bully theirs!
-			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeBullyCityStatePromise(GetID()) && !GetPlayer()->isHuman())
+			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeBullyCityStatePromise(GetID()) && !GetPlayer()->isHuman())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBullyCityStatePromiseState(GetID(), NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBullyCityStatePromiseState(GetID(), NO_PROMISE_STATE);
 			}
 		}
 		else
 		{
-			SetPlayerBullyCityStatePromiseTurn(ePlayer, -1);
+			SetBullyCityStatePromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
 /// On what turn did the state of ePlayer's bully city-state promise to us most recently change?
-int CvDiplomacyAI::GetPlayerBullyCityStatePromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetBullyCityStatePromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiBullyCityStatePromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBullyCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetBullyCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiBullyCityStatePromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeBullyCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredBullyCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeBullyCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetBullyCityStatePromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 // ////////////////////////////////////
@@ -6646,18 +6646,18 @@ bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer) con
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's attack city-state promise to us
-PromiseStates CvDiplomacyAI::GetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetAttackCityStatePromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeAttackCityStatePromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetAttackCityStatePromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerAttackCityStatePromiseState(ePlayer);
+	PromiseStates eCurrentState = GetAttackCityStatePromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		// Vassals can't backstab...and humans can't backstab other humans
@@ -6678,47 +6678,47 @@ void CvDiplomacyAI::SetPlayerAttackCityStatePromiseState(PlayerTypes ePlayer, Pr
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerAttackCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetAttackCityStatePromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// They ignored or broke a promise to stop attacking our protected City-States! Cancel any commitment not to attack theirs!
-			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(GetID()) && !GetPlayer()->isHuman())
+			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeAttackCityStatePromise(GetID()) && !GetPlayer()->isHuman())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(GetID(), NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetAttackCityStatePromiseState(GetID(), NO_PROMISE_STATE);
 			}
 		}
 		else
 		{
-			SetPlayerAttackCityStatePromiseTurn(ePlayer, -1);
+			SetAttackCityStatePromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
 /// On what turn did the state of ePlayer's attack city-state promise to us most recently change?
-int CvDiplomacyAI::GetPlayerAttackCityStatePromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetAttackCityStatePromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiAttackCityStatePromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiAttackCityStatePromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeAttackCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredAttackCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeAttackCityStatePromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetAttackCityStatePromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 // ////////////////////////////////////
@@ -6726,65 +6726,65 @@ bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) co
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's spy promise to us
-PromiseStates CvDiplomacyAI::GetPlayerSpyPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetSpyPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeSpyPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerSpyPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetSpyPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerSpyPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetSpyPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeSpyPromiseState[ePlayer] = ePromiseState;
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerSpyPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetSpyPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// They ignored or broke a promise to stop spying on us! Cancel any commitment not to spy on them!
-			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(GetID()) && !GetPlayer()->isHuman())
+			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeSpyPromise(GetID()) && !GetPlayer()->isHuman())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerSpyPromiseState(GetID(), NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetSpyPromiseState(GetID(), NO_PROMISE_STATE);
 			}
 		}
 		else
 		{
-			SetPlayerSpyPromiseTurn(ePlayer, -1);
+			SetSpyPromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
 /// On what turn did the state of ePlayer's spy promise to us most recently change?
-int CvDiplomacyAI::GetPlayerSpyPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetSpyPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiSpyPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerSpyPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetSpyPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiSpyPromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeSpyPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeSpyPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerSpyPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetSpyPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredSpyPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerSpyPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetSpyPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenSpyPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeSpyPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerSpyPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetSpyPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// If true, this player can't ask us not to spy on them (used in the UI)
@@ -6793,7 +6793,7 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 	if (IsTeammate(ePlayer))
 		return true;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeSpyPromise(GetID()))
 		return true;
 
 	// Observer can't ask this
@@ -6812,18 +6812,18 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's no convert promise to us
-PromiseStates CvDiplomacyAI::GetPlayerNoConvertPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetNoConvertPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeNoConvertPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerNoConvertPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetNoConvertPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerNoConvertPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetNoConvertPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeNoConvertPromiseState[ePlayer] = ePromiseState;
@@ -6836,47 +6836,47 @@ void CvDiplomacyAI::SetPlayerNoConvertPromiseState(PlayerTypes ePlayer, PromiseS
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerNoConvertPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetNoConvertPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// They ignored or broke a promise to stop converting our cities! Cancel any commitment not to convert theirs!
-			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(GetID()) && !GetPlayer()->isHuman())
+			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoConvertPromise(GetID()) && !GetPlayer()->isHuman())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoConvertPromiseState(GetID(), NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNoConvertPromiseState(GetID(), NO_PROMISE_STATE);
 			}
 		}
 		else
 		{
-			SetPlayerNoConvertPromiseTurn(ePlayer, -1);
+			SetNoConvertPromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
 /// On what turn did the state of ePlayer's promise to us to stop converting our cities most recently change?
-int CvDiplomacyAI::GetPlayerNoConvertPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNoConvertPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiNoConvertPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerNoConvertPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetNoConvertPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiNoConvertPromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeNoConvertPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerNoConvertPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetNoConvertPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredNoConvertPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerNoConvertPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetNoConvertPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeNoConvertPromise(PlayerTypes ePlayer) const
 {
-	return GetPlayerNoConvertPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetNoConvertPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// If true, this player can't ask us not to send missionaries and prophets to their cities (used in the UI)
@@ -6885,7 +6885,7 @@ bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't ask if we've already promised
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoConvertPromise(GetID()))
 		return true;
 
 	// Observer can't ask this
@@ -6927,18 +6927,18 @@ void CvDiplomacyAI::SetEverConvertedCity(PlayerTypes ePlayer, bool bValue)
 // ////////////////////////////////////
 
 /// What is the state of ePlayer's no digging promise to us
-PromiseStates CvDiplomacyAI::GetPlayerNoDiggingPromiseState(PlayerTypes ePlayer) const
+PromiseStates CvDiplomacyAI::GetNoDiggingPromiseState(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_PROMISE_STATE;
 	return (PromiseStates) m_aeNoDiggingPromiseState[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerNoDiggingPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
+void CvDiplomacyAI::SetNoDiggingPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (ePromiseState < NO_PROMISE_STATE || ePromiseState >= NUM_PROMISE_STATES) return;
 
-	PromiseStates eCurrentState = GetPlayerNoDiggingPromiseState(ePlayer);
+	PromiseStates eCurrentState = GetNoDiggingPromiseState(ePlayer);
 	if (eCurrentState != ePromiseState)
 	{
 		m_aeNoDiggingPromiseState[ePlayer] = ePromiseState;
@@ -6951,50 +6951,50 @@ void CvDiplomacyAI::SetPlayerNoDiggingPromiseState(PlayerTypes ePlayer, PromiseS
 
 		if (ePromiseState != NO_PROMISE_STATE)
 		{
-			SetPlayerNoDiggingPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+			SetNoDiggingPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// They ignored or broke a promise to stop digging up our artifacts! Cancel any commitment not to dig up theirs!
-			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(GetID()) && !GetPlayer()->isHuman())
+			if (ePromiseState != PROMISE_STATE_MADE && GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoDiggingPromise(GetID()) && !GetPlayer()->isHuman())
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoDiggingPromiseState(GetID(), NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNoDiggingPromiseState(GetID(), NO_PROMISE_STATE);
 			}
 		}
 		else
 		{
-			SetPlayerNoDiggingPromiseTurn(ePlayer, -1);
+			SetNoDiggingPromiseTurn(ePlayer, -1);
 		}
 	}
 }
 
 /// On what turn did the state of ePlayer's promise to us to stop digging up our artifacts most recently change?
-int CvDiplomacyAI::GetPlayerNoDiggingPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNoDiggingPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiNoDiggingPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerNoDiggingPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetNoDiggingPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiNoDiggingPromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
-bool CvDiplomacyAI::IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::MadeNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return GetPlayerNoDiggingPromiseState(ePlayer) == PROMISE_STATE_MADE;
+	return GetNoDiggingPromiseState(ePlayer) == PROMISE_STATE_MADE;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IgnoredNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return GetPlayerNoDiggingPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
+	return GetNoDiggingPromiseState(ePlayer) == PROMISE_STATE_IGNORED;
 }
 
-bool CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return GetPlayerNoDiggingPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
+	return GetNoDiggingPromiseState(ePlayer) == PROMISE_STATE_BROKEN;
 }
 
 /// If true, this player can't ask us not to dig up their artifacts (used in the UI)
@@ -7003,7 +7003,7 @@ bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer) const
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't ask if we've already promised
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoDiggingPromise(GetID()))
 		return true;
 
 	// Can't ask if we're their teammate or vassal - promise is automatic
@@ -7032,32 +7032,32 @@ void CvDiplomacyAI::SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue)
 // ////////////////////////////////////
 
 /// Did this player break a coop war promise to us?
-bool CvDiplomacyAI::IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeCoopWarPromise(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return GetPlayerBrokenCoopWarPromiseTurn(ePlayer) != -1;
+	return GetBrokeCoopWarPromiseTurn(ePlayer) != -1;
 }
 
-void CvDiplomacyAI::SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetBrokeCoopWarPromise(PlayerTypes ePlayer, bool bValue)
 {
 	if (bValue)
 	{
-		SetPlayerBrokenCoopWarPromiseTurn(ePlayer, GC.getGame().getGameTurn());
+		SetBrokeCoopWarPromiseTurn(ePlayer, GC.getGame().getGameTurn());
 	}
 	else
 	{
-		SetPlayerBrokenCoopWarPromiseTurn(ePlayer, -1);
+		SetBrokeCoopWarPromiseTurn(ePlayer, -1);
 	}
 }
 
 /// On what turn did ePlayer most recently break a coop war promise to us?
-int CvDiplomacyAI::GetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetBrokeCoopWarPromiseTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 	return m_aiBrokenCoopWarPromiseTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetBrokeCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiBrokenCoopWarPromiseTurn[ePlayer] = max(iTurn, -1);
@@ -7067,16 +7067,16 @@ void CvDiplomacyAI::SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int i
 // Global Promise Checks
 // ////////////////////////////////////
 
-bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
+bool CvDiplomacyAI::BrokeAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
 {
 	bool bCheckDuration = iWithinXTurns > -1;
 	int iGameTurn = GC.getGame().getGameTurn();
 
-	if (IsPlayerBrokenMilitaryPromise(ePlayer))
+	if (BrokeMilitaryPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerMilitaryPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetMilitaryPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7084,11 +7084,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenExpansionPromise(ePlayer))
+	if (BrokeExpansionPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerExpansionPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetExpansionPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7096,11 +7096,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenBorderPromise(ePlayer))
+	if (BrokeBorderPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetBorderPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7108,11 +7108,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenBullyCityStatePromise(ePlayer))
+	if (BrokeBullyCityStatePromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerBullyCityStatePromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetBullyCityStatePromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7120,11 +7120,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenAttackCityStatePromise(ePlayer))
+	if (BrokeAttackCityStatePromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerAttackCityStatePromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetAttackCityStatePromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7132,11 +7132,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenSpyPromise(ePlayer))
+	if (BrokeSpyPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerSpyPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetSpyPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7144,11 +7144,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenNoConvertPromise(ePlayer))
+	if (BrokeNoConvertPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerNoConvertPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetNoConvertPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7156,11 +7156,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenNoDiggingPromise(ePlayer))
+	if (BrokeNoDiggingPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerNoDiggingPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetNoDiggingPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7168,11 +7168,11 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 			return true;
 	}
 
-	if (IsPlayerBrokenCoopWarPromise(ePlayer))
+	if (BrokeCoopWarPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerBrokenCoopWarPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetBrokeCoopWarPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7183,16 +7183,16 @@ bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTu
 	return false;
 }
 
-bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
+bool CvDiplomacyAI::IgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
 {
 	bool bCheckDuration = iWithinXTurns > -1;
 	int iGameTurn = GC.getGame().getGameTurn();
 
-	if (IsPlayerIgnoredMilitaryPromise(ePlayer))
+	if (IgnoredMilitaryPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerMilitaryPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetMilitaryPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7200,11 +7200,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredExpansionPromise(ePlayer))
+	if (IgnoredExpansionPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerExpansionPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetExpansionPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7212,11 +7212,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredBorderPromise(ePlayer))
+	if (IgnoredBorderPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetBorderPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7224,11 +7224,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+	if (IgnoredBullyCityStatePromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerBullyCityStatePromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetBullyCityStatePromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7236,11 +7236,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredAttackCityStatePromise(ePlayer))
+	if (IgnoredAttackCityStatePromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerAttackCityStatePromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetAttackCityStatePromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7248,11 +7248,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredSpyPromise(ePlayer))
+	if (IgnoredSpyPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerSpyPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetSpyPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7260,11 +7260,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredNoConvertPromise(ePlayer))
+	if (IgnoredNoConvertPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerNoConvertPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetNoConvertPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7272,11 +7272,11 @@ bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXT
 			return true;
 	}
 
-	if (IsPlayerIgnoredNoDiggingPromise(ePlayer))
+	if (IgnoredNoDiggingPromise(ePlayer))
 	{
 		if (bCheckDuration)
 		{
-			int iTurnDifference = iGameTurn - GetPlayerNoDiggingPromiseTurn(ePlayer);
+			int iTurnDifference = iGameTurn - GetNoDiggingPromiseTurn(ePlayer);
 			if (iTurnDifference <= iWithinXTurns)
 				return true;
 		}
@@ -7958,9 +7958,9 @@ void CvDiplomacyAI::ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer,
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerAskedNotToConvert(ePlayer, false);
 
 		// You broke the promise you made!
-		if (IsPlayerMadeNoConvertPromise(ePlayer))
+		if (MadeNoConvertPromise(ePlayer))
 		{
-			SetPlayerNoConvertPromiseState(ePlayer, PROMISE_STATE_BROKEN);
+			SetNoConvertPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
 
 		if (!GetPlayer()->isHuman())
@@ -8237,9 +8237,9 @@ void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iCh
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerAskedNotToDig(GetID(), false);
 
 		// You broke the promise you made!
-		if (IsPlayerMadeNoDiggingPromise(ePlayer))
+		if (MadeNoDiggingPromise(ePlayer))
 		{
-			SetPlayerNoDiggingPromiseState(ePlayer, PROMISE_STATE_BROKEN);
+			SetNoDiggingPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
 
 		if (!GetPlayer()->isHuman())
@@ -9031,7 +9031,7 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 		return true;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeMilitaryPromise(GetID()))
 		return true;
 
 	// Can't ask this of your vassal or master
@@ -9228,12 +9228,12 @@ void CvDiplomacyAI::SetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer, int i
 }
 
 /// Did this player declare war on us while we were their vassal?
-bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::BrokeVassalAgreement(PlayerTypes ePlayer) const
 {
 	return GetPlayerBrokenVassalAgreementTurn(ePlayer) != -1;
 }
 
-void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetBrokeVassalAgreement(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
@@ -9242,12 +9242,12 @@ void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bVa
 		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 			return;
 
-		SetPlayerBrokenVassalAgreementTurn(ePlayer, GC.getGame().getGameTurn());
+		SetBrokeVassalAgreementTurn(ePlayer, GC.getGame().getGameTurn());
 		SetBackstabbedBy(ePlayer, true, true);
 	}
 	else
 	{
-		SetPlayerBrokenVassalAgreementTurn(ePlayer, -1);
+		SetBrokeVassalAgreementTurn(ePlayer, -1);
 	}
 }
 
@@ -9258,7 +9258,7 @@ int CvDiplomacyAI::GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const
 	return m_aiBrokenVassalAgreementTurn[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iTurn)
+void CvDiplomacyAI::SetBrokeVassalAgreementTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiBrokenVassalAgreementTurn[ePlayer] = max(iTurn, -1);
@@ -12820,13 +12820,13 @@ void CvDiplomacyAI::DoExpansionBickering()
 		// Test to see if a land buying promise was broken
 		if (GetNumTurnsBorderPromise(ePlayer) > 0)
 		{
-			AggressivePostureTypes eOldPosture = GetPlayerBorderPromisePosture(ePlayer);
+			AggressivePostureTypes eOldPosture = GetBorderPromisePosture(ePlayer);
 			if (GetPlotBuyingAggressivePosture(ePlayer) > eOldPosture)
-				SetPlayerBorderPromiseState(ePlayer, PROMISE_STATE_BROKEN);
+				SetBorderPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
 
 		// Don't bother checking further if they ignored/broke a promise, if bicker range is 0, or if they're our master.
-		if (GetPlayerExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0 || IsVassal(ePlayer))
+		if (GetExpansionPromiseState(ePlayer) >= PROMISE_STATE_IGNORED || iExpansionBickerRange <= 0 || IsVassal(ePlayer))
 		{
 			SetAngryAboutExpansion(ePlayer, false);
 			continue;
@@ -12923,7 +12923,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 		{
 			if (GetNumTurnsExpansionPromise(ePlayer) > 0) // Call this function, because expansion bickering occurs before TestOpinionModifiers()
 			{
-				SetPlayerExpansionPromiseState(ePlayer, PROMISE_STATE_BROKEN); // You broke the promise you made!
+				SetExpansionPromiseState(ePlayer, PROMISE_STATE_BROKEN); // You broke the promise you made!
 
 				// Flag all of their cities as ignored for future bickering
 				for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
@@ -13508,25 +13508,25 @@ void CvDiplomacyAI::TestBackstabbingPenalties()
 
 		// Declared war on us while we were their vassal?
 		checkAndUpdateBackstabbingPenalty(this, eLoopPlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenVassalAgreement,
+			&CvDiplomacyAI::BrokeVassalAgreement,
 			&CvDiplomacyAI::GetPlayerBrokenVassalAgreementTurn,
-			&CvDiplomacyAI::SetPlayerBrokenVassalAgreement,
+			&CvDiplomacyAI::SetBrokeVassalAgreement,
 			/*100*/ GD_INT_GET(MASTER_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN));
 
 		// Broke a promise not to declare war on us?
 		// This promise does not scale with game speed!
 		checkAndUpdatePromise(this, eLoopPlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenMilitaryPromise,
-			&CvDiplomacyAI::GetPlayerMilitaryPromiseTurn,
-			&CvDiplomacyAI::SetPlayerMilitaryPromiseState,
+			&CvDiplomacyAI::BrokeMilitaryPromise,
+			&CvDiplomacyAI::GetMilitaryPromiseTurn,
+			&CvDiplomacyAI::SetMilitaryPromiseState,
 			/*80*/ GD_INT_GET(MILITARY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN),
 			false);
 
 		// Broke a promise not to conquer our protected City-State?
 		checkAndUpdatePromise(this, eLoopPlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise,
-			&CvDiplomacyAI::GetPlayerAttackCityStatePromiseTurn,
-			&CvDiplomacyAI::SetPlayerAttackCityStatePromiseState,
+			&CvDiplomacyAI::BrokeAttackCityStatePromise,
+			&CvDiplomacyAI::GetAttackCityStatePromiseTurn,
+			&CvDiplomacyAI::SetAttackCityStatePromiseState,
 			/*60*/ GD_INT_GET(ATTACK_CS_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// Ended Declaration of Friendship with us prematurely?
@@ -13585,7 +13585,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 	}
 
 	// Betrayed us in their word?
-	if (IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerBrokenVassalAgreement(ePlayer))
+	if (BrokeMilitaryPromise(ePlayer) || BrokeAttackCityStatePromise(ePlayer) || BrokeVassalAgreement(ePlayer))
 	{
 		return true;
 	}
@@ -13715,7 +13715,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 					return true;
 				}
 
-				if (pDiploAI->IsPlayerBrokenMilitaryPromise(eTeamMember) || pDiploAI->IsPlayerBrokenAttackCityStatePromise(eTeamMember) || pDiploAI->IsPlayerBrokenVassalAgreement(eTeamMember))
+				if (pDiploAI->BrokeMilitaryPromise(eTeamMember) || pDiploAI->BrokeAttackCityStatePromise(eTeamMember) || pDiploAI->BrokeVassalAgreement(eTeamMember))
 				{
 					return true;
 				}
@@ -13726,7 +13726,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 		{
 			CvDiplomacyAI* pDiploAI = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
 
-			if (IsVassal(ePlayer) && pDiploAI->IsPlayerBrokenVassalAgreement(ePlayer))
+			if (IsVassal(ePlayer) && pDiploAI->BrokeVassalAgreement(ePlayer))
 			{
 				return true;
 			}
@@ -13773,19 +13773,19 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 					iNumFriendsDenounced++;
 				}
 
-				if (pDiploAI->IsPlayerBrokenMilitaryPromise(eTeamMember) && !bBrokeMilitaryPromise)
+				if (pDiploAI->BrokeMilitaryPromise(eTeamMember) && !bBrokeMilitaryPromise)
 				{
 					bBrokeMilitaryPromise = true;
 					iNumBrokenAgreements++;
 				}
 
-				if (pDiploAI->IsPlayerBrokenAttackCityStatePromise(eTeamMember) && !bBrokeAttackCityStatePromise)
+				if (pDiploAI->BrokeAttackCityStatePromise(eTeamMember) && !bBrokeAttackCityStatePromise)
 				{
 					bBrokeAttackCityStatePromise = true;
 					iNumBrokenAgreements++;
 				}
 
-				if (pDiploAI->IsPlayerBrokenVassalAgreement(eTeamMember) && !bBrokeVassalAgreement)
+				if (pDiploAI->BrokeVassalAgreement(eTeamMember) && !bBrokeVassalAgreement)
 				{
 					bBrokeVassalAgreement = true;
 					iNumBrokenAgreements++;
@@ -14098,7 +14098,7 @@ bool CvDiplomacyAI::CanBackstab(PlayerTypes ePlayer) const
 	if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 		return true;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeMilitaryPromise(GetID()))
 		return true;
 
 	if (IsLiberator(ePlayer, false, true))
@@ -14183,7 +14183,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 			if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 				return false;
 
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeMilitaryPromise(GetID()))
 				return false;
 		}
 	}
@@ -16125,7 +16125,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Coop War Denied?
 	else if (GetCoopWarAgreementScore(ePlayer) < 0)
 	{
-		if (IsPlayerBrokenCoopWarPromise(ePlayer))
+		if (BrokeCoopWarPromise(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * -GetCoopWarAgreementScore(ePlayer);
 		}
@@ -16375,7 +16375,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		bProvokedUs = true;
 
 		// Extra penalties if they betrayed us personally!
-		if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerBrokenVassalAgreement(ePlayer) || IsResurrectorAttackedUs(ePlayer))
+		if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || BrokeMilitaryPromise(ePlayer) || BrokeAttackCityStatePromise(ePlayer) || BrokeVassalAgreement(ePlayer) || IsResurrectorAttackedUs(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
@@ -16465,7 +16465,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	else if (IsAngryAboutProtectedMinorAttacked(ePlayer))
 	{
 		int iPenalty = (GetOtherPlayerNumProtectedMinorsKilled(ePlayer) + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
-		bProvokedUs |= !IsPlayerMadeAttackCityStatePromise(ePlayer);
+		bProvokedUs |= !MadeAttackCityStatePromise(ePlayer);
 
 		if (IsGoingForDiploVictory())
 		{
@@ -17513,7 +17513,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = false;
 		}
-		if (IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorKilled(ePlayer) || IsPlayerIgnoredAttackCityStatePromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		if (IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorKilled(ePlayer) || IgnoredAttackCityStatePromise(ePlayer) || BrokeAttackCityStatePromise(ePlayer))
 		{
 			iMultiplier++;
 			bBonus = false;
@@ -17614,7 +17614,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			bBonus = false;
 			bVictoryCompetitor = true;
 		}
-		if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
+		if (GetNumTimesRobbedBy(ePlayer) > 0 || BrokeSpyPromise(ePlayer) || IgnoredSpyPromise(ePlayer))
 		{
 			iMultiplier++;
 			bBonus = false;
@@ -17848,7 +17848,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// They refused to give us our independence when we asked (or they betrayed us)!
-	if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer) || IsPlayerBrokenVassalAgreement(ePlayer))
+	if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer) || BrokeVassalAgreement(ePlayer))
 	{
 		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * /*4*/ GD_INT_GET(APPROACH_WAR_VASSAL_FORCEFULLY_REVOKED);
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * /*-10*/ GD_INT_GET(APPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED);
@@ -18055,7 +18055,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iReligiosityScore /= 2;
 
 		// Have they been converting our cities? Grr...
-		if (GetNegativeReligiousConversionPoints(ePlayer) > 0 && !IsPlayerMadeNoConvertPromise(ePlayer))
+		if (GetNegativeReligiousConversionPoints(ePlayer) > 0 && !MadeNoConvertPromise(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
@@ -22617,11 +22617,11 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				continue;
 			}
 			// Broken/ignored promises
-			if (GetPlayerExpansionPromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerBorderPromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerSpyPromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerBullyCityStatePromiseState(*it) >= PROMISE_STATE_IGNORED)
+			if (GetExpansionPromiseState(*it) >= PROMISE_STATE_IGNORED || GetBorderPromiseState(*it) >= PROMISE_STATE_IGNORED || GetSpyPromiseState(*it) >= PROMISE_STATE_IGNORED || GetBullyCityStatePromiseState(*it) >= PROMISE_STATE_IGNORED)
 			{
 				continue;
 			}
-			if (GetPlayerAttackCityStatePromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerNoConvertPromiseState(*it) >= PROMISE_STATE_IGNORED || GetPlayerNoDiggingPromiseState(*it) >= PROMISE_STATE_IGNORED)
+			if (GetAttackCityStatePromiseState(*it) >= PROMISE_STATE_IGNORED || GetNoConvertPromiseState(*it) >= PROMISE_STATE_IGNORED || GetNoDiggingPromiseState(*it) >= PROMISE_STATE_IGNORED)
 			{
 				continue;
 			}
@@ -25428,11 +25428,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 				/* comment this out for now because this promise never resets, it currently only applies AI-to-AI, and the AI doesn't know when to break it
 				else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
 				{
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(GetID()))
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->MadeAttackCityStatePromise(GetID()))
 					{
 						vApproachScores[CIV_APPROACH_WAR] = 0;
 					}
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeBullyCityStatePromise(GetID()))
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->MadeBullyCityStatePromise(GetID()))
 					{
 						vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 					}
@@ -28980,7 +28980,7 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	if (GetNumTimesRobbedBy(ePlayer) > 0 || GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 		return true;
 
-	if (IsPlayerIgnoredBullyCityStatePromise(ePlayer) || IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorKilled(ePlayer))
+	if (IgnoredBullyCityStatePromise(ePlayer) || BrokeBullyCityStatePromise(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorKilled(ePlayer))
 		return true;
 
 	if (IsUntrustworthy(ePlayer))
@@ -29207,12 +29207,12 @@ bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBull
 	if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 		return true;
 	
-	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerIgnoredAttackCityStatePromise(ePlayer))
+	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || BrokeAttackCityStatePromise(ePlayer) || IgnoredAttackCityStatePromise(ePlayer))
 		return true;
 	
 	if (!bIgnoreBullying)
 	{
-		if (IsAngryAboutProtectedMinorBullied(ePlayer) || IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+		if (IsAngryAboutProtectedMinorBullied(ePlayer) || BrokeBullyCityStatePromise(ePlayer) || IgnoredBullyCityStatePromise(ePlayer))
 			return true;
 	}
 	
@@ -29440,22 +29440,22 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				CancelCoopWarsWithPlayer(ePlayer, !bDefensivePact);
 
 				// Player broke a promise that he wasn't going to attack us?
-				if (IsPlayerMadeMilitaryPromise(ePlayer))
+				if (MadeMilitaryPromise(ePlayer))
 				{
 					if (!bDefensivePact)
-						SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_BROKEN);
+						SetMilitaryPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 					else
-						SetPlayerMilitaryPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetMilitaryPromiseState(ePlayer, NO_PROMISE_STATE);
 				}
 
 				// Reset various promises for both of us...all is fair in war!
-				SetPlayerExpansionPromiseState(ePlayer, NO_PROMISE_STATE);
-				SetPlayerBorderPromiseState(ePlayer, NO_PROMISE_STATE);
-				SetPlayerSpyPromiseState(ePlayer, NO_PROMISE_STATE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerExpansionPromiseState(eMyPlayer, NO_PROMISE_STATE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBorderPromiseState(eMyPlayer, NO_PROMISE_STATE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerSpyPromiseState(eMyPlayer, NO_PROMISE_STATE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				SetExpansionPromiseState(ePlayer, NO_PROMISE_STATE);
+				SetBorderPromiseState(ePlayer, NO_PROMISE_STATE);
+				SetSpyPromiseState(ePlayer, NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetExpansionPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBorderPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetSpyPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eMyPlayer, NO_PROMISE_STATE);
 
 				// We're no longer trade partners
 				SetRecentTradeValue(ePlayer, 0);
@@ -29592,9 +29592,9 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 			SetOtherPlayerBulliedProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
 
 			// You broke the promise you made!
-			if (IsPlayerMadeBullyCityStatePromise(ePlayer))
+			if (MadeBullyCityStatePromise(ePlayer))
 			{
-				SetPlayerBullyCityStatePromiseState(ePlayer, PROMISE_STATE_BROKEN);
+				SetBullyCityStatePromiseState(ePlayer, PROMISE_STATE_BROKEN);
 			}
 		}
 	}
@@ -29859,8 +29859,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam()))
 			{
-				SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+				SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 			}
 			else
 			{
@@ -29869,18 +29869,18 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 					{
-						SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+						SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 					}
 					else
 					{
-						SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_IGNORED);
+						SetMilitaryPromiseState(ePlayer, PROMISE_STATE_IGNORED);
 					}
 				}
 				else
 				{
-					SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+					SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 				}
 			}
 		}
@@ -29926,11 +29926,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_WAR)
 				{
-					SetPlayerAttackCityStatePromiseState(ePlayer, PROMISE_STATE_IGNORED);
+					SetAttackCityStatePromiseState(ePlayer, PROMISE_STATE_IGNORED);
 				}
 				else
 				{
-					SetPlayerAttackCityStatePromiseState(ePlayer, PROMISE_STATE_MADE);
+					SetAttackCityStatePromiseState(ePlayer, PROMISE_STATE_MADE);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCivApproach(eMinorCiv, CIV_APPROACH_NEUTRAL);
 				}
 			}
@@ -29960,11 +29960,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_HOSTILE)
 				{
-					SetPlayerBullyCityStatePromiseState(ePlayer, PROMISE_STATE_IGNORED);
+					SetBullyCityStatePromiseState(ePlayer, PROMISE_STATE_IGNORED);
 				}
 				else
 				{
-					SetPlayerBullyCityStatePromiseState(ePlayer, PROMISE_STATE_MADE);
+					SetBullyCityStatePromiseState(ePlayer, PROMISE_STATE_MADE);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCivApproach(eMinorCiv, CIV_APPROACH_NEUTRAL);
 				}
 			}
@@ -29992,9 +29992,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDontSettleAcceptable(GetID()))
-				SetPlayerExpansionPromiseState(ePlayer, PROMISE_STATE_MADE);
+				SetExpansionPromiseState(ePlayer, PROMISE_STATE_MADE);
 			else
-				SetPlayerExpansionPromiseState(ePlayer, PROMISE_STATE_IGNORED);
+				SetExpansionPromiseState(ePlayer, PROMISE_STATE_IGNORED);
 		}
 
 		SetAngryAboutExpansion(ePlayer, false);
@@ -30040,11 +30040,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() > 8)
 			{
-				SetPlayerBorderPromiseState(ePlayer, PROMISE_STATE_IGNORED);
+				SetBorderPromiseState(ePlayer, PROMISE_STATE_IGNORED);
 			}
 			else
 			{
-				SetPlayerBorderPromiseState(ePlayer, PROMISE_STATE_MADE);
+				SetBorderPromiseState(ePlayer, PROMISE_STATE_MADE);
 			}
 		}
 	}
@@ -33620,7 +33620,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// Don't bother if they've already made or broken a military promise to us
-		if (GetPlayerMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
+		if (GetMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
 
 		// If they're our master, don't threaten
@@ -33687,7 +33687,7 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
 
-		if(IsPlayerMadeAttackCityStatePromise(ePlayer))
+		if(MadeAttackCityStatePromise(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE;
 			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
@@ -33765,8 +33765,8 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 		if (GetOtherPlayerBulliedProtectedMinorTurn(ePlayer) == GC.getGame().getGameTurn())
 		{
 			// Have we asked you to make a promise before?
-			if(IsPlayerBrokenBullyCityStatePromise(ePlayer) ||
-			        IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+			if(BrokeBullyCityStatePromise(ePlayer) ||
+			        IgnoredBullyCityStatePromise(ePlayer))
 			{
 				// We don't even want to bother with you again, so do nothing
 				if (GetCivApproach(ePlayer) <= CIV_APPROACH_HOSTILE)
@@ -33786,7 +33786,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 				}
 			}
 			// Otherwise, ask you to make a promise
-			else if (GetPlayerBullyCityStatePromiseState(ePlayer) == NO_PROMISE_STATE)
+			else if (GetBullyCityStatePromiseState(ePlayer) == NO_PROMISE_STATE)
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_BULLIED_PROTECTED_CITY_STATE;
 				int iTurnsBetweenStatements = 1;
@@ -33827,7 +33827,7 @@ void CvDiplomacyAI::DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatem
 /// Possible Contact Statement - Tell the player he broke his expansion promise
 void CvDiplomacyAI::DoExpansionBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	if (eStatement == NO_DIPLO_STATEMENT_TYPE && IsPlayerBrokenExpansionPromise(ePlayer))
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE && BrokeExpansionPromise(ePlayer))
 {
 		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXPANSION_BROKEN_PROMISE;
 		int iTurnsBetweenStatements = (/*50*/ GD_INT_GET(EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
@@ -33843,7 +33843,7 @@ void CvDiplomacyAI::DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploState
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		bool bSendStatement = false;
-		if (!EverMadeBorderPromise(ePlayer) && GetPlayerBorderPromiseState(ePlayer) == NO_PROMISE_STATE)
+		if (!EverMadeBorderPromise(ePlayer) && GetBorderPromiseState(ePlayer) == NO_PROMISE_STATE)
 		{
 			if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 			{
@@ -33873,7 +33873,7 @@ void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, Dipl
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(IsPlayerBrokenBorderPromise(ePlayer))
+		if(BrokeBorderPromise(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_PLOT_BUYING_BROKEN_PROMISE;
 			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
@@ -33989,7 +33989,7 @@ void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 		if (m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyCaught[ePlayer] == GC.getGame().getGameTurn())
 		{
 			// Ask you to make a promise if you haven't before
-			if (GetPlayerSpyPromiseState(ePlayer) == NO_PROMISE_STATE)
+			if (GetSpyPromiseState(ePlayer) == NO_PROMISE_STATE)
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_CAUGHT_YOUR_SPY;
 				int iTurnsBetweenStatements = 40;
@@ -34016,7 +34016,7 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 			if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyKilled[ePlayer] == GC.getGame().getGameTurn())
 			{
 				// Ask you to make a promise if you haven't before
-				if (GetPlayerSpyPromiseState(ePlayer) == NO_PROMISE_STATE)
+				if (GetSpyPromiseState(ePlayer) == NO_PROMISE_STATE)
 				{
 					DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
 					int iTurnsBetweenStatements = 40;
@@ -34039,7 +34039,7 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 		if (m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyDied[ePlayer] == GC.getGame().getGameTurn() - 1)
 		{
 			// Don't send the message if they ignored our request before, or we ignored theirs.
-			if (GetPlayerSpyPromiseState(ePlayer) < PROMISE_STATE_IGNORED && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerSpyPromiseState(GetID()) < PROMISE_STATE_IGNORED)
+			if (GetSpyPromiseState(ePlayer) < PROMISE_STATE_IGNORED && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSpyPromiseState(GetID()) < PROMISE_STATE_IGNORED)
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_MY_SPY;
 				int iTurnsBetweenStatements = 40;
@@ -34119,7 +34119,7 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if (HasEverConvertedCity(ePlayer) && GetPlayerNoConvertPromiseState(ePlayer) == NO_PROMISE_STATE && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerAskedNotToConvert(GetID()))
+		if (HasEverConvertedCity(ePlayer) && GetNoConvertPromiseState(ePlayer) == NO_PROMISE_STATE && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerAskedNotToConvert(GetID()))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STOP_CONVERSIONS;
 			int iTurnsBetweenStatements = 50;
@@ -34143,7 +34143,7 @@ void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTy
 		if (GetNumArtifactsEverDugUp(ePlayer) > 0) // TODO: arch
 		{
 			// Have we asked you to make a promise before?
-			if (GetPlayerNoDiggingPromiseState(ePlayer) == NO_PROMISE_STATE && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerAskedNotToDig(GetID()))
+			if (GetNoDiggingPromiseState(ePlayer) == NO_PROMISE_STATE && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerAskedNotToDig(GetID()))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STOP_DIGGING;
 				int iTurnsBetweenStatements = 30;
@@ -38412,9 +38412,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		bool bAcceptable = IsDontSettleAcceptable(eFromPlayer);
 
 		if (bAcceptable)
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerExpansionPromiseState(eMyPlayer, PROMISE_STATE_MADE);
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetExpansionPromiseState(eMyPlayer, PROMISE_STATE_MADE);
 		else
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerExpansionPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetExpansionPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
 
 		if (bActivePlayer)
 		{
@@ -38442,7 +38442,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		if (bAcceptable)
 		{
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerSpyPromiseState(eMyPlayer, PROMISE_STATE_MADE);
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetSpyPromiseState(eMyPlayer, PROMISE_STATE_MADE);
 			m_pPlayer->GetEspionageAI()->EvaluateSpiesAssignedToTargetPlayer(eFromPlayer);
 		}
 
@@ -38492,13 +38492,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (IsStopSpreadingReligionAcceptable(eFromPlayer))
 			{
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerNoConvertPromiseState(GetID(), PROMISE_STATE_MADE);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNoConvertPromiseState(GetID(), PROMISE_STATE_MADE);
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_CONVERSIONS_AGREE);
 				eAnimType = LEADERHEAD_ANIM_NEGATIVE;
 			}
 			else
 			{
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerNoConvertPromiseState(GetID(), PROMISE_STATE_IGNORED);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNoConvertPromiseState(GetID(), PROMISE_STATE_IGNORED);
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_CONVERSIONS_DISAGREE);
 				eAnimType = LEADERHEAD_ANIM_NO;
 			}
@@ -38527,13 +38527,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (IsStopDiggingAcceptable(eFromPlayer))
 			{
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerNoDiggingPromiseState(eMyPlayer, PROMISE_STATE_MADE);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNoDiggingPromiseState(eMyPlayer, PROMISE_STATE_MADE);
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_DIGGING_AGREE);
 				eAnimType = LEADERHEAD_ANIM_NEGATIVE;
 			}
 			else
 			{
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerNoDiggingPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNoDiggingPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_STOP_DIGGING_DISAGREE);
 				eAnimType = LEADERHEAD_ANIM_NO;
 			}
@@ -38764,8 +38764,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human says he means no harm
 		if (iArg1 == 1)
 		{
-			SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+			SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -38780,7 +38780,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI to die
 		else if (iArg1 == 2)
 		{
-			SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 			{
@@ -39153,7 +39153,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of his business
 		if (iArg1 == 1)
 		{
-			SetPlayerAttackCityStatePromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetAttackCityStatePromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if (bActivePlayer)
 			{
@@ -39164,7 +39164,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he'd withdraw
 		else if (iArg1 == 2)
 		{
-			SetPlayerAttackCityStatePromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetAttackCityStatePromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -39194,7 +39194,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of his business
 		if (iArg1 == 1)
 		{
-			SetPlayerBullyCityStatePromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetBullyCityStatePromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if (bActivePlayer)
 			{
@@ -39205,7 +39205,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he'd withdraw
 		else if (iArg1 == 2)
 		{
-			SetPlayerBullyCityStatePromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetBullyCityStatePromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -39235,7 +39235,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of their business
 		if (iArg1 == 1)
 		{
-			SetPlayerExpansionPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetExpansionPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if(bActivePlayer)
 			{
@@ -39246,7 +39246,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he wouldn't settle near us again
 		else if (iArg1 == 2)
 		{
-			SetPlayerExpansionPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetExpansionPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -39276,7 +39276,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of their business
 		if (iArg1 == 1)
 		{
-			SetPlayerBorderPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetBorderPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			//Reset city tile numbers so that this can't fire again immediately after the plot warning is up.
 			int iLoop = 0;
@@ -39301,7 +39301,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he wouldn't buy land near us again
 		else if (iArg1 == 2)
 		{
-			SetPlayerBorderPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetBorderPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -39756,7 +39756,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// No penalty for teammates; otherwise, the AI gets mad
 			if (!IsTeammate(eFromPlayer))
 			{
-				SetPlayerBrokenCoopWarPromise(eFromPlayer, true);
+				SetBrokeCoopWarPromise(eFromPlayer, true);
 #if defined(MOD_BALANCE_CORE)
 				ChangeRecentAssistValue(eFromPlayer, 300);
 				ChangeCoopWarAgreementScore(eFromPlayer, -2);
@@ -39896,7 +39896,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of his business
 		if (iArg1 == 1)
 		{
-			SetPlayerSpyPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetSpyPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if (bActivePlayer)
 			{
@@ -39907,7 +39907,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he'd withdraw
 		else if (iArg1 == 2)
 		{
-			SetPlayerSpyPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetSpyPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			if (bActivePlayer)
 			{
@@ -39995,7 +39995,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human told the AI it's none of his business
 		if (iArg1 == 1)
 		{
-			SetPlayerNoConvertPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+			SetNoConvertPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			if (bActivePlayer)
 			{
@@ -40006,7 +40006,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human said he'd withdraw
 		else if (iArg1 == 2)
 		{
-			SetPlayerNoConvertPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+			SetNoConvertPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 			// Reduce their conversion points to a maximum since they agreed to withdraw
 			if (GetNegativeReligiousConversionPoints(eFromPlayer) >= /*4*/ GD_INT_GET(RELIGION_DIPLO_HIT_THRESHOLD))
@@ -40035,7 +40035,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Human told the AI it's none of their business
 			if (iArg1 == 1)
 			{
-				SetPlayerNoDiggingPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
+				SetNoDiggingPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 				if (bActivePlayer)
 				{
@@ -40046,7 +40046,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Human said he'd withdraw
 			else if (iArg1 == 2)
 			{
-				SetPlayerNoDiggingPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+				SetNoDiggingPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
 				if (bActivePlayer)
 				{
@@ -40372,8 +40372,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					if (eLoopTeam == GetTeam())
 					{
 						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40404,8 +40404,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
 					if (eLoopTeam == GetTeam())
 					{
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40422,7 +40422,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				bool bWasDeceptive = GetCivApproach(eFromPlayer) == CIV_APPROACH_DECEPTIVE || (GetCivApproach(eFromPlayer) == CIV_APPROACH_WAR && GetSurfaceApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY);
 				if (DeclareWar(eFromTeam))
 				{
-					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
+					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eMyPlayer, PROMISE_STATE_IGNORED);
 
 					if (bActivePlayer)
 					{
@@ -40453,8 +40453,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
 						if (eLoopTeam == GetTeam())
 						{
-							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-							GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
+							GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 						}
 					}
 
@@ -40684,7 +40684,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	// Player has broken promises about playing nice militarily
 	if (eVisibleApproach != CIV_APPROACH_FRIENDLY)
 	{
-		if (IsPlayerBrokenMilitaryPromise(eHuman) || GetBrokenMilitaryPromiseWithAnybodyScore(eHuman) > 0)
+		if (BrokeMilitaryPromise(eHuman) || GetBrokenMilitaryPromiseWithAnybodyScore(eHuman) > 0)
 		{
 			veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_BROKEN_MILITARY_PROMISE);
 		}
@@ -40980,7 +40980,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 11;
 		}
 		// Guy is a thief!
-		else if(IsPlayerBrokenSpyPromise(ePlayer) && GetLoyalty() > 5)
+		else if(BrokeSpyPromise(ePlayer) && GetLoyalty() > 5)
 		{
 			return 12;
 		}
@@ -41015,7 +41015,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 18;
 		}
 		// Artifacts
-		else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
+		else if(BrokeNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
 		{
 			return 19;
 		}
@@ -41123,7 +41123,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 11;
 		}
 		// Guy is a thief!
-		else if(IsPlayerBrokenSpyPromise(ePlayer) && GetLoyalty() > 5)
+		else if(BrokeSpyPromise(ePlayer) && GetLoyalty() > 5)
 		{
 			return 12;
 		}
@@ -41158,7 +41158,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 18;
 		}
 		//Artifacts
-		else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
+		else if(BrokeNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
 		{
 			return 19;
 		}
@@ -41354,11 +41354,11 @@ const char* CvDiplomacyAI::GetAttackedByHumanMessage()
 
 	// Military Promise Broken
 	// This player said he wasn't going to attack us but did anyways
-	if(IsPlayerBrokenMilitaryPromise(ePlayer))
+	if(BrokeMilitaryPromise(ePlayer))
 		return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_MILITARY_PROMISE_BROKEN);
 
 	// Player broke our vassal agreement (declared war on vassal)
-	if (IsPlayerBrokenVassalAgreement(ePlayer))
+	if (BrokeVassalAgreement(ePlayer))
 		return GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_ATTACKED_VASSAL);
 
 	//Warmonger
@@ -42735,7 +42735,7 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 			{
 				if (bPenalty)
 				{
-					SetPlayerBrokenCoopWarPromise(ePlayer, true);
+					SetBrokeCoopWarPromise(ePlayer, true);
 					ChangeCoopWarAgreementScore(ePlayer, -2);
 					ChangeRecentAssistValue(ePlayer, 300);
 				}
@@ -42903,7 +42903,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// If they've broken or ignored an expansion promise, always say no
-	if (IsPlayerIgnoredExpansionPromise(ePlayer) || IsPlayerBrokenExpansionPromise(ePlayer))
+	if (IgnoredExpansionPromise(ePlayer) || BrokeExpansionPromise(ePlayer))
 		return false;
 
 	// Acceptable if we're friends
@@ -43058,7 +43058,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer)
 		return false;
 	
 	// If player has broken or ignored a spying promise, always say no
-	if (IsPlayerIgnoredSpyPromise(ePlayer) || IsPlayerBrokenSpyPromise(ePlayer))
+	if (IgnoredSpyPromise(ePlayer) || BrokeSpyPromise(ePlayer))
 		return false;
 
 	// If player is a backstabber, always say no
@@ -43190,7 +43190,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bBold |= IsCompetingForVictory() && IsGoingForWorldConquest();
 	bBold |= GetPlayer()->GetPlayerTraits()->IsWarmonger();
 
-	PromiseStates ePromiseState = GetPlayerExpansionPromiseState(ePlayer);
+	PromiseStates ePromiseState = GetExpansionPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bBold ? 10 : 5;
@@ -43200,7 +43200,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 		iChance -= bBold ? 10 : 2;
 	}
 
-	ePromiseState = GetPlayerBorderPromiseState(ePlayer);
+	ePromiseState = GetBorderPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bBold ? 10 : 5;
@@ -43214,7 +43214,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bDiplomatic |= IsCompetingForVictory() && IsGoingForDiploVictory();
 	bDiplomatic |= GetPlayer()->GetPlayerTraits()->IsDiplomat();
 
-	ePromiseState = GetPlayerBullyCityStatePromiseState(ePlayer);
+	ePromiseState = GetBullyCityStatePromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bDiplomatic ? 10 : 5;
@@ -43224,7 +43224,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 		iChance -= bDiplomatic ? 5 : 2;
 	}
 
-	ePromiseState = GetPlayerAttackCityStatePromiseState(ePlayer);
+	ePromiseState = GetAttackCityStatePromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		return true;
@@ -43238,7 +43238,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bScientific |= IsCompetingForVictory() && IsGoingForSpaceshipVictory();
 	bScientific |= GetPlayer()->GetPlayerTraits()->IsNerd();
 
-	ePromiseState = GetPlayerSpyPromiseState(ePlayer);
+	ePromiseState = GetSpyPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bScientific ? 20 : 10;
@@ -43252,7 +43252,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bool bReligious = iFlavorReligion > 6;
 	bReligious |= GetPlayer()->GetPlayerTraits()->IsReligious();
 
-	ePromiseState = GetPlayerNoConvertPromiseState(ePlayer);
+	ePromiseState = GetNoConvertPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bReligious ? 20 : 10;
@@ -43268,7 +43268,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bCultural |= IsCompetingForVictory() && IsGoingForCultureVictory();
 	bCultural = GetPlayer()->GetPlayerTraits()->IsTourism();
 
-	ePromiseState = GetPlayerNoDiggingPromiseState(ePlayer);
+	ePromiseState = GetNoDiggingPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
 	{
 		iChance -= bCultural ? 20 : 10;
@@ -44761,10 +44761,10 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		return false;
 	
 	// Never acceptable if they've converted our cities (unless a promise was made, and not broken)
-	if (HasEverConvertedCity(ePlayer) && !IsPlayerMadeNoConvertPromise(ePlayer))
+	if (HasEverConvertedCity(ePlayer) && !MadeNoConvertPromise(ePlayer))
 		return false;
 	
-	if (IsPlayerBrokenNoConvertPromise(ePlayer) || IsPlayerIgnoredNoConvertPromise(ePlayer))
+	if (BrokeNoConvertPromise(ePlayer) || IgnoredNoConvertPromise(ePlayer))
 		return false;
 	
 	// Never acceptable if they're an Enemy or Unforgivable
@@ -44849,10 +44849,10 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 		return false;
 	
 	// Never acceptable if they've dug up our artifacts (unless a promise was made, and not broken)
-	if (GetNumArtifactsEverDugUp(ePlayer) > 0 && !IsPlayerMadeNoDiggingPromise(ePlayer))
+	if (GetNumArtifactsEverDugUp(ePlayer) > 0 && !MadeNoDiggingPromise(ePlayer))
 		return false;
 	
-	if (IsPlayerBrokenNoDiggingPromise(ePlayer) || IsPlayerIgnoredNoDiggingPromise(ePlayer))
+	if (BrokeNoDiggingPromise(ePlayer) || IgnoredNoDiggingPromise(ePlayer))
 		return false;
 	
 	// Never acceptable if they're an Enemy or Unforgivable
@@ -45353,123 +45353,123 @@ void CvDiplomacyAI::TestOpinionModifiers()
 
 		// Military Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerMadeMilitaryPromise,
-			&CvDiplomacyAI::GetPlayerMilitaryPromiseTurn,
-			&CvDiplomacyAI::SetPlayerMilitaryPromiseState,
+			&CvDiplomacyAI::MadeMilitaryPromise,
+			&CvDiplomacyAI::GetMilitaryPromiseTurn,
+			&CvDiplomacyAI::SetMilitaryPromiseState,
 			/*20*/ GD_INT_GET(MOVE_TROOPS_MEMORY_TURN_EXPIRATION),
 			false);
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise,
-			&CvDiplomacyAI::GetPlayerMilitaryPromiseTurn,
-			&CvDiplomacyAI::SetPlayerMilitaryPromiseState,
+			&CvDiplomacyAI::IgnoredMilitaryPromise,
+			&CvDiplomacyAI::GetMilitaryPromiseTurn,
+			&CvDiplomacyAI::SetMilitaryPromiseState,
 			/*40*/ GD_INT_GET(MILITARY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN),
 			false);
 
 		// Expansion Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerMadeExpansionPromise,
-			&CvDiplomacyAI::GetPlayerExpansionPromiseTurn,
-			&CvDiplomacyAI::SetPlayerExpansionPromiseState,
+			&CvDiplomacyAI::MadeExpansionPromise,
+			&CvDiplomacyAI::GetExpansionPromiseTurn,
+			&CvDiplomacyAI::SetExpansionPromiseState,
 			/*50*/ GD_INT_GET(EXPANSION_PROMISE_TURNS_EFFECTIVE));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredExpansionPromise,
-			&CvDiplomacyAI::GetPlayerExpansionPromiseTurn,
-			&CvDiplomacyAI::SetPlayerExpansionPromiseState,
+			&CvDiplomacyAI::IgnoredExpansionPromise,
+			&CvDiplomacyAI::GetExpansionPromiseTurn,
+			&CvDiplomacyAI::SetExpansionPromiseState,
 			/*30*/ GD_INT_GET(EXPANSION_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenExpansionPromise,
-			&CvDiplomacyAI::GetPlayerExpansionPromiseTurn,
-			&CvDiplomacyAI::SetPlayerExpansionPromiseState,
+			&CvDiplomacyAI::BrokeExpansionPromise,
+			&CvDiplomacyAI::GetExpansionPromiseTurn,
+			&CvDiplomacyAI::SetExpansionPromiseState,
 			/*50*/ GD_INT_GET(EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// Border Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerMadeBorderPromise,
-			&CvDiplomacyAI::GetPlayerBorderPromiseTurn,
-			&CvDiplomacyAI::SetPlayerBorderPromiseState,
+			&CvDiplomacyAI::MadeBorderPromise,
+			&CvDiplomacyAI::GetBorderPromiseTurn,
+			&CvDiplomacyAI::SetBorderPromiseState,
 			/*50*/ GD_INT_GET(BORDER_PROMISE_TURNS_EFFECTIVE));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredBorderPromise,
-			&CvDiplomacyAI::GetPlayerBorderPromiseTurn,
-			&CvDiplomacyAI::SetPlayerBorderPromiseState,
+			&CvDiplomacyAI::IgnoredBorderPromise,
+			&CvDiplomacyAI::GetBorderPromiseTurn,
+			&CvDiplomacyAI::SetBorderPromiseState,
 			/*30*/ GD_INT_GET(BORDER_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenBorderPromise,
-			&CvDiplomacyAI::GetPlayerBorderPromiseTurn,
-			&CvDiplomacyAI::SetPlayerBorderPromiseState,
+			&CvDiplomacyAI::BrokeBorderPromise,
+			&CvDiplomacyAI::GetBorderPromiseTurn,
+			&CvDiplomacyAI::SetBorderPromiseState,
 			/*50*/ GD_INT_GET(BORDER_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// Bully City-State Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise,
-			&CvDiplomacyAI::GetPlayerBullyCityStatePromiseTurn,
-			&CvDiplomacyAI::SetPlayerBullyCityStatePromiseState,
+			&CvDiplomacyAI::IgnoredBullyCityStatePromise,
+			&CvDiplomacyAI::GetBullyCityStatePromiseTurn,
+			&CvDiplomacyAI::SetBullyCityStatePromiseState,
 			/*30*/ GD_INT_GET(BULLY_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise,
-			&CvDiplomacyAI::GetPlayerBullyCityStatePromiseTurn,
-			&CvDiplomacyAI::SetPlayerBullyCityStatePromiseState,
+			&CvDiplomacyAI::BrokeBullyCityStatePromise,
+			&CvDiplomacyAI::GetBullyCityStatePromiseTurn,
+			&CvDiplomacyAI::SetBullyCityStatePromiseState,
 			/*50*/ GD_INT_GET(BULLY_CS_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// Attack City-State Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise,
-			&CvDiplomacyAI::GetPlayerAttackCityStatePromiseTurn,
-			&CvDiplomacyAI::SetPlayerAttackCityStatePromiseState,
+			&CvDiplomacyAI::IgnoredAttackCityStatePromise,
+			&CvDiplomacyAI::GetAttackCityStatePromiseTurn,
+			&CvDiplomacyAI::SetAttackCityStatePromiseState,
 			/*40*/ GD_INT_GET(ATTACK_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		// Spy Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredSpyPromise,
-			&CvDiplomacyAI::GetPlayerSpyPromiseTurn,
-			&CvDiplomacyAI::SetPlayerSpyPromiseState,
+			&CvDiplomacyAI::IgnoredSpyPromise,
+			&CvDiplomacyAI::GetSpyPromiseTurn,
+			&CvDiplomacyAI::SetSpyPromiseState,
 			/*30*/ GD_INT_GET(SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenSpyPromise,
-			&CvDiplomacyAI::GetPlayerSpyPromiseTurn,
-			&CvDiplomacyAI::SetPlayerSpyPromiseState,
+			&CvDiplomacyAI::BrokeSpyPromise,
+			&CvDiplomacyAI::GetSpyPromiseTurn,
+			&CvDiplomacyAI::SetSpyPromiseState,
 			/*50*/ GD_INT_GET(SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// No Convert Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise,
-			&CvDiplomacyAI::GetPlayerNoConvertPromiseTurn,
-			&CvDiplomacyAI::SetPlayerNoConvertPromiseState,
+			&CvDiplomacyAI::IgnoredNoConvertPromise,
+			&CvDiplomacyAI::GetNoConvertPromiseTurn,
+			&CvDiplomacyAI::SetNoConvertPromiseState,
 			/*30*/ GD_INT_GET(CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenNoConvertPromise,
-			&CvDiplomacyAI::GetPlayerNoConvertPromiseTurn,
-			&CvDiplomacyAI::SetPlayerNoConvertPromiseState,
+			&CvDiplomacyAI::BrokeNoConvertPromise,
+			&CvDiplomacyAI::GetNoConvertPromiseTurn,
+			&CvDiplomacyAI::SetNoConvertPromiseState,
 			/*50*/ GD_INT_GET(CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// No Digging Promise
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise,
-			&CvDiplomacyAI::GetPlayerNoDiggingPromiseTurn,
-			&CvDiplomacyAI::SetPlayerNoConvertPromiseState,
+			&CvDiplomacyAI::IgnoredNoDiggingPromise,
+			&CvDiplomacyAI::GetNoDiggingPromiseTurn,
+			&CvDiplomacyAI::SetNoConvertPromiseState,
 			/*30*/ GD_INT_GET(DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN));
 
 		checkAndUpdatePromise(this, ePlayer, iTurn,
-			&CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise,
-			&CvDiplomacyAI::GetPlayerNoDiggingPromiseTurn,
-			&CvDiplomacyAI::SetPlayerNoConvertPromiseState,
+			&CvDiplomacyAI::BrokeNoDiggingPromise,
+			&CvDiplomacyAI::GetNoDiggingPromiseTurn,
+			&CvDiplomacyAI::SetNoConvertPromiseState,
 			/*50*/ GD_INT_GET(DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN));
 
 		// Coop War Promise
 		// This one does not scale with game speed, and needs special handling.
-		if (IsPlayerBrokenCoopWarPromise(ePlayer))
+		if (BrokeCoopWarPromise(ePlayer))
 		{
-			iTurnDifference = iTurn - GetPlayerBrokenCoopWarPromiseTurn(ePlayer);
+			iTurnDifference = iTurn - GetBrokeCoopWarPromiseTurn(ePlayer);
 			if (iTurnDifference >= /*60*/ GD_INT_GET(COOP_WAR_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN))
-				SetPlayerBrokenCoopWarPromise(ePlayer, false);
+				SetBrokeCoopWarPromise(ePlayer, false);
 		}
 
 		// Reduce value counters
@@ -46682,7 +46682,7 @@ int CvDiplomacyAI::GetDiplomatScore(PlayerTypes ePlayer)
 	}
 
 	// No bonus if the player has recent spying penalties
-	if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
+	if (GetNumTimesRobbedBy(ePlayer) > 0 || BrokeSpyPromise(ePlayer) || IgnoredSpyPromise(ePlayer))
 		return 0;
 
 	int iOpinionWeight = 0;
@@ -46837,14 +46837,14 @@ int CvDiplomacyAI::GetNoSettleRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerExpansionPromiseState(GetID()) >= PROMISE_STATE_IGNORED)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetExpansionPromiseState(GetID()) >= PROMISE_STATE_IGNORED)
 	{
 		iOpinionWeight = /*20*/ GD_INT_GET(OPINION_WEIGHT_ASKED_NO_SETTLE);
 
-		int iDuration = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerExpansionPromiseState(GetID()) == PROMISE_STATE_IGNORED ? /*30*/ GD_INT_GET(EXPANSION_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN) : /*50*/ GD_INT_GET(EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
+		int iDuration = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetExpansionPromiseState(GetID()) == PROMISE_STATE_IGNORED ? /*30*/ GD_INT_GET(EXPANSION_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN) : /*50*/ GD_INT_GET(EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerExpansionPromiseTurn(GetID()), TIMED_MODIFIER_STANDARD); 
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetExpansionPromiseTurn(GetID()), TIMED_MODIFIER_STANDARD); 
 	}
 
 	return iOpinionWeight;
@@ -46854,14 +46854,14 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerSpyPromiseState(GetID()) >= PROMISE_STATE_IGNORED)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSpyPromiseState(GetID()) >= PROMISE_STATE_IGNORED)
 	{
 		iOpinionWeight = /*10*/ GD_INT_GET(OPINION_WEIGHT_ASKED_STOP_SPYING);
 
-		int iDuration = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerSpyPromiseState(GetID()) == PROMISE_STATE_IGNORED ? /*30*/ GD_INT_GET(SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN) : /*50*/ GD_INT_GET(SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
+		int iDuration = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSpyPromiseState(GetID()) == PROMISE_STATE_IGNORED ? /*30*/ GD_INT_GET(SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN) : /*50*/ GD_INT_GET(SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerSpyPromiseTurn(GetID()), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSpyPromiseTurn(GetID()), TIMED_MODIFIER_STANDARD);
 	}
 	
 	return iOpinionWeight;
@@ -47102,7 +47102,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer) const
 	int iOpinionWeight = 0;
 
 	// No scaling for backstabbing penalties!
-	if (IsPlayerBrokenMilitaryPromise(ePlayer))
+	if (BrokeMilitaryPromise(ePlayer))
 	{
 		iOpinionWeight = /*80*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_MILITARY_PROMISE);
 	}
@@ -47118,7 +47118,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 
 	// Don't add this if they broke a military promise with US
-	if (!IsPlayerBrokenMilitaryPromise(ePlayer))
+	if (!BrokeMilitaryPromise(ePlayer))
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -47129,7 +47129,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 				// If this guy is untrustworthy or we hate him, he doesn't count.
 				if (!IsUntrustworthy(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()) && !IsAtWar(eLoopPlayer))
 				{
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(ePlayer))
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->BrokeMilitaryPromise(ePlayer))
 					{
 						iOpinionWeight += /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD);
 						break;
@@ -47146,12 +47146,12 @@ int CvDiplomacyAI::GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredMilitaryPromise(ePlayer))
+	if (IgnoredMilitaryPromise(ePlayer))
 	{
 		iOpinionWeight = /*0*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_MILITARY_PROMISE);
 
 		int iDuration = /*40*/ GD_INT_GET(MILITARY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerMilitaryPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetMilitaryPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47161,14 +47161,14 @@ int CvDiplomacyAI::GetBrokenExpansionPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenExpansionPromise(ePlayer))
+	if (BrokeExpansionPromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_EXPANSION_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerExpansionPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetExpansionPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47178,14 +47178,14 @@ int CvDiplomacyAI::GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredExpansionPromise(ePlayer))
+	if (IgnoredExpansionPromise(ePlayer))
 	{
 		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_EXPANSION_PROMISE);
 
 		int iDuration = /*30*/ GD_INT_GET(EXPANSION_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerExpansionPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetExpansionPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47195,14 +47195,14 @@ int CvDiplomacyAI::GetBrokenBorderPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenBorderPromise(ePlayer))
+	if (BrokeBorderPromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_BORDER_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(BORDER_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerBorderPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetBorderPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47212,14 +47212,14 @@ int CvDiplomacyAI::GetIgnoredBorderPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredBorderPromise(ePlayer))
+	if (IgnoredBorderPromise(ePlayer))
 	{
 		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_BORDER_PROMISE);
 
 		int iDuration = /*30*/ GD_INT_GET(BORDER_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerBorderPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetBorderPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47230,7 +47230,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer) con
 	int iOpinionWeight = 0;
 
 	// No scaling for backstabbing penalties!
-	if (IsPlayerBrokenAttackCityStatePromise(ePlayer))
+	if (BrokeAttackCityStatePromise(ePlayer))
 	{
 		iOpinionWeight = /*80*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE);
 	}
@@ -47246,7 +47246,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 	int iOpinionWeight = 0;
 
 	// Don't add this if they broke a City-State attack promise with US
-	if (!IsPlayerBrokenAttackCityStatePromise(ePlayer))
+	if (!BrokeAttackCityStatePromise(ePlayer))
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -47257,7 +47257,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 				// If this guy is untrustworthy or we hate him, he doesn't count
 				if (!IsUntrustworthy(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()) && !IsAtWar(eLoopPlayer))
 				{
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(ePlayer))
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->BrokeAttackCityStatePromise(ePlayer))
 					{
 						iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD);
 						break;
@@ -47274,14 +47274,14 @@ int CvDiplomacyAI::GetIgnoredAttackCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredAttackCityStatePromise(ePlayer))
+	if (IgnoredAttackCityStatePromise(ePlayer))
 	{
 		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE);
 
 		int iDuration = /*40*/ GD_INT_GET(ATTACK_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerAttackCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetAttackCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 	
 	return iOpinionWeight;
@@ -47291,14 +47291,14 @@ int CvDiplomacyAI::GetBrokenBullyCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenBullyCityStatePromise(ePlayer))
+	if (BrokeBullyCityStatePromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_BULLY_CITY_STATE_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(BULLY_CS_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerBullyCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetBullyCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47308,14 +47308,14 @@ int CvDiplomacyAI::GetIgnoredBullyCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+	if (IgnoredBullyCityStatePromise(ePlayer))
 	{
 		iOpinionWeight = /*20*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_BULLY_CITY_STATE_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(BULLY_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerBullyCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetBullyCityStatePromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47325,14 +47325,14 @@ int CvDiplomacyAI::GetBrokenNoConvertPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenNoConvertPromise(ePlayer))
+	if (BrokeNoConvertPromise(ePlayer))
 	{
 		iOpinionWeight = /*10*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 
 		int iDuration = /*50*/ GD_INT_GET(CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerNoConvertPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetNoConvertPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47342,14 +47342,14 @@ int CvDiplomacyAI::GetIgnoredNoConvertPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredNoConvertPromise(ePlayer))
+	if (IgnoredNoConvertPromise(ePlayer))
 	{
 		iOpinionWeight = /*5*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 
 		int iDuration = /*30*/ GD_INT_GET(CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerNoConvertPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetNoConvertPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47359,14 +47359,14 @@ int CvDiplomacyAI::GetBrokenNoDiggingPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenNoDiggingPromise(ePlayer))
+	if (BrokeNoDiggingPromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_NO_DIG_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerNoDiggingPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetNoDiggingPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47376,14 +47376,14 @@ int CvDiplomacyAI::GetIgnoredNoDiggingPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredNoDiggingPromise(ePlayer))
+	if (IgnoredNoDiggingPromise(ePlayer))
 	{
 		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_NO_DIG_PROMISE);
 
 		int iDuration = /*30*/ GD_INT_GET(DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerNoDiggingPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetNoDiggingPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47394,14 +47394,14 @@ int CvDiplomacyAI::GetBrokenSpyPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenSpyPromise(ePlayer))
+	if (BrokeSpyPromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_SPY_PROMISE);
 
 		int iDuration = /*50*/ GD_INT_GET(SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47411,14 +47411,14 @@ int CvDiplomacyAI::GetIgnoredSpyPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerIgnoredSpyPromise(ePlayer))
+	if (IgnoredSpyPromise(ePlayer))
 	{
 		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_IGNORED_SPY_PROMISE);
 
 		int iDuration = /*30*/ GD_INT_GET(SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN);
 		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 		iDuration /= 100;
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
 	return iOpinionWeight;
@@ -47429,12 +47429,12 @@ int CvDiplomacyAI::GetBrokenCoopWarPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerBrokenCoopWarPromise(ePlayer))
+	if (BrokeCoopWarPromise(ePlayer))
 	{
 		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_BROKEN_COOP_WAR_PROMISE);
 
 		int iDuration = /*60*/ GD_INT_GET(COOP_WAR_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN);
-		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlayerSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
+		return AdjustTimedModifier(iOpinionWeight, iDuration, GetSpyPromiseTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 	
 	return iOpinionWeight;
@@ -48240,7 +48240,7 @@ int CvDiplomacyAI::GetPlayerAttackedVassalScore(PlayerTypes ePlayer)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetID() && eLoopPlayer != ePlayer && IsHasMet(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
+		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetID() && eLoopPlayer != ePlayer && IsHasMet(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->BrokeVassalAgreement(ePlayer))
 		{
 			// If this guy is untrustworthy, he doesn't count
 			if (!IsUntrustworthy(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
@@ -48267,7 +48267,7 @@ int CvDiplomacyAI::GetMasterAttackedUsScore(PlayerTypes ePlayer) const
 
 	// Declared war on us while we were his vassal
 	// No scaling for backstabbing penalties!
-	if (IsPlayerBrokenVassalAgreement(ePlayer))
+	if (BrokeVassalAgreement(ePlayer))
 	{
 		iTraitorOpinion = /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT);
 	}
@@ -49508,7 +49508,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	{
 	case THEFT_TYPE_CULTURE_BOMB:
 	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()))
 			return true;
 		
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
@@ -49527,7 +49527,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	}
 	case THEFT_TYPE_CONVERSION:
 	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoConvertPromise(GetID()))
 			return true;
 
 		if (IsVassal(ePlayer))
@@ -49537,7 +49537,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	}
 	case THEFT_TYPE_ARTIFACT:
 	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoDiggingPromise(GetID()))
 			return true;
 
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(GetTeam()))
@@ -49550,7 +49550,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	}
 	case THEFT_TYPE_SPY:
 	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeSpyPromise(GetID()))
 			return true;
 
 		if (IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
@@ -49582,7 +49582,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	}
 	case THEFT_TYPE_PLOT: // America UA
 	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()))
 			return true;
 		
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
@@ -57255,7 +57255,7 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 		int iIgnoredTurns = (15 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 
 		// If they've broken promises or ignored our requests lately, no
-		if (IsPlayerBrokenAnyPromise(ePlayer, iBrokenTurns) || IsPlayerIgnoredAnyPromise(ePlayer, iIgnoredTurns))
+		if (BrokeAnyPromise(ePlayer, iBrokenTurns) || IgnoredAnyPromise(ePlayer, iIgnoredTurns))
 			return false;
 
 		// Something we want to offer?
@@ -57769,10 +57769,10 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				pOther->SetFriendDenouncedUs(ID, false);
 				pOther->SetFriendDeclaredWarOnUs(ID, false);
 				pOther->SetVassalageForcefullyRevokedTurn(ID, -1);
-				pOther->SetPlayerBrokenVassalAgreement(ID, false);
-				pOther->SetPlayerMilitaryPromiseState(ID, NO_PROMISE_STATE);
-				pOther->SetPlayerAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
-				pOther->SetPlayerBrokenCoopWarPromise(ID, false);
+				pOther->SetBrokeVassalAgreement(ID, false);
+				pOther->SetMilitaryPromiseState(ID, NO_PROMISE_STATE);
+				pOther->SetAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
+				pOther->SetBrokeCoopWarPromise(ID, false);
 
 				// Reset war-related penalties
 				pOther->SetCivilianKillerValue(ID, 0);
@@ -57817,13 +57817,13 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			pOther->SetFriendDenouncedUs(ID, false);
 			pOther->SetFriendDeclaredWarOnUs(ID, false);
 			pOther->SetVassalageForcefullyRevokedTurn(ID, -1);
-			pOther->SetPlayerBrokenVassalAgreement(ID, false);
-			pOther->SetPlayerMilitaryPromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
-			pOther->SetPlayerBrokenCoopWarPromise(ID, false);
+			pOther->SetBrokeVassalAgreement(ID, false);
+			pOther->SetMilitaryPromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetAttackCityStatePromiseState(ID, NO_PROMISE_STATE);
+			pOther->SetBrokeCoopWarPromise(ID, false);
 
 			// Reset memory of demands made and some other "minor" grievances
-			if (!IsPlayerBrokenVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
+			if (!BrokeVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
 			{
 				SetNumDemandsMade(eOtherTeamPlayer, 0);
 				SetNumTradeRoutesPlundered(eOtherTeamPlayer, 0);
@@ -57835,7 +57835,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			}
 			
 			// During capitulation, reset almost all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
-			if (!bVoluntary && !IsPlayerBrokenVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
+			if (!bVoluntary && !BrokeVassalAgreement(eOtherTeamPlayer) && !IsResurrectorAttackedUs(eOtherTeamPlayer))
 			{
 				SetMinorCivDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 				
@@ -57852,21 +57852,21 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				SetNumTimesRobbedBy(eOtherTeamPlayer, 0);
 				
 				// Reset most promises
-				if (!IsPlayerBrokenMilitaryPromise(eOtherTeamPlayer))
+				if (!BrokeMilitaryPromise(eOtherTeamPlayer))
 				{
-					SetPlayerMilitaryPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+					SetMilitaryPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
 				}
-				if (!IsPlayerBrokenAttackCityStatePromise(eOtherTeamPlayer))
+				if (!BrokeAttackCityStatePromise(eOtherTeamPlayer))
 				{
-					SetPlayerAttackCityStatePromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+					SetAttackCityStatePromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
 				}
-				SetPlayerExpansionPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerBorderPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerBullyCityStatePromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerSpyPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerNoConvertPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerNoDiggingPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
-				SetPlayerBrokenCoopWarPromise(eOtherTeamPlayer, false);
+				SetExpansionPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetBorderPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetBullyCityStatePromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetSpyPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetNoConvertPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetNoDiggingPromiseState(eOtherTeamPlayer, NO_PROMISE_STATE);
+				SetBrokeCoopWarPromise(eOtherTeamPlayer, false);
 				
 				SetOtherPlayerNumProtectedMinorsKilled(eOtherTeamPlayer, 0);
 				SetOtherPlayerNumProtectedMinorsAttacked(eOtherTeamPlayer, 0);

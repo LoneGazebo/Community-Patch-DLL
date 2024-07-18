@@ -11085,7 +11085,7 @@ int CvLuaPlayer::lIsPlayerBrokenMilitaryPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeMilitaryPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11097,7 +11097,7 @@ int CvLuaPlayer::lIsPlayerIgnoredMilitaryPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredMilitaryPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredMilitaryPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11108,7 +11108,7 @@ int CvLuaPlayer::lIsPlayerBrokenExpansionPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenExpansionPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeExpansionPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11119,7 +11119,7 @@ int CvLuaPlayer::lIsPlayerIgnoredExpansionPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredExpansionPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredExpansionPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11130,7 +11130,7 @@ int CvLuaPlayer::lIsPlayerBrokenBorderPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenBorderPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeBorderPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11141,7 +11141,7 @@ int CvLuaPlayer::lIsPlayerIgnoredBorderPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredBorderPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredBorderPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11152,7 +11152,7 @@ int CvLuaPlayer::lIsPlayerBrokenAttackCityStatePromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeAttackCityStatePromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11163,7 +11163,7 @@ int CvLuaPlayer::lIsPlayerIgnoredAttackCityStatePromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredAttackCityStatePromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredAttackCityStatePromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11174,7 +11174,7 @@ int CvLuaPlayer::lIsPlayerBrokenBullyCityStatePromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenBullyCityStatePromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeBullyCityStatePromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11185,7 +11185,7 @@ int CvLuaPlayer::lIsPlayerIgnoredBullyCityStatePromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredBullyCityStatePromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredBullyCityStatePromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11196,7 +11196,7 @@ int CvLuaPlayer::lIsPlayerBrokenSpyPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenSpyPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeSpyPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11207,7 +11207,7 @@ int CvLuaPlayer::lIsPlayerIgnoredSpyPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredSpyPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredSpyPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11229,7 +11229,7 @@ int CvLuaPlayer::lIsPlayerBrokenNoConvertPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenNoConvertPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeNoConvertPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11240,7 +11240,7 @@ int CvLuaPlayer::lIsPlayerIgnoredNoConvertPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredNoConvertPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredNoConvertPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11251,7 +11251,7 @@ int CvLuaPlayer::lIsPlayerBrokenNoDiggingPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenNoDiggingPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeNoDiggingPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11262,7 +11262,7 @@ int CvLuaPlayer::lIsPlayerIgnoredNoDiggingPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredNoDiggingPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IgnoredNoDiggingPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11273,7 +11273,7 @@ int CvLuaPlayer::lIsPlayerBrokenCoopWarPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerBrokenCoopWarPromise(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->BrokeCoopWarPromise(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;

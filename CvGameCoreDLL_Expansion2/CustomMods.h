@@ -123,7 +123,7 @@
 // Separates out the repair fleet and change port abilities of the Great Admiral (v61)
 #define MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL           gCustomMods.isGLOBAL_SEPARATE_GREAT_ADMIRAL()
 // Lets all Civs get trade routes along rivers.
-#define MOD_RIVER_TRADE_ROUTES                      gCustomMods.isRIVER_TRADE_ROUTES()
+#define MOD_RIVER_CITY_CONNECTIONS                      gCustomMods.isRIVER_CITY_CONNECTIONS()
 // Permits units to have promotion trees different from their assigned CombatClass
 #define MOD_GLOBAL_PROMOTION_CLASSES                gCustomMods.isGLOBAL_PROMOTION_CLASSES()
 // Permits ships to enter coastal forts/citadels in friendly lands
@@ -1281,7 +1281,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
 	MOD_OPT_DECL(LOCAL_GENERALS_NEAREST_CITY);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GREAT_ADMIRAL);
-	MOD_OPT_DECL(RIVER_TRADE_ROUTES);
+	MOD_OPT_DECL(RIVER_CITY_CONNECTIONS);
 	MOD_OPT_DECL(GLOBAL_PROMOTION_CLASSES);
 	MOD_OPT_DECL(GLOBAL_PASSABLE_FORTS);
 	MOD_OPT_DECL(GLOBAL_ANYTIME_GOODY_GOLD);
