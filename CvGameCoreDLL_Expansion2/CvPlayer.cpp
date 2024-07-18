@@ -15973,7 +15973,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 
 	if(pPlot && !bTestVisible)
 	{
-		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType()))
+		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType(), bTestEra))
 		{
 			return false;
 		}
@@ -15991,7 +15991,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 }
 
 /// Are we prevented from eBuild-ing because of a Feature on this plot?
-bool CvPlayer::IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature) const
+bool CvPlayer::IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature, bool bTestEra) const
 {
 	// No Feature here to block us
 	if(eFeature == NO_FEATURE)
@@ -16015,6 +16015,11 @@ bool CvPlayer::IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature)
 
 	// Clearing eFeature requires a Tech, but we have it
 	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+	{
+		return false;
+	}
+
+	if (bTestEra && ((GetCurrentEra() + 1) >= GC.getTechInfo((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
 	{
 		return false;
 	}

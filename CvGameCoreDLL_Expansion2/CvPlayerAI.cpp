@@ -3099,7 +3099,7 @@ std::priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(BuildTyp
 			ResourceTypes eResource = pAdjacentPlot->getResourceType(getTeam());
 			if (eResource != NO_RESOURCE)
 			{
-				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);
+				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, pAdjacentPlot->getNumResource()) * iWeightFactor);
 			}
 
 			// score yield
