@@ -27712,9 +27712,9 @@ void CvDiplomacyAI::DoUpdateDemands()
 		if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv())
 			continue;
 
-		// If we're planning a war or are friendly towards them, don't make a demand of them...doesn't mesh well
+		// If we're planning a war, are friendly towards them, or are afraid of them, don't make a demand of them...doesn't mesh well
 		CivApproachTypes eApproach = GetCivApproach(ePlayer);
-		if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_FRIENDLY)
+		if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_FRIENDLY || eApproach == CIV_APPROACH_AFRAID)
 			continue;
 
 		// If approach is NEUTRAL and opinion is better than ENEMY, don't demand
@@ -27747,7 +27747,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 		}
 
 		// Bad approach?
-		switch (GetCivApproach(ePlayer))
+		switch (eApproach)
 		{
 		case CIV_APPROACH_HOSTILE:
 			iWeight += 20;
