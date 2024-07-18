@@ -45555,7 +45555,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::GetNumTradeRoutesPlundered,
 			&CvDiplomacyAI::SetNumTradeRoutesPlundered,
 			&CvDiplomacyAI::GetPlunderedTradeRouteTurn,
-			/*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN),
+			/*15*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN),
 			GetForgiveness(), true);
 
 		// Plotted against us? Special case - scale modifier duration dynamically based on military strength and proximity.
@@ -45579,7 +45579,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::GetNumWondersBeatenTo,
 			&CvDiplomacyAI::SetNumWondersBeatenTo,
 			&CvDiplomacyAI::GetBeatenToWonderTurn,
-			/*75*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN),
+			/*60*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN),
 			GetForgiveness(), true);
 
 		// Lowered our City-State Influence?
@@ -45587,7 +45587,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::GetNumTimesTheyLoweredOurInfluence,
 			&CvDiplomacyAI::SetNumTimesTheyLoweredOurInfluence,
 			&CvDiplomacyAI::GetLoweredOurInfluenceTurn,
-			/*50*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN),
+			/*40*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN),
 			GetForgiveness(), true);
 
 		// Stole our City-State allies?
@@ -46241,7 +46241,7 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = (iRoutesPlundered * /*5*/ GD_INT_GET(OPINION_WEIGHT_PLUNDERED_TRADE_ROUTE));
 
-		int iDuration = AdjustModifierDuration(/*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
+		int iDuration = AdjustModifierDuration(/*15*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetPlunderedTradeRouteTurn(ePlayer), TIMED_MODIFIER_STACKED, iRoutesPlundered);
 	}
 	

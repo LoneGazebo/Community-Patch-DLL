@@ -716,10 +716,10 @@ INSERT INTO Defines (Name, Value) SELECT 'DOF_BROKEN_BACKSTAB_TIMER', 10;
 -- Defines the base number of turns until the AI forgets about an opinion modifier.
 -- When there are multiple "stacks" of a modifier, this instead is the time before the # of stacks is halved (rounded down).
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
--- The amount of turns is also increased or decreased based on leader flavors (and this increase/decrease also scales with game speed). Modifiers less than 50 turns are less affected by flavors; more than 50 turns are moreso.
+-- The amount of turns is also increased or decreased based on leader flavors (and this increase/decrease also scales with game speed).
 -- Certain modifiers are not included here.
 
-INSERT INTO Defines (Name, Value) SELECT 'PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN', 25;
+INSERT INTO Defines (Name, Value) SELECT 'PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN', 15;
 INSERT INTO Defines (Name, Value) SELECT 'RETURNED_CIVILIAN_TURNS_UNTIL_FORGOTTEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'BUILT_LANDMARK_TURNS_UNTIL_FORGOTTEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'LIBERATED_CITY_TURNS_UNTIL_FORGOTTEN', 75;
@@ -727,8 +727,8 @@ INSERT INTO Defines (Name, Value) SELECT 'FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTT
 INSERT INTO Defines (Name, Value) SELECT 'SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'ROBBED_US_TURNS_UNTIL_FORGIVEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN', 14; -- 0-26 is added to this value based on perceived threat level of the plotter; does not scale with game speed
-INSERT INTO Defines (Name, Value) SELECT 'BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN', 75; -- no direct penalty from this, but it affects WonderDisputeLevel
-INSERT INTO Defines (Name, Value) SELECT 'LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN', 50; -- no direct penalty from this, but it affects MinorCivDisputeLevel
+INSERT INTO Defines (Name, Value) SELECT 'BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN', 60; -- no direct penalty from this, but it affects WonderDisputeLevel
+INSERT INTO Defines (Name, Value) SELECT 'LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN', 40; -- no direct penalty from this, but it affects MinorCivDisputeLevel
 INSERT INTO Defines (Name, Value) SELECT 'PERFORMED_COUP_TURNS_UNTIL_FORGIVEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN', 50;
 INSERT INTO Defines (Name, Value) SELECT 'MADE_DEMAND_TURNS_UNTIL_FORGIVEN', 50;
