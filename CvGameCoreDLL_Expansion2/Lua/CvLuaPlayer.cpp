@@ -13244,7 +13244,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case CIV_APPROACH_FRIENDLY:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
-				case NO_CIV_APPROACH:
 				case CIV_APPROACH_NEUTRAL:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL").toUTF8();
 					break;
@@ -15446,7 +15445,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL").toUTF8();
 		}
-		else if ((!pDiplo->IsVassal(ePlayer) || iAttackedVassalScore <= 0) && iFriendDenouncedUsScore > 0)
+		else if (iFriendDenouncedUsScore > 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED").toUTF8();
 		}
@@ -15614,7 +15613,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case CIV_APPROACH_FRIENDLY:
 				str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
 				break;
-			case NO_CIV_APPROACH:
 			case CIV_APPROACH_WAR:
 			case CIV_APPROACH_DECEPTIVE:
 			case CIV_APPROACH_NEUTRAL:

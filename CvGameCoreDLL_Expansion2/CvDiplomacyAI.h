@@ -246,8 +246,8 @@ public:
 	CivApproachTypes GetCivStrategicApproach(PlayerTypes ePlayer) const;
 	void SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
-	CivApproachTypes GetCachedSurfaceApproach(PlayerTypes ePlayer) const;
-	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
+	int GetCachedSurfaceApproach(PlayerTypes ePlayer) const;
+	void SetCachedSurfaceApproach(PlayerTypes ePlayer, int iApproach);
 
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 	int GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFromMe) const;
@@ -986,9 +986,9 @@ public:
 	// ------------------------------------
 
 	// Guesses about other players' feelings towards us
-	/*
 	CivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, CivOpinionTypes eOpinion);
+	/*
 	CivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, CivApproachTypes eApproach);
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
@@ -1144,8 +1144,8 @@ public:
 
 	void TestBackstabbingPenalties();
 
-	void DoTestUntrustworthyFriends();
-	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
+	void TestUntrustworthyFriends();
+	bool TestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
 
 	// ------------------------------------
 	// War Sanity Checks
@@ -1159,7 +1159,6 @@ public:
 	bool DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, bool bImpulse);
 	bool CanBackstab(PlayerTypes ePlayer) const;
 	bool IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, bool bImpulse);
-	bool WouldBeUpsetIfAttackedFriend(PlayerTypes ePlayer, PlayerTypes eBackstabPlayer) const;
 
 	// ------------------------------------
 	// Opinion
@@ -1172,7 +1171,6 @@ public:
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight); // <= JdH
 #endif
 
-	//void DoUpdateOpinionTowardsUsGuesses();
 	//void DoUpdateApproachTowardsUsGuesses();
 
 	// ------------------------------------
@@ -1216,7 +1214,7 @@ public:
 
 	// Minor Civ Approach
 	void DoUpdateMinorCivApproaches();
-	void SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
+	void SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer);
 
 	// ------------------------------------
 	// Peace Treaty Willingness
@@ -2140,7 +2138,7 @@ private:
 	
 	// GUESSES
 	// Guesses about other players' feelings towards us
-	//char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
+	char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
 	//char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
 	//char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
@@ -2189,6 +2187,8 @@ namespace CvDiplomacyAIHelpers
 	void ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner);
 	int GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver);
 	int GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver);
+	bool BackstabbedPlayer(PlayerTypes eBackstabber, PlayerTypes eVictim, bool bIncludeDoFEnd);
+	bool IgnoresBackstabbing(PlayerTypes eObserver, PlayerTypes eVictim, bool bCheckCurrent = false);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

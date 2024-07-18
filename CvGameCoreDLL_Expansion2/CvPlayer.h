@@ -3363,7 +3363,6 @@ protected:
 	int m_iScenarioScore3;
 	int m_iScenarioScore4;
 	int m_iScoreFromFutureTech;
-	int m_iTurnLastAttackedMinorCiv; // Delete this before releasing v. 4.15+ or later
 	int m_iCombatExperienceTimes100;
 	int m_iLifetimeCombatExperienceTimes100;
 	int m_iNavalCombatExperienceTimes100;
@@ -4182,7 +4181,6 @@ SYNC_ARCHIVE_VAR(int, m_iScenarioScore2)
 SYNC_ARCHIVE_VAR(int, m_iScenarioScore3)
 SYNC_ARCHIVE_VAR(int, m_iScenarioScore4)
 SYNC_ARCHIVE_VAR(int, m_iScoreFromFutureTech)
-SYNC_ARCHIVE_VAR(int, m_iTurnLastAttackedMinorCiv) // Delete this before releasing v. 4.15+ or later
 SYNC_ARCHIVE_VAR(int, m_iCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(int, m_iLifetimeCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(int, m_iNavalCombatExperienceTimes100)

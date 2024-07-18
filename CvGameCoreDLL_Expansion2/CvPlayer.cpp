@@ -309,7 +309,6 @@ CvPlayer::CvPlayer() :
 	, m_iScenarioScore3()
 	, m_iScenarioScore4()
 	, m_iScoreFromFutureTech()
-	, m_iTurnLastAttackedMinorCiv() // Delete this before releasing v. 4.15+ or later
 	, m_iCombatExperienceTimes100()
 	, m_iLifetimeCombatExperienceTimes100()
 	, m_iNavalCombatExperienceTimes100()
@@ -1615,7 +1614,6 @@ void CvPlayer::uninit()
 	m_iScenarioScore3 = 0;
 	m_iScenarioScore4 = 0;
 	m_iScoreFromFutureTech = 0;
-	m_iTurnLastAttackedMinorCiv = -1; // Delete this before releasing v. 4.15+ or later
 	m_iCombatExperienceTimes100 = 0;
 	m_iLifetimeCombatExperienceTimes100 = 0;
 	m_iNavalCombatExperienceTimes100 = 0;
@@ -42680,7 +42678,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iScenarioScore3);
 	visitor(player.m_iScenarioScore4);
 	visitor(player.m_iScoreFromFutureTech);
-	visitor(player.m_iTurnLastAttackedMinorCiv); // Delete this before releasing v. 4.15+ or later
 	visitor(player.m_iCombatExperienceTimes100);
 	visitor(player.m_iLifetimeCombatExperienceTimes100);
 	visitor(player.m_iNavalCombatExperienceTimes100);

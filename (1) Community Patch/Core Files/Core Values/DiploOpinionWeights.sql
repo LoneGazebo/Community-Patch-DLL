@@ -636,7 +636,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY
 
 
 -- Opinion Weight Change from Having 2+ Vassals
--- Each player on a team counts as one vassal. Your own vassals and players you have a DoF with don't apply this penalty.
+-- Each player on a team counts as one vassal. Your own vassals + players you have a DoF or DP with don't apply this penalty.
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', 20;
 
 
@@ -644,7 +644,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASS
 --	// PROMISE DURATIONS
 --	//////////////////////////////////////
 
--- Defines how many turns a specific promise lasts for (for making the promise).
+-- Defines how many turns a specific promise lasts for (for making the promise), capped below at 1.
 -- Defines how many turns until the AI forgets that you ignored/broke a specific promise (for other values). Once the AI forgets that you ignored/broke a promise, they become able to ask you to make it again.
 -- Most promise lengths scale with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 
@@ -693,7 +693,7 @@ INSERT INTO Defines (Name, Value) SELECT 'COOP_WAR_PROMISE_BROKEN_TURNS_UNTIL_FO
 --	// BACKSTABBING PENALTY DURATIONS
 --	//////////////////////////////////////
 
--- Defines how many turns until the AI forgets that you backstabbed them.
+-- Defines how many turns until the AI forgets that you backstabbed them, capped below at 1.
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- NOTE: Broken military / CS conquest promises count as backstabbing penalties as well, but they are handled in the Promises section just above.
 
@@ -713,7 +713,7 @@ INSERT INTO Defines (Name, Value) SELECT 'DOF_BROKEN_BACKSTAB_TIMER', 10;
 --	// OTHER OPINION MODIFIER DURATIONS
 --	//////////////////////////////////////
 
--- Defines the base number of turns until the AI forgets about an opinion modifier.
+-- Defines the base number of turns until the AI forgets about an opinion modifier, capped below at 1.
 -- When there are multiple "stacks" of a modifier, this instead is the time before the # of stacks is halved (rounded down).
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- The amount of turns is also increased or decreased based on leader flavors (and this increase/decrease also scales with game speed).

@@ -837,7 +837,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	// CivApproachTypes
 	EnumStart(L, "CivApproachTypes");
-	RegisterEnum(NO_CIV_APPROACH);
 	RegisterEnum(CIV_APPROACH_WAR);
 	RegisterEnum(CIV_APPROACH_HOSTILE);
 	RegisterEnum(CIV_APPROACH_DECEPTIVE);
@@ -1163,7 +1162,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 
 	EnumStart(L, "CivOpinionTypes");
-	RegisterEnum(NO_CIV_OPINION);
 	RegisterEnum(CIV_OPINION_UNFORGIVABLE);
 	RegisterEnum(CIV_OPINION_ENEMY);
 	RegisterEnum(CIV_OPINION_COMPETITOR);

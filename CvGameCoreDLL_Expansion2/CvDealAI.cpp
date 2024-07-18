@@ -2785,7 +2785,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
-		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 125;
@@ -2869,7 +2868,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
-		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_AFRAID:
 		case CIV_APPROACH_NEUTRAL:
@@ -6471,7 +6469,6 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		case CIV_OPINION_COMPETITOR:
 		case CIV_OPINION_ENEMY:
 		case CIV_OPINION_UNFORGIVABLE:
-		case NO_CIV_OPINION:
 			break; // No change.
 		}
 
@@ -7403,7 +7400,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 										bWorthIt = true;
 									}
 									break;
-								case NO_CIV_OPINION:
 								case CIV_OPINION_NEUTRAL:
 								case CIV_OPINION_COMPETITOR:
 								case CIV_OPINION_ENEMY:

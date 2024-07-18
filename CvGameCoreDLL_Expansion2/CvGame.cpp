@@ -12582,7 +12582,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		int iCompetitor = 0;
 		int iEnemy = 0;
 		int iUnforgivable = 0;
-		int iNoOpinion = 0;
 
 		int iMajorWar = 0;
 		int iMajorHostile = 0;
@@ -12591,13 +12590,11 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		int iMajorAfraid = 0;
 		int iMajorFriendly = 0;
 		int iMajorNeutral = 0;
-		int iMajorNoApproach = 0;
 
 		int iMinorIgnore = 0;
 		int iMinorProtective = 0;
 		int iMinorConquest = 0;
 		int iMinorBully = 0;
-		int iMinorNoApproach = 0;
 
 		// Loop through all Players
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -12659,9 +12656,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 							case CIV_OPINION_UNFORGIVABLE:
 								iUnforgivable++;
 								break;
-							case NO_CIV_OPINION:
-								iNoOpinion++;
-								break;
 							}
 
 							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
@@ -12687,9 +12681,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 							case CIV_APPROACH_FRIENDLY:
 								iMajorFriendly++;
 								break;
-							case NO_CIV_APPROACH:
-								iMajorNoApproach++;
-								break;
 							}
 						}
 						// Minor
@@ -12708,9 +12699,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 								break;
 							case CIV_APPROACH_FRIENDLY:
 								iMinorProtective++;
-								break;
-							case NO_CIV_APPROACH:
-								iMajorNoApproach++;
 								break;
 							case CIV_APPROACH_DECEPTIVE:
 							case CIV_APPROACH_GUARDED:
@@ -12757,7 +12745,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strOutput += ", Competitor";
 			strOutput += ", Enemy";
 			strOutput += ", Unforgivable";
-			strOutput += ", No Opinion";
 		}
 		else
 		{
@@ -12775,8 +12762,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iUnforgivable);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iNoOpinion);
-			strOutput += ", " + strTemp;
 		}
 
 		// Major Approaches
@@ -12789,7 +12774,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strOutput += ", Afraid";
 			strOutput += ", Friendly";
 			strOutput += ", Neutral";
-			strOutput += ", No Approach (Major)";
 		}
 		else
 		{
@@ -12807,8 +12791,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iMajorNeutral);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorNoApproach);
-			strOutput += ", " + strTemp;
 		}
 
 		// Minor Approaches
@@ -12818,7 +12800,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strOutput += ", Protective";
 			strOutput += ", Conquest";
 			strOutput += ", Bully";
-			strOutput += ", No Approach (Minor)";
 		}
 		else
 		{
@@ -12829,8 +12810,6 @@ void CvGame::LogGameState(bool bLogHeaders) const
 			strTemp.Format("%d", iMinorConquest);
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iMinorBully);
-			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMinorNoApproach);
 			strOutput += ", " + strTemp;
 		}
 
