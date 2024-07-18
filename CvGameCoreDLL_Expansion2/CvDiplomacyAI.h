@@ -1771,7 +1771,7 @@ public:
 	bool IsTryingToLiberate(CvCity* pCity);
 	bool DoPossibleMajorLiberation(CvCity* pCity);
 
-	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
+	bool IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer) const;
 

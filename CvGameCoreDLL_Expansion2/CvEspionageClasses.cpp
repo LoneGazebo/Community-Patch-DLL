@@ -8989,7 +8989,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 			continue;
 
 		// If we promised not to spy or it's a bad idea to spy on them, then don't spy on them!
-		if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
+		if (pDiploAI->IsBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
 			continue;
 
 		//if we can't steal from them, we don't care!

@@ -6441,7 +6441,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 			if (m_pPlayer->IsAtWarWith(kLoopPlayer.GetID()))
 				continue;
 
-			if (m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
+			if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
 				continue;
 
 			int iCityLoop = 0;
@@ -9125,7 +9125,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	return iTotalRtnValue;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bool bForPantheon) const
 {
 	int iNumTotalCities = 0;
@@ -9140,54 +9139,53 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 					continue;
 			}
 
-			//Ignore conversion requests.
-			if (!m_pPlayer->GetDiplomacyAI()->MadeNoConvertPromise(kLoopPlayer.GetID()))
+			if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
+				continue;
+
+			int iNumCities = 0;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
+			for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{
-				int iNumCities = 0;
-				int iLoop = 0;
-				CvCity* pLoopCity = NULL;
-				for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+				if (eReligion == NO_RELIGION)
 				{
-					if (eReligion == NO_RELIGION)
+					//No faith? Let's get em!
+					if (pLoopCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
 					{
-						//No faith? Let's get em!
-						if (pLoopCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
-						{
-							iNumCities += 2;
-						}
-					}
-					else if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
-					{
-						iNumCities++;
+						iNumCities += 2;
 					}
 				}
-
-				//Emphasis on our own!
-				if (kLoopPlayer.GetID() == m_pPlayer->GetID())
-					iNumCities *= 2;
-
-				if (!kLoopPlayer.GetReligions()->OwnsReligion(true))
+				else if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 				{
-					iNumCities *= 2;
+					iNumCities++;
 				}
-
-				if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_CLOSE)
-				{
-					iNumCities /= 2;
-				}
-
-				if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_FAR)
-				{
-					iNumCities /= 4;
-				}
-
-				if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_DISTANT)
-				{
-					iNumCities /= 6;
-				}
-
-				iNumTotalCities += iNumCities;
 			}
+
+			//Emphasis on our own!
+			if (kLoopPlayer.GetID() == m_pPlayer->GetID())
+				iNumCities *= 2;
+
+			if (!kLoopPlayer.GetReligions()->OwnsReligion(true))
+			{
+				iNumCities *= 2;
+			}
+
+			if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_CLOSE)
+			{
+				iNumCities /= 2;
+			}
+
+			if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_FAR)
+			{
+				iNumCities /= 4;
+			}
+
+			if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) == PLAYER_PROXIMITY_DISTANT)
+			{
+				iNumCities /= 6;
+			}
+
+			iNumTotalCities += iNumCities;
 		}
 	}
 
@@ -9202,7 +9200,6 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 
 	return iNumTotalCities;
 }
-#endif
 
 /// AI's evaluation of this belief's usefulness to this player
 int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest, bool bReturnCulture, bool bReturnScience, bool bReturnDiplo) const
@@ -10747,7 +10744,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	// Major civ - promised not to convert, or bad target?
 	if (GET_PLAYER(pCity->getOwner()).isMajorCiv())
 	{
-		if (m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pCity->getOwner(), THEFT_TYPE_CONVERSION))
+		if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pCity->getOwner(), THEFT_TYPE_CONVERSION))
 		{
 			return 0;
 		}

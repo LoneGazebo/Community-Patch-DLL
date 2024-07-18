@@ -4760,7 +4760,7 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
+				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
 					bIgnore = true;
 			}
 			else
@@ -4826,7 +4826,7 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
+				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
 					bIgnore = true;
 			}
 			else

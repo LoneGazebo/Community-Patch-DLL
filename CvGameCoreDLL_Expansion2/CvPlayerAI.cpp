@@ -2996,7 +2996,7 @@ std::priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(BuildTyp
 			const PlayerTypes eOwner = pTestPlot->getOwner();
 			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != GetID())
 			{
-				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
+				if (GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{
 					bGoodCandidate = false;
 					break;
@@ -3072,7 +3072,7 @@ std::priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(BuildTyp
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
 			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != BARBARIAN_PLAYER && eOtherPlayer != GetID())
 			{
-				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
+				if (GetDiplomacyAI()->IsBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
 				{
 					iScore = 0;
 					break;

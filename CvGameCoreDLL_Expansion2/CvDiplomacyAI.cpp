@@ -6163,7 +6163,7 @@ void CvDiplomacyAI::SetRawMilitaryStrengthComparedToUs(PlayerTypes ePlayer, Stre
 /// What is our assessment of this player's value as a military target?
 TargetValueTypes CvDiplomacyAI::GetTargetValue(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_TARGET_VALUE;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return TARGET_VALUE_CAKEWALK;
 	return (TargetValueTypes) m_aeTargetValue[ePlayer];
 }
 
@@ -6177,7 +6177,7 @@ void CvDiplomacyAI::SetTargetValue(PlayerTypes ePlayer, TargetValueTypes eTarget
 /// What is our unbiased assessment of this player's value as a military target? (No reduction from Boldness)
 TargetValueTypes CvDiplomacyAI::GetRawTargetValue(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_TARGET_VALUE;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return TARGET_VALUE_CAKEWALK;
 	return (TargetValueTypes) m_aeRawTargetValue[ePlayer];
 }
 
@@ -20729,8 +20729,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	switch (GetTargetValue(ePlayer))
 	{
-	case NO_TARGET_VALUE:
-		UNREACHABLE(); // Target values are supposed to have been evaluated by this point.
 	case TARGET_VALUE_IMPOSSIBLE:
 		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
 		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
@@ -42272,8 +42270,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (GetTargetValue(eTargetPlayer))
 		{
-		case NO_TARGET_VALUE:
-			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
 		case TARGET_VALUE_IMPOSSIBLE:
 			iScore *= 40;
 			break;
@@ -42301,8 +42297,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (GetTargetValue(eTargetPlayer))
 		{
-		case NO_TARGET_VALUE:
-			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
 		case TARGET_VALUE_IMPOSSIBLE:
 		case TARGET_VALUE_BAD:
 		case TARGET_VALUE_DIFFICULT:
@@ -49417,7 +49411,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 }
 
 /// Is this a bad target to steal from?
-bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
+bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
 {
 	// Failsafe
 	if (!pPlot && (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT))
