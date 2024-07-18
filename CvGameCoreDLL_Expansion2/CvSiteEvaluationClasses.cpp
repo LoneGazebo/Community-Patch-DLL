@@ -769,7 +769,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 		
 		//todo: do we want the check the map area as well?
-		if (eNeighbor != NO_PLAYER && pPlayer->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eNeighbor)!=NO_STRENGTH_VALUE)
+		if (eNeighbor != NO_PLAYER)
 		{
 			int strengthModifiers[NUM_STRENGTH_VALUES] = { 100, 100, 50, 0, -50, -100, -100 };
 			int iModifierPercent = strengthModifiers[pPlayer->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eNeighbor)];

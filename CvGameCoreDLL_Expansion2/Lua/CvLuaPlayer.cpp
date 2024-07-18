@@ -1270,7 +1270,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMilitaryAggressivePosture);
 	Method(CountAggressiveMilitaryScore);
 	Method(MoveRequestTooSoon);
-	Method(GetPlayerMoveTroopsRequestCounter);
 	Method(GetMyShareOfVassalTaxes);
 	Method(GetExpensePerTurnFromVassalTaxes);
 	Method(GetVassalTaxContribution);
@@ -16751,18 +16750,6 @@ int CvLuaPlayer::lMoveRequestTooSoon(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
 	lua_pushboolean(L, pkPlayer->GetDiplomacyAI()->IsTooSoonForMoveTroopsRequest(eOtherPlayer));
-	return 1;
-}
-
-int CvLuaPlayer::lGetPlayerMoveTroopsRequestCounter(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-
-	int iTurn = pkPlayer->GetDiplomacyAI()->GetPlayerMoveTroopsRequestAcceptedTurn(eOtherPlayer);
-	const int iValue = (iTurn != -1) ? (GC.getGame().getGameTurn() - iTurn) : -1;
-
-	lua_pushinteger(L, iValue);
 	return 1;
 }
 

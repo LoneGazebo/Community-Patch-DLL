@@ -920,9 +920,11 @@ public:
 
 	int GetWeLikedTheirProposalTurn(PlayerTypes ePlayer) const;
 	void SetWeLikedTheirProposalTurn(PlayerTypes ePlayer, int iTurn);
+	bool WeLikedTheirProposal(PlayerTypes ePlayer) const;
 
 	int GetWeDislikedTheirProposalTurn(PlayerTypes ePlayer) const;
 	void SetWeDislikedTheirProposalTurn(PlayerTypes ePlayer, int iTurn);
+	bool WeDislikedTheirProposal(PlayerTypes ePlayer) const;
 
 	int GetTheySupportedOurProposalTurn(PlayerTypes ePlayer) const;
 	void SetTheySupportedOurProposalTurn(PlayerTypes ePlayer, int iTurn);
@@ -940,12 +942,13 @@ public:
 
 	int GetTheySupportedOurHostingTurn(PlayerTypes ePlayer) const;
 	void SetTheySupportedOurHostingTurn(PlayerTypes ePlayer, int iTurn);
+	bool TheySupportedOurHosting(PlayerTypes ePlayer) const;
 
 	// ------------------------------------
 	// Player-Specific Memory Values
 	// ------------------------------------
 
-	bool WasHumanLastTurn() const;
+	bool WasHumanLastUpdate() const;
 
 	bool HasEndedFriendshipThisTurn() const;
 	void SetEndedFriendshipThisTurn(bool bValue);
@@ -1003,8 +1006,6 @@ public:
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
 
-	int GetPlayerMoveTroopsRequestAcceptedTurn(PlayerTypes ePlayer) const;
-	void SetPlayerMoveTroopsRequestAcceptedTurn(PlayerTypes ePlayer, int iTurn);
 	bool IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const;
 
 	bool IsOfferingGift(PlayerTypes ePlayer) const;	// We're offering a gift!
@@ -1141,9 +1142,7 @@ public:
 	// Player Trustworthiness
 	// ------------------------------------
 
-	void DoTestPromises();
-
-	void DoTestBackstabbingPenalties();
+	void TestBackstabbingPenalties();
 
 	void DoTestUntrustworthyFriends();
 	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
@@ -1616,7 +1615,7 @@ public:
 	int AdjustModifierDuration(int iDuration, int iFlavorValue, bool bInvertModifier = false, bool bGamespeed = true) const;
 	int AdjustTimedModifier(int iValue, int iDuration, int iTurn, TimedModifierTypes eModifierType, int iStacks = 1, int iFirstStackValue = 0);
 	int AdjustConditionalModifier(int iValue, int iFlavorValue, bool bInvertModifier = false) const;
-	void DoTestOpinionModifiers();
+	void TestOpinionModifiers();
 	int GetBaseOpinionScore(PlayerTypes ePlayer);
 
 	// Dispute Levels
@@ -1913,7 +1912,7 @@ private:
 	bool m_bAvoidDeals; // Not serialized!
 	bool m_bIgnoreWarmonger; // Not serialized!
 	PlayerTypes m_eVassalPlayerToLiberate; // Not serialized!
-	bool m_bWasHumanLastTurn;
+	bool m_bWasHumanLastUpdate;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
 	int m_iNumReevaluations; // Used for RNG
@@ -2156,7 +2155,7 @@ private:
 	unsigned short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalagePeacefullyRevokedTurn[MAX_MAJOR_CIVS];
 	int m_aiPlayerVassalageForcefullyRevokedTurn[MAX_MAJOR_CIVS];
-	int m_aiMoveTroopsRequestAcceptedTurn[MAX_MAJOR_CIVS];
+	bool m_abMoveTroopsRequestAccepted[MAX_MAJOR_CIVS];
 	bool m_abMasterLiberatedMeFromVassalage[MAX_MAJOR_CIVS];
 	bool m_abVassalTaxRaised[MAX_MAJOR_CIVS];
 	bool m_abVassalTaxLowered[MAX_MAJOR_CIVS];

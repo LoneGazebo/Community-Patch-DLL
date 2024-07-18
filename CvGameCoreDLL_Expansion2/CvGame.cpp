@@ -3759,6 +3759,7 @@ void CvGame::doControl(ControlTypes eControl)
 						CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
 						CvPreGame::VerifyHandicap(eReturnPlayer, true);
 						GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+						GET_PLAYER(eReturnPlayer).GetDiplomacyAI()->SlotStateChange();
 					}
 				}
 				else
@@ -3797,6 +3798,7 @@ void CvGame::doControl(ControlTypes eControl)
 					CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
 					CvPreGame::VerifyHandicap(eReturnPlayer);
 					GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					GET_PLAYER(eReturnPlayer).GetDiplomacyAI()->SlotStateChange();
 				}
 			}
 		}
@@ -3836,11 +3838,14 @@ void CvGame::doControl(ControlTypes eControl)
 				}
 				if (eNextPlayer != NO_PLAYER)
 				{
+					PlayerTypes ePreviousPlayer = CvPreGame::activePlayer();
 					CvPreGame::setHandicap(eNextPlayer, CvPreGame::handicap(eActivePlayer));
-					CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
-					CvPreGame::VerifyHandicap(CvPreGame::activePlayer());
+					CvPreGame::setSlotStatus(ePreviousPlayer, SS_COMPUTER);
+					CvPreGame::VerifyHandicap(ePreviousPlayer);
 					CvPreGame::setSlotStatus(eNextPlayer, SS_TAKEN);
 					GC.getGame().setActivePlayer(eNextPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					GET_PLAYER(ePreviousPlayer).GetDiplomacyAI()->SlotStateChange();
+					GET_PLAYER(eNextPlayer).GetDiplomacyAI()->SlotStateChange();
 				}
 			}
 		}
@@ -5344,7 +5349,6 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 					{
 						iObserver = iI;
 						break;
-
 					}
 				}
 			}
@@ -5367,6 +5371,7 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 			CvPreGame::VerifyHandicap(eNewAIPlayer);
 
 			// trigger some AI decisions for the new computer player
+			GET_PLAYER(eNewAIPlayer).GetDiplomacyAI()->SlotStateChange();
 			int iLoop = 0;
 			CvCity* pLoopCity = NULL;
 			for (pLoopCity = GET_PLAYER(eNewAIPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eNewAIPlayer).nextCity(&iLoop))

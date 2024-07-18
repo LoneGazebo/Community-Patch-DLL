@@ -1140,7 +1140,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 #if defined(MOD_BALANCE_CORE)
 	EnumStart(L, "StrengthTypes");
-	RegisterEnum(NO_STRENGTH_VALUE);
 	RegisterEnum(STRENGTH_PATHETIC);
 	RegisterEnum(STRENGTH_WEAK);
 	RegisterEnum(STRENGTH_POOR);

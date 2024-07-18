@@ -46195,6 +46195,7 @@ void CvPlayer::disconnected()
 			// player to reconnect
 			CvPreGame::setSlotStatus(GetID(), SS_COMPUTER);
 			CvPreGame::VerifyHandicap(GetID());	//Changing the handicap because we're switching to AI
+			GetDiplomacyAI()->SlotStateChange();
 
 			// Load leaderhead for this new AI player
 			gDLL->NotifySpecificAILeaderInGame(GetID());
@@ -46215,6 +46216,7 @@ void CvPlayer::reconnected()
 	}
 
 	CvPreGame::VerifyHandicap(GetID()); //verify the handicap because we might have replaced an ai.
+	GetDiplomacyAI()->SlotStateChange();
 
 	CvGame& kGame = GC.getGame();
 	bool isMultiplayer = kGame.isGameMultiPlayer();

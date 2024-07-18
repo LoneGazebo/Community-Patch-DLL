@@ -717,8 +717,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			switch(eMilitaryStrengthComparedToUs)
 			{
-			case NO_STRENGTH_VALUE:
-				break; // Do nothing; We can't provide useful info.
 			case STRENGTH_PATHETIC:
 			{
 				int iRating = 60;

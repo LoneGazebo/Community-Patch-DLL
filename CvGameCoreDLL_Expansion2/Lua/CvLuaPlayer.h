@@ -1384,7 +1384,6 @@ protected:
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);
 	LUAAPIEXTN(CountAggressiveMilitaryScore, int, iOtherPlayer);
 	LUAAPIEXTN(MoveRequestTooSoon, bool, iOtherPlayer);
-	LUAAPIEXTN(GetPlayerMoveTroopsRequestCounter, int, iOtherPlayer);
 	LUAAPIEXTN(GetExpensePerTurnFromVassalTaxes, int);
 	LUAAPIEXTN(GetMyShareOfVassalTaxes, int);
 	LUAAPIEXTN(GetVassalTaxContribution, int);
