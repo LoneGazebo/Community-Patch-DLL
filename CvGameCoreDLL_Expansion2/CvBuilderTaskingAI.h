@@ -30,8 +30,8 @@ struct BuilderDirective
 	    NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
-	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_sX(-1), m_sY(-1), m_iScore(-1), m_iScorePenalty(-1) {}
-	BuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, short sX, short sY, int iScore)
+	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_sX(-1), m_sY(-1), m_iScore(-1), m_iPotentialBonusScore(-1), m_iScorePenalty(-1) {}
+	BuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, short sX, short sY, int iScore, int iPotentialScore)
 	{
 		m_eDirectiveType = eDirective;
 		m_eBuild = eBuild;
@@ -40,6 +40,7 @@ struct BuilderDirective
 		m_sX = sX;
 		m_sY = sY;
 		m_iScore = iScore;
+		m_iPotentialBonusScore = iPotentialScore;
 		m_iScorePenalty = 0;
 	}
 
@@ -52,8 +53,8 @@ struct BuilderDirective
 	short m_sY;
 	int m_iScore;
 	int m_iScorePenalty;
-	//int m_iGoldCost;
-	//short m_sMoveTurnsAway;
+	int m_iPotentialBonusScore;
+
 	bool operator==(const BuilderDirective& rhs) const
 	{
 		return m_eDirectiveType == rhs.m_eDirectiveType && m_eBuild == rhs.m_eBuild && m_eResource == rhs.m_eResource && m_sX == rhs.m_sX && m_sY == rhs.m_sY && m_bIsGreatPerson == rhs.m_bIsGreatPerson;
@@ -67,9 +68,15 @@ struct BuilderDirective
 		if (m_sY != rhs.m_sY) return m_sY < rhs.m_sY;
 		return m_bIsGreatPerson < rhs.m_bIsGreatPerson;
 	}
+
 	int GetScore() const
 	{
 		return m_iScore - m_iScorePenalty;
+	}
+
+	int GetPotentialScore() const
+	{
+		return m_iScore + m_iPotentialBonusScore - m_iScorePenalty;
 	}
 };
 FDataStream& operator<<(FDataStream&, const BuilderDirective&);
@@ -127,7 +134,7 @@ public:
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(const CvPlot* pPlot) const;
 
-	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState = SBuilderState::DefaultInstance());
+	pair<int, int> ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState = SBuilderState::DefaultInstance());
 	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
 	BuildTypes GetRepairBuild(void);
