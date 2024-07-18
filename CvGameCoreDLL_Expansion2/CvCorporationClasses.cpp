@@ -1820,7 +1820,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 	BuildingClassTypes eOfficeClass = pkCorporationInfo->GetOfficeBuildingClass();
 	if (eOfficeClass != NO_BUILDINGCLASS)
 	{
-		BuildingTypes eOffice = pHeadquarters->GetBuildingTypeFromClass(eOfficeClass);
+		BuildingTypes eOffice = pHeadquarters->GetBuildingTypeFromClass(eOfficeClass, true);
 		if (eOffice != NO_BUILDING)
 		{
 			pHeadquarters->SetNumFreeBuilding(eOffice, 1, true, false);
