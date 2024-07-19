@@ -25807,9 +25807,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 	}
 
-	int iWarCount = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false) - 1;
-	if (iWarCount <= 0)
-		iWarCount = 0;
+	int iWarCount = max(GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false) - 1, 0);
 
 	//-------------------------------------------------------//
 	// [PART 6: WAR STATE EVALUATION & AUTOMATIC DECISIONS]  //
@@ -26217,7 +26215,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// How long do we wait before we want to make peace more?
 		int iMinimumWarDuration = max(0, /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS));
 		int iTooLongWarThreshold = max(15, iMinimumWarDuration);
-		bool bProlongAll = GetPlayer()->GetPositiveWarScoreTourismMod() > 0 && GET_PLAYER(GetHighestWarscorePlayer()).getTeam() == GET_TEAM(*it).GetID();
+		bool bProlongAll = GetPlayer()->GetPositiveWarScoreTourismMod() > 0 && GET_PLAYER(GetHighestWarscorePlayer()).getTeam() == GET_TEAM(*it).GetID() && !bInTerribleShape && !bAnySeriousDangerUs;
 		if (bProlongAll)
 		{
 			iTooLongWarThreshold *= 2;
@@ -26250,7 +26248,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			else if (bInTerribleShape || bAnySeriousDangerUs)
 			{
 				iPeaceScore += iWarScore / 3;
-				bProlong = false;
 			}
 			else if (vEnemyCitiesEndangeredByUs.size() > 0)
 			{
@@ -26706,9 +26703,10 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyOffers(vector<TeamTypes>& vMakePeaceTeams
 				}
 			}
 			// Positive Warscore? Accept more.
+			// Don't accept less due to war weariness if we're winning and not unhappy
 			else
 			{
-				iWarScore -= iWarWearinessPenalty;
+				iWarScore -= GetPlayer()->IsEmpireUnhappy() || GetPlayer()->IsInTerribleShapeForWar() ? iWarWearinessPenalty : 0;
 				switch (GetPlayer()->GetProximityToPlayer(ePlayer))
 				{
 				case NO_PLAYER_PROXIMITY:
