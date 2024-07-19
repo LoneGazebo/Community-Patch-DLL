@@ -45272,11 +45272,12 @@ static void checkAndUpdateStackingOpinionModifier(
     {
         int iTurnDifference = iTurn - (pThis->*getTurn)(ePlayer);
         int iDuration = pThis->AdjustModifierDuration(baseTurns, modifier, bInvert, true);
-        if (iTurnDifference >= iDuration)
-        {
-            iStacks /= 2;
-            (pThis->*setStacks)(ePlayer, iStacks);
-        }
+		while (iTurnDifference >= iDuration && iStacks > 0)
+		{
+			iStacks /= 2;
+			iTurnDifference -= iDuration;
+		}
+		(pThis->*setStacks)(ePlayer, iStacks);
     }
 }
 
