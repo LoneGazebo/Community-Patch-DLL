@@ -46724,7 +46724,7 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 		// Partial credit for any after first
 		if (iNumIntrigue > 1)
 		{
-			iOpinionWeight = /*-5*/ GD_INT_GET(OPINION_WEIGHT_INTRIGUE_SHARED_BY_SUBSEQUENT) * (iNumIntrigue - 1);
+			iOpinionWeight += /*-5*/ GD_INT_GET(OPINION_WEIGHT_INTRIGUE_SHARED_BY_SUBSEQUENT) * (iNumIntrigue - 1);
 		}
 
 		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
