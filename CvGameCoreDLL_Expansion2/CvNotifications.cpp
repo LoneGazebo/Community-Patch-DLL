@@ -437,14 +437,7 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 				break;
 
 			case NOTIFICATION_POLICY:
-				if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				return GC.getGame().isOption(GAMEOPTION_POLICY_SAVING);
 
 			default:
 				return true;
