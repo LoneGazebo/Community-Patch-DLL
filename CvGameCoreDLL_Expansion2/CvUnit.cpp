@@ -2046,7 +2046,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			{
 				bool bMelee = false;
 				bool bRanged = false;
-				if ((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
+				if ((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
 				{
 					bRanged = true;
 				}
