@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="136">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.14) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.14.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -121,7 +121,7 @@
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="B3190B691343A0D05D5B499B1DCA835E" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="537710EBE749E0569F91B1B471151377" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="61902050A4626FA87874D8693778E097" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="E5390E2B85E7420AB9B850FD8CDCCC1B" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -174,7 +174,7 @@
     <File md5="2BFE0E6D6EAE4917F5068B6084CF75A2" import="1">Core Files/CoreLua/MPTurnPanel.lua</File>
     <File md5="91DEEC22E933A63497BBDA0E5066D8D3" import="1">Core Files/CoreLua/NewEraPopup.lua</File>
     <File md5="7BC0010F1CD4D0C1E5644B09D504A019" import="1">Core Files/CoreLua/PathHelpManager.xml</File>
-    <File md5="1B9A3FCACB50D6034BD9BC730C9AF1F8" import="1">Core Files/CoreLua/PathHelpManager.lua</File>
+    <File md5="8FCE98A50E176833F23BABD08F48BE57" import="1">Core Files/CoreLua/PathHelpManager.lua</File>
     <File md5="B9265F59D7CFB7857DD3D8C308F5D7D0" import="1">Core Files/CoreLua/RecentEventsInfo.xml</File>
     <File md5="5CE8AADCD96BC892206D0738E4879395" import="1">Core Files/CoreLua/RecentEventsInfo.lua</File>
     <File md5="D189054DBC0B89454E00137394C4CB1A" import="1">Core Files/CoreLua/playereventdefaultbackground.dds</File>
@@ -240,7 +240,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="AABD88EC01498977A6882B5C73D74B91" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="17CC9804705153F3544A7055FE710EDD" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="9567E9AF557EA97A271657F1A457A0D0" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="08501AF4818565C80E63B8DC00F25037" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="0BEC69D4B15DC437584DBBEEAE14B570" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
