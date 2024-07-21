@@ -10450,6 +10450,11 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 		{
 			iYield += pkImprovementInfo->GetImprovementResourceYield(eResource, eYield);
 		}
+
+		if (kPlayer.getGoldenAgeTurns() > 0)
+		{
+			iYield += pkImprovementInfo->GetGoldenAgeYieldChange(eYield);
+		}
 	}
 
 	if (pOwningCity != NULL)
