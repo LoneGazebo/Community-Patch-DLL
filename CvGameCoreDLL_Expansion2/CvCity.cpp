@@ -2710,7 +2710,7 @@ void CvCity::UpdateAllNonPlotYields(bool bIncludePlayerHappiness)
 			continue;
 
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		UpdateCityYields(eYield);
