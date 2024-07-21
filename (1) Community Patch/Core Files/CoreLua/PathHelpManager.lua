@@ -13,13 +13,13 @@ function OnPath( data )
     for _, node in ipairs( data ) do
     
         if( node.turn ~= lastNode.turn ) then
-            BuildNode( lastNode, false );
+            BuildNode( lastNode );
         end
         
         lastNode = node;
     end
     
-    BuildNode( lastNode, true );
+    BuildNode( lastNode );
     
 end
 Events.UIPathFinderUpdate.Add( OnPath );
@@ -27,29 +27,21 @@ Events.UIPathFinderUpdate.Add( OnPath );
 
 -------------------------------------------------
 -------------------------------------------------
-function BuildNode( data, bShowRemainingMoves )
+function BuildNode( data )
     local instance = m_InstanceManager:GetInstance();
 
     -- see CvDllGameContext::TEMPCalculatePathFinderUpdates
-	local md = 60;
-	local wholeturns = math.floor(data.turn/md/md);
-	local remaining = data.turn - wholeturns*md*md;
+	local wholeturns = math.floor(data.turn/100);
+	local tmp = data.turn - wholeturns*100;
+	local totalmovementpoints = math.floor(tmp/10);
+	local remainder = tmp - totalmovementpoints*10;
 
-	if (remaining==0) then
-		-- full moves (turn start) or no movement left (turn finished)
-		-- value from pathfinder is as expected
+	if ( remainder == 0) then
 		instance.TurnLabel:SetText( wholeturns );
-	else
-		-- movement points left for the turn
-		-- by convention pathfinder returns completed turns, so we convert
-		instance.TurnLabel:SetText( "<" .. (wholeturns+1) );
-	end
-
-	if (bShowRemainingMoves) then
-		-- for the plot the mouse is on we show extra info
-		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remaining .. "/" .. md);
-	else
 		instance.RemainingMoves:SetText("");
+	else
+		instance.TurnLabel:SetText( "<" .. (wholeturns+1) );
+		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remainder .. "/" .. totalmovementpoints);
 	end
     
     local plot = Map.GetPlot( data.x, data.y );
