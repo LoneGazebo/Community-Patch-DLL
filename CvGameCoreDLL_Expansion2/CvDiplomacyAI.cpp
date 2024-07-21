@@ -29377,10 +29377,8 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GET_PLAYER(ePlayer).isBarbarian()) return;
 	if (eOtherTeam < 0 || eOtherTeam >= MAX_CIV_TEAMS || GET_TEAM(eOtherTeam).isBarbarian()) return;
-	
-	PlayerTypes eMyPlayer = GetID();
-	bool bMajorAttackedMajor = false;
 
+	PlayerTypes eMyPlayer = GetID();
 	vector<PlayerTypes> vAttackedTeam = GET_TEAM(eOtherTeam).getPlayers();
 	for (size_t i=0; i<vAttackedTeam.size(); i++)
 	{
