@@ -173,6 +173,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbTerrainMakesValid(NULL),
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
+	m_YieldPerXAdjacentImprovement(),
 	m_piAdjacentSameTypeYield(NULL),
 	m_piAdjacentTwoSameTypeYield(NULL),
 	m_ppiAdjacentImprovementYieldChanges(NULL),
@@ -207,6 +208,7 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
+	m_YieldPerXAdjacentImprovement.clear();
 	SAFE_DELETE_ARRAY(m_piAdjacentSameTypeYield);
 	SAFE_DELETE_ARRAY(m_piAdjacentTwoSameTypeYield);
 	if(m_ppiAdjacentImprovementYieldChanges != NULL)
@@ -483,10 +485,40 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const int iNumYields = kUtility.MaxRows("Yields");
 #if defined(MOD_BALANCE_CORE)
+	const int iNumImprovements = kUtility.MaxRows("Improvements");
+	CvAssertMsg(iNumImprovements > 0, "Num Improvement Infos <= 0");
+	//YieldPerXAdjacentImprovement
+	{
+		std::string strKey("Improvements - YieldPerXAdjacentImprovement");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Improvements.ID as ImprovementID, Yield, NumRequired from Improvement_YieldPerXAdjacentImprovement inner join Yields on YieldType = Yields.Type inner join Improvements on OtherImprovementType = Improvements.Type where ImprovementType = ?");
+		}
+
+		pResults->Bind(1, szImprovementType);
+
+		while (pResults->Step())
+		{
+			const YieldTypes yield_idx = YieldTypes(pResults->GetInt(0));
+			CvAssert(yield_idx > -1);
+
+			const ImprovementTypes improvement_idx = ImprovementTypes(pResults->GetInt(1));
+			CvAssert(improvement_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+			
+			const int nRequired = pResults->GetInt(3);
+			CvAssert(nRequired > 0);
+
+			m_YieldPerXAdjacentImprovement[yield_idx][improvement_idx] = fraction(yield, nRequired);
+		}
+
+		//Trim extra memory off container since this is mostly read-only.
+		map<YieldTypes, map<ImprovementTypes, fraction>>(m_YieldPerXAdjacentImprovement).swap(m_YieldPerXAdjacentImprovement);
+	}
 	//AdjacentImprovementYieldChanges
 	{
-		const int iNumImprovements = kUtility.MaxRows("Improvements");
-		CvAssertMsg(iNumImprovements > 0, "Num Improvement Infos <= 0");
 		kUtility.Initialize2DArray(m_ppiAdjacentImprovementYieldChanges, iNumImprovements, iNumYields);
 
 		std::string strKey = "Improvements - AdjacentImprovementYieldChanges";
@@ -801,6 +833,47 @@ int CvImprovementEntry::GetAdditionalUnits() const
 }
 #endif
 
+/// Bonus yield if another improvement is adjacent
+fraction CvImprovementEntry::GetYieldPerXAdjacentImprovement(YieldTypes eYield, ImprovementTypes eImprovement) const
+{
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eImprovement > -1, "Index out of Bounds");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	fraction fYield = 0;
+	map<YieldTypes, map<ImprovementTypes, fraction>>::const_iterator itImprovement = m_YieldPerXAdjacentImprovement.find(eYield);
+	if (itImprovement != m_YieldPerXAdjacentImprovement.end())
+	{
+		map<ImprovementTypes, fraction>::const_iterator itYield = itImprovement->second.find(eImprovement);
+		if (itYield != itImprovement->second.end())
+		{
+			fYield = itYield->second;
+		}
+	}
+
+	// Special case for culture
+	if (eYield == YIELD_CULTURE)
+	{
+		fYield += m_iCultureAdjacentSameType;
+	}
+
+	return fYield;
+}
+bool CvImprovementEntry::IsYieldPerXAdjacentImprovement(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield >= -1, "Index out of bounds");
+	
+	if (eYield == NO_YIELD)
+		return (!m_YieldPerXAdjacentImprovement.empty() || m_iCultureAdjacentSameType != 0);
+	else if (eYield == YIELD_CULTURE)
+		return m_iCultureAdjacentSameType != 0;
+
+	map<YieldTypes, map<ImprovementTypes, fraction>>::const_iterator itImprovement = m_YieldPerXAdjacentImprovement.find(eYield);
+
+	return itImprovement != m_YieldPerXAdjacentImprovement.end()
+}
 /// Bonus yield if another Improvement of same type is adjacent
 int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
 {
@@ -1452,7 +1525,8 @@ int* CvImprovementEntry::GetAdjacentTwoSameTypeYieldArray()
 {
 	return m_piAdjacentTwoSameTypeYield;
 }
-/// How much a tech improves the yield of this improvement if it has fresh water
+
+/// How this improvement changes the yields of an adjacent improvement
 int CvImprovementEntry::GetAdjacentImprovementYieldChanges(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
@@ -1461,7 +1535,6 @@ int CvImprovementEntry::GetAdjacentImprovementYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiAdjacentImprovementYieldChanges[i][j];
 }
-
 int* CvImprovementEntry::GetAdjacentImprovementYieldChangesArray(int i)
 {
 	return m_ppiAdjacentImprovementYieldChanges[i];
