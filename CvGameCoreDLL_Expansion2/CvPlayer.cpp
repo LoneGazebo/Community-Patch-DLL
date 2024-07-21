@@ -309,7 +309,7 @@ CvPlayer::CvPlayer() :
 	, m_iScenarioScore3()
 	, m_iScenarioScore4()
 	, m_iScoreFromFutureTech()
-	, m_iTurnLastAttackedMinorCiv()
+	, m_iTurnLastAttackedMinorCiv() // Delete this before releasing v. 4.15+ or later
 	, m_iCombatExperienceTimes100()
 	, m_iLifetimeCombatExperienceTimes100()
 	, m_iNavalCombatExperienceTimes100()
@@ -1615,7 +1615,7 @@ void CvPlayer::uninit()
 	m_iScenarioScore3 = 0;
 	m_iScenarioScore4 = 0;
 	m_iScoreFromFutureTech = 0;
-	m_iTurnLastAttackedMinorCiv = -1;
+	m_iTurnLastAttackedMinorCiv = -1; // Delete this before releasing v. 4.15+ or later
 	m_iCombatExperienceTimes100 = 0;
 	m_iLifetimeCombatExperienceTimes100 = 0;
 	m_iNavalCombatExperienceTimes100 = 0;
@@ -20127,24 +20127,6 @@ void CvPlayer::SetInTerribleShapeForWar(bool bValue)
 	m_bTerribleShapeForWar = bValue;
 }
 
-// Prevent infinite warmongering exploit
-int CvPlayer::GetTurnsSinceLastAttackedMinorCiv() const
-{
-	int iTurn = m_iTurnLastAttackedMinorCiv;
-	if (iTurn < 0)
-		return -1;
-
-	return GC.getGame().getGameTurn() - m_iTurnLastAttackedMinorCiv;
-}
-
-void CvPlayer::SetTurnLastAttackedMinorCiv(int iTurn)
-{
-	if (GetTurnsSinceLastAttackedMinorCiv() > -1 && GetTurnsSinceLastAttackedMinorCiv() < 10)
-		return;
-
-	m_iTurnLastAttackedMinorCiv = max(iTurn, -1);
-}
-
 int CvPlayer::GetHappinessForGAP() const
 {
 	if (MOD_BALANCE_VP)
@@ -32312,7 +32294,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			GET_PLAYER(eLoopPlayer).SetLastCityCaptureTurn(GetID(), -1);
 
 			if (isMajorCiv())
-				SetWarWeariness(eLoopPlayer, 0); // this is intentionally not reset for the other player (for a gradual decay)
+			{
+				SetWarWeariness(eLoopPlayer, 0);
+
+				// Only halve war weariness for the victor, for a gradual decay
+				if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+					GET_PLAYER(eLoopPlayer).SetWarWeariness(GetID(), GET_PLAYER(eLoopPlayer).GetWarWeariness(GetID()) / 2);
+			}
 
 			// Cancel active Espionage Events
 			GET_PLAYER(eLoopPlayer).RemoveEspionageEventsForPlayer(GetID());
@@ -35295,7 +35283,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		// Player is dead - halve current war weariness value. Skip updating war damage value as that was reset when the player died.
 		if (!GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			if (isMajorCiv() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (!bDamageOnly && isMajorCiv() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 				SetWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / 2);
 
 			continue;
@@ -35479,10 +35467,29 @@ int CvPlayer::GetUnitCostIncreaseFromWarWeariness() const
 
 int CvPlayer::GetUnhappinessFromWarWeariness() const
 {
-	int iUnhappiness = GetHighestWarWearinessPercent() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 100;
-	iUnhappiness *= getTotalPopulation();
-	iUnhappiness /= 100;
-	return iUnhappiness;
+	return GetHighestWarWearinessPercent() * getTotalPopulation() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 10000;
+}
+
+/// Utility function for Diplomacy AI to determine whether it'd be a good idea to make peace with a team due to war weariness
+int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam) const
+{
+	if (!MOD_BALANCE_VP || eTeam == NO_TEAM)
+		return 0;
+
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(eTeam).getPlayers();
+	int iHighestWarWearinessPercent = 0;
+	for (size_t i=0; i<vTheirTeam.size(); i++)
+	{
+		// Disregard dead players, our war weariness with them will rapidly decrease whether we make peace or not
+		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || !GET_PLAYER(vTheirTeam[i]).isMajorCiv())
+			continue;
+
+		int iWarWearinessPercent = GetWarWearinessPercent(vTheirTeam[i]); // This includes recent city captures
+		if (iWarWearinessPercent > iHighestWarWearinessPercent)
+			iHighestWarWearinessPercent = iWarWearinessPercent;
+	}
+
+	return iHighestWarWearinessPercent * getTotalPopulation() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 10000;
 }
 
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)
@@ -42673,7 +42680,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iScenarioScore3);
 	visitor(player.m_iScenarioScore4);
 	visitor(player.m_iScoreFromFutureTech);
-	visitor(player.m_iTurnLastAttackedMinorCiv);
+	visitor(player.m_iTurnLastAttackedMinorCiv); // Delete this before releasing v. 4.15+ or later
 	visitor(player.m_iCombatExperienceTimes100);
 	visitor(player.m_iLifetimeCombatExperienceTimes100);
 	visitor(player.m_iNavalCombatExperienceTimes100);

@@ -17995,8 +17995,6 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		if(GET_PLAYER(eEnemyMajorLoop).getTeam() != eEnemyTeam)
 			continue;
 
-		GET_PLAYER(eEnemyMajorLoop).SetTurnLastAttackedMinorCiv(GC.getGame().getGameTurn());
-
 		// Player has already attacked this minor recently
 		int iTurn = GetTurnLastAttacked(eEnemyTeam);
 		int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
