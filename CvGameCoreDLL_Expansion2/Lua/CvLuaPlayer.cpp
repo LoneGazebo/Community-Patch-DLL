@@ -2261,9 +2261,10 @@ int CvLuaPlayer::lGetNumWondersBeatenTo(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	int iWondersBeatenTo = pkPlayer->GetDiplomacyAI()->GetNumWondersBeatenTo(eOtherPlayer);
+	if (eOtherPlayer == NO_PLAYER || !pkPlayer->isMajorCiv() || !GET_PLAYER(eOtherPlayer).isMajorCiv())
+		luaL_error(L, "GetNumWondersBeatenTo - passed non-major player");
 
-	lua_pushinteger(L, iWondersBeatenTo);
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetNumWondersBeatenTo(eOtherPlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2273,12 +2274,13 @@ int CvLuaPlayer::lSetNumWondersBeatenTo(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const int iValue = lua_tointeger(L, 3);
+	if (eOtherPlayer == NO_PLAYER || !pkPlayer->isMajorCiv() || !GET_PLAYER(eOtherPlayer).isMajorCiv())
+		luaL_error(L, "SetNumWondersBeatenTo - passed non-major player");
 
-	if(iValue > 0)
-	{
-		pkPlayer->GetDiplomacyAI()->SetNumWondersBeatenTo(eOtherPlayer, iValue);
-	}
+	if (iValue < 0)
+		luaL_error(L, "SetNumWondersBeatenTo - passed invalid value");
 
+	pkPlayer->GetDiplomacyAI()->SetNumWondersBeatenTo(eOtherPlayer, iValue);
 	return 1;
 }
 //------------------------------------------------------------------------------

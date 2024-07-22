@@ -218,6 +218,8 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 	CvDeal* pkDeal = GetInstance(L);
 	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
+	if (eFromPlayer == NO_PLAYER || eOtherPlayer == NO_PLAYER || !GET_PLAYER(eFromPlayer).isMajorCiv() || !GET_PLAYER(eOtherPlayer).isMajorCiv())
+		luaL_error(L, "GetRenewDealMessage - passed non-major player");
 
 	int iDealValueToMe = 0;
 	bool bCantMatchOffer = false;
