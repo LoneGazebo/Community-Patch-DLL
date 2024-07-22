@@ -1278,7 +1278,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetVassalDemandScore);
 	Method(GetVassalTaxScore);
 	Method(GetVassalProtectScore);
-	Method(GetVassalFailedProtectScore);
 	Method(GetVassalTreatmentLevel);
 	Method(GetVassalTreatmentToolTip);
 	Method(GetVassalIndependenceTooltipAsMaster);
@@ -13552,7 +13551,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 			// Captured our Holy City?
-			if (pDiplo->IsPlayerCapturedHolyCity(ePlayer))
+			if (pDiplo->IsPlayerEverCapturedHolyCity(ePlayer))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 2000;
@@ -13560,7 +13559,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 			// Captured our capital?
-			if (pDiplo->IsPlayerCapturedCapital(ePlayer))
+			if (pDiplo->IsPlayerEverCapturedCapital(ePlayer))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 3000;
@@ -14662,8 +14661,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 
-			// Vassal protect VS. failed protect
-			iValue = pDiplo->GetVassalProtectScore(ePlayer) + pDiplo->GetVassalFailedProtectScore(ePlayer);
+			iValue = pDiplo->GetVassalProtectScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
@@ -16826,16 +16824,6 @@ int CvLuaPlayer::lGetVassalProtectScore(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	
 	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalProtectScore(eOtherPlayer));
-	return 1;
-}
-
-// CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer)
-int CvLuaPlayer::lGetVassalFailedProtectScore(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVassalFailedProtectScore(eOtherPlayer));
 	return 1;
 }
 

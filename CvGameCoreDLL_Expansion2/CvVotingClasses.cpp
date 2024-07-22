@@ -1489,10 +1489,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		if (eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0 && !pPlayer->IsVassalsNoRebel())
 		{
 			bool bImmunity = false;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			vector<PlayerTypes> vMasterTeam = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i<vMasterTeam.size(); i++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam && GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(vMasterTeam[i]);
+				if (eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
 				{
 					bImmunity = true;
 					break;
@@ -1509,18 +1510,18 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 						bool bWasVoluntary = GET_TEAM(eLoopTeam).IsVoluntaryVassal(eTeam);
 						GET_TEAM(eLoopTeam).DoEndVassal(eTeam, true, true);
 
-						if (eOriginalProposer != NO_PLAYER && eProposerTeam != NO_TEAM)
+						if (eOriginalProposer != NO_PLAYER && eProposerTeam != NO_TEAM && eProposerTeam != eLoopTeam)
 						{
-							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							vector<PlayerTypes> vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
+							for (size_t i = 0; i<vVassalTeam.size(); i++)
 							{
-								PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-								if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
+								PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(vVassalTeam[i]);
+								if (GET_PLAYER(eLoopPlayer).isAlive())
 								{
 									if (!bWasVoluntary)
 										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eProposerTeam, true);
 									else if (GET_PLAYER(eOriginalProposer).isAlive())
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eOriginalProposer, 300);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eOriginalProposer, -300);
 								}
 							}
 						}

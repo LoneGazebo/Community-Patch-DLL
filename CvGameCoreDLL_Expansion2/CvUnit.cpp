@@ -2428,9 +2428,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
-									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iCivValue);
 								else
-									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iUnitValue);
 							}
 						}
 					}
@@ -2439,9 +2439,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					{
 						// Penalize the master whose territory we're in
 						if (iCivValue > 0)
-							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iCivValue);
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(pPlot->getOwner(), -iCivValue);
 						else
-							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(pPlot->getOwner(), iUnitValue);
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(pPlot->getOwner(), -iUnitValue);
 					}
 					// Unit killed in neutral territory near one of the vassal's cities (currently disabled)
 					else if (pPlot->getOwner() == NO_PLAYER && GET_PLAYER(eUnitOwner).GetCityDistanceInPlots(pPlot) <= /*0*/ GD_INT_GET(VASSALAGE_FAILED_PROTECT_CITY_DISTANCE))
@@ -2453,9 +2453,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
 								if (iCivValue > 0)
-									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iCivValue);
 								else
-									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iUnitValue);
+									GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iUnitValue);
 							}
 						}
 					}
@@ -10325,7 +10325,7 @@ bool CvUnit::pillage()
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if (GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
-								GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iTileValue);
+								GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iTileValue);
 							}
 						}
 					}

@@ -149,10 +149,13 @@ UPDATE Defines SET Value = 5 WHERE Name = 'DEAL_VALUE_PER_OPINION_WEIGHT'; -- ho
 UPDATE Defines SET Value = 2 WHERE Name = 'DEAL_VALUE_PER_TURN_DECAY'; -- how fast recent trade value decays
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', 150; -- increases current and maximum trade bonus if player is considered a strategic trade partner
 
--- Your recent diplomatic actions please/disappoint them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT; scales with game speed)
-UPDATE Defines SET Value = 30 WHERE Name = 'OPINION_WEIGHT_ASSIST_MAX'; -- maximum opinion bonus/penalty from recent assist value
+-- Your recent diplomatic actions please them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+UPDATE Defines SET Value = -30 WHERE Name = 'OPINION_WEIGHT_ASSIST_MAX'; -- maximum opinion bonus from recent assist value
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', 5; -- how much recent assist value equals +/- 1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_TURN_DECAY', 3; -- how fast recent assist value decays
+
+-- Your recent diplomatic actions disappoint them. (n.b. minimum recent assist value = OPINION_WEIGHT_FAILED_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_FAILED_ASSIST_MAX', 30; -- maximum opinion penalty from recent assist value
 
 -- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
 UPDATE Defines SET Value = -100 WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
@@ -598,15 +601,13 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_TAX_DIVISOR', 4;
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER', 50;
 
 -- You protected their territory as their master! (n.b. maximum vassal protect value = OPINION_WEIGHT_VASSALAGE_PROTECT_MAX * VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50;
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', 50; -- how much vassal protection value equals -1 opinion weight
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50; -- maximum opinion bonus from vassal protection
+INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', 50; -- how much vassal protection value equals +/- 1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECTED_PER_TURN_DECAY', 25; -- how fast vassal protection value decays
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_PROTECTED_CITY_DISTANCE', 6; -- How close to a vassal city must an enemy unit be (in tiles) for it to count for protect value.
 
--- You failed to protect their territory as their master! (n.b. maximum vassal failed protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT; scales with game speed)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50;
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', 50; -- how much vassal failed protection value equals +1 opinion weight
-INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', 25; -- how fast vassal failed protection value decays
+-- You failed to protect their territory as their master! (n.b. minimum vassal protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50; -- maximum opinion penalty from failed vassal protection
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 0; -- How close to a vassal city must a vassal unit be for it to count for failed protect value (IF NOT IN OWNED TERRITORY). 0 = disabled.
 
 -- Trade Routes With Them

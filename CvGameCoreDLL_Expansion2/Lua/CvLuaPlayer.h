@@ -1392,7 +1392,6 @@ protected:
 	LUAAPIEXTN(GetVassalDemandScore, int);
 	LUAAPIEXTN(GetVassalTaxScore, int);
 	LUAAPIEXTN(GetVassalProtectScore, int);
-	LUAAPIEXTN(GetVassalFailedProtectScore, int);
 	LUAAPIEXTN(GetVassalTreatmentLevel, int);
 	LUAAPIEXTN(GetVassalTreatmentToolTip, CvString, iOtherPlayer);
 	LUAAPIEXTN(GetVassalIndependenceTooltipAsMaster, CvString, iOtherPlayer);
