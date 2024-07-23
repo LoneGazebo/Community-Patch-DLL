@@ -2186,7 +2186,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
 	SPathFinderUserData data(NO_PLAYER, PT_ARMY_MIXED, NO_PLAYER, GetRecruitRange());
-	CvPlot* pTargetPlot = pTargetZone->GetZoneCity()->plot();
+	CvPlot* pTargetPlot = pZoneCity->plot();
 
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
 
