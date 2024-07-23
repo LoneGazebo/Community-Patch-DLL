@@ -3293,7 +3293,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	// Don't build on antiquity sites
 	if (eResource != NO_RESOURCE && eBuild != NO_BUILD)
 	{
-		BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+		static const BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 		if (m_pPlayer->canBuild(pPlot, eDigBuild) && eDigBuild != eBuild)
 			iSecondaryScore -= 1000;
 	}
