@@ -50,6 +50,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetWaypointPath);
 	Method(GeneratePathToNextWaypoint);
 	Method(GetMeleeAttackFromPlot);
+	Method(GetPotentialRangeAttackTargetPlots);
+	Method(GetPotentialRangeAttackOriginPlots);
 
 	Method(CanEnterTerritory);
 	Method(GetDeclareWarRangeStrike);
@@ -948,6 +950,123 @@ int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
 		lua_rawseti(L, -2, iCount++);
+	}
+
+	return 1;
+}
+
+//-------------- returns the plots the unit can bombard from a given plot. does not check for presence of enemies!
+// GetPotentialRangeAttackTargetPlots(plot)
+int CvLuaUnit::lGetPotentialRangeAttackTargetPlots(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	CvPlot* pOrigin = CvLuaPlot::GetInstance(L, 2);
+	if (!pOrigin)
+		return 0;
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	// Aircraft and special promotions make us ignore LOS
+	bool bIgnoreLOS = pUnit->IsRangeAttackIgnoreLOS() || pUnit->getDomainType() == DOMAIN_AIR;
+	// Can only bombard in domain? (used for Subs' torpedo attack)
+	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
+
+	for (int iRange=1; iRange<=pUnit->GetRange(); iRange++)
+	{
+		const vector<CvPlot*>& vCandidates = GC.getMap().GetPlotsAtRangeX(pOrigin, iRange, true, !bIgnoreLOS);
+
+		for (size_t i = 0; i < vCandidates.size(); i++)
+		{
+			//skip sentinels
+			if (vCandidates[i] == NULL)
+				continue;
+
+			if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
+				continue;
+
+			if (!pUnit->isNativeDomain(vCandidates[i]))
+				continue;
+
+			if (bOnlyInDomain)
+			{
+				//subs can only attack within their (water) area or adjacent cities
+				if (pOrigin->getArea() != vCandidates[i]->getArea())
+				{
+					CvCity* pCity = vCandidates[i]->getPlotCity();
+					if (!pCity || !pCity->HasAccessToArea(pOrigin->getArea()))
+						continue;
+				}
+			}
+
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, vCandidates[i]->getX());
+			lua_setfield(L, t, "X");
+			lua_pushinteger(L, vCandidates[i]->getY());
+			lua_setfield(L, t, "Y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
+	return 1;
+}
+
+//-------------- returns the plots the unit would need to be in to bombard a given plot. does not check for stacking.
+// GetPotentialRangeAttackOriginPlots(plot)
+int CvLuaUnit::lGetPotentialRangeAttackOriginPlots(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	CvPlot* pTarget = CvLuaPlot::GetInstance(L, 2);
+	if (!pTarget)
+		return 0;
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	// Aircraft and special promotions make us ignore LOS
+	bool bIgnoreLOS = pUnit->IsRangeAttackIgnoreLOS() || pUnit->getDomainType() == DOMAIN_AIR;
+	// Can only bombard in domain? (used for Subs' torpedo attack)
+	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
+
+	for (int iRange = 1; iRange <= pUnit->GetRange(); iRange++)
+	{
+		const vector<CvPlot*>& vCandidates = GC.getMap().GetPlotsAtRangeX(pTarget, iRange, false, !bIgnoreLOS);
+
+		for (size_t i = 0; i < vCandidates.size(); i++)
+		{
+			//skip sentinels
+			if (vCandidates[i] == NULL)
+				continue;
+
+			if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
+				continue;
+
+			if (!pUnit->isNativeDomain(vCandidates[i]))
+				continue;
+
+			if (!pUnit->canEndTurnAtPlot(vCandidates[i]))
+				continue;
+
+			if (bOnlyInDomain)
+			{
+				//subs can only attack within their (water) area or adjacent cities
+				if (pTarget->getArea() != vCandidates[i]->getArea())
+				{
+					CvCity* pCity = vCandidates[i]->getPlotCity();
+					if (!pCity || !pCity->HasAccessToArea(pTarget->getArea()))
+						continue;
+				}
+			}
+
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, vCandidates[i]->getX());
+			lua_setfield(L, t, "X");
+			lua_pushinteger(L, vCandidates[i]->getY());
+			lua_setfield(L, t, "Y");
+			lua_rawseti(L, -2, iCount++);
+		}
 	}
 
 	return 1;
