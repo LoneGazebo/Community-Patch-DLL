@@ -358,8 +358,6 @@ struct SBuilderState {
 	map<ResourceTypes, int> mExtraResources;
 	map<int, FeatureTypes> mChangedPlotFeatures;
 	map<int, ImprovementTypes> mChangedPlotImprovements;
-	map<int, int> mExtraDefense;
-	map<int, int> mExtraDamageToAdjacent;
 
 	SBuilderState(){};
 	static const SBuilderState& DefaultInstance() {

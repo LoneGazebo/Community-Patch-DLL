@@ -2522,7 +2522,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 
 	// Try to avoid moving around too much with workers
 	if (!eDirective.m_bIsGreatPerson)
-		iMoveTurns *= 4;
+		iMoveTurns *= 10;
 
 	int iBuildTime = iBuildTurns + iMoveTurns;
 
@@ -2983,13 +2983,24 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 					if (iNewDefenseModifier != iOldDefenseModifier)
 					{
-						sState.mExtraDefense[pDirectivePlot->GetPlotIndex()] = iNewDefenseModifier - iOldDefenseModifier;
 						bDefenseStateChanged = true;
 					}
-					if (iNewImprovementDamage != iOldImprovementDamage)
+					else if (iNewImprovementDamage != iOldImprovementDamage)
 					{
-						sState.mExtraDamageToAdjacent[pDirectivePlot->GetPlotIndex()] = iNewImprovementDamage - iOldImprovementDamage;
 						bDefenseStateChanged = true;
+					}
+				}
+			}
+
+			bool bCombatBonusStateChanged = false;
+			if (bCanBuild)
+			{
+				if (bImprovementStateChanged)
+				{
+					ImprovementTypes eBonusImprovement = m_pPlayer->GetPlayerTraits()->GetCombatBonusImprovementType();
+					if (eBonusImprovement == eImprovement)
+					{
+						bCombatBonusStateChanged = true;
 					}
 				}
 			}
@@ -3115,16 +3126,35 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					int iPlotDistance = plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY);
 					if (iPlotDistance == 1 || iPlotDistance == 2)
 					{
-						ImprovementTypes eOtherOldImprovement = pOtherPlot->getImprovementType();
-						CvImprovementEntry* pkOtherOldImprovementInfo = GC.getImprovementInfo(eOtherOldImprovement);
+						int iOtherDefenseModifier = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetDefenseModifier() : 0;
+						int iOtherImprovementDamage = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetNearbyEnemyDamage() : 0;
 
-						int iOtherOldDefenseModifier = pkOtherOldImprovementInfo ? pkOtherOldImprovementInfo->GetDefenseModifier() : 0;
-						int iOtherOldImprovementDamage = pkOtherOldImprovementInfo ? pkOtherOldImprovementInfo->GetNearbyEnemyDamage() : 0;
+						if (iOtherDefenseModifier != 0 || iOtherImprovementDamage != 0)
+						{
+							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						int iOtherNewDefenseModifier = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetDefenseModifier() : 0;
-						int iOtherNewImprovementDamage = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetNearbyEnemyDamage() : 0;
+							int iScore = pScore.first;
+							int iPotentialScore = pScore.second;
 
-						if (eOtherOldImprovement != eOtherImprovement && (iOtherNewDefenseModifier != 0 || iOtherOldDefenseModifier != 0 || iOtherNewImprovementDamage != 0 || iOtherOldImprovementDamage != 0))
+							if (iScore != eOtherDirective.m_iScore)
+							{
+								eOtherDirective.m_iScore = iScore;
+								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+								bDirectiveUpdated = true;
+							}
+						}
+					}
+				}
+
+				if (eOtherImprovement != NO_IMPROVEMENT && bCombatBonusStateChanged && !bDirectiveUpdated)
+				{
+					int iPlotDistance = plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY);
+					int iBonusCombatDistance = m_pPlayer->GetPlayerTraits()->GetNearbyImprovementBonusRange();
+					if (iPlotDistance >= 1 && iPlotDistance <= iBonusCombatDistance * 2)
+					{
+						ImprovementTypes eBonusImprovement = m_pPlayer->GetPlayerTraits()->GetCombatBonusImprovementType();
+
+						if (eBonusImprovement == eOtherImprovement)
 						{
 							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
