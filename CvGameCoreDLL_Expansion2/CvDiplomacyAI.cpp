@@ -34828,8 +34828,13 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 	// the UI can handle only one renewal offer at a time. out of the remaining deals, we make an offer for the best one and cancel all others
 	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
 	{
-		if (renewDeals[iDeal]->m_bConsideringForRenewal && renewDeals[iDeal] != pBestDeal)
-			CancelRenewDeal(ePlayer, REASON_BETTER_RENEWAL_CHOICE, false, renewDeals[iDeal]);
+		if (std::find(badDeals.begin(), badDeals.end(), renewDeals[iDeal]) == badDeals.end())
+		{
+			if (renewDeals[iDeal]->m_bConsideringForRenewal && renewDeals[iDeal] != pBestDeal)
+			{
+				CancelRenewDeal(ePlayer, REASON_BETTER_RENEWAL_CHOICE, false, renewDeals[iDeal]);
+			}
+		}
 	}
 	return pBestDeal;
 }
