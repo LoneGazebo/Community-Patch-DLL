@@ -6719,7 +6719,7 @@ std::vector<CvPlot*> TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pT
 	std::vector<SPlotWithScore> vIntermediate;
 	for (size_t i=0; i<vCandidates.size(); i++)
 	{
-		if((vCandidates[i]) == NULL)
+		if(vCandidates[i] == NULL)
 			continue;
 
 		int iDistance = plotDistance(*pRefPlot,*(vCandidates[i]));
@@ -6729,14 +6729,11 @@ std::vector<CvPlot*> TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pT
 		if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
 			continue;
 
+		//this concerns not only embarked units but also ships in harbor!
 		if (!pUnit->isNativeDomain(vCandidates[i]))
 			continue;
 
 		if (bCheckOccupied && vCandidates[i]!=pRefPlot && vCandidates[i]->getBestDefender(NO_PLAYER))
-			continue;
-
-		//Respect domains.
-		if (pUnit->getDomainType() != vCandidates[i]->getDomain())
 			continue;
 
 		if (bOnlyInDomain)
