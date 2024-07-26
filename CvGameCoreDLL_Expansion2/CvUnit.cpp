@@ -5279,7 +5279,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 					}
 
 					//check for combat units only! enemy civilians are captured en passant, there is no downside ...
-					if (plot.isEnemyUnit(getOwner(),true,true) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
+					// don't capture enemy civilians if embarked
+					if (plot.isEnemyUnit(getOwner(),true,true) || ((bEmbarkedAndAdjacent || plot.needsEmbarkation(this)) && bEnemyUnitPresent))
 					{
 						return false;
 					}
