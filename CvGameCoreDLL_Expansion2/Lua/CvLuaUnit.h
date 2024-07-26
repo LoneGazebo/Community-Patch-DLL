@@ -44,6 +44,8 @@ protected:
 	static int lGeneratePathToNextWaypoint(lua_State* L);
 	static int lGetWaypointPath(lua_State* L);
 	static int lGetMeleeAttackFromPlot(lua_State* L);
+	static int lGetPotentialRangeAttackTargetPlots(lua_State* L);
+	static int lGetPotentialRangeAttackOriginPlots(lua_State* L);
 
 	static int lCanEnterTerritory(lua_State* L);
 	static int lGetDeclareWarRangeStrike(lua_State* L);
