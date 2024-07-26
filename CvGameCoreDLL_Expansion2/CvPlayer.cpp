@@ -34850,7 +34850,7 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 /// Where is our Science coming from?
 int CvPlayer::GetScienceFromHappinessTimes100() const
 {
-	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
 
 	int iScience = 0;

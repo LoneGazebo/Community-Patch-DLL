@@ -17621,17 +17621,6 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		}
 	}
 
-	if (eYield == YIELD_SCIENCE && MOD_BALANCE_VP)
-	{
-		if (GET_PLAYER(m_eOwner).getHappinessToScience() != 0)
-		{
-			int iFreeScience = getYieldRateTimes100(YIELD_SCIENCE, false) * GET_PLAYER(m_eOwner).getHappinessToScience();
-			iFreeScience /= 100;
-			if (iFreeScience > 0)
-				iYield += iFreeScience;
-		}
-	}
-
 	//Currently only used by Arabian CBP UA.
 	if (isCapital())
 	{
