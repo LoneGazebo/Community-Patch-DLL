@@ -1568,7 +1568,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
-				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
+				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
 					continue;
 
 				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer, false);
