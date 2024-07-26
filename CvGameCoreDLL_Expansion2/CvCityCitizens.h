@@ -159,7 +159,7 @@ public:
 	int ScoreYieldChangeQuick(YieldAndGPPList yieldChanges, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving = false, bool bAssumeBelowGrowthThreshold = false, bool bAssumeInDebt = false);
 	int ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedExpensiveNumbers& cache);
 
-	vector<TileChange> GetBestOptionsQuick(int iNumOptions, bool bAdd, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bAssumeInDebt, bool bIncludePlots = true, bool bIncludeSpecialists = true, bool bNoTwoOptionsWithSameYields = false);
+	vector<TileChange> GetBestOptionsQuick(int iNumOptions, bool bAdd, bool bAllowOverride, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bAssumeInDebt, bool bIncludePlots = true, bool bIncludeSpecialists = true, bool bNoTwoOptionsWithSameYields = false);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;

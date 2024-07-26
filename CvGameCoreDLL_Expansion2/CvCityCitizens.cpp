@@ -1444,7 +1444,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 	m_iNumCitizensWorkingPlots += iChange;
 }
 
-vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAdd, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bAssumeInDebt, bool bIncludePlots, bool bIncludeSpecialists, bool bNoTwoOptionsWithSameYields)
+vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAdd, bool bAllowOverride, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bAssumeInDebt, bool bIncludePlots, bool bIncludeSpecialists, bool bNoTwoOptionsWithSameYields)
 {
 	// score all possible options
 	vector<OptionWithScore<TileChange>> vScoredOptions;
@@ -1462,7 +1462,7 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 			if (!pLoopPlot)
 				continue;
 
-			if ((bAdd && IsCanWork(pLoopPlot) && !IsWorkingPlot(iPlotLoop)) || (!bAdd && IsWorkingPlot(pLoopPlot) && !IsForcedWorkingPlot(iPlotLoop)))
+			if ((bAdd && (bAllowOverride ? IsCanWorkWithOverride(pLoopPlot) : IsCanWork(pLoopPlot)) && !IsWorkingPlot(iPlotLoop)) || (!bAdd && IsWorkingPlot(pLoopPlot) && !IsForcedWorkingPlot(iPlotLoop)))
 			{
 				vScoredOptions.push_back(OptionWithScore<TileChange>(TileChange(pLoopPlot), GetPlotValueQuick(pLoopPlot, bAdd, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt)));
 			}
@@ -1718,7 +1718,7 @@ void CvCityCitizens::DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowG
 	gCachedNumbers.update(m_pCity);
 	
 	// score all possible options
-	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
+	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, /*bAllowOverride*/ !GET_PLAYER(GetOwner()).isHuman(), gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
 
 	// assign the best ones
 	for (int i = 0; i < (int)vScoredOptions.size(); i++)
@@ -2068,17 +2068,18 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bBelowGrowthThreshold = iNetFood100 < GetExcessFoodThreshold100();
 		bool bInDebt = gCachedNumbers.iNetGold < 0;
 		
-		vector<TileChange> vRemoveOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ false, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
+		bool bAllowOverride = !GET_PLAYER(GetOwner()).isHuman();
+		vector<TileChange> vRemoveOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ false, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
 		if (!bSpecialistForbidden)
 		{
-			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ false, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
+			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ false, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
 			vRemoveOptions.insert(vRemoveOptions.end(), tmp.begin(), tmp.end());
 		}
 
-		vector<TileChange> vAddOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
+		vector<TileChange> vAddOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ true, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
 		if (!bSpecialistForbidden)
 		{
-			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
+			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ true, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
 			vAddOptions.insert(vAddOptions.end(), tmp.begin(), tmp.end());
 		}
 		int iBestScore = 0;
