@@ -34,6 +34,9 @@
 			<Box Anchor="R,T" Size="512,128" Color="0,0,0,0">
 				<!-- Info Buttons Stack -->
 				<Stack Anchor="R,T" Offset="0,0" StackGrowth="Left" Padding="-12">
+					<Button ID="ForceResyncButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_Generic.dds" ToolTip="TXT_KEY_MP_FORCE_RESYNC_TITLE" Hidden="1" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT22" FontStyle="Stroke" ID="ForceResyncLabel" Hidden="1"/>
+					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Diplo Button -->
 					<!--=======================================================================================================================-->

@@ -505,6 +505,20 @@ if( Game.IsGameMultiPlayer() ) then
 	end
 end
 
+function OnForceResyncButton()
+	Game.SetExeWantForceResyncValue(1);
+	Controls.ForceResyncButton:SetDisabled(true);
+end
+Controls.ForceResyncButton:RegisterCallback(Mouse.eLClick, OnForceResyncButton);
+
+function UpdateForceResyncButton()
+	local bShowForceResync = Game.IsExeWantForceResyncAvailable();
+	Controls.ForceResyncButton:SetHide( not bShowForceResync );
+	Controls.ForceResyncButton:SetDisabled(false);
+end
+GameEvents.PlayerDoTurn.Add(UpdateForceResyncButton);
+Events.MultiplayerGamePlayerUpdated.Add(UpdateForceResyncButton);
+
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
