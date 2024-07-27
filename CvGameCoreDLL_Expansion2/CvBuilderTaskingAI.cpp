@@ -3090,6 +3090,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						if (iAdjacentTwoSameTypeYield != 0)
 						{
 							int iDoubleAdjacentSame = GetNumAdjacent(pAdjacentPlot, eImprovement, sState);
+							if (eBuild == NO_BUILD)
+								iDoubleAdjacentSame--;
 							if (iDoubleAdjacentSame % 2 == 1)
 								iNewAdjacentYield += iAdjacentTwoSameTypeYield;
 						}
