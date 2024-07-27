@@ -24065,7 +24065,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 //finish improvements (mostly roads) at the beginning of the turn so we can use them immediately
 void CvUnit::DoFinishBuildIfSafe()
 {
-	if (isHuman())
+	if (isHuman() && !IsAutomated())
 		return;
 
 	BuildTypes eBuild = getBuildType();

@@ -1182,31 +1182,6 @@ bool CvBuilderTaskingAI::CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective
 	return true;
 }
 
-int CvBuilderTaskingAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, int iMaxDistance)
-{
-	if (iMaxDistance < 0)
-		return INT_MAX;
-
-	CvPlot* pStartPlot = pUnit->plot();
-	CvPlot* pTargetPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
-	if (pStartPlot == pTargetPlot)
-		return 0;
-
-	SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, iMaxDistance);
-
-	if (pUnit->IsCombatUnit())
-		data.iMaxTurns = min(3, iMaxDistance);
-
-	SPath path = GC.GetPathFinder().GetPath(pStartPlot, pTargetPlot, data);
-
-	if (!!path)
-		return path.iTotalTurns;
-	else
-		return INT_MAX;
-}
-
-
 int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, const CvPlot* pPlot) const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
@@ -1344,17 +1319,17 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 
 				//do we have movement left?
 				if (pUnit->getMoves() > 0)
-					eMission = CvTypes::getMISSION_BUILD();
+				{
+					if (pUnit->getX() == aDirective.m_sX && pUnit->getY() == aDirective.m_sY)
+						eMission = CvTypes::getMISSION_BUILD();
+				}
 				else
 					bSuccessful = true;
 			}
 
 			if (eMission == CvTypes::getMISSION_BUILD())
 			{
-				// check to see if we already have this mission as the unit's head mission
-				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
-				if (pkMissionData == NULL || pkMissionData->eMissionType != eMission || pkMissionData->iData1 != aDirective.m_eBuild)
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective.m_eBuild, aDirective.m_eDirectiveType, 0, false, false, MISSIONAI_BUILD, pPlot);
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective.m_eBuild, aDirective.m_eDirectiveType, 0, false, false, MISSIONAI_BUILD, pPlot);
 
 				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
 				bSuccessful = true;
