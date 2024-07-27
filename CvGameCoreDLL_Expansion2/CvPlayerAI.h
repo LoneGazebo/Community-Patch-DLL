@@ -81,10 +81,10 @@ public:
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
 	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
 
-	std::priority_queue<SPlotWithScore> GetBestCultureBombPlots(BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable, bool bCheckDanger);
+	priority_queue<SPlotWithScore> GetBestCultureBombPlots(const UnitTypes eUnit, const vector<CvPlot*>& vPlotsToAvoid, bool bCheckDanger);
 	const vector<CvPlot*>& GetTopCitadelPlotsCached();
 	bool IsNicePlotForCitadel(const CvPlot* pPlot);
-	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
+	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, const vector<CvPlot*>& vPlotsToAvoid);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pMusician);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations

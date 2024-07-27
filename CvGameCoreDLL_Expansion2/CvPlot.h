@@ -188,7 +188,6 @@ public:
 
 	CvCity* GetNukeInterceptor(PlayerTypes eAttackingPlayer) const;
 
-	bool isRevealedFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
@@ -216,7 +215,7 @@ public:
 
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
-	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false, bool bIgnoreImpassable=false, bool bIgnoreMinor=false, bool bIgnoreVassal=false) const;
+	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam = false, bool bIgnoreImpassable = false, bool bIgnoreMinor = false, bool bIgnoreVassal = false) const;
 	bool IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyMajors) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentOwnedByVassal(TeamTypes eTeam, bool bLandOnly = false) const;

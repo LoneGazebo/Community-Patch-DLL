@@ -3688,16 +3688,6 @@ int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const
 	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToHere);
 }
 
-
-bool CvPlot::isRevealedFortification(TeamTypes eTeam) const
-{
-	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-
-	return (eFort != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eFort) ||
-		(eCitadel != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eCitadel);
-}
-
 //	--------------------------------------------------------------------------------
 int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp) const
 {
@@ -3856,10 +3846,10 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, bool bIgnoreImpassable, bool bIgnoreMinor, bool bIgnoreVassal) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot == NULL)
+		if (!pAdjacentPlot)
 			continue;
 
 		if (bIgnoreImpassable && pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
@@ -3872,9 +3862,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, 
 			continue;
 
 		if (pAdjacentPlot->getTeam() != eTeam && (pAdjacentPlot->getTeam() != NO_TEAM || bAllowNoTeam))
-		{
-			return true; 
-		}
+			return true;
 	}
 
 	return false;
@@ -9807,259 +9795,246 @@ void CvPlot::changeYield(YieldTypes eYield, int iChange)
 int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, FeatureTypes eFeature, ResourceTypes eResource, const CvCity* pOwningCity, bool bDisplay) const
 {
 	int iYield = 0;
-	TeamTypes eTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
+	TeamTypes eTeam = (ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
-	//performance critical ...
-	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-
-	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
-	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	const TerrainTypes eTerrain = getTerrainType();
+	const ImprovementTypes eImprovement = getImprovementType();
+	const CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
+	const CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 
 	// impassable terrain has no base yield (but do allow coast)
 	// if worked by a city, it should have a yield.
-	if( ((!isValidMovePlot(ePlayer) && getOwner()!=ePlayer && (!isShallowWater())) || getTerrainType()==NO_TERRAIN))
+	if (!isValidMovePlot(ePlayer) && getOwner() != ePlayer && !isShallowWater())
 	{
 		iYield = 0;
 	} 
 	else
 	{
-		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
-		if (eYield == YIELD_PRODUCTION && /*0*/ GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT) > 0 && getTerrainType() == TERRAIN_DESERT && !isHills() && eFeature == NO_FEATURE)
+		iYield = pKTerrainInfo->getYield(eYield);
+		if (eYield == YIELD_PRODUCTION && eTerrain == TERRAIN_DESERT && !isHills() && eFeature == NO_FEATURE)
 		{
-			if (eResource != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
-				iYield += GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT);
+			if (eResource != NO_RESOURCE && eImprovement != NO_IMPROVEMENT)
+				iYield += /*0*/ GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT);
 		}
 	}
 
 	iYield += GC.getPlotInfo(getPlotType())->getYield(eYield);
 	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
 
-	if(isHills())
-	{
-		iYield += kYield.getHillsChange();
-	}
+	if (isHills())
+		iYield += pkYieldInfo->getHillsChange();
 
-	if(isMountain())
-	{
-		iYield += kYield.getMountainChange();
-	}
+	if (isMountain())
+		iYield += pkYieldInfo->getMountainChange();
 
-	if(isLake())
+	if (isLake())
+		iYield += pkYieldInfo->getLakeChange();
+
+	if (eFeature != NO_FEATURE)
 	{
-		iYield += kYield.getLakeChange();
-	}
-	if(eFeature != NO_FEATURE)
-	{
-		CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(eFeature);
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		int iYieldChange = pkFeatureInfo->getYieldChange(eYield);
 
 		// Some Features REPLACE the Yield of the Plot instead of adding to it
-		int iYieldChange = pFeatureInfo->getYieldChange(eYield);
-
-		if(pFeatureInfo->isYieldNotAdditive())
-		{
+		if (pkFeatureInfo->isYieldNotAdditive())
 			iYield = iYieldChange;
-		}
 		else
-		{
 			iYield += iYieldChange;
+
+		if (isRiver())
+		{
+			iYield += pkFeatureInfo->getRiverYieldChange(eYield);
+		}
+
+		if (isHills())
+		{
+			iYield += pkFeatureInfo->getHillsYieldChange(eYield);
+		}
+
+		if (isFreshWater())
+		{
+			iYield += pkFeatureInfo->getFreshWaterYieldChange(eYield);
+		}
+
+		if (isCoastalLand())
+		{
+			iYield += pkFeatureInfo->getCoastalLandYieldChange(eYield);
+		}
+	}
+	else
+	{
+		if (isRiver())
+		{
+			iYield += pKTerrainInfo->getRiverYieldChange(eYield);
+		}
+
+		if (isHills())
+		{
+			iYield += pKTerrainInfo->getHillsYieldChange(eYield);
+		}
+
+		if (isFreshWater())
+		{
+			iYield += pKTerrainInfo->getFreshWaterYieldChange(eYield);
+		}
+
+		if (isCoastalLand())
+		{
+			iYield += pKTerrainInfo->getCoastalLandYieldChange(eYield);
 		}
 	}
 
-	if(eTeam != NO_TEAM)
+	if (eTeam != NO_TEAM && eResource != NO_RESOURCE)
 	{
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-
-		if(eResource != NO_RESOURCE && pkResourceInfo)
-		{
+		if (pkResourceInfo)
 			iYield += pkResourceInfo->getYieldChange(eYield);
-		}
 	}
 
-	if(isRiver())
-	{
-		iYield += eFeature == NO_FEATURE ? GC.getTerrainInfo(getTerrainType())->getRiverYieldChange(eYield) : GC.getFeatureInfo(eFeature)->getRiverYieldChange(eYield);
-	}
-
-	if(isHills())
-	{
-		iYield += eFeature == NO_FEATURE ? GC.getTerrainInfo(getTerrainType())->getHillsYieldChange(eYield) : GC.getFeatureInfo(eFeature)->getHillsYieldChange(eYield);
-	}
-
-	if(isFreshWater())
-	{
-		iYield += eFeature == NO_FEATURE ? GC.getTerrainInfo(getTerrainType())->getFreshWaterYieldChange(eYield) : GC.getFeatureInfo(eFeature)->getFreshWaterYieldChange(eYield);
-	}
-
-	if(isCoastalLand())
-	{
-		iYield += eFeature == NO_FEATURE ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(eFeature)->getCoastalLandYieldChange(eYield);
-	}
-
-#if defined(MOD_PLOTS_EXTENSIONS)
 	if (MOD_PLOTS_EXTENSIONS)
 	{
 		PlotTypes ePlot = getPlotType();
-		if (ePlot != NO_PLOT && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange())
+		CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
+		if (pkPlotInfo->IsAdjacentFeatureYieldChange())
 		{
-			// yield from adjacent features
+			// Yield from adjacent features
 			bool bNaturalWonderPlot = IsNaturalWonder();
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if (pAdjacentPlot == NULL)
+				DirectionTypes eDirection = static_cast<DirectionTypes>(iI);
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+				if (!pAdjacentPlot)
 					continue;
 
-				if (pAdjacentPlot->getFeatureType() != NO_FEATURE)
+				FeatureTypes eAdjacentFeature = pAdjacentPlot->getFeatureType();
+				if (eAdjacentFeature != NO_FEATURE)
 				{
-					iYield += GC.getPlotInfo(ePlot)->GetAdjacentFeatureYieldChange(pAdjacentPlot->getFeatureType(), eYield, bNaturalWonderPlot);
+					iYield += pkPlotInfo->GetAdjacentFeatureYieldChange(eAdjacentFeature, eYield, bNaturalWonderPlot);
 				}
 			}
 		}
 	}
-#endif
 
-	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
+	if (pOwningCity && pOwningCity->plot() == this)
 	{
 		// VP: Set natural tile yields to 2 Food, 1 Production + resource yields + increases below, ignore everything above
 		if (MOD_BALANCE_VP)
 		{
-			iYield = kYield.getMinCity();
-			if (eTeam != NO_TEAM)
-			{
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			iYield = pkYieldInfo->getMinCity();
 
-				if (eResource != NO_RESOURCE && pkResourceInfo)
-				{
-					iYield += pkResourceInfo->getYieldChange(eYield);
-				}
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (eResource != NO_RESOURCE && pkResourceInfo)
+			{
+				iYield += pkResourceInfo->getYieldChange(eYield);
+			}
+
+			if (isHills())
+			{
+				if (isFreshWater())
+					iYield += pkYieldInfo->getMinCityHillFreshWater();
+				else
+					iYield += pkYieldInfo->getMinCityHillNoFreshWater();
+			}
+			else if (isMountain())
+			{
+				if (isFreshWater())
+					iYield += pkYieldInfo->getMinCityMountainFreshWater();
+				else
+					iYield += pkYieldInfo->getMinCityMountainNoFreshWater();
+			}
+			else
+			{
+				if (isFreshWater())
+					iYield += pkYieldInfo->getMinCityFlatFreshWater();
+				else
+					iYield += pkYieldInfo->getMinCityFlatNoFreshWater();
 			}
 		}
 		// Community Patch only: Min. 2 Food & 1 Production for city center tile yields
 		else
 		{
-			iYield = std::max(iYield, kYield.getMinCity());
+			iYield = std::max(iYield, pkYieldInfo->getMinCity());
+		}
+
+		// Yields from garrison
+		if (pOwningCity->HasGarrison())
+		{
+			CvUnit* pUnit = pOwningCity->GetGarrisonedUnit();
+			iYield += pUnit->GetGarrisonYieldChange(eYield) * pUnit->GetBaseCombatStrength() / 8;
 		}
 
 		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false, false))
 		{
-			iYield += kYield.getCityChange();
-
-			if (kYield.getPopulationChangeDivisor() != 0)
+			iYield += pkYieldInfo->getCityChange();
+			if (pkYieldInfo->getPopulationChangeDivisor() != 0)
 			{
-				iYield += (pOwningCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+				iYield += (pOwningCity->getPopulation() + pkYieldInfo->getPopulationChangeOffset()) / pkYieldInfo->getPopulationChangeDivisor();
 			}
 		}
 
-		// GetYieldFromXMilitaryUnits (France UA)
-		iYield += GET_PLAYER(ePlayer).GetYieldFromMilitaryUnits(eYield);
-
-		// Mod for Player; used for Policies and such
-		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
-
-		// Coastal City Mod
-		if (pOwningCity->isCoastal())
+		if (ePlayer != NO_PLAYER)
 		{
-			iYield += GET_PLAYER(ePlayer).GetCoastalCityYieldChange(eYield);
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+			// GetYieldFromXMilitaryUnits (France UA)
+			iYield += kPlayer.GetYieldFromMilitaryUnits(eYield);
 
-		}
+			// Mod for Player; used for Policies and such
+			iYield += kPlayer.GetPlayerTraits()->GetCityYieldChanges(eYield);
 
-		if (pOwningCity->getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
-		{
-			iYield += GET_PLAYER(ePlayer).getYieldPerCityOverStrengthThreshold(eYield);
-		}
-
-		if (MOD_BALANCE_YIELD_SCALE_ERA)
-		{
-			//Flatland City Fresh Water yields
-			if (!isHills() && !isMountain() && isFreshWater())
+			// Coastal City Mod
+			if (pOwningCity->isCoastal())
 			{
-				iYield += kYield.getMinCityFlatFreshWater();
+				iYield += kPlayer.GetCoastalCityYieldChange(eYield);
+				iYield += kPlayer.GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 			}
-			//Flatland City No Fresh Water yields
-			if (!isHills() && !isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatNoFreshWater();
-			}
-			// Hill City Fresh Water yields
-			if (isHills() && isFreshWater())
-			{
-				iYield += kYield.getMinCityHillFreshWater();
-			}
-			// Hill City No Fresh Water yields
-			if (isHills() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityHillNoFreshWater();
-			}
-			// Mountain City Fresh Water yields
-			if (isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainFreshWater();
-			}
-			// Mountain City No Fresh Water yields
-			if (isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainNoFreshWater();
-			}
-			if (pOwningCity->HasGarrison())
-			{
-				CvUnit* pUnit = pOwningCity->GetGarrisonedUnit();
-				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
-				{
-					int iGarrisonStrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonStrength) / 8);
-				}
-			}
-			//fixme: this code looks broken? How can a city have a fort or citadel on the city center tile?
-			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
-			{
-			// Don't provide yield if tile is pillaged
-				if (!pOwningCity->plot()->IsImprovementPillaged())
-				{
-					// If there are any Units here, meet their owners
-					for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
-					{
-						// If the AI spots a human Unit, don't meet - wait for the human to find the AI
-						CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
-						if (!loopUnit)
-							continue;
-	
-						if (loopUnit->GetFortificationYieldChange(eYield) > 0)
-						{
-							int iUnitStrength = loopUnit->GetBaseCombatStrength();
-							iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
-						}
-					}
-				}
-			}
-		}
 
-		int iTemp = GET_PLAYER(ePlayer).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
-
-																				// Capital Mod
-		if (pOwningCity->isCapital())
-		{
-			iTemp += GET_PLAYER(ePlayer).GetCapitalYieldChangeTimes100(eYield);
-
-			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
-
-			int iPerPopYield = pOwningCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-
-			if (GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
+			// Yields from strong city
+			if (pOwningCity->getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
 			{
-				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getTotalPopulation() * GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
-				//Implied 100x, see ChangeCapitalYieldPerPopChangeEmpire.
+				iYield += kPlayer.getYieldPerCityOverStrengthThreshold(eYield);
+			}
+
+			int iTemp = kPlayer.GetCityYieldChangeTimes100(eYield); // In hundreds - will be added to capitalYieldChange below
+
+			// Capital Mod
+			if (pOwningCity->isCapital())
+			{
+				iTemp += kPlayer.GetCapitalYieldChangeTimes100(eYield);
+
+				iYield += kPlayer.GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+
+				// Unfortunately these need to be rounded down individually until we rework all yields to have 2 decimals
+				int iPerPopYield = pOwningCity->getPopulation() * kPlayer.GetCapitalYieldPerPopChange(eYield);
+				iPerPopYield /= 100;
+				iYield += iPerPopYield;
+
+				int iPerPopYieldEmpire = kPlayer.getTotalPopulation() * kPlayer.GetCapitalYieldPerPopChangeEmpire(eYield);
 				iPerPopYieldEmpire /= 100;
 				iYield += iPerPopYieldEmpire;
 			}
-		}
 
-		iYield += (iTemp / 100);
+			iYield += iTemp / 100;
+		}
+	}
+
+	// Yields from units on fortifications
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo(eImprovement);
+		CvAssert(pkImprovementEntry);
+
+		if (pkImprovementEntry->IsNoFollowUp() && !IsImprovementPillaged())
+		{
+			for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
+			{
+				CvUnit* pUnit = getUnitByIndex(iUnitLoop);
+				if (!pUnit)
+					continue;
+
+				iYield += pUnit->GetFortificationYieldChange(eYield) * pUnit->GetBaseCombatStrength() / 8;
+			}
+		}
 	}
 
 	return std::max(0, iYield);

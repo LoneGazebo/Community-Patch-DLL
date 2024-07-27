@@ -27359,35 +27359,34 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					}
 				}
 			}
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
-			if (pPlot->IsChokePoint())
+
+			bool bChokePoint = pPlot->IsChokePoint();
+			if (bChokePoint)
 			{
 				iValueMultiplier += 50;
 				bStoleHighValueTile = true;
-
-				if (pkImprovement)
-				{
-					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-
-					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
-					{
-						iValueMultiplier += 100;
-					}
-					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
-					{
-						iValueMultiplier += 50;
-					}
-				}
 			}
-			if (pkImprovement)
+
+			ImprovementTypes eImprovement = pPlot->getImprovementType();
+			if (eImprovement != NO_IMPROVEMENT)
 			{
-				if (pkImprovement->IsCreatedByGreatPerson())
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				CvAssert(pkImprovementInfo);
+
+				if (bChokePoint)
+				{
+					iValueMultiplier += pkImprovementInfo->GetDefenseModifier();
+					if (pkImprovementInfo->IsNoFollowUp())
+						iValueMultiplier += 20;
+				}
+
+				if (pkImprovementInfo->IsCreatedByGreatPerson())
 				{
 					iValueMultiplier += 100;
 					bStoleHighValueTile = true;
 				}
 			}
+
 			// Stole a major civ's embassy from a City-State?
 			if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
 			{
