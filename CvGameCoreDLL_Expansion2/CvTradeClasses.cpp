@@ -635,9 +635,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
+	GET_PLAYER(eOriginPlayer).GetTrade()->ResetTradeStats();
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
 	{
+		GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 		GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 	}
 
@@ -4141,6 +4143,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayerTrade::ResetTradeStats()
+{
+	m_tradeStats.reset();
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionValues (void)
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -4513,7 +4521,7 @@ void CvPlayerTrade::UpdateTradeStats()
 	if (m_tradeStats.iTurnSliceBuilt == GC.getGame().getTurnSlice())
 		return;
 
-	m_tradeStats.reset();
+	ResetTradeStats();
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
