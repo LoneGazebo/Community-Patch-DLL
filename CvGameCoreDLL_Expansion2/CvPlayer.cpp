@@ -3996,6 +3996,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	GET_PLAYER(eOldOwner).deleteCity(pCity->GetID());
 	pCity = NULL; // Do not use this pointer anymore!
 
+	// update list of cities for spaceship production
+	GET_PLAYER(eOldOwner).DoUpdateCoreCitiesForSpaceshipProduction();
+
 	// Trigger a few things if the capital was captured
 	if (bCapital)
 	{
