@@ -76,7 +76,7 @@ struct BuilderDirective
 
 	int GetPotentialScore() const
 	{
-		return m_iScore + m_iPotentialBonusScore - m_iScorePenalty;
+		return m_iScore + m_iPotentialBonusScore;
 	}
 };
 FDataStream& operator<<(FDataStream&, const BuilderDirective&);
