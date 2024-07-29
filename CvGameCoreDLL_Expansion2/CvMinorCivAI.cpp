@@ -12507,6 +12507,12 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 
 void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressDirectNotification)
 {
+	// Maybe we're not displaying notifications at all
+	if (IsDisableNotifications())
+	{
+		return;
+	}
+
 	if (eOldAlly != NO_PLAYER)
 	{
 		// Notification for human players who can make peace now
@@ -12532,17 +12538,11 @@ void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTy
 					strMessage << GetPlayer()->getNameKey();
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE_S");
 					strSummary << GetPlayer()->getNameKey();
-					pNotifications->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), 
+					pNotifications->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(),
 						m_pPlayer->getCapitalCity() ? m_pPlayer->getCapitalCity()->getX() : -1, m_pPlayer->getCapitalCity() ? m_pPlayer->getCapitalCity()->getY() : -1, GetPlayer()->GetID());
 				}
 			}
 		}
-	}
-
-	// Maybe we're not displaying notifications at all
-	if (IsDisableNotifications())
-	{
-		return;
 	}
 
 	// *******************************************
