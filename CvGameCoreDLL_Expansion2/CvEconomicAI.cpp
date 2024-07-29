@@ -2357,6 +2357,8 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 	}
 
+	// todo: check for units currently in production and remove them from the queue before disbanding anything
+	
 	// create a weighted list of all units that require aluminum and that we could disband
 	CvWeightedVector<int> vUnitsDisband;
 	int iValue = 0;

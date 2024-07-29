@@ -3184,19 +3184,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 					pNotify->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
 			}
 		}
-		// Normal city - only notify the conquered player
-		else
-		{
-			CvNotifications* pNotify = GET_PLAYER(eOldOwner).GetNotifications();
-			if (pNotify)
-			{
-				Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST");
-				Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST");
-				locString << pCity->getNameKey() << getNameKey();
-				locSummary << pCity->getNameKey();
-				pNotify->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), iCityX, iCityY, -1);
-			}
-		}
 
 		// War damage calculations
 		if (!pCity->isBarbarian())
