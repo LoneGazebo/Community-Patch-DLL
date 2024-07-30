@@ -411,6 +411,9 @@
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TOURISM_MOD_HOLY_CITY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Holy City of the World Religion: {1_Num}%</Text>
+		</Row>
 		<!-- CV progress screen -->
 		<Row Tag="TXT_KEY_CO_TAB_PLAYER_INFLUENCE2">
 			<Text>Influence on Player</Text>
