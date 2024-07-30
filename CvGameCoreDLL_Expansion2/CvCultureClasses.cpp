@@ -6291,7 +6291,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
 	// Great Works
 	// Ignore those Great Works in storage, ie not generating a yield
-	int iGWTourism = GetNumGreatWorks(false) * (/*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + kCityPlayer.GetGreatWorkYieldChange(YIELD_TOURISM));
+	int iGWTourism = GetNumGreatWorks(false) * (/*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + kCityPlayer.GetGreatWorkYieldChange(YIELD_TOURISM)) + m_pCity->GetGreatWorkYieldChange(YIELD_TOURISM);
 	iGWTourism += ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + kCityPlayer.GetGreatWorksTourismModifierGlobal()) * iGWTourism / 100);
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 
@@ -6763,7 +6763,6 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		// Do we get increased yields from a resource monopoly?
@@ -6782,7 +6781,6 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
 	}
-#endif
 
 	ReligionTypes eStateReligion = kCityPlayer.GetReligions()->GetStateReligion();
 	if (MOD_BALANCE_CORE_BELIEFS && eStateReligion != NO_RELIGION)
@@ -6832,6 +6830,25 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 		}
 	}
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague)
+	{
+		iTempMod = pLeague->GetCityTourismModifier(m_pCity);
+		if (iTempMod != 0)
+		{
+			if (!bHasCityModTooltip)
+			{
+				if (!szRtnValue.empty())
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_TOURISM_MOD_HOLY_CITY", iTempMod);
+		}
+	}
+
 	if (m_pCity->GetWeLoveTheKingDayCounter() > 0)
 	{
 		iTempMod = (m_pCity->GetYieldFromWLTKD(YIELD_TOURISM) + kCityPlayer.GetYieldFromWLTKD(YIELD_TOURISM));
