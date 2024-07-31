@@ -103,7 +103,7 @@ public:
 	int AverageIncome100(int iTurns);
 	void LogExpenditure(const CvString& strExpenditure, int iAmount, int iColumn);
 
-	int GetVassalGoldMaintenance(TeamTypes eTeam = NO_TEAM) const;
+	int GetVassalGoldMaintenance(TeamTypes eTeam = NO_TEAM, bool bIncludePopulationMaintenance = true, bool bIncludeUnitMaintenance = true) const;
 
 	int GetMyShareOfVassalTaxes(TeamTypes eTeam = NO_TEAM, int iProjectedTaxRate = -1) const;
 	int GetVassalTaxContributionTimes100(PlayerTypes ePlayer) const;

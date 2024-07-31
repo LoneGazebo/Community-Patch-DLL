@@ -16708,8 +16708,11 @@ int CvLuaPlayer::lGetYieldPerTurnFromVassals(lua_State* L)
 int CvLuaPlayer::lGetVassalGoldMaintenance(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+	TeamTypes eTeam = (TeamTypes)luaL_optint(L, 2, -1);
+	bool bIncludePopulationMaintenance = luaL_optbool(L, 3, true);
+	bool bIncludeUnitMaintenance = luaL_optbool(L, 4, true);
 
-	const int iResult = pkPlayer->GetTreasury()->GetVassalGoldMaintenance(NO_TEAM);
+	const int iResult = pkPlayer->GetTreasury()->GetVassalGoldMaintenance(eTeam, bIncludePopulationMaintenance, bIncludeUnitMaintenance);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
