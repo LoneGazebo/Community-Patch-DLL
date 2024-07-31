@@ -977,7 +977,7 @@ int CvTreasury::GetContractGoldMaintenance()
 #endif
 
 // What are our gold maintenance costs because of Vassals?
-int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam) const
+int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam, bool bIncludePopulationMaintenance, bool bIncludeUnitMaintenance) const
 {
 	int iNumTeamMembers = GET_TEAM(m_pPlayer->getTeam()).getAliveCount();
 	if (iNumTeamMembers == 0)
@@ -987,38 +987,38 @@ int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam) const
 	int iTotalExpenseOtherVassals = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 		if (GET_TEAM(eLoopTeam).GetMaster() != m_pPlayer->getTeam())
 			continue;
 
-		int iLoop = 0;
-		if (eTeam == NO_TEAM || eTeam == eLoopTeam)
+		int iExpense = 0;
+
+		// Loop through our vassal's cities
+		if (bIncludePopulationMaintenance)
 		{
-			int iExpense = 0;
-			// Loop through our vassal's cities
+			int iLoop = 0;
 			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 			{
 				int iCityPop = pLoopCity->getPopulation();
 				iExpense += std::max(0, (int)(pow((double)iCityPop, (double) /*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
 			}
+		}
 
+		if (bIncludeUnitMaintenance)
+		{
 			iExpense += std::max(0, GET_PLAYER(eLoopPlayer).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100);
+		}
+
+		if (eTeam == NO_TEAM || eTeam == eLoopTeam)
+		{
 			iTotalExpense += iExpense;
 		}
 		else
 		{
-			int iExpense = 0;
-			// Loop through our vassal's cities
-			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-			{
-				int iCityPop = pLoopCity->getPopulation();
-				iExpense += std::max(0, (int)(pow((double)iCityPop, (double) /*0.8f*/ GD_FLOAT_GET(VASSALAGE_VASSAL_CITY_POP_EXPONENT))));
-			}
-
-			iExpense += std::max(0, GET_PLAYER(eLoopPlayer).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100);
 			iTotalExpenseOtherVassals += iExpense;
 		}
+
 	}
 
 	// What is my share of this maintenance?
