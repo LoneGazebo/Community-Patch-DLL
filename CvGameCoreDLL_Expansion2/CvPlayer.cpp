@@ -19676,9 +19676,9 @@ void CvPlayer::DistributeHappinessToCities()
 	CitiesSortedByPopulation.StableSortItems();
 
 	// Distribute happiness to cities in descending order of Need until all cities are full
-	bool bAllCitiesFull = false;
+	bool bAllCitiesFull = CitiesSortedByNeed.empty();
 
-	while (iHappiness > 0 && !bAllCitiesFull && CitiesSortedByNeed.size() > 0)
+	while (!bAllCitiesFull)
 	{
 		for (int i = 0; i < CitiesSortedByNeed.size(); i++)
 		{
@@ -19703,12 +19703,15 @@ void CvPlayer::DistributeHappinessToCities()
 		for (int i = 0; i < CitiesSortedByNeed.size(); i++)
 		{
 			if (CitiesSortedByNeed.GetWeight(i) > 0)
+			{
 				bAllCitiesFull = false;
+				break;
+			}
 		}
 	}
 
 	// If there's any happiness left over, distribute it in descending order of population until there's none left
-	while (iHappiness > 0 && CitiesSortedByPopulation.size() > 0)
+	while (true)
 	{
 		for (int i = 0; i < CitiesSortedByPopulation.size(); i++)
 		{

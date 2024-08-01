@@ -9977,7 +9977,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		// create spies as diplomats for the masters in the vassals' capitals
 		if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 		{
-			for (std::vector<PlayerTypes>::iterator it2 = aMasterTeam.begin(); it2 != aMasterTeam.end(); it2++)
+			for (std::vector<PlayerTypes>::iterator it2 = aMasterTeam.begin(); it2 != aMasterTeam.end(); ++it2)
 			{
 				CvPlayerEspionage* pMasterEspionage = GET_PLAYER(*it2).GetEspionage();
 				pMasterEspionage->CreateSpy(*it);

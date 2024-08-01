@@ -1639,7 +1639,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 			// Loop through the rest looking for works that will match up
 			it2 = it;
-			for (it2++; it2 != worksToConsider.end() && aWorksChosen.size() < (unsigned int)iCountSlots; it2++)
+			for (++it2; it2 != worksToConsider.end() && aWorksChosen.size() < (unsigned int)iCountSlots; ++it2)
 			{
 				if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it2->m_eEra, aErasSeen, it2->m_ePlayer, aPlayersSeen, m_pPlayer->GetID()))
 				{
@@ -2089,7 +2089,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 		// Loop through the rest looking for works that will match up
 		vector<CvGreatWorkInMyEmpire>::const_iterator it2 = it;
-		for (it2++; it2 != works2.end() && aArtifactsChosen.size() < (unsigned int)iWorksInHalf; it2++)
+		for (++it2; it2 != works2.end() && aArtifactsChosen.size() < (unsigned int)iWorksInHalf; ++it2)
 		{
 			if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it2->m_eEra, aArtifactsErasSeen, it2->m_ePlayer, aArtifactsPlayersSeen, m_pPlayer->GetID()))
 			{
@@ -2688,7 +2688,7 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		vector<CvGreatWorkInMyEmpire> tempWorks;
 
 		tempWorks.clear();
-		for (it2 = works1.begin(); it2 != works1.end(); it2++)
+		for (it2 = works1.begin(); it2 != works1.end(); ++it2)
 		{
 			// Copy it over if not chosen, updating its location
 			if (find(aWorksChosen.begin(), aWorksChosen.end(), it2->m_iGreatWorkIndex) == aWorksChosen.end())
@@ -2700,7 +2700,7 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		works1 = tempWorks;
 
 		tempWorks.clear();
-		for (it2 = works2.begin(); it2 != works2.end(); it2++)
+		for (it2 = works2.begin(); it2 != works2.end(); ++it2)
 		{
 			// Copy it over if not chosen, updating its location
 			if (find(aWorksChosen.begin(), aWorksChosen.end(), it2->m_iGreatWorkIndex) == aWorksChosen.end())

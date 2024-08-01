@@ -2942,9 +2942,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	}
 
 	// Send out notifications to the world
-	for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); iter++)
+	for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); ++iter)
 	{
-		if (GET_PLAYER(*iter).GetID() == pkAttacker->getOwner())
+		if (*iter == pkAttacker->getOwner())
 			continue;
 
 		if (GET_PLAYER(pkAttacker->getOwner()).isMajorCiv() && GET_PLAYER(pkAttacker->getOwner()).getTeam() != GET_PLAYER(*iter).getTeam())

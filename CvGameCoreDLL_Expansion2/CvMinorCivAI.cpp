@@ -6057,7 +6057,7 @@ void CvMinorCivAI::DoTurnQuests()
 
 	for (std::vector<PlayerTypes>::iterator it = ValidMajors.begin(); it != ValidMajors.end(); it++)
 	{
-		PlayerTypes ePlayer = GET_PLAYER(*it).GetID();
+		PlayerTypes ePlayer = *it;
 
 		// Unlock turn - seed the counter
 		if (GC.getGame().getElapsedGameTurns() == iFirstTurnForPersonalQuests)

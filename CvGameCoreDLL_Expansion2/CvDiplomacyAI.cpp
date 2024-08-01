@@ -1539,9 +1539,9 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool b
 					break;
 				}
 
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
+				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); ++iter)
 				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
+					PlayerTypes eLoopPlayer = *iter;
 
 					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
 						continue;
@@ -1572,9 +1572,9 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool b
 			// For all relevant allies, check if they have vassals and include them too!
 			for (std::vector<PlayerTypes>::iterator it = vCheckVassals.begin(); it != vCheckVassals.end(); ++it)
 			{
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
+				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); ++iter)
 				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
+					PlayerTypes eLoopPlayer = *iter;
 
 					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*it).getTeam())
 						continue;
@@ -1779,9 +1779,9 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool b
 					break;
 				}
 
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
+				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); ++iter)
 				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
+					PlayerTypes eLoopPlayer = *iter;
 
 					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
 						continue;
@@ -1812,9 +1812,9 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool b
 			// For all relevant allies, check if they have vassals and include them too!
 			for (std::vector<PlayerTypes>::iterator it = vCheckVassals.begin(); it != vCheckVassals.end(); ++it)
 			{
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
+				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); ++iter)
 				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
+					PlayerTypes eLoopPlayer = *iter;
 
 					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*it).getTeam())
 						continue;
@@ -11382,7 +11382,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		// Go through the lists of allies and see which of them are relevant for ATTACK and DEFENSE evaluations
 		for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 		{
-			PlayerTypes eLoopPlayer = GET_PLAYER(*it).GetID();
+			PlayerTypes eLoopPlayer = *it;
 			if (eLoopPlayer == ePlayer)
 				continue;
 
@@ -11421,7 +11421,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		// Our allies
 		for (std::vector<PlayerTypes>::iterator it = vOurAllies.begin(); it != vOurAllies.end(); ++it)
 		{
-			PlayerTypes eAllyPlayer = GET_PLAYER(*it).GetID();
+			PlayerTypes eAllyPlayer = *it;
 			int iAllyMight = max(iBase + GET_PLAYER(eAllyPlayer).GetMilitaryMight() - GET_PLAYER(eAllyPlayer).GetNuclearMight(), 1);
 			int iTheirMight = max(iBase + GET_PLAYER(ePlayer).GetMilitaryMight() - GET_PLAYER(ePlayer).GetNuclearMight(), 1);
 
@@ -11664,7 +11664,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		// Their allies
 		for (std::vector<PlayerTypes>::iterator it = vTheirAllies.begin(); it != vTheirAllies.end(); ++it)
 		{
-			PlayerTypes eEnemyPlayer = GET_PLAYER(*it).GetID();
+			PlayerTypes eEnemyPlayer = *it;
 			int iOurMight = iMilitaryStrength;
 			int iEnemyMight = max(iBase + GET_PLAYER(eEnemyPlayer).GetMilitaryMight() - GET_PLAYER(eEnemyPlayer).GetNuclearMight(), 1);
 
@@ -14797,7 +14797,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	vector<PlayerTypes> vPlayersToReevaluate;
 	for (std::vector<PlayerTypes>::iterator it = vTargetPlayers.begin(); it != vTargetPlayers.end(); ++it)
 	{
-		PlayerTypes ePlayer = GET_PLAYER(*it).GetID();
+		PlayerTypes ePlayer = *it;
 		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && IsHasMet(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), ePlayer) == vPlayersToReevaluate.end())
 		{
 			vPlayersToReevaluate.push_back(ePlayer);
@@ -20932,7 +20932,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 			{
-				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+				if (ePlayer == *it)
 					continue;
 
 				if (GetCachedOpinionWeight(*it) > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
@@ -20990,7 +20990,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 			{
-				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+				if (ePlayer == *it)
 					continue;
 
 				if (GetCachedOpinionWeight(*it) < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
@@ -22042,7 +22042,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	// First let's examine any conditions which make some players the greatest competitors.
 	for (std::vector<PlayerTypes>::iterator it = vPotentialCompetitors.begin(); it != vPotentialCompetitors.end(); ++it)
 	{
-		PlayerTypes eLoopPlayer = GET_PLAYER(*it).GetID();
+		PlayerTypes eLoopPlayer = *it;
 		int iPriority = 0;
 		bool bIgnoreCityConquests = false;
 
@@ -22326,7 +22326,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 	{
-		PlayerTypes eLoopPlayer = GET_PLAYER(*it).GetID();
+		PlayerTypes eLoopPlayer = *it;
 
 		if (IsAtWar(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 		{
@@ -22575,7 +22575,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			continue;
 
 		// We're unlikely to befriend our biggest competitors
-		if (GetBiggestCompetitor() == GET_PLAYER(*it).GetID() || GetPrimeLeagueCompetitor() == GET_PLAYER(*it).GetID())
+		if (GetBiggestCompetitor() == *it || GetPrimeLeagueCompetitor() == *it)
 		{
 			CivOpinionTypes eOpinion = GetCivOpinion(*it);
 			CivApproachTypes eApproach = GetCivApproach(*it);
@@ -22589,7 +22589,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 					continue;
 			}
 			// Don't befriend our prime league competitor unless we really like them.
-			if (GetPrimeLeagueCompetitor() == GET_PLAYER(*it).GetID() && !bLiberator)
+			if (GetPrimeLeagueCompetitor() == *it && !bLiberator)
 			{
 				if (IsCompetingForVictory() && IsGoingForDiploVictory() && eOpinion < CIV_OPINION_ALLY)
 				{
@@ -22892,7 +22892,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				if (iScore > iHighestScore)
 				{
 					iHighestScore = iScore;
-					eMostValuableAlly = GET_PLAYER(*it).GetID();
+					eMostValuableAlly = *it;
 				}
 			}
 
@@ -23498,7 +23498,7 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 		if (std::find(vPlayersToExclude.begin(), vPlayersToExclude.end(), *it) != vPlayersToExclude.end())
 			continue;
 
-		PlayerTypes eChoice = GET_PLAYER(*it).GetID();
+		PlayerTypes eChoice = *it;
 		int iDPValue = ScoreDefensivePactChoice(*it, bCoastal);
 
 		if (iDPValue > iBestDPValue)
@@ -23787,7 +23787,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 		vDirectTargets.push_back(*it);
 		vector<PlayerTypes> vDefensiveWarAllies = GetDefensiveWarAllies(*it, /*bIncludeMinors*/ false, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
 
-		for (std::vector<PlayerTypes>::iterator it2 = vDefensiveWarAllies.begin(); it2 != vDefensiveWarAllies.end(); it2++)
+		for (std::vector<PlayerTypes>::iterator it2 = vDefensiveWarAllies.begin(); it2 != vDefensiveWarAllies.end(); ++it2)
 		{
 			if (std::find(vAtWarPlayers.begin(), vAtWarPlayers.end(), *it2) == vAtWarPlayers.end())
 			{
@@ -24004,7 +24004,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 
 		for (std::vector<PlayerTypes>::iterator it = vNotAtWarPlayers.begin(); it != vNotAtWarPlayers.end(); ++it)
 		{
-			if (std::find(vPlanningWarPlayers.begin(), vPlanningWarPlayers.end(), *it) != vPlanningWarPlayers.end() && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+			if (std::find(vPlanningWarPlayers.begin(), vPlanningWarPlayers.end(), *it) != vPlanningWarPlayers.end() && GetDemandTargetPlayer() != *it)
 			{
 				// How much do we value this existing sneak attack?
 				if (GetPlayer()->getFirstOffensiveAIOperation(*it) != NULL || IsArmyInPlaceForAttack(*it))
@@ -24178,7 +24178,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 	{
 		for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 		{
-			PlayerTypes ePlayer = GET_PLAYER(*it).GetID();
+			PlayerTypes ePlayer = *it;
 
 			// Already at war?
 			if (IsAtWar(ePlayer))
@@ -25672,7 +25672,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	{
 		for (std::vector<PlayerTypes>::iterator it = vPeacePossibleMinors.begin(); it != vPeacePossibleMinors.end(); ++it)
 		{
-			PlayerTypes eMinor = GET_PLAYER(*it).GetID();
+			PlayerTypes eMinor = *it;
 
 			// Only consider peace with City-States if they aren't our war target or we're doing poorly (since there's no War Weariness)
 			if (!bMakePeaceWithAllMinors && GetCSWarTargetPlayer() == eMinor)
@@ -26412,9 +26412,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			int iAlliesMod = 0;
 			if (!bInTerribleShape)
 			{
-				for (std::vector<PlayerTypes>::iterator iter = vOurWarAllies.begin(); iter != vOurWarAllies.end(); iter++)
+				for (std::vector<PlayerTypes>::iterator iter = vOurWarAllies.begin(); iter != vOurWarAllies.end(); ++iter)
 				{
-					if (GET_PLAYER(*iter).GetID() == GetID())
+					if (*iter == GetID())
 						continue;
 					if (!GET_PLAYER(*iter).isMajorCiv())
 						continue;
@@ -30655,7 +30655,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 									break;
 								}
 								// If we're already planning a war/demand against them, then we don't care.
-								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 								{
 									if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 									{
@@ -38641,7 +38641,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							break;
 						}
 						// If we're already planning a war/demand against them, then we don't care.
-						else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+						else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 						{
 							if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 							{
@@ -38902,7 +38902,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 									break;
 								}
 								// If we're already planning a war/demand against them, then we don't care.
-								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 								{
 									if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 									{
@@ -39074,7 +39074,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 									break;
 								}
 								// If we're already planning a war/demand against them, then we don't care.
-								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 								{
 									if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 									{
@@ -39512,7 +39512,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 								break;
 							}
 							// If we're already planning a war/demand against them, then we don't care.
-							else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+							else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 							{
 								if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 								{
@@ -56536,7 +56536,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		{
 			if (GetCivApproach(*it) == CIV_APPROACH_AFRAID)
 				return false;
-			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != *it)
 			{
 				if (bWeLikeOneOfThem && GetMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
 					return false;

@@ -934,7 +934,7 @@ void CvBarbarians::DoCamps()
 			if (pPlot->isRevealed(eTeam))
 			{
 				pPlot->setRevealedImprovementType(eTeam, eCamp);
-				if (GC.getGame().getActivePlayer() == GET_PLAYER(*it).GetID())
+				if (GC.getGame().getActivePlayer() == *it)
 					bUpdateMapFog = true;
 			}
 		}
