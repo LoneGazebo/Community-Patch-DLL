@@ -3630,57 +3630,97 @@ void CvBuilderTaskingAI::SetupExtraXAdjacentPlots()
 		if (pkImprovementInfo->GetXSameAdjacentMakesValid() == 0)
 			continue;
 
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-
-			if (!ShouldAnyBuilderConsiderPlot(pPlot))
-				continue;
-
-			if (pPlot->getOwner() != m_pPlayer->GetID())
-				continue;
-
-			SetupExtraXAdjacentBuildPlot(pPlot, eBuild, eImprovement, pkImprovementInfo->GetXSameAdjacentMakesValid());
-		}
+		SetupExtraXAdjacentPlotsForBuild(eBuild, eImprovement, pkImprovementInfo->GetXSameAdjacentMakesValid());
 	}
 }
 
-bool CvBuilderTaskingAI::SetupExtraXAdjacentBuildPlot(const CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement, std::tr1::unordered_set<const CvPlot*> sIgnoredPlots)
+void CvBuilderTaskingAI::SetupExtraXAdjacentPlotsForBuild(BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement)
 {
-	if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pPlot) != m_extraPlotsForXAdjacentImprovements[eImprovement].end())
-		return true;
+	set<CvPlot*> sPlotsToCheck;
 
-	if (sIgnoredPlots.find(pPlot) != sIgnoredPlots.end())
-		return false;
-
-	if (!pPlot->canBuild(eBuild, m_pPlayer->GetID(), false, true, true))
-		return false;
-
-	if (pPlot->canBuild(eBuild, m_pPlayer->GetID()))
-		return true;
-
-	std::tr1::unordered_set<const CvPlot*> newIgnoredPlots = sIgnoredPlots;
-	newIgnoredPlots.insert(pPlot);
-
-	int iAdjacentCanBuild = 0;
-
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		DirectionTypes eDirection = (DirectionTypes)iI;
-		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
-
-		if (!pAdjacentPlot)
-			continue;
-
-		if (SetupExtraXAdjacentBuildPlot(pAdjacentPlot, eBuild, eImprovement, iAdjacencyRequirement, newIgnoredPlots))
-			iAdjacentCanBuild++;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if (pPlot->isPlayerCityRadius(m_pPlayer->GetID()) && pPlot->canBuild(eBuild, m_pPlayer->GetID()))
+			sPlotsToCheck.insert(pPlot);
 	}
 
-	bool bRet = iAdjacentCanBuild >= iAdjacencyRequirement;
-	if (bRet)
-		m_extraPlotsForXAdjacentImprovements[eImprovement].insert(pPlot);
+	while (!sPlotsToCheck.empty())
+	{
+		set<CvPlot*> sNewPlotsToCheck;
+		for (set<CvPlot*>::const_iterator it = sPlotsToCheck.begin(); it != sPlotsToCheck.end(); ++it)
+		{
+			CvPlot* pPlot = *it;
 
-	return bRet;
+			if (!pPlot->isPlayerCityRadius(m_pPlayer->GetID()))
+				continue;
+
+			if (pPlot->getImprovementType() == eImprovement)
+				continue;
+
+			if (!pPlot->canBuild(eBuild, m_pPlayer->GetID(), false, true, true))
+				continue;
+
+			if (pPlot->canBuild(eBuild, m_pPlayer->GetID()))
+			{
+				m_extraPlotsForXAdjacentImprovements[eImprovement].insert(pPlot);
+
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					DirectionTypes eDirection = (DirectionTypes)iI;
+					CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+
+					if (!pAdjacentPlot)
+						continue;
+
+					if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pAdjacentPlot) != m_extraPlotsForXAdjacentImprovements[eImprovement].end())
+						continue;
+
+					sNewPlotsToCheck.insert(pAdjacentPlot);
+				}
+
+				continue;
+			}
+
+			int iPossibleAdjacentImprovements = 0;
+
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				DirectionTypes eDirection = (DirectionTypes)iI;
+				CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+
+				if (!pAdjacentPlot)
+					continue;
+
+				if (pAdjacentPlot->getImprovementType() == eImprovement)
+					iPossibleAdjacentImprovements++;
+				else if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pAdjacentPlot) != m_extraPlotsForXAdjacentImprovements[eImprovement].end())
+					iPossibleAdjacentImprovements++;
+			}
+
+			if (iPossibleAdjacentImprovements >= iAdjacencyRequirement)
+			{
+				m_extraPlotsForXAdjacentImprovements[eImprovement].insert(pPlot);
+
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					DirectionTypes eDirection = (DirectionTypes)iI;
+					CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+
+					if (!pAdjacentPlot)
+						continue;
+
+					if (m_extraPlotsForXAdjacentImprovements[eImprovement].find(pAdjacentPlot) != m_extraPlotsForXAdjacentImprovements[eImprovement].end())
+						continue;
+
+					sNewPlotsToCheck.insert(pAdjacentPlot);
+				}
+
+				continue;
+			}
+		}
+		sPlotsToCheck.swap(sNewPlotsToCheck);
+	}
 }
 
 /// Central logging repository!
