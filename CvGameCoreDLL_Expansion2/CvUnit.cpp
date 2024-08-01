@@ -12601,14 +12601,14 @@ void CvUnit::PerformCultureBomb(int iRadius)
 						}
 					}
 
-					bool bChokePoint = pPlot->IsChokePoint();
+					bool bChokePoint = pLoopPlot->IsChokePoint();
 					if (bChokePoint)
 					{
 						iValueMultiplier += 50;
 						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
 					}
 
-					ImprovementTypes eImprovement = pPlot->getImprovementType();
+					ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 					if (eImprovement != NO_IMPROVEMENT)
 					{
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);

@@ -9810,7 +9810,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 	} 
 	else
 	{
-		iYield = pKTerrainInfo->getYield(eYield);
+		iYield = pkTerrainInfo->getYield(eYield);
 		if (eYield == YIELD_PRODUCTION && eTerrain == TERRAIN_DESERT && !isHills() && eFeature == NO_FEATURE)
 		{
 			if (eResource != NO_RESOURCE && eImprovement != NO_IMPROVEMENT)
@@ -9865,22 +9865,22 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 	{
 		if (isRiver())
 		{
-			iYield += pKTerrainInfo->getRiverYieldChange(eYield);
+			iYield += pkTerrainInfo->getRiverYieldChange(eYield);
 		}
 
 		if (isHills())
 		{
-			iYield += pKTerrainInfo->getHillsYieldChange(eYield);
+			iYield += pkTerrainInfo->getHillsYieldChange(eYield);
 		}
 
 		if (isFreshWater())
 		{
-			iYield += pKTerrainInfo->getFreshWaterYieldChange(eYield);
+			iYield += pkTerrainInfo->getFreshWaterYieldChange(eYield);
 		}
 
 		if (isCoastalLand())
 		{
-			iYield += pKTerrainInfo->getCoastalLandYieldChange(eYield);
+			iYield += pkTerrainInfo->getCoastalLandYieldChange(eYield);
 		}
 	}
 
