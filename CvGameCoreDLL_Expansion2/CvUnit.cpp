@@ -10251,7 +10251,6 @@ bool CvUnit::pillage()
 		{
 			if(pPlot->getTeam() != getTeam())
 			{
-#if defined(MOD_BALANCE_CORE)
 				CvCity* pOriginCity = getOriginCity();
 				if (pOriginCity == NULL)
 					pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
@@ -10295,18 +10294,15 @@ bool CvUnit::pillage()
 						}
 					}
 
-					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					if (pkImprovement->GetDefenseModifier() > 0)
 					{
-						iValueMultiplier += 100;
-						bPillagedHighValueTile = true;
-					}
-					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
-					{
-						iValueMultiplier += 50;
+						iValueMultiplier += pkImprovement->GetDefenseModifier();
 						if (pPlot->IsChokePoint())
+						{
 							bPillagedHighValueTile = true;
+							if (pkImprovement->IsNoFollowUp())
+								iValueMultiplier += 20;
+						}
 					}
 
 					if (pkImprovement->IsCreatedByGreatPerson())
@@ -10354,19 +10350,20 @@ bool CvUnit::pillage()
 						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
 					}
 				}
-#endif
+
 				int iPillageGold = 0;
 
 				// TODO: add scripting support for "doPillageGold"
-#if defined(MOD_EVENTS_UNIT_ACTIONS)
-				if (MOD_EVENTS_UNIT_ACTIONS) {
+
+				if (MOD_EVENTS_UNIT_ACTIONS)
+				{
 					int iValue = 0;
-					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitPillageGold, getOwner(), GetID(), eTempImprovement, pkImprovement->GetPillageGold()) == GAMEEVENTRETURN_VALUE) {
+					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitPillageGold, getOwner(), GetID(), eTempImprovement, pkImprovement->GetPillageGold()) == GAMEEVENTRETURN_VALUE)
+					{
 						iPillageGold = iValue;
 						CUSTOMLOG("Pillage gold is %i", iPillageGold);
 					}
 				}
-#endif
 				if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 				{
 					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
@@ -10381,13 +10378,14 @@ bool CvUnit::pillage()
 					iPillageGold += GC.getGame().randRangeInclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
 					iPillageGold += getPillageChange() * iPillageGold / 100;
 				}
-#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+
 				if (pPlot->getOwner() != NO_PLAYER)
 				{
 					if (GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
 					{
 						iPillageGold = 0;
-					} else
+					}
+					else
 					{
 						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getEffectiveOwningCity();
 						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
@@ -10396,13 +10394,11 @@ bool CvUnit::pillage()
 						}
 					}
 				}
-#endif
-				if(iPillageGold > 0)
+
+				if (iPillageGold > 0)
 				{
-#if defined(MOD_BALANCE_CORE)
 					iPillageGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 					iPillageGold /= 100;
-#endif
 					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iPillageGold);
 
 					if(getOwner() == GC.getGame().getActivePlayer())
@@ -10431,7 +10427,6 @@ bool CvUnit::pillage()
 			bSuccessfulNonRoadPillage = true;
 			if(pkImprovement->IsDestroyedWhenPillaged())
 			{
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 				// If this improvement auto-added a route, we also need to remove the route
 				ImprovementTypes eOldImprovement = pPlot->getImprovementType();
 				
@@ -10450,7 +10445,6 @@ bool CvUnit::pillage()
 						break;
 					}
 				}
-#endif
 
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 			}
@@ -12606,35 +12600,34 @@ void CvUnit::PerformCultureBomb(int iRadius)
 							}
 						}
 					}
-					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if (pLoopPlot->IsChokePoint())
+
+					bool bChokePoint = pPlot->IsChokePoint();
+					if (bChokePoint)
 					{
 						iValueMultiplier += 50;
 						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
-
-						if (pkImprovement)
-						{
-							static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-							static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-
-							if (eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel)
-							{
-								iValueMultiplier += 100;
-							}
-							else if (eFort != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eFort)
-							{
-								iValueMultiplier += 50;
-							}
-						}
 					}
-					if (pkImprovement)
+
+					ImprovementTypes eImprovement = pPlot->getImprovementType();
+					if (eImprovement != NO_IMPROVEMENT)
 					{
-						if (pkImprovement->IsCreatedByGreatPerson())
+						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+						CvAssert(pkImprovementInfo);
+
+						if (bChokePoint)
+						{
+							iValueMultiplier += pkImprovementInfo->GetDefenseModifier();
+							if (pkImprovementInfo->IsNoFollowUp())
+								iValueMultiplier += 20;
+						}
+
+						if (pkImprovementInfo->IsCreatedByGreatPerson())
 						{
 							iValueMultiplier += 100;
 							vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
 						}
 					}
+
 					// Stole a major civ's embassy from a City-State?
 					if (pLoopPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
 					{

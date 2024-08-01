@@ -4186,24 +4186,8 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			pUnit->AI_setUnitAIType(UNITAI_SETTLE);
 			break;
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-		{
-			std::vector<CvPlot*> vDummy;
-			bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
-			BuildTypes eColonia = (BuildTypes)GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE");
-			//stupid distinction between Player and PlayerAI classes
-			CvPlot* pTargetPlot = bIsVenice ? GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true) : NULL;
-			if (pTargetPlot) //venetian merchant
-			{
-				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, false);
-				if (pUnit->atPlot(*pTargetPlot) && pUnit->canMove())
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eColonia);
-			}
-			else
-			{
-				m_greatPeopleForImprovements.push_back(pUnit->GetID());
-			}
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
 			break;
-		}
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
@@ -4352,7 +4336,6 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	vector<CvPlot*> vPlotsToAvoid;
 	vector<CvCity*> vTargets = m_pPlayer->GetThreatenedCities(false);
 
@@ -4362,10 +4345,14 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if(!pUnit)
 			continue;
 
-		// this is for the citadel/culture bomb
-		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
 		{
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, pUnit->isCultureBomb() ? NO_BUILD : eCitadel, vPlotsToAvoid, false);
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
+		}
+		// this is for the citadel/culture bomb
+		else if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		{
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, vPlotsToAvoid);
 			if(pTargetPlot)
 			{
 				if(pUnit->plot() != pTargetPlot)
@@ -4378,7 +4365,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						UnitProcessed(pUnit->GetID());
 
 						//just for debugging
-						pUnit->SetMissionAI(MISSIONAI_BUILD,pTargetPlot,NULL);
+						pUnit->SetMissionAI(MISSIONAI_BUILD, pTargetPlot, NULL);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -4503,12 +4490,10 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			continue;
 		}
 
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE)
+		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
 		{
-			ExecuteGoldenAgeMove(pUnit);
-			continue;
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
 		}
-
 		//if he's a commander but not in an army, put him up in a city for a while
 		else if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
