@@ -35206,6 +35206,22 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 	for (CvCity* pLoopCity = firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = nextCity(&iValueLoop))
 	{
 		iCurrentValue += pLoopCity->GetWarValue();
+		if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString strTemp;
+
+			CvString strPlayerName = getCivilizationShortDescription();
+			strPlayerName.Replace(' ', '_'); //no spaces
+			FILogFile* pLog = LOGFILEMGR.GetLog("net_message_debug.log", FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetID());
+			strTemp.Format("Current Value City %d: %d", pLoopCity->GetID(), pLoopCity->GetWarValue());
+			strOutBuf = strBaseString + strTemp;
+			pLog->Msg(strOutBuf);
+		}
 	}
 
 	// Unit value
@@ -35257,6 +35273,22 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 				}
 
 				iCurrentValue += iUnitValue;
+				if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
+				{
+					CvString strOutBuf;
+					CvString strBaseString;
+					CvString strTemp;
+
+					CvString strPlayerName = getCivilizationShortDescription();
+					strPlayerName.Replace(' ', '_'); //no spaces
+					FILogFile* pLog = LOGFILEMGR.GetLog("net_message_debug.log", FILogFile::kDontTimeStamp);
+
+					// Get the leading info for this line
+					strBaseString.Format("%03d, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetID());
+					strTemp.Format("Current Value Unit %d: %d", pLoopUnit->GetID(), iUnitValue);
+					strOutBuf = strBaseString + strTemp;
+					pLog->Msg(strOutBuf);
+				}
 			}
 		}
 	}
@@ -35295,6 +35327,25 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		}
 
 		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+		if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
+		{
+			if (GetWarDamageValue(eLoopPlayer) != iValueLostRatio || iWarValueLost > 0)
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString strTemp;
+
+				CvString strPlayerName = getCivilizationShortDescription();
+				strPlayerName.Replace(' ', '_'); //no spaces
+				FILogFile* pLog = LOGFILEMGR.GetLog("net_message_debug.log", FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetID());
+				strTemp.Format("New War Damage for Player %d: %d. iWarValueLost: %d. iCurrentValue: %d", (int)eLoopPlayer, iValueLostRatio, iWarValueLost, iCurrentValue);
+				strOutBuf = strBaseString + strTemp;
+				pLog->Msg(strOutBuf);
+			}
+		}
 
 		// Only update war weariness between major civs (and only on the once-per-turn update)
 		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
