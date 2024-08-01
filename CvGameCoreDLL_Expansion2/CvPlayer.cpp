@@ -47794,6 +47794,10 @@ void CvPlayer::updatePlotFoundValues()
 		{
 			ignoreYieldPlots[iI] = 1;
 		}
+		else if (!pPlot->isRevealed(getTeam()))
+		{
+			ignoreYieldPlots[iI] = 1;
+		}
 	}
 
 	//calculate new values and apply our threshold
