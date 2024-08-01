@@ -1912,7 +1912,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	}
 
 	// Units in armies are always field commanders
-	if (!bHasAdmiralNegation && pGreatGeneral->getArmyID() != -1)
+	if (!bHasAdmiralNegation && pGreatAdmiral->getArmyID() != -1)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iCommanders = 0;
@@ -3016,7 +3016,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 
 			// Don't consider plots we already targeted
 			bool bTooClose = false;
-			for (vector<CvPlot*>::iterator it = vPlotsToAvoid.begin(); it != vPlotsToAvoid.end(); ++it)
+			for (vector<CvPlot*>::const_iterator it = vPlotsToAvoid.begin(); it != vPlotsToAvoid.end(); ++it)
 			{
 				if (plotDistance(**it, *pPlot) < iRange)
 					bTooClose = true;
