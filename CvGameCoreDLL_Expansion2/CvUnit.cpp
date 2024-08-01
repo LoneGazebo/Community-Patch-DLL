@@ -12036,7 +12036,11 @@ bool CvUnit::trade()
 
 	bool bGreatDiplomat = MOD_BALANCE_VP && m_pUnitInfo->GetNumInfPerEra() > 0 && m_pUnitInfo->GetRestingPointChange() != 0;
 
-	if (MOD_BALANCE_VP) 
+	// Save the original influence of every major civ for ally status change
+	vector<int> viOriginalInfluence;
+	viOriginalInfluence.reserve(MAX_MAJOR_CIVS);
+
+	if (MOD_BALANCE_VP)
 	{
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
 		
@@ -12050,9 +12054,13 @@ bool CvUnit::trade()
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
+				viOriginalInfluence.push_back(0);
 				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
+					// Save the original influence
+					viOriginalInfluence[iPlayerLoop] = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(eLoopPlayer);
+
 					// only reduce influence, but don't update ally status here. it could lead to unintended war declarations by the minor civ if their ally changes temporarily while looping through the players
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence, false, /*bUpdateStatus*/ false);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
@@ -12116,12 +12124,11 @@ bool CvUnit::trade()
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 			{
-				// Friendship amount doesn't change
 				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer);
-				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, iFriendship, iFriendship);
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, viOriginalInfluence[iPlayerLoop], iFriendship);
 			}
 		}
 	}
