@@ -183,7 +183,7 @@ protected:
 	int GetRouteMissingTiles(PlannedRoute plannedRoute) const;
 
 	void SetupExtraXAdjacentPlots();
-	bool SetupExtraXAdjacentBuildPlot(const CvPlot* pPlot, BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement, std::tr1::unordered_set<const CvPlot*> sIgnoredPlots = std::tr1::unordered_set<const CvPlot*>());
+	void SetupExtraXAdjacentPlotsForBuild(BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement);
 
 	void UpdateCanalPlots();
 
