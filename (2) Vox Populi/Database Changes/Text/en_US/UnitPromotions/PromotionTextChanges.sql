@@ -670,7 +670,7 @@ SET Text = 'Khaaaan!'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
 
 UPDATE Language_en_US
-SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
+SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 -- Quick Study
@@ -789,7 +789,7 @@ SET Text = 'Enemy Blade'
 WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE';
 
 UPDATE Language_en_US
-SET Text = 'Heal 10 HP when starting turn [COLOR_POSITIVE_TEXT]Inside Enemy Territory[ENDCOLOR].[NEWLINE]Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].'
+SET Text = 'Heal 10 HP when starting turn [COLOR_POSITIVE_TEXT]Inside Enemy Territory[ENDCOLOR].[NEWLINE]Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE_HELP';
 
 UPDATE Language_en_US

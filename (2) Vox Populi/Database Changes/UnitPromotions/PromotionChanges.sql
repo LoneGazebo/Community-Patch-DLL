@@ -892,7 +892,7 @@ UPDATE UnitPromotions SET NearbyEnemyCombatMod = -10, NearbyEnemyCombatRange = 1
 -- Maori Warrior: Haka War Dance
 UPDATE UnitPromotions SET NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 1 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
--- Khan: Enhanced Medic
+-- Khan: Khaaaan!
 UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
 
 -- Samurai: Quick Study
