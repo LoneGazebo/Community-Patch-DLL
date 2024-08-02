@@ -123,6 +123,7 @@ public:
 	int GetCityScalerLimiter() const;
 	int GetFollowerScalerLimiter() const;
 	int GetPolicyReductionWonderXFollowerCities() const;
+	bool IsAIGoodStartingPantheon() const;
 	int GetMaxYieldPerFollower(int i) const;
 	int GetMaxYieldPerFollowerPercent(int i) const;
 	int GetIgnorePolicyRequirementsAmount() const;
@@ -366,6 +367,7 @@ protected:
 	int m_iCityScalerLimiter;
 	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
+	bool m_bAIGoodStartingPantheon;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CivilizationTypes m_eRequiredCivilization;

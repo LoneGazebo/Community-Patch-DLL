@@ -115,6 +115,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityScalerLimiter(0),
 	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
+	m_bAIGoodStartingPantheon(false),
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerPercent(NULL),
 	m_piImprovementVoteChange(NULL),
@@ -806,6 +807,10 @@ int CvBeliefEntry::GetPolicyReductionWonderXFollowerCities() const
 {
 	return m_iPolicyReductionWonderXFollowerCities;
 }
+bool CvBeliefEntry::IsAIGoodStartingPantheon() const
+{
+	return m_bAIGoodStartingPantheon;
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
@@ -1315,6 +1320,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFollowerScalerLimiter = kResults.GetInt("FollowerScalerLimiter");
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
 #endif
+	m_bAIGoodStartingPantheon = kResults.GetInt("AI_GoodStartingPantheon");
 #if defined(MOD_BALANCE_CORE)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
