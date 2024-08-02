@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.14.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.15) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="136" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="137" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -53,6 +53,7 @@
     <File md5="24C0E6FCDE3B225B361B07162DDF37DC" import="1">Assets/CommunityAtlas3_080.dds</File>
     <File md5="F7C6013CD7D24C478FE17283446BAB2F" import="1">Assets/CommunityAtlas3_128.dds</File>
     <File md5="4837AF74CE5D6562009965F345CC23CB" import="1">Assets/CommunityAtlas3_256.dds</File>
+    <File md5="316984B4370EA1B11E3759F01CE9A36D" import="1">Assets/DC45_Generic.dds</File>
     <File md5="F04AFABE13529DFEA950EBADAA514778" import="1">Assets/GW_Flood_Tablet.dds</File>
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Corporations/civilopediatopbuttonscorporations.dds</File>
     <File md5="4D6C112B1933F1E1D1F028DB5A885635" import="1">Assets/Corporations/CorpAtlas128.dds</File>
@@ -789,7 +790,7 @@
     <File md5="DFCE5C53AF9183F80447B755EE496B37" import="0">Core Files/New UI/OverlayAntiquities_MiniMapOverlayHook.lua</File>
     <File md5="96C27AF77D72860B6BCB0D22257A3F82" import="0">Core Files/New UI/RandomVCPopup.lua</File>
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
-    <File md5="916ED76DBF666B0828BDD456FFF1642B" import="0">Core Files/New UI/VassalageOverview.lua</File>
+    <File md5="AEB3674F606508617BC5DE99D1FF3071" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
     <File md5="8D224D0F35C8DCFA0FA40EC8E92162E4" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
@@ -886,7 +887,7 @@
     <File md5="0A4B5D03685AD0B80EB5682A5AC4B04E" import="0">Database Changes/Beliefs/FollowerChanges.sql</File>
     <File md5="EF5507D9115DF0C6698908928E91C73A" import="0">Database Changes/Beliefs/FounderChanges.sql</File>
     <File md5="A5C9D08805059F6B8698B13A85B228D6" import="0">Database Changes/Beliefs/NewBeliefs.xml</File>
-    <File md5="1E4DC8394C97FE2D9049ABDDB8BF2891" import="0">Database Changes/Beliefs/PantheonChanges.sql</File>
+    <File md5="F8D6F70674B4322158D9CB9C68BDAEC5" import="0">Database Changes/Beliefs/PantheonChanges.sql</File>
     <File md5="1F869A7D97BEE31973C711205DE832A7" import="0">Database Changes/Beliefs/PreBeliefChanges.sql</File>
     <File md5="982588E3B98218A65B05D0435EB0345A" import="0">Database Changes/Beliefs/ReformationChanges.sql</File>
     <File md5="91C6AE94E302CE6E27CB39A28B97638E" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
@@ -1016,10 +1017,10 @@
     <File md5="73F04D667AEAD2F52E459D032B34CA22" import="0">Database Changes/Text/en_US/Tech/TechTextChanges.sql</File>
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
-    <File md5="FBCBCCF33ECDCDF1778B1AD85AD7B233" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
+    <File md5="C2337A83530C274CE003B696A0DE63C4" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
     <File md5="64186FB5F55DF2F09D64C33ECE7C444B" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
     <File md5="47437E6F8F5D45AFAD93BA215515556C" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
-    <File md5="AC7C17520A8DECFFBE56534B73D95463" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
+    <File md5="6FE81BE390DDC104167B641C11E411DA" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="F452D8BAD1EFE65500C5366FC0D58F48" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
     <File md5="E44B069F8ED6698D11B89240DCAC6F38" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
     <File md5="D72281DE4446A8410B3A5F39A5A7FE2B" import="0">Database Changes/Text/en_US/Units/NewUnitText.sql</File>
@@ -1041,7 +1042,7 @@
     <File md5="D62BD4D709C5A98EE687B51C541F349D" import="0">Database Changes/UnitPromotions/NewPromotions.xml</File>
     <File md5="1F762233872B9AB7CA6DC8B142457443" import="0">Database Changes/UnitPromotions/OldPromotions.xml</File>
     <File md5="19070BB89F924F059FC4D53035C9A7BC" import="0">Database Changes/UnitPromotions/PrePromotionChanges.sql</File>
-    <File md5="3CFD762EE0913DA529DB72233DFC8C74" import="0">Database Changes/UnitPromotions/PromotionChanges.sql</File>
+    <File md5="2753728D26185280F9D50248D794F9CD" import="0">Database Changes/UnitPromotions/PromotionChanges.sql</File>
     <File md5="54A1EFB43818C650293DB0AE65E06E6C" import="0">Database Changes/UnitPromotions/PromotionDisplaySweeps.sql</File>
     <File md5="DD073CBE7A122B055729643A2E197013" import="0">Database Changes/UnitPromotions/PromotionIconChanges.sql</File>
     <File md5="BB2E0208D20D5C28C6234B5B0A8A136C" import="0">Database Changes/UnitPromotions/PromotionSweeps.sql</File>
@@ -1091,8 +1092,8 @@
     <File md5="77EDFD9FA55715F2DF503ECB13B9EA6A" import="1">LUA/CityView.lua</File>
     <File md5="A5767C9AA682DB238B046C8EA40A1C7B" import="1">LUA/CityView.xml</File>
     <File md5="8ADABF152DDFDB5AC9AD670FFE3D7C07" import="1">LUA/CityView_small.xml</File>
-    <File md5="A0289410C211EB5F22A09BBF62CDE12C" import="1">LUA/DiploCorner.lua</File>
-    <File md5="B76E140D5AB1EB63E1130B57B34EB4E3" import="1">LUA/DiploCorner.xml</File>
+    <File md5="EBA442547685943BC6921DBD19C77F8D" import="1">LUA/DiploCorner.lua</File>
+    <File md5="7B7789E13EC6018565BBEC5092F4C10E" import="1">LUA/DiploCorner.xml</File>
     <File md5="F090F96830E5AD2EDE4B644F0A7118F9" import="1">LUA/DiploList.lua</File>
     <File md5="78BF57F2575D05766035394A334F8362" import="1">LUA/HappinessInfo.lua</File>
     <File md5="ADD567756BF98969AADEBC7692998D25" import="1">LUA/HappinessInfo.xml</File>
