@@ -7560,37 +7560,48 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 				}
 				else
 				{
-					if (ePlotOwner == m_pPlayer->GetID())
+					// special calculation for mountains: they count towards bonuses even if not owned and can give bonuses to multiple cities at once
+					bool bMountainInCityRange = false;
+					if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
 					{
-						if (pPlot->isBeingWorked() || pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
+						int iCityLoop = 0;
+						CvCity* pLoopCity;
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 						{
-							iPlotWeight = 10;
-						}
-						else
-						{
-							CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
-							if (pOwningCity && pOwningCity->IsWithinWorkRange(pPlot))
+							if (pLoopCity->IsWithinWorkRange(pPlot))
 							{
-								iPlotWeight = 8;
+								bMountainInCityRange = true;
+								iPlotWeight += 10;
 							}
 						}
 					}
-					// If we want to select a panthon, we also consider plots nearby if they are revealed and not in enemy territory
-					else if (bConsiderExpansion && pPlot->isRevealed(m_pPlayer->getTeam()) && ePlotOwner == NO_PLAYER)
+
+					if (!bMountainInCityRange)
 					{
-						// Only consider plots within iExplorationRange from the capital, or plots close to our other cities
-						int iDistanceToCapital = plotDistance(pCapital->getX(), pCapital->getY(), pPlot->getX(), pPlot->getY());
-						if(iDistanceToCapital <= iExplorationRange || m_pPlayer->GetClosestCity(pPlot, 3, false))
+						if (ePlotOwner == m_pPlayer->GetID())
 						{
-							CvCity* pClosestCity = m_pPlayer->GetClosestCity(pPlot, iExplorationRange, false);
-							if (pClosestCity->IsWithinWorkRange(pPlot))
+							if (pPlot->isBeingWorked())
 							{
-								// mountains count towards bonuses even if not owned
-								if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
+								iPlotWeight = 10;
+							}
+							else
+							{
+								CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+								if (pOwningCity && pOwningCity->IsWithinWorkRange(pPlot))
 								{
-									iPlotWeight = 10;
+									iPlotWeight = 8;
 								}
-								else
+							}
+						}
+						// If we want to select a panthon, we also consider plots nearby if they are revealed and not in enemy territory
+						else if (bConsiderExpansion && ePlotOwner == NO_PLAYER)
+						{
+							// Only consider plots within iExplorationRange from the capital, or plots close to our other cities
+							int iDistanceToCapital = plotDistance(pCapital->getX(), pCapital->getY(), pPlot->getX(), pPlot->getY());
+							if (iDistanceToCapital <= iExplorationRange || m_pPlayer->GetClosestCity(pPlot, 3, false))
+							{
+								CvCity* pClosestCity = m_pPlayer->GetClosestCity(pPlot, iExplorationRange, false);
+								if (pClosestCity->IsWithinWorkRange(pPlot))
 								{
 									if (pPlot->isAdjacentOwned())
 									{
@@ -7601,54 +7612,54 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 										iPlotWeight = 3;
 									}
 								}
-							}
-							else
-							{
-								// plot is outside the working range of our cities
-								// if another known civ has a city that's closer to the plot than our nearest city, skip the plot. otherwise, give it a low value
-								int iOurDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pPlot->getX(), pPlot->getY());
-								bool bCloserCityFound = false;
-								if (!vKnownCitiesWithinReach.empty())
+								else
 								{
-									for (unsigned int iI = 0; iI < vKnownCitiesWithinReach.size(); iI++)
+									// plot is outside the working range of our cities
+									// if another known civ has a city that's closer to the plot than our nearest city, skip the plot. otherwise, give it a low value
+									int iOurDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pPlot->getX(), pPlot->getY());
+									bool bCloserCityFound = false;
+									if (!vKnownCitiesWithinReach.empty())
 									{
-										CvCity* pLoopCity = vKnownCitiesWithinReach[iI];
-										if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY()) < iOurDistance)
+										for (unsigned int iI = 0; iI < vKnownCitiesWithinReach.size(); iI++)
 										{
-											bCloserCityFound = true;
-											break;
+											CvCity* pLoopCity = vKnownCitiesWithinReach[iI];
+											if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY()) < iOurDistance)
+											{
+												bCloserCityFound = true;
+												break;
+											}
 										}
 									}
-								}
-								if (!bCloserCityFound)
-								{
-									if ((iDistanceToCapital - pCapital->getWorkPlotDistance()) <= (iExplorationRange - pCapital->getWorkPlotDistance()) / 2)
+									if (!bCloserCityFound)
 									{
-										iPlotWeight = 2;
-									}
-									else
-									{
-										iPlotWeight = 1;
-									}
-									if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
-									{
-										// account for the fact that mountains need to be only in working distance, and that multiple cities can profit from a nearby mountain
-										iPlotWeight += 3;
+										if ((iDistanceToCapital - pCapital->getWorkPlotDistance()) <= (iExplorationRange - pCapital->getWorkPlotDistance()) / 2)
+										{
+											iPlotWeight = 2;
+										}
+										else
+										{
+											iPlotWeight = 1;
+										}
+										if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
+										{
+											// bonus for mountains
+											iPlotWeight *= 4;
+										}
 									}
 								}
 							}
 						}
+						/*
+						if (iPlotWeight == 10)
+						{
+							strTemp = "X ";
+						}
+						else
+						{
+							strTemp.Format("%d ", iPlotWeight);
+						}
+						logStr += strTemp;*/
 					}
-					/*
-					if (iPlotWeight == 10)
-					{
-						strTemp = "X ";
-					}
-					else
-					{
-						strTemp.Format("%d ", iPlotWeight);
-					}
-					logStr += strTemp;*/
 				}
 				if (iPlotWeight > 0)
 				{
@@ -7675,6 +7686,12 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlo
 	int iScoreCityOwned = 0;
 	int iScoreCityPotential = 0;
 	int iScorePlayer = 0;
+
+	// special handing for civs that start with a pantheon: randomly choose between beliefs with flag AI_GoodStartingPantheon set in database
+	if (GET_PLAYER(m_pPlayer->GetID()).GetPlayerTraits()->StartsWithPantheon())
+	{
+		return pEntry->IsAIGoodStartingPantheon() ? 1000 : 1;
+	}
 
 	int iNumUnownedLandTilesToExpand = 0;
 
@@ -7932,6 +7949,51 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 				if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 				{
 					iFeatureRemoveInFutureLikelihood -= 20;
+				}
+				else if (bConsiderFutureTech)
+				{
+					// can we build a unique improvement here in the future?
+					ImprovementTypes eUniqueImprovement = NO_IMPROVEMENT;
+					bool bRemoveFeatureForUI = false;
+					int iNumImprovementInfos = GC.getNumImprovementInfos();
+					for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
+					{
+						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
+						if (pkImprovementInfo && pkImprovementInfo->IsSpecificCivRequired())
+						{
+							CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
+							if (eRequiredCiv == m_pPlayer->getCivilizationType())
+							{
+								if (pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID(), false))
+								{
+									eUniqueImprovement = (ImprovementTypes)jJ;
+									break;
+									
+								}
+							}
+						}
+					}
+					if (eUniqueImprovement != NO_IMPROVEMENT)
+					{
+						for (int iK2 = 0; iK2 < GC.getNumBuildInfos(); ++iK2)
+						{
+							CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iK2);
+							if (!pkBuildInfo)
+							{
+								continue;
+							}
+
+							if ((ImprovementTypes)(pkBuildInfo->getImprovement()) == eUniqueImprovement)
+							{
+								bRemoveFeatureForUI = pkBuildInfo->isFeatureRemove(eFeature);
+								break;
+							}
+						}
+					}
+					if (bRemoveFeatureForUI)
+					{
+						iFeatureRemoveInFutureLikelihood += 50;
+					}
 				}
 			}
 		}
@@ -8229,7 +8291,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 	iExpectedGrowth /= 100;
 
 
-	int iGPValue = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
+	int iGPValue = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE")) / 4;
 	if (pPlayerTraits->IsTourism() || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(eTradition))
 	{
 		iGPValue *= 3;
@@ -8444,19 +8506,19 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 				{
 					iAvailabilityModifier = 10;
 				}
-				// if not, current population gives us an indicator how long it'll take to get one
+				// if not, current population gives us an idea how long it'll take to get one
 				else if (pCity->GetCityCitizens()->GetSpecialistSlotsTotal() > 0)
 				{
 					iAvailabilityModifier = max(4, min(10, iCurrentCityPop));
 				}
 				else
 				{
-					iAvailabilityModifier = min(2, min(7, iCurrentCityPop));
+					iAvailabilityModifier = min(3, iCurrentCityPop);
 				}
 			}
 			else
 			{
-				iAvailabilityModifier = 2;
+				iAvailabilityModifier = 1;
 			}
 			iTempValue += iAvailabilityModifier * pEntry->GetYieldChangeAnySpecialist(iI);
 		}
@@ -8535,6 +8597,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 				if (eBuilding == NO_BUILDING)
 					continue;
 
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pCity && pCity->GetCityBuildings()->HasBuildingClass((BuildingClassTypes)jJ))
 				{
 					iAvailabilityModifier = 10;
@@ -8543,9 +8606,8 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 				{
 					iAvailabilityModifier = 8;
 				}
-				else
+				else 
 				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if ((pkBuildingInfo->IsCapital() || pkBuildingInfo->IsCapitalOnly()) && !bIsCapital)
 					{
 						iAvailabilityModifier = 0;
@@ -8579,6 +8641,11 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 						}
 					}
 				}
+				// unique building, assume we focus on getting it quickly
+				if (m_pPlayer->getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
+				{
+					iAvailabilityModifier = min(10, iAvailabilityModifier + 3);
+				}
 				iTempValue += iAvailabilityModifier * pEntry->GetBuildingClassYieldChange(jJ, iI);
 			}
 		}
@@ -8600,7 +8667,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 		{
 			if (bIsCapital)
 			{
-				iTempValue += pEntry->GetYieldPerWorldWonderConstruction(iI) / 5;
+				iTempValue += pEntry->GetYieldPerWorldWonderConstruction(iI) / 50;
 			}
 		}
 
@@ -8611,7 +8678,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 	{
 		if (iCurrentCityPop < pEntry->GetMinPopulation())
 		{
-			iRtnValue *= (100 - 15 * (pEntry->GetMinPopulation() - iCurrentCityPop));
+			iRtnValue *= (100 - 10 * (pEntry->GetMinPopulation() - iCurrentCityPop));
 			iRtnValue /= 100;
 		}
 	}
@@ -10592,6 +10659,8 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 			iTemp = iFlavorWonder * pEntry->GetYieldChangeWorldWonder(iI) * (bIsTall ? 2 : 1);
 			iTemp *= (100 + 3 * pPlayerTraits->GetWonderProductionModifier() + pPlayerTraits->GetWonderProductionModGA());
 			iTemp /= 100;
+			// add bonus for existing wonders
+			iTemp += 10 * m_pPlayer->GetNumWonders();
 			iRtnValue += iTemp * ScoreYieldForReligionTimes100((YieldTypes)iI) / 100;
 		}
 	}
@@ -10642,7 +10711,8 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 		{
 			if (pEntry->GetYieldPerActiveTR(YieldTypes(iI)) > 0)
 			{
-				iTemp = 2 * min(3, max(0, iNumNeighbors - iNumWarmongerNeighbors)) * pEntry->GetYieldPerActiveTR(YieldTypes(iI)) * ScoreYieldForReligionTimes100(YieldTypes(iI)) / 100;
+				// this bonus is good also if we don't have any neighbors, as internal TRs give bonuses too (and even in two cities at once). it's only bad if we're surrounded by warmongers as they might plunder our TRs
+				iTemp = 2 * max(0, 2 - iNumWarmongerNeighbors) * pEntry->GetYieldPerActiveTR(YieldTypes(iI)) * ScoreYieldForReligionTimes100(YieldTypes(iI)) / 100;
 				if (bIsTall || pPlayerTraits->IsDiplomat())
 				{
 					iTemp *= 3;
