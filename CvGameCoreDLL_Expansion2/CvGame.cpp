@@ -3751,21 +3751,12 @@ void CvGame::doControl(ControlTypes eControl)
 					if (eReturnPlayer != NO_PLAYER)
 					{
 						setAIAutoPlay(0, eReturnPlayer);
-
-						// Reset observer slot
-						CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
-						CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
-
-						CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
-						CvPreGame::VerifyHandicap(eReturnPlayer, true);
-						GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
-						GET_PLAYER(eReturnPlayer).GetDiplomacyAI()->SlotStateChange();
 					}
 				}
 				else
 				{
 					// enter observer mode
-					setAIAutoPlay(getMaxTurns(), eActivePlayer);
+					setAIAutoPlay(GD_INT_GET(MAX_TURNS_OBSERVER_MODE) > 0 ? GD_INT_GET(MAX_TURNS_OBSERVER_MODE) : INT_MAX, eActivePlayer);
 				}
 			}
 		}
@@ -3780,7 +3771,7 @@ void CvGame::doControl(ControlTypes eControl)
 			{
 				// if we're not in observer mode, we set ObserverUIOverridePlayer to the active player and enter observer mode
 				setObserverUIOverridePlayer(GC.getGame().getActivePlayer());
-				setAIAutoPlay(getMaxTurns(), GC.getGame().getActivePlayer());
+				setAIAutoPlay(GD_INT_GET(MAX_TURNS_OBSERVER_MODE) > 0 ? GD_INT_GET(MAX_TURNS_OBSERVER_MODE) : INT_MAX, GC.getGame().getActivePlayer());
 			}
 			else
 			{				
@@ -3790,15 +3781,6 @@ void CvGame::doControl(ControlTypes eControl)
 					PlayerTypes eReturnPlayer = getObserverUIOverridePlayer();
 					setAIAutoPlay(0, eReturnPlayer);
 					setObserverUIOverridePlayer(NO_PLAYER);
-
-					// Reset observer slot
-					CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
-					CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
-
-					CvPreGame::setSlotStatus(eReturnPlayer, SS_TAKEN);
-					CvPreGame::VerifyHandicap(eReturnPlayer);
-					GC.getGame().setActivePlayer(eReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
-					GET_PLAYER(eReturnPlayer).GetDiplomacyAI()->SlotStateChange();
 				}
 			}
 		}
@@ -4582,25 +4564,6 @@ void CvGame::ReviveActivePlayer()
 	if(!(GET_PLAYER(getActivePlayer()).isAlive()))
 	{
 		setAIAutoPlay(0, m_eAIAutoPlayReturnPlayer);
-
-		// If no player specified, returning as an observer
-		if(m_eAIAutoPlayReturnPlayer == NO_PLAYER || !GET_PLAYER(m_eAIAutoPlayReturnPlayer).isAlive())
-		{
-			CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_ASSIGNED);
-			CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
-		}
-
-		// Want to return as a specific player
-		else
-		{
-			// Reset observer slot
-			CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
-			CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
-
-			// Move the active player to the desired slot
-			CvPreGame::setSlotStatus(m_eAIAutoPlayReturnPlayer, SS_TAKEN);
-			setActivePlayer(m_eAIAutoPlayReturnPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
-		}
 	}
 }
 
@@ -5410,6 +5373,34 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 
 			CvPreGame::setSlotClaim((PlayerTypes)iObserver, SLOTCLAIM_ASSIGNED);
 			setActivePlayer((PlayerTypes)iObserver, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+		}
+		else if (iOldValue > 0 && getAIAutoPlay() == 0)
+		{
+			// If no player specified, returning as an observer
+			if (eReturnAsPlayer == NO_PLAYER || !GET_PLAYER(eReturnAsPlayer).isAlive())
+			{
+				CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_ASSIGNED);
+				CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+			}
+
+			// Want to return as a specific player
+			else
+			{
+				// Reset observer slot
+				CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
+				CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+
+
+				// Reset observer slot
+				CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
+				CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
+
+				// Move the active player to the desired slot
+				CvPreGame::setSlotStatus(eReturnAsPlayer, SS_TAKEN);
+				CvPreGame::VerifyHandicap(eReturnAsPlayer, true);
+				setActivePlayer(eReturnAsPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+				GET_PLAYER(eReturnAsPlayer).GetDiplomacyAI()->SlotStateChange();
+			}
 		}
 	}
 }
@@ -7646,15 +7637,20 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MULTIPLAYER);
 				}
-			}
 
-			if ((getAIAutoPlay() > 0) || gDLL->GetAutorun())
-			{
-				setGameState(GAMESTATE_EXTENDED);
-			}
-			else
-			{
-				setGameState(GAMESTATE_OVER);
+				if (getAIAutoPlay() > 0)
+				{
+					setAIAutoPlay(0, kWinningTeamLeader.GetID());
+					setGameState(GAMESTATE_EXTENDED);
+				}
+				else if (gDLL->GetAutorun())
+				{
+					setGameState(GAMESTATE_EXTENDED);
+				}
+				else
+				{
+					setGameState(GAMESTATE_OVER);
+				}
 			}
 		}
 
