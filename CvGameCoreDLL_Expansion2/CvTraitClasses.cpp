@@ -3888,7 +3888,11 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetBullyYieldMultiplierAnnex() > 0 ||
 		(GetPuppetPenaltyReduction() > 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"))) > 0 ||
-		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))) > 0)
+		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))) > 0 ||
+		GetGreatPersonGWAM(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"))) > 0 ||
+		GetGreatPersonGWAM(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))) > 0 ||
+		IsTechFromCityConquer())
+
 	{
 		m_bIsWarmonger = true;
 		return;
@@ -3938,8 +3942,12 @@ void CvPlayerTraits::SetIsWarmonger()
 		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
 		{
 			UnitCombatTypes eUClass = (UnitCombatTypes)iNumUnits;
+			if (eUClass == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+				continue;
+
 			if (HasFreePromotionUnitCombat((PromotionTypes)iNumPromos, eUClass))
 			{
+
 				m_bIsWarmonger = true;
 				return;
 			}
