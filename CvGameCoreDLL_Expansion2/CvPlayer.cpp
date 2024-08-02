@@ -16009,7 +16009,7 @@ bool CvPlayer::IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature,
 		return false;
 	}
 
-	if (bTestEra && ((GetCurrentEra() + 1) >= GC.getTechInfo((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
+	if (bTestEra && (TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH && ((GetCurrentEra() + 1) >= GC.getTechInfo((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
 	{
 		return false;
 	}
