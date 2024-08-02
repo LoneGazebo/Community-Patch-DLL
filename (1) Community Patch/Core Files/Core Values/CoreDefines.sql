@@ -920,6 +920,8 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_
 -- FOR JFD
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', 0.0;
 
+-- if set to a positive value, observer mode will stop automatically after MAX_TURNS_OBSERVER_MODE turns
+INSERT INTO Defines (Name, Value) SELECT 'MAX_TURNS_OBSERVER_MODE', 0;
 
 -- VP Defines
 -- Disable Gold Gifts
