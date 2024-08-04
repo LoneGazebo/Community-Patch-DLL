@@ -461,6 +461,9 @@ ALTER TABLE Improvements ADD COLUMN 'RestoreMoves' boolean DEFAULT 0;
 -- Improvement requires fresh water, coast, or river adjacency to make valid.
 ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 
+-- Improvement connects all resources
+ALTER TABLE Improvements ADD COLUMN 'ConnectsAllResources' BOOLEAN DEFAULT 0;
+
 -- Table for Civilopedia Game Concepts to add more in boxes...
 ALTER TABLE Concepts ADD COLUMN 'Extended' TEXT DEFAULT NULL;
 ALTER TABLE Concepts ADD COLUMN 'DesignNotes' TEXT DEFAULT NULL;

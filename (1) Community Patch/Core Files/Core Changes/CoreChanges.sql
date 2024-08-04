@@ -58,6 +58,11 @@ UPDATE ArtDefine_Landmarks
 SET Scale = 0.8
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 
+-- All GP improvements connect all resources
+UPDATE Improvements
+SET ConnectsAllResources = 1
+WHERE CreatedByGreatPerson = 1;
+
 -- Bad goodies are never triggered even in BNW, so we can remove this ability to reduce clutter
 UPDATE Units SET NoBadGoodies = 0;
 

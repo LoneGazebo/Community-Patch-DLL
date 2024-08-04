@@ -58,6 +58,7 @@ UPDATE Improvements
 SET
 	Cityside = 1, -- Makes valid
 	BuildableOnResources = 1,
+	ConnectsAllResources = 1,
 	DefenseModifier = 30,
 	NearbyEnemyDamage = 5
 WHERE Type = 'IMPROVEMENT_KASBAH';

@@ -61,6 +61,7 @@ SET
 	BuildableOnResources = 1,
 	NoTwoAdjacent = 1,
 	CreatedByGreatPerson = 1,
+	ConnectsAllResources = 1,
 	CultureBombRadius = 1,
 	MakesPassable = 1,
 	RestoreMoves = 1,
