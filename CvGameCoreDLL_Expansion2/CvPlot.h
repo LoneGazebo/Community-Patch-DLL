@@ -626,6 +626,10 @@ public:
 	void updateRiverCrossing(DirectionTypes eIndex);
 	void updateRiverCrossing();
 
+	CvPlot* GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const;
+	void SetSpawnedResourcePlot(const CvPlot* pPlot);
+	CvPlot* GetSpawnedResourcePlot() const;
+
 	bool isRevealed(TeamTypes eTeam, bool bDebug) const
 	{
 		if(bDebug && GC.getGame().isDebugMode())
@@ -913,6 +917,9 @@ protected:
 	char /*PlotTypes*/    m_ePlotType;
 	char /*TerrainTypes*/ m_eTerrainType;
 	bool m_bIsCity;
+
+	short m_sSpawnedResourceX;
+	short m_sSpawnedResourceY;
 
 	PlotBoolField m_bfRevealed;
 

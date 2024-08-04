@@ -226,6 +226,8 @@ public:
 	bool IsImprovementResourceTrade(int i) const;
 	bool IsConnectsResource(int i) const;
 
+	ResourceTypes SpawnsAdjacentResource() const;
+
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
 
@@ -368,6 +370,8 @@ protected:
 	int** m_ppiRouteYieldChanges;
 
 	CvImprovementResourceInfo* m_paImprovementResource;
+
+	ResourceTypes m_eSpawnsAdjacentResource;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
