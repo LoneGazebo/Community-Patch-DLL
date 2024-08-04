@@ -152,6 +152,8 @@ public:
 	bool IsShortcutRoutePlot(const CvPlot* pPlot) const;
 	bool IsStrategicRoutePlot(const CvPlot* pPlot) const;
 
+	int GetResourceSpawnWorkableChance(CvPlot* pPlot, bool& bTileClaim);
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
