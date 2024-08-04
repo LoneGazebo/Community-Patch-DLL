@@ -1104,6 +1104,9 @@ ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
 -- Improvements can be made valid by being adjacent to a city
 ALTER TABLE Improvements ADD COLUMN 'Cityside' BOOLEAN DEFAULT 0;
 
+-- Improvements cannot be built adjacent to a city
+ALTER TABLE Improvements ADD COLUMN 'NoCityside' BOOLEAN DEFAULT 0;
+
 -- Improvements can be made valid by being adjacent to X of the same improvement
 ALTER TABLE Improvements ADD COLUMN 'XSameAdjacentMakesValid' INTEGER DEFAULT 0;
 
@@ -1112,6 +1115,9 @@ ALTER TABLE Improvements ADD COLUMN 'CoastMakesValid' BOOLEAN DEFAULT 0;
 
 -- Improvements can generate vision for builder x tiles away (radially)
 ALTER TABLE Improvements ADD COLUMN 'GrantsVisionXTiles' INTEGER DEFAULT 0;
+
+-- Improvement spawns a resource in an adjacent tile on completion
+ALTER TABLE Improvements ADD COLUMN 'SpawnsAdjacentResource' TEXT DEFAULT NULL;
 
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;

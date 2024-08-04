@@ -152,6 +152,8 @@ public:
 	bool IsShortcutRoutePlot(const CvPlot* pPlot) const;
 	bool IsStrategicRoutePlot(const CvPlot* pPlot) const;
 
+	CvPlot* GetResourceSpawnPlotWithState(CvPlot* pPlot, ResourceTypes eResource, const SBuilderState& sState) const;
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
