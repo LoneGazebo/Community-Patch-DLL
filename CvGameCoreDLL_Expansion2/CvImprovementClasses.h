@@ -152,6 +152,7 @@ public:
 	bool IsAllowsWalkWater() const;
 	bool IsCreatedByGreatPerson() const;
 	bool IsSpecificCivRequired() const;
+	bool ConnectsAllResources() const;
 
 	CivilizationTypes GetRequiredCivilization() const;
 
@@ -325,6 +326,7 @@ protected:
 	bool m_bAllowsWalkWater;
 	bool m_bCreatedByGreatPerson;
 	bool m_bSpecificCivRequired;
+	bool m_bConnectsAllResources;
 
 	CvString m_strArtDefineTag;
 	ImprovementUsageTypes m_eImprovementUsageType;
