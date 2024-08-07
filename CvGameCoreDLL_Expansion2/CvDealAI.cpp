@@ -1050,19 +1050,16 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			{
 				// AI-AI peace
 				PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eOtherPlayer);
-				PeaceTreatyTypes ePeaceTreatyTheyreWillingToOffer = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetTreatyWillingToAccept(eMyPlayer);
-				if (ePeaceTreatyImWillingToOffer > PEACE_TREATY_WHITE_PEACE && ePeaceTreatyTheyreWillingToOffer > PEACE_TREATY_WHITE_PEACE)
-				{
-					if (ePeaceTreatyImWillingToOffer > ePeaceTreatyTheyreWillingToOffer)
-						eWinner = eOtherPlayer;
-					else if (ePeaceTreatyImWillingToOffer < ePeaceTreatyTheyreWillingToOffer)
-						eWinner = eMyPlayer;
-				}
+				PeaceTreatyTypes ePeaceTreatyTheyreWillingToOffer = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetTreatyWillingToOffer(eMyPlayer);
+				if (ePeaceTreatyImWillingToOffer > ePeaceTreatyTheyreWillingToOffer && ePeaceTreatyImWillingToOffer > PEACE_TREATY_WHITE_PEACE)
+					eWinner = eOtherPlayer;
+				else if (ePeaceTreatyImWillingToOffer < ePeaceTreatyTheyreWillingToOffer && ePeaceTreatyTheyreWillingToOffer > PEACE_TREATY_WHITE_PEACE)
+					eWinner = eMyPlayer;
 			}
 		}
 		if (eWinner != NO_PLAYER)
 		{
-			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
 			// resources which the winner evaluates as 0 must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
 			if (iItemValue == 0 && eItem == TRADE_ITEM_RESOURCES)
 			{
