@@ -526,7 +526,7 @@ SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Unique Indian {TXT_KEY_DESC_CUIRASSIER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Trades 1 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE}[ENDCOLOR] for immense [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength. Lowers the [ICON_STRENGTH] Combat Strength of nearby enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ACCURACY_1}[ENDCOLOR].'
+SET Text = 'Unique Indian {TXT_KEY_DESC_CUIRASSIER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Trades 2 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE}[ENDCOLOR] for immense [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength. Lowers the [ICON_STRENGTH] Combat Strength of nearby enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ACCURACY_1}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT';
 
 UPDATE Language_en_US
