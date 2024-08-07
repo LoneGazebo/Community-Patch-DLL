@@ -15737,7 +15737,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	{
 		for (int iI = RING_PLOTS[iRingID - 1]; iI < RING_PLOTS[iRingID]; iI++)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentPlot = iterateRingPlots(getX(), getY(), iI);
 
 			if (pAdjacentPlot == NULL)
 				continue;
