@@ -687,6 +687,20 @@ SET MilitaryRatingDecayPercent = 20 WHERE Type = 'GAMESPEED_STANDARD';
 UPDATE Gamespeeds
 SET MilitaryRatingDecayPercent = 30 WHERE Type = 'GAMESPEED_QUICK';
 
+
+-- Unhardcode GPTIs connecting all resources, but still make it do so by default
+UPDATE Improvements SET ConnectsAllResources = 1 WHERE CreatedByGreatPerson = 1;
+
+CREATE TRIGGER Improvements_GPTIConnectsResources
+AFTER INSERT ON Improvements
+WHERE EXISTS ( SELECT Type FROM Improvements WHERE Type = NEW.Type )
+BEGIN
+
+UPDATE Improvements SET ConnectsAllResources = 1 WHERE Type = NEW.Type AND CreatedByGreatPerson = 1;
+
+END;
+
+
 -- IF the Vox Populi mod is enabled, this code will override all custom civs' non-diplomacy flavors (if they're loaded afterwards)!
 -- To use the non-diplomacy flavors (Expansion, Offense, Religion, etc.) specified by the custom civ's XML instead, comment it out.
 CREATE TRIGGER Leaders_Personality

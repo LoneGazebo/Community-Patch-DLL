@@ -1623,11 +1623,7 @@ bool CvImprovementEntry::IsConnectsResource(int i) const
 	else
 		return false;
 
-	if (IsCreatedByGreatPerson() || ConnectsAllResources())
-		return true;
-
-	return false;
-
+	return ConnectsAllResources();
 }
 
 /// the chance of the specified Resource appearing randomly when the Improvement is present with no current Resource

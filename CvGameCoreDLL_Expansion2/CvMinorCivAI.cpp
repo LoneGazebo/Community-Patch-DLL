@@ -17746,8 +17746,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		if (pImprovementInfo != NULL)
 		{
 			// Existing improvement that connects the resource? If it's pillaged, we can repair it. Otherwise, we can't improve this tile.
-			// todo: remove yucky hardcoding of GPTIs connecting resources
-			if (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson())
+			if (pImprovementInfo->IsConnectsResource(eResource))
 				return pPlot->IsImprovementPillaged();
 			else if (pImprovementInfo->IsPermanent())
 				return false;
@@ -17796,7 +17795,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	ImprovementTypes eCurrentImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eCurrentImprovement);
-	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson()))
+	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource))
 	{
 		// If we got here, IsLackingGiftableTileImprovementAtPlot() has verified that there is an existing improvement which connects the resource on the tile, and it's pillaged.
 		// So unpillage it instead of building something new. Calling setImprovementType() will unpillage it.
