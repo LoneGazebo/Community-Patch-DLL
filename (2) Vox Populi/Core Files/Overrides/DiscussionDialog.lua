@@ -428,6 +428,11 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--  DECLARE WAR (THIRD PARTY) --
 				--------------------------------
 				strButton10Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
+				if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
+					strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_NO_TARGET_TT" );
+				else
+					strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_NOT_FRIENDS_TT" );
+				end
 				Controls.Button10:SetDisabled(true);
 
 				--------------------
@@ -440,11 +445,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
 					-- War button: Button 10
-					if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
-						if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
-							strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
-							Controls.Button10:SetDisabled(false);
-						end
+					if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
+						strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
+						Controls.Button10:SetDisabled(false);
 					end
 
 					-- Share Opinion button: Button 11
@@ -1631,10 +1634,9 @@ function OnCloseLeaderPanelButton()
 	-- Buttons 10 and 11 are a special case - only enabled if valid
 	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
-		if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
-			if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
-				Controls.Button10:SetDisabled(false);
-			end
+		-- War button: Button 10
+		if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
+			Controls.Button10:SetDisabled(false);
 		end
 
 		-- Share Opinion button: Button 11
