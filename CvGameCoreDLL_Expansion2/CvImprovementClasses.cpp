@@ -153,6 +153,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAllowsWalkWater(false),
 	m_bCreatedByGreatPerson(false),
 	m_bSpecificCivRequired(false),
+	m_bConnectsAllResources(false),
 	m_eImprovementUsageType(IMPROVEMENTUSAGE_BASIC),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_iWorldSoundscapeScriptId(0),
@@ -347,6 +348,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bAllowsWalkWater = kResults.GetBool("AllowsWalkWater");
 	m_bCreatedByGreatPerson = kResults.GetBool("CreatedByGreatPerson");
 	m_bSpecificCivRequired = kResults.GetBool("SpecificCivRequired");
+	m_bConnectsAllResources = kResults.GetBool("ConnectsAllResources");
 	m_iResourceExtractionMod = kResults.GetInt("ResourceExtractionMod");
 	m_iLuxuryCopiesSiphonedFromMinor = kResults.GetInt("LuxuryCopiesSiphonedFromMinor");
 	m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
@@ -1220,6 +1222,11 @@ bool CvImprovementEntry::IsSpecificCivRequired() const
 	return m_bSpecificCivRequired;
 }
 
+bool CvImprovementEntry::ConnectsAllResources() const
+{
+	return m_bConnectsAllResources;
+}
+
 CivilizationTypes CvImprovementEntry::GetRequiredCivilization() const
 {
 	return m_eRequiredCivilization;
@@ -1616,11 +1623,8 @@ bool CvImprovementEntry::IsConnectsResource(int i) const
 	else
 		return false;
 
-	if (MOD_BALANCE_CORE)
-	{
-		if (IsCreatedByGreatPerson() || IsAdjacentCity())
-			return true;
-	}
+	if (IsCreatedByGreatPerson() || ConnectsAllResources())
+		return true;
 
 	return false;
 
