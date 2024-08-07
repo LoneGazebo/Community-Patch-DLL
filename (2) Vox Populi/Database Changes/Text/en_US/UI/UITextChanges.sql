@@ -761,11 +761,11 @@ SET Text = 'When constructed, a Landmark generates +3 Empire-Wide [ICON_HAPPINES
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_RESULT';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another Civilization''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and give you a permanent diplomatic boost with that nation.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another Civilization''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and give a temporary diplomatic boost with that nation.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MAJOR_CIV';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a City-State''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and will give you a large, one-time influence boost with that city state.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a City-State''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for you, and will give you 10 resting [ICON_INFLUENCE] Influence with that City-State, scaling with Era.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MINOR_CIV';
 
 UPDATE Language_en_US
