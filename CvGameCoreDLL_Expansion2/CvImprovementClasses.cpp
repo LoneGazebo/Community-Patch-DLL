@@ -143,6 +143,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGetObsoleteTech(NO_TECH),
 	m_bAdjacentLake(false),
 	m_bAdjacentCity(false),
+	m_bNoAdjacentCity(false),
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
 	m_bRestoreMoves(false),
@@ -184,7 +185,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
 	m_ppiRouteYieldChanges(NULL),
-	m_paImprovementResource(NULL)
+	m_paImprovementResource(NULL),
+	m_eSpawnsAdjacentResource(NO_RESOURCE)
 {
 }
 
@@ -330,6 +332,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iGetObsoleteTech = GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bAdjacentLake = kResults.GetBool("Lakeside");
 	m_bAdjacentCity = kResults.GetBool("Cityside");
+	m_bNoAdjacentCity = kResults.GetBool("NoCityside");
 	m_iGrantsVision = kResults.GetInt("GrantsVisionXTiles");
 	m_iUnitPlotExperience = kResults.GetInt("UnitPlotExperience");
 	m_iGAUnitPlotExperience = kResults.GetInt("GAUnitPlotExperience");
@@ -385,6 +388,9 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const char* szImprovementUpgrade = kResults.GetText("ImprovementUpgrade");
 	m_iImprovementUpgrade = GC.getInfoTypeForString(szImprovementUpgrade, true);
+
+	const char* szSpawnsAdjacentResource = kResults.GetText("SpawnsAdjacentResource");
+	m_eSpawnsAdjacentResource = (ResourceTypes)GC.getInfoTypeForString(szSpawnsAdjacentResource, true);
 
 	//Arrays
 	const char* szImprovementType = GetType();
@@ -1178,6 +1184,10 @@ bool CvImprovementEntry::IsAdjacentCity() const
 {
 	return m_bAdjacentCity;
 }
+bool CvImprovementEntry::IsNoAdjacentCity() const
+{
+	return m_bNoAdjacentCity;
+}
 int CvImprovementEntry::GetGrantsVision() const
 {
 	return m_iGrantsVision;
@@ -1624,6 +1634,12 @@ bool CvImprovementEntry::IsConnectsResource(int i) const
 		return false;
 
 	return ConnectsAllResources();
+}
+
+// Spawns a resource in one of the available adjacent tiles (if possible)
+ResourceTypes CvImprovementEntry::SpawnsAdjacentResource() const
+{
+	return m_eSpawnsAdjacentResource;
 }
 
 /// the chance of the specified Resource appearing randomly when the Improvement is present with no current Resource

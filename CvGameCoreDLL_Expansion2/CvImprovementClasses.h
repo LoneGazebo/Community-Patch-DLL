@@ -144,6 +144,7 @@ public:
 	int GetObsoleteTech() const;
 	bool IsAdjacentLake() const;
 	bool IsAdjacentCity() const;
+	bool IsNoAdjacentCity() const;
 	int GetGrantsVision() const;
 #endif
 	bool IsNoTwoAdjacent() const;
@@ -225,6 +226,8 @@ public:
 	bool IsImprovementResourceMakesValid(int i) const;
 	bool IsImprovementResourceTrade(int i) const;
 	bool IsConnectsResource(int i) const;
+
+	ResourceTypes SpawnsAdjacentResource() const;
 
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
@@ -318,6 +321,7 @@ protected:
 	int m_iGetObsoleteTech;
 	bool m_bAdjacentLake;
 	bool m_bAdjacentCity;
+	bool m_bNoAdjacentCity;
 	int m_iGrantsVision;
 #endif
 	bool m_bNoTwoAdjacent;
@@ -368,6 +372,8 @@ protected:
 	int** m_ppiRouteYieldChanges;
 
 	CvImprovementResourceInfo* m_paImprovementResource;
+
+	ResourceTypes m_eSpawnsAdjacentResource;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

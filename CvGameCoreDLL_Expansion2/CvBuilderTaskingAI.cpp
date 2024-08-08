@@ -2710,7 +2710,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 	const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 
-	const ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
+	map<int, ResourceTypes>::const_iterator modifiedResourceIt = sState.mChangedPlotResources.find(pPlot->GetPlotIndex());
+	const ResourceTypes eResource = modifiedResourceIt != sState.mChangedPlotResources.end() ? modifiedResourceIt->second : pPlot->getResourceType(m_pPlayer->getTeam());
 	const FeatureTypes eFeature = pPlot->getFeatureType();
 
 	//Some base value.
@@ -3181,6 +3182,9 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				int iPotentialBonusToThisTileTimes100 = 0;
 				int iPotentialBonusToAdjacentTilesTimes100 = 0;
 
+				ResourceTypes eSpawnedResource = pkImprovementInfo->SpawnsAdjacentResource();
+				CvPlot* pSpawnPlot = eSpawnedResource != NO_RESOURCE ? (eBuild != NO_BUILD ? GetResourceSpawnPlotWithState(pPlot, eSpawnedResource, sState) : pPlot->GetSpawnedResourcePlot()) : NULL;
+
 				CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
@@ -3214,7 +3218,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					if (pAdjacentPlot->getOwner() != m_pPlayer->GetID() && (!pAdjacentPlot->isPlayerCityRadius(m_pPlayer->GetID()) || pAdjacentPlot->getOwner() != NO_PLAYER))
 						continue;
 
-					ResourceTypes eAdjacentResource = pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
+					map<int, ResourceTypes>::const_iterator changedResourceIt = sState.mChangedPlotResources.find(pAdjacentPlot->GetPlotIndex());
+					bool bResourceChanged = changedResourceIt != sState.mChangedPlotResources.end();
+
+					ResourceTypes eAdjacentResource = bResourceChanged ? changedResourceIt->second : pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
 					CvResourceInfo* pkAdjacentResourceInfo = GC.getResourceInfo(eAdjacentResource);
 					bool bIsBonusResource = pkAdjacentResourceInfo && pkAdjacentResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS;
 
@@ -3223,7 +3230,12 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 					if (iOneAdjacentBonus > 0 || iTwoAdjacentBonus > 0)
 					{
-						if (pAdjacentPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID()) && (eAdjacentResource == NO_RESOURCE || bIsBonusResource || pkImprovementInfo->IsConnectsResource(eAdjacentResource)))
+						bool bCanHaveImprovement;
+						if (pSpawnPlot != pAdjacentPlot)
+							bCanHaveImprovement = pAdjacentPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID()) && (eAdjacentResource == NO_RESOURCE || (bIsBonusResource && pkImprovementInfo->IsBuildableOnResources()) || pkImprovementInfo->IsConnectsResource(eAdjacentResource));
+						else
+							bCanHaveImprovement = pkImprovementInfo->IsConnectsResource(eSpawnedResource) || (bIsBonusResource && pkImprovementInfo->IsBuildableOnResources());
+						if (bCanHaveImprovement)
 						{
 							iBestBonusToAdjacentTile = max(iOneAdjacentBonus, iTwoAdjacentBonus);
 							iBestBonusToThisTile = max(iOneAdjacentBonus, iTwoAdjacentBonus);
@@ -3232,12 +3244,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 					for (vector<pair<ImprovementTypes, pair<int, int>>>::const_iterator it = improvementYieldBuffs.begin(); it != improvementYieldBuffs.end(); ++it)
 					{
-						if (!pAdjacentPlot->canHaveImprovement(it->first, m_pPlayer->GetID()))
-							continue;
-
 						CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(it->first);
 
-						if (eAdjacentResource != NO_RESOURCE && !bIsBonusResource && !pkOtherImprovementInfo->IsConnectsResource(eAdjacentResource))
+						bool bCanHaveImprovement;
+						if (pSpawnPlot != pAdjacentPlot)
+							bCanHaveImprovement = pAdjacentPlot->canHaveImprovement(it->first, m_pPlayer->GetID()) && (eAdjacentResource == NO_RESOURCE || (bIsBonusResource && pkOtherImprovementInfo->IsBuildableOnResources()) || pkOtherImprovementInfo->IsConnectsResource(eAdjacentResource));
+						else
+							bCanHaveImprovement = pkOtherImprovementInfo->IsConnectsResource(eSpawnedResource) || (bIsBonusResource && pkOtherImprovementInfo->IsBuildableOnResources());
+						if (!bCanHaveImprovement)
 							continue;
 
 						int iBonusToAdjacentTile = it->second.first;
@@ -3572,7 +3586,76 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	const int iImprovementMaintenanceTimes100 = pkImprovementInfo ? pkImprovementInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) : 0;
 	iSecondaryScore -= iImprovementMaintenanceTimes100;
 
+	ResourceTypes eSpawnedResource = pkImprovementInfo ? pkImprovementInfo->SpawnsAdjacentResource() : NO_RESOURCE;
+
+	if (eSpawnedResource != NO_RESOURCE)
+	{
+		CvPlot* pSpawnPlot = eBuild != NO_BUILD ? GetResourceSpawnPlotWithState(pPlot, eSpawnedResource, sState) : pPlot->GetSpawnedResourcePlot();
+
+		if (pSpawnPlot)
+		{
+			// TODO luxury and strategic resources?
+			iSecondaryScore += 100;
+
+
+			if (pSpawnPlot->isPlayerCityRadius(m_pPlayer->GetID()))
+			{
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes)iI;
+
+					if (eYield > YIELD_CULTURE_LOCAL)
+						break;
+
+					int iYieldChange = GC.getResourceInfo(eSpawnedResource)->getYieldChange(eYield);
+
+					if (iYieldChange != 0)
+					{
+						int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+						int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+						iYieldScore += (iYieldChange * iYieldModifier * iCityYieldModifier) / 100;
+					}
+				}
+			}
+		}
+	}
+
 	return make_pair(iYieldScore + iSecondaryScore, iPotentialScore);
+}
+
+CvPlot* CvBuilderTaskingAI::GetResourceSpawnPlotWithState(CvPlot* pPlot, ResourceTypes eResource, const SBuilderState& sState) const
+{
+	vector<OptionWithScore<CvPlot*>> sortedPlots;
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+		if (!pAdjacentPlot)
+			continue;
+
+		map<int, ResourceTypes>::const_iterator changedResourceIt = sState.mChangedPlotResources.find(pAdjacentPlot->GetPlotIndex());
+		bool bResourceChanged = changedResourceIt != sState.mChangedPlotResources.end();
+
+		const ResourceTypes eAdjacentResource = bResourceChanged ? changedResourceIt->second : pAdjacentPlot->getResourceType();
+
+		if (eAdjacentResource != NO_RESOURCE)
+			continue;
+
+		if (!pAdjacentPlot->canHaveResource(eResource, true, false, m_pPlayer->GetID()))
+			continue;
+
+		CvCity* pClosestCity = m_pPlayer->GetClosestCityByPlots(pAdjacentPlot);
+		int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+		sortedPlots.push_back(OptionWithScore<CvPlot*>(pAdjacentPlot, -iDistance));
+	}
+
+	if (!sortedPlots.empty())
+	{
+		std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+		return sortedPlots[0].option;
+	}
+
+	return NULL;
 }
 
 BuildTypes CvBuilderTaskingAI::GetRepairBuild(void)

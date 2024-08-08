@@ -3075,6 +3075,19 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 
+			// Adjacent resource spawns
+			CvPlot* pResourceSpawnPlot = NULL;
+			const ResourceTypes eAdjacentResourceFromImprovement = pkImprovementInfo ? pkImprovementInfo->SpawnsAdjacentResource() : NO_RESOURCE;
+
+			if (eAdjacentResourceFromImprovement != NO_RESOURCE)
+			{
+				pResourceSpawnPlot = pBuilderTaskingAI->GetResourceSpawnPlotWithState(pDirectivePlot, eAdjacentResourceFromImprovement, sState);
+				if (pResourceSpawnPlot)
+				{
+					sState.mChangedPlotResources[pResourceSpawnPlot->GetPlotIndex()] = eAdjacentResourceFromImprovement;
+				}
+			}
+
 			for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aDistanceWeightedDirectives.begin(); it != aDistanceWeightedDirectives.end(); ++it)
 			{
 				OptionWithScore<pair<CvUnit*, BuilderDirective>> eOtherDirectiveWithScore = *it;
@@ -3116,7 +3129,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							// If we are planning to build something else here in the future, downscale the priority of this by 1/3
 							eOtherDirective.m_iScore = iScore;
 							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-							eOtherDirective.m_iScorePenalty += iScore / 3;
+							eOtherDirective.m_iScorePenalty += (iScore + iPotentialScore) / 3;
 							if (eOtherDirective.m_iScorePenalty >= eOtherDirective.m_iScore + eOtherDirective.m_iPotentialBonusScore)
 								continue;
 							bDirectiveUpdated = true;
@@ -3129,6 +3142,35 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (eOtherDirective.m_eBuild == eDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
 						continue;
+					}
+				}
+
+				// more pruning
+				if (pResourceSpawnPlot && eOtherDirective.m_sX == pResourceSpawnPlot->getX() && eOtherDirective.m_sY == pResourceSpawnPlot->getY())
+				{
+					if (pkOtherImprovementInfo && !pkOtherImprovementInfo->IsBuildableOnResources() && !pkOtherImprovementInfo->IsConnectsResource(eAdjacentResourceFromImprovement))
+					{
+						if (bCanBuild)
+						{
+							continue;
+						}
+						else
+						{
+							if (eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
+							{
+								pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+
+								int iScore = pScore.first;
+								int iPotentialScore = pScore.second;
+
+								// If we are planning to build something else here in the future, downscale the priority of this by 1/3
+								eOtherDirective.m_iScore = iScore;
+								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+								eOtherDirective.m_iScorePenalty += (iScore + iPotentialScore) / 3;
+								if (eOtherDirective.m_iScorePenalty >= eOtherDirective.m_iScore + eOtherDirective.m_iPotentialBonusScore)
+									continue;
+							}
+						}
 					}
 				}
 

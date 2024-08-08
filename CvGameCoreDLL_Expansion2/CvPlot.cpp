@@ -232,6 +232,9 @@ void CvPlot::reset()
 	m_owningCity.reset();
 	m_owningCityOverride.reset();
 
+	m_sSpawnedResourceX = -1;
+	m_sSpawnedResourceY = -1;
+
 	m_vExtraYields.clear();
 	m_vRivers.clear();
 
@@ -2355,7 +2358,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool bIgnoreCiv) const
+bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool bIgnoreCiv, PlayerTypes ePlayer) const
 {
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
@@ -2364,7 +2367,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 		return true;
 	}
 
-	if(getResourceType() != NO_RESOURCE)
+	if(getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
 	{
 		return false;
 	}
@@ -2433,7 +2436,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 		return false;
 	}
 
-	if (!bIgnoreCiv && thisResourceInfo.GetRequiredCivilization() != NO_CIVILIZATION)
+	if (!bIgnoreCiv && thisResourceInfo.GetRequiredCivilization() != NO_CIVILIZATION && (ePlayer == NO_PLAYER || thisResourceInfo.GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType()))
 	{
 		return false;
 	}
@@ -2554,6 +2557,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	}
 
 	if(pkImprovementInfo->IsRequiresFlatlandsOrFreshWater() && !isFlatlands() && !isFreshWater())
+	{
+		return false;
+	}
+
+	if (pkImprovementInfo->IsNoAdjacentCity() && IsAdjacentCity())
 	{
 		return false;
 	}
@@ -8564,6 +8572,31 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					GET_PLAYER(eBuilder).doInstantYield(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pTargetCity);
 				}
 			}
+
+			ResourceTypes eSpawnedResource = newImprovementEntry.SpawnsAdjacentResource();
+			if (eSpawnedResource != NO_RESOURCE)
+			{
+				CvPlot* pSpawnPlot = GetAdjacentResourceSpawnPlot(eBuilder, eSpawnedResource);
+				if (pSpawnPlot)
+				{
+					pSpawnPlot->setResourceType(eSpawnedResource, 1);
+					SetSpawnedResourcePlot(pSpawnPlot);
+				}
+			}
+		}
+
+		if (eOldImprovement != NO_IMPROVEMENT)
+		{
+			ResourceTypes eSpawnedResource = GC.getImprovementInfo(eOldImprovement)->SpawnsAdjacentResource();
+			if (eSpawnedResource != NO_RESOURCE)
+			{
+				CvPlot* pSpawnedPlot = GetSpawnedResourcePlot();
+				if (pSpawnedPlot)
+				{
+					pSpawnedPlot->setResourceType(NO_RESOURCE, 0);
+					SetSpawnedResourcePlot(NULL);
+				}
+			}
 		}
 
 		// If we're removing an Improvement that hooked up a resource then we need to take away the bonus
@@ -8877,6 +8910,52 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 		}
 	}
+}
+
+CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer, ResourceTypes eResource) const
+{
+	vector<OptionWithScore<CvPlot*>> sortedPlots;
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+		if (!pAdjacentPlot)
+			continue;
+
+		if (!pAdjacentPlot->canHaveResource(eResource, true, false, ePlayer))
+			continue;
+
+		CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pAdjacentPlot);
+		int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+		sortedPlots.push_back(OptionWithScore<CvPlot*>(pAdjacentPlot, -iDistance));
+	}
+
+	if (!sortedPlots.empty())
+	{
+		std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+		return sortedPlots[0].option;
+	}
+
+	return NULL;
+}
+
+void CvPlot::SetSpawnedResourcePlot(const CvPlot* pPlot)
+{
+	if (pPlot)
+	{
+		m_sSpawnedResourceX = pPlot->getX();
+		m_sSpawnedResourceY = pPlot->getY();
+	}
+	else
+	{
+		m_sSpawnedResourceX = -1;
+		m_sSpawnedResourceY = -1;
+	}
+}
+
+CvPlot* CvPlot::GetSpawnedResourcePlot() const
+{
+	return GC.getMap().plot(m_sSpawnedResourceX, m_sSpawnedResourceY);
 }
 
 //	--------------------------------------------------------------------------------
@@ -13475,6 +13554,9 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_kArchaeologyData);
 	visitor(plot.m_bIsTradeUnitRoute);
 	visitor(plot.m_iLastTurnBuildChanged);
+
+	visitor(plot.m_sSpawnedResourceX);
+	visitor(plot.m_sSpawnedResourceY);
 }
 
 //	--------------------------------------------------------------------------------
