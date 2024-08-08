@@ -693,11 +693,11 @@ UPDATE Improvements SET ConnectsAllResources = 1 WHERE CreatedByGreatPerson = 1;
 
 CREATE TRIGGER Improvements_GPTIConnectsResources
 AFTER INSERT ON Improvements
-WHERE EXISTS ( SELECT Type FROM Improvements WHERE Type = NEW.Type )
+FOR EACH ROW
 BEGIN
-
-UPDATE Improvements SET ConnectsAllResources = 1 WHERE Type = NEW.Type AND CreatedByGreatPerson = 1;
-
+    UPDATE Improvements 
+    SET ConnectsAllResources = 1 
+    WHERE Type = NEW.Type AND CreatedByGreatPerson = 1;
 END;
 
 
