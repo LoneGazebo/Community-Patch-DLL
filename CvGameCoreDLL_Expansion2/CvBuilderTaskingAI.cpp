@@ -2252,6 +2252,10 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 	if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		return;
 
+	// don't downgrade routes that our master built (or if we're a minor civ)
+	if (pPlot->getRouteType() > eRoute && !pPlot->IsRoutePillaged() && (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pPlot->GetPlayerThatBuiltRoute()).getTeam()) || m_pPlayer->isMinorCiv()))
+		return;
+
 	BuildTypes eRouteBuild = GetBuildRoute(eRoute);
 
 	// can we even build the desired route
