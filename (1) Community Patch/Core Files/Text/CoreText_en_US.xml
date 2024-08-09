@@ -3914,13 +3914,13 @@
 			<Text>They know you are competing with them, and they hate it!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE">
-			<Text>Your behavior infuriates them.</Text>
+			<Text>Your success infuriates them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG">
-			<Text>Your behavior angers them.</Text>
+			<Text>Your success angers them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK">
-			<Text>Your behavior worries them.</Text>
+			<Text>Your success worries them.</Text>
 		</Row>
 		<!-- END DOF Texts -->
 		<Row Tag="TXT_KEY_END_WORK_WITH_US_BLOCK_1">
