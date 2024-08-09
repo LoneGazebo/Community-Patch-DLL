@@ -56,7 +56,7 @@ UPDATE Builds
 SET PrereqTech = 'TECH_MASONRY' -- Construction
 WHERE Type = 'BUILD_MOAI';
 
--- Use Improvement_YieldAdjacentSameType instead
+-- Use Improvement_YieldPerXAdjacentImprovement instead
 UPDATE Improvements
 SET CultureAdjacentSameType = 0
 WHERE Type = 'IMPROVEMENT_MOAI';
@@ -73,10 +73,16 @@ INSERT INTO Improvement_AdjacentCityYields
 VALUES
 	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
+/*
 INSERT INTO Improvement_YieldAdjacentSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
+*/
+INSERT INTO Improvement_YieldPerXAdjacentImprovement
+	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_MOAI', 'IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1, 1);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)

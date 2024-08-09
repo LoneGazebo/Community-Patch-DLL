@@ -92,11 +92,18 @@ VALUES
 	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1);
 
+/*
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_EKI', 'YIELD_GOLD', 1);
+*/
+INSERT INTO Improvement_YieldPerXAdjacentImprovement
+	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_EKI', 'IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1, 2),
+	('IMPROVEMENT_EKI', 'IMPROVEMENT_EKI', 'YIELD_GOLD', 1, 2);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)

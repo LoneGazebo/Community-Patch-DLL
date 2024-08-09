@@ -175,6 +175,7 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 	<!-- Improvement: allows an adjacent improvement of the same type to boost the base yield of this improvement -->
+	<!-- to be removed -->
 	<Table name="Improvement_YieldAdjacentSameType">
 		<!-- Refer to Improvements.CultureAdjacentSameType -->
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
@@ -182,6 +183,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<!-- Improvement: allows two adjacent improvements of the same type to boost the base yield of this improvement -->
+	<!-- to be removed -->
 	<Table name="Improvement_YieldAdjacentTwoSameType">
 		<!-- Refer to Improvements.CultureAdjacentSameType -->
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
@@ -1993,7 +1995,17 @@
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 	</Table>
+	<Table name="Improvement_YieldPerXAdjacentImprovement">
+	<!-- Improvement: allows an adjacent improvement to boost the yield of this improvement -->
+	<!-- will replace Improvement_AdjacentImprovementYieldChanges, Improvement_YieldAdjacentSameType, Improvement_YieldAdjacentTwoSameType -->
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="NumRequired" type="integer" default="1"/>
+	</Table>
 	<!-- Improvement: allows this improvement to boost the base yield of another adjacent improvement -->
+	<!-- to be removed -->
 	<Table name="Improvement_AdjacentImprovementYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
@@ -2007,7 +2019,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Improvement: allows a terrain to boost the base yield of this improvement when adjacent-->
+	<!-- Improvement: allows this improvement to boost the base yield of another plot with the corresponding terrain -->
 	<Table name="Improvement_AdjacentTerrainYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>

@@ -13,10 +13,16 @@ DELETE FROM Improvement_ValidTerrains
 WHERE ImprovementType = 'IMPROVEMENT_FARM' AND TerrainType = 'TERRAIN_DESERT';
 
 -- +1 Food per 2 adjacent farms
+/*
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
+*/
+INSERT INTO Improvement_YieldPerXAdjacentImprovement
+	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1, 2);
 
 -- +1 Food on fresh water
 INSERT INTO Improvement_FreshWaterYields
@@ -49,11 +55,18 @@ VALUES
 
 -- Lumber Mill
 -- +1 Prod/Gold per 2 adjacent lumber mills
+/*
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1);
+*/
+INSERT INTO Improvement_YieldPerXAdjacentImprovement
+	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1, 2),
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1, 2);
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
