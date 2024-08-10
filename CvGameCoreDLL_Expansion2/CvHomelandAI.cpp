@@ -489,6 +489,9 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotMissionaryMoves();
 	PlotInquisitorMoves();
 
+	// Flee if in danger
+	PlotMovesToSafety();
+
 	//military again
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
@@ -665,6 +668,55 @@ void CvHomelandAI::PlotHealMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteHeals();
+	}
+}
+
+/// Moved endangered units to safe hexes
+void CvHomelandAI::PlotMovesToSafety()
+{
+	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TO_SAFETY);
+
+	// Loop through all recruited units
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (!pUnit)
+			continue;
+
+		//allow some danger from fog etc
+		int iDangerLevel = pUnit->GetDanger();
+		if (iDangerLevel < pUnit->GetCurrHitPoints() / 5)
+			continue;
+
+		// civilian always ready to flee
+		if (pUnit->IsCivilianUnit())
+		{
+			//allow workers to clean fallout (at home)
+			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
+				pUnit->plot()->getFeatureType() == FEATURE_FALLOUT &&
+				iDangerLevel < pUnit->GetCurrHitPoints())
+				continue;
+		}
+		else
+		{
+			//military units flee only in mortal danger (if we even get here)
+			if (iDangerLevel < pUnit->GetCurrHitPoints())
+				continue;
+
+			//land barbarians don't flee
+			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
+				continue;
+		}
+
+		CvHomelandUnit unit;
+		unit.SetID(pUnit->GetID());
+		m_CurrentMoveUnits.push_back(unit);
+	}
+
+	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		ExecuteMovesToSafestPlot(pUnit);
 	}
 }
 
@@ -3296,9 +3348,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			}
 		}
 
-		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, 23))
+		if (pBestCity && ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
 		{
-			ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
 			int iCurrentNeed = mapCityNeed[pBestCity->GetID()];
 			if (iCurrentNeed > 0)
 				mapCityNeed[pBestCity->GetID()] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
@@ -3307,10 +3358,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 		else if (pUnit->IsCivilianUnit())
 		{
-			if (!MoveCivilianToGarrison(pUnit))
-				MoveCivilianToSafety(pUnit);
+			if (MoveCivilianToGarrison(pUnit) || MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 		}
-		UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -3441,8 +3491,8 @@ void CvHomelandAI::ExecuteWriterMoves()
 						LogHomelandMessage(strLogString);
 					}
 
-					MoveCivilianToSafety(pUnit);
-					UnitProcessed(pUnit->GetID());
+					if (MoveCivilianToSafety(pUnit))
+						UnitProcessed(pUnit->GetID());
 					continue;
 				}
 				else
@@ -3506,8 +3556,8 @@ void CvHomelandAI::ExecuteWriterMoves()
 								strLogString.Format("Could not find a target for Great Writer at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
-							MoveCivilianToSafety(pUnit);
-							UnitProcessed(pUnit->GetID());
+							if (MoveCivilianToSafety(pUnit))
+								UnitProcessed(pUnit->GetID());
 							continue;
 						}
 					}
@@ -3516,8 +3566,8 @@ void CvHomelandAI::ExecuteWriterMoves()
 			break;
 
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 
 		default:
@@ -3561,8 +3611,8 @@ void CvHomelandAI::ExecuteArtistMoves()
 						LogHomelandMessage(strLogString);
 					}
 
-					MoveCivilianToSafety(pUnit);
-					UnitProcessed(pUnit->GetID());
+					if (MoveCivilianToSafety(pUnit))
+						UnitProcessed(pUnit->GetID());
 					continue;
 				}
 				else
@@ -3625,8 +3675,8 @@ void CvHomelandAI::ExecuteArtistMoves()
 								strLogString.Format("Could not find a target for Great Artist at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
-							MoveCivilianToSafety(pUnit);
-							UnitProcessed(pUnit->GetID());
+							if (MoveCivilianToSafety(pUnit))
+								UnitProcessed(pUnit->GetID());
 							continue;
 						}
 					}
@@ -3635,8 +3685,8 @@ void CvHomelandAI::ExecuteArtistMoves()
 			break;
 
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 
 		default:
@@ -3679,8 +3729,8 @@ void CvHomelandAI::ExecuteMusicianMoves()
 						LogHomelandMessage(strLogString);
 					}
 
-					MoveCivilianToSafety(pUnit);
-					UnitProcessed(pUnit->GetID());
+					if (MoveCivilianToSafety(pUnit))
+						UnitProcessed(pUnit->GetID());
 					continue;
 				}
 				else
@@ -3744,8 +3794,8 @@ void CvHomelandAI::ExecuteMusicianMoves()
 								strLogString.Format("Could not find a target for Great Musician at, X: %d, Y: %d", pUnit->getX(),  pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
-							MoveCivilianToSafety(pUnit);
-							UnitProcessed(pUnit->GetID());
+							if (MoveCivilianToSafety(pUnit))
+								UnitProcessed(pUnit->GetID());
 							continue;
 						}
 					}
@@ -3754,8 +3804,8 @@ void CvHomelandAI::ExecuteMusicianMoves()
 			break;
 
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 
 		default:
@@ -3796,8 +3846,8 @@ void CvHomelandAI::ExecuteScientistMoves()
 			m_greatPeopleForImprovements.push_back(pUnit->GetID());
 			break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 
 		default:
@@ -3847,7 +3897,8 @@ void CvHomelandAI::ExecuteEngineerMoves()
 					LogHomelandMessage(strLogString);
 				}
 
-				MoveCivilianToSafety(pUnit);
+				if (MoveCivilianToSafety(pUnit))
+					UnitProcessed(pUnit->GetID());
 			}
 			else
 			{
@@ -4006,7 +4057,8 @@ void CvHomelandAI::ExecuteEngineerMoves()
 		}
 		break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 
 		default:
@@ -4189,8 +4241,8 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			m_greatPeopleForImprovements.push_back(pUnit->GetID());
 			break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 		default:
 			UNREACHABLE();
@@ -4317,15 +4369,15 @@ void CvHomelandAI::ExecuteProphetMoves()
 				}
 				else
 				{
-					MoveCivilianToSafety(pUnit);
-					UnitProcessed(pUnit->GetID());
+					if (MoveCivilianToSafety(pUnit))
+						UnitProcessed(pUnit->GetID());
 				}
 			}
 			break;
 
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
+			if (MoveCivilianToSafety(pUnit))
+				UnitProcessed(pUnit->GetID());
 			break;
 		default:
 			UNREACHABLE();
@@ -5125,8 +5177,8 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
-			return true;
+			if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED))
+				return true;
 		}
 	}
 	else
@@ -5200,8 +5252,8 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
-			return true;
+			if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0))
+				return true;
 		}
 	}
 	else
