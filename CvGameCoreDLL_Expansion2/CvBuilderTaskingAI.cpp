@@ -2805,6 +2805,101 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			UpdateCurrentPlotYields(pPlot);
 	}
 
+	vector<ImprovementTypes> bestPotentialImprovementInDirection((size_t)NUM_DIRECTION_TYPES, NO_IMPROVEMENT);
+
+	// Calculate the best potential adjacent improvements
+	if (MOD_BALANCE_VP && bIsWithinWorkRange && eImprovement != NO_IMPROVEMENT)
+	{
+		for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iDirection);
+
+			if (!pAdjacentPlot)
+				continue;
+
+			if (!pAdjacentPlot->isPlayerCityRadius(m_pPlayer->GetID()))
+				continue;
+
+			if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
+				continue;
+
+			if (pAdjacentPlot->isCity())
+				continue;
+
+			map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
+			bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
+
+			const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
+
+			if (eAdjacentImprovement != NO_IMPROVEMENT)
+				continue;
+
+			CvCity* pOwningCity = pAdjacentPlot->getOwningCity();
+
+			int iBestImprovementScore = 0;
+
+			for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); iBuild++)
+			{
+				BuildTypes eOtherBuild = (BuildTypes)iBuild;
+
+				if (eOtherBuild == NO_BUILD)
+					continue;
+
+				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherBuild);
+				if (!pkOtherBuildInfo)
+					continue;
+
+				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
+
+				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
+				if (!pkOtherImprovementInfo)
+					continue;
+
+				if (pkOtherImprovementInfo->IsCreatedByGreatPerson())
+					continue;
+
+				if (!m_pPlayer->canBuild(pAdjacentPlot, eOtherBuild, true))
+					continue;
+
+				int iImprovementScore = 0;
+
+				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+				{
+					YieldTypes eYield = (YieldTypes)iYield;
+
+					if (eYield > YIELD_CULTURE_LOCAL)
+						break;
+
+					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+					iYieldModifier *= pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+
+					if (eImprovement == eOtherImprovement)
+					{
+						if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0)
+							iImprovementScore += (2 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * iYieldModifier) / 100;
+
+						if (pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0)
+							iImprovementScore += (pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * iYieldModifier) / 100;
+					}
+					else
+					{
+						if (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eOtherImprovement, eYield) != 0)
+							iImprovementScore += (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eOtherImprovement, eYield) * iYieldModifier) / 100;
+
+						if (pkOtherImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
+							iImprovementScore += (pkOtherImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * iYieldModifier) / 100;
+					}
+				}
+
+				if (iImprovementScore > iBestImprovementScore)
+				{
+					iBestImprovementScore = iImprovementScore;
+					bestPotentialImprovementInDirection[iDirection] = eOtherImprovement;
+				}
+			}
+		}
+	}
+
 	for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
 		YieldTypes eYield = (YieldTypes)ui;
@@ -3137,152 +3232,94 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		// Extra adjacency bonuses from potential adjacent same improvements
 		if (MOD_BALANCE_VP && bIsWithinWorkRange && eImprovement != NO_IMPROVEMENT)
 		{
-			int iOneAdjacentBonus = pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100;
-			int iTwoAdjacentBonus = pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+			int iPotentialNewYieldTimes100 = 0;
 
-			vector<pair<ImprovementTypes, pair<int,int>>> improvementYieldBuffs;
-			for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+			int iCurrentBonusToThisTileTimes100 = 0;
+			int iPotentialBonusToThisTileTimes100 = 0;
+			int iPotentialBonusToAdjacentTilesTimes100 = 0;
+
+			CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
-				BuildTypes eLoopBuild = (BuildTypes)iI;
+				CvPlot* pAdjacentPlot = pAdjacentPlots[iI];
 
-				if (eLoopBuild == NO_BUILD)
+				if (!pAdjacentPlot)
 					continue;
 
-				if (!m_pPlayer->canBuild(NULL, eLoopBuild, true))
+				map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
+				bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
+
+				const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
+
+				if (eAdjacentImprovement == eImprovement)
+				{
+					if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0 || pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0)
+					{
+						iCurrentBonusToThisTileTimes100 += pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+					}
+				}
+
+				CvImprovementEntry* pkAdjacentImprovementInfo = GC.getImprovementInfo(eAdjacentImprovement);
+
+				if (pkAdjacentImprovementInfo && pkAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
+				{
+					iCurrentBonusToThisTileTimes100 += pkAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 100;
+				}
+
+				ImprovementTypes eBestPotentialAdjacentImprovement = bestPotentialImprovementInDirection[iI];
+				if (eBestPotentialAdjacentImprovement == NO_IMPROVEMENT)
 					continue;
 
-				CvBuildInfo* pkLoopBuildInfo = GC.getBuildInfo(eLoopBuild);
-				if (!pkLoopBuildInfo)
-					continue;
+				int iBestBonusToAdjacentTileTimes100 = 0;
+				int iBestBonusToThisTileTimes100 = 0;
 
-				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkLoopBuildInfo->getImprovement();
+				if (eBestPotentialAdjacentImprovement == eImprovement && (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0 || pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0))
+				{
+					if (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID())
+						iBestBonusToAdjacentTileTimes100 = pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+					iBestBonusToThisTileTimes100 = pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+				}
+				
+				CvImprovementEntry* pkBestPotentialAdjacentImprovementInfo = GC.getImprovementInfo(eBestPotentialAdjacentImprovement);
+				if (pkBestPotentialAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
+					iBestBonusToThisTileTimes100 += pkBestPotentialAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 100;
 
-				if (eOtherImprovement == eImprovement || eOtherImprovement == NO_IMPROVEMENT)
-					continue;
+				if (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID())
+					if (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eBestPotentialAdjacentImprovement, eYield) != 0)
+						iBestBonusToAdjacentTileTimes100 += pkImprovementInfo->GetAdjacentImprovementYieldChanges(eBestPotentialAdjacentImprovement, eYield) * 100;
 
-				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
-				if (!pkOtherImprovementInfo)
-					continue;
+				if (iBestBonusToThisTileTimes100 != 0)
+					iPotentialBonusToThisTileTimes100 += iBestBonusToThisTileTimes100;
 
-				if (pkOtherImprovementInfo->IsCreatedByGreatPerson())
-					continue;
-
-				int iBuffToAdjacentImprovement = pkImprovementInfo->GetAdjacentImprovementYieldChanges(eOtherImprovement, eYield) * 100;
-				int iBuffToThisImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 100 : 0;
-				if (iBuffToAdjacentImprovement != 0 || iBuffToThisImprovement != 0)
-					improvementYieldBuffs.push_back(make_pair(eOtherImprovement, make_pair(iBuffToAdjacentImprovement, iBuffToThisImprovement)));
+				if (iBestBonusToAdjacentTileTimes100 != 0)
+					iPotentialBonusToAdjacentTilesTimes100 += iBestBonusToAdjacentTileTimes100;
 			}
 
-			if (iOneAdjacentBonus > 0 || iTwoAdjacentBonus > 0 || !improvementYieldBuffs.empty())
+			if (iCurrentBonusToThisTileTimes100 % 100 != 0)
+				iPotentialBonusToThisTileTimes100 += iCurrentBonusToThisTileTimes100 % 100;
+
+			if (iPotentialBonusToThisTileTimes100 >= 100)
+				iPotentialNewYieldTimes100 += (iPotentialBonusToThisTileTimes100 / 100) * 100;
+
+			// Yield was below the threshold, but including potential adjacent improvements we get above the threshold
+			if (iNewYieldTimes100 + iPotentialNewYieldTimes100 >= iGoldenAgeYieldThresholdTimes100 && iNewYieldTimes100 < iGoldenAgeYieldThresholdTimes100)
 			{
-				int iPotentialNewYieldTimes100 = 0;
-
-				int iCurrentBonusToThisTileTimes100 = 0;
-				int iPotentialBonusToThisTileTimes100 = 0;
-				int iPotentialBonusToAdjacentTilesTimes100 = 0;
-
-				CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				int iGoldenAgeYield = kYield.getGoldenAgeYield();
+				if (iGoldenAgeYield != 0)
 				{
-					CvPlot* pAdjacentPlot = pAdjacentPlots[iI];
-
-					if (!pAdjacentPlot)
-						continue;
-
-					if (pAdjacentPlot->isCity())
-						continue;
-
-					map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-					bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
-
-					const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
-
-					if (eAdjacentImprovement == eImprovement)
-					{
-						if (iOneAdjacentBonus > 0 || iTwoAdjacentBonus != 0)
-							iCurrentBonusToThisTileTimes100 += iTwoAdjacentBonus + iOneAdjacentBonus;
-					}
-					for (vector<pair<ImprovementTypes, pair<int, int>>>::const_iterator it = improvementYieldBuffs.begin(); it != improvementYieldBuffs.end(); ++it)
-					{
-						if (it->first == eAdjacentImprovement && it->second.second > 0)
-							iCurrentBonusToThisTileTimes100 += it->second.second;
-					}
-
-					if (eAdjacentImprovement != NO_IMPROVEMENT)
-						continue;
-
-					if (pAdjacentPlot->getOwner() != m_pPlayer->GetID() && (!pAdjacentPlot->isPlayerCityRadius(m_pPlayer->GetID()) || pAdjacentPlot->getOwner() != NO_PLAYER))
-						continue;
-
-					ResourceTypes eAdjacentResource = pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
-					CvResourceInfo* pkAdjacentResourceInfo = GC.getResourceInfo(eAdjacentResource);
-					bool bIsBonusResource = pkAdjacentResourceInfo && pkAdjacentResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS;
-
-					int iBestBonusToAdjacentTile = 0;
-					int iBestBonusToThisTile = 0;
-
-					if (iOneAdjacentBonus > 0 || iTwoAdjacentBonus > 0)
-					{
-						if (pAdjacentPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID()) && (eAdjacentResource == NO_RESOURCE || bIsBonusResource || pkImprovementInfo->IsConnectsResource(eAdjacentResource)))
-						{
-							iBestBonusToAdjacentTile = max(iOneAdjacentBonus, iTwoAdjacentBonus);
-							iBestBonusToThisTile = max(iOneAdjacentBonus, iTwoAdjacentBonus);
-						}
-					}
-
-					for (vector<pair<ImprovementTypes, pair<int, int>>>::const_iterator it = improvementYieldBuffs.begin(); it != improvementYieldBuffs.end(); ++it)
-					{
-						if (!pAdjacentPlot->canHaveImprovement(it->first, m_pPlayer->GetID()))
-							continue;
-
-						CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(it->first);
-
-						if (eAdjacentResource != NO_RESOURCE && !bIsBonusResource && !pkOtherImprovementInfo->IsConnectsResource(eAdjacentResource))
-							continue;
-
-						int iBonusToAdjacentTile = it->second.first;
-						int iBonusToThisTile = it->second.second;
-
-						if (iBonusToAdjacentTile + iBonusToThisTile > iBestBonusToAdjacentTile + iBestBonusToThisTile)
-						{
-							iBestBonusToAdjacentTile = iBonusToAdjacentTile;
-							iBestBonusToThisTile = iBonusToThisTile;
-						}
-					}
-
-					if (iBestBonusToThisTile != 0)
-						iPotentialBonusToThisTileTimes100 += iBestBonusToThisTile;
-
-					if (iBestBonusToAdjacentTile != 0)
-						iPotentialBonusToAdjacentTilesTimes100 += iBestBonusToAdjacentTile;
+					iPotentialNewYieldTimes100 += 40 * iGoldenAgeYield;
 				}
+			}
 
-				if (iCurrentBonusToThisTileTimes100 % 100 != 0)
-					iPotentialBonusToThisTileTimes100 += iCurrentBonusToThisTileTimes100 % 100;
+			if (iPotentialBonusToAdjacentTilesTimes100 > 0)
+			{
+				iPotentialNewYieldTimes100 += iPotentialBonusToAdjacentTilesTimes100;
+			}
 
-				if (iPotentialBonusToThisTileTimes100 >= 100)
-					iPotentialNewYieldTimes100 += (iPotentialBonusToThisTileTimes100 / 100) * 100;
-
-				// Yield was below the threshold, but including potential adjacent improvements we get above the threshold
-				if (iNewYieldTimes100 + iPotentialNewYieldTimes100 >= iGoldenAgeYieldThresholdTimes100 && iNewYieldTimes100 < iGoldenAgeYieldThresholdTimes100)
-				{
-					int iGoldenAgeYield = kYield.getGoldenAgeYield();
-					if (iGoldenAgeYield != 0)
-					{
-						iPotentialNewYieldTimes100 += 40 * iGoldenAgeYield;
-					}
-				}
-
-				if (iPotentialBonusToAdjacentTilesTimes100 > 0)
-				{
-					iPotentialNewYieldTimes100 += iPotentialBonusToAdjacentTilesTimes100;
-				}
-
-				if (iPotentialNewYieldTimes100 != 0)
-				{
-					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
-					iPotentialScore += (iPotentialNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
-				}
+			if (iPotentialNewYieldTimes100 != 0)
+			{
+				int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+				iPotentialScore += (iPotentialNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 			}
 		}
 	}
