@@ -13966,7 +13966,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() &&
 									pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 								{
-									if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -13986,7 +13986,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) &&
 										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 									{
-										if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+										if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
