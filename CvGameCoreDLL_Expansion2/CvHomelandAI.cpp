@@ -3330,10 +3330,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 	//may need this later
 	// cityId to needValue
-	map<int, int> mapCityNeed;
+	map<int, int> mapCityAssignedWorkers;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		mapCityNeed[pLoopCity->GetID()] = pLoopCity->GetTerrainImprovementNeed();
+		mapCityAssignedWorkers[pLoopCity->GetID()] = 0;
 
 	for (list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
 	{
@@ -3342,24 +3342,25 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			continue;
 
 		//find the city which is most in need of workers
-		int iMaxNeed = -100;
+		int iLeastAssignedWorkers = INT_MAX;
+		int iClosestCityDistance = INT_MAX;
 		CvCity* pBestCity = NULL;
-		for (map<int, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
+		for (map<int, int>::iterator it2 = mapCityAssignedWorkers.begin(); it2 != mapCityAssignedWorkers.end(); ++it2)
 		{
-			if (it2->second > iMaxNeed)
+			CvCity* pCity = m_pPlayer->getCity(it2->first);
+			int iAssignedWorkers = it2->second;
+			int iCityDistance = plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
+			if (iAssignedWorkers < iLeastAssignedWorkers || (iAssignedWorkers == iLeastAssignedWorkers && iCityDistance < iClosestCityDistance))
 			{
-				iMaxNeed = it2->second;
-				pBestCity = m_pPlayer->getCity(it2->first);
+				iLeastAssignedWorkers = iAssignedWorkers;
+				iClosestCityDistance = iCityDistance;
+				pBestCity = pCity;
 			}
 		}
 
 		if (pBestCity && ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
 		{
-			int iCurrentNeed = mapCityNeed[pBestCity->GetID()];
-			if (iCurrentNeed > 0)
-				mapCityNeed[pBestCity->GetID()] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
-			else
-				mapCityNeed[pBestCity->GetID()]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+			mapCityAssignedWorkers[pBestCity->GetID()]++;
 		}
 		else if (pUnit->IsCivilianUnit())
 		{
