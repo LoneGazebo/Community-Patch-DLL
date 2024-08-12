@@ -2569,7 +2569,12 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
-	int iScore = (eDirective.GetScore() + (eDirective.m_iPotentialBonusScore / 3)) / 10;
+	int iScore = eDirective.GetScore();
+
+	if (eDirective.m_iPotentialBonusScore != 0)
+		iScore += eDirective.m_bIsGreatPerson ? eDirective.m_iPotentialBonusScore : eDirective.m_iPotentialBonusScore / 3;
+
+	iScore /= 10;
 
 	int iSign = iScore >= 0 ? 1 : -1;
 
