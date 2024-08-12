@@ -2725,24 +2725,19 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 void CvEconomicAI::DisbandExtraWorkers()
 {
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
-	if(iNumWorkers <= 1)
+	if (iNumWorkers <= 1)
 		return;
 
 	//Don't disband during the early game.
-	if (m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 100))
-	{
+	if (m_pPlayer->GetNumCitiesFounded() < 4 && GC.getGame().getGameTurn() <= 100)
 		return;
-	}
 
 	int iNumCities = m_pPlayer->getNumCities();
 
 	int iWorstCaseWorkerPerCityRatio = 25; // one worker for four cities
 	int iCurrentWorkerPerCityRatio = (100 * iNumWorkers) / iNumCities;
-
-	if(iCurrentWorkerPerCityRatio <= iWorstCaseWorkerPerCityRatio)
-	{
+	if (iCurrentWorkerPerCityRatio <= iWorstCaseWorkerPerCityRatio)
 		return;
-	}
 
 	int iNumValidPlots = 0;
 	int iNumImprovedPlots = 0;
@@ -2752,20 +2747,15 @@ void CvEconomicAI::DisbandExtraWorkers()
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
-		{
 			continue;
-		}
+
 		if (pPlot->isWater() || !pPlot->isValidMovePlot(m_pPlayer->GetID()) || pPlot->isCity())
-		{
 			continue;
-		}
 
 		iNumValidPlots++;
 
 		if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
-		{
 			iNumImprovedPlots++;
-		}
 	}
 
 	if (iNumValidPlots == 0)
@@ -2777,15 +2767,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	// How many idle workers do we have?
 	int iIdleWorkers = 0;
+	static const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
 	int iLoopUnit = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
-		if (!pLoopUnit)
-			continue;
-
-		static const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
-
 		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			CvPlot* pUnitPlot = pLoopUnit->plot();
