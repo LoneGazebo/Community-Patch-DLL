@@ -2724,48 +2724,22 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 
 void CvEconomicAI::DisbandExtraWorkers()
 {
-	// Are we running at a deficit?
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-
-	double fWorstCaseRatio = 0.25; // one worker for four cities
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
-	if(iNumWorkers <= 0)
+	if(iNumWorkers <= 1)
 		return;
+
+	//Don't disband during the early game.
+	if (m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 100))
+	{
+		return;
+	}
 
 	int iNumCities = m_pPlayer->getNumCities();
 
-	//If we want workers in any city, don't disband.
-	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
-	int iLoopCity = 0;
-	int iNumCitiesWithStrat = 0;
-	CvCity* pLoopCity = NULL;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-	{
-		if(pLoopCity != NULL)
-		{
-			if(eWantWorkers != NO_AICITYSTRATEGY)
-			{
-				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
-				{
-					iNumCitiesWithStrat++;
-				}
-			}
-		}
-	}
-	//# of cities needing workers greater than number of workers? don't disband.
-	if(iNumCitiesWithStrat >= iNumWorkers)
-	{
-		return;
-	}
-	//Don't disband during the early game.
-	if(m_pPlayer->GetNumCitiesFounded() < 4 && (GC.getGame().getGameTurn() <= 100))
-	{
-		return;
-	}
+	int iWorstCaseWorkerPerCityRatio = 25; // one worker for four cities
+	int iCurrentWorkerPerCityRatio = (100 * iNumWorkers) / iNumCities;
 
-	double fCurrentRatio = iNumWorkers / (double)iNumCities;
-	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
+	if(iCurrentWorkerPerCityRatio <= iWorstCaseWorkerPerCityRatio)
 	{
 		return;
 	}
@@ -2781,82 +2755,54 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-		if(pPlot->isWater() || !pPlot->isValidMovePlot(m_pPlayer->GetID()) || pPlot->isCity())
+		if (pPlot->isWater() || !pPlot->isValidMovePlot(m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			continue;
 		}
 
 		iNumValidPlots++;
 
-		if(pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+		if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 		{
 			iNumImprovedPlots++;
 		}
 	}
 
-	// potential div by zero
-	if(iNumValidPlots <= 0)
-	{
+	if (iNumValidPlots == 0)
 		return;
-	}
 
-	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
-	int iUnimprovedPlotPerWorkers = 8;
-	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
-
-	if(iMinWorkers <= 0)
-	{
-		iMinWorkers = 1;
-	}
-
-	// less than two thirds of the plots are improved, don't discard anybody
-	float fRatio = iNumImprovedPlots / (float)iNumValidPlots;
-	if(fRatio < 0.66)
-	{
-		iMinWorkers += 2;
-	}
-
-	if((iNumUnimprovedPlots % iUnimprovedPlotPerWorkers) > 0)
-	{
-		iMinWorkers += 1;
-	}
-
-	if(!bInDeficit)
-	{
-		iMinWorkers += 1;
-	}
-
-	CvCity* pCapital = m_pPlayer->getCapitalCity();
-	if(!pCapital)
-	{
+	int iImprovedPlotsRatio = (100 * iNumImprovedPlots) / iNumValidPlots;
+	if (iImprovedPlotsRatio <= 66)
 		return;
-	}
 
-	int iLoop = 0;
-	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	// How many idle workers do we have?
+	int iIdleWorkers = 0;
+
+	int iLoopUnit = 0;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
-		if (pCity == pCapital)
-		{
+		if (!pLoopUnit)
 			continue;
-		}
 
-		if (pCapital->HasSharedAreaWith(pCity,true,false) && !pCity->IsRouteToCapitalConnected())
+		static const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
+
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
-			iMinWorkers += 1;
+			CvPlot* pUnitPlot = pLoopUnit->plot();
+			if (pUnitPlot && pUnitPlot->isCity())
+				iIdleWorkers++;
 		}
 	}
 
-
-	if (iNumWorkers <= iMinWorkers)
-	{
+	// If we have more than one idle worker per city, start disbanding
+	if (iIdleWorkers <= iNumCities)
 		return;
-	}
-
-	m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
 
 	CvUnit* pUnit = FindWorkerToScrap();
 	if (!pUnit)
 		return;
+
+	m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
 
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
