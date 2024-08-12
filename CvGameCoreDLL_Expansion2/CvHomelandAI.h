@@ -232,6 +232,7 @@ private:
 	void PlotExplorerMoves();
 	void PlotFirstTurnSettlerMoves();
 	void PlotHealMoves();
+	void PlotMovesToSafety();
 
 	void PlotOpportunisticSettlementMoves();
 
