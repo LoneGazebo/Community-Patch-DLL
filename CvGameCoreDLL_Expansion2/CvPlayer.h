@@ -2564,7 +2564,7 @@ public:
 
 	int GetMinAcceptableSettleQuality() const;
 	bool HaveGoodSettlePlot(int iAreaID);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
 	int GetSettlePlotQualityMeasure(CvPlot* pPlot);
 
