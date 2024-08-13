@@ -44790,7 +44790,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
 	return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	std::vector<SPlotWithScore> vSettlePlots;
 
@@ -44994,7 +44994,15 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	return vSettlePlots.back().pPlot;
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+	for (vector<SPlotWithScore>::reverse_iterator it = vSettlePlots.rbegin(); it != vSettlePlots.rend(); ++it)
+	{
+		if (pUnit && !pUnit->GeneratePath(it->pPlot, iFlags, 23))
+			continue;
+
+		return it->pPlot;
+	}
+	return NULL;
 }
 
 PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
