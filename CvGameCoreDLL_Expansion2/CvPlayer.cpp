@@ -27242,11 +27242,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			if(pCity == NULL)
 			{
-				CvCity* pCapitalCity = getCapitalCity();
-				if(pCapitalCity != NULL)
-				{
-					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapitalCity->getX(), pCapitalCity->getY(), pCapitalCity->GetID());
-				}
+				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), -1, -1 ,-1);
 			}
 			else
 			{
