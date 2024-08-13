@@ -2621,61 +2621,69 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 {
 	if (bAsOriginPlayer)
 	{
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 		if (GC.getGame().GetGameTrade()->IsConnectionInternational(kTradeConnection) || (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL))
-#else
-		if (GC.getGame().GetGameTrade()->IsConnectionInternational(kTradeConnection))
-#endif
 		{
 			if (eYield == YIELD_GOLD)
 			{
 				int iResult = 0;
-				int iBase = /*100 in CP, 80 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_BASE) * (m_pPlayer->GetCurrentEra()+2);
+				int iBase = /*100 in CP, 80 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_BASE);
+				if (MOD_BALANCE_VP)
+				{
+					iBase *= (m_pPlayer->GetCurrentEra() + 2);
+				}
 				iResult = iBase;
 				return iResult;
 			}
 			else if (eYield == YIELD_SCIENCE)
 			{
 				int iTechDifference = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 				if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 				{
 					iTechDifference = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
 				}
-#endif
+
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
-					iAdjustedTechDifference = max(iCeilTechDifference, 1);
-
-					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+					if (MOD_BALANCE_VP)
 					{
-						iAdjustedTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
-					}
+						int iCeilTechDifference = int(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+						iAdjustedTechDifference = max(iCeilTechDifference, 1);
 
-					// Policy bump
-					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
-					if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
+						if (iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+						{
+							iAdjustedTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+						}
+
+						// Policy bump
+						int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+						if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
+						{
+							iPolicyBump = 0;
+						}
+
+						iAdjustedTechDifference += iPolicyBump;
+					}
+					else
 					{
-						iPolicyBump = 0;
+						int iCeilTechDifference = (int)ceil(iTechDifference * 100.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+						iAdjustedTechDifference = max(iCeilTechDifference, 1);
 					}
-#endif
-
-					iAdjustedTechDifference += iPolicyBump;
 
 				}
 				// Cultural influence bump
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 				int iInfluenceBoost = 0;
-				if (GC.getGame().GetGameTrade()->IsConnectionInternational(kTradeConnection))
+				if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+				{
+					if (GC.getGame().GetGameTrade()->IsConnectionInternational(kTradeConnection))
+					{
+						iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
+					}
+				}
+				else
 				{
 					iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
 				}
-#else
-				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
-#endif
 
 				if (iInfluenceBoost > 0)
 					iAdjustedTechDifference += iInfluenceBoost;
@@ -2684,13 +2692,15 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			}
 			else if (eYield == YIELD_CULTURE)
 			{
+				if (!MOD_BALANCE_VP)
+					return 0;
+
 				int iCultureDifference = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 				if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 				{
 					iCultureDifference = /*1*/ GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
 				}
-#endif
+
 				int iAdjustedCultureDifference = 0;
 				if (iCultureDifference > 0)
 				{
@@ -2704,12 +2714,10 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			
 					// Policy bump
 					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 					if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 					{
 						iPolicyBump = 0;
 					}
-#endif
 
 					iAdjustedCultureDifference += iPolicyBump;
 				}				
@@ -2726,7 +2734,15 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+				int iCeilTechDifference = 0;
+				if (MOD_BALANCE_VP)
+				{
+					iCeilTechDifference = int(sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+				}
+				else
+				{
+					iCeilTechDifference = (int)ceil(iTechDifference * 100.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+				}
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2734,6 +2750,9 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 		}
 		else if (eYield == YIELD_CULTURE)
 		{
+			if (!MOD_BALANCE_VP)
+				return 0;
+
 			int iCultureDifference = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
 			int iAdjustedCultureDifference = 0;
 			if (iCultureDifference > 0)
