@@ -2679,9 +2679,9 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 	return true;
 }
 
-static int GetCurrentAdjacencyScoreFromImprovementType(CvPlot* pPlot, ImprovementTypes eImprovement, int iAdjacencyBonus, const SBuilderState& sState)
+static fraction GetCurrentAdjacencyScoreFromImprovements(const CvPlot* pPlot, const CvImprovementEntry& kImprovementInfo, YieldTypes eYield, const SBuilderState& sState)
 {
-	int iTotalAdjacencyBonus = 0;
+	fraction fTotalAdjacencyBonus = 0;
 
 	CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -2700,11 +2700,15 @@ static int GetCurrentAdjacencyScoreFromImprovementType(CvPlot* pPlot, Improvemen
 		if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
 			eAdjacentImprovement = pAdjacentPlot->getImprovementType();
 
-		if (eAdjacentImprovement == eImprovement)
-			iTotalAdjacencyBonus += iAdjacencyBonus;
+		if (eAdjacentImprovement == NO_IMPROVEMENT)
+			continue;
+
+		fraction fAdjacentImprovementYield = kImprovementInfo.GetYieldPerXAdjacentImprovement(eYield, eAdjacentImprovement);
+		if (fAdjacentImprovementYield != 0)
+			fTotalAdjacencyBonus += fAdjacentImprovementYield;
 	}
 
-	return iTotalAdjacencyBonus;
+	return fTotalAdjacencyBonus;
 }
 
 pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
@@ -2879,22 +2883,11 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
 					iYieldModifier *= pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
 
-					if (eImprovement == eOtherImprovement)
-					{
-						if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0)
-							iImprovementScore += (2 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * iYieldModifier) / 100;
+					if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) != 0)
+						iImprovementScore += ((pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) * iYieldModifier) / 100).Truncate();
 
-						if (pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0)
-							iImprovementScore += (pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * iYieldModifier) / 100;
-					}
-					else
-					{
-						if (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eOtherImprovement, eYield) != 0)
-							iImprovementScore += (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eOtherImprovement, eYield) * iYieldModifier) / 100;
-
-						if (pkOtherImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
-							iImprovementScore += (pkOtherImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * iYieldModifier) / 100;
-					}
+					if (pkOtherImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement) != 0)
+						iImprovementScore += ((pkOtherImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement) * iYieldModifier) / 100).Truncate();
 				}
 
 				if (iImprovementScore > iBestImprovementScore)
@@ -2984,8 +2977,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			if (MOD_BALANCE_VP && eImprovement != NO_IMPROVEMENT)
 			{
 				CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
-				int iTwoAdjacentNewYield = 0;
-				int iTwoAdjacentOldYield = 0;
+				fraction fNewAdjacencyYield = 0;
+				fraction fOldAdjacencyYield = 0;
 
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
@@ -3019,46 +3012,21 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					const ImprovementTypes eOldAdjacentImprovement = !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
 					const ImprovementTypes eNewAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : eOldAdjacentImprovement;
 
-					// Changes based on adjacent similar planned or planned to be removed improvements
-					if (pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield) > 0)
-					{
-						if (eImprovement == eOldAdjacentImprovement)
-						{
-							iTwoAdjacentOldYield += pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
-						}
-						if (eImprovement == eNewAdjacentImprovement)
-						{
-							iTwoAdjacentNewYield += pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
-						}
-					}
-
 					// The improvement in an adjacent plot has been changed
 					if (eNewAdjacentImprovement != eOldAdjacentImprovement)
 					{
-						if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) > 0)
+						// Bonuses an adjacent improvement would give/gave to this improvement
+						if (eOldAdjacentImprovement != NO_IMPROVEMENT && pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOldAdjacentImprovement) != 0)
 						{
-							if (eImprovement == eOldAdjacentImprovement)
-							{
-								iNewYieldTimes100 -= 100 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield);
-							}
-							else if (eImprovement == eNewAdjacentImprovement)
-							{
-								iNewYieldTimes100 += 100 * pkImprovementInfo->GetAdjacentSameTypeYield(eYield);
-							}
+							fOldAdjacencyYield += pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOldAdjacentImprovement);
+						}
+						if (eNewAdjacentImprovement != NO_IMPROVEMENT && pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eNewAdjacentImprovement) != 0)
+						{
+							fNewAdjacencyYield += pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eNewAdjacentImprovement);
 						}
 
 						CvImprovementEntry* pkOldAdjacentImprovementInfo = GC.getImprovementInfo(eOldAdjacentImprovement);
 						CvImprovementEntry* pkNewAdjacentImprovementInfo = GC.getImprovementInfo(eNewAdjacentImprovement);
-
-						// Bonuses an adjacent improvement would give/gave to this improvement
-						if (eOldAdjacentImprovement != NO_IMPROVEMENT && pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
-						{
-							iNewYieldTimes100 -= 100 * pkOldAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
-						}
-						if (eNewAdjacentImprovement != NO_IMPROVEMENT && pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
-						{
-							iNewYieldTimes100 += 100 * pkNewAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
-						}
 
 						ResourceTypes eResourceFromOldAdjacentImprovement = pkOldAdjacentImprovementInfo ? (ResourceTypes)pkOldAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
 						ResourceTypes eResourceFromNewAdjacentImprovement = pkNewAdjacentImprovementInfo ? (ResourceTypes)pkNewAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
@@ -3075,13 +3043,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					}
 				}
 
-				if (iTwoAdjacentOldYield > 1)
+				int iTruncatedDeltaYield = fNewAdjacencyYield.Truncate() - fOldAdjacencyYield.Truncate();
+				if (iTruncatedDeltaYield != 0)
 				{
-					iNewYieldTimes100 -= 100 * (iTwoAdjacentOldYield / 2);
-				}
-				if (iTwoAdjacentNewYield > 1)
-				{
-					iNewYieldTimes100 += 100 * (iTwoAdjacentNewYield / 2);
+					iNewYieldTimes100 += 100 * iTruncatedDeltaYield;
 				}
 			}
 
@@ -3175,33 +3140,18 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				if (eAdjacentImprovement != NO_IMPROVEMENT)
 				{
-					// How much extra yield we give to adjacent tiles with a certain improvement
-					int iAdjacentImprovementYieldChange = pkImprovementInfo ? pkImprovementInfo->GetAdjacentImprovementYieldChanges(eAdjacentImprovement, eYield) : 0;
-					if (iAdjacentImprovementYieldChange != 0)
-						iNewAdjacentYield += iAdjacentImprovementYieldChange;
-
-					// How much extra yield we give to an adjacent tile with the same improvement
-					if (eAdjacentImprovement == eImprovement)
-					{
-						int iAdjacentSameTypeYield = pkImprovementInfo ? pkImprovementInfo->GetYieldAdjacentSameType(eYield) : 0;
-						if (iAdjacentSameTypeYield != 0)
-							iNewAdjacentYield += iAdjacentSameTypeYield;
-
-						int iAdjacentTwoSameTypeYield = pkImprovementInfo ? pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield) * 50 : 0;
-						if (iAdjacentTwoSameTypeYield != 0)
-						{
-							int iDoubleAdjacentSame = GetCurrentAdjacencyScoreFromImprovementType(pAdjacentPlot, eImprovement, iAdjacentTwoSameTypeYield, sState);
-							if (eBuild == NO_BUILD)
-								iDoubleAdjacentSame -= iAdjacentTwoSameTypeYield;
-							if (iDoubleAdjacentSame / 100 != (iDoubleAdjacentSame + iAdjacentTwoSameTypeYield) / 100)
-								iNewAdjacentYield += ((iDoubleAdjacentSame + iAdjacentTwoSameTypeYield) / 100) - (iDoubleAdjacentSame / 100);
-						}
-					}
 
 					CvImprovementEntry* pkAdjacentImprovementInfo = GC.getImprovementInfo(eAdjacentImprovement);
 
 					if (pkAdjacentImprovementInfo)
 					{
+						// How much extra yield we give to adjacent tiles with a certain improvement
+						fraction fAdjacentImprovementYield = pkImprovementInfo ? pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eAdjacentImprovement) : 0;
+						fraction fCurrentAdjacentImprovementYield = GetCurrentAdjacencyScoreFromImprovements(pAdjacentPlot, *pkAdjacentImprovementInfo, eYield, sState);
+						int iDeltaTruncatedYield = (fCurrentAdjacentImprovementYield + fAdjacentImprovementYield).Truncate() - fCurrentAdjacentImprovementYield.Truncate();
+						if (iDeltaTruncatedYield != 0)
+							iNewAdjacentYield += iDeltaTruncatedYield;
+
 						// How much extra yield an adjacent improvement will get if we create a resource
 						if (eResourceFromImprovement != NO_RESOURCE)
 						{
@@ -3240,9 +3190,9 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		{
 			int iPotentialNewYieldTimes100 = 0;
 
-			int iCurrentBonusToThisTileTimes100 = 0;
-			int iPotentialBonusToThisTileTimes100 = 0;
-			int iPotentialBonusToAdjacentTilesTimes100 = 0;
+			fraction fCurrentBonusToThisTile = 0;
+			fraction fPotentialBonusToThisTile = 0;
+			fraction fPotentialBonusToAdjacentTiles = 0;
 
 			CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pPlot->GetPlotIndex());
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -3257,55 +3207,40 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
 
-				if (eAdjacentImprovement == eImprovement)
+				if (eAdjacentImprovement != NO_IMPROVEMENT)
 				{
-					if (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0 || pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0)
+					fraction fYieldPerXAdjacentImprovement = pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eAdjacentImprovement);
+					if (fYieldPerXAdjacentImprovement != 0)
 					{
-						iCurrentBonusToThisTileTimes100 += pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+						fCurrentBonusToThisTile += fYieldPerXAdjacentImprovement;
 					}
-				}
-
-				CvImprovementEntry* pkAdjacentImprovementInfo = GC.getImprovementInfo(eAdjacentImprovement);
-
-				if (pkAdjacentImprovementInfo && pkAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
-				{
-					iCurrentBonusToThisTileTimes100 += pkAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 100;
+					continue;
 				}
 
 				ImprovementTypes eBestPotentialAdjacentImprovement = bestPotentialImprovementInDirection[iI];
 				if (eBestPotentialAdjacentImprovement == NO_IMPROVEMENT)
 					continue;
 
-				int iBestBonusToAdjacentTileTimes100 = 0;
-				int iBestBonusToThisTileTimes100 = 0;
+				fraction fBestBonusToAdjacentTile = 0;
+				fraction fBestBonusToThisTile = 0;
 
-				if (eBestPotentialAdjacentImprovement == eImprovement && (pkImprovementInfo->GetAdjacentSameTypeYield(eYield) != 0 || pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) != 0))
+				if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eBestPotentialAdjacentImprovement) != 0)
 				{
-					if (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID())
-						iBestBonusToAdjacentTileTimes100 = pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
-					iBestBonusToThisTileTimes100 = pkImprovementInfo->GetAdjacentSameTypeYield(eYield) * 100 + pkImprovementInfo->GetAdjacentTwoSameTypeYield(eYield) * 50;
+					fPotentialBonusToThisTile += pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eBestPotentialAdjacentImprovement);
 				}
 				
 				CvImprovementEntry* pkBestPotentialAdjacentImprovementInfo = GC.getImprovementInfo(eBestPotentialAdjacentImprovement);
-				if (pkBestPotentialAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) != 0)
-					iBestBonusToThisTileTimes100 += pkBestPotentialAdjacentImprovementInfo->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 100;
-
-				if (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID())
-					if (pkImprovementInfo->GetAdjacentImprovementYieldChanges(eBestPotentialAdjacentImprovement, eYield) != 0)
-						iBestBonusToAdjacentTileTimes100 += pkImprovementInfo->GetAdjacentImprovementYieldChanges(eBestPotentialAdjacentImprovement, eYield) * 100;
-
-				if (iBestBonusToThisTileTimes100 != 0)
-					iPotentialBonusToThisTileTimes100 += iBestBonusToThisTileTimes100;
-
-				if (iBestBonusToAdjacentTileTimes100 != 0)
-					iPotentialBonusToAdjacentTilesTimes100 += iBestBonusToAdjacentTileTimes100;
+				
+				if (pkBestPotentialAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement) != 0)
+				{
+					fPotentialBonusToAdjacentTiles += pkBestPotentialAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement);
+				}
 			}
 
-			if (iCurrentBonusToThisTileTimes100 % 100 != 0)
-				iPotentialBonusToThisTileTimes100 += iCurrentBonusToThisTileTimes100 % 100;
+			int iDeltaTruncatedYieldBonusThisTile = (fPotentialBonusToThisTile + fCurrentBonusToThisTile).Truncate() - fCurrentBonusToThisTile.Truncate();
 
-			if (iPotentialBonusToThisTileTimes100 >= 100)
-				iPotentialNewYieldTimes100 += (iPotentialBonusToThisTileTimes100 / 100) * 100;
+			if (iDeltaTruncatedYieldBonusThisTile != 0)
+				iPotentialNewYieldTimes100 += 100 * iDeltaTruncatedYieldBonusThisTile;
 
 			// Yield was below the threshold, but including potential adjacent improvements we get above the threshold
 			if (iNewYieldTimes100 + iPotentialNewYieldTimes100 >= iGoldenAgeYieldThresholdTimes100 && iNewYieldTimes100 < iGoldenAgeYieldThresholdTimes100)
@@ -3317,9 +3252,9 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				}
 			}
 
-			if (iPotentialBonusToAdjacentTilesTimes100 > 0)
+			if (fPotentialBonusToAdjacentTiles > 0)
 			{
-				iPotentialNewYieldTimes100 += iPotentialBonusToAdjacentTilesTimes100;
+				iPotentialNewYieldTimes100 += (fPotentialBonusToAdjacentTiles * 100).Truncate();
 			}
 
 			if (iPotentialNewYieldTimes100 != 0)

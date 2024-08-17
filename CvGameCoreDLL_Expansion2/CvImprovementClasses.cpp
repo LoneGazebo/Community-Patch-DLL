@@ -872,7 +872,7 @@ bool CvImprovementEntry::IsYieldPerXAdjacentImprovement(YieldTypes eYield) const
 
 	map<YieldTypes, map<ImprovementTypes, fraction>>::const_iterator itImprovement = m_YieldPerXAdjacentImprovement.find(eYield);
 
-	return itImprovement != m_YieldPerXAdjacentImprovement.end()
+	return itImprovement != m_YieldPerXAdjacentImprovement.end();
 }
 /// Bonus yield if another Improvement of same type is adjacent
 int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
