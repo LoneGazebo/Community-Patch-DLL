@@ -2679,6 +2679,29 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 	return true;
 }
 
+static ImprovementTypes GetPlannedImprovementInPlot(const CvPlot* pPlot, const SBuilderState& sState)
+{
+	map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(pPlot->GetPlotIndex());
+
+	if (it != sState.mChangedPlotImprovements.end())
+		return it->second;
+
+	if (!pPlot->IsImprovementPillaged())
+		return pPlot->getImprovementType();
+
+	return NO_IMPROVEMENT;
+}
+
+static FeatureTypes GetPlannedFeatureInPlot(const CvPlot* pPlot, const SBuilderState& sState)
+{
+	map<int, FeatureTypes>::const_iterator it = sState.mChangedPlotFeatures.find(pPlot->GetPlotIndex());
+
+	if (it != sState.mChangedPlotFeatures.end())
+		return it->second;
+
+	return pPlot->getFeatureType();
+}
+
 static fraction GetCurrentAdjacencyScoreFromImprovements(const CvPlot* pPlot, const CvImprovementEntry& kImprovementInfo, YieldTypes eYield, const SBuilderState& sState)
 {
 	fraction fTotalAdjacencyBonus = 0;
@@ -2691,14 +2714,7 @@ static fraction GetCurrentAdjacencyScoreFromImprovements(const CvPlot* pPlot, co
 		if (!pAdjacentPlot)
 			continue;
 
-		int iAdjacentPlotIndex = pAdjacentPlot->GetPlotIndex();
-
-		map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex);
-		ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
-
-		// If we are not planning on building an improvement here, use the one that exists already
-		if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
-			eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+		ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
 		if (eAdjacentImprovement == NO_IMPROVEMENT)
 			continue;
@@ -2836,10 +2852,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			if (pAdjacentPlot->isCity())
 				continue;
 
-			map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-			bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
-
-			const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
+			const ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
 			if (eAdjacentImprovement != NO_IMPROVEMENT)
 				continue;
@@ -2987,11 +3000,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					if (!pAdjacentPlot)
 						continue;
 
-					map<int, FeatureTypes>::const_iterator changedFeatureIt = sState.mChangedPlotFeatures.find(pAdjacentPlot->GetPlotIndex());
-					bool bFeatureChanged = changedFeatureIt != sState.mChangedPlotFeatures.end();
-
 					FeatureTypes eOldAdjacentFeature = pAdjacentPlot->getFeatureType();
-					FeatureTypes eNewAdjacentFeature = bFeatureChanged ? changedFeatureIt->second : eOldAdjacentFeature;
+					FeatureTypes eNewAdjacentFeature = GetPlannedFeatureInPlot(pAdjacentPlot, sState);
 					// The feature in an adjacent plot has been changed
 					if (eNewAdjacentFeature != eOldAdjacentFeature)
 					{
@@ -3006,11 +3016,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						}
 					}
 
-					map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-					bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
-
 					const ImprovementTypes eOldAdjacentImprovement = !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
-					const ImprovementTypes eNewAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : eOldAdjacentImprovement;
+					const ImprovementTypes eNewAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
 					// The improvement in an adjacent plot has been changed
 					if (eNewAdjacentImprovement != eOldAdjacentImprovement)
@@ -3075,11 +3082,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 					{
 						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), ((DirectionTypes)iDirectionLoop));
-						int iAdjacentPlotIndex = pCityAdjacentPlot->GetPlotIndex();
-						map<int, FeatureTypes>::const_iterator it = sState.mChangedPlotFeatures.find(iAdjacentPlotIndex);
-						FeatureTypes eAdjacentFeature = it != sState.mChangedPlotFeatures.end() ? it->second : pCityAdjacentPlot->getFeatureType();
-						map<int, ImprovementTypes>::const_iterator it2 = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex);
-						ImprovementTypes eAdjacentImprovement = it2 != sState.mChangedPlotImprovements.end() ? it2->second : pCityAdjacentPlot->getImprovementType();
+
+						FeatureTypes eAdjacentFeature = GetPlannedFeatureInPlot(pCityAdjacentPlot, sState);
+						ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pCityAdjacentPlot, sState);
+
 						if (pCityAdjacentPlot && eAdjacentFeature == eFeature && eAdjacentImprovement == NO_IMPROVEMENT)
 						{
 							iAdjacentForests++;
@@ -3119,8 +3125,6 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (!pAdjacentOwningCity || pAdjacentOwningCity->IsRazing())
 					continue;
 
-				int iAdjacentPlotIndex = pAdjacentPlot->GetPlotIndex();
-
 				int iNewAdjacentYield = 0;
 
 				// How much extra yield we give to adjacent tiles with a certain terrain
@@ -3131,22 +3135,16 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						iNewAdjacentYield += iAdjacentTerrainYieldChange;
 				}
 
-				map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex);
-				ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
-
-				// If we are not planning on building an improvement here, use the one that exists already
-				if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
-					eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+				ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
 				if (eAdjacentImprovement != NO_IMPROVEMENT)
 				{
-
 					CvImprovementEntry* pkAdjacentImprovementInfo = GC.getImprovementInfo(eAdjacentImprovement);
 
 					if (pkAdjacentImprovementInfo)
 					{
 						// How much extra yield we give to adjacent tiles with a certain improvement
-						fraction fAdjacentImprovementYield = pkImprovementInfo ? pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eAdjacentImprovement) : 0;
+						fraction fAdjacentImprovementYield = pkAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement);
 						fraction fCurrentAdjacentImprovementYield = GetCurrentAdjacencyScoreFromImprovements(pAdjacentPlot, *pkAdjacentImprovementInfo, eYield, sState);
 						int iDeltaTruncatedYield = (fCurrentAdjacentImprovementYield + fAdjacentImprovementYield).Truncate() - fCurrentAdjacentImprovementYield.Truncate();
 						if (iDeltaTruncatedYield != 0)
@@ -3202,10 +3200,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (!pAdjacentPlot)
 					continue;
 
-				map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-				bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
-
-				const ImprovementTypes eAdjacentImprovement = bImprovementChanged ? changedImprovementIt->second : !pAdjacentPlot->IsImprovementPillaged() ? pAdjacentPlot->getImprovementType() : NO_IMPROVEMENT;
+				const ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
 				if (eAdjacentImprovement != NO_IMPROVEMENT)
 				{
@@ -3442,10 +3437,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (!pPotentialOtherImprovementPlot || pPotentialOtherImprovementPlot->getOwner() != m_pPlayer->GetID())
 					continue;
 
-				map<int, ImprovementTypes>::const_iterator changedImprovementIt = sState.mChangedPlotImprovements.find(pPotentialOtherImprovementPlot->GetPlotIndex());
-				bool bImprovementChanged = changedImprovementIt != sState.mChangedPlotImprovements.end();
-
-				const ImprovementTypes eOtherImprovement = bImprovementChanged ? changedImprovementIt->second : !pPotentialOtherImprovementPlot->IsImprovementPillaged() ? pPotentialOtherImprovementPlot->getImprovementType() : NO_IMPROVEMENT;
+				const ImprovementTypes eOtherImprovement = GetPlannedImprovementInPlot(pPotentialOtherImprovementPlot, sState);
 
 				if (eOtherImprovement == eImprovement)
 				{
