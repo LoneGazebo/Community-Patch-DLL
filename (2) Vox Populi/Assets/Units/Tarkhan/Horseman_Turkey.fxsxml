@@ -1,0 +1,76 @@
+<Asset>
+	<Mesh file="Horseman_Turkey.gr2"/>
+	<Animation file="U_Greek_CompanionCavalry_IdleA.gr2" ec="1000"/>
+	<Animation file="U_Greek_CompanionCavalry_FidgetA.gr2" ec="1040"/>
+	<Animation file="U_Greek_CompanionCavalry_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="U_Greek_CompanionCavalry_IdleB.gr2" ec="2000"/>
+	<Animation file="U_Greek_CompanionCavalry_FidgetB.gr2" ec="2040"/>
+	<Animation file="U_Greek_CompanionCavalry_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="U_Greek_CompanionCavalry_Fortify.gr2" ec="1500"/>
+	<Animation file="U_Greek_CompanionCavalry_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="U_Greek_CompanionCavalry_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="U_Greek_CompanionCavalry_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="U_Greek_CompanionCavalry_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="U_Greek_CompanionCavalry_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="U_Greek_CompanionCavalry_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="U_Greek_CompanionCavalry_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="U_Greek_CompanionCavalry_TurnRunLeft.gr2" ec="1480"/>
+	<Animation file="U_Greek_CompanionCavalry_TurnRunRight.gr2" ec="1460"/>
+	<Animation file="U_Greek_CompanionCavalry_Run.gr2" ec="1400"/>
+	<Animation file="U_Greek_CompanionCavalry_Stop_Run.gr2" ec="1440"/>
+	<Animation file="U_Greek_CompanionCavalry_Stop_Run_B.gr2" ec="2440"/>
+	<Animation file="U_Greek_CompanionCavalry_Shuffle.gr2" ec="1450"/>
+	<Animation file="U_Greek_CompanionCavalry_Charge_Run.gr2" ec="1120"/>
+	<Animation file="U_Greek_CompanionCavalry_Charge_Attack.gr2" ec="1140"/>
+	<Animation file="U_Greek_CompanionCavalry_AttackA.gr2" ec="1100"/>
+	<Animation file="U_Greek_CompanionCavalry_AttackB.gr2" ec="2100"/>
+	<Animation file="U_Greek_CompanionCavalry_Attack_City.gr2" ec="1160, 1180"/>
+	<Animation file="U_Greek_CompanionCavalry_Victory.gr2" ec="1800"/>
+	<Animation file="U_Greek_CompanionCavalry_BombardDefense.gr2" ec="1280"/>
+	<Animation file="U_Greek_CompanionCavalry_BombardDefense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="U_Greek_CompanionCavalry_BombardDefense_Idle.gr2" ec="1285"/>
+	<Animation file="U_Greek_CompanionCavalry_DeathA.gr2" ec="1200"/>
+	<Animation file="U_Greek_CompanionCavalry_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="U_Greek_CompanionCavalry_DeathB.gr2" ec="2200"/>
+	<Animation file="U_Greek_CompanionCavalry_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="U_Greek_CompanionCavalry_DIFF.dds"/>
+	<Texture file="U_Greek_CompanionCavalry_SREF.dds"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<TimedTrigger file="FX_Triggers_U_Greek_CompanionCavalry.ftsxml"/>
+	<StateMachine file="1_OMNI_MOUNTED_STATE_01.fsmxml"/>
+	<AnimGraph file="START_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_TO_SHUFFLE_RUN_CHARGE.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_LOOP.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="DEATH_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="MOUNTED_RUNNING_LOOP.dge"/>
+	<AnimGraph file="MELEE_ATTACKS.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="SHUFFLE_STOP_GRAPH.dge"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+	<BoneUsage>
+		<Bone name="HORSE_BASE_ORIENT"/>
+		<Bone name="Horse"/>
+		<Bone name="Base HumanSpine2"/>
+		<Bone name="Base HumanRibcage"/>
+		<Bone name="Base HumanRPalm"/>
+	</BoneUsage>
+</Asset>
+

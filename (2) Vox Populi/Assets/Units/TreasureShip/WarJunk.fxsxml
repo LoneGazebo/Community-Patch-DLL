@@ -1,0 +1,99 @@
+<Asset>
+	<Mesh file="WarJunk.gr2"/>
+	<Animation file="Frigate_IdleA.gr2" ec="1000"/>
+	<Animation file="Frigate_FidgetA.gr2" ec="1040"/>
+	<Animation file="Frigate_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="Frigate_IdleB.gr2" ec="2000"/>
+	<Animation file="Frigate_FidgetB.gr2" ec="2040"/>
+	<Animation file="Frigate_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="Frigate_Fortify.gr2" ec="1500"/>
+	<Animation file="Frigate_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Frigate_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="Frigate_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="Frigate_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Frigate_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="Frigate_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="Frigate_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="Frigate_Run.gr2" ec="1400, 1120"/>
+	<Animation file="Frigate_Stop_Run.gr2" ec="1440"/>
+	<Animation file="Frigate_AttackA_Starboard.gr2" ec="1100"/>
+	<Animation file="Frigate_AttackB_Port.gr2" ec="2100"/>
+	<Animation file="Frigate_AttackCity_Port.gr2" ec="2160"/>
+	<Animation file="Frigate_Bombarment_port.gr2" ec="2180"/>
+	<Animation file="Frigate_AttackCity.gr2" ec="1160"/>
+	<Animation file="Frigate_Bombardment.gr2" ec="1180"/>
+	<Animation file="Frigate_Victory.gr2" ec="1800"/>
+	<Animation file="Frigate_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Frigate_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Frigate_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Frigate_DeathA.gr2" ec="1200"/>
+	<Animation file="Frigate_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="Frigate_DeathB.gr2" ec="2200"/>
+	<Animation file="Frigate_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="WarJunk_DIFF.dds"/>
+	<Texture file="WarJunk_SREF.dds"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="Frigate_DIFF.dds"/>
+	<Texture file="Frigate_SREF.dds"/>
+	<StateMachine file="SHIPS_STATE_01.fsmxml"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="RUNNING_LOOP_GRAPH.dge"/>
+	<AnimGraph file="START_RUNNING.dge"/>
+	<AnimGraph file="RANGED_DEATH.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="SHIP_ATTACKS.dge"/>
+	<AnimGraph file="SHIP_STOP_RUNNING.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_GRAPH.dge"/>
+	<TimedTrigger file="FX_Trigger_Frigate.ftsxml"/>
+	<BoneUsage>
+		<Bone name="World"/>
+		<Bone name="point_PROJECTILE_35"/>
+		<Bone name="point_PROJECTILE_44"/>
+		<Bone name="point_PROJECTILE_28"/>
+		<Bone name="point_PROJECTILE_38"/>
+		<Bone name="point_PROJECTILE_08"/>
+		<Bone name="point_PROJECTILE_27"/>
+		<Bone name="point_PROJECTILE_20"/>
+		<Bone name="point_PROJECTILE_40"/>
+		<Bone name="point_PROJECTILE_29"/>
+		<Bone name="point_PROJECTILE_04"/>
+		<Bone name="point_PROJECTILE_23"/>
+		<Bone name="point_PROJECTILE_05"/>
+		<Bone name="point_PROJECTILE_24"/>
+		<Bone name="point_PROJECTILE_16"/>
+		<Bone name="point_PROJECTILE_18"/>
+		<Bone name="point_PROJECTILE_21"/>
+		<Bone name="point_PROJECTILE_33"/>
+		<Bone name="point_PROJECTILE_43"/>
+		<Bone name="point_PROJECTILE_34"/>
+		<Bone name="point_PROJECTILE_06"/>
+		<Bone name="point_PROJECTILE_25"/>
+		<Bone name="point_PROJECTILE_17"/>
+		<Bone name="point_PROJECTILE_41"/>
+		<Bone name="point_PROJECTILE_36"/>
+		<Bone name="point_PROJECTILE_52"/>
+		<Bone name="point_PROJECTILE_37"/>
+		<Bone name="point_PROJECTILE_19"/>
+		<Bone name="point_PROJECTILE_39"/>
+		<Bone name="point_PROJECTILE_22"/>
+		<Bone name="point_PROJECTILE_07"/>
+		<Bone name="point_PROJECTILE_26"/>
+		<Bone name="point_PROJECTILE_42"/>
+	</BoneUsage>
+</Asset>
+
