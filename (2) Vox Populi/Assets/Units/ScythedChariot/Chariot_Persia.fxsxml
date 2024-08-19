@@ -1,0 +1,46 @@
+<Asset>
+	<Mesh file="Chariot_Persia.gr2" />
+	<Animation file="egyptianwarchariot_md_idle.gr2" ec="1000, 1020, 1450, 1800, 2000, 2020" />
+	<Animation file="egyptianwarchariot_md_run.gr2" ec="1120, 1140, 1400, 1440, 2440, 1460, 1480" />
+	<Animation file="egyptianwarchariot_md_fidget.gr2" ec="1040, 2040" />
+	<Animation file="egyptianwarchariot_md_fortifya.gr2" ec="1500" />
+	<Animation file="egyptianwarchariot_md_fortifya_idle.gr2" ec="1520, 1540, 1560, 1580, 1600, 1620, 1640, 1285, 1290" />
+	<Animation file="egyptianwarchariot_md_strikea.gr2" ec="1100, 1160, 1180, 2100" />
+	<Animation file="egyptianwarchariot_md_diea.gr2" ec="1200, 2200" />
+	<Animation file="egyptianwarchariot_md_diea_fade.gr2" ec="1220, 2220" />
+	<Animation file="egyptianwarchariot_md_hurta.gr2" ec="1280" />
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<BoneUsage>
+		<Bone name="point_WORLD"/>
+	</BoneUsage>
+	<TimedTrigger file="FX_Triggers_Chariot_Civ4.ftsxml"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+	<AnimGraph file="SHUFFLE_STOP_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="MELEE_ATTACKS.dge"/>
+	<AnimGraph file="MOUNTED_RUNNING_LOOP.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="DEATH_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="STOP_RUNNING.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_LOOP.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_TO_SHUFFLE_RUN_CHARGE.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="START_RUN_CHARGE_SHUFFLE.dge"/>
+	<StateMachine file="1_OMNI_MOUNTED_STATE_01.fsmxml"/>
+</Asset>
+
