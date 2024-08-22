@@ -3098,6 +3098,10 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	// Route
 	if(eRoute != NO_ROUTE)
 	{
+		// can't build roads in cities
+		if (isCity())
+			return false;
+
 		if(getRouteType() != NO_ROUTE)
 		{
 			if (isWater() && !thisBuildInfo.IsWater())

@@ -284,7 +284,7 @@ public:
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
-	RouteTypes GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
+	RouteTypes GetBestBuildRouteForRoadTo(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
 	void PlayActionSound();
 
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
@@ -1847,7 +1847,7 @@ public:
 	void PopMission();
 	void AutoMission();
 	void UpdateMission();
-	CvPlot* LastMissionPlot();
+	CvPlot* LastMissionPlot() const;
 	bool CanStartMission(int iMission, int iData1, int iData2, CvPlot* pPlot = NULL, bool bTestVisible = false);
 	int GetMissionTimer() const;
 	void SetMissionTimer(int iNewValue);

@@ -11323,7 +11323,7 @@ bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes 
 	if (!pCity1 || !pCity2)
 		return false;
 
-	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, !bIgnoreHarbors, false, pPathOut);
+	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, !bIgnoreHarbors, true, false, pPathOut);
 }
 
 bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer)
