@@ -1116,6 +1116,9 @@ ALTER TABLE Improvements ADD COLUMN 'CoastMakesValid' BOOLEAN DEFAULT 0;
 -- Improvements can generate vision for builder x tiles away (radially)
 ALTER TABLE Improvements ADD COLUMN 'GrantsVisionXTiles' INTEGER DEFAULT 0;
 
+-- Improvement spawns a resource in an adjacent tile on completion
+ALTER TABLE Improvements ADD COLUMN 'SpawnsAdjacentResource' TEXT DEFAULT NULL;
+
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;

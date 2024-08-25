@@ -184,7 +184,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
 	m_ppiRouteYieldChanges(NULL),
-	m_paImprovementResource(NULL)
+	m_paImprovementResource(NULL),
+	m_eSpawnsAdjacentResource(NO_RESOURCE)
 {
 }
 
@@ -385,6 +386,9 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const char* szImprovementUpgrade = kResults.GetText("ImprovementUpgrade");
 	m_iImprovementUpgrade = GC.getInfoTypeForString(szImprovementUpgrade, true);
+
+	const char* szSpawnsAdjacentResource = kResults.GetText("SpawnsAdjacentResource");
+	m_eSpawnsAdjacentResource = (ResourceTypes)GC.getInfoTypeForString(szSpawnsAdjacentResource, true);
 
 	//Arrays
 	const char* szImprovementType = GetType();
@@ -1624,6 +1628,12 @@ bool CvImprovementEntry::IsConnectsResource(int i) const
 		return false;
 
 	return ConnectsAllResources();
+}
+
+// Spawns a resource in one of the available adjacent tiles (if possible)
+ResourceTypes CvImprovementEntry::SpawnsAdjacentResource() const
+{
+	return m_eSpawnsAdjacentResource;
 }
 
 /// the chance of the specified Resource appearing randomly when the Improvement is present with no current Resource

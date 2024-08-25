@@ -3615,7 +3615,111 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	const int iImprovementMaintenanceTimes100 = pkImprovementInfo ? pkImprovementInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) : 0;
 	iSecondaryScore -= iImprovementMaintenanceTimes100;
 
+	ResourceTypes eSpawnedResource = pkImprovementInfo ? pkImprovementInfo->SpawnsAdjacentResource() : NO_RESOURCE;
+
+	if (eSpawnedResource != NO_RESOURCE)
+	{
+		int iTileClaimChance = 0;
+		int iTileWorkableChance = 0;
+		if (eBuild != NO_BUILD)
+		{
+			iTileWorkableChance = GetResourceSpawnWorkableChance(pPlot, iTileClaimChance);
+		}
+		else
+		{
+			CvPlot* pSpawnedPlot = pPlot->GetSpawnedResourcePlot();
+			if (pSpawnedPlot && pSpawnedPlot->isPlayerCityRadius(m_pPlayer->GetID()))
+				iTileWorkableChance = 100;
+		}
+
+		if (iTileClaimChance > 0)
+		{
+			iSecondaryScore += 3 * iTileClaimChance;
+		}
+
+		if (iTileWorkableChance > 0)
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+
+				if (eYield > YIELD_CULTURE_LOCAL)
+					break;
+
+				int iYieldChange = GC.getResourceInfo(eSpawnedResource)->getYieldChange(eYield);
+
+				if (iYieldChange != 0)
+				{
+					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+					iYieldScore += (iYieldChange * iTileWorkableChance * iYieldModifier * iCityYieldModifier) / 10000;
+				}
+			}
+		}
+	}
+
 	return make_pair(iYieldScore + iSecondaryScore, iPotentialScore);
+}
+
+int CvBuilderTaskingAI::GetResourceSpawnWorkableChance(CvPlot* pPlot, int& iTileClaimChance)
+{
+	vector<OptionWithScore<CvPlot*>> sortedPlots;
+	int iBestCost = INT_MAX;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+		if (!pAdjacentPlot)
+			continue;
+
+		if (pAdjacentPlot->isCity() || !pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()) || pAdjacentPlot->isWater()
+			|| pAdjacentPlot->IsNaturalWonder() || pAdjacentPlot->isMountain() || pAdjacentPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+			continue;
+
+		if (pAdjacentPlot->getOwner() != m_pPlayer->GetID() && pAdjacentPlot->getOwner() != NO_PLAYER)
+			continue;
+
+		int iCost = pAdjacentPlot->getOwner() != m_pPlayer->GetID() && pAdjacentPlot->getOwner() != NO_PLAYER ? 1 : 0;
+
+		sortedPlots.push_back(OptionWithScore<CvPlot*>(pAdjacentPlot, -iCost));
+		if (iCost < iBestCost)
+			iBestCost = iCost;
+	}
+
+	// if iBestCost is > 0, we will spawn the resource in enemy territory, or not spawn anything
+	if (iBestCost > 0)
+	{
+		iTileClaimChance = 0;
+		return 0;
+	}
+
+	std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+
+	int iWorkableSpawnPlots = 0;
+	int iNonWorkableSpawnPlots = 0;
+	int iClaimTiles = 0;
+	int iNonClaimTiles = 0;
+
+	for (vector<OptionWithScore<CvPlot*>>::const_iterator it = sortedPlots.begin(); it != sortedPlots.end(); ++it)
+	{
+		int iCost = -it->score;
+		if (iCost != iBestCost)
+			continue;
+
+		CvPlot* pAdjacentPlot = it->option;
+
+		if (pAdjacentPlot->isPlayerCityRadius(m_pPlayer->GetID()) && (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID()))
+			iWorkableSpawnPlots++;
+		else
+			iNonWorkableSpawnPlots++;
+		if (pAdjacentPlot->getOwner() == NO_PLAYER)
+			iClaimTiles++;
+		else
+			iNonClaimTiles++;
+	}
+
+	iTileClaimChance = (100 * iClaimTiles) / (iNonClaimTiles + iClaimTiles);
+
+	return (100 * iWorkableSpawnPlots) / (iNonWorkableSpawnPlots + iWorkableSpawnPlots);
 }
 
 BuildTypes CvBuilderTaskingAI::GetRepairBuild(void)
