@@ -24,7 +24,7 @@ public:
 	static void ContinueMission(CvUnit* hUnit, int iSteps = 0);
 	static void AutoMission(CvUnit* hUnit);
 	static void UpdateMission(CvUnit* hUnit);
-	static CvPlot* LastMissionPlot(CvUnit* hUnit);
+	static CvPlot* LastMissionPlot(const CvUnit* hUnit);
 	static void PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1 = -1, int iData2 = -1, int iFlags = 0, bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI, CvPlot* pMissionAIPlot = NULL, CvUnit* pMissionAIUnit = NULL);
 	static void PopMission(CvUnit* hUnit);
 	static void ClearMissionQueue(CvUnit* hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride);

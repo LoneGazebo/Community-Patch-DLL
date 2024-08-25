@@ -15606,24 +15606,9 @@ BuildTypes CvUnit::getBuildType() const
 	{
 		if(pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 		{
-			RouteTypes eBestRoute = GET_PLAYER(m_eOwner).getBestRoute(plot());
-			if(eBestRoute != NO_ROUTE)
-			{
-				for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
-				{
-					BuildTypes eBuild = (BuildTypes)iI;
-					CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-
-					if(pkBuildInfo)
-					{
-						RouteTypes eRoute = ((RouteTypes)(pkBuildInfo->getRoute()));
-						if(eRoute == eBestRoute)
-						{
-							return eBuild;
-						}
-					}
-				}
-			}
+			BuildTypes eBestBuild = NO_BUILD;
+			GetBestBuildRouteForRoadTo(plot(), &eBestBuild);
+			return eBestBuild;
 		}
 		else if(pkMissionNode->eMissionType == CvTypes::getMISSION_BUILD())
 		{
@@ -28945,7 +28930,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 }
 
 //	--------------------------------------------------------------------------------
-RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) const
+RouteTypes CvUnit::GetBestBuildRouteForRoadTo(CvPlot* pPlot, BuildTypes* peBestBuild) const
 {
 	VALIDATE_OBJECT
 
@@ -28955,19 +28940,16 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 	}
 
 	int iBestValue = 0;
+	if (pPlot->getRouteType() != NO_ROUTE && !pPlot->IsRoutePillaged())
+		iBestValue = GC.getRouteInfo(pPlot->getRouteType())->getValue();
 	RouteTypes eBestRoute = NO_ROUTE;
 	
-#if defined(MOD_GLOBAL_QUICK_ROUTES)
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	const MissionData* pkMissionNode = HeadMissionData();
-	bool bOnlyRoad = MOD_GLOBAL_QUICK_ROUTES && kPlayer.isHuman() && (pkMissionNode != NULL && pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO());
-	
-	if (bOnlyRoad) {
+	bool bOnlyRoad = false;
+	if (MOD_GLOBAL_QUICK_ROUTES && GET_PLAYER(getOwner()).isHuman())
+	{
 		// If there is no road to the mission end plot, bOnlyRoad is true
-		CvUnit* me = kPlayer.getUnit(m_iID); // God I truely hate "const" - we're in a const method, but LastMissionPlot() isn't so we can't call it!!!
-		bOnlyRoad = !IsPlotConnectedToPlot(getOwner(), pPlot, me->LastMissionPlot(), ROUTE_ROAD);
+		bOnlyRoad = !IsPlotConnectedToPlot(getOwner(), pPlot, LastMissionPlot(), ROUTE_ROAD, false, false);
 	}
-#endif
 
 	for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
@@ -28985,11 +28967,9 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 					{
 						int iValue = pkRouteInfo->getValue();
 						
-#if defined(MOD_GLOBAL_QUICK_ROUTES)
 						if (bOnlyRoad && eRoute != ROUTE_ROAD) {
 							iValue = 0;
 						}
-#endif
 
 						if(iValue > iBestValue)
 						{
@@ -29512,30 +29492,39 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 // Returns true if we want to continue next turn or false if we are done
 bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
+	//do we have movement points left?
+	if (!canMove())
+		return true; //continue next turn
+
 	//first check if we can continue building on the current plot
-	BuildTypes eBestBuild = NO_BUILD;
-	GetBestBuildRoute(plot(), &eBestBuild);
-	RouteTypes eBestRoute = GET_PLAYER(getOwner()).getBestRoute(plot());
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRoute);
-	if(!bGetSameBenefitFromTrait && eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
+	BuildTypes eBestRouteBuildInPlot = NO_BUILD;
+	const RouteTypes eBestRouteInPlot = GetBestBuildRouteForRoadTo(plot(), &eBestRouteBuildInPlot);
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRouteInPlot);
+	if(!bGetSameBenefitFromTrait && eBestRouteBuildInPlot != NO_BUILD && UnitBuild(eBestRouteBuildInPlot))
 		return true;
 
 	//are we at the target plot? then there's nothing else to do
 	if (at(iX, iY))
 		return false;
 
-	//do we have movement points left?
-	if (!canMove())
-		return true; //continue next turn
+	RouteTypes ePlayerBestRoute = kPlayer.getBestRoute();
+
+	if (MOD_GLOBAL_QUICK_ROUTES && kPlayer.isHuman() && ePlayerBestRoute > ROUTE_ROAD) {
+		if (!IsPlotConnectedToPlot(getOwner(), plot(), LastMissionPlot(), ROUTE_ROAD, false, false))
+			ePlayerBestRoute = ROUTE_ROAD;
+	}
+
+	const BuildTypes ePlayerBestRouteBuild = kPlayer.GetBuilderTaskingAI()->GetBuildRoute(ePlayerBestRoute);
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,NO_ROUTE_PURPOSE,false);
+	SPathFinderUserData data(getOwner(), PT_BUILD_ROUTE, ePlayerBestRouteBuild, ePlayerBestRoute, NO_ROUTE_PURPOSE, false);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
-	CvPlot* pNextPlot = path.vPlots.size()>1 ? path.get(1) : NULL;
+	CvPlot* pNextPlot = path.vPlots.size() > 1 ? path.get(1) : NULL;
 	if(!pNextPlot || !canMoveInto(*pNextPlot, iFlags | MOVEFLAG_DESTINATION))
 	{
 		// add route interrupted notification
@@ -29941,7 +29930,7 @@ void CvUnit::UpdateMission()
 
 //	--------------------------------------------------------------------------------
 /// Where does this mission end?
-CvPlot* CvUnit::LastMissionPlot()
+CvPlot* CvUnit::LastMissionPlot() const
 {
 	VALIDATE_OBJECT
 	return CvUnitMission::LastMissionPlot(this);
