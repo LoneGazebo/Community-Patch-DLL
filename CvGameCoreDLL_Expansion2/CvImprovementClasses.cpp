@@ -141,8 +141,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bIsEmbassy(false),
 #if defined(MOD_BALANCE_CORE)
 	m_iGetObsoleteTech(NO_TECH),
-	m_bAdjacentLake(false),
+	m_bNoAdjacentCity(false),
 	m_bAdjacentCity(false),
+	m_bAdjacentLake(false),
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
 	m_bRestoreMoves(false),
@@ -329,8 +330,9 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 #if defined(MOD_BALANCE_CORE)
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iGetObsoleteTech = GC.getInfoTypeForString(szObsoleteTech, true);
-	m_bAdjacentLake = kResults.GetBool("Lakeside");
+	m_bNoAdjacentCity = kResults.GetBool("NoAdjacentCity");
 	m_bAdjacentCity = kResults.GetBool("Cityside");
+	m_bAdjacentLake = kResults.GetBool("Lakeside");
 	m_iGrantsVision = kResults.GetInt("GrantsVisionXTiles");
 	m_iUnitPlotExperience = kResults.GetInt("UnitPlotExperience");
 	m_iGAUnitPlotExperience = kResults.GetInt("GAUnitPlotExperience");
@@ -1174,13 +1176,17 @@ int CvImprovementEntry::GetObsoleteTech() const
 {
 	return m_iGetObsoleteTech;
 }
-bool CvImprovementEntry::IsAdjacentLake() const
+bool CvImprovementEntry::IsNoAdjacentCity() const
 {
-	return m_bAdjacentLake;
+	return m_bNoAdjacentCity;
 }
 bool CvImprovementEntry::IsAdjacentCity() const
 {
 	return m_bAdjacentCity;
+}
+bool CvImprovementEntry::IsAdjacentLake() const
+{
+	return m_bAdjacentLake;
 }
 int CvImprovementEntry::GetGrantsVision() const
 {

@@ -2546,6 +2546,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
+	if(pkImprovementInfo->IsNoAdjacentCity() && IsAdjacentCity())
+	{
+		return false;
+	}
+
 	if(pkImprovementInfo->IsNoFreshWater() && isFreshWater())
 	{
 		return false;
