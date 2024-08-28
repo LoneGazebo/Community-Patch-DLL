@@ -229,7 +229,7 @@ UPDATE Buildings SET Cost = 140 WHERE Type = 'BUILDING_GREAT_COTHON';
 
 -- Culture line (Faith of the Masses)
 UPDATE Buildings SET FaithCost = 300, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
-UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
+UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
 UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_OPERA_HOUSE';
 UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_MUSEUM';
 UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_BROADCAST_TOWER';
