@@ -19672,6 +19672,9 @@ void CvPlayer::DistributeHappinessToCities()
 		CitiesSortedByPopulation.push_back(pLoopCity, iPopulation);
 	}
 
+	if (CitiesSortedByPopulation.empty())
+		return;
+
 	CitiesSortedByNeed.StableSortItems();
 	CitiesSortedByPopulation.StableSortItems();
 

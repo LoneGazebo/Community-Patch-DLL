@@ -288,7 +288,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Buying Units, Buildings or Wonders[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_PURCHASEUNITS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'You can spend gold to purchase units [COLOR_YELLOW]or invest in a building[ENDCOLOR] in a city. Click on a unit (if you can afford it!) and it will be immediately trained in the city, and the amount deducted from your treasury. [COLOR_YELLOW]If you click on a building, you will invest in it, reducing the production cost of the building by 50%.[ENDCOLOR][NEWLINE][NEWLINE]Note that "projects" - the Manhattan Project, etc. - cannot be purchased.'
+SET Text = 'You can spend gold to purchase units [COLOR_YELLOW]or invest in a building[ENDCOLOR] in a city. Click on a unit (if you can afford it!) and it will be immediately trained in the city, and the amount deducted from your treasury. [COLOR_YELLOW]If you click on a building, you will invest in it, reducing the production cost of the building by 50%, or 25% if it is a wonder.[ENDCOLOR][NEWLINE][NEWLINE]Note that "projects" - the Manhattan Project, etc. - cannot be purchased.[NEWLINE][NEWLINE][COLOR_YELLOW]The purchase costs of units and buildings increase slightly with the number of technologies you have researched.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_PURCHASEUNITS_HEADING3_BODY';
 
 UPDATE Language_en_US
