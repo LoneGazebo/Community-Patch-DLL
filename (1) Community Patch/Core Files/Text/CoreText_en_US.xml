@@ -3282,6 +3282,12 @@
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM">
 			<Text>Not allowed if deal contains a Defensive Pact or Liberation.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_YOU_DECLARE_WAR_REQUIRED">
+			<Text>They must be able to declare war on everyone who is currently at war with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_THEM_DECLARE_WAR_REQUIRED">
+			<Text>You must be able to declare war on everyone who is currently at war with them!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS">
 			<Text>We have no vassals to liberate!</Text>
 		</Row>

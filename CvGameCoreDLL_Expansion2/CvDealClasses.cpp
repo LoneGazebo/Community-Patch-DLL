@@ -1297,6 +1297,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT) || ContainsItemType(TRADE_ITEM_VASSALAGE_REVOKE))
 				return false;
 
+			// Voluntary Vassalage only: the would-be master needs to be able to go to war with everyone currently at war with the vassal
+			if (!bPeaceDeal)
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+					TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+					if (pFromTeam->isAtWar(eLoopTeam) && !pToTeam->isAtWar(eLoopTeam) && !pToTeam->canDeclareWar(eLoopTeam, eToPlayer))
+						return false;
+				}
+			}
+
 			break;
 		}
 
@@ -2399,6 +2411,32 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM");
 				strTooltip += strDivider;
 				strTooltip += strReason;
+			}
+
+			// Voluntary Vassalage only: the would-be master needs to be able to go to war with everyone currently at war with the vassal
+			if (!bPeaceDeal)
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+					TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+					if (pFromTeam->isAtWar(eLoopTeam) && !pToTeam->isAtWar(eLoopTeam) && !pToTeam->canDeclareWar(eLoopTeam, eToPlayer))
+					{
+						if (bFromHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSALAGE_YOU_DECLARE_WAR_REQUIRED");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						else if (bToHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSALAGE_THEM_DECLARE_WAR_REQUIRED");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						break;
+					}
+				}
 			}
 
 			break;
