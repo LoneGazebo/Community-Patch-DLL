@@ -607,7 +607,7 @@ protected:
 	int m_iStackedGreatGeneralExperience;
 	int m_iPillageBonusStrength;
 	int m_iReligiousPressureModifier;
-	int m_iAdjacentCityDefesneMod;
+	int m_iAdjacentCityDefenseMod;
 	int m_iNearbyEnemyDamage;
 	int m_iMilitaryProductionModifier;
 	int m_iGeneralGoldenAgeExpPercent;

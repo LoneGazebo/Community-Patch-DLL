@@ -7835,6 +7835,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
+
+		// unit giving extra strength to an adjacent city?
+		if (pUnit->GetAdjacentCityDefenseMod() > 0 && (pTestPlot->IsAdjacentCity(pUnit->getTeam()) || (pTestPlot->isCity() && pTestPlot->getTeam() == pUnit->getTeam())))
+		{
+			iPlotScore += pUnit->GetAdjacentCityDefenseMod();
+		}
+
 		iDangerScore = ScoreTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
 
 		if (iDangerScore == INT_MAX)
@@ -7950,6 +7957,12 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	{
 		result.eAssignmentType = A_FINISH;
 		iDangerScore = ScoreTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
+
+		// unit giving extra strength to an adjacent city?
+		if (pUnit->GetAdjacentCityDefenseMod() > 0 && (pTestPlot->IsAdjacentCity(pUnit->getTeam()) || (pTestPlot->isCity() && pTestPlot->getTeam() == pUnit->getTeam())))
+		{
+			iPlotScore += pUnit->GetAdjacentCityDefenseMod();
+		}
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
