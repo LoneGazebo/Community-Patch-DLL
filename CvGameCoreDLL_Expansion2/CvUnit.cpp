@@ -440,6 +440,7 @@ CvUnit::CvUnit() :
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
 	, m_iNearbyEnemyDamage()
+	, m_iAdjacentCityDefenseMod()
 	, m_iGGGAXPPercent()
 	, m_iGiveCombatMod()
 	, m_iGiveHPIfEnemyKilled()
@@ -1513,6 +1514,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
+	m_iAdjacentCityDefenseMod = 0;
 	m_iGGGAXPPercent = 0;
 	m_eGiveDomain = NO_DOMAIN;
 	m_iGiveCombatMod = 0;
@@ -17973,6 +17975,16 @@ void CvUnit::ChangeNearbyEnemyDamage(int iValue)
 	VALIDATE_OBJECT
 	m_iNearbyEnemyDamage += iValue;
 }
+int CvUnit::GetAdjacentCityDefenseMod() const
+{
+	VALIDATE_OBJECT
+		return m_iAdjacentCityDefenseMod;
+}
+void CvUnit::ChangeAdjacentCityDefenseMod(int iValue)
+{
+	VALIDATE_OBJECT
+		m_iAdjacentCityDefenseMod += iValue;
+}
 int CvUnit::GetGGGAXPPercent() const
 {
 	VALIDATE_OBJECT
@@ -26898,6 +26910,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
 		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
 		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
+		ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
 		ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
 		ChangeGiveCombatMod(thisPromotion.GetGiveCombatMod() * iChange);
 		ChangeGiveHPIfEnemyKilled(thisPromotion.GetGiveHPIfEnemyKilled() * iChange);
@@ -27651,6 +27664,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
 	visitor(unit.m_iNearbyEnemyDamage);
+	visitor(unit.m_iAdjacentCityDefenseMod);
 	visitor(unit.m_iGGGAXPPercent);
 	visitor(unit.m_iGiveCombatMod);
 	visitor(unit.m_iGiveHPIfEnemyKilled);
@@ -31204,7 +31218,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-
+	iTemp = pkPromotionInfo->GetAdjacentCityDefenseMod();
+	// can't be picked currently
+	if (iTemp != 0)
+	{
+		iExtra = (iTemp) * (iFlavorDefense + 4 * iFlavorCityDefense);
+		iExtra *= 100 + GetAdjacentCityDefenseMod();
+		iExtra /= 100;
+		iExtra *= 0.5;
+		iValue += iExtra;
+	}
 
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	// M + mM: +5 Shock 1 - 3, +25 Overrun (Shock 4).	Zulu: +10 Buffalo Chest & Horns.

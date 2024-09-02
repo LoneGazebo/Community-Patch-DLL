@@ -791,7 +791,9 @@ public:
 	void ChangeMilitaryProductionModifier(int iValue);
 	int getNearbyEnemyDamage() const;
 	void ChangeNearbyEnemyDamage(int iValue);
+	int GetAdjacentCityDefenseMod() const;
 	int GetGGGAXPPercent() const;
+	void ChangeAdjacentCityDefenseMod(int iValue);
 	void ChangeGGGAXPPercent(int iValue);
 	int getGiveCombatMod() const;
 	void ChangeGiveCombatMod(int iValue);
@@ -2185,6 +2187,7 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iUnitProductionModifier;
 	int m_iNearbyEnemyDamage;
+	int m_iAdjacentCityDefenseMod;
 	int m_iGGGAXPPercent;
 	int m_iGiveCombatMod;
 	int m_iGiveHPIfEnemyKilled;
@@ -2622,6 +2625,7 @@ SYNC_ARCHIVE_VAR(int, m_iStackedGreatGeneralExperience)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyDamage)
+SYNC_ARCHIVE_VAR(int, m_iAdjacentCityDefenseMod)
 SYNC_ARCHIVE_VAR(int, m_iGGGAXPPercent)
 SYNC_ARCHIVE_VAR(int, m_iGiveCombatMod)
 SYNC_ARCHIVE_VAR(int, m_iGiveHPIfEnemyKilled)
