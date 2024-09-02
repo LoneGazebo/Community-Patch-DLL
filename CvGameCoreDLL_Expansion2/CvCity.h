@@ -1423,6 +1423,8 @@ public:
 	int getSpecialistFreeExperience() const;
 	void changeSpecialistFreeExperience(int iChange);
 
+	int getAdjacentUnitsDefenseMod() const;
+
 	void updateStrengthValue();
 	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL) const;
 	int GetPower() const;
@@ -1854,6 +1856,7 @@ protected:
 	int m_iCitySizeBoost;
 	int m_iSpecialistFreeExperience;
 	int m_iStrengthValue;
+	int m_iStrengthValueRanged;
 	int m_iDamage;
 	int m_iThreatValue;
 	int m_hGarrison;  // unused
@@ -2251,6 +2254,7 @@ SYNC_ARCHIVE_VAR(int, m_iCityConnectionTradeRouteGoldModifier)
 SYNC_ARCHIVE_VAR(int, m_iCitySizeBoost)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFreeExperience)
 SYNC_ARCHIVE_VAR(int, m_iStrengthValue)
+SYNC_ARCHIVE_VAR(int, m_iStrengthValueRanged)
 SYNC_ARCHIVE_VAR(int, m_iDamage)
 SYNC_ARCHIVE_VAR(int, m_iThreatValue)
 SYNC_ARCHIVE_VAR(int, m_hGarrison)
