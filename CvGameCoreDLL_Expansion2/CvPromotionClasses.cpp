@@ -254,7 +254,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iStackedGreatGeneralExperience(0),
 	m_iPillageBonusStrength(0),
 	m_iReligiousPressureModifier(0),
-	m_iAdjacentCityDefesneMod(0),
+	m_iAdjacentCityDefenseMod(0),
 	m_iNearbyEnemyDamage(0),
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
@@ -538,7 +538,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
-	m_iAdjacentCityDefesneMod = kResults.GetInt("AdjacentCityDefenseMod");
+	m_iAdjacentCityDefenseMod = kResults.GetInt("AdjacentCityDefenseMod");
 	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
@@ -2565,7 +2565,7 @@ int CvPromotionEntry::GetReligiousPressureModifier() const
 }
 int CvPromotionEntry::GetAdjacentCityDefenseMod() const
 {
-	return m_iAdjacentCityDefesneMod;
+	return m_iAdjacentCityDefenseMod;
 }
 int CvPromotionEntry::GetNearbyEnemyDamage() const
 {
