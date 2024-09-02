@@ -220,6 +220,7 @@ CvCity::CvCity() :
 	, m_iCitySizeBoost()
 	, m_iSpecialistFreeExperience()
 	, m_iStrengthValue()
+	, m_iStrengthValueRanged()
 	, m_iDamage()
 	, m_iThreatValue()
 	, m_hGarrison()
@@ -26285,6 +26286,45 @@ void CvCity::changeSpecialistFreeExperience(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvCity::getAdjacentUnitsDefenseMod() const
+{
+	int iAdjacentUnitsDefenseMod = 0;
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(plot()->GetPlotIndex());
+	for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if (pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			while (pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				if (pLoopUnit && pLoopUnit->getTeam() == getTeam())
+				{
+					iAdjacentUnitsDefenseMod += pLoopUnit->GetAdjacentCityDefenseMod();
+				}
+			}
+		}
+	}
+	// also check the city plot itself
+	IDInfo* pUnitNode = plot()->headUnitNode();
+
+	while (pUnitNode != NULL)
+	{
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = plot()->nextUnitNode(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit->getTeam() == getTeam())
+		{
+			iAdjacentUnitsDefenseMod += pLoopUnit->GetAdjacentCityDefenseMod();
+		}
+	}
+	return iAdjacentUnitsDefenseMod;
+}
+//	--------------------------------------------------------------------------------
 void CvCity::updateStrengthValue()
 {
 	// Default Strength
@@ -26403,14 +26443,25 @@ void CvCity::updateStrengthValue()
 		iStrengthValue += /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_HILL_CHANGE);
 	}
 
+	// defense mod from adjacent units, not applied to ranged strength
+	int iStrengthValueRanged = iStrengthValue;
+
+	int iAdjacentUnitsDefenseMod = getAdjacentUnitsDefenseMod();
+	if (iAdjacentUnitsDefenseMod > 0)
+	{
+		iStrengthValue *= 100 + iAdjacentUnitsDefenseMod;
+		iStrengthValue /= 100;
+	}
+
 	//finally
-	if (iStrengthValue != m_iStrengthValue)
+	if (iStrengthValue != m_iStrengthValue || iStrengthValueRanged != m_iStrengthValueRanged)
 	{
 		// update bonuses from city strength
 		bool bHadBonusesBefore = (m_iStrengthValue >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100);
 		bool bHasBonusesNow = (iStrengthValue >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100);
 
-		// set new strength value
+		// set new strength values
+		m_iStrengthValueRanged = iStrengthValueRanged;
 		m_iStrengthValue = iStrengthValue;
 
 		if (bHadBonusesBefore != bHasBonusesNow)
@@ -26435,7 +26486,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 	if (bForRangeStrike)
 	{
 		// Base values
-		int iValue = m_iStrengthValue;
+		int iValue = m_iStrengthValueRanged;
 		int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
 
 		if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
@@ -26448,29 +26499,29 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
 				iValue -= (iStrengthFromGarrison * 100);
 			}
-
-			// Counterspy modifier
-			if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
-			{
-				CvCityEspionage* pCityEspionage = GetCityEspionage();
-				if (pCityEspionage)
-				{
-					CityEventChoiceTypes eSpyFocus = pCityEspionage->GetCounterSpyFocus();
-					if (eSpyFocus != NO_EVENT_CHOICE_CITY)
-					{
-						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eSpyFocus);
-						if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifierBase() != 0)
-							iModifier += pkEventChoiceInfo->getCityDefenseModifierBase();
-						if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
-							iModifier += pkEventChoiceInfo->getCityDefenseModifier() * (pCityEspionage->GetCounterSpyRank() + 1);
-					}
-				}
-			}
 		}
 		else
 		{
 			// Always ignore building defense here
 			iValue -= m_pCityBuildings->GetBuildingDefense();
+		}
+
+		// Counterspy modifier
+		if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
+		{
+			CvCityEspionage* pCityEspionage = GetCityEspionage();
+			if (pCityEspionage)
+			{
+				CityEventChoiceTypes eSpyFocus = pCityEspionage->GetCounterSpyFocus();
+				if (eSpyFocus != NO_EVENT_CHOICE_CITY)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eSpyFocus);
+					if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifierBase() != 0)
+						iModifier += pkEventChoiceInfo->getCityDefenseModifierBase();
+					if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
+						iModifier += pkEventChoiceInfo->getCityDefenseModifier() * (pCityEspionage->GetCounterSpyRank() + 1);
+				}
+			}
 		}
 
 		// Defense process doesn't boost city strikes
@@ -30929,6 +30980,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCitySizeBoost);
 	visitor(city.m_iSpecialistFreeExperience);
 	visitor(city.m_iStrengthValue);
+	visitor(city.m_iStrengthValueRanged);
 	visitor(city.m_iDamage);
 	visitor(city.m_iThreatValue);
 	visitor(city.m_hGarrison);
