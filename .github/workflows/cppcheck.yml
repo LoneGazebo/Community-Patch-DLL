@@ -1,7 +1,7 @@
 name: cppcheck
 on:
   push:
-    branches: [ cppcheck ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
