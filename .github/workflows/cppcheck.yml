@@ -1,7 +1,7 @@
 name: cppcheck
 on:
   push:
-    branches: [ master ]
+    branches: [ cppcheck ]
   workflow_dispatch:
 
 jobs:
@@ -27,12 +27,12 @@ jobs:
           # sudo apt-get --yes install cppcheck
           # cppcheck --version
 
-      - name: Build cppcheck 2.15 # https://stackoverflow.com/a/72307265
+      - name: Build cppcheck 2.15.0 # https://stackoverflow.com/a/72307265
         run: |
           cd /tmp
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck 
-          git checkout 2.15
+          git checkout 2.15.0
           sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
           cd /tmp
           sudo rm -rf /tmp/cppcheck
@@ -83,12 +83,12 @@ jobs:
       - name: Make build-dir # Cppcheck work folder
         run: mkdir build-dir
 
-      - name: Build cppcheck 2.14.2 # https://stackoverflow.com/a/72307265
+      - name: Build cppcheck 2.15.0 # https://stackoverflow.com/a/72307265
         run: |
           cd /tmp
           git clone https://github.com/danmar/cppcheck.git
           cd cppcheck 
-          git checkout 2.14.1
+          git checkout 2.15.0
           sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
           cd /tmp
           sudo rm -rf /tmp/cppcheck
