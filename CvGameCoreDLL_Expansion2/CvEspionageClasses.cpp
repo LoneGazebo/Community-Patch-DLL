@@ -8869,6 +8869,12 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 			continue;
 		}
 
+		// can't send a diplomat if we're at war with them
+		if (m_pPlayer->IsAtWarWith(eTargetPlayer))
+		{
+			continue;
+		}
+
 		// if we can't see it, we can't move a diplomat there.
 		if (!pCapitalCity->isRevealed(m_pPlayer->getTeam(), false, false))
 		{
