@@ -12960,6 +12960,9 @@ int CvMinorCivAI::GetFriendsThreshold(PlayerTypes ePlayer) const
 /// Is the player above the threshold to get the Allies bonus?
 bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const
 {
+	if (m_pPlayer->GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	int iFriendshipThresholdAllies = GetAlliesThreshold(ePlayer);
 
 	return iFriendship >= iFriendshipThresholdAllies;
