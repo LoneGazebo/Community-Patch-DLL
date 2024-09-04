@@ -2472,6 +2472,38 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvPlot::CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech, bool bIsLand) const
+{
+	if (isCity())
+		return false;
+
+	if (!isValidMovePlot(ePlayer))
+		return false;
+
+	if (bIsLand && isWater())
+		return false;
+
+	if (!bIsLand && !isWater())
+		return false;
+
+	if (IsNaturalWonder())
+		return false;
+
+	if (isMountain())
+		return false;
+
+	if (getFeatureType() == FEATURE_OASIS)
+		return false;
+
+	if (bIgnoreTech && getResourceType() != NO_RESOURCE)
+		return false;
+
+	if (!bIgnoreTech && getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
+		return false;
+
+	return true;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency, bool bTestXAdjacent) const
@@ -8787,10 +8819,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const
 {
-	vector<OptionWithScore<CvPlot*>> sortedPlots;
-
-	int iBestCost = INT_MAX;
-	int iPossibleSpawnPlots = 0;
+	vector<CvPlot*> aSpawnPlots;
 
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -8798,35 +8827,18 @@ CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const
 		if (!pAdjacentPlot)
 			continue;
 
-		if (pAdjacentPlot->isCity() || !pAdjacentPlot->isValidMovePlot(ePlayer) || pAdjacentPlot->isWater()
-			|| pAdjacentPlot->IsNaturalWonder() || pAdjacentPlot->isMountain() || pAdjacentPlot->getResourceType() != NO_RESOURCE)
+		if (!pAdjacentPlot->CanSpawnResource(ePlayer))
 			continue;
 
-		if (pAdjacentPlot->getOwner() != ePlayer && pAdjacentPlot->getOwner() != NO_PLAYER)
-			continue;
-
-		int iCost = pAdjacentPlot->getOwner() != ePlayer && pAdjacentPlot->getOwner() != NO_PLAYER ? 1 : 0;
-
-		sortedPlots.push_back(OptionWithScore<CvPlot*>(pAdjacentPlot, -iCost));
-		if (iCost < iBestCost)
-		{
-			iBestCost = iCost;
-			iPossibleSpawnPlots = 1;
-		}
-		else if (iCost == iBestCost)
-		{
-			iPossibleSpawnPlots++;
-		}
+		aSpawnPlots.push_back(pAdjacentPlot);
 	}
 
-	if (sortedPlots.empty())
+	if (aSpawnPlots.empty())
 		return NULL;
 
-	std::stable_sort(sortedPlots.begin(), sortedPlots.end());
+	int iRandomIndex = GC.getGame().urandLimitExclusive(aSpawnPlots.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GetPseudoRandomSeed()));
 
-	int iRandomIndex = GC.getGame().urandLimitExclusive(iPossibleSpawnPlots, GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GetPseudoRandomSeed()));
-
-	return sortedPlots[iRandomIndex].option;
+	return aSpawnPlots[iRandomIndex];
 }
 
 void CvPlot::SetSpawnedResourcePlot(const CvPlot* pPlot)

@@ -6552,19 +6552,16 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 	for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 	{
 		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-		if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-			pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+		if (pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->CanSpawnResource(pCity->getOwner())
+			&& pLoopPlot->getFeatureType() == NO_FEATURE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 		{
-			if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-			{
-				pLoopPlot->setResourceType(eResourceToGive, 1, false);
-				iNumResourceGiven++;
+			pLoopPlot->setResourceType(eResourceToGive, 1, false);
+			iNumResourceGiven++;
 
-				if(iNumResourceGiven >= iNumResourceToGive)
-				{
-					bResult = true;
-					break;
-				}
+			if (iNumResourceGiven >= iNumResourceToGive)
+			{
+				bResult = true;
+				break;
 			}
 		}
 	}
@@ -6575,22 +6572,18 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 		{
 			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-			if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
-				!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->getFeatureType() != FEATURE_OASIS)
+			if (pLoopPlot != NULL && pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->CanSpawnResource(pCity->getOwner()))
 			{
-				if(pLoopPlot->getResourceType() == NO_RESOURCE)
+				if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+					pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+
+				pLoopPlot->setResourceType(eResourceToGive, 1, false);
+				iNumResourceGiven++;
+
+				if(iNumResourceGiven >= iNumResourceToGive)
 				{
-					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-						pLoopPlot->setImprovementType(NO_IMPROVEMENT);
-
-					pLoopPlot->setResourceType(eResourceToGive, 1, false);
-					iNumResourceGiven++;
-
-					if(iNumResourceGiven >= iNumResourceToGive)
-					{
-						bResult = true;
-						break;
-					}
+					bResult = true;
+					break;
 				}
 			}
 		}

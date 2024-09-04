@@ -3663,55 +3663,34 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 int CvBuilderTaskingAI::GetResourceSpawnWorkableChance(CvPlot* pPlot, int& iTileClaimChance)
 {
-	vector<OptionWithScore<CvPlot*>> sortedPlots;
-	int iBestCost = INT_MAX;
+	vector<CvPlot*> aPossibleSpawnPlots;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
 		if (!pAdjacentPlot)
 			continue;
 
-		if (pAdjacentPlot->isCity() || !pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()) || pAdjacentPlot->isWater()
-			|| pAdjacentPlot->IsNaturalWonder() || pAdjacentPlot->isMountain() || pAdjacentPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+		if (!pAdjacentPlot->CanSpawnResource(m_pPlayer->GetID(), /*bIgnoreTech*/ false))
 			continue;
 
-		if (pAdjacentPlot->getOwner() != m_pPlayer->GetID() && pAdjacentPlot->getOwner() != NO_PLAYER)
-			continue;
-
-		int iCost = pAdjacentPlot->getOwner() != m_pPlayer->GetID() && pAdjacentPlot->getOwner() != NO_PLAYER ? 1 : 0;
-
-		sortedPlots.push_back(OptionWithScore<CvPlot*>(pAdjacentPlot, -iCost));
-		if (iCost < iBestCost)
-			iBestCost = iCost;
+		aPossibleSpawnPlots.push_back(pAdjacentPlot);
 	}
-
-	// if iBestCost is > 0, we will spawn the resource in enemy territory, or not spawn anything
-	if (iBestCost > 0)
-	{
-		iTileClaimChance = 0;
-		return 0;
-	}
-
-	std::stable_sort(sortedPlots.begin(), sortedPlots.end());
 
 	int iWorkableSpawnPlots = 0;
 	int iNonWorkableSpawnPlots = 0;
 	int iClaimTiles = 0;
 	int iNonClaimTiles = 0;
 
-	for (vector<OptionWithScore<CvPlot*>>::const_iterator it = sortedPlots.begin(); it != sortedPlots.end(); ++it)
+	for (vector<CvPlot*>::const_iterator it = aPossibleSpawnPlots.begin(); it != aPossibleSpawnPlots.end(); ++it)
 	{
-		int iCost = -it->score;
-		if (iCost != iBestCost)
-			continue;
+		CvPlot* pPossibleSpawnPlot = *it;
 
-		CvPlot* pAdjacentPlot = it->option;
-
-		if (pAdjacentPlot->isPlayerCityRadius(m_pPlayer->GetID()) && (pAdjacentPlot->getOwner() == NO_PLAYER || pAdjacentPlot->getOwner() == m_pPlayer->GetID()))
+		if (pPossibleSpawnPlot->isPlayerCityRadius(m_pPlayer->GetID()) && (pPossibleSpawnPlot->getOwner() == NO_PLAYER || pPossibleSpawnPlot->getOwner() == m_pPlayer->GetID()))
 			iWorkableSpawnPlots++;
 		else
 			iNonWorkableSpawnPlots++;
-		if (pAdjacentPlot->getOwner() == NO_PLAYER)
+
+		if (pPossibleSpawnPlot->getOwner() == NO_PLAYER)
 			iClaimTiles++;
 		else
 			iNonClaimTiles++;
