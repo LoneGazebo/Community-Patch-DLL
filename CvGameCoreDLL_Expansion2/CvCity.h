@@ -620,6 +620,9 @@ public:
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
 
+	int GetImprovementGreatPersonRateModifier() const;
+	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+
 	// Culture stuff
 
 	int GetJONSCultureStored() const;
@@ -1173,8 +1176,8 @@ public:
 	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
 
-	void ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange);
-	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
+	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
+	int GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1942,7 +1945,7 @@ protected:
 	std::vector<int> m_aiYieldFromInternalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
 	std::vector<int> m_aiYieldFromProcessModifier;
-	std::vector<int> m_aiSpecialistRateModifier;
+	std::vector<int> m_aiSpecialistRateModifierFromBuildings;
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
 	std::vector<int> m_aiYieldFromSpyDefense;
@@ -2330,7 +2333,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifierFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefense)

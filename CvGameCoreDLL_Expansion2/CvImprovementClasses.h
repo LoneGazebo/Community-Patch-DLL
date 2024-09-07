@@ -154,6 +154,8 @@ public:
 
 	CivilizationTypes GetRequiredCivilization() const;
 
+	int GetGreatPersonRateModifier() const;
+
 	const char* GetArtDefineTag() const;
 	void SetArtDefineTag(const char* szVal);
 
@@ -328,6 +330,8 @@ protected:
 	CvString m_strArtDefineTag;
 	ImprovementUsageTypes m_eImprovementUsageType;
 	CivilizationTypes m_eRequiredCivilization;
+
+	int m_iGreatPersonRateModifier;
 
 	int m_iWorldSoundscapeScriptId;
 

@@ -2303,8 +2303,18 @@ local function UpdateCityViewNow()
 					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
 					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
 					-- CBP
-					gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
-					local gpChangeMonopolyMod = cityOwner:GetMonopolyGreatPersonRateModifier(specialist.ID);
+					gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID)
+					local gpChangeMonopolyMod = cityOwner:GetMonopolyGreatPersonRateModifier(specialist.ID)
+
+					-- City modifiers includes religion and improvement modifiers, separate them into new tooltip lines
+					local gpChangeImprovementsMod = city:GetImprovementGreatPersonRateModifier()
+					if gpChangeImprovementsMod ~= 0 then
+						gpChangeCityMod = gpChangeCityMod - gpChangeImprovementsMod
+					end
+					local gpChangeReligionsMod = city:GetReligionGreatPersonRateModifier(specialist.ID)
+					if gpChangeReligionsMod ~= 0 then
+						gpChangeCityMod = gpChangeCityMod - gpChangeReligionsMod
+					end
 					--END
 					local gpChangePolicyMod = 0
 					local gpChangeWorldCongressMod = 0
@@ -2399,7 +2409,7 @@ local function UpdateCityViewNow()
 
 					end
 
-					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod
+					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod + gpChangeImprovementsMod + gpChangeReligionsMod
 					gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 					if gpProgress > 0 or gpChange > 0 then
@@ -2431,8 +2441,14 @@ local function UpdateCityViewNow()
 							if gpChangeCityMod ~= 0 then
 								tips:insert( L( "TXT_KEY_CITY_GP_MOD", gpChangeCityMod ) )
 							end
+							if gpChangeReligionsMod ~= 0 then
+								tips:insert( L( "TXT_KEY_RELIGIONS_GP_MOD", gpChangeReligionsMod ) )
+							end
 							if gpChangeGoldenAgeMod ~= 0 then
 								tips:insert( L( "TXT_KEY_GOLDENAGE_GP_MOD", gpChangeGoldenAgeMod ) )
+							end
+							if gpChangeImprovementsMod ~= 0 then
+								tips:insert( L( "TXT_KEY_IMPROVEMENTS_GP_MOD", gpChangeImprovementsMod ) )
 							end
 							if gpChangeWorldCongressMod ~= 0 then
 								if gpChangeWorldCongressMod < 0 then

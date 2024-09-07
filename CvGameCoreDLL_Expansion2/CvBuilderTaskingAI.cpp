@@ -2782,6 +2782,12 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	{
 		iSecondaryScore += 300;
 	}
+
+	// Give a flat bonus for GPP Rate (200 per 5%)
+	if (pkImprovementInfo->GetGreatPersonRateModifier() != 0)
+	{
+		iSecondaryScore += pkImprovementInfo->GetGreatPersonRateModifier() * 40;
+	}
 	
 	// Do we have or will we build a road here?
 	RouteTypes eRouteNeeded = GetBestRouteTypeAndValue(pPlot).first;
@@ -3395,7 +3401,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	// improvement spawns resource?
-	if (pOwningCity)
+	if (MOD_IMPROVEMENTS_EXTENSIONS && pOwningCity)
 	{
 		int iResourceChance = pkImprovementInfo ? pkImprovementInfo->GetRandomResourceChance() : 0;
 		if (iResourceChance > 0 && pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
