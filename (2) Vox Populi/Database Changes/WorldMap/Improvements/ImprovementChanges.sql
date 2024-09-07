@@ -16,7 +16,8 @@ WHERE ImprovementType = 'IMPROVEMENT_FARM' AND TerrainType = 'TERRAIN_DESERT';
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
-	('IMPROVEMENT_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1, 2);
+	('IMPROVEMENT_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1, 2),
+	('IMPROVEMENT_FARM', 'IMPROVEMENT_MANUFACTORY', 'YIELD_FOOD', 1, 2);
 
 -- +1 Food on fresh water
 INSERT INTO Improvement_FreshWaterYields
@@ -53,7 +54,9 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1, 2),
-	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1, 2);
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1, 2),
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_GOLD', 1, 2),
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 1, 2);
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
