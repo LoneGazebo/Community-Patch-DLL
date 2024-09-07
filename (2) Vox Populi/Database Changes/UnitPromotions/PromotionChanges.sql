@@ -34,7 +34,7 @@ UPDATE UnitPromotions SET RangedDefenseMod = 25 WHERE RankList = 'COVER';
 
 UPDATE UnitPromotions SET Amphib = 1, River = 1 WHERE Type = 'PROMOTION_AMPHIBIOUS';
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, IgnoreTerrainCost)
+	(PromotionType, FeatureType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_AMPHIBIOUS', 'FEATURE_MARSH', 1);
 
@@ -42,7 +42,7 @@ VALUES
 UPDATE UnitPromotions SET RoughFromMod = 10 WHERE Type = 'PROMOTION_WOODSMAN';
 DELETE FROM UnitPromotions_Features WHERE PromotionType = 'PROMOTION_WOODSMAN';
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, IgnoreTerrainCost)
+	(PromotionType, FeatureType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_WOODSMAN', 'FEATURE_FOREST', 1),
 	('PROMOTION_WOODSMAN', 'FEATURE_JUNGLE', 1);
@@ -203,14 +203,14 @@ SET
 WHERE Type = 'PROMOTION_WOODLAND_TRAILBLAZER_3';
 
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, IgnoreTerrainCost)
+	(PromotionType, FeatureType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'FEATURE_JUNGLE', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'FEATURE_FOREST', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'FEATURE_MARSH', 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, IgnoreTerrainCost)
+	(PromotionType, TerrainType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_WOODLAND_TRAILBLAZER_1', 'TERRAIN_HILL', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_2', 'TERRAIN_DESERT', 1),
@@ -1050,14 +1050,14 @@ WHERE Type IN (
 );
 
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, IgnoreTerrainCost)
+	(PromotionType, FeatureType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_MARSH_WALKER', 'FEATURE_MARSH', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_FOREST', 1),
 	('PROMOTION_WOODS_WALKER', 'FEATURE_JUNGLE', 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, IgnoreTerrainCost)
+	(PromotionType, TerrainType, IgnoreTerrainCostIn)
 VALUES
 	('PROMOTION_HILL_WALKER', 'TERRAIN_HILL', 1),
 	('PROMOTION_WHITE_WALKER', 'TERRAIN_SNOW', 1),

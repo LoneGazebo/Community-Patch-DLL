@@ -9291,12 +9291,12 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 					if (aiDiploProgressPercent[(int)m_pPlayer->GetID()] > 70)
 						bWantToDefendVotes = true;
 
-					// find the player (not us) who is closest to DV
+					// find the player (not on our team) who is closest to DV
 					int iHighestProgress = 0;
 					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
 						PlayerTypes eTargetPlayer = (PlayerTypes)ui;
-						if (eTargetPlayer == m_pPlayer->GetID())
+						if (GET_PLAYER(eTargetPlayer).getTeam() == m_pPlayer->getTeam())
 							continue;
 
 						if (aiDiploProgressPercent[eTargetPlayer] > iHighestProgress && aiDiploProgressPercent[eTargetPlayer] > 70)
@@ -9398,20 +9398,23 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 
 		int iModifier = 0;
 
-		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		if (/*FALSE*/ GD_INT_GET(QUEST_DISABLED_COUP) < 1)
 		{
-			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
-			if (eMinor != NO_PLAYER)
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if (pMinor && pMinor->isMinorCiv())
+				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+				if (eMinor != NO_PLAYER)
 				{
-					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
+					CvPlayer* pMinor = &GET_PLAYER(eMinor);
+					if (pMinor && pMinor->isMinorCiv())
 					{
-						if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
+						CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+						if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
 						{
-							iModifier += 50;
+							if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
+							{
+								iModifier += 50;
+							}
 						}
 					}
 				}

@@ -174,9 +174,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
 	m_YieldPerXAdjacentImprovement(),
-	m_piAdjacentSameTypeYield(NULL),
-	m_piAdjacentTwoSameTypeYield(NULL),
-	m_ppiAdjacentImprovementYieldChanges(NULL),
 	m_ppiAdjacentTerrainYieldChanges(NULL),
 	m_ppiAdjacentResourceYieldChanges(NULL),
 	m_ppiAdjacentFeatureYieldChanges(NULL),
@@ -210,12 +207,6 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
 	m_YieldPerXAdjacentImprovement.clear();
-	SAFE_DELETE_ARRAY(m_piAdjacentSameTypeYield);
-	SAFE_DELETE_ARRAY(m_piAdjacentTwoSameTypeYield);
-	if(m_ppiAdjacentImprovementYieldChanges != NULL)
-	{
-		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentImprovementYieldChanges);
-	}
 	if(m_ppiAdjacentResourceYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentResourceYieldChanges);
@@ -417,9 +408,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 									  "ImprovementType",
 							          szImprovementType);
 
-	kUtility.SetYields(m_piAdjacentSameTypeYield, "Improvement_YieldAdjacentSameType", "ImprovementType", szImprovementType);
-	kUtility.SetYields(m_piAdjacentTwoSameTypeYield, "Improvement_YieldAdjacentTwoSameType", "ImprovementType", szImprovementType);
-
 	kUtility.SetYields(m_piYieldChange, "Improvement_Yields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piYieldPerEra, "Improvement_YieldPerEra", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piAdjacentCityYieldChange, "Improvement_AdjacentCityYields", "ImprovementType", szImprovementType);
@@ -527,34 +515,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 		//Trim extra memory off container since this is mostly read-only.
 		map<YieldTypes, map<ImprovementTypes, fraction>>(m_YieldPerXAdjacentImprovement).swap(m_YieldPerXAdjacentImprovement);
-	}
-	//AdjacentImprovementYieldChanges
-	{
-		kUtility.Initialize2DArray(m_ppiAdjacentImprovementYieldChanges, iNumImprovements, iNumYields);
-
-		std::string strKey = "Improvements - AdjacentImprovementYieldChanges";
-		Database::Results* pResults = kUtility.GetResults(strKey);
-		if(pResults == NULL)
-		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Improvements.ID as ImprovementID, Yield from Improvement_AdjacentImprovementYieldChanges inner join Yields on YieldType = Yields.Type inner join Improvements on OtherImprovementType = Improvements.Type where ImprovementType = ?");
-		}
-
-		pResults->Bind(1, szImprovementType, lenImprovementType, false);
-
-		while(pResults->Step())
-		{
-			const int yield_idx = pResults->GetInt(0);
-			CvAssert(yield_idx > -1);
-
-			const int improvement_idx = pResults->GetInt(1);
-			CvAssert(improvement_idx > -1);
-
-			const int yield = pResults->GetInt(2);
-
-			m_ppiAdjacentImprovementYieldChanges[improvement_idx][yield_idx] = yield;
-		}
-
-		pResults->Reset();
 	}
 	//m_ppiAdjacentResourceYieldChanges
 	{
@@ -875,20 +835,6 @@ bool CvImprovementEntry::IsYieldPerXAdjacentImprovement(YieldTypes eYield) const
 	map<YieldTypes, map<ImprovementTypes, fraction>>::const_iterator itImprovement = m_YieldPerXAdjacentImprovement.find(eYield);
 
 	return itImprovement != m_YieldPerXAdjacentImprovement.end();
-}
-/// Bonus yield if another Improvement of same type is adjacent
-int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
-{
-	int iYield = GetAdjacentSameTypeYield(eYield);
-	
-	return iYield;
-}
-/// Bonus yield if another Improvement of same type is adjacent
-int CvImprovementEntry::GetYieldAdjacentTwoSameType(YieldTypes eYield) const
-{
-	int iYield = GetAdjacentTwoSameTypeYield(eYield);
-
-	return iYield;
 }
 
 /// The number of tiles in an area needed for a goody hut to be placed by the map generator
@@ -1502,43 +1448,6 @@ bool CvImprovementEntry::GetImprovementMakesValid(int i) const
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbImprovementMakesValid ? m_pbImprovementMakesValid[i] : false;
-}
-
-/// If this improvement requires a terrain type to be valid
-int CvImprovementEntry::GetAdjacentSameTypeYield(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentSameTypeYield ? m_piAdjacentSameTypeYield[i] : 0;
-}
-int* CvImprovementEntry::GetAdjacentSameTypeYieldArray()
-{
-	return m_piAdjacentSameTypeYield;
-}
-/// If this improvement requires a terrain type to be valid
-int CvImprovementEntry::GetAdjacentTwoSameTypeYield(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentTwoSameTypeYield ? m_piAdjacentTwoSameTypeYield[i] : 0;
-}
-int* CvImprovementEntry::GetAdjacentTwoSameTypeYieldArray()
-{
-	return m_piAdjacentTwoSameTypeYield;
-}
-
-/// How this improvement changes the yields of an adjacent improvement
-int CvImprovementEntry::GetAdjacentImprovementYieldChanges(int i, int j) const
-{
-	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiAdjacentImprovementYieldChanges[i][j];
-}
-int* CvImprovementEntry::GetAdjacentImprovementYieldChangesArray(int i)
-{
-	return m_ppiAdjacentImprovementYieldChanges[i];
 }
 
 /// How much an improvement yields if built next to a resource

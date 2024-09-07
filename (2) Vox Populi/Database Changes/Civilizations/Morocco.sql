@@ -82,12 +82,6 @@ VALUES
 	('IMPROVEMENT_KASBAH', 'TECH_ARCHITECTURE', 'YIELD_CULTURE', 1),
 	('IMPROVEMENT_KASBAH', 'TECH_RADIO', 'YIELD_CULTURE', 1);
 
-/*
-INSERT INTO Improvement_AdjacentImprovementYieldChanges
-	(ImprovementType, OtherImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_KASBAH', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_GOLD', 2);
-*/
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES

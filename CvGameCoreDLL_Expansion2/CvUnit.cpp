@@ -357,9 +357,11 @@ CvUnit::CvUnit() :
 	, m_iFortificationYieldChange()
 	, m_strScriptData()
 	, m_iScenarioData()
-	, m_terrainIgnoreCostCount()
+	, m_ignoreTerrainCostInCount()
+	, m_ignoreTerrainCostFromCount()
+	, m_ignoreFeatureCostInCount()
+	, m_ignoreFeatureCostFromCount()
 	, m_terrainDoubleMoveCount()
-	, m_featureIgnoreCostCount()
 	, m_featureDoubleMoveCount()
 	, m_terrainImpassableCount()
 	, m_featureImpassableCount()
@@ -1733,7 +1735,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	{
 		m_Promotions.Reset();
 
-		m_terrainIgnoreCostCount.clear();
+		m_ignoreTerrainCostInCount.clear();
+		m_ignoreTerrainCostFromCount.clear();
 		m_terrainDoubleMoveCount.clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_terrainHalfMoveCount.clear();
@@ -1750,7 +1753,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_extraTerrainAttackPercent.clear();
 		m_extraTerrainDefensePercent.clear();
 
-		m_featureIgnoreCostCount.clear();
+		m_ignoreFeatureCostInCount.clear();
+		m_ignoreFeatureCostFromCount.clear();
 		m_featureDoubleMoveCount.clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_featureHalfMoveCount.clear();
@@ -1888,9 +1892,11 @@ void CvUnit::setupGraphical()
 void CvUnit::uninitInfos()
 {
 	VALIDATE_OBJECT
-	m_terrainIgnoreCostCount.clear();
+	m_ignoreTerrainCostInCount.clear();
+	m_ignoreTerrainCostFromCount.clear();
+	m_ignoreFeatureCostInCount.clear();
+	m_ignoreFeatureCostFromCount.clear();
 	m_terrainDoubleMoveCount.clear(); // BUG FIX
-	m_featureIgnoreCostCount.clear();
 	m_featureDoubleMoveCount.clear();
 	m_terrainHalfMoveCount.clear();
 	m_featureHalfMoveCount.clear();
@@ -25560,9 +25566,9 @@ void CvUnit::setScenarioData(int iNewValue)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getTerrainIgnoreCostCount(TerrainTypes eIndex) const
+int CvUnit::getIgnoreTerrainCostInCount(TerrainTypes eIndex) const
 {
-	for (TerrainTypeCounter::const_iterator it = m_terrainIgnoreCostCount.begin(); it != m_terrainIgnoreCostCount.end(); ++it)
+	for (TerrainTypeCounter::const_iterator it = m_ignoreTerrainCostInCount.begin(); it != m_ignoreTerrainCostInCount.end(); ++it)
 	{
 		if (it->first == eIndex)
 			return it->second;
@@ -25572,12 +25578,12 @@ int CvUnit::getTerrainIgnoreCostCount(TerrainTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange)
+void CvUnit::changeIgnoreTerrainCostInCount(TerrainTypes eIndex, int iChange)
 {
 	if (iChange == 0)
 		return;
 
-	TerrainTypeCounter& mVec = m_terrainIgnoreCostCount;
+	TerrainTypeCounter& mVec = m_ignoreTerrainCostInCount;
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25591,7 +25597,42 @@ void CvUnit::changeTerrainIgnoreCostCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainIgnoreCostCount.push_back(make_pair(eIndex, iChange));
+	m_ignoreTerrainCostInCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getIgnoreTerrainCostFromCount(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_ignoreTerrainCostFromCount.begin(); it != m_ignoreTerrainCostFromCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeIgnoreTerrainCostFromCount(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_ignoreTerrainCostFromCount;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_ignoreTerrainCostFromCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25630,9 +25671,9 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getFeatureIgnoreCostCount(FeatureTypes eIndex) const
+int CvUnit::getIgnoreFeatureCostInCount(FeatureTypes eIndex) const
 {
-	for (FeatureTypeCounter::const_iterator it = m_featureIgnoreCostCount.begin(); it != m_featureIgnoreCostCount.end(); ++it)
+	for (FeatureTypeCounter::const_iterator it = m_ignoreFeatureCostInCount.begin(); it != m_ignoreFeatureCostInCount.end(); ++it)
 	{
 		if (it->first == eIndex)
 			return it->second;
@@ -25642,12 +25683,12 @@ int CvUnit::getFeatureIgnoreCostCount(FeatureTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange)
+void CvUnit::changeIgnoreFeatureCostInCount(FeatureTypes eIndex, int iChange)
 {
 	if (iChange == 0)
 		return;
 
-	FeatureTypeCounter& mVec = m_featureIgnoreCostCount;
+	FeatureTypeCounter& mVec = m_ignoreFeatureCostInCount;
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
 		if (it->first == eIndex)
@@ -25661,7 +25702,42 @@ void CvUnit::changeFeatureIgnoreCostCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureIgnoreCostCount.push_back(make_pair(eIndex, iChange));
+	m_ignoreFeatureCostInCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getIgnoreFeatureCostFromCount(FeatureTypes eIndex) const
+{
+	for (FeatureTypeCounter::const_iterator it = m_ignoreFeatureCostFromCount.begin(); it != m_ignoreFeatureCostFromCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeIgnoreFeatureCostFromCount(FeatureTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	FeatureTypeCounter& mVec = m_ignoreFeatureCostFromCount;
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_ignoreFeatureCostFromCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -27129,7 +27205,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
 			changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
-			changeTerrainIgnoreCostCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainIgnoreCost(iI)) ? iChange : 0));
+			changeIgnoreTerrainCostInCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostIn(iI)) ? iChange : 0));
+			changeIgnoreTerrainCostFromCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostFrom(iI)) ? iChange : 0));
 			changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
@@ -27145,7 +27222,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeExtraFeatureAttackPercent(((FeatureTypes)iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
 			changeExtraFeatureDefensePercent(((FeatureTypes)iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
-			changeFeatureIgnoreCostCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureIgnoreCost(iI)) ? iChange : 0));
+			changeIgnoreFeatureCostInCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostIn(iI)) ? iChange : 0));
+			changeIgnoreFeatureCostFromCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostFrom(iI)) ? iChange : 0));
 			changeFeatureDoubleMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			changeFeatureHalfMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
@@ -27756,9 +27834,11 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_strScriptData);
 	visitor(unit.m_iScenarioData);
 	visitor(unit.m_iBuilderStrength);
-	visitor(unit.m_terrainIgnoreCostCount);
+	visitor(unit.m_ignoreTerrainCostInCount);
+	visitor(unit.m_ignoreTerrainCostFromCount);
+	visitor(unit.m_ignoreFeatureCostInCount);
+	visitor(unit.m_ignoreFeatureCostFromCount);
 	visitor(unit.m_terrainDoubleMoveCount);
-	visitor(unit.m_featureIgnoreCostCount);
 	visitor(unit.m_featureDoubleMoveCount);
 	visitor(unit.m_terrainHalfMoveCount);
 	visitor(unit.m_featureHalfMoveCount);
@@ -31821,14 +31901,28 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			if(pkPromotionInfo->GetTerrainIgnoreCost(iI) && !isTerrainIgnoreCost(eTerrain) && !ignoreTerrainCost())
-				// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
+			if (pkTerrainInfo->getMovementCost() > 1 && !isIgnoreTerrainCostIn(eTerrain) && !ignoreTerrainCost())
 			{
-				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
-				iExtra *= 8;
-				if (IsGainsXPFromScouting())
-					iExtra *= 3;
-				iValue += iExtra;
+				if (pkPromotionInfo->GetIgnoreTerrainCostIn(eTerrain))
+					// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
+				{
+					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+					iExtra *= 8;
+					if (IsGainsXPFromScouting())
+						iExtra *= 3;
+					if (isIgnoreTerrainCostFrom(eTerrain))
+						iExtra *= 0.5;
+					iValue += iExtra;
+				}
+
+				if (pkPromotionInfo->GetIgnoreTerrainCostFrom(eTerrain))
+				{
+					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+					iExtra *= 4;
+					if (IsGainsXPFromScouting())
+						iExtra *= 3;
+					iValue += iExtra;
+				}
 			}
 
 			if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
@@ -31904,14 +31998,28 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				
 			}
 
-			if(pkPromotionInfo->GetFeatureIgnoreCost(iI) && !isFeatureIgnoreCost(eFeature) && !ignoreTerrainCost())
-				// Scout: Forest/Jungle Woodland Trailblazer 1, Marsh Woodland Trailblazer 2.
+			if (pkFeatureInfo->getMovementCost() > 1 && !isIgnoreFeatureCostIn(eFeature) && !ignoreTerrainCost())
 			{
-				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
-				iExtra *= 8;
-				if (IsGainsXPFromScouting())
-					iExtra *= 3;
-				iValue += iExtra;
+				if (pkPromotionInfo->GetIgnoreFeatureCostIn(eFeature))
+					// Scout: Forest/Jungle Woodland Trailblazer 1, Marsh Woodland Trailblazer 2.
+				{
+					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+					iExtra *= 8;
+					if (IsGainsXPFromScouting())
+						iExtra *= 3;
+					if (isIgnoreFeatureCostFrom(eFeature))
+						iExtra *= 0.5;
+					iValue += iExtra;
+				}
+
+				if (pkPromotionInfo->GetIgnoreFeatureCostFrom(eFeature))
+				{
+					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+					iExtra *= 4;
+					if (IsGainsXPFromScouting())
+						iExtra *= 3;
+					iValue += iExtra;
+				}
 			}
 
 			if(pkPromotionInfo->GetFeatureDoubleMove(iI) && !isFeatureDoubleMove(eFeature))
