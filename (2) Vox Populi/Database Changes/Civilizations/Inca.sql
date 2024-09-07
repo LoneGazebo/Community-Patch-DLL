@@ -58,7 +58,8 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_FARM', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1, 1),
-	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1, 1);
+	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1, 1),
+	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_MANUFACTORY', 'YIELD_FOOD', 1, 1);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
