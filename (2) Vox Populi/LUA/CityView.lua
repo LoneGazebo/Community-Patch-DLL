@@ -1249,7 +1249,7 @@ function OnCityViewUpdate()
 					local iCount = pCity:GetSpecialistCount( pSpecialistInfo.ID );
 					local iGPPChange = (pSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists()) * iCount * 100;
 					for building in GameInfo.Buildings{SpecialistType = pSpecialistInfo.Type} do
-				        local buildingID = building.ID;
+						local buildingID = building.ID;
 						if (pCity:IsHasBuilding(buildingID)) then
 							iGPPChange = iGPPChange + building.GreatPeopleRateChange * 100;
 						end
@@ -1271,6 +1271,14 @@ function OnCityViewUpdate()
 						-- CBP
 						iCityMod = iCityMod + pCity:GetSpecialistCityModifier(pSpecialistInfo.ID);
 						local iMonopolyMod = pPlayer:GetMonopolyGreatPersonRateModifier(pSpecialistInfo.ID);
+						local iImprovementsMod = pCity:GetImprovementGreatPersonRateModifier();
+						if iImprovementsMod ~= 0 then
+							iCityMod = iCityMod - iImprovementsMod
+						end
+						local iReligionsMod = pCity:GetReligionGreatPersonRateModifier(pSpecialistInfo.ID);
+						if iReligionsMod ~= 0 then
+							iCityMod = iCityMod - iReligionsMod
+						end
 						--END
 						local iGoldenAgeMod = 0;
 						local bGoldenAge = (pPlayer:GetGoldenAgeTurns() > 0);
@@ -1351,7 +1359,7 @@ function OnCityViewUpdate()
 						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
 						iPlayerMod = iPlayerMod - iPolicyMod - iWorldCongressMod;
 						
-						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod + iMonopolyMod;
+						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod + iMonopolyMod + iImprovementsMod + iReligionsMod;
 						iGPPChange = (iGPPChange * (100 + iMod)) / 100;
 -- Vox Populi
 						local iProgress100 = pCity:GetSpecialistGreatPersonProgressTimes100(iSpecialistIndex);
@@ -1371,8 +1379,14 @@ function OnCityViewUpdate()
 						if (iCityMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITY_GP_MOD", iCityMod);
 						end
+						if (iReligionsMod > 0) then
+							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RELIGIONS_GP_MOD", iReligionsMod);
+						end
 						if (iGoldenAgeMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLDENAGE_GP_MOD", iGoldenAgeMod);
+						end
+						if (iImprovementsMod > 0) then
+							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_IMPROVEMENTS_GP_MOD", iImprovementsMod);
 						end
 						if (iWorldCongressMod ~= 0) then
 							if (iWorldCongressMod < 0) then

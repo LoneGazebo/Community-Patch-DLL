@@ -761,7 +761,7 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
 		int iGPPRate = (pSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * 100;
 		int iGPPRateMod = 0;
-		iGPPRateMod += m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
+		iGPPRateMod += m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifierFromBuildings(eSpecialist);
 
 		// Player and Golden Age mods to this specific class
 		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
@@ -809,40 +809,7 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 		if (eGreatPerson != NO_GREATPERSON)
 		{
 			iGPPRateMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
-			if (GetPlayer()->isGoldenAge())
-			{
-				iGPPRateMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
-				iGPPRateMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-
-				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-				BeliefTypes eSecondaryPantheon = NO_BELIEF;
-				if (pReligion)
-				{
-					iGPPRateMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
-					eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iGPPRateMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-					}
-				}
-
-				// Mod for civs keeping their pantheon belief forever
-				if (MOD_RELIGION_PERMANENT_PANTHEON)
-				{
-					if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
-					{
-						const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
-						BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
-						if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-						{
-							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
-							{
-								iGPPRateMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-							}
-						}
-					}
-				}
-			}
+			iGPPRateMod += GetCity()->GetReligionGreatPersonRateModifier(eGreatPerson);
 			int iNumPuppets = GetPlayer()->GetNumPuppetCities();
 			if (iNumPuppets > 0)
 			{
@@ -2857,7 +2824,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				// Player mod
 				iMod += GetPlayer()->getGreatPeopleRateModifier();
 
-				iMod += GetCity()->GetSpecialistRateModifier(eSpecialist);
+				iMod += GetCity()->GetSpecialistRateModifierFromBuildings(eSpecialist);
 
 				// Player and Golden Age mods to this specific class
 				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))

@@ -1672,6 +1672,8 @@ local function GetHelpTextForImprovement( improvementID )
 	-- Defense Modifier
 	tips:insertIf( (improvement.DefenseModifier or 0)~=0 and S( "%s %+i%%[ICON_STRENGTH]", L"TXT_KEY_PEDIA_DEFENSE_LABEL", improvement.DefenseModifier ) )
 
+	tips:insertIf( (improvement.GreatPersonRateModifier or 0)~=0 and S( "GPP Rate: %+i%%[ICON_GREAT_PEOPLE]", improvement.GreatPersonRateModifier ) )
+
 	-- Tech yield changes
 	items = {}
 	condition = { ImprovementType = improvement.Type }
