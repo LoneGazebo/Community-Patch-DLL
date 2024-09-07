@@ -7965,9 +7965,17 @@
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		<!-- Great person rate modifiers -->
+		<!-- Great person rate modifier from monopoly -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
 			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
+		</Row>
+		<!-- Great person rate modifier from improvements -->
+		<Row Tag="TXT_KEY_IMPROVEMENTS_GP_MOD">
+			<Text>[ICON_BULLET] Improvement Bonus: +{1_num}%</Text>
+		</Row>
+		<!-- Great person rate modifier from religions -->
+		<Row Tag="TXT_KEY_RELIGIONS_GP_MOD">
+			<Text>[ICON_BULLET] Religion Bonus: +{1_num}%</Text>
 		</Row>
 		<!-- Build blocked -->
 		<Row Tag="TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED">

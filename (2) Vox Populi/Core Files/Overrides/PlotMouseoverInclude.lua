@@ -529,7 +529,7 @@ function GetYieldString(plot)
 		strYield = strYield .. "[ICON_RESEARCH] " .. iNumScience .. " ";
 	end
 	
-    	-- culture	
+	-- culture	
 	local iNumCulture = plot:CalculateYield(4, true);
 	if (iNumCulture > 0) then
 		strYield = strYield .. "[ICON_CULTURE] " .. iNumCulture .. " ";
@@ -556,6 +556,15 @@ function GetYieldString(plot)
 			if(plotHappiness > 0) then
 				strYield = strYield .. "[ICON_HAPPINESS_1] " .. plotHappiness .. " ";
 			end
+		end
+	end
+	
+	-- GPP Rate
+	local iImprovementType = plot:GetRevealedImprovementType(Game.GetActiveTeam(), bIsDebug);
+	if (iImprovementType >= 0 and not plot:IsImprovementPillaged()) then
+		improvementInfo = GameInfo.Improvements[ iImprovementType ];
+		if (improvementInfo.GreatPersonRateModifier or 0) ~= 0 then
+			strYield = strYield .. "[ICON_GREAT_PEOPLE] " .. improvementInfo.GreatPersonRateModifier .. "% ";
 		end
 	end
 	
