@@ -238,11 +238,11 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 		(bRouteTo || bFakeRouteTo) &&
 		(!bRiverCrossing || kTeam.isBridgeBuilding()))
 	{
-		RouteTypes eFromRouteWithFake = bFakeRouteFrom && eFromPlotRoute == NO_ROUTE ? ROUTE_ROAD : eFromPlotRoute;
+		RouteTypes eFromRouteWithFake = bFakeRouteFrom && eFromPlotRoute < ROUTE_ROAD ? ROUTE_ROAD : eFromPlotRoute;
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(eFromRouteWithFake);
 		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
 
-		RouteTypes eToRouteWithFake = bFakeRouteTo && eToPlotRoute == NO_ROUTE ? ROUTE_ROAD : eToPlotRoute;
+		RouteTypes eToRouteWithFake = bFakeRouteTo && eToPlotRoute < ROUTE_ROAD ? ROUTE_ROAD : eToPlotRoute;
 		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(eToRouteWithFake);
 		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
 
@@ -258,17 +258,17 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	}
 	else //normal case, check terrain and features
 	{
-		//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain!
+		//global ignore terrain cost also ignores feature cost, but units may get bonuses from terrain!
 		//difference to flat movement cost is that flat movement units don't get any bonuses
-		bool bIgnoreTerrainCost = false;
+		bool bIgnoreCostsHere = false;
 
-		//in some cases we ignore terrain / feature cost
+		//in some cases, we ignore terrain and feature costs if the destination tile contains a specific terrain/feature
 		if (pTraits->IsFasterInHills() && pToPlot->isHills())
-			bIgnoreTerrainCost = true;
+			bIgnoreCostsHere = true;
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
-			bIgnoreTerrainCost = true;
+			bIgnoreCostsHere = true;
 
-		if (bIgnoreTerrainCost) // Incan UA bypasses the check for river crossings, so no need to check those defines
+		if (bIgnoreCostsHere) // Incan UA bypasses the check for river crossings, so no need to check those defines
 			iRegularCost = 1;
 		else
 		{

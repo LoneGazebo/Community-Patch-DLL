@@ -55,9 +55,6 @@ public:
 	int GetGoldMaintenance() const;
 	int GetCultureBombRadius() const;
 
-	int GetYieldAdjacentSameType(YieldTypes eYield) const; // to be removed
-	int GetYieldAdjacentTwoSameType(YieldTypes eYield) const; // to be removed
-
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int GetAdditionalUnits() const;
 #endif
@@ -199,12 +196,6 @@ public:
 
 	fraction GetYieldPerXAdjacentImprovement(YieldTypes eYield, ImprovementTypes eImprovement) const;
 	bool IsYieldPerXAdjacentImprovement(YieldTypes eYield = NO_YIELD) const;
-	int GetAdjacentSameTypeYield(int i) const; // to be removed
-	int* GetAdjacentSameTypeYieldArray(); // to be removed
-	int GetAdjacentTwoSameTypeYield(int i) const; // to be removed
-	int* GetAdjacentTwoSameTypeYieldArray(); // to be removed
-	int GetAdjacentImprovementYieldChanges(int i, int j) const; // to be removed
-	int* GetAdjacentImprovementYieldChangesArray(int i); // to be removed
 	int GetAdjacentResourceYieldChanges(int i, int j) const;
 	int* GetAdjacentResourceYieldChangesArray (int i);
 	int GetAdjacentTerrainYieldChanges(int i, int j) const;
@@ -360,9 +351,6 @@ protected:
 	bool* m_pbFeatureMakesValid;
 	bool* m_pbImprovementMakesValid;
 	map<YieldTypes, map<ImprovementTypes, fraction>> m_YieldPerXAdjacentImprovement;
-	int* m_piAdjacentSameTypeYield; // to be removed
-	int* m_piAdjacentTwoSameTypeYield; // to be removed
-	int** m_ppiAdjacentImprovementYieldChanges; // to be removed
 	int** m_ppiAdjacentTerrainYieldChanges;
 	int** m_ppiAdjacentResourceYieldChanges;
 	int** m_ppiAdjacentFeatureYieldChanges;

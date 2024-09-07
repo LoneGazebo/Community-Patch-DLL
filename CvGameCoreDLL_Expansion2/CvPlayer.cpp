@@ -18123,9 +18123,10 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	int iDifficultyBonusPercent = GC.getGame().getGameSpeedInfo().getDifficultyBonusPercent();
 	int iEra = GC.getGame().getCurrentEra();
 
-	// Possible for iEra to be 0 in custom scenarios (apparently cities are initialized before teams are?)
+	// Possible for iEra to be -1 (NO_ERA) in custom scenarios (apparently cities are initialized before teams are?)
+	// If this occurs, don't award a difficulty bonus for already-settled cities - could interfere with the modder's desired starting values
 	if (iEra < 0)
-		iEra = 0;
+		return;
 
 	// First do the human difficulty bonus
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(getHandicapType());

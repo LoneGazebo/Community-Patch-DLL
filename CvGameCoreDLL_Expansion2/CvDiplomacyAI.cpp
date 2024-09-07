@@ -21422,7 +21422,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	//--------------------------------//
 
 	// This vector is what we'll use to sort
-	CvWeightedVector< CivApproachTypes> vApproachScoresForSorting;
+	CvWeightedVector<CivApproachTypes> vApproachScoresForSorting;
 
 	// Transfer values from our normal int vector (which we need for logging) to the Weighted Vector we can sort
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)

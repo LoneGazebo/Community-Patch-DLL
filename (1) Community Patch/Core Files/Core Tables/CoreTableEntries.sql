@@ -1284,14 +1284,23 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GetGroundAttackDamage' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap when expended.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
 
--- Ignore Terrain Cost in specific Feature/Terrain
--- Whether this includes rivers is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
-ALTER TABLE UnitPromotions_Features ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'IgnoreTerrainCost' BOOLEAN DEFAULT 0;
-
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
+
+-- Note for below abilities: if a feature is present on a tile, the feature cost overrides the tile's base terrain cost, EXCEPT for Hills and Mountains, which add +1 movement cost
+
+-- Units with this promotion ignore terrain cost when moving onto tiles containing the specified terrain/feature
+-- Example: if set to true (1) for Forest, then when entering a Forest/Hill tile, both the Forest and the Hill cost are ignored
+-- Whether the cost of rivers is ignored when doing this is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
+ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostIn boolean DEFAULT 0;
+ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
+
+-- Units with this promotion ignore the terrain cost ADDED BY tiles of the specified terrain/feature
+-- Example: if set to true (1) for Forest, then when entering a Forest/Hill tile, ONLY the Forest cost is ignored, the Hill cost is still added
+-- Likewise, the cost of crossing a river isn't ignored by this
+ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
+ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 
 -- Allow Attack and Defense specific modifiers VS domain
 ALTER TABLE UnitPromotions_Domains ADD COLUMN 'Attack' INTEGER DEFAULT 0;

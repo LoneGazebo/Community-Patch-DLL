@@ -73,12 +73,6 @@ INSERT INTO Improvement_AdjacentCityYields
 VALUES
 	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
-/*
-INSERT INTO Improvement_YieldAdjacentSameType
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
-*/
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
