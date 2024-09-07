@@ -96,7 +96,9 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_EKI', 'IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1, 2),
-	('IMPROVEMENT_EKI', 'IMPROVEMENT_EKI', 'YIELD_GOLD', 1, 2);
+	('IMPROVEMENT_EKI', 'IMPROVEMENT_EKI', 'YIELD_GOLD', 1, 2),
+	('IMPROVEMENT_EKI', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 1, 2),
+	('IMPROVEMENT_EKI', 'IMPROVEMENT_MANUFACTORY', 'YIELD_GOLD', 1, 2);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
