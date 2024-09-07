@@ -6362,7 +6362,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				Controls.TradeRouteYieldFrame:SetHide( false );
 			end
 
-			--CBP
+			--VP
 
 			numYields = 0;
 			yieldString = "";
@@ -6398,84 +6398,6 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			improvementString = "";
 			fullstring = "";
 			baseImprovement = "";
-			-- TO BE REMOVED IN FAVOR OF Improvement_YieldPerXAdjacentImprovement
-			for row in GameInfo.Improvement_AdjacentImprovementYieldChanges( condition ) do
-				numYields = numYields + 1;
-				local OtherImprovement = GameInfo.Improvements[row.OtherImprovementType];
-				if OtherImprovement then
-					improvementString = Locale.ConvertTextKey(OtherImprovement.Description)..": ";
-					if(OtherImprovement ~= baseImprovement) then
-						baseImprovement = OtherImprovement;
-						if(fullstring == "") then
-							fullstring = fullstring .. improvementString;
-						else
-							fullstring = fullstring .. "[NEWLINE]" .. improvementString;
-						end
-					end
-					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
-					fullstring = fullstring .. Locale.ConvertTextKey( yieldString );
-				end
-			end
-			if numYields == 0 then
-				Controls.AdjacentYieldFrame:SetHide( true );
-			else
-				Controls.AdjacentYieldLabel:SetText( fullstring );
-				Controls.AdjacentYieldFrame:SetHide( false );
-			end
-
-			numYields = 0;
-			yieldString = "";
-			improvementString = "";
-			fullstring = "";
-			baseImprovement = "";
-			-- TO BE REMOVED IN FAVOR OF Improvement_YieldPerXAdjacentImprovement
-			for row in GameInfo.Improvement_YieldAdjacentTwoSameType( condition ) do
-				numYields = numYields + 1;
-				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
-				if OtherImprovement then
-					improvementString = Locale.ConvertTextKey(OtherImprovement.Description)..": ";
-					if(OtherImprovement ~= baseImprovement) then
-						baseImprovement = OtherImprovement;
-						if(fullstring == "") then
-							fullstring = fullstring .. improvementString;
-						else
-							fullstring = fullstring .. "[NEWLINE]" .. improvementString;
-						end
-					end
-					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
-					fullstring = fullstring .. Locale.ConvertTextKey( yieldString );
-				end
-			end
-			if numYields == 0 then
-				Controls.TwoAdjacentImprovYieldFrame:SetHide( true );
-			else
-				Controls.TwoAdjacentImprovYieldLabel:SetText( fullstring );
-				Controls.TwoAdjacentImprovYieldFrame:SetHide( false );
-			end
-
-			numYields = 0;
-			yieldString = "";
-			improvementString = "";
-			fullstring = "";
-			baseImprovement = "";
-			-- TO BE REMOVED IN FAVOR OF Improvement_YieldPerXAdjacentImprovement
-			for row in GameInfo.Improvement_YieldAdjacentSameType( condition ) do
-				numYields = numYields + 1;
-				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
-				if OtherImprovement then
-					improvementString = Locale.ConvertTextKey(OtherImprovement.Description)..": ";
-					if(OtherImprovement ~= baseImprovement) then
-						baseImprovement = OtherImprovement;
-						if(fullstring == "") then
-							fullstring = fullstring .. improvementString;
-						else
-							fullstring = fullstring .. "[NEWLINE]" .. improvementString;
-						end
-					end
-					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
-					fullstring = fullstring .. Locale.ConvertTextKey( yieldString );
-				end
-			end
 			for row in GameInfo.Improvement_YieldPerXAdjacentImprovement ( condition ) do
 				numYields = numYields + 1;
 				local OtherImprovement = GameInfo.Improvements[row.OtherImprovementType];
@@ -9116,15 +9038,13 @@ function ClearArticle()
 	Controls.YieldPerEraFrame:SetHide( true );
 	Controls.PlotAdjacentTerrainYieldFrame:SetHide( true );
 	Controls.MountainYieldFrame:SetHide( true );
-	--CBP
+	--VP
 	Controls.CorporationResourceBonusFrame:SetHide( true );
 	Controls.CorporationOfficeBonusFrame:SetHide( true );
 	Controls.CorporationTRBonusFrame:SetHide( true );
 	Controls.TradeRouteYieldFrame:SetHide( true );
-	Controls.AdjacentYieldFrame:SetHide( true );
 	Controls.AdjacentTerrainYieldFrame:SetHide( true );
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
-	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );
 	Controls.ImprovYieldPerEraFrame:SetHide( true );
 	Controls.ImprovementYieldFrame:SetHide( true );
 	--END
