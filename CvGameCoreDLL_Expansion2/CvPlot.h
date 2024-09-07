@@ -171,6 +171,8 @@ public:
 	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false, bool bCheckAdjacency = false, bool bTestXAdjacent = false) const;
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 
+	bool CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech = true, bool bIsLand=true) const;
+
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const;
