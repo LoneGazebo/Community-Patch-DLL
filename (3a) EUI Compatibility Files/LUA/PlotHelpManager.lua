@@ -838,15 +838,6 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		end
 -- todo: moves required
 
-		if #yieldTips > 0  then -- and (isExtraTips or g_isNoob or not isCombatUnitSelected) then
-			if g_isNoob then
-				tips:insert( L"TXT_KEY_OUTPUT" .. ": " .. yieldTips:concat( " " ) )
-			else
-				tips:insert( yieldTips:concat( " " ) )
-			end
-		end
-
-
 		----------------------
 		-- Improvement & Route
 		local improvementTips = table()
@@ -876,6 +867,17 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		if revealedImprovementID >= 0 then
 			revealedImprovement = GameInfo.Improvements[revealedImprovementID]
 			improvementTips:insert( "[COLOR_POSITIVE_TEXT]" .. checkPillaged( revealedImprovement, isPillaged ) .. "[ENDCOLOR]" )
+			if not isPillaged then
+				yieldTips:insertIf( (revealedImprovement.GreatPersonRateModifier or 0)~=0 and string_format( "%s%%[ICON_GREAT_PEOPLE]", revealedImprovement.GreatPersonRateModifier ) )
+			end
+		end
+
+		if #yieldTips > 0  then -- and (isExtraTips or g_isNoob or not isCombatUnitSelected) then
+			if g_isNoob then
+				tips:insert( L"TXT_KEY_OUTPUT" .. ": " .. yieldTips:concat( " " ) )
+			else
+				tips:insert( yieldTips:concat( " " ) )
+			end
 		end
 
 		local routeID = plot:GetRevealedRouteType( activeTeamID, true )
@@ -961,7 +963,8 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 
 				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia ~= false and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
 				local isBasicBuild = true
-				local buildImprovement = GameInfo.Improvements[ build.ImprovementType or -1 ]
+				local buildImprovementID = build.ImprovementType
+				local buildImprovement = GameInfo.Improvements[ buildImprovementID or -1 ]
 
 				local buildInProgress = buildsInProgress[ buildID ]
 
@@ -971,7 +974,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 					-- Work around unrevealed improvement game bug
 					-- can always build unrevealed improvements (prevents "CanBuild" detection)
 					if not (revealedImprovement or canBuild) then
-						canBuild = actualImprovementID == buildImprovement.ID
+						canBuild = actualImprovementID == buildImprovementID
 					end
 
 					-- case where improvement requires a specific civilization
@@ -1036,7 +1039,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 						local yieldChange
 						-- Work around unrevealed improvement game bug
 						if buildImprovement and revealedImprovementID ~= actualImprovementID then
-							yieldChange = plot:CalculateImprovementYieldChange( buildImprovement.ID, yieldID, activePlayerID ) -- false = not optimal
+							yieldChange = plot:CalculateImprovementYieldChange( buildImprovementID, yieldID, activePlayerID ) -- false = not optimal
 						else
 							yieldChange = plot:GetYieldWithBuild( buildID, yieldID, false, activePlayerID ) - plot:CalculateYield( yieldID, false ) -- false = without upgrade, false = actual
 						end
@@ -1049,6 +1052,21 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 							buildTip = string_format( "%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
 						end
 					end
+
+					-- GPP Rate
+					if buildImprovement then
+						local iGPPRateChange = (buildImprovement.GreatPersonRateModifier or 0)
+						if revealedImprovementID >= 0 and not isPillaged then
+							iGPPRateChange = iGPPRateChange - (revealedImprovement.GreatPersonRateModifier or 0)
+						end
+						-- Positive or negative change?
+						if iGPPRateChange > 0 then
+							buildTip = string_format( "%s [COLOR_POSITIVE_TEXT]%+i%%[ENDCOLOR][ICON_GREAT_PEOPLE]", buildTip, iGPPRateChange )
+						elseif iGPPRateChange < 0 then
+							buildTip = string_format( "%s [COLOR_NEGATIVE_TEXT]%+i%%[ENDCOLOR][ICON_GREAT_PEOPLE]", buildTip, iGPPRateChange )
+						end
+					end
+
 					-- Maintenance
 					if buildImprovement then
 						if civ5_mode then
@@ -1067,7 +1085,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 							end
 						end
 						if resource and isResourceUsefull then
-							if plot:IsResourceConnectedByImprovement( buildImprovement.ID ) then
+							if plot:IsResourceConnectedByImprovement( buildImprovementID ) then
 								if not isResourceConnected then
 									buildTip = string_format("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
 								end

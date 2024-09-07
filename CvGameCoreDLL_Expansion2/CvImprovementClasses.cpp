@@ -156,6 +156,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bConnectsAllResources(false),
 	m_eImprovementUsageType(IMPROVEMENTUSAGE_BASIC),
 	m_eRequiredCivilization(NO_CIVILIZATION),
+	m_iGreatPersonRateModifier(0),
 	m_iWorldSoundscapeScriptId(0),
 	m_piResourceQuantityRequirements(NULL),
 	m_piPrereqNatureYield(NULL),
@@ -343,6 +344,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bCreatedByGreatPerson = kResults.GetBool("CreatedByGreatPerson");
 	m_bSpecificCivRequired = kResults.GetBool("SpecificCivRequired");
 	m_bConnectsAllResources = kResults.GetBool("ConnectsAllResources");
+	m_iGreatPersonRateModifier = kResults.GetInt("GreatPersonRateModifier");
 	m_iResourceExtractionMod = kResults.GetInt("ResourceExtractionMod");
 	m_iLuxuryCopiesSiphonedFromMinor = kResults.GetInt("LuxuryCopiesSiphonedFromMinor");
 	m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
@@ -919,7 +921,6 @@ int CvImprovementEntry::GetHappinessOnConstruction() const
 {
 	return m_iHappinessOnConstruction;
 }
-#if defined(MOD_BALANCE_CORE)
 // Does this improvement create a resource when construced?
 int CvImprovementEntry::GetResourceFromImprovement() const
 {
@@ -974,7 +975,6 @@ bool CvImprovementEntry::IsOwnerOnly() const
 {
 	return m_bOwnerOnly;
 }
-#endif
 /// Returns the type of improvement that results from this improvement being pillaged
 int CvImprovementEntry::GetImprovementPillage() const
 {
@@ -1250,6 +1250,11 @@ bool CvImprovementEntry::ConnectsAllResources() const
 CivilizationTypes CvImprovementEntry::GetRequiredCivilization() const
 {
 	return m_eRequiredCivilization;
+}
+
+int CvImprovementEntry::GetGreatPersonRateModifier() const
+{
+	return m_iGreatPersonRateModifier;
 }
 
 /// DEPRECATED

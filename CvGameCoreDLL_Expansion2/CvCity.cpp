@@ -420,7 +420,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromInternalTREnd()
 	, m_aiYieldFromInternalTR()
 	, m_aiYieldFromProcessModifier()
-	, m_aiSpecialistRateModifier()
+	, m_aiSpecialistRateModifierFromBuildings()
 	, m_aiNumTimesOwned()
 	, m_aiStaticCityYield()
 	, m_aiThemingYieldBonus()
@@ -1049,7 +1049,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING");
 					strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING");
-					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 				}
 			}
 		}
@@ -1327,7 +1327,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
-	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
+	m_aiSpecialistRateModifierFromBuildings.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobalEraScaling.resize(NUM_YIELD_TYPES);
@@ -1676,7 +1676,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		int iNumSpecialistInfos = GC.getNumSpecialistInfos();
 		for (iI = 0; iI < iNumSpecialistInfos; iI++)
 		{
-			m_aiSpecialistRateModifier[iI] = 0;
+			m_aiSpecialistRateModifierFromBuildings[iI] = 0;
 		}
 
 		m_pCityBuildings->Init(GC.GetGameBuildings(), this);
@@ -2302,7 +2302,7 @@ void CvCity::doTurn()
 				strText << getNameKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED_S");
 				strSummary << getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 			}
 		}
 	}
@@ -12452,7 +12452,7 @@ void CvCity::changeProductionTimes100(int iChange)
 								int iOverflow = 0;
 								int iProductionNeeded = 0;
 
-								if (this->isProductionUnit())
+								if (isProductionUnit())
 								{
 									UnitTypes eUnit = getProductionUnit();
 									CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
@@ -12525,7 +12525,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										}
 									}
 								}
-								else if (this->isProductionBuilding())
+								else if (isProductionBuilding())
 								{
 									// what building is the destination city making?
 									BuildingTypes eBuilding = getProductionBuilding();
@@ -13853,7 +13853,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
 							strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 					}
 				}
@@ -14512,7 +14512,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iValue = pBuildingInfo->GetSpecificGreatPersonRateModifier((SpecialistTypes)iL);
 				if (iValue > 0)
 				{
-					ChangeSpecialistRateModifier(eSpecialist, (pBuildingInfo->GetSpecificGreatPersonRateModifier((SpecialistTypes)iL) * iChange));
+					ChangeSpecialistRateModifierFromBuildings(eSpecialist, (pBuildingInfo->GetSpecificGreatPersonRateModifier((SpecialistTypes)iL) * iChange));
 				}
 			}
 		}
@@ -17063,6 +17063,14 @@ int CvCity::getGreatPeopleRateModifier() const
 	{
 		iNewValue += iGPRateCorp;
 	}
+
+	// Improvements: Great people rate modifier by number of worked improvements
+	int iGPRateImprovements = GetImprovementGreatPersonRateModifier();
+	if (iGPRateImprovements > 0)
+	{
+		iNewValue += iGPRateImprovements;
+	}
+
 	return m_iGreatPeopleRateModifier + iNewValue;
 }
 
@@ -17071,6 +17079,79 @@ void CvCity::changeGreatPeopleRateModifier(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iGreatPeopleRateModifier = (m_iGreatPeopleRateModifier + iChange);
+}
+
+int CvCity::GetImprovementGreatPersonRateModifier() const
+{
+	int iGPPRateFromImprovements = 0;
+
+	const std::vector<int> aWorkedPlots = GetCityCitizens()->GetWorkedPlots();
+	for (std::vector<int>::const_iterator it = aWorkedPlots.begin(); it != aWorkedPlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+		if (!pPlot)
+			continue;
+
+		if (pPlot->IsImprovementPillaged())
+			continue;
+
+		ImprovementTypes eImprovement = pPlot->getImprovementType();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		int iGPPRateFromImprovement = pkImprovementInfo->GetGreatPersonRateModifier();
+		if (iGPPRateFromImprovement != 0)
+		{
+			iGPPRateFromImprovements += iGPPRateFromImprovement;
+		}
+	}
+
+	return iGPPRateFromImprovements;
+}
+
+int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+{
+	int iResult = 0;
+
+	if (GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+	{
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
+			{
+				iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, getOwner(), this);
+				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+				}
+			}
+		}
+
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+					}
+				}
+			}
+		}
+	}
+
+	return iResult;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20514,7 +20595,7 @@ void CvCity::UpdateEventGPPFromSpecialistsCounters()
 				strText << getNameKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GPP_EVENT_ENDED_S");
 				strSummary << getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 			}
 		}
 		else
@@ -24234,17 +24315,17 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 }
 
 /// Extra yield from building
-int CvCity::GetSpecialistRateModifier(SpecialistTypes eSpecialist) const
+int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eSpecialist >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiSpecialistRateModifier[eSpecialist];
+	return m_aiSpecialistRateModifierFromBuildings[eSpecialist];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange)
+void CvCity::ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eSpecialist >= 0, "eIndex expected to be >= 0");
@@ -24252,8 +24333,8 @@ void CvCity::ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChan
 
 	if (iChange != 0)
 	{
-		m_aiSpecialistRateModifier[eSpecialist] = m_aiSpecialistRateModifier[eSpecialist] + iChange;
-		CvAssert(GetSpecialistRateModifier(eSpecialist) >= 0);
+		m_aiSpecialistRateModifierFromBuildings[eSpecialist] = m_aiSpecialistRateModifierFromBuildings[eSpecialist] + iChange;
+		CvAssert(GetSpecialistRateModifierFromBuildings(eSpecialist) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -28586,7 +28667,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 		if (pUnit->isFreeUpgrade() || kOwner.GetPlayerTraits()->IsFreeUpgrade())
 		{
 			UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+			if (eUpgradeUnit != NO_UNIT && canTrain(eUpgradeUnit, false, false, true))
 			{
 				pUnit = pUnit->DoUpgrade(true);
 			}
@@ -28626,7 +28707,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 			UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-			if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+			if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && canTrain(eZuluImpi, false, false, true))
 			{
 				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 				if (pkcUnitEntry)
@@ -29998,7 +30079,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 		if (pNewUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 		{
 			UnitTypes eUpgradeUnit = pNewUnit->GetUpgradeUnitType();
-			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+			if (eUpgradeUnit != NO_UNIT && canTrain(eUpgradeUnit, false, false, true))
 			{
 				//return value must not be a zombie
 				pNewUnit = pNewUnit->DoUpgrade(true);
@@ -30008,7 +30089,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 			UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-			if (pNewUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+			if (pNewUnit->getUnitClassType() == ePikemanClass && canTrain(eZuluImpi, false, false, true))
 			{
 				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 				if (pkcUnitEntry)
@@ -31060,7 +31141,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromInternalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
 	visitor(city.m_aiYieldFromProcessModifier);
-	visitor(city.m_aiSpecialistRateModifier);
+	visitor(city.m_aiSpecialistRateModifierFromBuildings);
 	visitor(city.m_aiThemingYieldBonus);
 	visitor(city.m_aiYieldFromSpyAttack);
 	visitor(city.m_aiYieldFromSpyDefense);
@@ -33736,7 +33817,7 @@ void CvCity::UpdateClosestFriendlyNeighbors()
 		if (pCity == this)
 			continue;
 
-		int iDistance = plotDistance(this->getX(), this->getY(), pCity->getX(), pCity->getY());
+		int iDistance = plotDistance(getX(), getY(), pCity->getX(), pCity->getY());
 		allNeighbors.push_back(SCityWithScore(pCity, iDistance));
 	}
 
