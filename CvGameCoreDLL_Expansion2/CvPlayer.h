@@ -2725,6 +2725,8 @@ public:
 	int GetCityDistanceHighwaterMark() const;
 	void SetCityDistanceHighwaterMark(int iNewValue);
 
+	int GetNumMarriedCityStatesNotAtWar() const;
+
 	void SetEmbarkedGraphicOverride(CvString szGraphicName)
 	{
 		m_strEmbarkedGraphicOverride = szGraphicName;

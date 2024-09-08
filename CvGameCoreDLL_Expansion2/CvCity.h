@@ -619,6 +619,8 @@ public:
 	void changeBaseGreatPeopleRate(int iChange);
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
+	int getGPRateModPerMarriage() const;
+	void changeGPRateModPerMarriage(int iChange);
 
 	int GetImprovementGreatPersonRateModifier() const;
 	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
@@ -1807,6 +1809,7 @@ protected:
 
 	int m_iBaseGreatPeopleRate;
 	int m_iGreatPeopleRateModifier;
+	int m_iGPRateModPerMarriage;
 	int m_iJONSCultureStored;
 	int m_iJONSCultureLevel;
 	int m_iJONSCulturePerTurnFromPolicies;
@@ -2214,6 +2217,7 @@ SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
 SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
+SYNC_ARCHIVE_VAR(int, m_iGPRateModPerMarriage)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureLevel)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromPolicies)
