@@ -12447,6 +12447,78 @@ void CvPlot::SilentlyResetAllBuildProgress(BuildTypes eBuild)
 	}
 }
 
+// used for diplomacy stuff when stealing a tile using a citadel or America's UI (VP)
+int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValueTile) const
+{
+	PlayerTypes ePlotOwner = getOwner();
+	if (ePlotOwner == NO_PLAYER || ePlotOwner == eStealingPlayer)
+		return 0;
+
+	int iTileValue = /*80*/ GD_INT_GET(STOLEN_TILE_BASE_WAR_VALUE);
+	int iValueMultiplier = 0;
+	if (IsNaturalWonder())
+	{
+		iValueMultiplier += 200;
+		bStoleHighValueTile = true;
+	}
+	else
+	{
+		if (getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
+		{
+			CvResourceInfo* pInfo = GC.getResourceInfo(getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
+			if (pInfo)
+			{
+				switch (pInfo->getResourceUsage())
+				{
+				case RESOURCEUSAGE_STRATEGIC:
+					iValueMultiplier += 100;
+					bStoleHighValueTile = true;
+					break;
+				case RESOURCEUSAGE_LUXURY:
+					iValueMultiplier += 50;
+					bStoleHighValueTile = true;
+					break;
+				case RESOURCEUSAGE_BONUS:
+					iValueMultiplier += 20;
+					break;
+				}
+			}
+		}
+
+		bool bChokePoint = IsChokePoint();
+		if (bChokePoint)
+		{
+			iValueMultiplier += 50;
+			bStoleHighValueTile = true;
+		}
+
+		ImprovementTypes eImprovement = getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			CvAssert(pkImprovementInfo);
+
+			if (bChokePoint)
+			{
+				iValueMultiplier += pkImprovementInfo->GetDefenseModifier();
+				if (pkImprovementInfo->IsNoFollowUp())
+					iValueMultiplier += 20;
+			}
+
+			if (pkImprovementInfo->IsCreatedByGreatPerson())
+			{
+				iValueMultiplier += 100;
+				bStoleHighValueTile = true;
+			}
+		}
+	}
+
+	iTileValue *= 100 + iValueMultiplier;
+	iTileValue /= 100;
+
+	return iTileValue;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getBuildProgress(BuildTypes eBuild) const

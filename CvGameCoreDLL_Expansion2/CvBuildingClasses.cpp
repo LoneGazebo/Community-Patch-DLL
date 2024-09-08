@@ -350,6 +350,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChangePerPopInEmpire(),
 #endif
 	m_siUnitClassTrainingAllowed(),
+	m_sibResourceClaim(),
 	m_piYieldChangePerReligion(NULL),
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
@@ -491,6 +492,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	m_piYieldChangePerPopInEmpire.clear();
 #endif
 	m_siUnitClassTrainingAllowed.clear();
+	m_sibResourceClaim.clear();
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
@@ -1194,6 +1196,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		std::map<int, int>(m_piYieldChangePerPopInEmpire).swap(m_piYieldChangePerPopInEmpire);
 	}
 
+	//Building_UnitClassTrainingAllowed
 	{
 		std::string strKey("Building_UnitClassTrainingAllowed");
 		Database::Results* pResults = kUtility.GetResults(strKey);
@@ -1209,6 +1212,28 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int iUnitClass = pResults->GetInt(0);
 
 			m_siUnitClassTrainingAllowed.insert(iUnitClass);
+		}
+
+		pResults->Reset();
+	}
+
+	//Building_ResourceClaim
+	{
+		std::string strKey("Building_ResourceClaim");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, IncludeOwnedByOtherPlayer from Building_ResourceClaim inner join Resources on Resources.Type = ResourceType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iResourceID = pResults->GetInt(0);
+			const bool bIncludeOwnedByOtherPlayer = pResults->GetBool(1);
+
+			m_sibResourceClaim.insert(make_pair(iResourceID, bIncludeOwnedByOtherPlayer));
 		}
 
 		pResults->Reset();
@@ -3588,6 +3613,11 @@ int* CvBuildingEntry::GetYieldChangePerReligionArray() const
 set<int> CvBuildingEntry::GetUnitClassTrainingAllowed() const
 {
 	return m_siUnitClassTrainingAllowed;
+}
+
+set<std::pair<int, bool>> CvBuildingEntry::GetResourceClaim() const
+{
+	return m_sibResourceClaim;
 }
 
 /// Modifier to yield by type

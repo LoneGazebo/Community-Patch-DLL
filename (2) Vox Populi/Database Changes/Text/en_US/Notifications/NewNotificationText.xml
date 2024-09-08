@@ -239,6 +239,16 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_RESET_PLOT_COST">
 			<Text>Founding a new City has reset the cost increase of Tile purchases in all owned cities!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_S">
+			<Text>Resource Claimed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE">
+			<Text>On construction of {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BldgName}}, your City of {2_City} has claimed a Tile with {3_ResourceName:textkey} on it!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_FROM_OTHER_PLAYER">
+			<Text>On construction of {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BldgName}}, your City of {2_City} has claimed a Tile with {3_ResourceName:textkey} on it! The Tile previously belonged to {4_CivName}, and [COLOR_NEGATIVE_TEXT]diplomatic relations with them have worsened![ENDCOLOR]</Text>
+		</Row>
+		
 
 		<!-- Assyria -->
 		<Row Tag="TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY">
