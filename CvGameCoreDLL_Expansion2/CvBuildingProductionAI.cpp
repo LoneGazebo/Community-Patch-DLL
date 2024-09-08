@@ -853,6 +853,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	if (pkBuildingInfo->GetGPRateModPerMarriage() > 0)
+	{
+		iBonus += pkBuildingInfo->GetGPRateModPerMarriage() * GET_PLAYER(m_pCity->getOwner()).GetNumMarriedCityStatesNotAtWar();
+	}
+
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{
