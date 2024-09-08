@@ -493,6 +493,7 @@ CvPlayer::CvPlayer() :
 , m_miLocalInstantYieldsTotal()
 , m_aiYieldHistory()
 #endif
+, m_sUnitClassTrainingAllowedAnywhere()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 , m_iHappinessPerXPopulationGlobal()
 , m_iIdeologyPoint()
@@ -1921,6 +1922,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldHistory.clear();
 
 #endif
+	m_sUnitClassTrainingAllowedAnywhere.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_piDomainFreeExperience.clear();
 #endif
@@ -13550,7 +13552,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 }
 
 //	this should be more or less "static" conditions, all the transient factor should be checked in CvCity::canTrain()
-bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const
+bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, bool bIgnoreTechRequirements, CvString* toolTipSink) const
 {
 	CvUnitEntry* pUnitInfoPtr = GC.getUnitInfo(eUnit);
 	if(pUnitInfoPtr == NULL)
@@ -13667,18 +13669,21 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	}
 
 	// Tech requirements
-	if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTech()))))
+	if (!bIgnoreTechRequirements)
 	{
-		return false;
-	}
-
-	for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
-	{
-		if(pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
+		if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTech()))))
 		{
-			if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTechs(iI)))))
+			return false;
+		}
+
+		for (int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
+		{
+			if (pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
 			{
-				return false;
+				if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTechs(iI)))))
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -40537,6 +40542,35 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	return iYield;
 }
 
+void CvPlayer::UpdateUnitClassTrainingAllowedAnywhere(UnitClassTypes eUnitClass)
+{
+	// go through all the cities the player has and check if for one of it UnitClassTrainingAllowed is true. update the value if necessary
+	bool bIsUnitClassTrainingNowAllowedAnywhere = false;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->GetUnitClassTrainingAllowed(eUnitClass) > 0)
+		{
+			bIsUnitClassTrainingNowAllowedAnywhere = true;
+			break;
+		}
+	}
+
+	if (bIsUnitClassTrainingNowAllowedAnywhere)
+	{
+		m_sUnitClassTrainingAllowedAnywhere.insert(eUnitClass);
+	}
+	else
+	{
+		m_sUnitClassTrainingAllowedAnywhere.erase(eUnitClass);
+	}
+}
+
+set<UnitClassTypes> CvPlayer::GetUnitClassTrainingAllowedAnywhere() const
+{
+	return m_sUnitClassTrainingAllowedAnywhere;
+}
+
 void CvPlayer::updateYieldPerTurnHistory()
 {
 	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
@@ -42413,6 +42447,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_viInstantYieldsTotal);
 	visitor(player.m_miLocalInstantYieldsTotal);
 	visitor(player.m_aiYieldHistory);
+	visitor(player.m_sUnitClassTrainingAllowedAnywhere);
 	visitor(player.m_iUprisingCounter);
 	visitor(player.m_iExtraHappinessPerLuxury);
 	visitor(player.m_iUnhappinessFromUnits);
