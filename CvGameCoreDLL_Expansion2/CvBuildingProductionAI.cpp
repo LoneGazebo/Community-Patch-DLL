@@ -813,6 +813,46 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	const std::vector<CvPlot*>& vClaimedPlots = m_pCity->GetPlotsClaimedByBuilding(eBuilding);
+	if (vClaimedPlots.size() > 0)
+	{
+		for (std::vector<CvPlot*>::const_iterator it = vClaimedPlots.begin(); it != vClaimedPlots.end(); ++it)
+		{
+
+			CvPlot* pClaimedPlot = *it;
+			if (pClaimedPlot->getOwner() == NO_PLAYER)
+			{
+				iBonus += 20;
+			}
+			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMajorCiv())
+			{
+				CivApproachTypes eApproachToPlotOwner = kPlayer.GetDiplomacyAI()->GetCivApproach(pClaimedPlot->getOwner());
+				switch (eApproachToPlotOwner)
+				{
+				case CIV_APPROACH_WAR:
+				case CIV_APPROACH_HOSTILE:
+					// harming our enemies? good
+					iBonus += 50;
+					break;
+				case CIV_APPROACH_AFRAID:
+					// don't upset a neighbor we're afraid of
+					return SR_STRATEGY;
+				case CIV_APPROACH_GUARDED:
+					break;
+				case CIV_APPROACH_NEUTRAL:
+					iBonus -= 50;
+					break;
+				case CIV_APPROACH_FRIENDLY:
+				case CIV_APPROACH_DECEPTIVE:
+					// don't take plots from our friends
+					return SR_STRATEGY;
+				default:
+					break;
+				}
+			}
+		}
+	}
+
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{

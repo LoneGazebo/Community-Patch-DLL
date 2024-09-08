@@ -14443,6 +14443,60 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeUnitClassTrainingAllowed((UnitClassTypes)*it, iChange);
 		}
 
+		// instant tile claim
+		if (iChange > 0)
+		{
+			if (GetPlotsClaimedByBuilding(eBuilding).size() > 0)
+			{
+				const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
+				for (std::vector<CvPlot*>::const_iterator it = vTilesClaimed.begin(); it != vTilesClaimed.end(); ++it)
+				{
+					int iX = (*it)->getX();
+					int iY = (*it)->getY();
+
+					if (getOwner() == GC.getGame().getActivePlayer())
+					{
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotifications)
+						{
+							CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
+							ResourceTypes eResource = pPlotClaimed->getResourceType(getTeam());
+							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+							CvAssert(pResourceInfo);
+							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+
+							CvString strBuffer;
+							if (pPlotClaimed->getOwner() == NO_PLAYER)
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey());
+							}
+							else
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_FROM_OTHER_PLAYER", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey(), GET_PLAYER(pPlotClaimed->getOwner()).getNameKey());
+							}
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_S");
+
+							switch (pResourceInfo->getResourceUsage())
+							{
+							case RESOURCEUSAGE_LUXURY:
+								eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+								break;
+							case RESOURCEUSAGE_STRATEGIC:
+								eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+								break;
+							case RESOURCEUSAGE_BONUS:
+								eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+								break;
+							}
+							pNotifications->Add(eNotificationType, strBuffer, strSummary, iX, iY, eResource);
+						}
+					}
+
+					BuyPlot(iX, iY, true);
+				}
+			}
+		}
+
 		// Resource loop
 		int iCulture = 0;
 		int iFaith = 0;
@@ -27528,7 +27582,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 
 //	--------------------------------------------------------------------------------
 /// Buy the plot and set it's owner to us (executed by the network code)
-void CvCity::BuyPlot(int iPlotX, int iPlotY)
+void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding)
 {
 	VALIDATE_OBJECT
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
@@ -27537,128 +27591,82 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		return;
 	}
 
-	int iCost = GetBuyPlotCost(iPlotX, iPlotY);
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	thisPlayer.GetTreasury()->LogExpenditure("buy plot", iCost, 1);
-	thisPlayer.GetTreasury()->ChangeGold(-iCost);
+	bool bWithGold = false;
 
-	bool bWithGold = true;
-	if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
-		// If we have a culture surplus, we got a discount on the tile, so remove the surplus
-		int iOverflow = GetJONSCultureStored() - GetJONSCultureThreshold();
-		if (iOverflow >= 0) {
-			SetJONSCultureStored(iOverflow);
-			ChangeJONSCultureLevel(1);
-			bWithGold = false;
+	int iCost = bAutomaticPurchaseFromBuilding ? 0 : GetBuyPlotCost(iPlotX, iPlotY);
+	if (iCost > 0)
+	{
+		thisPlayer.GetTreasury()->LogExpenditure("buy plot", iCost, 1);
+		thisPlayer.GetTreasury()->ChangeGold(-iCost);
+		bWithGold = true;
+		if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
+			// If we have a culture surplus, we got a discount on the tile, so remove the surplus
+			int iOverflow = GetJONSCultureStored() - GetJONSCultureThreshold();
+			if (iOverflow >= 0) {
+				SetJONSCultureStored(iOverflow);
+				ChangeJONSCultureLevel(1);
+				bWithGold = false;
+			}
 		}
 	}
 
-	if (iCost > 0 && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+	if ((bAutomaticPurchaseFromBuilding || iCost > 0) && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 	{
 		// Did we buy this plot from someone? They're gonna be mad!
 		PlayerTypes ePlotOwner = pPlot->getOwner();
-		int iTileValue = /*80*/ GD_INT_GET(STOLEN_TILE_BASE_WAR_VALUE);
-		int iValueMultiplier = 0;
 		bool bStoleHighValueTile = false;
+		int iTileValue = pPlot->GetStealPlotValue(getOwner(), bStoleHighValueTile);
 
-		if (pPlot->IsNaturalWonder())
+		// Stole a major civ's embassy from a City-State?
+		if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
 		{
-			iValueMultiplier += 200;
-			bStoleHighValueTile = true;
-		}
-		else
-		{
-			if (pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
+			PlayerTypes eEmbassyOwner = pPlot->GetPlayerThatBuiltImprovement();
+			if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
 			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
-				if (pInfo)
+				// Notify the embassy owner
+				CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+				if (pNotifications)
 				{
-					switch (pInfo->getResourceUsage())
-					{
-					case RESOURCEUSAGE_STRATEGIC:
-						iValueMultiplier += 100;
-						bStoleHighValueTile = true;
-						break;
-					case RESOURCEUSAGE_LUXURY:
-						iValueMultiplier += 50;
-						bStoleHighValueTile = true;
-						break;
-					case RESOURCEUSAGE_BONUS:
-						iValueMultiplier += 20;
-						break;
-					}
-				}
-			}
-
-			bool bChokePoint = pPlot->IsChokePoint();
-			if (bChokePoint)
-			{
-				iValueMultiplier += 50;
-				bStoleHighValueTile = true;
-			}
-
-			ImprovementTypes eImprovement = pPlot->getImprovementType();
-			if (eImprovement != NO_IMPROVEMENT)
-			{
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-				CvAssert(pkImprovementInfo);
-
-				if (bChokePoint)
-				{
-					iValueMultiplier += pkImprovementInfo->GetDefenseModifier();
-					if (pkImprovementInfo->IsNoFollowUp())
-						iValueMultiplier += 20;
+					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+					pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
 				}
 
-				if (pkImprovementInfo->IsCreatedByGreatPerson())
+				// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
+				if (!GET_PLAYER(eEmbassyOwner).isHuman())
 				{
-					iValueMultiplier += 100;
-					bStoleHighValueTile = true;
+					int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
+					GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 				}
-			}
 
-			// Stole a major civ's embassy from a City-State?
-			if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
-			{
-				PlayerTypes eEmbassyOwner = pPlot->GetPlayerThatBuiltImprovement();
-				if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+				// Message for human
+				if (!bAutomaticPurchaseFromBuilding)
 				{
-					// Notify the embassy owner
-					CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
-					if (pNotifications)
+					if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(eEmbassyOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(eEmbassyOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 					{
-						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
-					}
 
-					// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
-					if (!GET_PLAYER(eEmbassyOwner).isHuman())
-					{
-						int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
-						GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+						DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+						const char* strText = GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
+						gDLL->GameplayDiplomacyAILeaderMessage(eEmbassyOwner, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 					}
+				}
 
-					// Stole from the City-State's ally? The City-State is furious!
-					if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+				// Stole from the City-State's ally? The City-State is furious!
+				if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+				{
+					GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
+				}
+				// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+				else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+				{
+					if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
 					{
-						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
-					}
-					// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
-					else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
-					{
-						if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
-						{
-							GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
-						}
+						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
 					}
 				}
 			}
 		}
-
-		iTileValue *= 100 + iValueMultiplier;
-		iTileValue /= 100;
-
 		// If the players are at war, this counts for war value!
 		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 		{
@@ -27705,6 +27713,18 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			int iPenalty = bStoleHighValueTile ? 3 : 1;
 			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 		}
+
+		// Message for human
+		if (!bAutomaticPurchaseFromBuilding && GET_PLAYER(ePlotOwner).isMajorCiv())
+		{
+			if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(ePlotOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+			{
+
+				DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+				const char* strText = GET_PLAYER(ePlotOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
+				gDLL->GameplayDiplomacyAILeaderMessage(ePlotOwner, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+			}
+		}
 	}
 
 	if (iCost > 0)
@@ -27712,66 +27732,75 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		// Only do this if we actually paid for the plot (as opposed to getting it for free via city growth)
 		thisPlayer.ChangeNumPlotsBought(1);
 
-		//Let's look at max range for plot purchases for this City.
-		//Buying plots further and further from your city will make this more likely to trigger bad diplo.
-		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
+		//Let's look at plots in the vicinity of the bought plot
+		for (int iI = 0; iI < RING3_PLOTS; iI++)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(iPlotX, iPlotY, iI);
 
 			if (pLoopPlot != NULL)
 			{
 				// See if there's anyone else nearby that could get upset by this action
+				int iPlotValue = 0;
 				CvCity* pNearbyCity = pLoopPlot->getPlotCity();
 				if (pNearbyCity)
 				{
-					PlayerTypes ePlayer = pNearbyCity->getOwner();
+					PlayerTypes eOtherPlayer = pNearbyCity->getOwner();
 					//We found another player? Good.
-					if (ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv() && ePlayer != getOwner())
+					if (eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && eOtherPlayer != getOwner())
 					{
 						//Resource? Grr!
-						if (pPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
+						if (pPlot->getResourceType(GET_PLAYER(eOtherPlayer).getTeam()) != NO_RESOURCE)
 						{
-							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
-							break;
+							iPlotValue = 1;
 						}
 						//Natural Wonder? Grr!!!!
-						if (pPlot->IsNaturalWonder())
+						else if (pPlot->IsNaturalWonder())
 						{
-							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 3);
-							break;
+							iPlotValue = 3;
 						}
-						//Neighbors? Grr!
-						int iUsOwned = 0;
-						int iThemOwned = 0;
-						CvPlot* pAdjacentPlot = NULL;
-						for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+						else
 						{
-							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
-
-							if (pAdjacentPlot != NULL)
+							//Neighbors? Grr!
+							int iUsOwned = 0;
+							int iThemOwned = 0;
+							CvPlot* pAdjacentPlot = NULL;
+							for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 							{
-								if (pAdjacentPlot->getOwner() == ePlayer)
+								pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
+
+								if (pAdjacentPlot != NULL)
 								{
-									iThemOwned++;
-								}
-								if (pAdjacentPlot->getOwner() == getOwner())
-								{
-									iUsOwned++;
+									if (pAdjacentPlot->getOwner() == eOtherPlayer)
+									{
+										iThemOwned++;
+									}
+									if (pAdjacentPlot->getOwner() == getOwner())
+									{
+										iUsOwned++;
+									}
 								}
 							}
+							//We're buying land near their claimed tiles? Grr!
+							if (iThemOwned > iUsOwned)
+							{
+								iPlotValue = 2;
+							}
+							//We're competing? Grr!
+							else if (iThemOwned > 0)
+							{
+								iPlotValue = 1;
+							}
 						}
-						//We're buying land near their claimed tiles? Grr!
-						if (iThemOwned > iUsOwned)
+					}
+					if (iPlotValue > 0)
+					{
+						pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), iPlotValue);
+						// Test to see if a land buying promise was broken
+						if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetNumTurnsBorderPromise(getOwner()) > 0)
 						{
-							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 2);
-							break;
+							GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetBorderPromiseState(getOwner(), PROMISE_STATE_BROKEN);
 						}
-						//We're competing? Grr!
-						else if (iThemOwned >= iUsOwned)
-						{
-							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
-							break;
-						}
+						break;
 					}
 				}
 			}
@@ -27796,11 +27825,22 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 	}
 
+	if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isHuman())
+	{
+		CvNotifications* pNotifications = GET_PLAYER(pPlot->getOwner()).GetNotifications();
+		if (pNotifications)
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+		}
+	}
+
 	DoAcquirePlot(iPlotX, iPlotY);
 
 	if (MOD_EVENTS_CITY)
 	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBoughtPlot, getOwner(), GetID(), iPlotX, iPlotY, bWithGold, !bWithGold);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBoughtPlot, getOwner(), GetID(), iPlotX, iPlotY, bWithGold, false);
 	}
 	else
 	{
@@ -27812,7 +27852,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			args->Push(GetID());
 			args->Push(iPlotX);
 			args->Push(iPlotY);
-			args->Push(true); // bGold
+			args->Push(bWithGold); // bGold
 			args->Push(false); // bFaith/bCulture
 
 			bool bResult = false;
@@ -27821,7 +27861,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 
 	//Achievement test for purchasing 1000 tiles
-	if (MOD_API_ACHIEVEMENTS && thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && !bAutomaticPurchaseFromBuilding)
 	{
 		gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESPURCHASED, 1000, ACHIEVEMENT_PURCHASE_1000TILES);
 	}
@@ -27839,18 +27879,6 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	}
 
 	GET_PLAYER(getOwner()).AddAPlot(pPlot);
-#if defined(MOD_BALANCE_CORE)
-	if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isHuman())
-	{
-		CvNotifications* pNotifications = GET_PLAYER(pPlot->getOwner()).GetNotifications();
-		if (pNotifications)
-		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UA_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
-		}
-	}
-#endif
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 	GC.getMap().updateDeferredFog();
 

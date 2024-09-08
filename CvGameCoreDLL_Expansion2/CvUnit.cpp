@@ -12590,105 +12590,48 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 				vePlayersBombed[ePlotOwner] = true;
 
-				// Diplomacy stuff!
-				int iTileValue = /*80*/ GD_INT_GET(STOLEN_TILE_BASE_WAR_VALUE);
-				int iValueMultiplier = 0;
-
-				if (pLoopPlot->IsNaturalWonder())
+				bool bHighValueTile = false; // reference variable
+				int iTileValue = pLoopPlot->GetStealPlotValue(getOwner(), bHighValueTile);
+				if (bHighValueTile)
 				{
-					iValueMultiplier += 200;
 					vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
 				}
-				else
+
+				// Stole a major civ's embassy from a City-State?
+				if (pLoopPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
 				{
-					if (pLoopPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
+					PlayerTypes eEmbassyOwner = pLoopPlot->GetPlayerThatBuiltImprovement();
+					if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
 					{
-						CvResourceInfo* pInfo = GC.getResourceInfo(pLoopPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
-						if (pInfo)
+						// Notify the embassy owner
+						if (!vePlayersBombed[eEmbassyOwner])
 						{
-							switch (pInfo->getResourceUsage())
+							CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+							if (pNotifications)
 							{
-							case RESOURCEUSAGE_STRATEGIC:
-								iValueMultiplier += 100;
-								vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
-								break;
-							case RESOURCEUSAGE_LUXURY:
-								iValueMultiplier += 50;
-								vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
-								break;
-							case RESOURCEUSAGE_BONUS:
-								iValueMultiplier += 20;
-								break;
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+								pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), -1);
 							}
 						}
-					}
+						vePlayersBombed[eEmbassyOwner] = true;
+						vePlayersStoleHighValueTileFrom[eEmbassyOwner] = true;
 
-					bool bChokePoint = pLoopPlot->IsChokePoint();
-					if (bChokePoint)
-					{
-						iValueMultiplier += 50;
-						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
-					}
-
-					ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-					if (eImprovement != NO_IMPROVEMENT)
-					{
-						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-						CvAssert(pkImprovementInfo);
-
-						if (bChokePoint)
+						// Stole from the City-State's ally? The City-State is furious!
+						if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
 						{
-							iValueMultiplier += pkImprovementInfo->GetDefenseModifier();
-							if (pkImprovementInfo->IsNoFollowUp())
-								iValueMultiplier += 20;
+							GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
 						}
-
-						if (pkImprovementInfo->IsCreatedByGreatPerson())
+						// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+						else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
 						{
-							iValueMultiplier += 100;
-							vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
-						}
-					}
-
-					// Stole a major civ's embassy from a City-State?
-					if (pLoopPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
-					{
-						PlayerTypes eEmbassyOwner = pLoopPlot->GetPlayerThatBuiltImprovement();
-						if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
-						{
-							// Notify the embassy owner
-							if (!vePlayersBombed[eEmbassyOwner])
+							if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
 							{
-								CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
-								if (pNotifications)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), -1);
-								}
-							}
-							vePlayersBombed[eEmbassyOwner] = true;
-							vePlayersStoleHighValueTileFrom[eEmbassyOwner] = true;
-
-							// Stole from the City-State's ally? The City-State is furious!
-							if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
-							{
-								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
-							}
-							// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
-							else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
-							{
-								if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
-								{
-									GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
-								}
+								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
 							}
 						}
 					}
 				}
-
-				iTileValue *= 100 + iValueMultiplier;
-				iTileValue /= 100;
 
 				// If the players are at war, this counts for war value!
 				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
@@ -12698,7 +12641,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
 						int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
-						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
+						if (bHighValueTile)
 						{
 							iWarProgress *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
 							iWarProgress /= 100;
@@ -12708,7 +12651,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					if (GET_PLAYER(ePlotOwner).isMajorCiv())
 					{
 						int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
-						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
+						if (bHighValueTile)
 						{
 							iWarProgress *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
 							iWarProgress /= 100;
