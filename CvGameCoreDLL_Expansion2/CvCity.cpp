@@ -185,6 +185,7 @@ CvCity::CvCity() :
 	, m_iExtraHitPoints()
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
+	, m_iGPPRateModPerMarriage()
 	, m_iJONSCultureStored()
 	, m_iJONSCultureLevel()
 	, m_iJONSCulturePerTurnFromPolicies()
@@ -1171,6 +1172,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iExtraHitPoints = 0;
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
+	m_iGPPRateModPerMarriage = 0;
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
 	m_iJONSCulturePerTurnFromPolicies = 0;
@@ -14181,6 +14183,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
+		changeGPPRateModPerMarriage(pBuildingInfo->GetGPPRateModPerMarriage() * iChange);
 
 		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
@@ -17184,7 +17187,7 @@ int CvCity::getGreatPeopleRate() const
 int CvCity::getTotalGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT
-	int iModifier = getGreatPeopleRateModifier() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+	int iModifier = getTotalGreatPeopleRateModifierInCity() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
 
 	if (GET_PLAYER(getOwner()).isGoldenAge())
 	{
@@ -17205,29 +17208,18 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::getGreatPeopleRateModifier() const
+int CvCity::getTotalGreatPeopleRateModifierInCity() const
 {
 	VALIDATE_OBJECT
-	int iNewValue = 0;
-	if (isCapital() && GET_PLAYER(getOwner()).GetPlayerTraits()->IsDiplomaticMarriage())
-	{
-		int iNumMarried = 0;
-		// Loop through all minors and get the total number we've met.
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+	int iValue = getGreatPeopleRateModifier();
 
-			if (eMinor != getOwner() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-			{
-				if (!GET_PLAYER(eMinor).IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
-				{
-					iNumMarried++;
-				}
-			}
-		}
-		if (iNumMarried > 0)
+	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
+	if (iNumMarried > 0)
+	{
+		iValue += (iNumMarried * getGPPRateModPerMarriage());
+		if (isCapital())
 		{
-			iNewValue = (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
+			iValue += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
 		}
 	}
 
@@ -17235,9 +17227,17 @@ int CvCity::getGreatPeopleRateModifier() const
 	int iGPRateCorp = GetGPRateModifierPerXFranchises();
 	if (iGPRateCorp > 0)
 	{
-		iNewValue += iGPRateCorp;
+		iValue += iGPRateCorp;
 	}
-	return m_iGreatPeopleRateModifier + iNewValue;
+
+	return iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getGreatPeopleRateModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iGreatPeopleRateModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17245,6 +17245,20 @@ void CvCity::changeGreatPeopleRateModifier(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iGreatPeopleRateModifier = (m_iGreatPeopleRateModifier + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getGPPRateModPerMarriage() const
+{
+	VALIDATE_OBJECT
+	return m_iGPPRateModPerMarriage;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeGPPRateModPerMarriage(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iGPPRateModPerMarriage = (m_iGPPRateModPerMarriage + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31027,6 +31041,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iExtraHitPoints);
 	visitor(city.m_iBaseGreatPeopleRate);
 	visitor(city.m_iGreatPeopleRateModifier);
+	visitor(city.m_iGPPRateModPerMarriage);
 	visitor(city.m_iJONSCultureStored);
 	visitor(city.m_iJONSCultureLevel);
 	visitor(city.m_iJONSCulturePerTurnFromPolicies);

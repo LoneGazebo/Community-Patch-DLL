@@ -16152,6 +16152,28 @@ void CvPlayer::SetCityDistanceHighwaterMark(int iNewValue)
 	m_iCityDistanceHighwaterMark = iNewValue;
 }
 
+int CvPlayer::GetNumMarriedCityStatesNotAtWar() const
+{
+	int iNumMarried = 0;
+	if (GetPlayerTraits()->IsDiplomaticMarriage())
+	{
+		// Loop through all minors and get the total number we've met.
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+
+			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (!GET_PLAYER(eMinor).IsAtWarWith(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetID()))
+				{
+					iNumMarried++;
+				}
+			}
+		}
+	}
+	return iNumMarried;
+}
+
 int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 {
 	// This is based on the switch in CvEconomicAI::LogMonitor() that calls different methods for culture and faith
