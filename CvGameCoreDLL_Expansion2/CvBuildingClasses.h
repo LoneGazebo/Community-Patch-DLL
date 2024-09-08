@@ -529,6 +529,7 @@ public:
 #endif
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
+	set<int> GetUnitClassTrainingAllowed() const;
 	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetAreaYieldModifier(int i) const;
@@ -1015,6 +1016,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_piYieldChangePerPopInEmpire;
 #endif
+	set<int> m_siUnitClassTrainingAllowed;
 	int* m_piYieldChangePerReligion;
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;

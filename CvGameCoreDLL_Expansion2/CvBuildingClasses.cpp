@@ -349,6 +349,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire(),
 #endif
+	m_siUnitClassTrainingAllowed(),
 	m_piYieldChangePerReligion(NULL),
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
@@ -489,6 +490,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire.clear();
 #endif
+	m_siUnitClassTrainingAllowed.clear();
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
@@ -1168,29 +1170,49 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	}
 
 	//Building_YieldChangesPerPopInEmpire
+	{
+		std::string strKey("Building_YieldChangesPerPopInEmpire");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
 		{
-			std::string strKey("Building_YieldChangesPerPopInEmpire");
-			Database::Results* pResults = kUtility.GetResults(strKey);
-			if (pResults == NULL)
-			{
-				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Building_YieldChangesPerPopInEmpire inner join Yields on Yields.Type = YieldType where BuildingType = ?");
-			}
-
-			pResults->Bind(1, szBuildingType);
-
-			while (pResults->Step())
-			{
-				const int iYieldType = pResults->GetInt(0);
-				const int iYield = pResults->GetInt(1);
-
-				m_piYieldChangePerPopInEmpire[iYieldType] += iYield;
-			}
-
-			pResults->Reset();
-
-			//Trim extra memory off container since this is mostly read-only.
-			std::map<int, int>(m_piYieldChangePerPopInEmpire).swap(m_piYieldChangePerPopInEmpire);
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Building_YieldChangesPerPopInEmpire inner join Yields on Yields.Type = YieldType where BuildingType = ?");
 		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iYieldType = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+
+			m_piYieldChangePerPopInEmpire[iYieldType] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piYieldChangePerPopInEmpire).swap(m_piYieldChangePerPopInEmpire);
+	}
+
+	{
+		std::string strKey("Building_UnitClassTrainingAllowed");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select UnitClasses.ID as UnitClassID from Building_UnitClassTrainingAllowed inner join UnitClasses on UnitClasses.Type = UnitClassType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iUnitClass = pResults->GetInt(0);
+
+			m_siUnitClassTrainingAllowed.insert(iUnitClass);
+		}
+
+		pResults->Reset();
+	}
 #endif
 
 	//FeatureYieldChanges
@@ -3561,6 +3583,11 @@ int CvBuildingEntry::GetYieldChangePerReligion(int i) const
 int* CvBuildingEntry::GetYieldChangePerReligionArray() const
 {
 	return m_piYieldChangePerReligion;
+}
+
+set<int> CvBuildingEntry::GetUnitClassTrainingAllowed() const
+{
+	return m_siUnitClassTrainingAllowed;
 }
 
 /// Modifier to yield by type
