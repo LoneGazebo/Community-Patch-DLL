@@ -1045,6 +1045,9 @@ public:
 	int GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const;
 	map<UnitClassTypes, int> GetUnitClassTrainingAllowed() const;
 
+	int GetWorkingRangePlotIndex() const;
+
+	std::vector<CvPlot*>GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const;
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
@@ -1492,7 +1495,7 @@ public:
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
 	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices = 3);
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
-	void BuyPlot(int iPlotX, int iPlotY);
+	void BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding = false);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
 	int GetBuyPlotScore(int& iBestX, int& iBestY);
 	int GetIndividualPlotScore(const CvPlot* pPlot) const;

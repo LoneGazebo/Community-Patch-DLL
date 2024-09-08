@@ -530,6 +530,7 @@ public:
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
 	set<int> GetUnitClassTrainingAllowed() const;
+	set<std::pair<int, bool>> GetResourceClaim() const;
 	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetAreaYieldModifier(int i) const;
@@ -1017,6 +1018,7 @@ private:
 	std::map<int, int> m_piYieldChangePerPopInEmpire;
 #endif
 	set<int> m_siUnitClassTrainingAllowed;
+	set<std::pair<int,bool>> m_sibResourceClaim;
 	int* m_piYieldChangePerReligion;
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
