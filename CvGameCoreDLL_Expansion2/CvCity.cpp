@@ -282,6 +282,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	, m_aiGreatWorkYieldChange()
 	, m_aiEconomicValue()
+	, m_miUnitClassTrainingAllowed()
 	, m_miInstantYieldsTotal()
 	, m_aiEventChoiceDuration()
 	, m_aiEventIncrement()
@@ -1378,6 +1379,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_aiNumTimesAttackedThisTurn[iI] = 0;
 	}
+	m_miUnitClassTrainingAllowed.clear();
 	m_miInstantYieldsTotal.clear();
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
@@ -7949,6 +7951,33 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	 return m_miInstantYieldsTotal[eYield];
  }
 
+ void CvCity::ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue)
+ {
+	VALIDATE_OBJECT;
+	m_miUnitClassTrainingAllowed[eUnitClass] += iValue;
+
+	if (m_miUnitClassTrainingAllowed[eUnitClass] == 0)
+	{
+		m_miUnitClassTrainingAllowed.erase(eUnitClass);
+	}
+
+	GET_PLAYER(getOwner()).UpdateUnitClassTrainingAllowedAnywhere(eUnitClass);
+ }
+ 
+ int CvCity::GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const
+ {
+	 if (m_miUnitClassTrainingAllowed.count(eUnitClass) > 0)
+	 {
+		 return m_miUnitClassTrainingAllowed.find(eUnitClass)->second;
+	 }
+	 return 0;
+ }
+
+ map<UnitClassTypes, int> CvCity::GetUnitClassTrainingAllowed() const
+ {
+	 return m_miUnitClassTrainingAllowed;
+ }
+
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
@@ -8512,9 +8541,30 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
-	if (!(GET_PLAYER(getOwner()).canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
+	// UnitClassTrainAllowed overrides tech requirements
+	const CvUnitEntry& pUnitInfo = *pkUnitEntry;
+	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
+	bool bIgnoreTechRequirements = GetUnitClassTrainingAllowed(eUnitClass) > 0;
+	
+	if (!(GET_PLAYER(getOwner()).canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, false, bIgnoreTechRequirements, toolTipSink)))
 	{
 		return false;
+	}
+	
+	// can we build an upgraded version of this unit locally?
+	if (!GetUnitClassTrainingAllowed().empty())
+	{
+		const map<UnitClassTypes, int>& sUnitClassTrainingAllowed = GetUnitClassTrainingAllowed();
+		for (map<UnitClassTypes, int>::const_iterator it = sUnitClassTrainingAllowed.begin(); it != sUnitClassTrainingAllowed.end(); ++it)
+		{
+			if (it->second > 0)
+			{
+				if (pkUnitEntry->GetUpgradeUnitClass((int)it->first))
+				{
+					return false;
+				}
+			}
+		}
 	}
 
 	// Puppets cannot build units (except workers and work boats, or any other civilian with a work rate)
@@ -8541,8 +8591,6 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// If Zulu Player has this trait and Pikeman are an immediate upgrade to Impi, let's not let player exploit lower production cost of pikeman->impi. So, let's make it immediately obsolete.
-	CvUnitEntry& pUnitInfo = *pkUnitEntry;
-	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
 	UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 	UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
@@ -14333,6 +14381,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ChangeGreatPersonProgressFromConstruction((GreatPersonTypes)it->first, (EraTypes)it->second.first, it->second.second);
 				}
 			}
+		}
+
+		const set<int>& sUnitClassTrainingAllowed = pBuildingInfo->GetUnitClassTrainingAllowed();
+		for (set<int>::const_iterator it = sUnitClassTrainingAllowed.begin(); it != sUnitClassTrainingAllowed.end(); ++it)
+		{
+			ChangeUnitClassTrainingAllowed((UnitClassTypes)*it, iChange);
 		}
 
 		// Resource loop
@@ -31052,6 +31106,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTradeRouteLandDistanceModifier);
 	visitor(city.m_iNukeInterceptionChance);
 	visitor(city.m_aiEconomicValue);
+	visitor(city.m_miUnitClassTrainingAllowed);
 	visitor(city.m_miInstantYieldsTotal);
 	visitor(city.m_aiBaseYieldRateFromReligion);
 	visitor(city.m_aiBaseYieldRateFromCSAlliance);

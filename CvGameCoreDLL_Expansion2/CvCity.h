@@ -1041,6 +1041,10 @@ public:
 	void ChangeInstantYieldTotal(YieldTypes eYield, int iValue);
 	int GetInstantYieldTotal(YieldTypes eYield);
 
+	void ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue);
+	int GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const;
+	map<UnitClassTypes, int> GetUnitClassTrainingAllowed() const;
+
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
@@ -1988,6 +1992,7 @@ protected:
 	std::vector<int> m_aiEconomicValue;
 	std::tr1::unordered_map<YieldTypes, int> m_miInstantYieldsTotal;
 #endif
+	map<UnitClassTypes, int> m_miUnitClassTrainingAllowed;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
@@ -2374,6 +2379,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<UnitClassTypes, int>), m_miUnitClassTrainingAllowed)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)

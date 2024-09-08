@@ -802,6 +802,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	//does it make a unit trainable?
+	const set<int>& sUnitClasses = pkBuildingInfo->GetUnitClassTrainingAllowed();
+	for (set<int>::const_iterator it = sUnitClasses.begin(); it != sUnitClasses.end(); ++it)
+	{
+		// don't need it if we can train the unit anyway
+		if (!kPlayer.canTrainUnit(kPlayer.GetSpecificUnitType((UnitClassTypes)*it)))
+		{
+			iBonus += 200;
+		}
+	}
+
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{
