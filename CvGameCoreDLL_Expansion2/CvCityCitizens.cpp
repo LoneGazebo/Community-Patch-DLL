@@ -761,7 +761,7 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
 		int iGPPRate = (pSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * 100;
 		int iGPPRateMod = 0;
-		iGPPRateMod += m_pCity->getTotalGreatPeopleRateModifierInCity() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
+		iGPPRateMod += m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
 
 		// Player and Golden Age mods to this specific class
 		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
@@ -2852,7 +2852,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				int iMod = 0;
 
 				// City mod
-				iMod += GetCity()->getTotalGreatPeopleRateModifierInCity();
+				iMod += GetCity()->getGreatPeopleRateModifier();
 
 				// Player mod
 				iMod += GetPlayer()->getGreatPeopleRateModifier();

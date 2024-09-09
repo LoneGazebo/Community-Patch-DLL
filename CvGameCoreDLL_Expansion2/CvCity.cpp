@@ -17187,7 +17187,7 @@ int CvCity::getGreatPeopleRate() const
 int CvCity::getTotalGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT
-	int iModifier = getTotalGreatPeopleRateModifierInCity() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+	int iModifier = getGreatPeopleRateModifier() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
 
 	if (GET_PLAYER(getOwner()).isGoldenAge())
 	{
@@ -17208,10 +17208,11 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::getTotalGreatPeopleRateModifierInCity() const
+int CvCity::getGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT
-	int iValue = getGreatPeopleRateModifier();
+	int iValue = m_iGreatPeopleRateModifier;
+	// todo: getGreatPropleRateModifier shouldn't do anything else but get the value of m_iGreatPeopleRateModifier, all the other calculations should be put into a different function
 
 	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
 	if (iNumMarried > 0)
@@ -17231,13 +17232,6 @@ int CvCity::getTotalGreatPeopleRateModifierInCity() const
 	}
 
 	return iValue;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getGreatPeopleRateModifier() const
-{
-	VALIDATE_OBJECT
-	return m_iGreatPeopleRateModifier;
 }
 
 //	--------------------------------------------------------------------------------

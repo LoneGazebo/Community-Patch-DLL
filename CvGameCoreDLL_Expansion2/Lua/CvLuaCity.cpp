@@ -2783,8 +2783,7 @@ int CvLuaCity::lChangeBaseGreatPeopleRate(lua_State* L)
 //int getGreatPeopleRateModifier();
 int CvLuaCity::lGetGreatPeopleRateModifier(lua_State* L)
 {
-	// inconsistent naming necessary, lua function is used by non-VP mods and can't be renamed
-	return BasicLuaMethod(L, &CvCity::getTotalGreatPeopleRateModifierInCity);
+	return BasicLuaMethod(L, &CvCity::getGreatPeopleRateModifier);
 }
 //------------------------------------------------------------------------------
 //int GetBorderGrowthRateIncreaseTotal() const;

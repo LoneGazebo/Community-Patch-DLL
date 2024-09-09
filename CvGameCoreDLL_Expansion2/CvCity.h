@@ -617,7 +617,6 @@ public:
 	int getGreatPeopleRate() const;
 	int getTotalGreatPeopleRateModifier() const;
 	void changeBaseGreatPeopleRate(int iChange);
-	int getTotalGreatPeopleRateModifierInCity() const;
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
 	int getGPPRateModPerMarriage() const;
