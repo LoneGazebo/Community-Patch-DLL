@@ -24540,6 +24540,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		{
 			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 		}
+		doInstantYield(INSTANT_YIELD_TYPE_GOLDEN_AGE_START);
 
 		if (GetGoldenAgeTourism() > 0)
 		{
@@ -26332,6 +26333,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = iPassYield * GetPlayerTraits()->GetYieldFromLuxuryResourceGain(eYield);
 					break;
 				}
+				case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+				{
+					iValue = pLoopCity->GetYieldFromGoldenAgeStart(eYield);
+					break;
+				}
 			}
 
 			//Now, let's apply these yields here as total yields.
@@ -27302,6 +27308,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -41102,6 +41114,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 			{
 				instantYieldName = "Luxury Resource Gain";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+			{
+				instantYieldName = "Start Golden Age";
 				break;
 			}
 	}

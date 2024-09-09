@@ -1111,6 +1111,9 @@ public:
 	int GetYieldFromPillageGlobal(YieldTypes eIndex) const;
 	void ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromGoldenAgeStart(YieldTypes eIndex) const;
+	void ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange);
+
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
@@ -1939,6 +1942,7 @@ protected:
 	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromPillageGlobal;
+	std::vector<int> m_aiYieldFromGoldenAgeStart;
 	std::vector<int> m_aiGoldenAgeYieldMod;
 	std::vector<int> m_aiYieldFromWLTKD;
 	std::vector<int> m_aiYieldFromConstruction;
@@ -2330,6 +2334,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillageGlobal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGoldenAgeStart)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
