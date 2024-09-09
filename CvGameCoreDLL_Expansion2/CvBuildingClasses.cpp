@@ -315,6 +315,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromVictory(NULL),
 	m_piYieldFromVictoryGlobal(NULL),
 	m_piYieldFromVictoryGlobalEraScaling(NULL),
+	m_piYieldFromVictoryGlobalInGoldenAge(NULL),
+	m_piYieldFromVictoryGlobalInGoldenAgeEraScaling(NULL),
 	m_piYieldFromVictoryGlobalPlayer(NULL),
 	m_piYieldFromPillage(NULL),
 	m_piYieldFromPillageGlobal(NULL),
@@ -459,6 +461,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalEraScaling);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalInGoldenAge);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalInGoldenAgeEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
@@ -957,8 +961,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
-	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0') and (GoldenAgeOnly='false' or GoldenAgeOnly='0')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1') and (GoldenAgeOnly='false' or GoldenAgeOnly='0')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalInGoldenAge, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0') and (GoldenAgeOnly='true' or GoldenAgeOnly='1')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalInGoldenAgeEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1') and (GoldenAgeOnly='true' or GoldenAgeOnly='1')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
@@ -3204,10 +3210,37 @@ int CvBuildingEntry::GetYieldFromVictoryGlobalEraScaling(int i) const
 	return m_piYieldFromVictoryGlobalEraScaling ? m_piYieldFromVictoryGlobalEraScaling[i] : -1;
 }
 /// Array of yield changes
-int* CvBuildingEntry::GetYieldFromVictoryGlobalArrayEraScaling() const
+int* CvBuildingEntry::GetYieldFromVictoryGlobalEraScalingArray() const
 {
 	return m_piYieldFromVictoryGlobalEraScaling;
 }
+
+/// Change to yield if victorious in battle while in a golden age
+int CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAge(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalInGoldenAge ? m_piYieldFromVictoryGlobalInGoldenAge[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeArray() const
+{
+	return m_piYieldFromVictoryGlobalInGoldenAge;
+}
+
+/// Change to yield if victorious in battle while in a golden age, scaling with era.
+int CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalInGoldenAgeEraScaling ? m_piYieldFromVictoryGlobalInGoldenAgeEraScaling[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeEraScalingArray() const
+{
+	return m_piYieldFromVictoryGlobalInGoldenAgeEraScaling;
+}
+
 
 
 /// Change to yield if victorious in battle.
