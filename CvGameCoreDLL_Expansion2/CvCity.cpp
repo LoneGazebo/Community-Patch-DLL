@@ -403,6 +403,7 @@ CvCity::CvCity() :
 	, m_aiNumTimesAttackedThisTurn()
 	, m_aiNumProjects()
 	, m_aiYieldFromKnownPantheons()
+	, m_aiYieldFromGoldenAgeStart()
 	, m_aiGoldenAgeYieldMod()
 	, m_aiYieldFromWLTKD()
 	, m_aiYieldFromConstruction()
@@ -1336,6 +1337,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillageGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromGoldenAgeStart.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
@@ -1427,6 +1429,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromVictoryGlobalEraScaling[iI] = 0;
 		m_aiYieldFromPillage[iI] = 0;
 		m_aiYieldFromPillageGlobal[iI] = 0;
+		m_aiYieldFromGoldenAgeStart[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
 		m_aiYieldFromConstruction[iI] = 0;
@@ -14754,6 +14757,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromPillageGlobal(eYield, pBuildingInfo->GetYieldFromPillageGlobal(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromGoldenAgeStart(eYield) > 0))
+			{
+				ChangeYieldFromGoldenAgeStart(eYield, pBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
 			{
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
@@ -23936,6 +23944,31 @@ void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+/// Instant yield when starting a golden age
+int CvCity::GetYieldFromGoldenAgeStart(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromGoldenAgeStart[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Instant yield when starting a golden age
+void CvCity::ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromGoldenAgeStart[eIndex] = m_aiYieldFromGoldenAgeStart[eIndex] + iChange;
+		CvAssert(GetYieldFromGoldenAgeStart(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetGoldenAgeYieldMod(YieldTypes eIndex) const
 {
@@ -31163,6 +31196,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromVictoryGlobalEraScaling);
 	visitor(city.m_aiYieldFromPillage);
 	visitor(city.m_aiYieldFromPillageGlobal);
+	visitor(city.m_aiYieldFromGoldenAgeStart);
 	visitor(city.m_aiGoldenAgeYieldMod);
 	visitor(city.m_aiYieldFromWLTKD);
 	visitor(city.m_aiYieldFromConstruction);

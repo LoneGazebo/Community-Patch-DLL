@@ -195,7 +195,7 @@
 			<Text>Great Admiral Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_POPULATION">
-			<Text>Citizens</Text>
+			<Text>Population</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
 			<Text>Border Growth Points</Text>
@@ -7494,6 +7494,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
 			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">
+			<Text>Starting a Golden Age:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
 			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>

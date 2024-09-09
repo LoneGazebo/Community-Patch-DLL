@@ -320,6 +320,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromPillageGlobal(NULL),
 	m_piYieldFromPillageGlobalPlayer(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
+	m_piYieldFromGoldenAgeStart(NULL),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
@@ -462,6 +463,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobalPlayer);
+	SAFE_DELETE_ARRAY(m_piYieldFromGoldenAgeStart);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
@@ -961,6 +963,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobalPlayer, "Building_YieldFromPillageGlobalPlayer", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromGoldenAgeStart, "Building_YieldFromGoldenAgeStart", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -3259,6 +3262,19 @@ int* CvBuildingEntry::GetYieldFromPillageGlobalPlayerArray() const
 	return m_piYieldFromPillageGlobalPlayer;
 }
 
+
+/// Instant yield when starting a golden age
+int CvBuildingEntry::GetYieldFromGoldenAgeStart(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromGoldenAgeStart ? m_piYieldFromGoldenAgeStart[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromGoldenAgeStartArray() const
+{
+	return m_piYieldFromGoldenAgeStart;
+}
 
 /// Change to yield during golden ages
 int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const

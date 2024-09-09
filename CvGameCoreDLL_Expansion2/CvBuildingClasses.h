@@ -448,6 +448,9 @@ public:
 	int GetYieldFromPillageGlobalPlayer(int i) const;
 	int* GetYieldFromPillageGlobalPlayerArray() const;
 
+	int GetYieldFromGoldenAgeStart(int i) const;
+	int* GetYieldFromGoldenAgeStartArray() const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -992,6 +995,7 @@ private:
 	int* m_piYieldFromPillage;
 	int* m_piYieldFromPillageGlobal;
 	int* m_piYieldFromPillageGlobalPlayer;
+	int* m_piYieldFromGoldenAgeStart;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
