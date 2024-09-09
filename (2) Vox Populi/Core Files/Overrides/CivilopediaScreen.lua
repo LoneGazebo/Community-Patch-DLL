@@ -6431,6 +6431,36 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 					end
 				end
 			end
+			for row in GameInfo.Improvement_YieldPerXAdjacentTerrain ( condition ) do
+				numYields = numYields + 1;
+				local Terrain = GameInfo.Terrains[row.TerrainType];
+				if Terrain then
+					terrainString = Locale.ConvertTextKey(Terrain.Description)..": ";
+					if(fullstring == "") then
+						fullstring = fullstring .. terrainString;
+					else
+						fullstring = fullstring .. "[NEWLINE]" .. terrainString;
+					end
+					if row.NumRequired > 1 then
+						-- round up to hundredth decimal place and remove trailing zeros
+						local decimalYield = tostring(math.ceil(100*row.Yield/row.NumRequired)/100);
+						yieldString = decimalYield:gsub('%.?0*$', '');
+						-- should give X.17, X.2, X.34, X.5, X.67, X.84, X
+					else
+						yieldString = row.Yield;
+					end
+					yieldString = " +" .. yieldString .. GameInfo.Yields[row.YieldType].IconString;
+					local teststring = fullstring .. Locale.ConvertTextKey( yieldString );
+					-- SetText will extract x and y dimensions of the label; use this to determine if we need to wrap
+					Controls.AdjacentImprovYieldLabel:SetText( teststring );
+					contentSize = Controls.AdjacentImprovYieldLabel:GetSize();
+					if contentSize.x > narrowInnerFrameWidth then
+						fullstring = fullstring .. "[NEWLINE]  " .. Locale.ConvertTextKey( yieldString );
+					else
+						fullstring = teststring;
+					end
+				end
+			end
 			if numYields == 0 then
 				Controls.AdjacentImprovYieldFrame:SetHide( true );
 			else

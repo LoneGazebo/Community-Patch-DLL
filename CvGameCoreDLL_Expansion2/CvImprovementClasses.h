@@ -198,6 +198,8 @@ public:
 
 	fraction GetYieldPerXAdjacentImprovement(YieldTypes eYield, ImprovementTypes eImprovement) const;
 	bool IsYieldPerXAdjacentImprovement(YieldTypes eYield = NO_YIELD) const;
+	fraction GetYieldPerXAdjacentTerrain(YieldTypes eYield, TerrainTypes eTerrain) const;
+	bool IsYieldPerXAdjacentTerrain(YieldTypes eYield = NO_YIELD) const;
 	int GetAdjacentResourceYieldChanges(int i, int j) const;
 	int* GetAdjacentResourceYieldChangesArray (int i);
 	int GetAdjacentTerrainYieldChanges(int i, int j) const;
@@ -355,6 +357,7 @@ protected:
 	bool* m_pbFeatureMakesValid;
 	bool* m_pbImprovementMakesValid;
 	map<YieldTypes, map<ImprovementTypes, fraction>> m_YieldPerXAdjacentImprovement;
+	map<YieldTypes, map<TerrainTypes, fraction>> m_YieldPerXAdjacentTerrain;
 	int** m_ppiAdjacentTerrainYieldChanges;
 	int** m_ppiAdjacentResourceYieldChanges;
 	int** m_ppiAdjacentFeatureYieldChanges;

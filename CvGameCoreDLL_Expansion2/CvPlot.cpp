@@ -5918,6 +5918,28 @@ fraction CvPlot::ComputeFractionalYieldFromAdjacentImprovement(CvImprovementEntr
 	return fRtnValue;
 }
 
+//	--------------------------------------------------------------------------------
+fraction CvPlot::ComputeFractionalYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot = NULL;
+	fraction fRtnValue = 0;
+
+	if (kImprovement.IsYieldPerXAdjacentTerrain(eYield))
+	{
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			pAdjacentPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
+
+			if (!pAdjacentPlot)
+				continue;
+
+			fRtnValue += kImprovement.GetYieldPerXAdjacentTerrain(eYield, pAdjacentPlot->getTerrainType());
+		}
+	}
+
+	return fRtnValue;
+}
+
 int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield, TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot = NULL;
@@ -7270,7 +7292,9 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 
 	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES) return;
 
-	if(getTerrainType() != eNewValue)
+	TerrainTypes eOldValue = getTerrainType();
+
+	if(eOldValue != eNewValue)
 	{
 		bUpdateSight = (getTerrainType() != NO_TERRAIN) &&
 		        (eNewValue != NO_TERRAIN) &&
@@ -7319,6 +7343,33 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		if(bTypeIsWater != isWater())
 		{
 			setPlotType((bTypeIsWater)? PLOT_OCEAN : PLOT_LAND, bRecalculate, bRebuildGraphics);
+		}
+
+		for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iJ));
+			if (pAdjacentPlot && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
+			{
+				ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+				CvImprovementEntry& adjacentImprovementEntry = *GC.getImprovementInfo(eAdjacentImprovement);
+				if (adjacentImprovementEntry.IsYieldPerXAdjacentTerrain())
+				{
+					for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+					{
+						YieldTypes eYield = static_cast<YieldTypes>(iK);
+						// Simplification - errata yields not worth considering.
+						if (eYield > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+							break;
+
+						if (adjacentImprovementEntry.GetYieldPerXAdjacentTerrain(eYield, eOldValue) > 0
+							|| adjacentImprovementEntry.GetYieldPerXAdjacentTerrain(eYield, eNewValue) > 0)
+						{
+							pAdjacentPlot->updateYield();
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -10295,10 +10346,8 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-		if (pkImprovementInfo->IsYieldPerXAdjacentImprovement(eYield))
-		{
-			fFractionalYield += ComputeFractionalYieldFromAdjacentImprovement(*pkImprovementInfo, eYield);
-		}
+		fFractionalYield += ComputeFractionalYieldFromAdjacentImprovement(*pkImprovementInfo, eYield);
+		fFractionalYield += ComputeFractionalYieldFromAdjacentTerrain(*pkImprovementInfo, eYield);
 
 		int iYieldChangePerEra = pkImprovementInfo->GetYieldChangePerEra(eYield);
 		if (iYieldChangePerEra > 0)
