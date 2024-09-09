@@ -10847,7 +10847,11 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		{
 			if (isWater())
 			{
-				if (!isLake())
+				if (isLake())
+				{ 
+					iYield += kPlayer.getLakePlotYield(eYield);
+				}
+				else
 				{
 					iYield += kPlayer.getSeaPlotYield(eYield);
 					iYield += pTraits->GetSeaPlotYieldChanges(eYield);

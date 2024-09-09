@@ -8220,6 +8220,31 @@ int CvCity::countNumWaterPlots() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvCity::countNumLakePlots() const
+{
+	VALIDATE_OBJECT
+		int iCount = 0;
+
+	CvCityCitizens* pCityCitizens = GetCityCitizens();
+	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
+	{
+		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+		if (pLoopPlot != NULL)
+		{
+			if (pLoopPlot->isLake())
+			{
+				if (GetCityCitizens()->IsCanWork(pLoopPlot))
+				{
+					iCount++;
+				}
+			}
+		}
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
 int CvCity::countNumRiverPlots() const
 {
 	VALIDATE_OBJECT
@@ -9944,6 +9969,15 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 		}
 	}
 	yieldsArr = pkBuildingInfo->GetLakePlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bLakePlotsBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetLakePlotYieldChangeGlobalArray();
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
 		if (yieldsArr[iYieldLoop] > 0)
