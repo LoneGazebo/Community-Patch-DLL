@@ -505,6 +505,9 @@ public:
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
 
+	int GetYieldFromPurchaseGlobal(int i) const;
+	int* GetYieldFromPurchaseGlobalArray() const;
+
 	int GetYieldFromFaithPurchase(int i) const;
 	int* GetYieldFromFaithPurchaseArray() const;
 
@@ -1032,6 +1035,7 @@ private:
 	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromCombatExperienceTimes100;
 	int* m_piYieldFromPurchase;
+	int* m_piYieldFromPurchaseGlobal;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternal;

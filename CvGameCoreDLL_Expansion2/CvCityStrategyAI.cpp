@@ -4005,6 +4005,20 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iInstant += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
 		}
 	}
+	if (pkBuildingInfo->GetYieldFromPurchaseGlobal(eYield) > 0)
+	{
+		int iTemp = pkBuildingInfo->GetYieldFromPurchaseGlobal(eYield);
+
+		if ((kPlayer.GetInvestmentModifier() * -1) > 0)
+		{
+			iTemp += kPlayer.GetInvestmentModifier() * -1;
+		}
+		if ((kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) > 0)
+		{
+			iTemp += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
+		}
+		iInstant += iTemp * iNumCities;
+	}
 	if (pkBuildingInfo->GetYieldFromFaithPurchase(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromFaithPurchase(eYield);
