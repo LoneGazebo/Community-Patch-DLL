@@ -3610,6 +3610,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		// estimate how often we'll start a golden age
 		iFlatYield += max(1, (3 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * (kPlayer.GetHappinessForGAP() + kPlayer.GetGoldenAgePointsFromEmpire()) / max(1, kPlayer.GetGoldenAgeProgressThreshold())));
 	}
+	if (pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0)
+	{
+		// max number of times we can get this
+		int iNumGoldenAgeBonuses = pkBuildingInfo->GetYieldChangePerGoldenAgeCap(eYield) / pkBuildingInfo->GetYieldChangePerGoldenAge(eYield);
+		iFlatYield += (iNumGoldenAgeBonuses * pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) / 2 / (iEra + 1));
+	}
 	for (int j = 0; j < NUM_YIELD_TYPES; j++)
 	{
 		if (pkBuildingInfo->GetYieldFromYield(eYield, (YieldTypes)j) > 0)
@@ -5028,6 +5034,14 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			if (pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory())
 			{
 				iValue += 5 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield);
+			}
+		}
+		
+		if (pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0)
+		{
+			if (pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory())
+			{
+				iValue += 10 * pkBuildingInfo->GetYieldChangePerGoldenAge(eYield);
 			}
 		}
 	}

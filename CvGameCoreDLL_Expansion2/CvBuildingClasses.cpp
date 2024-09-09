@@ -323,6 +323,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromPillageGlobalPlayer(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piYieldFromGoldenAgeStart(NULL),
+	m_piYieldChangePerGoldenAge(NULL),
+	m_piYieldChangePerGoldenAgeCap(NULL),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
@@ -468,6 +470,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromGoldenAgeStart);
+	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAge);
+	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAgeCap);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
@@ -970,6 +974,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobalPlayer, "Building_YieldFromPillageGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGoldenAgeStart, "Building_YieldFromGoldenAgeStart", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangePerGoldenAge, "Building_YieldChangesPerGoldenAge", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap");
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -3307,6 +3313,32 @@ int CvBuildingEntry::GetYieldFromGoldenAgeStart(int i) const
 int* CvBuildingEntry::GetYieldFromGoldenAgeStartArray() const
 {
 	return m_piYieldFromGoldenAgeStart;
+}
+
+/// Yields permamently added whenever a golden age starts
+int CvBuildingEntry::GetYieldChangePerGoldenAge(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangePerGoldenAge ? m_piYieldChangePerGoldenAge[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldChangePerGoldenAgeArray() const
+{
+	return m_piYieldChangePerGoldenAge;
+}
+
+/// cap to the values in GetYieldChangesPerGoldenAge
+int CvBuildingEntry::GetYieldChangePerGoldenAgeCap(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangePerGoldenAgeCap ? m_piYieldChangePerGoldenAgeCap[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
+{
+	return m_piYieldChangePerGoldenAgeCap;
 }
 
 /// Change to yield during golden ages

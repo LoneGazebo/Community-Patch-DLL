@@ -406,6 +406,9 @@ CvCity::CvCity() :
 	, m_aiNumProjects()
 	, m_aiYieldFromKnownPantheons()
 	, m_aiYieldFromGoldenAgeStart()
+	, m_aiYieldChangePerGoldenAge()
+	, m_aiYieldChangePerGoldenAgeCap()
+	, m_aiYieldFromPreviousGoldenAges()
 	, m_aiGoldenAgeYieldMod()
 	, m_aiYieldFromWLTKD()
 	, m_aiYieldFromConstruction()
@@ -1342,6 +1345,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromPillageGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromGoldenAgeStart.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangePerGoldenAge.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangePerGoldenAgeCap.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPreviousGoldenAges.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
@@ -1436,6 +1442,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromPillage[iI] = 0;
 		m_aiYieldFromPillageGlobal[iI] = 0;
 		m_aiYieldFromGoldenAgeStart[iI] = 0;
+		m_aiYieldChangePerGoldenAge[iI] = 0;
+		m_aiYieldChangePerGoldenAgeCap[iI] = 0;
+		m_aiYieldFromPreviousGoldenAges[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
 		m_aiYieldFromConstruction[iI] = 0;
@@ -14773,6 +14782,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromPillageGlobal(eYield, pBuildingInfo->GetYieldFromPillageGlobal(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0))
+			{
+				ChangeYieldChangePerGoldenAge(eYield, pBuildingInfo->GetYieldChangePerGoldenAge(eYield) * iChange);
+			}
+
+			if ((pBuildingInfo->GetYieldChangePerGoldenAgeCap(eYield) > 0))
+			{
+				ChangeYieldChangePerGoldenAgeCap(eYield, pBuildingInfo->GetYieldChangePerGoldenAgeCap(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromGoldenAgeStart(eYield) > 0))
 			{
 				ChangeYieldFromGoldenAgeStart(eYield, pBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * iChange);
@@ -24010,7 +24029,7 @@ void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromGoldenAgeStart(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromGoldenAgeStart[eIndex];
 }
@@ -24027,6 +24046,84 @@ void CvCity::ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromGoldenAgeStart[eIndex] = m_aiYieldFromGoldenAgeStart[eIndex] + iChange;
 		CvAssert(GetYieldFromGoldenAgeStart(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Yields permanantly added to the city whenever a golden age starts
+int CvCity::GetYieldChangePerGoldenAge(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangePerGoldenAge[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Yields permanantly added to the city whenever a golden age starts
+void CvCity::ChangeYieldChangePerGoldenAge(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangePerGoldenAge[eIndex] = m_aiYieldChangePerGoldenAge[eIndex] + iChange;
+		CvAssert(GetYieldChangePerGoldenAge(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Cap to the yields permanantly added to the city whenever a golden age starts
+int CvCity::GetYieldChangePerGoldenAgeCap(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangePerGoldenAgeCap[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Cap to the yields permanantly added to the city whenever a golden age starts
+void CvCity::ChangeYieldChangePerGoldenAgeCap(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangePerGoldenAgeCap[eIndex] = m_aiYieldChangePerGoldenAgeCap[eIndex] + iChange;
+		CvAssert(GetYieldChangePerGoldenAgeCap(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Yields accumulated in the city from previous golden age starts (see YieldChangePerGoldenAge)
+int CvCity::GetYieldFromPreviousGoldenAges(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPreviousGoldenAges[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Cap to the yields permanantly added to the city whenever a golden age starts
+void CvCity::ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPreviousGoldenAges[eIndex] = m_aiYieldFromPreviousGoldenAges[eIndex] + iChange;
+		CvAssert(GetYieldFromPreviousGoldenAges(eIndex) >= 0);
+
+		ChangeBaseYieldRateFromMisc(eIndex, iChange);
+		UpdateAllNonPlotYields(false);
 	}
 }
 
@@ -31261,6 +31358,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromPillage);
 	visitor(city.m_aiYieldFromPillageGlobal);
 	visitor(city.m_aiYieldFromGoldenAgeStart);
+	visitor(city.m_aiYieldChangePerGoldenAge);
+	visitor(city.m_aiYieldChangePerGoldenAgeCap);
 	visitor(city.m_aiGoldenAgeYieldMod);
 	visitor(city.m_aiYieldFromWLTKD);
 	visitor(city.m_aiYieldFromConstruction);

@@ -24615,6 +24615,17 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		int iLoop = 0;
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				if (pLoopCity->GetYieldChangePerGoldenAge(eYield) != 0)
+				{
+					int iOldValue = pLoopCity->GetYieldFromPreviousGoldenAges(eYield);
+					int iNewValue = iOldValue + pLoopCity->GetYieldChangePerGoldenAge(eYield);
+					iNewValue = max(0, min(iNewValue, pLoopCity->GetYieldChangePerGoldenAgeCap(eYield)));
+					pLoopCity->ChangeYieldFromPreviousGoldenAges(eYield, iNewValue - iOldValue);
+				}
+			}
 			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity->GetCityCulture()->CalculateBaseTourism();
 		}
