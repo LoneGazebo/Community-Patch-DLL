@@ -434,7 +434,13 @@ public:
 	int* GetYieldFromVictoryGlobalArray() const;
 
 	int GetYieldFromVictoryGlobalEraScaling(int i) const;
-	int* GetYieldFromVictoryGlobalArrayEraScaling() const;
+	int* GetYieldFromVictoryGlobalEraScalingArray() const;
+
+	int GetYieldFromVictoryGlobalInGoldenAge(int i) const;
+	int* GetYieldFromVictoryGlobalInGoldenAgeArray() const;
+
+	int GetYieldFromVictoryGlobalInGoldenAgeEraScaling(int i) const;
+	int* GetYieldFromVictoryGlobalInGoldenAgeEraScalingArray() const;
 
 	int GetYieldFromVictoryGlobalPlayer(int i) const;
 	int* GetYieldFromVictoryGlobalPlayerArray() const;
@@ -991,6 +997,8 @@ private:
 	int* m_piYieldFromVictory;
 	int* m_piYieldFromVictoryGlobal;
 	int* m_piYieldFromVictoryGlobalEraScaling;
+	int* m_piYieldFromVictoryGlobalInGoldenAge;
+	int* m_piYieldFromVictoryGlobalInGoldenAgeEraScaling;
 	int* m_piYieldFromVictoryGlobalPlayer;
 	int* m_piYieldFromPillage;
 	int* m_piYieldFromPillageGlobal;
