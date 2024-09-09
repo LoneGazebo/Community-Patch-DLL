@@ -25900,6 +25900,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 					}
 					iValue += GetYieldFromVictory(eYield) * iEra + pLoopCity->GetYieldFromVictoryGlobal(eYield) + pLoopCity->GetYieldFromVictoryGlobalEraScaling(eYield) * iEra;
+					if (isGoldenAge())
+					{
+						iValue += pLoopCity->GetYieldFromVictoryGlobalInGoldenAge(eYield) + pLoopCity->GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eYield) * iEra;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_PILLAGE:
