@@ -546,6 +546,8 @@ public:
 	int* GetRiverPlotYieldChangeArray() const;
 	int GetLakePlotYieldChange(int i) const;
 	int* GetLakePlotYieldChangeArray() const;
+	int GetLakePlotYieldChangeGlobal(int i) const;
+	int* GetLakePlotYieldChangeGlobalArray() const;
 	int GetSeaResourceYieldChange(int i) const;
 	int* GetSeaResourceYieldChangeArray() const;
 	int GetSpecialistCount(int i) const;
@@ -975,6 +977,7 @@ private:
 	int* m_piSeaPlotYieldChange;
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;
+	int* m_piLakePlotYieldChangeGlobal;
 	int* m_piSeaResourceYieldChange;
 	int* m_piGrowthExtraYield;
 	int m_iNeedBuildingThisCity;
