@@ -7980,25 +7980,6 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	 return m_miUnitClassTrainingAllowed;
  }
 
- int CvCity::GetWorkingRangePlotIndex() const
- {
-	 switch (getWorkPlotDistance())
-	 {
-	 case 0:
-		 return RING0_PLOTS;
-	 case 1:
-		 return RING1_PLOTS;
-	 case 2:
-		 return RING2_PLOTS;
-	 case 3:
-		 return RING3_PLOTS;
-	 case 4:
-		 return RING4_PLOTS;
-	 default:
-		 // can't go higher than 5
-		 return RING5_PLOTS;
-	 }
- }
 
  std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const
  {
@@ -8013,7 +7994,7 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 		 return vPlotsClaimed;
 
 	 // loop through all unowned plots within working range and check if they have one of the required resources
-	 for (int i = RING0_PLOTS; i < GetWorkingRangePlotIndex(); i++)
+	 for (int i = RING0_PLOTS; i < GetNumWorkablePlots(); i++)
 	 {
 		 CvPlot* pLoopPlot = iterateRingPlots(plot(), i);
 		 if (!pLoopPlot)
@@ -8214,6 +8195,31 @@ int CvCity::countNumWaterPlots() const
 		if (pLoopPlot != NULL)
 		{
 			if (pLoopPlot->isWater())
+			{
+				if (GetCityCitizens()->IsCanWork(pLoopPlot))
+				{
+					iCount++;
+				}
+			}
+		}
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::countNumLakePlots() const
+{
+	VALIDATE_OBJECT
+		int iCount = 0;
+
+	CvCityCitizens* pCityCitizens = GetCityCitizens();
+	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
+	{
+		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+		if (pLoopPlot != NULL)
+		{
+			if (pLoopPlot->isLake())
 			{
 				if (GetCityCitizens()->IsCanWork(pLoopPlot))
 				{
@@ -9951,6 +9957,15 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 		}
 	}
 	yieldsArr = pkBuildingInfo->GetLakePlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bLakePlotsBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetLakePlotYieldChangeGlobalArray();
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
 		if (yieldsArr[iYieldLoop] > 0)

@@ -390,6 +390,7 @@ CvPlayer::CvPlayer() :
 	, m_aiSiphonLuxuryCount()
 	, m_aiTourismBonusTurnsPlayer()
 	, m_aiGreatWorkYieldChange()
+	, m_aiLakePlotYield()
 	, m_aOptions()
 	, m_strReligionKey()
 	, m_strScriptData()
@@ -821,6 +822,7 @@ CvPlayer::CvPlayer() :
 	m_bfEverConqueredBy.ClearAll();
 
 	m_aiGreatWorkYieldChange.clear();
+	m_aiLakePlotYield.clear();
 	m_aiSiphonLuxuryCount.clear();
 	m_aiTourismBonusTurnsPlayer.clear();
 
@@ -1931,6 +1933,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiGreatWorkYieldChange.clear();
 	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiLakePlotYield.clear();
+	m_aiLakePlotYield.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiExtraYieldThreshold.clear();
 	m_aiExtraYieldThreshold.resize(NUM_YIELD_TYPES, 0);
@@ -15703,6 +15708,23 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
+	// Global Yield Changes to Plots
+	bool bYieldChanged = false;
+	for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes)iJ;
+		int iYieldChange = pBuildingInfo->GetLakePlotYieldChangeGlobal(eYield);
+		if (iYieldChange != 0)
+		{
+			bYieldChanged = true;
+			changeLakePlotYield(eYield, iYieldChange * iChange);
+		}
+	}
+	if (bYieldChanged)
+	{
+		updateYield();
+	}
+
 	// Loop through Cities
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -17009,6 +17031,30 @@ void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 		{
 			pLoopCity->ResetGreatWorkYieldCache();
 		}
+	}
+}
+
+int CvPlayer::getLakePlotYield(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	return m_aiLakePlotYield[eYield];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvPlayer::changeLakePlotYield(YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiLakePlotYield[eYield] = m_aiLakePlotYield[eYield] + iChange;
+		CvAssert(getLakePlotYield(eYield) >= 0);
+		updateYield();
 	}
 }
 
@@ -42912,6 +42958,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiResearchAgreementCounter);
 	visitor(player.m_aiSiphonLuxuryCount);
 	visitor(player.m_aiGreatWorkYieldChange);
+	visitor(player.m_aiLakePlotYield);
 	visitor(player.m_aiTourismBonusTurnsPlayer);
 	visitor(player.m_aOptions);
 	visitor(player.m_strReligionKey);

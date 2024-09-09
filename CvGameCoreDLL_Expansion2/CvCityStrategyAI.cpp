@@ -3596,6 +3596,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->countNumWaterPlots());
 	}
+	if (pkBuildingInfo->GetLakePlotYieldChange(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetLakePlotYieldChange(eYield) * pCity->countNumLakePlots());
+	}
+	if (pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield) > 0)
+	{
+		// performance: don't loop though all cities, just estimate this
+		iFlatYield += (kPlayer.getNumCities() * pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield) * pCity->countNumLakePlots());
+	}
 	for (int j = 0; j < NUM_YIELD_TYPES; j++)
 	{
 		if (pkBuildingInfo->GetYieldFromYield(eYield, (YieldTypes)j) > 0)

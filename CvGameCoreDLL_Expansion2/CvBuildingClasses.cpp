@@ -305,6 +305,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piSeaPlotYieldChange(NULL),
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
+	m_piLakePlotYieldChangeGlobal(NULL),
 	m_piSeaResourceYieldChange(NULL),
 	m_piGrowthExtraYield(NULL),
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -447,6 +448,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piSeaPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
+	SAFE_DELETE_ARRAY(m_piLakePlotYieldChangeGlobal);
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
 	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -947,6 +949,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piSeaPlotYieldChange, "Building_SeaPlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piRiverPlotYieldChange, "Building_RiverPlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piLakePlotYieldChangeGlobal, "Building_LakePlotYieldChangesGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
@@ -1052,7 +1055,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeWorldWonderGlobal, "Building_YieldChangeWorldWonderGlobal", "BuildingType", szBuildingType);
-
+	
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
 	kUtility.PopulateArrayByValue(m_piResourceQuantityFromPOP, "Resources", "Building_ResourceQuantityFromPOP", "ResourceType", "BuildingType", szBuildingType, "Modifier");
@@ -3724,6 +3727,20 @@ int CvBuildingEntry::GetLakePlotYieldChange(int i) const
 int* CvBuildingEntry::GetLakePlotYieldChangeArray() const
 {
 	return m_piLakePlotYieldChange;
+}
+
+/// Global lake plot yield changes by type
+int CvBuildingEntry::GetLakePlotYieldChangeGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piLakePlotYieldChangeGlobal ? m_piLakePlotYieldChangeGlobal[i] : -1;
+}
+
+/// Array of global lake plot yield changes
+int* CvBuildingEntry::GetLakePlotYieldChangeGlobalArray() const
+{
+	return m_piLakePlotYieldChangeGlobal;
 }
 
 /// Sea resource yield changes by type

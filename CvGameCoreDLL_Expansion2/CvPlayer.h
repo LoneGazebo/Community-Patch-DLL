@@ -425,6 +425,9 @@ public:
 	int GetGreatWorkYieldChange(YieldTypes eYield) const;
 	void ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange);
 
+	int getLakePlotYield(YieldTypes eYield) const;
+	void changeLakePlotYield(YieldTypes eYield, int iChange);
+
 	CvPlot* getStartingPlot() const;
 	void setStartingPlot(CvPlot* pNewValue);
 
@@ -3525,6 +3528,7 @@ protected:
 	std::vector<int> m_aiResearchAgreementCounter;
 	std::vector<int> m_aiSiphonLuxuryCount;
 	std::vector<int> m_aiGreatWorkYieldChange;
+	std::vector<int> m_aiLakePlotYield;
 	std::vector<int> m_aiTourismBonusTurnsPlayer;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
@@ -4316,6 +4320,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSiphonLuxuryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLakePlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< std::pair<uint, int> >), m_aOptions)
 SYNC_ARCHIVE_VAR(CvString, m_strReligionKey)

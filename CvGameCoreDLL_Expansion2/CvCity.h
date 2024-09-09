@@ -244,6 +244,7 @@ public:
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT) const;
 	int countNumImprovablePlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, DomainTypes eDomain = DOMAIN_LAND) const;
 	int countNumWaterPlots() const;
+	int countNumLakePlots() const;
 	int countNumRiverPlots() const;
 	int countNumForestPlots() const;
 
@@ -1046,8 +1047,6 @@ public:
 	void ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue);
 	int GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const;
 	map<UnitClassTypes, int> GetUnitClassTrainingAllowed() const;
-
-	int GetWorkingRangePlotIndex() const;
 
 	std::vector<CvPlot*>GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const;
 #endif
