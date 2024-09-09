@@ -25961,7 +25961,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(iPassYield != 0)
 					{
-						iValue += ((iPassYield * pLoopCity->GetYieldFromPurchase(eYield)) / 100);
+						if (pCity)
+						{
+							iValue += ((iPassYield * pLoopCity->GetYieldFromPurchase(eYield)) / 100);
+						}
+						else
+						{
+							iValue += ((iPassYield * pLoopCity->GetYieldFromPurchaseGlobal(eYield)) / 100);
+						}
 					}
 					break;
 				}
