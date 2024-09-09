@@ -420,6 +420,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromBorderGrowth()
 	, m_aiYieldFromPolicyUnlock()
 	, m_aiYieldFromPurchase()
+	, m_aiYieldFromPurchaseGlobal()
 	, m_aiYieldFromFaithPurchase()
 	, m_aiYieldFromUnitLevelUp()
 	, m_aiYieldFromCombatExperienceTimes100()
@@ -1359,6 +1360,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromBorderGrowth.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPolicyUnlock.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPurchase.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPurchaseGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromFaithPurchase.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
@@ -1456,6 +1458,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromBorderGrowth[iI] = 0;
 		m_aiYieldFromPolicyUnlock[iI] = 0;
 		m_aiYieldFromPurchase[iI] = 0;
+		m_aiYieldFromPurchaseGlobal[iI] = 0;
 		m_aiYieldFromFaithPurchase[iI] = 0;
 		m_aiYieldFromUnitLevelUp[iI] = 0;
 		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
@@ -14920,6 +14923,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromPurchase(eYield, pBuildingInfo->GetYieldFromPurchase(eYield) * iChange);
 			}
+			if ((pBuildingInfo->GetYieldFromPurchaseGlobal(eYield) > 0))
+			{
+				ChangeYieldFromPurchaseGlobal(eYield, pBuildingInfo->GetYieldFromPurchaseGlobal(eYield) * iChange);
+			}
 
 			if ((pBuildingInfo->GetYieldFromFaithPurchase(eYield) > 0))
 			{
@@ -24434,7 +24441,7 @@ void CvCity::ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield in all cities when purchasing something with gold
 int CvCity::GetYieldFromPurchase(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -24444,7 +24451,7 @@ int CvCity::GetYieldFromPurchase(YieldTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield in all cities when purchasing something with gold
 void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
@@ -24455,6 +24462,32 @@ void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromPurchase[eIndex] = m_aiYieldFromPurchase[eIndex] + iChange;
 		CvAssert(GetYieldFromPurchase(eIndex) >= 0);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Extra yield in all cities when purchasing something with gold
+int CvCity::GetYieldFromPurchaseGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPurchaseGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield in all cities when purchasing something with gold
+void CvCity::ChangeYieldFromPurchaseGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPurchaseGlobal[eIndex] = m_aiYieldFromPurchaseGlobal[eIndex] + iChange;
+		CvAssert(GetYieldFromPurchaseGlobal(eIndex) >= 0);
 	}
 }
 
@@ -30291,7 +30324,10 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
 		if (iGoldCost > 0)
+		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false);
+		}
 
 		break;
 	}
@@ -30549,7 +30585,10 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 		kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
 		if (iGoldCost > 0)
+		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false);
+		}
 
 		break;
 	}
@@ -30653,7 +30692,10 @@ bool CvCity::PurchaseProject(ProjectTypes eProjectType, YieldTypes ePurchaseYiel
 
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
 		if (iGoldCost > 0)
+		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false);
+		}
 
 		if (!CreateProject(eProjectType))
 			return false;
