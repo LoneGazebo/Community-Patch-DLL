@@ -244,6 +244,7 @@ public:
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT) const;
 	int countNumImprovablePlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, DomainTypes eDomain = DOMAIN_LAND) const;
 	int countNumWaterPlots() const;
+	int countNumLakePlots() const;
 	int countNumRiverPlots() const;
 	int countNumForestPlots() const;
 
@@ -619,6 +620,8 @@ public:
 	void changeBaseGreatPeopleRate(int iChange);
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
+	int getGPPRateModPerMarriage() const;
+	void changeGPPRateModPerMarriage(int iChange);
 
 	int GetImprovementGreatPersonRateModifier() const;
 	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
@@ -1044,6 +1047,11 @@ public:
 	void ChangeInstantYieldTotal(YieldTypes eYield, int iValue);
 	int GetInstantYieldTotal(YieldTypes eYield);
 
+	void ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue);
+	int GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const;
+	map<UnitClassTypes, int> GetUnitClassTrainingAllowed() const;
+
+	std::vector<CvPlot*>GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const;
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
@@ -1097,11 +1105,29 @@ public:
 	int GetYieldFromVictoryGlobalEraScaling(YieldTypes eIndex) const;
 	void ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromPillageGlobal(YieldTypes eIndex) const;
 	void ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromGoldenAgeStart(YieldTypes eIndex) const;
+	void ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange);
+
+	int GetYieldChangePerGoldenAge(YieldTypes eIndex) const;
+	void ChangeYieldChangePerGoldenAge(YieldTypes eIndex, int iChange);
+
+	int GetYieldChangePerGoldenAgeCap(YieldTypes eIndex) const;
+	void ChangeYieldChangePerGoldenAgeCap(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromPreviousGoldenAges(YieldTypes eIndex) const;
+	void ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange);
 
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
@@ -1145,6 +1171,9 @@ public:
 	void ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange);
 	int GetYieldFromPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromPurchaseGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromPurchaseGlobal(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromFaithPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange);
@@ -1493,7 +1522,7 @@ public:
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
 	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices = 3);
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
-	void BuyPlot(int iPlotX, int iPlotY);
+	void BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding = false);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
 	int GetBuyPlotScore(int& iBestX, int& iBestY);
 	int GetIndividualPlotScore(const CvPlot* pPlot) const;
@@ -1800,6 +1829,7 @@ protected:
 
 	int m_iBaseGreatPeopleRate;
 	int m_iGreatPeopleRateModifier;
+	int m_iGPPRateModPerMarriage;
 	int m_iJONSCultureStored;
 	int m_iJONSCultureLevel;
 	int m_iJONSCulturePerTurnFromPolicies;
@@ -1928,8 +1958,14 @@ protected:
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromVictoryGlobal;
 	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
+	std::vector<int> m_aiYieldFromVictoryGlobalInGoldenAge;
+	std::vector<int> m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling;
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromPillageGlobal;
+	std::vector<int> m_aiYieldFromGoldenAgeStart;
+	std::vector<int> m_aiYieldChangePerGoldenAge;
+	std::vector<int> m_aiYieldChangePerGoldenAgeCap;
+	std::vector<int> m_aiYieldFromPreviousGoldenAges;
 	std::vector<int> m_aiGoldenAgeYieldMod;
 	std::vector<int> m_aiYieldFromWLTKD;
 	std::vector<int> m_aiYieldFromConstruction;
@@ -1940,6 +1976,7 @@ protected:
 	std::vector<int> m_aiYieldFromBorderGrowth;
 	std::vector<int> m_aiYieldFromPolicyUnlock;
 	std::vector<int> m_aiYieldFromPurchase;
+	std::vector<int> m_aiYieldFromPurchaseGlobal;
 	std::vector<int> m_aiYieldFromFaithPurchase;
 	std::vector<int> m_aiYieldFromUnitLevelUp;
 	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
@@ -1994,6 +2031,7 @@ protected:
 	std::vector<int> m_aiEconomicValue;
 	std::tr1::unordered_map<YieldTypes, int> m_miInstantYieldsTotal;
 #endif
+	map<UnitClassTypes, int> m_miUnitClassTrainingAllowed;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
@@ -2206,6 +2244,7 @@ SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
 SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
+SYNC_ARCHIVE_VAR(int, m_iGPPRateModPerMarriage)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureLevel)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromPolicies)
@@ -2317,8 +2356,14 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalInGoldenAge)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillageGlobal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGoldenAgeStart)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAge)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAgeCap)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
@@ -2329,6 +2374,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitProduction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchase)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchaseGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
@@ -2381,6 +2427,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<UnitClassTypes, int>), m_miUnitClassTrainingAllowed)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)

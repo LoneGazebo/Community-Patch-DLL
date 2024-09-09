@@ -3596,6 +3596,26 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->countNumWaterPlots());
 	}
+	if (pkBuildingInfo->GetLakePlotYieldChange(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetLakePlotYieldChange(eYield) * pCity->countNumLakePlots());
+	}
+	if (pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield) > 0)
+	{
+		// performance: don't loop though all cities, just estimate this
+		iFlatYield += (kPlayer.getNumCities() * pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield) * pCity->countNumLakePlots());
+	}
+	if (pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) > 0)
+	{
+		// estimate how often we'll start a golden age
+		iFlatYield += max(1, (3 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * (kPlayer.GetHappinessForGAP() + kPlayer.GetGoldenAgePointsFromEmpire()) / max(1, kPlayer.GetGoldenAgeProgressThreshold())));
+	}
+	if (pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0)
+	{
+		// max number of times we can get this
+		int iNumGoldenAgeBonuses = pkBuildingInfo->GetYieldChangePerGoldenAgeCap(eYield) / pkBuildingInfo->GetYieldChangePerGoldenAge(eYield);
+		iFlatYield += (iNumGoldenAgeBonuses * pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) / 2 / (iEra + 1));
+	}
 	for (int j = 0; j < NUM_YIELD_TYPES; j++)
 	{
 		if (pkBuildingInfo->GetYieldFromYield(eYield, (YieldTypes)j) > 0)
@@ -3907,6 +3927,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobalEraScaling(eYield) * 5;
 	}
+	if (pkBuildingInfo->GetYieldFromVictoryGlobalInGoldenAge(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobalInGoldenAge(eYield) / 3;
+	}
+	if (pkBuildingInfo->GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eYield) * 5 / 3;
+	}
 	if (pkBuildingInfo->GetYieldFromVictoryGlobalPlayer(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobalPlayer(eYield) * 25;
@@ -3976,6 +4004,20 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iInstant += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
 		}
+	}
+	if (pkBuildingInfo->GetYieldFromPurchaseGlobal(eYield) > 0)
+	{
+		int iTemp = pkBuildingInfo->GetYieldFromPurchaseGlobal(eYield);
+
+		if ((kPlayer.GetInvestmentModifier() * -1) > 0)
+		{
+			iTemp += kPlayer.GetInvestmentModifier() * -1;
+		}
+		if ((kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) > 0)
+		{
+			iTemp += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
+		}
+		iInstant += iTemp * iNumCities;
 	}
 	if (pkBuildingInfo->GetYieldFromFaithPurchase(eYield) > 0)
 	{
@@ -4991,6 +5033,29 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 						}
 					}
 				}
+			}
+		}
+	}
+	for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
+	{
+		YieldTypes eYield = (YieldTypes)uiYield;
+
+		if (eYield == NO_YIELD)
+			continue;
+
+		if (pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) > 0)
+		{
+			if (pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory())
+			{
+				iValue += 5 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield);
+			}
+		}
+		
+		if (pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0)
+		{
+			if (pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory())
+			{
+				iValue += 10 * pkBuildingInfo->GetYieldChangePerGoldenAge(eYield);
 			}
 		}
 	}

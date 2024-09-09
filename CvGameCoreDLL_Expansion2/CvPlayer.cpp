@@ -390,6 +390,7 @@ CvPlayer::CvPlayer() :
 	, m_aiSiphonLuxuryCount()
 	, m_aiTourismBonusTurnsPlayer()
 	, m_aiGreatWorkYieldChange()
+	, m_aiLakePlotYield()
 	, m_aOptions()
 	, m_strReligionKey()
 	, m_strScriptData()
@@ -492,6 +493,7 @@ CvPlayer::CvPlayer() :
 , m_miLocalInstantYieldsTotal()
 , m_aiYieldHistory()
 #endif
+, m_sUnitClassTrainingAllowedAnywhere()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 , m_iHappinessPerXPopulationGlobal()
 , m_iIdeologyPoint()
@@ -820,6 +822,7 @@ CvPlayer::CvPlayer() :
 	m_bfEverConqueredBy.ClearAll();
 
 	m_aiGreatWorkYieldChange.clear();
+	m_aiLakePlotYield.clear();
 	m_aiSiphonLuxuryCount.clear();
 	m_aiTourismBonusTurnsPlayer.clear();
 
@@ -1916,6 +1919,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldHistory.clear();
 
 #endif
+	m_sUnitClassTrainingAllowedAnywhere.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_piDomainFreeExperience.clear();
 #endif
@@ -1929,6 +1933,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiGreatWorkYieldChange.clear();
 	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiLakePlotYield.clear();
+	m_aiLakePlotYield.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiExtraYieldThreshold.clear();
 	m_aiExtraYieldThreshold.resize(NUM_YIELD_TYPES, 0);
@@ -13557,7 +13564,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 }
 
 //	this should be more or less "static" conditions, all the transient factor should be checked in CvCity::canTrain()
-bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const
+bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, bool bIgnoreTechRequirements, CvString* toolTipSink) const
 {
 	CvUnitEntry* pUnitInfoPtr = GC.getUnitInfo(eUnit);
 	if(pUnitInfoPtr == NULL)
@@ -13674,18 +13681,21 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	}
 
 	// Tech requirements
-	if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTech()))))
+	if (!bIgnoreTechRequirements)
 	{
-		return false;
-	}
-
-	for(int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
-	{
-		if(pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
+		if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTech()))))
 		{
-			if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTechs(iI)))))
+			return false;
+		}
+
+		for (int iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
+		{
+			if (pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
 			{
-				return false;
+				if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTechs(iI)))))
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -15698,6 +15708,23 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
+	// Global Yield Changes to Plots
+	bool bYieldChanged = false;
+	for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes)iJ;
+		int iYieldChange = pBuildingInfo->GetLakePlotYieldChangeGlobal(eYield);
+		if (iYieldChange != 0)
+		{
+			bYieldChanged = true;
+			changeLakePlotYield(eYield, iYieldChange * iChange);
+		}
+	}
+	if (bYieldChanged)
+	{
+		updateYield();
+	}
+
 	// Loop through Cities
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -16145,6 +16172,28 @@ int CvPlayer::GetCityDistanceHighwaterMark() const
 void CvPlayer::SetCityDistanceHighwaterMark(int iNewValue)
 {
 	m_iCityDistanceHighwaterMark = iNewValue;
+}
+
+int CvPlayer::GetNumMarriedCityStatesNotAtWar() const
+{
+	int iNumMarried = 0;
+	if (GetPlayerTraits()->IsDiplomaticMarriage())
+	{
+		// Loop through all minors and get the total number we've met.
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+
+			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (!GET_PLAYER(eMinor).IsAtWarWith(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetID()))
+				{
+					iNumMarried++;
+				}
+			}
+		}
+	}
+	return iNumMarried;
 }
 
 int CvPlayer::calculateTotalYield(YieldTypes eYield) const
@@ -16982,6 +17031,30 @@ void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 		{
 			pLoopCity->ResetGreatWorkYieldCache();
 		}
+	}
+}
+
+int CvPlayer::getLakePlotYield(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	return m_aiLakePlotYield[eYield];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvPlayer::changeLakePlotYield(YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiLakePlotYield[eYield] = m_aiLakePlotYield[eYield] + iChange;
+		CvAssert(getLakePlotYield(eYield) >= 0);
+		updateYield();
 	}
 }
 
@@ -24469,6 +24542,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		{
 			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 		}
+		doInstantYield(INSTANT_YIELD_TYPE_GOLDEN_AGE_START);
 
 		if (GetGoldenAgeTourism() > 0)
 		{
@@ -24541,6 +24615,17 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		int iLoop = 0;
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				if (pLoopCity->GetYieldChangePerGoldenAge(eYield) != 0)
+				{
+					int iOldValue = pLoopCity->GetYieldFromPreviousGoldenAges(eYield);
+					int iNewValue = iOldValue + pLoopCity->GetYieldChangePerGoldenAge(eYield);
+					iNewValue = max(0, min(iNewValue, pLoopCity->GetYieldChangePerGoldenAgeCap(eYield)));
+					pLoopCity->ChangeYieldFromPreviousGoldenAges(eYield, iNewValue - iOldValue);
+				}
+			}
 			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity->GetCityCulture()->CalculateBaseTourism();
 		}
@@ -25828,6 +25913,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 					}
 					iValue += GetYieldFromVictory(eYield) * iEra + pLoopCity->GetYieldFromVictoryGlobal(eYield) + pLoopCity->GetYieldFromVictoryGlobalEraScaling(eYield) * iEra;
+					if (isGoldenAge())
+					{
+						iValue += pLoopCity->GetYieldFromVictoryGlobalInGoldenAge(eYield) + pLoopCity->GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eYield) * iEra;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_PILLAGE:
@@ -25872,7 +25961,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(iPassYield != 0)
 					{
-						iValue += ((iPassYield * pLoopCity->GetYieldFromPurchase(eYield)) / 100);
+						if (pCity)
+						{
+							iValue += ((iPassYield * pLoopCity->GetYieldFromPurchase(eYield)) / 100);
+						}
+						else
+						{
+							iValue += ((iPassYield * pLoopCity->GetYieldFromPurchaseGlobal(eYield)) / 100);
+						}
 					}
 					break;
 				}
@@ -26259,6 +26355,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 				{
 					iValue = iPassYield * GetPlayerTraits()->GetYieldFromLuxuryResourceGain(eYield);
+					break;
+				}
+				case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+				{
+					iValue = pLoopCity->GetYieldFromGoldenAgeStart(eYield);
 					break;
 				}
 			}
@@ -27231,6 +27332,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -40517,6 +40624,35 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	return iYield;
 }
 
+void CvPlayer::UpdateUnitClassTrainingAllowedAnywhere(UnitClassTypes eUnitClass)
+{
+	// go through all the cities the player has and check if for one of it UnitClassTrainingAllowed is true. update the value if necessary
+	bool bIsUnitClassTrainingNowAllowedAnywhere = false;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->GetUnitClassTrainingAllowed(eUnitClass) > 0)
+		{
+			bIsUnitClassTrainingNowAllowedAnywhere = true;
+			break;
+		}
+	}
+
+	if (bIsUnitClassTrainingNowAllowedAnywhere)
+	{
+		m_sUnitClassTrainingAllowedAnywhere.insert(eUnitClass);
+	}
+	else
+	{
+		m_sUnitClassTrainingAllowedAnywhere.erase(eUnitClass);
+	}
+}
+
+set<UnitClassTypes> CvPlayer::GetUnitClassTrainingAllowedAnywhere() const
+{
+	return m_sUnitClassTrainingAllowedAnywhere;
+}
+
 void CvPlayer::updateYieldPerTurnHistory()
 {
 	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
@@ -40980,6 +41116,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:
 			{
 				instantYieldName = "Luxury Resource Gain";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+			{
+				instantYieldName = "Start Golden Age";
 				break;
 			}
 	}
@@ -42393,6 +42534,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_viInstantYieldsTotal);
 	visitor(player.m_miLocalInstantYieldsTotal);
 	visitor(player.m_aiYieldHistory);
+	visitor(player.m_sUnitClassTrainingAllowedAnywhere);
 	visitor(player.m_iUprisingCounter);
 	visitor(player.m_iExtraHappinessPerLuxury);
 	visitor(player.m_iUnhappinessFromUnits);
@@ -42855,6 +42997,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiResearchAgreementCounter);
 	visitor(player.m_aiSiphonLuxuryCount);
 	visitor(player.m_aiGreatWorkYieldChange);
+	visitor(player.m_aiLakePlotYield);
 	visitor(player.m_aiTourismBonusTurnsPlayer);
 	visitor(player.m_aOptions);
 	visitor(player.m_strReligionKey);
