@@ -321,7 +321,7 @@ public:
 	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 
-	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
+	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, bool bIgnoreTechRequirements = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
@@ -424,6 +424,9 @@ public:
 
 	int GetGreatWorkYieldChange(YieldTypes eYield) const;
 	void ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange);
+
+	int getLakePlotYield(YieldTypes eYield) const;
+	void changeLakePlotYield(YieldTypes eYield, int iChange);
 
 	CvPlot* getStartingPlot() const;
 	void setStartingPlot(CvPlot* pNewValue);
@@ -2392,6 +2395,8 @@ public:
 	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
 	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant = false);
+	void UpdateUnitClassTrainingAllowedAnywhere(UnitClassTypes eUnitClass);
+	set<UnitClassTypes> GetUnitClassTrainingAllowedAnywhere() const;
 	void updateYieldPerTurnHistory();
 
 	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
@@ -2719,6 +2724,8 @@ public:
 	int GetCityDistanceHighwaterMark() const;
 	void SetCityDistanceHighwaterMark(int iNewValue);
 
+	int GetNumMarriedCityStatesNotAtWar() const;
+
 	void SetEmbarkedGraphicOverride(CvString szGraphicName)
 	{
 		m_strEmbarkedGraphicOverride = szGraphicName;
@@ -2997,6 +3004,7 @@ protected:
 	std::vector<int> m_viInstantYieldsTotal;
 	std::tr1::unordered_map<YieldTypes, int> m_miLocalInstantYieldsTotal;
 	std::tr1::unordered_map<YieldTypes, std::vector<int>> m_aiYieldHistory;
+	set<UnitClassTypes> m_sUnitClassTrainingAllowedAnywhere;
 	int m_iUprisingCounter;
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnits;
@@ -3520,6 +3528,7 @@ protected:
 	std::vector<int> m_aiResearchAgreementCounter;
 	std::vector<int> m_aiSiphonLuxuryCount;
 	std::vector<int> m_aiGreatWorkYieldChange;
+	std::vector<int> m_aiLakePlotYield;
 	std::vector<int> m_aiTourismBonusTurnsPlayer;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
@@ -3856,6 +3865,7 @@ SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miLocalInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, std::vector<int>>), m_aiYieldHistory)
+SYNC_ARCHIVE_VAR(set<UnitClassTypes>, m_sUnitClassTrainingAllowedAnywhere)
 SYNC_ARCHIVE_VAR(int, m_iUprisingCounter)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerLuxury)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromUnits)
@@ -4310,6 +4320,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSiphonLuxuryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLakePlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< std::pair<uint, int> >), m_aOptions)
 SYNC_ARCHIVE_VAR(CvString, m_strReligionKey)

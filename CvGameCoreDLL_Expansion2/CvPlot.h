@@ -679,6 +679,8 @@ public:
 	bool getAnyBuildProgress() const;
 	void SilentlyResetAllBuildProgress(BuildTypes eBuild = NO_BUILD);
 
+	int GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValueTile) const;
+
 	bool isLayoutDirty() const;							// The plot layout contains resources, routes, and improvements
 	void setLayoutDirty(bool bDirty);
 	bool isLayoutStateDifferent() const;

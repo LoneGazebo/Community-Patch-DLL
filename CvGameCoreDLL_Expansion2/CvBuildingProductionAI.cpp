@@ -802,6 +802,62 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	//does it make a unit trainable?
+	const set<int>& sUnitClasses = pkBuildingInfo->GetUnitClassTrainingAllowed();
+	for (set<int>::const_iterator it = sUnitClasses.begin(); it != sUnitClasses.end(); ++it)
+	{
+		// don't need it if we can train the unit anyway
+		if (!kPlayer.canTrainUnit(kPlayer.GetSpecificUnitType((UnitClassTypes)*it)))
+		{
+			iBonus += 200;
+		}
+	}
+
+	const std::vector<CvPlot*>& vClaimedPlots = m_pCity->GetPlotsClaimedByBuilding(eBuilding);
+	if (vClaimedPlots.size() > 0)
+	{
+		for (std::vector<CvPlot*>::const_iterator it = vClaimedPlots.begin(); it != vClaimedPlots.end(); ++it)
+		{
+
+			CvPlot* pClaimedPlot = *it;
+			if (pClaimedPlot->getOwner() == NO_PLAYER)
+			{
+				iBonus += 20;
+			}
+			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMajorCiv())
+			{
+				CivApproachTypes eApproachToPlotOwner = kPlayer.GetDiplomacyAI()->GetCivApproach(pClaimedPlot->getOwner());
+				switch (eApproachToPlotOwner)
+				{
+				case CIV_APPROACH_WAR:
+				case CIV_APPROACH_HOSTILE:
+					// harming our enemies? good
+					iBonus += 50;
+					break;
+				case CIV_APPROACH_AFRAID:
+					// don't upset a neighbor we're afraid of
+					return SR_STRATEGY;
+				case CIV_APPROACH_GUARDED:
+					break;
+				case CIV_APPROACH_NEUTRAL:
+					iBonus -= 50;
+					break;
+				case CIV_APPROACH_FRIENDLY:
+				case CIV_APPROACH_DECEPTIVE:
+					// don't take plots from our friends
+					return SR_STRATEGY;
+				default:
+					break;
+				}
+			}
+		}
+	}
+
+	if (pkBuildingInfo->GetGPPRateModPerMarriage() > 0)
+	{
+		iBonus += pkBuildingInfo->GetGPPRateModPerMarriage() * GET_PLAYER(m_pCity->getOwner()).GetNumMarriedCityStatesNotAtWar();
+	}
+
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{

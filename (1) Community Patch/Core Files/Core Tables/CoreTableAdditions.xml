@@ -2165,6 +2165,17 @@
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="NumUnits" type="integer"/>
 	</Table>
+	<!-- Allows the player to train the specified unit class, overriding tech restrictions-->
+	<Table name="Building_UnitClassTrainingAllowed">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+	</Table>
+	<!-- On building construction, claim all tiles within working range with the specified resource. If IncludeOwnedByOtherPlayer is true, also tiles owned by someone else are claimed and a diplomatic penalty is applied-->
+	<Table name="Building_ResourceClaim">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="IncludeOwnedByOtherPlayer" type="boolean" default="false"/>
+	</Table>
 	<!-- Non-functional ATM -->
 	<Table name="Corporation_ResourceMonopolyAnds">
 		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>

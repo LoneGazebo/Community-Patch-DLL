@@ -206,6 +206,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return SR_STRATEGY;
 	}
 
+	// can we build an upgraded version of this unit in any of our cities?
+	if (!kPlayer.GetUnitClassTrainingAllowedAnywhere().empty())
+	{
+		const set<UnitClassTypes>& sUnitClassTrainingAllowed = kPlayer.GetUnitClassTrainingAllowedAnywhere();
+		for (set<UnitClassTypes>::const_iterator it = sUnitClassTrainingAllowed.begin(); it != sUnitClassTrainingAllowed.end(); ++it)
+		{
+			if (pkUnitEntry->GetUpgradeUnitClass(*it))
+			{
+				return SR_STRATEGY;
+			}
+		}
+	}
+
 	if (!bDesperate && !bFree)
 	{
 		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
