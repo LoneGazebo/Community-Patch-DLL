@@ -175,6 +175,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
 	m_YieldPerXAdjacentImprovement(),
+	m_YieldPerXAdjacentTerrain(),
 	m_ppiAdjacentTerrainYieldChanges(NULL),
 	m_ppiAdjacentResourceYieldChanges(NULL),
 	m_ppiAdjacentFeatureYieldChanges(NULL),
@@ -208,6 +209,7 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
 	m_YieldPerXAdjacentImprovement.clear();
+	m_YieldPerXAdjacentTerrain.clear();
 	if(m_ppiAdjacentResourceYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentResourceYieldChanges);
@@ -478,7 +480,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	}
 
 	const int iNumYields = kUtility.MaxRows("Yields");
-#if defined(MOD_BALANCE_CORE)
 	const int iNumImprovements = kUtility.MaxRows("Improvements");
 	CvAssertMsg(iNumImprovements > 0, "Num Improvement Infos <= 0");
 	//YieldPerXAdjacentImprovement
@@ -517,6 +518,36 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 		//Trim extra memory off container since this is mostly read-only.
 		map<YieldTypes, map<ImprovementTypes, fraction>>(m_YieldPerXAdjacentImprovement).swap(m_YieldPerXAdjacentImprovement);
+	}
+	//YieldPerXAdjacentTerrain
+	{
+		std::string strKey("Improvements - YieldPerXAdjacentTerrain");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Terrains.ID as TerrainID, Yield, NumRequired from Improvement_YieldPerXAdjacentTerrain inner join Yields on YieldType = Yields.Type inner join Terrains on TerrainType = Terrains.Type where ImprovementType = ?");
+		}
+
+		pResults->Bind(1, szImprovementType);
+
+		while (pResults->Step())
+		{
+			const YieldTypes yield_idx = YieldTypes(pResults->GetInt(0));
+			CvAssert(yield_idx > -1);
+
+			const TerrainTypes terrain_idx = TerrainTypes(pResults->GetInt(1));
+			CvAssert(terrain_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			const int nRequired = pResults->GetInt(3);
+			CvAssert(nRequired > 0);
+
+			m_YieldPerXAdjacentTerrain[yield_idx][terrain_idx] += fraction(yield, nRequired);
+		}
+
+		//Trim extra memory off container since this is mostly read-only.
+		map<YieldTypes, map<TerrainTypes, fraction>>(m_YieldPerXAdjacentTerrain).swap(m_YieldPerXAdjacentTerrain);
 	}
 	//m_ppiAdjacentResourceYieldChanges
 	{
@@ -641,7 +672,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		pResults->Reset();
 	}
 	
-#endif
 	const int iNumTechs = GC.getNumTechInfos();
 	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
 
@@ -837,6 +867,39 @@ bool CvImprovementEntry::IsYieldPerXAdjacentImprovement(YieldTypes eYield) const
 	map<YieldTypes, map<ImprovementTypes, fraction>>::const_iterator itImprovement = m_YieldPerXAdjacentImprovement.find(eYield);
 
 	return itImprovement != m_YieldPerXAdjacentImprovement.end();
+}
+
+/// Bonus yield if a terrain is adjacent
+fraction CvImprovementEntry::GetYieldPerXAdjacentTerrain(YieldTypes eYield, TerrainTypes eTerrain) const
+{
+	CvAssertMsg(eTerrain < NUM_TERRAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(eTerrain > -1, "Index out of Bounds");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	fraction fYield = 0;
+	map<YieldTypes, map<TerrainTypes, fraction>>::const_iterator itTerrain = m_YieldPerXAdjacentTerrain.find(eYield);
+	if (itTerrain != m_YieldPerXAdjacentTerrain.end())
+	{
+		map<TerrainTypes, fraction>::const_iterator itYield = itTerrain->second.find(eTerrain);
+		if (itYield != itTerrain->second.end())
+		{
+			fYield = itYield->second;
+		}
+	}
+	return fYield;
+}
+bool CvImprovementEntry::IsYieldPerXAdjacentTerrain(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield >= -1, "Index out of bounds");
+
+	if (eYield == NO_YIELD)
+		return !m_YieldPerXAdjacentTerrain.empty();
+
+	map<YieldTypes, map<TerrainTypes, fraction>>::const_iterator itTerrain = m_YieldPerXAdjacentTerrain.find(eYield);
+
+	return itTerrain != m_YieldPerXAdjacentTerrain.end();
 }
 
 /// The number of tiles in an area needed for a goody hut to be placed by the map generator

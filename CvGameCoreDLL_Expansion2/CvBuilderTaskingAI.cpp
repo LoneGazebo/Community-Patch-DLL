@@ -2702,7 +2702,7 @@ static FeatureTypes GetPlannedFeatureInPlot(const CvPlot* pPlot, const SBuilderS
 	return pPlot->getFeatureType();
 }
 
-static fraction GetCurrentAdjacencyScoreFromImprovements(const CvPlot* pPlot, const CvImprovementEntry& kImprovementInfo, YieldTypes eYield, const SBuilderState& sState)
+static fraction GetCurrentAdjacencyScoreFromImprovementsAndTerrain(const CvPlot* pPlot, const CvImprovementEntry& kImprovementInfo, YieldTypes eYield, const SBuilderState& sState)
 {
 	fraction fTotalAdjacencyBonus = 0;
 
@@ -2713,6 +2713,11 @@ static fraction GetCurrentAdjacencyScoreFromImprovements(const CvPlot* pPlot, co
 
 		if (!pAdjacentPlot)
 			continue;
+
+		TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
+		fraction fAdjacentTerrainYield = kImprovementInfo.GetYieldPerXAdjacentTerrain(eYield, eAdjacentTerrain);
+		if (fAdjacentTerrainYield != 0)
+			fTotalAdjacencyBonus += fAdjacentTerrainYield;
 
 		ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
@@ -3154,7 +3159,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					{
 						// How much extra yield we give to adjacent tiles with a certain improvement
 						fraction fAdjacentImprovementYield = pkAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement);
-						fraction fCurrentAdjacentImprovementYield = GetCurrentAdjacencyScoreFromImprovements(pAdjacentPlot, *pkAdjacentImprovementInfo, eYield, sState);
+						fraction fCurrentAdjacentImprovementYield = GetCurrentAdjacencyScoreFromImprovementsAndTerrain(pAdjacentPlot, *pkAdjacentImprovementInfo, eYield, sState);
 						int iDeltaTruncatedYield = (fCurrentAdjacentImprovementYield + fAdjacentImprovementYield).Truncate() - fCurrentAdjacentImprovementYield.Truncate();
 						if (iDeltaTruncatedYield != 0)
 							iNewAdjacentYield += iDeltaTruncatedYield;
@@ -3208,6 +3213,13 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				if (!pAdjacentPlot)
 					continue;
+
+				TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
+				fraction fYieldPerXAdjacentTerrain = pkImprovementInfo->GetYieldPerXAdjacentTerrain(eYield, eAdjacentTerrain);
+				if (fYieldPerXAdjacentTerrain != 0)
+				{
+					fCurrentBonusToThisTile += fYieldPerXAdjacentTerrain;
+				}
 
 				const ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
 
