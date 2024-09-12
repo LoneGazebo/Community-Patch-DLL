@@ -1987,6 +1987,14 @@
 		<Column name="Yield" type="integer" default="0"/>
 		<Column name="NumRequired" type="integer" default="1"/>
 	</Table>
+	<Table name="Improvement_YieldPerXAdjacentTerrain">
+	<!-- Improvement: yields that an adjacent terrain type provides to this improvement -->
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="NumRequired" type="integer" default="1"/>
+	</Table>
 	<!-- Improvement: allows a resource to boost the base yield of this improvement when adjacent -->
 	<Table name="Improvement_AdjacentResourceYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
