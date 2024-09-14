@@ -85,8 +85,7 @@ VALUES
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
-	('IMPROVEMENT_FISHING_BOATS', 'IMPROVEMENT_KASBAH', 'YIELD_GOLD', 2, 1),
-	('IMPROVEMENT_MANUFACTORY', 'IMPROVEMENT_KASBAH', 'YIELD_GOLD', 2, 1);
+	('IMPROVEMENT_FISHING_BOATS', 'IMPROVEMENT_KASBAH', 'YIELD_GOLD', 2, 1);
 
 INSERT INTO Improvement_AdjacentTerrainYieldChanges
 	(ImprovementType, TerrainType, YieldType, Yield)
