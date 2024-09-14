@@ -1123,26 +1123,6 @@ TechTypes CvTraitEntry::GetCapitalFreeBuildingPrereqTech() const
 {
 	return m_eCapitalFreeBuildingPrereqTech;
 }
-int CvTraitEntry::YieldFromRouteMovement(int i) const
-{
-	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
-}
-int CvTraitEntry::YieldFromOwnPantheon(int i) const
-{
-	return m_piYieldFromOwnPantheon ? m_piYieldFromOwnPantheon[i] : -1;
-}
-int CvTraitEntry::YieldFromHistoricEvent(int i) const
-{
-	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
-}
-int CvTraitEntry::YieldFromXMilitaryUnits(int i) const
-{
-	return m_piYieldFromXMilitaryUnits ? m_piYieldFromXMilitaryUnits[i] : -1;
-}
-int CvTraitEntry::YieldFromLevelUp(int i) const
-{
-	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
-}
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 {
@@ -3174,7 +3154,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #endif
 
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
-	//Populate m_iibTradeRouteProductionSiphon
+	//Populate m_biiTradeRouteProductionSiphon
 	{
 		std::string sqlKey = "Trait_TradeRouteProductionSiphon";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);

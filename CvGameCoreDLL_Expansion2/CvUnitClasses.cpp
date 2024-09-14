@@ -559,11 +559,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			Database::Results* pResults = kUtility.GetResults(strKey);
 			if(pResults == NULL)
 			{
-#if defined(MOD_BALANCE_CORE)
 				pResults = kUtility.PrepareResults(strKey, "select UniqueName, GreatWorkType, EraType from Unit_UniqueNames where UnitType = ? ORDER BY rowid");
-#else
-				pResults = kUtility.PrepareResults(strKey, "select UniqueName, GreatWorkType from Unit_UniqueNames where UnitType = ? ORDER BY rowid");
-#endif
 			}
 
 			pResults->Bind(1, szUnitType, -1, false);

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Vanilla bug fix: the SPECIAL type needs to exist for use in ArtDefine_Landmarks (Feitoria, Moai, Pontoon Bridge) -->
+	<ArtDefine_LandmarkTypes>
+		<Row>
+			<Type>SPECIAL</Type>
+			<LandmarkType>LayoutHandler</LandmarkType>
+			<FriendlyName>Special</FriendlyName>
+		</Row>
+	</ArtDefine_LandmarkTypes>
+</GameData>

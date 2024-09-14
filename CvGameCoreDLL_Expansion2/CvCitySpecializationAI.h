@@ -38,7 +38,6 @@ public:
 	// Accessor Functions
 	int GetFlavorValue(int i) const;
 	YieldTypes GetYieldType() const;
-	int GetYieldTargetTimes100(YieldTypes eYield) const;
 	int GetSubtype() const;
 	bool IsWonder() const;
 	bool IsDefault() const;
@@ -53,7 +52,6 @@ private:
 	bool m_bDefault;
 	bool m_bMustBeCoastal;
 	bool m_bOperationUnitProvider;
-	int* m_piYieldTargetTimes100;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

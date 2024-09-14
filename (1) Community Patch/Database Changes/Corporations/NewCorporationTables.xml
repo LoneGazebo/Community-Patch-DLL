@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="Corporations">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="ResourceBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="TradeRouteBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBenefitHelper" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="HeadquartersBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="OfficeBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="FranchiseBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="BaseFranchises" type="integer" default="0"/>
+		<Column name="NumFreeTradeRoutes" type="integer" default="0"/>
+		<Column name="TradeRouteRecipientBonus" type="integer" default="0"/>
+		<Column name="TradeRouteTargetBonus" type="integer" default="0"/>
+		<Column name="TradeRouteLandDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSeaDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSpeedModifier" type="integer" default="100"/>
+		<Column name="TradeRoutesInvulnerable" type="boolean" default="false"/>
+		<Column name="TradeRouteVisionBoost" type="integer" default="0"/>
+		<Column name="RandomSpreadChance" type="integer" default="0"/>
+		<Column name="TourismModNumFranchises" type="integer" default="0"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="IconAtlas" type="text" reference="IconTextureAtlases(Atlas)"/>
+	</Table>
+	<!-- Office boosts city yields for each trade route targeting a city with franchise (works with nationalized corporations) -->
+	<Table name="Corporation_TradeRouteCityYield">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Office boosts yields of international trade routes targeting cities with franchise -->
+	<Table name="Corporation_TradeRouteMod">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Corporation boosts specialist yields -->
+	<Table name="Corporation_SpecialistYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Corporation boosts buildings -->
+	<Table name="Corporation_BuildingClassYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer" notnull="true"/>
+	</Table>
+	<!-- Franchise boosts resources -->
+	<Table name="Corporation_ResourceYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Corporation requires all specified resources to be built (nothing specified = no requirement) -->
+	<Table name="Corporation_ResourceMonopolyAnds">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" notnull="true" reference="Resources(Type)"/>
+	</Table>
+	<!-- Corporation requires any of the specified resources to be built (nothing specified = no requirement) -->
+	<Table name="Corporation_ResourceMonopolyOrs">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" notnull="true" reference="Resources(Type)"/>
+	</Table>
+	<!-- Corporation provides resources -->
+	<Table name="Corporation_NumFreeResource">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumResource" type="integer" notnull="true"/>
+	</Table>
+	<!-- Corporation boosts production of units requiring specific resources -->
+	<Table name="Corporation_UnitResourceProductionModifier">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+</GameData>
