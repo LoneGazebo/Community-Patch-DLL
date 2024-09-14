@@ -1,11 +1,11 @@
 -- Update Hover Units to obey coast/ocean tiles
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP' , 'PROMOTION_EMBARKATION';
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP' , 'PROMOTION_DEFENSIVE_EMBARKATION';
-INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP' , 'PROMOTION_ALLWATER_EMBARKATION';
+INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_EMBARKATION';
+INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_DEFENSIVE_EMBARKATION';
+INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_ALLWATER_EMBARKATION';
 
 -- Fixes for Barbarians
 DELETE FROM Civilization_UnitClassOverrides WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND UnitClassType = 'UNITCLASS_CHARIOT_ARCHER';
-INSERT INTO Civilization_UnitClassOverrides (CivilizationType, UnitClassType, UnitType) SELECT 'CIVILIZATION_BARBARIAN' , 'UNITCLASS_CHARIOT_ARCHER', 'UNIT_BARBARIAN_AXMAN';
+INSERT INTO Civilization_UnitClassOverrides (CivilizationType, UnitClassType, UnitType) SELECT 'CIVILIZATION_BARBARIAN', 'UNITCLASS_CHARIOT_ARCHER', 'UNIT_BARBARIAN_AXMAN';
 
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost) SELECT 'UNIT_BARBARIAN_HORSEMAN', 'RESOURCE_HORSE', '1';
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost) SELECT 'UNIT_BARBARIAN_SWORDSMAN', 'RESOURCE_IRON', '1';
@@ -48,7 +48,7 @@ DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_GREAT_ADMIRAL';
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_INQUISITOR';
 
 -- Readd one entry
-INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES 
+INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES
 ('UNIT_GREAT_ADMIRAL', 'UNITAI_ADMIRAL'),
 ('UNIT_INQUISITOR', 'UNITAI_INQUISITOR');
 
@@ -56,7 +56,7 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType) VALUES
 DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_WORKBOAT';
 
 -- Readd one entry
-INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor) VALUES 
+INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor) VALUES
 ('UNIT_WORKBOAT', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 20);
 
 -- Fix England UA promotion because of column rework

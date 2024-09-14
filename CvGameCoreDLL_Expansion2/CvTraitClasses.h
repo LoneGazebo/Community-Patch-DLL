@@ -271,11 +271,6 @@ public:
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
-	int YieldFromRouteMovement(int i) const;
-	int YieldFromOwnPantheon(int i) const;
-	int YieldFromHistoricEvent(int i) const;
-	int YieldFromXMilitaryUnits(int i) const;
-	int YieldFromLevelUp(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;

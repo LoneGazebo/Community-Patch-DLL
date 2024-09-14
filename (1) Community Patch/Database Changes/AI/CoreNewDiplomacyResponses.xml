@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- For civ-specific messages, see CoreNewDiplomacyResponses.sql for systematic insertion -->
+	<Diplomacy_Responses>
+		<!-- Human asks AI about their opinions -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_REPEAT_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HOSTILE_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_FRIENDLY</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_NEUTRAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_GUARDED</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_GUARDED%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_AFRAID</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_AFRAID%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_PLANNING_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_DECEPTIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TOO_SOON_FOR_SHARE_OPINION</ResponseType>
+			<Response>TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION%</Response>
+		</Row>
+
+		<!-- Move troops -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_ACCEPT</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_NEUTRAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_NEUTRAL_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_DECEPTIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE</Response>
+		</Row>
+
+		<!-- New intrigues -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_INTRIGUE_BRIBE_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_BRIBE_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_INTRIGUE_COOP_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_COOP_WAR%</Response>
+		</Row>
+
+		<!-- AI requests help -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>
+			<Response>TXT_KEY_GENERIC_GENEROUS_OFFER%</Response>
+		</Row>
+
+		<!-- Human requests help -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_REFUSE_TOO_SOON</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_YES</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_YES%</Response>
+		</Row>
+
+		<!-- Can't match offer negative -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE%</Response>
+		</Row>
+
+		<!-- Human influential over AI -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN%</Response>
+		</Row>
+
+		<!-- AI influential over human -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN%</Response>
+		</Row>
+
+		<!-- Victory Competition statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CONFUSED</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED%</Response>
+		</Row>
+
+		<!-- DOW - have gone to war several times -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_OLD_ENEMIES</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_OLD_ENEMIES%</Response>
+		</Row>
+
+		<!-- Player is a warmonger - DOW -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_WARMONGER%</Response>
+		</Row>
+
+		<!-- Player is a warmonger - DOW'd on -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_STRONG_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_STRONG_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_WEAK_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_WEAK_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_WARMONGER%</Response>
+		</Row>
+
+		<!-- DOW'd on by different ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_IDEOLOGY_DIFFERENCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_IDEOLOGY_DIFFERENCE%</Response>
+		</Row>
+
+		<!-- DOW'd on by same ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_IDEOLOGY_SAME</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_IDEOLOGY_SAME%</Response>
+		</Row>
+
+		<!-- DOW different ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_IDEOLOGY_DIFFERENCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_IDEOLOGY_DIFFERENCE%</Response>
+		</Row>
+
+		<!-- DOW same ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_IDEOLOGY_SAME</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_IDEOLOGY_SAME%</Response>
+		</Row>
+
+		<!-- End DOF statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_BLOCK_VICTORY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_BLOCK%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_IDEOLOGY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_IDEOLOGY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_FAITH</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_FAITH%</Response>
+		</Row>
+
+		<!-- Victory Block statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+
+		<!-- Declaring war when insulted -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WAR_DEMAND_INSULTED</ResponseType>
+			<Response>TXT_KEY_WAR_DEMAND_INSULTED%</Response>
+		</Row>
+
+		<!-- Defense Pact offer -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
+			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
+		</Row>
+
+		<!-- Trade cities -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_TRADE_OFFER%</Response>
+		</Row>
+
+		<!-- Exchange cities -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_EXCHANGE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_EXCHANGE_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd party war -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_WAR_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_WAR_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd party peace -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_PEACE_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_PEACE_OFFER%</Response>
+		</Row>
+
+		<!-- Vote trade offer -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_VOTE_COMMITMENT_REQUEST</ResponseType>
+			<Response>TXT_KEY_VOTE_COMMITMENT_REQUEST%</Response>
+		</Row>
+
+		<!-- DOF friend levels -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_DOF_UNTRUSTWORTHY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DOF_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_ALLIES</ResponseType>
+			<Response>TXT_KEY_DOF_OLD_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_BATTLE_BROTHERS</ResponseType>
+			<Response>TXT_KEY_DOF_BATTLE_BROTHERS%</Response>
+		</Row>
+
+		<!-- Denounce statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_GENERIC</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_WARMONGER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_MINORS</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_MINORS_BULLY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_NUKED</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_NUKE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_ENEMY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_DOGPILE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_DOGPILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_SPIES</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_SPIES%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_LAND</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_COVET%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DIGGING</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_FAITH</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_FAITH%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_WONDERS</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_WONDERS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_VICTORY_DISPUTE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_VICTORY_BLOCK</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_UNFORGIVEABLE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL%</Response>
+		</Row>
+
+		<!-- Strategic resource trade offer -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_STRATEGIC_TRADE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST%</Response>
+		</Row>
+
+		<!-- Peace offer: AI warscore > 5 -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_GENERIC_PEACE_OFFER%</Response>
+		</Row>
+	</Diplomacy_Responses>
+</GameData>

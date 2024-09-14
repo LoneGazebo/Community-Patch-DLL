@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Instant yields to the origin city of this unit when it defeats a barbarian unit, scaling with the combat strength of the defeated unit -->
+	<Table name="Unit_YieldFromBarbarianKills">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Free buildings to the new city when this unit founds a city -->
+	<Table name="Unit_BuildOnFound">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+	</Table>
+	<!-- Purchasing this unit requires the specified buildings -->
+	<Table name="Unit_BuildingClassPurchaseRequireds">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+	</Table>
+
+	<!-- The below 3 tables require the unit's UnitEraUpgrade column set to true to function -->
+	<!-- This unit has its base combat strength changed when the owner reaches the specified eras -->
+	<Table name="Unit_EraCombatStrength">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="CombatStrength" type="integer" notnull="true"/>
+	</Table>
+	<!-- This unit changes to a different combat when the owner reaches the specified eras (Value must be set to 1 to trigger) -->
+	<Table name="Unit_EraCombatType">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="Value" type="integer" default="1"/>
+	</Table>
+	<!-- This unit gains the specified promotions when the owner reaches the specified eras (Value must be set to 1 to trigger) -->
+	<Table name="Unit_EraUnitPromotions">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="Value" type="integer" default="1"/>
+	</Table>
+
+	<!-- Permanently increase the player's resource count when this unit is expended -->
+	<Table name="Unit_ResourceQuantityExpended">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- This unit can only be built or upgraded into if the following conditions are satisfied: -->
+	<!-- 1. The player has the specified amount of resources when counting imports but not exports -->
+	<!-- 2. The player has at least 1 specified resource when counting both imports and exports -->
+	<!-- Need the UNITS_RESOURCE_QUANTITY_TOTALS mod option to function -->
+	<!-- This is an extension of the Units.ResourceType column, which can only specify one resource type with amount = 1, and only restricts unit production, not upgrades -->
+	<Table name="Unit_ResourceQuantityTotals">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Modifiers to the instant yield given by Discover Technology, Conduct Diplomatic Mission, and Hurry Production missions, per specified improvement built and owned by the player -->
+	<!-- Need the BALANCE_CORE_NEW_GP_ATTRIBUTES mod option to function -->
+	<Table name="Unit_ScalingFromOwnedImprovements">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+</GameData>

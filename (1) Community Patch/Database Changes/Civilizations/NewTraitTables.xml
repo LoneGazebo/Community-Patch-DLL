@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- GPP modifier for specified great people in every city during golden ages -->
+	<Table name="Trait_GoldenAgeGreatPersonRateModifier">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- GPP modifier in every city per puppet city in empire -->
+	<Table name="Trait_PerPuppetGreatPersonRateModifier">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- % progress for GWAM in capital on birth of specified great people -->
+	<Table name="Trait_GreatPersonBirthGWAM">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+	<!-- % progress for specified great people in capital on adopting policy -->
+	<Table name="Trait_GreatPersonProgressFromPolicyUnlock">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+	<!-- % progress for specified great people in capital on kill -->
+	<Table name="Trait_GreatPersonProgressFromKills">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+	<!-- % progress for a random specified great person in capital on kill -->
+	<Table name="Trait_RandomGreatPersonProgressFromKills">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yields on non-lake water tiles -->
+	<Table name="Trait_SeaPlotYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on mountains, scaling with Era -->
+	<Table name="Trait_MountainRangeYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on specified plot types -->
+	<Table name="Trait_PlotYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on specified terrains -->
+	<Table name="Trait_TerrainYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on specified features -->
+	<Table name="Trait_FeatureYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on specified resources -->
+	<Table name="Trait_ResourceYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on capital tile -->
+	<Table name="Trait_CapitalYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on city tiles -->
+	<Table name="Trait_CityYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on city tiles, 1 per "Yield" military units in empire -->
+	<Table name="Trait_YieldFromXMilitaryUnits">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on coastal city tiles -->
+	<Table name="Trait_CoastalCityYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yields to specified building classes -->
+	<Table name="Trait_BuildingClassYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldChange" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields to world wonders -->
+	<Table name="Trait_YieldChangeWorldWonder">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- TODO: Merge these 5 tables into one with a GreatWorkClassType column -->
+	<!-- Yields to great works -->
+	<Table name="Trait_GreatWorkYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields to artifacts -->
+	<Table name="Trait_ArtifactYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields to great works of art -->
+	<Table name="Trait_ArtYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields to great works of literature -->
+	<Table name="Trait_LitYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields to great works of music -->
+	<Table name="Trait_MusicYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yields to trade routes of specified domains -->
+	<Table name="Trait_TradeRouteYieldChange">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yields in every city when you start a WLTKD in any city. Affected by Traits.PermanentYieldsDecreaseEveryEra -->
+	<Table name="Trait_PermanentYieldChangeWLTKD">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in cities with your pantheon or religion as majority -->
+	<Table name="Trait_YieldFromOwnPantheon">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in cities connected to capital, and in capital after second city is founded -->
+	<Table name="Trait_YieldChangeTradeRoute">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields per unique exported luxury -->
+	<Table name="Trait_YieldFromExport">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields per unique imported luxury -->
+	<Table name="Trait_YieldFromImport">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in capital per CS ally (not friends) -->
+	<Table name="Trait_YieldFromCSAlly">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in capital per CS friend -->
+	<Table name="Trait_YieldFromCSFriend">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in capital per historic event completed -->
+	<Table name="Trait_YieldFromHistoricEvent">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in every city (or capital) per specified improvement in empire. Affected by Traits.IsCapitalOnly and Traits.IsOddEraScaler -->
+	<Table name="Trait_YieldChangesPerImprovementBuilt">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in cities per adjacent unimproved specified feature (up to 2, or up to 3 if ALTERNATE_CELTS custom mod option is on) -->
+	<Table name="Trait_CityYieldFromUnimprovedFeature">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yield modifier in every city during golden ages, or an ALWAYS ON GROWTH modifier if YIELD_FOOD is specified -->
+	<Table name="Trait_GoldenAgeYieldModifiers">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Instant yields to capital from percentage of spent GAP on golden age start -->
+	<Table name="Trait_GAPToYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to origin city on trade route completion -->
+	<Table name="Trait_TradeRouteEndYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldDomestic" type="integer" default="0"/>
+		<Column name="YieldInternational" type="integer" default="0"/>
+	</Table>
+	<!-- Instant yields to origin city when a unit is promoted, scaling with (new level - 1) ^ 2 -->
+	<Table name="Trait_YieldFromLevelUp">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to origin city per active trade unit on turn transition -->
+	<Table name="Trait_YieldFromRouteMovement">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to new city on settle -->
+	<Table name="Trait_YieldFromSettle">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to unit's origin city on killing units, scaling with CS of the killed unit -->
+	<Table name="Trait_YieldFromKills">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to unit's origin city on killing barbarians, scaling with CS of the killed unit -->
+	<Table name="Trait_YieldFromBarbarianKills">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to attacking unit's origin city for every hitpoint of damage dealt to enemy cities, times 100 -->
+	<Table name="Trait_YieldFromCityDamageTimes100">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to city on tile purchase -->
+	<Table name="Trait_YieldFromTilePurchase">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to city on purchasing tiles of specified terrains -->
+	<Table name="Trait_YieldFromTilePurchaseTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to city on border growth, even if no actual tile is acquired -->
+	<Table name="Trait_YieldFromTileEarn">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to city on border growth acquiring tiles of specified terrains -->
+	<Table name="Trait_YieldFromTileEarnTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to capital on first time city conquest, scaling with the number of tiles of specified terrains -->
+	<Table name="Trait_YieldFromTileConquest">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields on acquiring unowned tiles of specified terrains by culture bombing or from ancient ruins. -->
+	<!-- Yields are given to the tile-owning city if a culture bomb improvement is built on an owned tile, or to the nearest city otherwise. -->
+	<Table name="Trait_YieldFromTileCultureBomb">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields on acquiring owned tiles of specified terrains by culture bombing. -->
+	<!-- Yields are given to the tile-owning city if the culture bomb improvement is built on an owned tile, or to the nearest city otherwise. -->
+	<Table name="Trait_YieldFromTileStealCultureBomb">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to new city on settle, scaling with the number of tiles of specified terrains -->
+	<Table name="Trait_YieldFromTileSettle">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to capital on first time city conquest, scaling with (Population / 2 - Era) -->
+	<Table name="Trait_YieldFromConquest">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to nearest city on clearing barbarian encampments -->
+	<Table name="Trait_YieldFromBarbarianCampClears">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+	<!-- Instant yields to origin city on birth of specified great people -->
+	<Table name="Trait_GreatPersonBornYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to capital on expending specified great people -->
+	<Table name="Trait_GreatPersonExpendedYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to capital on bullying CS, scaling with the amount of gold tributed -->
+	<Table name="Trait_YieldFromMinorDemand">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yields to capital on connecting a luxury resource for the first time -->
+	<Table name="Trait_YieldFromLuxuryResourceGain">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Production modifier to units of specified domains per local specialist -->
+	<Table name="Trait_DomainProductionModifiersPerSpecialist">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Production modifier to units of specified domains per CS under your protection -->
+	<Table name="Trait_NumPledgeDomainProdMod">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Production cost modifier for units of specified combat. Also affects gold costs and upgrade costs indirectly. -->
+	<Table name="Trait_UnitCombatProductionCostModifiers">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)" notnull="true"/>
+		<Column name="CostModifier" type="integer" notnull="true"/>
+		<Column name="IsGoldenAgeOnly" type="boolean" default="false"/>
+	</Table>
+
+	<!-- Faith/GPP cost modifier for specified great people -->
+	<Table name="Trait_GreatPersonCostReduction">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Modifier to free experience for units of specified domain -->
+	<Table name="Trait_DomainFreeExperienceModifier">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Alternative upgrade class for units -->
+	<Table name="Trait_UnitClassUpgrade">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="UnitType" type="text" reference="Units(Type)" notnull="true"/>
+	</Table>
+
+	<!-- Movement change on specified unit classes -->
+	<Table name="Trait_MovesChangeUnitClass">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="MovesChange" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Free promotion on specified unit classes, skipping validations -->
+	<Table name="Trait_FreePromotionUnitClass">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+	</Table>
+
+	<!-- Free units near capital on war declaration. Validation is done for combat units. -->
+	<Table name="Trait_FreeUnitClassesDOW">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="Number" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Claim all unowned adjacent tiles of the same terrain when naturally acquiring a tile of specified terrains -->
+	<Table name="Trait_TerrainClaimBoost">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+	</Table>
+
+	<!-- Start a golden age of specified turns (before modifiers) on birth of specified great people -->
+	<Table name="Trait_GoldenAgeFromGreatPersonBirth">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="GoldenAgeTurns" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Additional available builds to specified unit classes, overriding Trait_NoBuilds -->
+	<Table name="Trait_BuildsUnitClasses">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="BuildType" type="text" reference="Builds(Type)" notnull="true"/>
+	</Table>
+	<!-- Blocks the specified builds, overridden by Trait_BuildsUnitClasses. -->
+	<!-- For example, you can make a civ which has melee and gunpowder units build farms, but workers can't. -->
+	<Table name="Trait_NoBuilds">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="BuildType" type="text" reference="Builds(Type)" notnull="true"/>
+	</Table>
+
+	<!-- Alternate reveal and tradeable techs for specified resources. Will default back to the techs defined in Resources table if NULL. -->
+	<Table name="Trait_AlternateResourceTechs">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="TechReveal" type="text" reference="Technologies(Type)"/>
+		<Column name="TechCityTrade" type="text" reference="Technologies(Type)"/>
+	</Table>
+
+	<!-- Requires TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON custom mod option -->
+	<!-- Trade routes originated from trait owner grants part of destination city's current production (building/unit/project/process) to the origin city -->
+	<!-- PercentIncreaseWithOpenBorders is added up to twice for both incoming and outgoing open borders agreements -->
+	<Table name="Trait_TradeRouteProductionSiphon">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="SiphonPercent" type="integer" notnull="true"/>
+		<Column name="PercentIncreaseWithOpenBorders" type="integer" default="0"/>
+		<Column name="IsInternationalOnly" type="boolean" default="false"/>
+	</Table>
+
+	<!-- Requires TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY custom mod option -->
+	<!-- Instant yields to origin city per active trade route in foreign owned territory on turn transition -->
+	<!-- Also give the same yields to target city (can belong to same player) if IsGrantedToTradePartner is true -->
+	<Table name="Trait_YieldFromRouteMovementInForeignTerritory">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsGrantedToTradePartner" type="boolean" default="true"/>
+	</Table>
+</GameData>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="GreatPersons">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Class" type="text" reference="UnitClasses(Type)" notnull="true"/>
+		<Column name="Specialist" type="text" reference="Specialists(Type)" default="NULL"/>
+		<Column name="IconString" type="text" default="[ICON_GREAT_PEOPLE]"/>
+	</Table>
+</GameData>

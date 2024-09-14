@@ -157,16 +157,6 @@ UPDATE AIGrandStrategy_Yields SET Yield = 200 WHERE YieldType= 'YIELD_PRODUCTION
 UPDATE AIGrandStrategy_Yields SET Yield = 150 WHERE YieldType= 'YIELD_GOLD' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
 UPDATE AIGrandStrategy_Yields SET YieldType = 'YIELD_CULTURE' WHERE YieldType= 'YIELD_SCIENCE' AND AIGrandStrategyType = 'AIGRANDSTRATEGY_CULTURE';
 
--- City Specialization Stuff
-
-UPDATE CitySpecialization_TargetYields
-SET Yield = 100
-WHERE YieldType = 'YIELD_GOLD';
-
-UPDATE CitySpecialization_TargetYields
-SET Yield = 175
-WHERE YieldType = 'YIELD_SCIENCE';
-
 -- Anti Air AI fix
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';

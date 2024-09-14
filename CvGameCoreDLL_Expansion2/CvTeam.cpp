@@ -1649,7 +1649,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						if (!pLoopUnitInfo)
 							continue;
 
-						const UnitAITypes eDefaultAI = pLoopUnitInfo->GetDefaultUnitAIType();
 						bool bWarOnly = pLoopUnitInfo->IsWarOnly();
 						bool bCombat = (pLoopUnitInfo->GetCombat() > 0);
 						const TechTypes ePrereqTech = static_cast<TechTypes>(pLoopUnitInfo->GetPrereqAndTech());
@@ -1659,7 +1658,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						for (int iJ = 0; iJ < iUnitAttackerClass; iJ++)
 						{
 							if (!bCombat || (bWarOnly && bAttackerPrereqTech) || kAttackingPlayer.canTrainUnit(eLoopUnit, false, false, true))
-								kAttackingPlayer.addFreeUnit(eLoopUnit, false, eDefaultAI);
+								kAttackingPlayer.addFreeUnit(eLoopUnit, false);
 						}
 
 						int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
@@ -1667,7 +1666,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						for (int iJ = 0; iJ < iUnitDefenderClass; iJ++)
 						{
 							if (!bCombat || (bWarOnly && bDefenderPrereqTech) || kDefendingPlayer.canTrainUnit(eLoopUnit, false, false, true))
-								kDefendingPlayer.addFreeUnit(eLoopUnit, false, eDefaultAI);
+								kDefendingPlayer.addFreeUnit(eLoopUnit, false);
 						}
 					}
 				}

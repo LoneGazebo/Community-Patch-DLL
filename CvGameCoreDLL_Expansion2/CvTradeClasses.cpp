@@ -1969,7 +1969,6 @@ bool CvGameTrade::MoveUnit (int iIndex)
 		//show the movement animation
 		pkUnit->finishMoves();
 
-#if defined(MOD_BALANCE_CORE)
 		//Free resources when your trade units move.
 		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 		int iTrIndex = pTrade->GetIndexFromUnitID(pkUnit->GetID(),pkUnit->getOwner());
@@ -1988,7 +1987,6 @@ bool CvGameTrade::MoveUnit (int iIndex)
 							INSTANT_YIELD_TYPE_TR_MOVEMENT, false, NO_GREATPERSON, NO_BUILDING, 0, true, 
 							NO_PLAYER, NULL, true, pCity, (pTradeConnection->m_eDomain == DOMAIN_SEA));
 
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 						if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY && pkUnit->IsInForeignOwnedTerritory())
 						{
 							GET_PLAYER(pCity->getOwner()).doInstantYield(
@@ -2010,12 +2008,10 @@ bool CvGameTrade::MoveUnit (int iIndex)
 								}
 							}
 						}
-#endif
 					}
 				}
 			}
 		}
-#endif
 	}
 
 	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
@@ -3395,52 +3391,40 @@ int CvPlayerTrade::GetTradeConnectionDiplomatModifierTimes100(const TradeConnect
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	int iModifier = 0;
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
-	// internal gold trade routes always get the full open border bonus
+	// Internal gold trade routes always get the full open border bonus
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 	{
 		if (bAsOriginPlayer)
-		{
-			iModifier = /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
-		}
+			return /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
 	}
-#endif
+
+	// Only gold is affected
+	if (eYield != YIELD_GOLD)
+		return 0;
+
 	CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
-	if(pDestCity == NULL)
-	{
+	if (!pDestCity)
 		return 0;
-	}
+
 	CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
-	if(pOriginCity == NULL)
-	{
+	if (!pOriginCity)
 		return 0;
-	}
+
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 	PlayerTypes eDestPlayer = pDestCity->getOwner();
+	CvPlayer& kOriginPlayer = GET_PLAYER(eOriginPlayer);
+	CvPlayer& kDestPlayer = GET_PLAYER(eDestPlayer);
+	bool bOriginOpenBorders = GET_TEAM(kOriginPlayer.getTeam()).IsAllowsOpenBordersToTeam(kDestPlayer.getTeam());
+	bool bDestOpenBorders = GET_TEAM(kDestPlayer.getTeam()).IsAllowsOpenBordersToTeam(kOriginPlayer.getTeam());
 
-	if(bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
-	{
-		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
-		{
-			iModifier = /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
-		}
-		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
-		{
-			iModifier = /*10*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 2);
-		}
-	}
-	else if(!bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
-	{
-		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
-		{
-			iModifier = /*10*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 2);
-		}
-		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
-		{
-			iModifier = /*5*/ (GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 4);
-		}
-	}
+	int iModifier = 0;
+	if (bOriginOpenBorders && bDestOpenBorders)
+		iModifier = /*20*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
+	else if (bOriginOpenBorders || bDestOpenBorders)
+		iModifier = /*10*/ GD_INT_GET(OPEN_BORDERS_MODIFIER_TRADE_GOLD) / 2;
+
+	if (!bAsOriginPlayer)
+		iModifier /= 2;
 
 	return iModifier;
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Notifications>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE_CITY</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_INSTANT_YIELD</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_ESPIONAGE_AA</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_CITY_CHOOSE_FATE</NotificationType>
+		</Row>
+	</Notifications>
+</GameData>

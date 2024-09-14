@@ -12965,26 +12965,23 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	{
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_UNIT_DOMAIN", iTempMod);
 	}
-#if defined(MOD_BALANCE_CORE)
-	if (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) != NO_DOMAIN)
+
+	if (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) != 0)
 	{
 		int iProtections = 0;
-		for (int iMinorLoop = 0; iMinorLoop < MAX_MINOR_CIVS; iMinorLoop++)
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iMinorLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
-			{
+			PlayerTypes eMinorLoop = static_cast<PlayerTypes>(iMinorLoop);
+			if (GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsProtectedByMajor(getOwner()))
 				iProtections++;
-			}
 		}
-		iTempMod = (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) * iProtections);
+		iTempMod = thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) * iProtections;
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN", iTempMod);
 		}
 	}
-#endif
 
 	// UnitCombat class bonus
 	UnitCombatTypes eUnitCombatType = (UnitCombatTypes)(pkUnitInfo->GetUnitCombatType());

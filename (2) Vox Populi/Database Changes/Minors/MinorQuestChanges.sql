@@ -99,14 +99,21 @@ UPDATE SmallAwards SET Influence = 25, Culture = 65, RandomMod = 10, QuestDurati
 UPDATE SmallAwards SET Influence = 30, Gold = 100, RandomMod = 10, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_EXPLORE_AREA';
 
 ---------------------------------------------------------------------------------------------------------
--- Quest reward multipliers for CS types and personalities (multiplicative)
+-- Quest reward modifiers for pledges and CS personalities (additive)
 ---------------------------------------------------------------------------------------------------------
+
+-- % change to quest rewards if pledged to protect
+UPDATE Defines SET Value = 15 WHERE Name = 'BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR';
 
 -- % change to quest rewards from friendly CS
 UPDATE Defines SET Value = 25 WHERE Name = 'MINOR_CIV_QUEST_REWARD_FRIENDLY';
 
 -- % change to quest rewards from hostile CS
 UPDATE Defines SET Value = -25 WHERE Name = 'MINOR_CIV_QUEST_REWARD_HOSTILE';
+
+---------------------------------------------------------------------------------------------------------
+-- Quest reward multipliers for CS types (multiplicative, applied after above modifiers)
+---------------------------------------------------------------------------------------------------------
 
 -- Food (in Capital)
 UPDATE Defines SET Value = 150 WHERE Name = 'MINOR_CIV_QUEST_REWARD_FOOD_MARITIME';
