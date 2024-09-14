@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Controls>
+		<Row>
+			<Type>CONTROL_TOGGLE_RESTART_GAME</Type>
+			<Hotkey>KB_R</Hotkey>
+			<CtrlDown>true</CtrlDown>
+			<ShiftDown>true</ShiftDown>
+		</Row>
+		<Row>
+			<Type>CONTROL_TOGGLE_OBSERVER_MODE</Type>
+			<Hotkey>KB_O</Hotkey>
+			<CtrlDown>true</CtrlDown>
+			<ShiftDown>true</ShiftDown>
+		</Row>
+		<Row>
+			<Type>CONTROL_TOGGLE_AI_TAKEOVER</Type>
+			<Hotkey>KB_L</Hotkey>
+			<CtrlDown>true</CtrlDown>
+			<ShiftDown>true</ShiftDown>
+		</Row>
+		<Row>
+			<Type>CONTROL_SWITCH_TO_NEXT_PLAYER</Type>
+			<Hotkey>KB_P</Hotkey>
+			<CtrlDown>true</CtrlDown>
+			<ShiftDown>true</ShiftDown>
+		</Row>
+	</Controls>
+</GameData>

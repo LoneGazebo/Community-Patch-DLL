@@ -4353,61 +4353,23 @@ int CvPlayerCulture::GetInfluenceCityConquestReduction(PlayerTypes ePlayer) cons
 /// Get spy time to establish surveillance based on current influence level
 int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 {
-	int iRtnValue = 3;
-
-	if (ePlayer < MAX_MAJOR_CIVS)
+	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+	if (kPlayer.isMajorCiv())
 	{
-		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
-
-		if (MOD_BALANCE_VP)
-		{
-			switch (eLevel)
-			{
-			case NO_INFLUENCE_LEVEL:
-			case INFLUENCE_LEVEL_UNKNOWN:
-				break; // No impact.
-			case INFLUENCE_LEVEL_EXOTIC:
-				iRtnValue = /*5*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_EXOTIC);
-				break;
-			case INFLUENCE_LEVEL_FAMILIAR:
-				iRtnValue = /*4*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_FAMILIAR);
-				break;
-			case INFLUENCE_LEVEL_POPULAR:
-				iRtnValue = /*3*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_POPULAR);
-				break;
-			case INFLUENCE_LEVEL_INFLUENTIAL:
-				iRtnValue = /*2*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL);
-				break;
-			case INFLUENCE_LEVEL_DOMINANT:
-				iRtnValue = /*1*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_DOMINANT);
-				break;
-			}
-		}
-		else if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
-		{
-			iRtnValue = 1;
-		}
+		if (GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_FAMILIAR)
+			return 1;
 	}
-	else
+	else if (kPlayer.isMinorCiv())
 	{
-		// Have a major power ally?
-		CvPlayer &kCityState = GET_PLAYER(ePlayer);
-		if (kCityState.isMinorCiv())
+		PlayerTypes eAlly = kPlayer.GetMinorCivAI()->GetAlly();
+		if (eAlly != NO_PLAYER)
 		{
-			PlayerTypes eAlly = kCityState.GetMinorCivAI()->GetAlly();
-			if (eAlly != NO_PLAYER)
-			{
-				InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
-
-				if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
-				{
-					iRtnValue = 1;
-				}
-			}
+			if (GetInfluenceLevel(eAlly) >= INFLUENCE_LEVEL_FAMILIAR)
+				return 1;
 		}
 	}
 
-	return iRtnValue;
+	return 3;
 }
 
 /// Get extra spy rank in city state allies based on current influence level

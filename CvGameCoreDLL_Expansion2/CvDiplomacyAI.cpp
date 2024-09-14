@@ -36875,11 +36875,9 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_PEACE_OFFER");
 		break;
 
-#if defined(MOD_BALANCE_CORE)
 	case DIPLO_MESSAGE_WINNER_PEACE_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_WINNER_PEACE_OFFER");
 		break;
-#endif
 
 		// AI is making a demand
 	case DIPLO_MESSAGE_DEMAND:

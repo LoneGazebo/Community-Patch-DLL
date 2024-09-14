@@ -725,7 +725,6 @@ CvSpecialistInfo::CvSpecialistInfo() :
 	m_iMissionType(NO_MISSION),
 	m_bVisible(false),
 	m_piYieldChange(NULL),
-	m_piFlavorValue(NULL),
 	m_iExperience(0)
 {
 }
@@ -733,7 +732,6 @@ CvSpecialistInfo::CvSpecialistInfo() :
 CvSpecialistInfo::~CvSpecialistInfo()
 {
 	SAFE_DELETE_ARRAY(m_piYieldChange);
-	SAFE_DELETE_ARRAY(m_piFlavorValue);
 }
 //------------------------------------------------------------------------------
 int CvSpecialistInfo::getCost() const
@@ -788,14 +786,6 @@ const int* CvSpecialistInfo::getYieldChangeArray() const
 	return m_piYieldChange;
 }
 //------------------------------------------------------------------------------
-int CvSpecialistInfo::getFlavorValue(int i) const
-{
-	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
-}
-
-//------------------------------------------------------------------------------
 const char* CvSpecialistInfo::getTexture() const
 {
 	return m_strTexture;
@@ -824,7 +814,6 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	//Arrays
 	const char* szType = GetType();
-	kUtility.SetFlavors(m_piFlavorValue, "SpecialistFlavors", "SpecialistType", szType);
 	kUtility.SetYields(m_piYieldChange, "SpecialistYields", "SpecialistType", szType);
 
 	return true;
@@ -6606,11 +6595,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	const char* szAIStopTradingEra = kResults.GetText("AIStopTradingEra");
 	m_iAIStopTradingEra = GC.getInfoTypeForString(szAIStopTradingEra, true);
-
-#if defined(MOD_BALANCE_CORE)
-	const char* szTextVal = kResults.GetText("StrategicHelp");
-	m_strStrategicHelp = szTextVal;
-#endif
 
 	//Arrays
 	const char* szResourceType = GetType();

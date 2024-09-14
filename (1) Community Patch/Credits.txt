@@ -1,0 +1,28 @@
+This file has the credits for mod components integrated into Community Patch/Vox Populi.
+These are originally mixed in with code, but moved here when the original files were reorganized.
+
+-----------------------------------------------------------------
+
+MoreGPs - Extra Great Peoples for VP - Version b3 rev 6
+
+CivFanatics thread : https://forums.civfanatics.com/threads/more-gps-module.665154/
+Author and assistance team: Asterix Rage, Hinin, psparky, pineappledan, Bearded Lady, adan_eslavo, Catan
+
+090 Great Musicians   _M__
+090 Great Artists     _A__
+054 Great Writers     _W__
+115 Great Generals    _G__
+089 Great Admirals    _B__
+116 Great Merchants   _N__
+085 Great Engineers   _E__
+081 Great Scientists  _S__
+073 Great Diplomats   _D__
+
+ERA_ANCIENT        Before -800             Ancient
+ERA_CLASSICAL      Between -800 and 399    Classical
+ERA_MEDIEVAL       Between 400 and 1449    Medieval
+ERA_RENAISSANCE    Between 1450 and 1839   Renaissance
+ERA_INDUSTRIAL     Between 1840 and 1910   Industrial
+ERA_MODERN         Between 1911 and 1944   Modern
+ERA_POSTMODERN     Between 1945 and 1989   Atomic
+ERA_FUTURE         After 1989              Information

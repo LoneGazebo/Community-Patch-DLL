@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<CitySpecializations>
+		<Delete Type="CITYSPECIALIZATION_GENERAL_ECONOMIC"/>
+		<Row>
+			<Type>CITYSPECIALIZATION_CULTURE</Type>
+			<YieldType>YIELD_CULTURE</YieldType>
+		</Row>
+		<Row>
+			<Type>CITYSPECIALIZATION_FAITH</Type>
+			<YieldType>YIELD_FAITH</YieldType>
+		</Row>
+		<Row>
+			<Type>CITYSPECIALIZATION_GENERAL_ECONOMIC</Type>
+			<IsDefault>true</IsDefault>
+		</Row>
+	</CitySpecializations>
+</GameData>

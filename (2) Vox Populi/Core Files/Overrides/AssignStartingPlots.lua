@@ -6417,7 +6417,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	self.wonder_list = table.fill(-1, iNumNW);
 	local next_wonder_number = 1;
 	for row in GameInfo.Features() do
-		if row.NaturalWonder or row.PseudoNaturalWonder == 1 then
+		if row.NaturalWonder or row.PseudoNaturalWonder then
 			self.wonder_list[next_wonder_number] = row.Type;
 			next_wonder_number = next_wonder_number + 1;
 		end

@@ -975,7 +975,8 @@ void CvPlayer::init(PlayerTypes eID)
 
 		changeGoldPerUnitTimes100(/*50*/ GD_INT_GET(INITIAL_GOLD_PER_UNIT_TIMES_100));
 
-		SetMaxNumBuilders(/*-9999*/ GD_INT_GET(DEFAULT_MAX_NUM_BUILDERS));
+		// There is no builder limit by default
+		SetMaxNumBuilders(/*-1*/ GD_INT_GET(DEFAULT_MAX_NUM_BUILDERS));
 
 		changeLevelExperienceModifier(GetPlayerTraits()->GetLevelExperienceModifier());
 		changeMaxGlobalBuildingProductionModifier(GetPlayerTraits()->GetMaxGlobalBuildingProductionModifier());
@@ -12111,7 +12112,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if (pUnitInfo->GetWorkRate() > 0)
 		{
 			// Max limit
-			if (GetMaxNumBuilders() >= 0 && GetNumBuilders() >= GetMaxNumBuilders())
+			if (/*-1*/ GD_INT_GET(DEFAULT_MAX_NUM_BUILDERS) >= 0 && GetNumBuilders() >= GetMaxNumBuilders())
 				return false;
 
 			bool bHasTechWhichUnlocksImprovement = false;
@@ -12363,33 +12364,18 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				{
 					CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot(false);
 					// maybe the player owns ALL of the plots or there are none available?
-					if(pPlotToAcquire)
+					if (pPlotToAcquire)
 					{
 						// Instant yield from tiles gained by culture bombing
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
-							YieldTypes eYield = (YieldTypes)iI;
-
-							int iPassYield = 0;
-
-							if (eYield == NO_YIELD)
-								continue;
-
+							YieldTypes eYield = static_cast<YieldTypes>(iI);
 							TerrainTypes eTerrain = pPlotToAcquire->getTerrainType();
 
 							if (eTerrain == NO_TERRAIN)
 								continue;
 
-							// Stole foreign tiles
-							if (pPlotToAcquire->getOwner() != NO_PLAYER)
-							{
-								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
-							}
-							// Obtained neutral tiles
-							else
-							{
-								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
-							}
+							int iPassYield = GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
 
 							doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
 						}
@@ -13676,7 +13662,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	// Builder Limit
 	if (pUnitInfo.GetWorkRate() > 0 && pUnitInfo.GetDomainType() == DOMAIN_LAND)
 	{
-		if (GetMaxNumBuilders() >= 0 && GetNumBuilders() >= GetMaxNumBuilders())
+		if (/*-1*/ GD_INT_GET(DEFAULT_MAX_NUM_BUILDERS) >= 0 && GetNumBuilders() >= GetMaxNumBuilders())
 			return false;
 	}
 
@@ -41377,7 +41363,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeUnitUpgradeCostMod(pkPolicyInfo->GetUnitUpgradeCostMod() * iChange);
 	ChangeBarbarianCombatBonus(pkPolicyInfo->GetBarbarianCombatBonus() * iChange);
 	ChangeAlwaysSeeBarbCampsCount(pkPolicyInfo->IsAlwaysSeeBarbCamps() * iChange);
-	ChangeMaxNumBuilders(pkPolicyInfo->GetNumExtraBuilders() * iChange);
+	ChangeMaxNumBuilders(pkPolicyInfo->GetNumExtraBuilders() * iChange); // Need DEFAULT_MAX_NUM_BUILDERS >= 0 to be effective
 	ChangePlotGoldCostMod(pkPolicyInfo->GetPlotGoldCostMod() * iChange);
 	ChangeCityWorkingChange(pkPolicyInfo->GetCityWorkingChange() * iChange);
 	ChangeCityAutomatonWorkersChange(pkPolicyInfo->GetCityAutomatonWorkersChange() * iChange);

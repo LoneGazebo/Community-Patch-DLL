@@ -4540,7 +4540,6 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("GPRateModifierPerXFranchises");
 		AnalyzeBuilding("TRSpeedBoost");
 		AnalyzeBuilding("TRVisionBoost");
-		AnalyzeBuilding("OfficeBenefitHelper");
 		AnalyzeBuilding("DPToVotes", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
 		AnalyzeBuilding("SecondaryPantheon");
 		AnalyzeBuilding("IsDummy");

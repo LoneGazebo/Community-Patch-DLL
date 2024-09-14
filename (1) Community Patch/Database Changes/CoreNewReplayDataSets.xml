@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<ReplayDataSets>
+		<Row>
+			<Type>REPLAYDATASET_TOURISMPERTURN</Type>
+			<Description>TXT_KEY_REPLAY_VIEWER_GRAPHBY_TOURISM</Description>
+		</Row>
+		<Row>
+			<Type>REPLAYDATASET_GAPPERTURN</Type>
+			<Description>TXT_KEY_REPLAY_VIEWER_GRAPHBY_GAP</Description>
+		</Row>
+	</ReplayDataSets>
+</GameData>

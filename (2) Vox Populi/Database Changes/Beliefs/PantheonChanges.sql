@@ -10,7 +10,7 @@ VALUES
 	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_CULTURE', 1),
 	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_FAITH', 2);
 
--- Tears of the Gods (Now God of All Creation)
+-- Tears of the Gods (now God of All Creation)
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
