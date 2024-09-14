@@ -27,7 +27,6 @@
 //=====================================
 CvCitySpecializationXMLEntry::CvCitySpecializationXMLEntry(void):
 	m_piFlavorValue(NULL),
-	m_piYieldTargetTimes100(NULL),
 	m_eYieldType(NO_YIELD),
 	m_iSubtype(0),
 	m_bWonder(false),
@@ -40,7 +39,6 @@ CvCitySpecializationXMLEntry::CvCitySpecializationXMLEntry(void):
 CvCitySpecializationXMLEntry::~CvCitySpecializationXMLEntry(void)
 {
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_piYieldTargetTimes100);
 }
 //------------------------------------------------------------------------------
 bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -61,7 +59,6 @@ bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvD
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetFlavors(m_piFlavorValue, "CitySpecialization_Flavors", "CitySpecializationType", szType);
-	kUtility.SetYields(m_piYieldTargetTimes100, "CitySpecialization_TargetYields", "CitySpecializationType", szType);
 
 	//Booleans
 	m_bWonder = kResults.GetBool("IsWonder");
@@ -84,11 +81,6 @@ int CvCitySpecializationXMLEntry::GetFlavorValue(int i) const
 YieldTypes CvCitySpecializationXMLEntry::GetYieldType() const
 {
 	return m_eYieldType;
-}
-
-int CvCitySpecializationXMLEntry::GetYieldTargetTimes100(YieldTypes eYield) const
-{
-	return m_piYieldTargetTimes100[eYield];
 }
 
 

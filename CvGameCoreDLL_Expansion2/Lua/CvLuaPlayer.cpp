@@ -16160,8 +16160,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_SCHMOOZING");
 			break;
 		case SPY_STATE_TERMINATED:
-			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
-			break;
+			UNREACHABLE();
 		}
 		lua_setfield(L, t, "State");
 

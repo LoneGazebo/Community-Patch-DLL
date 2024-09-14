@@ -1,0 +1,2173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Great Writer names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__010">
+			<Text>Sin-Leqi-Unninni</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__020">
+			<Text>Sappho</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__030">
+			<Text>Nestor the Chronicler</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__040">
+			<Text>Al-Khansa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__050">
+			<Text>Snorri Sturluson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__060">
+			<Text>Is'haq Nebura-Id</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__070">
+			<Text>Ibn Khaldoun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__080">
+			<Text>Ibn Battuta</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__090">
+			<Text>Šigi Qutuqu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__100">
+			<Text>Ono no Komachi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__110">
+			<Text>Margery Kempe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__120">
+			<Text>Miyamoto Musashi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__130">
+			<Text>Hanna Diyab</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__140">
+			<Text>Christine de Pizan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__150">
+			<Text>Margaret Cavendish</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__160">
+			<Text>Gaspara Stampa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__170">
+			<Text>Wu Cheng'en</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__180">
+			<Text>Beatrix Potter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__190">
+			<Text>John Keats</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__200">
+			<Text>Hans Christian Andersen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__210">
+			<Text>Khurdishbanu Natavan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__220">
+			<Text>Elias Lönnrot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__230">
+			<Text>Howard Philips Lovecraft</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__240">
+			<Text>J.R.R. Tolkien</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__250">
+			<Text>Georges Rémi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__260">
+			<Text>Lucy Maud Montgomery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__270">
+			<Text>Pamela Lyndon Travers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__280">
+			<Text>René Goscinny</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__290">
+			<Text>Alex Raymond</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__300">
+			<Text>Virginia Woolf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__310">
+			<Text>Bud Fisher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__320">
+			<Text>Stanislaw Lem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__330">
+			<Text>Leopold Sedar Senghor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__340">
+			<Text>Vasily Grossman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__350">
+			<Text>James Baldwin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__360">
+			<Text>Witi Ihimaera</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__370">
+			<Text>John Irving</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__380">
+			<Text>Isaac Asimov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__390">
+			<Text>Marguerite Yourcenar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__400">
+			<Text>Chinua Achebe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__410">
+			<Text>Marguerite Duras</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__420">
+			<Text>Sylvia Plath</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__430">
+			<Text>Osamu Tezuka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__440">
+			<Text>Toni Morrison</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__450">
+			<Text>Andrzej Sapkowski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__460">
+			<Text>J.K. Rowling</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__470">
+			<Text>Margaret Atwood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__480">
+			<Text>Isabel Allende</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__490">
+			<Text>Arundhati Roy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__500">
+			<Text>Lawrence Hill</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__510">
+			<Text>Eden Robinson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__520">
+			<Text>Thomas King</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__530">
+			<Text>Paulo Coelho</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_W__540">
+			<Text>François Cheng (Chéng Bàoyi)</Text>
+		</Row>
+		<!-- Great Artist names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__010">
+			<Text>Thamyris</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__020">
+			<Text>Tepantitla</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__030">
+			<Text>Rogier van der Weyden</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__040">
+			<Text>Jheronimus Bosch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__050">
+			<Text>Kano Motonobu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__060">
+			<Text>Yi Am</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__070">
+			<Text>Judith Leyster</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__080">
+			<Text>Diego Vélazquez</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__090">
+			<Text>Jeong Seon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__100">
+			<Text>Joseph Mallord William Turner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__110">
+			<Text>Hyewon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__120">
+			<Text>Jean-Auguste-Dominique Ingres</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__130">
+			<Text>Thomas Cole</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__140">
+			<Text>Johan Christian Dahl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__150">
+			<Text>Raden Saleh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__160">
+			<Text>Jan Matejko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__170">
+			<Text>Albert Bierstadt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__180">
+			<Text>Edouard Detaille</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__190">
+			<Text>Berthold Woltze</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__200">
+			<Text>Ivan Aivazovsky</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__210">
+			<Text>Berthe Morisot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__220">
+			<Text>John Atkinson Grimshaw</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__230">
+			<Text>Black Hawk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__240">
+			<Text>Pedro Américo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__250">
+			<Text>Edvard Munch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__260">
+			<Text>Camille Pissaro</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__270">
+			<Text>Albert Lynch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__280">
+			<Text>Princess Ka'iulani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__290">
+			<Text>Akseli Gallen Kallela</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__300">
+			<Text>Robert Henri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__310">
+			<Text>Vassily Kandinsky</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__320">
+			<Text>Vladimir Baranov-Rossine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__330">
+			<Text>Frantisek Kupka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__340">
+			<Text>Ludwig Meidner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__350">
+			<Text>Alexander Yuriyevich</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__360">
+			<Text>Wojciech Kossak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__370">
+			<Text>Paul Klee</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__380">
+			<Text>Alphonse Mucha</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__390">
+			<Text>William Paxton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__400">
+			<Text>Piet Mondrian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__410">
+			<Text>Georgia O'Keeffe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__420">
+			<Text>Stanislaw Ignacy Witkiewicz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__430">
+			<Text>Tarsila do Amaral</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__440">
+			<Text>Evelyn Dunbar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__450">
+			<Text>Milan Konjovic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__460">
+			<Text>Nguyen Nam Son</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__470">
+			<Text>Gao Jianfu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__480">
+			<Text>Henri Matisse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__490">
+			<Text>Frida Kahlo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__500">
+			<Text>Mark Rothko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__510">
+			<Text>Edward Hopper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__520">
+			<Text>Willem Gerard Hofker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__530">
+			<Text>Montague Dawson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__540">
+			<Text>Sawlaram Lakshman Haldankar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__550">
+			<Text>Thomas Hart Benton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__560">
+			<Text>Jackson Pollock</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__570">
+			<Text>William Gear</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__580">
+			<Text>Zao Wou-Ki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__590">
+			<Text>Betye Saar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__600">
+			<Text>Andy Warhol</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__610">
+			<Text>René Magritte</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__620">
+			<Text>David Hockney</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__630">
+			<Text>Victor Vasarely</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__640">
+			<Text>Norval Morrisseau</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__650">
+			<Text>Quamrul Hassan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__660">
+			<Text>Maqbool Fida Husain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__670">
+			<Text>Yunizar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__680">
+			<Text>Roy Lichtenstein</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__690">
+			<Text>Mode Muntu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__700">
+			<Text>Fahrelnissa Zeid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__710">
+			<Text>Louisa Matthiasdottir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__720">
+			<Text>Keith Haring</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__730">
+			<Text>Jean-Michel Basquiat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__740">
+			<Text>Georges Mathieu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__750">
+			<Text>Kacimi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__760">
+			<Text>Babak Roshani Nejad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__770">
+			<Text>Xue Mo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__780">
+			<Text>Naza</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__790">
+			<Text>Mario Murua</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__800">
+			<Text>Syed Thajudeen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__810">
+			<Text>Wang Yan Cheng</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__820">
+			<Text>Rachid Hanbali</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__830">
+			<Text>Mickalene Thomas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__840">
+			<Text>Billy Childish</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__850">
+			<Text>Shepard Fairey (Obey)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__860">
+			<Text>Andre Kohn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__870">
+			<Text>Jean Andrianaivo Ravelona</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__880">
+			<Text>Robin F. Williams</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__890">
+			<Text>Banksy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_A__900">
+			<Text>Alex Pardee</Text>
+		</Row>
+		<!-- Great Musician names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__010">
+			<Text>Athenaeus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__020">
+			<Text>Notker Balbulus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__030">
+			<Text>Walther von der Vogelweide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__040">
+			<Text>Henry Purcell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__050">
+			<Text>Manuel De Sumaya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__060">
+			<Text>Hammamizade Ismail Dede Efendi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__070">
+			<Text>Robert Herrick</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__080">
+			<Text>Felix Mendelssohn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__090">
+			<Text>Gaetano Donizetti</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__100">
+			<Text>George Linley</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__110">
+			<Text>Stephen Foster</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__120">
+			<Text>William Vincent Wallace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__130">
+			<Text>Francisco Tárrega</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__140">
+			<Text>Gabriel Fauré</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__150">
+			<Text>Josephine Baker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__160">
+			<Text>Mohamed El Qasabgi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__170">
+			<Text>Carl Orff</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__180">
+			<Text>Samuel Barber</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__190">
+			<Text>Sergei Prokofiev</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__200">
+			<Text>Django Reinhardt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__210">
+			<Text>Richard Rodgers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__220">
+			<Text>Mahmoud Zoufonoun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__230">
+			<Text>Edith Piaf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__240">
+			<Text>André Mathieu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__250">
+			<Text>Luis Alberti</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__260">
+			<Text>Glenn Miller</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__270">
+			<Text>Thelonious Monk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__280">
+			<Text>Ahmad Jamal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__290">
+			<Text>Elvis Presley</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__300">
+			<Text>Agim Krajka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__310">
+			<Text>Ben E. King</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__320">
+			<Text>Mohammed Rafi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__330">
+			<Text>Ray Barretto</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__340">
+			<Text>Antônio Carlos Jobim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__350">
+			<Text>Sam Cooke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__360">
+			<Text>Bob Dylan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__370">
+			<Text>Charles Aznavour</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__380">
+			<Text>Brian Wilson (Beach Boys)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__390">
+			<Text>Dr. M. Balamuralikrishna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__400">
+			<Text>Janis Joplin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__410">
+			<Text>David Bowie</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__420">
+			<Text>Carole King</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__430">
+			<Text>John Lennon (The Beatles)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__440">
+			<Text>Bob Marley</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__450">
+			<Text>Stevie Wonder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__460">
+			<Text>James Brown</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__470">
+			<Text>Fela Anikulapo Kuti</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__480">
+			<Text>Freddie Mercury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__490">
+			<Text>François Luambo Lua Ndjo Makiadi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__500">
+			<Text>Jean-Michel Jarre</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__510">
+			<Text>Barry Gibb (Bee Gees)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__520">
+			<Text>Arvo Pärt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__530">
+			<Text>Ricky Lee Jones</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__540">
+			<Text>Horace Andy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__550">
+			<Text>Cecil Womack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__560">
+			<Text>Tracy Chapman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__570">
+			<Text>Ernst Reijseger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__580">
+			<Text>Kurt Cobain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__590">
+			<Text>Sinead O'Connor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__600">
+			<Text>Björk Guðmundsdóttir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__610">
+			<Text>Israel Kamakawiwo'ole</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__620">
+			<Text>KRS-One</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__630">
+			<Text>Karl Jenkins</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__640">
+			<Text>Juan Atkins</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__650">
+			<Text>Ruben Gonzalez</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__660">
+			<Text>Takashi Yoshimatsu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__670">
+			<Text>Lauryn Hill</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__680">
+			<Text>Shigeru Umebayashi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__690">
+			<Text>Sawai Hikaru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__700">
+			<Text>Yiruma</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__710">
+			<Text>Max Richter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__720">
+			<Text>Christopher Tin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__730">
+			<Text>Roberto Fonseca</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__740">
+			<Text>Nils Frahm</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__750">
+			<Text>Ballake Sissoko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__760">
+			<Text>Park Jae-Sang (Psy)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__770">
+			<Text>Chad Lawson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__780">
+			<Text>Grace VanderWaal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__790">
+			<Text>Ludovico Einaudi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__800">
+			<Text>Tash Sultana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__810">
+			<Text>Balti</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__820">
+			<Text>Luis Fonsi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__830">
+			<Text>Mannat Noor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__840">
+			<Text>MiyaGi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__850">
+			<Text>Chilly Gonzales</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__860">
+			<Text>The Weeknd</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__870">
+			<Text>Alma Deutscher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__880">
+			<Text>Nubya Garcia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__890">
+			<Text>YEИDRY</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_M__900">
+			<Text>Gabriel Garzon Montano</Text>
+		</Row>
+		<!-- Great Merchant names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__010">
+			<Text>Colaeus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__020">
+			<Text>Irene of Athens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__030">
+			<Text>Ibn Fadlân</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__040">
+			<Text>Tunka Manin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__050">
+			<Text>al-Mustansir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__060">
+			<Text>Suryavarman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__070">
+			<Text>Zhou Daguan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__080">
+			<Text>Musa of Mali</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__090">
+			<Text>Ibn Khaldoun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__100">
+			<Text>Jacques Cœur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__110">
+			<Text>Nyatsimba-Mutota</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__120">
+			<Text>Amerigo Vespucci</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__130">
+			<Text>Georg Giese</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__140">
+			<Text>Konstanty Korniakt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__150">
+			<Text>Thomas Gresham</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__160">
+			<Text>Shah Abbas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__170">
+			<Text>Tanaka Shosuke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__180">
+			<Text>Piero de' Bardi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__190">
+			<Text>Kiliaen van Rensselaer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__200">
+			<Text>Augustine Herman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__210">
+			<Text>Isaac Allerton Jr.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__220">
+			<Text>Jeremias van Rensselaer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__230">
+			<Text>Osei Tutu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__240">
+			<Text>Henry Laurens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__250">
+			<Text>Mary Katherine Goddard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__260">
+			<Text>Thomas Mifflin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__270">
+			<Text>Petar Icko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__280">
+			<Text>Sava Tekelija</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__290">
+			<Text>Howqua</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__300">
+			<Text>James Underwood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__310">
+			<Text>Nathan Rothschild</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__320">
+			<Text>Adrian van der Hoop</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__330">
+			<Text>Thomas Stamford Raffles</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__340">
+			<Text>Alexander Brodie Spark</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__350">
+			<Text>Gustav Christian Schwabe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__360">
+			<Text>Heinrich Nestle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__370">
+			<Text>John Lynch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__380">
+			<Text>Tippu Tip</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__390">
+			<Text>Sir William Dunn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__400">
+			<Text>John Fox</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__410">
+			<Text>Goo Kim Fui</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__420">
+			<Text>Christopher William Bunting</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__430">
+			<Text>Jamsetji Nusserwanji Tata</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__440">
+			<Text>William Andrews Clark</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__450">
+			<Text>Rumaliza</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__460">
+			<Text>Herman Adolph Flürscheim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__470">
+			<Text>Cecil Rhodes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__480">
+			<Text>Simon Iturri Patino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__490">
+			<Text>John Jacob Astor IV</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__500">
+			<Text>Madam C.J. Walker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__510">
+			<Text>Helena Rubinstein</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__520">
+			<Text>Tomé de Barros Queirós</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__530">
+			<Text>Melitta Bentz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__540">
+			<Text>François Blais</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__550">
+			<Text>Jesse Livermore</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__560">
+			<Text>William Delbert Gann</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__570">
+			<Text>Lim Nee Soon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__580">
+			<Text>Osman Ali Khan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__590">
+			<Text>William Albert Boucher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__600">
+			<Text>David Sarnoff</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__610">
+			<Text>Raymond Rubicam</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__620">
+			<Text>T.V.Soong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__630">
+			<Text>Yoyoda Tatsugoro</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__640">
+			<Text>Estée Lauder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__650">
+			<Text>Masaru Ibuka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__660">
+			<Text>David Ogilvy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__670">
+			<Text>Taiichi Ohno</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__680">
+			<Text>Sam Walton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__690">
+			<Text>Karl Albrecht</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__700">
+			<Text>Ingvar Kamprad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__710">
+			<Text>Li Ka-Shing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__720">
+			<Text>Lee Shau-kee</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__730">
+			<Text>George Soros</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__740">
+			<Text>Carl Icahn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__750">
+			<Text>Carlos Slim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__760">
+			<Text>Muhammad Yunus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__770">
+			<Text>Steven Spurrier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__780">
+			<Text>Lee Kun-hee</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__790">
+			<Text>Jim Rogers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__800">
+			<Text>Bharat Shah</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__810">
+			<Text>Richard Dennis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__820">
+			<Text>Nicky Oppenheimer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__830">
+			<Text>Haji Bolkiah</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__840">
+			<Text>Scrooge McDuck</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__850">
+			<Text>Bernard Arnault</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__860">
+			<Text>Johann Peter Rupert</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__870">
+			<Text>Mike Adenuga</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__880">
+			<Text>Kiran Mazumdar-Shaw</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__890">
+			<Text>Paul Tudor Jones</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__900">
+			<Text>Zhong Shanshan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__910">
+			<Text>John Paulson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__920">
+			<Text>Steven Cohen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__930">
+			<Text>Mukesh Ambani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__940">
+			<Text>Aliko Dangote</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__950">
+			<Text>Masayoshi Son</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__960">
+			<Text>David Tepper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__970">
+			<Text>Abdul Samad Rabiu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__980">
+			<Text>Nassef Sawiris</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__990">
+			<Text>Patrice Motsepe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A00">
+			<Text>Mikhail Khodorkovsky</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A10">
+			<Text>Jeff Bezos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A20">
+			<Text>Jack Ma</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A30">
+			<Text>Michael Dell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A40">
+			<Text>Nick Leeson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A50">
+			<Text>Jerry Jang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A60">
+			<Text>Mohammed Dewji</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A70">
+			<Text>Colin Huang Zheng</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A80">
+			<Text>Mathew Randall Ishbia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__A90">
+			<Text>Frank Wang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B00">
+			<Text>Kevin Systrom</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B10">
+			<Text>RJ Scaringe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B20">
+			<Text>Daniel Ek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B30">
+			<Text>Pavel Valerievitch Dourov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B40">
+			<Text>Nathan Blecharczyk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B50">
+			<Text>John Collison</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B60">
+			<Text>Evan Spiegel</Text>
+		</Row>
+		<!-- Great Engineer names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__010">
+			<Text>Tapputi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__020">
+			<Text>Eupalinos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__030">
+			<Text>Ximen Bao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__040">
+			<Text>Marcus Vitruvius Pollio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__050">
+			<Text>Apollodorus of Damascus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__060">
+			<Text>Isidore of Miletus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__070">
+			<Text>Anthemius of Tralles</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__080">
+			<Text>Al-Ishafani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__090">
+			<Text>Yu Hao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__100">
+			<Text>Maslama am-Majriti</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__110">
+			<Text>Su Song</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__120">
+			<Text>Al-Jazari</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__130">
+			<Text>Senenmut</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__140">
+			<Text>Mimar Sinan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__150">
+			<Text>Gunadharma</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__160">
+			<Text>Juanelo Turriano</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__170">
+			<Text>Taqi al-Din</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__180">
+			<Text>Koca Kasim Aga</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__190">
+			<Text>Giovanni Branca</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__200">
+			<Text>Hugues Cosnier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__210">
+			<Text>John Smeaton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__220">
+			<Text>Nicolas Joseph Cugnot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__230">
+			<Text>John Spilsbury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__240">
+			<Text>Krikor Balyan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__250">
+			<Text>Richard Trevithick</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__260">
+			<Text>George Stephenson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__270">
+			<Text>Charles Babbage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__280">
+			<Text>Sadi Carnot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__290">
+			<Text>Jacques Triger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__300">
+			<Text>Moritz von Jacobi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__310">
+			<Text>Joseph Whitworth</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__320">
+			<Text>Sandford Fleming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__330">
+			<Text>Ferdinand von Zeppelin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__340">
+			<Text>Henri Fayol</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__350">
+			<Text>Elijah McCoy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__360">
+			<Text>Nikolaï Joukovski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__370">
+			<Text>Raoul Mesnier du Ponsard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__380">
+			<Text>Vladimir Choukhov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__390">
+			<Text>Anghel Saligny</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__400">
+			<Text>Rudolf Diesel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__410">
+			<Text>Visvesvaraya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__420">
+			<Text>Miguel Ángel de Quevedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__430">
+			<Text>Louis Lumière</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__440">
+			<Text>Ivan Boubnov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__450">
+			<Text>Lee De Forest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__460">
+			<Text>Alberto Santos-Dumont</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__470">
+			<Text>Pedro Paulet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__480">
+			<Text>Stephen Timoshenko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__490">
+			<Text>Ryoichi Yazu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__500">
+			<Text>George Constantinescu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__510">
+			<Text>Barnes Wallis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__520">
+			<Text>Kálmán Tihanyi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__530">
+			<Text>Dante Giacosa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__540">
+			<Text>Tommy Flowers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__550">
+			<Text>Sergueï Korolev</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__560">
+			<Text>Soichiro Honda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__570">
+			<Text>Oleg Antonov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__580">
+			<Text>Alec Issigonis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__590">
+			<Text>Nikolaï Nikitin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__600">
+			<Text>Mahmoud Mohamed Taha</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__610">
+			<Text>Pierre Bézier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__620">
+			<Text>Hedy Lamarr</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__630">
+			<Text>Ilya Prigogine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__640">
+			<Text>Guillermo González Camarena</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__650">
+			<Text>Joseph F. Sutter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__660">
+			<Text>Richard Whitcomb</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__670">
+			<Text>Muzharul Islam</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__680">
+			<Text>Jack Kilby</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__690">
+			<Text>Giulio Alfieri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__700">
+			<Text>Luis Miramontes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__710">
+			<Text>Jacek Karpinski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__720">
+			<Text>Fazlur Khan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__730">
+			<Text>James Edward Maceo West</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__740">
+			<Text>Patricia Bath</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__750">
+			<Text>Burt Rutan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__760">
+			<Text>Ken Yeang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__770">
+			<Text>Steve Wozniak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__780">
+			<Text>Carlos paz de Araujo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__790">
+			<Text>Luca Cardelli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__800">
+			<Text>Fassi Kafyeke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__810">
+			<Text>Reza Ghadiri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__820">
+			<Text>Grant Imahara</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__830">
+			<Text>Mulalo Doyoyo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__840">
+			<Text>Elon Musk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_E__850">
+			<Text>Antonia Terzi</Text>
+		</Row>
+		<!-- Great Scientist names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__010">
+			<Text>Ahmes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__020">
+			<Text>Anaximander</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__030">
+			<Text>Eratosthenes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__040">
+			<Text>Hipparque</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__050">
+			<Text>Yajnavalkya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__060">
+			<Text>Claudius Galenus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__070">
+			<Text>Pei Xiu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__080">
+			<Text>Panini</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__090">
+			<Text>John Philoponus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__100">
+			<Text>Brahmagupta</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__110">
+			<Text>Thales of Miletus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__120">
+			<Text>Abdallah al-Marwazi Habash al-Hasib</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__130">
+			<Text>Baudhayan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__140">
+			<Text>Al Battani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__150">
+			<Text>Abu Al-Qasim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__160">
+			<Text>Ibn Sahl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__170">
+			<Text>Al-Haytham</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__180">
+			<Text>Al-Biruni</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__190">
+			<Text>Trotula de Ruggiero</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__200">
+			<Text>Qin Jiushao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__210">
+			<Text>Qotb al-Din Chirazi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__220">
+			<Text>Madhawa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__230">
+			<Text>Ulugh Beg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__240">
+			<Text>William Harvey</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__250">
+			<Text>Xu Xiake</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__260">
+			<Text>Robert Hooke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__270">
+			<Text>Seki Takakazu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__280">
+			<Text>Daniel Bernoulli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__290">
+			<Text>Émilie du Châtelet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__300">
+			<Text>Carl von Linné</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__310">
+			<Text>Juan Ignacio Molina</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__320">
+			<Text>Alessandro Volta</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__330">
+			<Text>Giovanni Battista Venturi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__340">
+			<Text>Wang Zhenyi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__350">
+			<Text>James Clark Ross</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__360">
+			<Text>János Bolyai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__370">
+			<Text>James Young</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__380">
+			<Text>Ada Lovelace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__390">
+			<Text>Florence Nightingale</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__400">
+			<Text>Cornelia Clapp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__410">
+			<Text>Sofia Vasilyevna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__420">
+			<Text>Henri Becquerel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__430">
+			<Text>Santiago Ramón y Cajal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__440">
+			<Text>Max Planck</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__450">
+			<Text>Kazimierz Funk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__460">
+			<Text>Jan Czochralski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__470">
+			<Text>Ramanujan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__480">
+			<Text>Erwin Schrödinger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__490">
+			<Text>Edwin Hubble</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__500">
+			<Text>Janaki Ammal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__510">
+			<Text>Stefan Banach</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__520">
+			<Text>Leo Szilard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__530">
+			<Text>Linus Pauling</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__540">
+			<Text>Claude Lévi-Strauss</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__550">
+			<Text>Chandrasekhar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__560">
+			<Text>Shiing-Shen Chern</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__570">
+			<Text>Chieng-Shiung Wu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__580">
+			<Text>Thor Heyerdahl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__590">
+			<Text>Stephanie Kwolek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__600">
+			<Text>Aziz Ab'Sáber</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__610">
+			<Text>Zofia Kielan-Jaworowska</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__620">
+			<Text>Abdus Salam</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__630">
+			<Text>James Dewey Watson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__640">
+			<Text>Noam Chomsky</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__650">
+			<Text>Tu Youyou</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__660">
+			<Text>Carl Sagan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__670">
+			<Text>Jane Goodall</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__680">
+			<Text>Seiji Ogawa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__690">
+			<Text>David Baltimore</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__700">
+			<Text>Stephen Hawking</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__710">
+			<Text>Ahmed Zewail</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__720">
+			<Text>Shirley Jackson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__730">
+			<Text>Françoise Barré-Sinoussi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__740">
+			<Text>Alan Guth</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__750">
+			<Text>Alain Aspect</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__760">
+			<Text>Reinhard Genzel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__770">
+			<Text>Jack Szostak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__780">
+			<Text>Tim Berners-Lee</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__790">
+			<Text>Ashoke Sen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__800">
+			<Text>Neil deGrasse Tyson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__810">
+			<Text>Lene Hau</Text>
+		</Row>
+		<!-- Great General names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__010">
+			<Text>Cyrus the Great</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__020">
+			<Text>Artemisia I of Caria</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__030">
+			<Text>Dumnorix</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__040">
+			<Text>Trung Vuong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__050">
+			<Text>Kanishka I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__060">
+			<Text>Triêu Thi Trinh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__070">
+			<Text>Lady Trieu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__080">
+			<Text>Septimia Zenobia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__090">
+			<Text>Ran Min</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__100">
+			<Text>Balamber</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__110">
+			<Text>Sarvarâjochheda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__120">
+			<Text>Fritigern</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__130">
+			<Text>Gwanggaeto the Great</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__140">
+			<Text>Narses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__150">
+			<Text>Abou Bakr As-Siddiq</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__160">
+			<Text>Heraclius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__170">
+			<Text>Maya Queen Lady K'abel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__180">
+			<Text>Nikephoros II Phokas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__190">
+			<Text>John I Tzimiskes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__200">
+			<Text>Mahmud of Ghazni</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__210">
+			<Text>Robert Guiscard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__220">
+			<Text>Alp Arslan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__230">
+			<Text>David IV of Georgia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__240">
+			<Text>Afonso Henriques</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__250">
+			<Text>Saladin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__260">
+			<Text>Tomoe Gozen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__270">
+			<Text>Sundiata</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__280">
+			<Text>Baibars</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__290">
+			<Text>Tran Hung Dao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__300">
+			<Text>Oz Beg Khan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__310">
+			<Text>Bertrand du Guesclin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__320">
+			<Text>Xu Da</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__330">
+			<Text>Hayam Wuruk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__340">
+			<Text>Jan Žižka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__350">
+			<Text>Skandenberg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__360">
+			<Text>Janos Hunyadi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__370">
+			<Text>Huyana Capac</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__380">
+			<Text>Asnäf Sägäd I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__390">
+			<Text>Aminatu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__400">
+			<Text>Levtraru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__410">
+			<Text>Tokugawa Ieyasu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__420">
+			<Text>Malik Ambar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__430">
+			<Text>Queen Nanny</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__440">
+			<Text>Vauban</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__450">
+			<Text>Gráinne Ni Mháille</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__460">
+			<Text>Mihai Viteazu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__470">
+			<Text>Nurhaci</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__480">
+			<Text>Jan Karol Chodkiewicz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__490">
+			<Text>Nzingha Mbande</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__500">
+			<Text>Stanislaw Koniecpolski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__510">
+			<Text>Jan Sobieski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__520">
+			<Text>Shivaji Bosle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__530">
+			<Text>Baji Rao I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__540">
+			<Text>Ahmad Khan Abdali</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__550">
+			<Text>James Wolfe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__560">
+			<Text>Alexander Suvorov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__570">
+			<Text>Toussaint L’Ouverture</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__580">
+			<Text>Mikhail Kutuzov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__590">
+			<Text>Nguyen Hue</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__600">
+			<Text>José Gervasio Artigas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__610">
+			<Text>Piotr Ivanovitch Bagration</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__620">
+			<Text>Kazimierz Pulaski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__630">
+			<Text>Ranjît Singh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__640">
+			<Text>Simon Bolivar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__650">
+			<Text>Ignacy Kruszewski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__660">
+			<Text>Duke of Caxias</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__670">
+			<Text>Manuel Luís Osório</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__680">
+			<Text>Cochise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__690">
+			<Text>Seh-Dong-Hong-Beh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__700">
+			<Text>Lakshmî Bâî</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__710">
+			<Text>Yaa Asantewaa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__720">
+			<Text>Crazy Horse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__730">
+			<Text>Lozen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__740">
+			<Text>Richard Hebden O'Grady Haly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__750">
+			<Text>Nakano Takeko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__760">
+			<Text>Kumu Eseko Elombe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__770">
+			<Text>Mekonnen Welde Mikael</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__780">
+			<Text>John Pershing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__790">
+			<Text>Antonio Luna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__800">
+			<Text>Sir Arthur William Currie</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__810">
+			<Text>Douglas MacArthur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__820">
+			<Text>Henry Norwest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__830">
+			<Text>Edward Rydz-Smigly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__840">
+			<Text>Alvin York</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__850">
+			<Text>Tom Longboat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__860">
+			<Text>Edward Puttick</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__870">
+			<Text>Francis Pegahmagabow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__880">
+			<Text>Kiyotake Kawaguchi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__890">
+			<Text>Josip Broz Tito</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__900">
+			<Text>Matthew Bunker Ridgway</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__910">
+			<Text>Lewis Burwell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__920">
+			<Text>Simon Spoor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__930">
+			<Text>Philippe Leclerc</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__940">
+			<Text>Juan José Valle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__950">
+			<Text>Simo Häyhä</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__960">
+			<Text>Jack Churchill</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__970">
+			<Text>Vo Nguyen Giap</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__980">
+			<Text>Moshe Dayan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__990">
+			<Text>Marcel Bigeard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A00">
+			<Text>Chung Il-kwon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A10">
+			<Text>Mikhaïl Kalachnikov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A20">
+			<Text>Hal Moore</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A30">
+			<Text>Audie Murphy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A40">
+			<Text>Mario Menéndez</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A50">
+			<Text>Norman Schwarzkopf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A60">
+			<Text>Liamine Zéroual</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A70">
+			<Text>Jehangir Karamat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A80">
+			<Text>Fernando Tapias Stahelin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__A90">
+			<Text>Abdul Fatah Younis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B00">
+			<Text>David Petraeus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B10">
+			<Text>Yasar Güler</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B20">
+			<Text>César Astudillo Salcedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B30">
+			<Text>Vladimer Chachibaia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B40">
+			<Text>Melvyn Ong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_G__B50">
+			<Text>Yogendra Singh Yadav</Text>
+		</Row>
+		<!-- Great Admiral names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__010">
+			<Text>Lacedaimonius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__020">
+			<Text>Xu Fu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__030">
+			<Text>Hippalus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__040">
+			<Text>Himerios</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__050">
+			<Text>Ngô Quyen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__060">
+			<Text>Erik the Red</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__070">
+			<Text>George of Antioch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__080">
+			<Text>Lamba Doria</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__090">
+			<Text>Hugues Quieret</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__100">
+			<Text>Jeanne de Belleville</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__110">
+			<Text>Wang Dayuan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__120">
+			<Text>Prince Henry the Navigator</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__130">
+			<Text>Hamza Bey</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__140">
+			<Text>Bartolomeu Dias</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__150">
+			<Text>Amerigo Vespucci</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__160">
+			<Text>Alonso de Ojeda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__170">
+			<Text>Pedro Álvares Cabral</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__180">
+			<Text>Vincenzo Cappello</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__190">
+			<Text>Juan Sebastián Elcano</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__200">
+			<Text>Juan Martinez de Recalde</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__210">
+			<Text>Keumalahayati</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__220">
+			<Text>Walter Raleigh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__230">
+			<Text>Martim Afonso de Castro</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__240">
+			<Text>Henry Hudson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__250">
+			<Text>Samuel De Champlain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__260">
+			<Text>Jacques L'Hermite</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__270">
+			<Text>Gustav Horn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__280">
+			<Text>Jean Armand de Maillé</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__290">
+			<Text>Samuel de Champlain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__300">
+			<Text>Cornelis Tromp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__310">
+			<Text>Jan van Brakel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__320">
+			<Text>Jean Bart</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__330">
+			<Text>Fiodor Apraxine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__340">
+			<Text>George Byng</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__350">
+			<Text>Kanhoji Angre</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__360">
+			<Text>Laskarina Bouboulina</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__370">
+			<Text>Robert Surcouf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__380">
+			<Text>Ching Shih</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__390">
+			<Text>Thomas Cochrane</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__400">
+			<Text>Steen Andersen Bille</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__410">
+			<Text>Joaquim Marques Lisboa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__420">
+			<Text>Miguel Grau Seminario</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__430">
+			<Text>Hans von Koester</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__440">
+			<Text>August von Thomsen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__450">
+			<Text>Abraham George Ellis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__460">
+			<Text>Anton Haus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__470">
+			<Text>Ijuin Goro</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__480">
+			<Text>Paolo Thaon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__490">
+			<Text>Sir William Clarkson</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__500">
+			<Text>Franz von Hipper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__510">
+			<Text>Ernest Krause</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__520">
+			<Text>Roald Amundsen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__530">
+			<Text>Ernest Shackleton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__540">
+			<Text>Ernest King</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__550">
+			<Text>Józef Unrug</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__560">
+			<Text>Mineichi Koga</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__570">
+			<Text>Frank Jack Fletcher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__580">
+			<Text>Conrad Helfrich</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__590">
+			<Text>Hans Langsdorff</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__600">
+			<Text>Prayoon Yuthasastrkosol</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__610">
+			<Text>Grace Hopper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__620">
+			<Text>Vladimir Kasatonov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__630">
+			<Text>Sergey Gorshkov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__640">
+			<Text>Ram Dass Katari</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__650">
+			<Text>Heinrich Lehmann-Willenbrock</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__660">
+			<Text>Bengt Lundvall</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__670">
+			<Text>Jerzy Tumaniszwili</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__680">
+			<Text>Branko Mamula</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__690">
+			<Text>Sveto Letica</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__700">
+			<Text>Theodoros Degiannis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__710">
+			<Text>Lâm Nguon Tánh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__720">
+			<Text>Pávlos Koundouriótis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__730">
+			<Text>Konstantin Makarov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__740">
+			<Text>Jan Klenberg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__750">
+			<Text>Gulab Mohanlal Hiranandani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__760">
+			<Text>Sergei Gorshkov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__770">
+			<Text>Osami Nagano</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__780">
+			<Text>Sir Benjamin Bathurst</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__790">
+			<Text>Clancy Fernando</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__800">
+			<Text>Baron Boyce</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__810">
+			<Text>Lillian Elaine Fishburne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__820">
+			<Text>Wasantha Karannagoda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__830">
+			<Text>Édouard Guillaud</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__840">
+			<Text>Ahmed Khaled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__850">
+			<Text>Lee Hsi-ming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__860">
+			<Text>Alireza Tangsiri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__870">
+			<Text>Louise Kathrine Dedichen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__880">
+			<Text>Bob Auchterlonie</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_B__890">
+			<Text>Gladys Mbulaheni</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

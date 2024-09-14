@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<IconFontTextures>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_CULTURE_LOCAL</IconFontTexture>
+			<IconFontTextureFile>CultureLocal</IconFontTextureFile>
+		</Row>
+	</IconFontTextures>
+	<IconFontMapping>
+		<Row>
+			<IconName>ICON_CULTURE_LOCAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_CULTURE_LOCAL</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+	</IconFontMapping>
+</GameData>

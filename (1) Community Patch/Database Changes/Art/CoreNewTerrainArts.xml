@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<ArtDefine_StrategicView>
+		<Row>
+			<StrategicViewType>ART_DEF_TERRAIN_MOUNTAIN</StrategicViewType>
+			<TileType>Terrain</TileType>
+			<Asset>Sv_TerrainHexGrasslands.dds</Asset>
+		</Row>
+	</ArtDefine_StrategicView>
+</GameData>

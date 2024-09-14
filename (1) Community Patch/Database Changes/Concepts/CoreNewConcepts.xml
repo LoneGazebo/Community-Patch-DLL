@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_THEMING_BONUSES</Type>
+			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
+			<Description>TXT_KEY_CONCEPT_THEMING_BONUSES</Description>
+			<Summary>TXT_KEY_CONCEPT_THEMING_BONUSES_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_THEMING_BONUSES_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CULTURE</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+</GameData>

@@ -6384,8 +6384,11 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 	if (!pCity->plot()->isAdjacentRevealed(kPlayer.getTeam()))
 		return NULL;
 
+	ImprovementTypes eEmbassyImprovement = static_cast<ImprovementTypes>(GD_INT_GET(EMBASSY_IMPROVEMENT));
+	if (eEmbassyImprovement == NO_IMPROVEMENT)
+		return NULL;
+
 	// Does somebody already have an embassy here?
-	ImprovementTypes eEmbassyImprovement = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
 	if (kCityPlayer.getImprovementCount(eEmbassyImprovement, false) > 0)
 		return NULL;
 

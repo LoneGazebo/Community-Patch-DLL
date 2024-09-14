@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="Plots">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Civilopedia" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Water" type="boolean" default="false"/>
+		<Column name="Impassable" type="boolean" default="false"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="IconAtlas" type="text" reference="IconTextureAtlases(Atlas)"/>
+	</Table>
+	<Table name="Plot_Yields">
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+</GameData>

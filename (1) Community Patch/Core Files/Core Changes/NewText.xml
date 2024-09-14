@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 7/12/2014 9:12:37 PM -->
 <GameData>
-	<!-- Theming Concept -->
-	<Concepts>
-		<Row>
-			<Type>CONCEPT_THEMING_BONUSES</Type>
-			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
-			<Description>TXT_KEY_CONCEPT_THEMING_BONUSES</Description>
-			<Summary>TXT_KEY_CONCEPT_THEMING_BONUSES_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_CONCEPT_THEMING_BONUSES_QUEST</AdvisorQuestion>
-			<Advisor>ECONOMIC</Advisor>
-			<CivilopediaHeaderType>HEADER_CULTURE</CivilopediaHeaderType>
-		</Row>
-	</Concepts>	
 	<!-- NEW DIPLOMACY TEXTS -->
 	<Diplomacy_Responses>
-	<!-- Human asks AI about their opinions-->
+		<!-- Human asks AI about their opinions-->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO</ResponseType>
 			<Response>TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO%</Response>
@@ -93,7 +81,7 @@
 			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_HOSTILE</ResponseType>
 			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE</Response>
 		</Row>
-		
+
 		<!-- New Intrigues -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_SHARE_INTRIGUE_BRIBE_WAR</ResponseType>
@@ -103,7 +91,7 @@
 			<ResponseType>RESPONSE_SHARE_INTRIGUE_COOP_WAR</ResponseType>
 			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_COOP_WAR%</Response>
 		</Row>
-		
+
 		<!-- Generous offers -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>
@@ -236,7 +224,7 @@
 			<ResponseType>RESPONSE_END_WORK_WITH_US_FAITH</ResponseType>
 			<Response>TXT_KEY_END_WORK_WITH_US_FAITH%</Response>
 		</Row>
-		
+
 		<!-- Victory Block Diplomacy Statements -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST</ResponseType>
@@ -259,7 +247,7 @@
 			<ResponseType>RESPONSE_WAR_DEMAND_INSULTED</ResponseType>
 			<Response>TXT_KEY_WAR_DEMAND_INSULTED%</Response>
 		</Row>
-		
+
 		<!-- Defense Pact Offer -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
@@ -313,7 +301,7 @@
 			<ResponseType>RESPONSE_DOF_BATTLE_BROTHERS</ResponseType>
 			<Response>TXT_KEY_DOF_BATTLE_BROTHERS%</Response>
 		</Row>
-		
+
 		<!-- Denounce Statements-->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY</ResponseType>
@@ -412,7 +400,7 @@
 			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
 			<Response>TXT_KEY_GENERIC_PEACE_OFFER%</Response>
 		</Row>
-	<!-- Alexander -->
+		<!-- Alexander -->
 		<Row LeaderType="LEADER_ALEXANDER">
 			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
 			<Response>TXT_KEY_LEADER_ALEXANDER_LETSHEARIT%</Response>

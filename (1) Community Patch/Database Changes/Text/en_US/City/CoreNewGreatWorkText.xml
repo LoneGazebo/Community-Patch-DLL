@@ -1,0 +1,926 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Great Works of Writing -->
+		<!-- Titles -->
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_010">
+			<Text>Epic of Gilgamesh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_020">
+			<Text>Ode to Aphrodite</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_030">
+			<Text>Tale of Bygone Years</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_040">
+			<Text>Diwan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_050">
+			<Text>The Prose Edda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_060">
+			<Text>Kebra Nagast (Books of Kings)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_070">
+			<Text>Al-muqaddima (Prolegomena)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_080">
+			<Text>The Rihla (A Gift to Those Who Contemplate the Wonders of Cities and the Marvels of Traveling)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_090">
+			<Text>The Secret History of the Mongols</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_100">
+			<Text>Kokin Wakashu (from where her poems are known)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_110">
+			<Text>The Book of Margery Kemp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_120">
+			<Text>Go Rin no Sho (The Book of Five Rings)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_130">
+			<Text>Aladdin's Wonderful Lamp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_140">
+			<Text>The Book of the City of Ladies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_150">
+			<Text>The Blazing World</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_160">
+			<Text>Rime di Madonna (Rhymes of my Lady)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_170">
+			<Text>Xi Yóu Jì (Journey to the West)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_180">
+			<Text>The Tale of Peter Rabbit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_190">
+			<Text>Ode to a Nightingale</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_200">
+			<Text>The Snow Queen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_210">
+			<Text>Lilac</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_220">
+			<Text>Kalevala</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_230">
+			<Text>The Call of Cthulhu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_240">
+			<Text>The Hobbit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_250">
+			<Text>The Adventures of Tintin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_260">
+			<Text>Anne of Green Gables</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_270">
+			<Text>Mary Poppins</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_280">
+			<Text>Astérix chez les Bretons (Asterix in Britain)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_290">
+			<Text>Flash Gordon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_300">
+			<Text>A Room of One's Own</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_310">
+			<Text>Mutt and Jeff</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_320">
+			<Text>Solaris</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_330">
+			<Text>Nocturnes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_340">
+			<Text>Life and Fate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_350">
+			<Text>Notes of a Native Son</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_360">
+			<Text>Pounamu, Pounamu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_370">
+			<Text>The World According to Garp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_380">
+			<Text>Runaround</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_390">
+			<Text>Memoirs of Hadrian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_400">
+			<Text>Things Fall Apart</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_410">
+			<Text>The Lover</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_420">
+			<Text>Mushrooms</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_430">
+			<Text>Astro Boy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_440">
+			<Text>Song of Solomon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_450">
+			<Text>Wiedźmin (The Witcher)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_460">
+			<Text>Harry Potter and the Philosopher's Stone</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_470">
+			<Text>The Handmaid's Tale</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_480">
+			<Text>The House of the Spirits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_490">
+			<Text>The God of Small Things</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_500">
+			<Text>The Book of Negroes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_510">
+			<Text>Monkey Beach</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_520">
+			<Text>Green Grass, Running Water</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_530">
+			<Text>O Alquimista</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_WW_540">
+			<Text>La vraie gloire est ici (Genuine glory is here)</Text>
+		</Row>
+		<!-- Excerpts -->
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_010">
+			<Text>Even the gods took fright at the Deluge,[NEWLINE]they left and went up to the heaven of Anu,[NEWLINE]lying like dogs curled up in the open.[NEWLINE]The goddess cried out like a woman in childbirth,[NEWLINE]Belet-ili wailed, whose voice is so sweet:[NEWLINE]'It is I who give birth, these people are mine![NEWLINE]And now, like fish, they fill the ocean!'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_020">
+			<Text>Aphrodite, subtle of soul and deathless,[NEWLINE]Daughter of God, weaver of wiles, I pray thee[NEWLINE]Neither with care, dread Mistress, nor with anguish,[NEWLINE]Slay thou my spirit!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_030">
+			<Text>As long as love reign between you, God will be with you, will make your enemies submit, and you will live in peace. But if you live in hatred, strife and divisions, you will perish; you will lose the lands of your fathers and ancestors, which they acquired with much suffering. So live in peace and understanding, listen to one another.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_040">
+			<Text>I see her distracted by grief, weeping for her brother.[NEWLINE]The evening of his loss or on the day after.[NEWLINE]They do not bewail the like of my brother,[NEWLINE]But I console myself over him through their sorrow.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_050">
+			<Text>Of Ymer's flesh[NEWLINE]The earth was made,[NEWLINE]And of his sweat the seas;[NEWLINE]Rocks of his bones,[NEWLINE]Trees of his hair,[NEWLINE]And the sky of his skull;[NEWLINE]But of his eyebrows[NEWLINE]The blithe powers[NEWLINE]Made Midgard for the sons of men.[NEWLINE]Of his brains[NEWLINE]All the melancholy[NEWLINE]Clouds were made.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_060">
+			<Text>He who heaps up gold and silver does so to no profit without wisdom; but he who heaps up wisdom, no man can snatch it from his heart.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_070">
+			<Text>In the case of all human qualities, the extremes are reprehensible, and the middle road is praiseworthy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_080">
+			<Text>I have indeed - praise be to God - attained my desire in this world, which was to travel through the earth, and I have attained in this respect what no other person has attained to my knowledge.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_090">
+			<Text>At the beginning there was a blue-grey wolf, born with his destiny ordained by Heaven Above. His wife was a fallow doe. They came crossing the Tenggis. After they had settled at the source of the Onan River on Mount Burqan Qaldun, Bataciqan was born to them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_100">
+			<Text>Watching the moon[NEWLINE]at dawn,[NEWLINE]solitary, mid-sky,[NEWLINE]I knew myself completely,[NEWLINE]no part left out.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_110">
+			<Text>She many times met with men of that district who said to her, 'woman, give up this life that you lead and go and spin, and card wool, as other women do, and do not suffer so much shame and so much unhappiness. We would not suffer so much for any money on earth'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_120">
+			<Text>You will come to think of things in a wide sense, and taking the void as the Way, you will see the Way as void. In the void is virtue, and no evil. Wisdom has existence, principle has existence, the Way has existence, spirit is nothingness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_130">
+			<Text>In this action of joining his hands, he happened, without at all thinking of it, to rub the ring which the African magician had put upon his finger, and of the virtue of which he was as yet ignorant. Upon its being thus rubbed, a Genie of a most enormous figure and most horrid countenance, instantly rose, as it were, out of the earth before him</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_140">
+			<Text>The man or the woman in whom resides greater virtue is the higher; neither the loftiness nor the lowliness of a person lies in the body according to the sex, but in the perfection of conduct and virtues.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_150">
+			<Text>If you will but direct me, said the Duchess to the Spirits, which World is easiest to be conquered, her Majesty will assist me with Means, and I will trust to Fate and Fortune; for I had rather die in the adventure of noble achievements, then live in obscure and sluggish security; since by the one, I may live in a glorious Fame; and by the other I am buried in oblivion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_160">
+			<Text>It was about the day when the Creator,[NEWLINE]Who could have stayed in His sublime abode,[NEWLINE]Came down to show Himself in human form,[NEWLINE]Issuing from the Holy Virgin's womb,[NEWLINE]When it occurred that my illustrious lord[NEWLINE]For whom I wrote so many love laments,[NEWLINE]Who could have found a nobler resting place,[NEWLINE]Made his own nest and refuge in my heart.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_170">
+			<Text>One wish born in the heart of man[NEWLINE]Is known throughout Heaven and Earth.[NEWLINE]If vice or virtue lacks reward,[NEWLINE]Unjust must be the universe.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_180">
+			<Text>Flopsy, Mopsy, and Cottontail - who were good little bunnies - went down the lane to gather blackberries, but Peter - who was very naughty - ran straight away to Mr. McGregor's garden and squeezed under the gate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_190">
+			<Text>Thou wast not born for death, immortal Bird![NEWLINE]No hungry generations tread thee down;[NEWLINE]The voice I hear this passing night was heard[NEWLINE]In ancient days by emperor and clown.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_200">
+			<Text>Strength lies in her heart, because she is such a sweet, innocent child. If she herself cannot reach the Snow Queen and rid little Kay of those pieces of glass, then there's no help that we can give her.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_210">
+			<Text>O poppy-cheeked, was it a skilful gardener drew you?[NEWLINE]In this flowerbed world there were all too many plain faces;[NEWLINE]Was that the reason why the almighty keeper drew you?[NEWLINE]The flowers take their colours and fragrance from you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_220">
+			<Text>For this I weep all my days[NEWLINE]And throughout my lifetime grieve[NEWLINE]That I swam from my own lands[NEWLINE]And came from familiar places[NEWLINE]Towards these strange doors[NEWLINE]To these foreign gates.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_230">
+			<Text>Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_240">
+			<Text>In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole, filled with the ends of worms and an oozy smell, nor yet a dry, bare, sandy hole with nothing in it to sit down on or to eat: It was a hobbit-hole, and that means comfort.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_250">
+			<Text>- But no, blisteting barnacles! All's well that ends well!... ALL'S WELL THAT ENDS WELL!... / Without a doubt... and that's now or never the moment to quote the proverb : all's well that ends well!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_260">
+			<Text>I'm so glad I live in a world where there are Octobers. It would be terrible if we just skipped from September to November, wouldn't it? Look at these maple branches. Don't they give you a thrill—several thrills? I'm going to decorate my room with them. 'Messy things', said Marilla, whose aesthetic sense was not noticeably developed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_270">
+			<Text>The same substance composes us[NEWLINE]the tree overhead, the stone beneath us, the bird, the beast, the star[NEWLINE]we are all one, all moving to the same end. Remember that when you no longer remember me, my child.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_280">
+			<Text>You're not too strong.[NEWLINE]- We need a strong guy only who?[NEWLINE]- Who can carry a whole barrel of magic potion.[NEWLINE]- Like somebody who fell into the potion when he was just a little baby![NEWLINE]- Ah? Oh, me![NEWLINE]- Ahaha[NEWLINE]- Let's smash the Romans, let's smash the Romans, let's smash the Romans!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_290">
+			<Text>- Now get into the rocket! I intend to shoot this ship at the comet which threatens the Earth! My ship will deflect the comet from it's course and save the Earth! We three shall die martyrs to science! We start now ![NEWLINE]- Good heavens man, you're crazy !</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_300">
+			<Text>"Lock up your libraries if you like[NEWLINE]but there is no gate, no lock, no bolt that you can set upon the freedom of my mind.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_310">
+			<Text>"Aw! Poor little Jeff! My conscience is killing me. I told him there was no danger to it. I'll bet he's dead by now. I'm gonna sneak out and see...[NEWLINE]Poor little pal... / !!!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_320">
+			<Text>So... you think it's the ocean? That the ocean is responsible for it all? But why? I'm not asking how, I'm simply asking why? Do you seriously think that it wants to toy with us - a sort of elementary demonomania? A planet dominated by a huge devil, who satisfies the demands of his satanic humour by sending succubi to haunt the members of a scientific expedition...? Snow, you can't believe anything so absurd!"[NEWLINE]He muttered under his breath.[NEWLINE]"The devil isn't such a fool as all of that...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_330">
+			<Text>The splendor of honors is like a Sahara,[NEWLINE]A huge void without dune or stony plateau without grasses, without flutter of eyelid, without thump of the heart</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_340">
+			<Text>Human history is not the battle of good struggling to overcome evil. It is a battle fought by a great evil, struggling to crush a small kernel of human kindness. But if what is human in human beings has not been destroyed even now, then evil will never conquer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_350">
+			<Text>I imagine that one of the reasons people cling to their hates so stubbornly is because they sense, once hate is gone, that they will be forced to deal with pain.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_360">
+			<Text>This room was the whanau; the whanau was this room. If ever you wanted to know the whanau's accomplishments, here were  all the sports trophies, shields, photographs of the old people who'd died long ago, whakapapa or genealogy sheets, carved feather boxes, panels, figures, feather cloaks, piupius - all spilling a riot of colour and shadow throughout the sunlit room.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_370">
+			<Text>You know, everybody dies. My parents died. Your father died. Everybody dies. I'm going to die too. So will you. The thing is, to have a life before we die. It can be a real adventure having a life.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_380">
+			<Text>The Three Laws of Robotics:[NEWLINE]1 : A robot may not injure a human being or, through inaction, allow a human being to come to harm;[NEWLINE]2 : A robot must obey the orders given it by human beings except where such orders would conflict with the First Law;[NEWLINE]3 : A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_390">
+			<Text>He had reached that moment in life, different for each one of us, when a man abandons himself to his demon or to his genius, following a mysterious law which bids him either to destroy or outdo himself.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_400">
+			<Text>A man who calls his kinsmen to a feast does not do so to save them from starving. They all have food in their own homes. When we gather together in the moonlit village ground it is not because of the moon. Every man can see it in his own compound. We come together because it is good for kinsmen to do so.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_410">
+			<Text>Very early in my life it was too late. It was already too late when I was eighteen. Between eighteen and twenty-five my face took off in a new direction. I grew old at eighteen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_420">
+			<Text>We Diet on water[NEWLINE]On crumbs of shadow[NEWLINE]Bland-mannered, asking[NEWLINE]Little or nothing[NEWLINE]So many of us!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_430">
+			<Text>- y... es... I... can... see... you...[NEWLINE]All right ! It worked ! Okay Tobio... I'm your papa... Try saying "papa"...[NEWLINE]- pa... pa...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_440">
+			<Text>Perhaps that's what all human relationships boil down to: Would you save my life? or would you take it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_450">
+			<Text>'Evil is evil, Stregobor,' said the witcher seriously as he got up. 'Lesser, greater, middling, it's all the same. Proportions are negotiated, boundaries blurred. I'm not a pious hermit. I haven't done only good in my life. But if I'm to choose between one evil and another, then I prefer not to choose at all.'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_460">
+			<Text>What happened down in the dungeons between you and Professor Quirrell is a complete secret, so, naturally the whole school knows.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_470">
+			<Text>But remember that forgiveness too is a power. To beg for it is a power, and to withhold or bestow it is a power, perhaps the greatest.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_480">
+			<Text>Just as when we come into the world, when we die we are afraid of the unknown. But the fear is something from within us that has nothing to do with reality. Dying is like being born: just a change.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_490">
+			<Text>When you hurt people they begin to love you less. That's what careless words do, they make people love you a little less.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_500">
+			<Text>To gaze into another person's face is to do two things: to recognise their humanity and to assert your own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_510">
+			<Text>Names have power. This is the fundamental principle of magic everywhere. Call out the name of a supernatural being, and you will have its instant and undivided attention in the same way that your lost toddler will have yours the second it calls your name.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_520">
+			<Text>There are no truths. Only stories.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_530">
+			<Text>The secret of life, though, is to fall seven times and to get up eight times.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_540">
+			<Text>Thirst and hunger,[NEWLINE]Laughs and tears,[NEWLINE]Sweetness, injuries,[NEWLINE]Fury, regrets,[NEWLINE]We will discard none,[NEWLINE]We will carry them all,[NEWLINE]Everlasting viatica,[NEWLINE]For a long journey.</Text>
+		</Row>
+		<!-- Great Works of Art -->
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_010">
+			<Text>Thamyris painting her picture of the goddess Diana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_020">
+			<Text>Great Goddess of Teotihuacan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_030">
+			<Text>Portrait of Francesco d'Este</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_040">
+			<Text>The Garden of Earthly Delights (Central panel)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_050">
+			<Text>Bodhisattva of Compassion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_060">
+			<Text>Mogyeondo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_070">
+			<Text>Zelfportret</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_080">
+			<Text>Infanta Margarita Teresa in a Blue Dress</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_090">
+			<Text>Geumgang Jeondo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_100">
+			<Text>Dutch Boats in a Gale</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_110">
+			<Text>Sangchun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_120">
+			<Text>Mademoiselle Jeanne Gonin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_130">
+			<Text>The Oxbow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_140">
+			<Text>View of Dresden by Moonlight</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_150">
+			<Text>Hunt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_160">
+			<Text>Stanczyk</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_170">
+			<Text>Indians spear fishing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_180">
+			<Text>Surprise près d'un pont au petit jour</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_190">
+			<Text>The Irritating Gentleman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_200">
+			<Text>Winter Landscape</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_210">
+			<Text>The Cheval-Glass</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_220">
+			<Text>November</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_230">
+			<Text>Haokah</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_240">
+			<Text>Independência ou Morte</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_250">
+			<Text>The Sick Child</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_260">
+			<Text>Picking Peas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_270">
+			<Text>Fresh from the Garden </Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_280">
+			<Text>Poppies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_290">
+			<Text>Sammon puolustus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_300">
+			<Text>Snow in New York</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_310">
+			<Text>Rotterdam sun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_320">
+			<Text>The Forge</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_330">
+			<Text>Mme Kupka parmi Verticaux</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_340">
+			<Text>Apocalyptic Landscape</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_350">
+			<Text>Russian Cavalry on the Attack in East Prussia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_360">
+			<Text>Charge of Rokitna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_370">
+			<Text>Hafenbild Nachts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_380">
+			<Text>Winter Night</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_390">
+			<Text>Boy with Blue Eyes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_400">
+			<Text>Composition with Red, Yellow, Blue, and Black</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_410">
+			<Text>Blue and Green Music</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_420">
+			<Text>Portret Marii Nawrockiej</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_430">
+			<Text>Abaporu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_440">
+			<Text>Self portrait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_450">
+			<Text>Still Life</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_460">
+			<Text>Peasant women from Tonkin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_470">
+			<Text>Solitary Temple in Autumn Mountains</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_480">
+			<Text>Woman in a Purple Coat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_490">
+			<Text>Self-Portrait with Thorn Necklace and Hummingbird</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_500">
+			<Text>Underground Fantasy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_510">
+			<Text>Nighthawks</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_520">
+			<Text>Portrait of Made Toei</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_530">
+			<Text>Days Of Old</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_540">
+			<Text>Glow of Hope</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_550">
+			<Text>Poker Night (from A Streetcar Named Desire)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_560">
+			<Text>Number 17-A</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_570">
+			<Text>White Interior</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_580">
+			<Text>Untitled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_590">
+			<Text>Anticipation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_600">
+			<Text>Marilyn Diptych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_610">
+			<Text>The Blank Check</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_620">
+			<Text>A Bigger Splash</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_630">
+			<Text>Vega 200</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_640">
+			<Text>Thunderbird</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_650">
+			<Text>Uki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_660">
+			<Text>Untitled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_670">
+			<Text>Patatt ranting</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_680">
+			<Text>Still life with crystal bowl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_690">
+			<Text>Fabian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_700">
+			<Text>Femininity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_710">
+			<Text>Sjalfsmynd</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_720">
+			<Text>Untitled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_730">
+			<Text>Dustheads</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_740">
+			<Text>Depart Alarme II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_750">
+			<Text>The time of storytellers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_760">
+			<Text>No 3 from the Personae series</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_770">
+			<Text>Flower</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_780">
+			<Text>Red Macaw</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_790">
+			<Text>violencia rara y diosas blancas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_800">
+			<Text>Springmood I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_810">
+			<Text>Untitled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_820">
+			<Text>Asilah at Dawn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_830">
+			<Text>Din, Une Tres Belle Négresse 1</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_840">
+			<Text>Self-portrait with Daughter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_850">
+			<Text>Make Art Not War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_860">
+			<Text>Morning on the Beach</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_870">
+			<Text>Vers le Centre de l'Univers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_880">
+			<Text>Eye on the Time</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_890">
+			<Text>Untitled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AW_900">
+			<Text>Ank Shus</Text>
+		</Row>
+		<!-- Great Works of Music -->
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_010">
+			<Text>First Delphic Hymn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_020">
+			<Text>Melodiemodell Mater</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_030">
+			<Text>Palästinalied</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_040">
+			<Text>King Arthur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_050">
+			<Text>Hieremiae Prophetae Lamentationes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_060">
+			<Text>Ey büt-i nev edâ olmuşum müptelâ</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_070">
+			<Text>Cherry Ripe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_080">
+			<Text>A Midsummer Night's Dream</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_090">
+			<Text>Lucia Di Lammermoor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_100">
+			<Text>I've Left The Snow Clad Hills</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_110">
+			<Text>Gwine To Run All Night</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_120">
+			<Text>Lurline</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_130">
+			<Text>Capricho árabe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_140">
+			<Text>Requiem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_150">
+			<Text>Blue Skies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_160">
+			<Text>Zikrayati</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_170">
+			<Text>Carmina Burana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_180">
+			<Text>Adagio for Strings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_190">
+			<Text>Peter and the Wolf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_200">
+			<Text>My Serenade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_210">
+			<Text>I Didn't Know What Time It Was</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_220">
+			<Text>Rooh Afza</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_230">
+			<Text>La Vie En Rose</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_240">
+			<Text>Concerto No. 3 'De Québec'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_250">
+			<Text>Dame El Si</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_260">
+			<Text>In The Mood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_270">
+			<Text>Misterioso</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_280">
+			<Text>Poinciana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_290">
+			<Text>Heartbreak Hotel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_300">
+			<Text>Fantazi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_310">
+			<Text>Stand by Me</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_320">
+			<Text>Teri Pyari Pyari Surat Ko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_330">
+			<Text>Guajira y Tambo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_340">
+			<Text>A Garota de Ipanema</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_350">
+			<Text>A Change Is Gonna Come</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_360">
+			<Text>Like a Rolling Stone</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_370">
+			<Text>La Bohème</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_380">
+			<Text>God Only Knows</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_390">
+			<Text>Endaro Mahanubhavulu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_400">
+			<Text>Summertime</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_410">
+			<Text>Life On Mars</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_420">
+			<Text>You've Got a Friend</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_430">
+			<Text>Jealous Guy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_440">
+			<Text>Kinky Reggae</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_450">
+			<Text>Superstition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_460">
+			<Text>The Payback</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_470">
+			<Text>Water No Get Enemy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_480">
+			<Text>Bohemian Rhapsody</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_490">
+			<Text>Liberte</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_500">
+			<Text>Oxygène</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_510">
+			<Text>How Deep Is Your Love</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_520">
+			<Text>Spiegel im Spiegel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_530">
+			<Text>Chuck Es In Love</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_540">
+			<Text>It's gonna be dread</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_550">
+			<Text>Teardrops</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_560">
+			<Text>Baby Can I Hold You</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_570">
+			<Text>Shadow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_580">
+			<Text>Smells Like Teen Spirit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_590">
+			<Text>Dont't cry for me Argentina</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_600">
+			<Text>Atlantic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_610">
+			<Text>Somewhere over the Rainbow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_620">
+			<Text>Sound of da Police</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_630">
+			<Text>Palladio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_640">
+			<Text>M12 Milky Way</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_650">
+			<Text>Almendra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_660">
+			<Text>Piano Concerto 'Memo Flora'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_670">
+			<Text>Lost Ones</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_680">
+			<Text>In The Mood For Love</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_690">
+			<Text>Esoragoto</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_700">
+			<Text>River Flows in You</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_710">
+			<Text>November</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_720">
+			<Text>Baba Yetu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_730">
+			<Text>Drume Negrita</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_740">
+			<Text>Me</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_750">
+			<Text>Nalesonko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_760">
+			<Text>Gangnam Style</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_770">
+			<Text>Nocturne in F minor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_780">
+			<Text>I Don't Know My Name</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_790">
+			<Text>Elegy for the Arctic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_800">
+			<Text>Jungle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_810">
+			<Text>Ya Lili</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_820">
+			<Text>Despacito</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_830">
+			<Text>Laung Laachi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_840">
+			<Text>Captain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_850">
+			<Text>Nimbus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_860">
+			<Text>Blinding Lights</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_870">
+			<Text>I think of you</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_880">
+			<Text>Source</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_890">
+			<Text>Nena</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MW_900">
+			<Text>Bloom</Text>
+		</Row>
+		<!-- Artifacts -->
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_1">
+			<Text>Sarcophagus of Khufu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_2">
+			<Text>Sarcophagus of Neferefre</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_3">
+			<Text>Sarcophagus of Mentuhotep I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_4">
+			<Text>Sarcophagus of Menekhare</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_5">
+			<Text>Sarcophagus of Senwosret I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_6">
+			<Text>Sarcophagus of Hatshepsut</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_7">
+			<Text>Sarcophagus of Thutmose II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_8">
+			<Text>Sarcophagus of Ramesses I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_9">
+			<Text>Sarcophagus of Seti II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_10">
+			<Text>Sarcophagus of Amenemope</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_11">
+			<Text>Sarcophagus of Osorkon I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_12">
+			<Text>Sarcophagus of Iuput I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_13">
+			<Text>Sarcophagus of Nikauba</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_14">
+			<Text>Sarcophagus of Artaxerxes I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_15">
+			<Text>Sarcophagus of Berenike II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_16">
+			<Text>Sarcophagus of Cleopatra I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_17">
+			<Text>Sarcophagus of Ptolemy I</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="Civilization_Start_Prefer_Mountain">
+		<Column name="CivilizationType" type="text"/>
+		<Column name="StartPreferMountain" type="boolean" default="0"/>
+	</Table>
+	<Table name="Civilization_Start_Prefer_Snow">
+		<Column name="CivilizationType" type="text"/>
+		<Column name="StartPreferSnow" type="boolean" default="0"/>
+	</Table>
+</GameData>
