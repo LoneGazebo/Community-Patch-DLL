@@ -1015,6 +1015,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	newReligion.m_Beliefs.SetReligion(RELIGION_PANTHEON);
 	m_CurrentReligions.push_back(newReligion);
 
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_PANTHEON);
+
 	if (MOD_TRAITS_OTHER_PREREQS)
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();
 
@@ -1161,6 +1163,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
 		}
 	}
+
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOUNDER);
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1459,6 +1464,8 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		return;
 	}
 
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
+
 	if (kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
 		if (!kPlayer.isHuman())
@@ -1640,7 +1647,9 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		CvAssertMsg(false, "Internal error in religion code.");
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_REFORMATION);
+
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
 		if (!kPlayer.isHuman())
@@ -1653,7 +1662,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 			kPlayer.chooseTech(1, strBuffer.GetCString());
 		}
 	}
-#endif
+
 	it->m_Beliefs.AddBelief(eBelief1);
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 	if (MOD_TRAITS_OTHER_PREREQS) {

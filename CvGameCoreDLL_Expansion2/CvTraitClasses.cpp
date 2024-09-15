@@ -7247,6 +7247,45 @@ void CvPlayerTraits::SetUnitBaktun(UnitTypes eUnit)
 	choice.m_eUnitType = eUnit;
 	choice.m_iBaktunJustFinished = m_iBaktun;
 	m_aMayaBonusChoices.push_back(choice);
+
+	// Remember each choice as an accomplishment.
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
+	switch (eUnitAI)
+	{
+	case UNITAI_GENERAL:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_GENERAL);
+		break;
+	case UNITAI_ADMIRAL:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_ADMIRAL);
+		break;
+	case UNITAI_PROPHET:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_PROPHET);
+		break;
+	case UNITAI_WRITER:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_WRITER);
+		break;
+	case UNITAI_ARTIST:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_ARTIST);
+		break;
+	case UNITAI_MUSICIAN:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_MUSICIAN);
+		break;
+	case UNITAI_ENGINEER:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_ENGINEER);
+		break;
+	case UNITAI_MERCHANT:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_MERCHANT);
+		break;
+	case UNITAI_SCIENTIST:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_SCIENTIST);
+		break;
+	case UNITAI_DIPLOMAT:
+		m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_LONGCOUNT_DIPLOMAT);
+		break;
+	default:
+		break;
+	}
 }
 
 /// Have Maya unlocked free choice of Great People?

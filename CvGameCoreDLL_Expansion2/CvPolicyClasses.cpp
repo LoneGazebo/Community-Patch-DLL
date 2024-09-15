@@ -3740,9 +3740,7 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 	m_iFreeFinishingPolicy(NO_POLICY),
 	m_iFirstAdopterFreePolicies(0),
 	m_iSecondAdopterFreePolicies(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iNumPolicyRequirement(0),
-#endif
 	m_piPolicyBranchDisables(NULL)
 {
 }
@@ -5570,7 +5568,10 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
 		PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
 		if (eFreedomBranch == eBranchType || eAutocracyBranch == eBranchType || eOrderBranch == eBranchType)
+		{
 			m_pPlayer->GetCulture()->SetTurnIdeologyAdopted(GC.getGame().getGameTurn());
+			m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_CHOOSE_IDEOLOGY);
+		}
 	}
 }
 
@@ -5921,52 +5922,68 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 	{
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
-		if (MOD_API_ACHIEVEMENTS)
+		if (bValue)
 		{
-			bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+			// Award an accomplishment for completing a Policy Branch.
+			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
+			EraTypes ePrereqEra = (EraTypes)pkPolicyBranchInfo->GetEraPrereq();
+			EraTypes eAncientEra = (EraTypes)GD_INT_GET(ANCIENT_ERA);
+			EraTypes eMedievalEra = (EraTypes)GD_INT_GET(MEDIEVAL_ERA);
+			EraTypes eIndustrialEra = (EraTypes)GD_INT_GET(INDUSTRIAL_ERA);
+			if (ePrereqEra == NO_ERA || ePrereqEra == eAncientEra)
+				m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_POLICY_BRANCH_ANCIENT);
+			else if (ePrereqEra == eMedievalEra)
+				m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_POLICY_BRANCH_MEDIEVAL);
+			else if (ePrereqEra == eIndustrialEra)
+				m_pPlayer->CompleteAccomplishment(ACCOMPLISHMENT_POLICY_BRANCH_INDUSTRIAL);
 
-			//Achievements for fulfilling branches
-			if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+			if (MOD_API_ACHIEVEMENTS)
 			{
-				//Must not be playing smokey skies scenario.
-				if (m_pPlayer->GetID() == GC.getGame().getActivePlayer() && !bUsingXP1Scenario3)
+				bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+
+				//Achievements for fulfilling branches
+				if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
 				{
-					switch (eBranchType)
+					//Must not be playing smokey skies scenario.
+					if (m_pPlayer->GetID() == GC.getGame().getActivePlayer() && !bUsingXP1Scenario3)
 					{
-					case NO_POLICY_BRANCH_TYPE:
-						UNREACHABLE(); // It would be a logic error to complete `NO_POLICY_BRANCH_TYPE`.
-					case 0:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_TRADITION);
-						break;
-					case 1:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_LIBERTY);
-						break;
-					case 2:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_HONOR);
-						break;
-					case 3:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PIETY);
-						break;
-					case 4:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PATRONAGE);
-						break;
-					case 5:	//Aesthetics
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_48);
-						break;
-					case 6:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_COMMERCE);
-						break;
-					case 7: //Exploration
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_47);
-						break;
-					case 8:
-						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_RATIONALISM);
-						break;
+						switch (eBranchType)
+						{
+						case NO_POLICY_BRANCH_TYPE:
+							UNREACHABLE(); // It would be a logic error to complete `NO_POLICY_BRANCH_TYPE`.
+						case 0:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_TRADITION);
+							break;
+						case 1:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_LIBERTY);
+							break;
+						case 2:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_HONOR);
+							break;
+						case 3:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PIETY);
+							break;
+						case 4:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PATRONAGE);
+							break;
+						case 5:	//Aesthetics
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_48);
+							break;
+						case 6:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_COMMERCE);
+							break;
+						case 7: //Exploration
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_47);
+							break;
+						case 8:
+							gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_RATIONALISM);
+							break;
+						}
 					}
-				}
-				if (gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_TRADITION) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_HONOR) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_LIBERTY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PIETY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PATRONAGE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_ORDER) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_AUTOCRACY)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_FREEDOM)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_COMMERCE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_RATIONALISM))
-				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_ALL_SOCIAL_POLICIES);
+					if (gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_TRADITION) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_HONOR) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_LIBERTY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PIETY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PATRONAGE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_ORDER) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_AUTOCRACY)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_FREEDOM)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_COMMERCE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_RATIONALISM))
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_ALL_SOCIAL_POLICIES);
+					}
 				}
 			}
 		}
