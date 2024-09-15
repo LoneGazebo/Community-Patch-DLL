@@ -1520,6 +1520,10 @@ protected:
 	LUAAPIEXTN(IsGlobalQuest, bool, eQuest);
 	LUAAPIEXTN(IsPersonalQuest, bool, eQuest);
 
+	static int lIsAccomplishmentCompleted(lua_State* L);
+	static int lGetNumTimesAccomplishmentCompleted(lua_State* L);
+	static int lCompleteAccomplishment(lua_State* L);
+
 	static int lIsInstantYieldNotificationDisabled(lua_State* L);
 	static int lSetInstantYieldNotificationDisabled(lua_State* L);
 };

@@ -1908,19 +1908,28 @@ ReligionTypes CvReligionBeliefs::GetReligion() const
 }
 
 /// Store off data on bonuses from beliefs
-void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
+void CvReligionBeliefs::AddBelief(BeliefTypes eBelief, PlayerTypes ePlayer, bool bTriggerAccomplishment)
 {
-	CvAssert(eBelief != NO_BELIEF);
-	if (eBelief == NO_BELIEF)
-		return;
-
+	ASSERT(eBelief != NO_BELIEF);
 	CvBeliefEntry* belief = GC.GetGameBeliefs()->GetEntry(eBelief);
-	CvAssert(belief);
-	if (!belief)
-		return;
+	ASSERT(belief);
 
 	m_ReligionBeliefs.push_back(eBelief);
 	m_BeliefLookup[eBelief] = 1;
+
+	if (bTriggerAccomplishment)
+	{
+		if (belief->IsPantheonBelief())
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_PANTHEON);
+		else if (belief->IsFounderBelief())
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOUNDER);
+		else if (belief->IsFollowerBelief())
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
+		else if (belief->IsEnhancerBelief())
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
+		else if (belief->IsReformationBelief())
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_REFORMATION);
+	}
 }
 
 /// Does this religion possess a specific belief?
@@ -1982,7 +1991,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 		{
 			//don't care about founder, ownership counts!
 			if (pHolyCityPlot && pHolyCityPlot->getOwner() == ePlayer)
-			{		
+			{
 				bEligibleForFounderBenefits = true;
 			}
 		}

@@ -421,7 +421,7 @@ public:
 	CvReligionBeliefs(void);
 	CvReligionBeliefs(const CvReligionBeliefs& source);
 	void Reset();
-	void AddBelief(BeliefTypes eBelief);
+	void AddBelief(BeliefTypes eBelief, PlayerTypes ePlayer, bool bTriggerAccomplishment = true);
 
 #if defined(MOD_BALANCE_CORE)
 	void SetReligion(ReligionTypes eReligion);

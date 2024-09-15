@@ -2192,6 +2192,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		SetOriginalOwner(eOriginalOwner);
 	}
+	// Transfer gifted by player
+	PlayerTypes eGiftedByPlayer = bIsUpgrade ? pUnit->GetGiftedByPlayer() : NO_PLAYER;
+	if (eGiftedByPlayer != NO_PLAYER)
+	{
+		SetGiftedByPlayer(eGiftedByPlayer);
+	}
 
 	if (MOD_EVENTS_UNIT_CONVERTS)
 	{
@@ -12119,6 +12125,10 @@ bool CvUnit::trade()
 	}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iInfluence);
+
+	// TODO: Add code here so only a unit with the right promotion triggers the accomplishment
+	if (iInfluence > 0)
+		GET_PLAYER(getOwner()).CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
 
 	// Great Diplomat: now update the friend/ally status for the other players
 	if (bGreatDiplomat)

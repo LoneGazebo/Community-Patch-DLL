@@ -1009,7 +1009,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
 	CvReligion newReligion(RELIGION_PANTHEON, ePlayer, NULL, true);
-	newReligion.m_Beliefs.AddBelief(eBelief);
+	newReligion.m_Beliefs.AddBelief(eBelief, ePlayer);
 
 	// Found it
 	newReligion.m_Beliefs.SetReligion(RELIGION_PANTHEON);
@@ -1158,7 +1158,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer)->m_Beliefs;
 		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
 		{
-			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
+			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI), ePlayer, false);
 		}
 	}
 
@@ -1176,17 +1176,17 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	}
 	kReligion.m_Beliefs.SetReligion(eReligion);
 
-	kReligion.m_Beliefs.AddBelief(eBelief1);
-	kReligion.m_Beliefs.AddBelief(eBelief2);
+	kReligion.m_Beliefs.AddBelief(eBelief1, ePlayer);
+	kReligion.m_Beliefs.AddBelief(eBelief2, ePlayer);
 
 	if(eBelief3 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief3);
+		kReligion.m_Beliefs.AddBelief(eBelief3, ePlayer);
 	}
 
 	if(eBelief4 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief4);
+		kReligion.m_Beliefs.AddBelief(eBelief4, ePlayer);
 	}
 
 	if(szCustomName != NULL && strlen(szCustomName) <= sizeof(kReligion.m_szCustomName))
@@ -1365,21 +1365,21 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, kPlayer.GetID())->m_Beliefs;
 		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
 		{
-			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
+			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI), ePlayer, false);
 		}
 	}
 
-	kReligion.m_Beliefs.AddBelief(eBelief1);
-	kReligion.m_Beliefs.AddBelief(eBelief2);
+	kReligion.m_Beliefs.AddBelief(eBelief1, ePlayer, false);
+	kReligion.m_Beliefs.AddBelief(eBelief2, ePlayer, false);
 
 	if(eBelief3 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief3);
+		kReligion.m_Beliefs.AddBelief(eBelief3, ePlayer, false);
 	}
 
 	if(eBelief4 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief4);
+		kReligion.m_Beliefs.AddBelief(eBelief4, ePlayer, false);
 	}
 
 	if(szCustomName != NULL && strlen(szCustomName) <= sizeof(kReligion.m_szCustomName))
@@ -1472,10 +1472,10 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		}
 	}
 
-	it->m_Beliefs.AddBelief(eBelief1);
+	it->m_Beliefs.AddBelief(eBelief1, ePlayer);
 
 	if (eBelief2 != NO_BELIEF)
-		it->m_Beliefs.AddBelief(eBelief2);
+		it->m_Beliefs.AddBelief(eBelief2, ePlayer);
 
 	if (eReligion != RELIGION_PANTHEON && bSetAsEnhanced)
 		it->m_bEnhanced = true;
@@ -1640,7 +1640,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		CvAssertMsg(false, "Internal error in religion code.");
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
 		if (!kPlayer.isHuman())
@@ -1653,8 +1653,8 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 			kPlayer.chooseTech(1, strBuffer.GetCString());
 		}
 	}
-#endif
-	it->m_Beliefs.AddBelief(eBelief1);
+
+	it->m_Beliefs.AddBelief(eBelief1, ePlayer);
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 	if (MOD_TRAITS_OTHER_PREREQS) {
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();

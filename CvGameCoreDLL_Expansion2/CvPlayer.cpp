@@ -370,6 +370,7 @@ CvPlayer::CvPlayer() :
 	, m_eID()
 	, m_ePersonalityType()
 	, m_abInstantYieldNotificationsDisabled()
+	, m_aiAccomplishments()
 	, m_aiCityYieldChange()
 	, m_aiCoastalCityYieldChange()
 	, m_aiCapitalYieldChange()
@@ -1742,6 +1743,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abInstantYieldNotificationsDisabled.clear();
 	m_abInstantYieldNotificationsDisabled.resize(NUM_INSTANT_YIELD_TYPES, false);
+
+	m_aiAccomplishments.clear();
+	m_aiAccomplishments.resize(NUM_ACCOMPLISHMENTS, 0);
 
 	m_aiCityYieldChange.clear();
 	m_aiCityYieldChange.resize(NUM_YIELD_TYPES, 0);
@@ -33104,17 +33108,22 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	kPossibleVictimPlayer.verifyAlive(GetID());
 
 	// You... you killed him!
-	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv())
+	if (!kPossibleVictimPlayer.isAlive())
 	{
-		for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
-		{
-			GET_PLAYER(*it).DoWarVictoryBonuses();
-		}
+		CompleteAccomplishment(ACCOMPLISHMENT_ELIMINATE_PLAYER);
 
-		// Leader pops up and whines
-		if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
+		if (kPossibleVictimPlayer.isMajorCiv())
 		{
-			kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
+			for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
+			{
+				GET_PLAYER(*it).DoWarVictoryBonuses();
+			}
+
+			// Leader pops up and whines
+			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
+			{
+				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
+			}
 		}
 	}
 }
@@ -37094,7 +37103,7 @@ void CvPlayer::SetRefuseResearchAgreementTrade(bool refuseTrade)
 	m_refuseResearchAgreementTrade = refuseTrade;
 }
 
-bool CvPlayer::IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield)
+bool CvPlayer::IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield) const
 {
 	return m_abInstantYieldNotificationsDisabled[(int)eInstantYield];
 }
@@ -37102,6 +37111,23 @@ bool CvPlayer::IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield
 void CvPlayer::SetInstantYieldNotificationDisabled(InstantYieldType eInstantYield, bool bNewValue)
 {
 	m_abInstantYieldNotificationsDisabled[(int)eInstantYield] = bNewValue;
+}
+
+/// Have we achieved a certain Accomplishment already?
+bool CvPlayer::IsAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const
+{
+	return m_aiAccomplishments[(int)eAccomplishment] > 0;
+}
+
+int CvPlayer::GetNumTimesAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const
+{
+	return m_aiAccomplishments[(int)eAccomplishment];
+}
+
+/// Sets that we have achieved a certain Accomplishment. One-time bonuses can be added to this function.
+void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
+{
+	m_aiAccomplishments[(int)eAccomplishment]++;
 }
 
 int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
@@ -42799,6 +42825,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bHasAdoptedStateReligion);
 	visitor(player.m_bWorkersIgnoreImpassable);
 	visitor(player.m_abInstantYieldNotificationsDisabled);
+	visitor(player.m_aiAccomplishments);
 	visitor(player.m_aiCityYieldChange);
 	visitor(player.m_aiCoastalCityYieldChange);
 	visitor(player.m_aiCapitalYieldChange);

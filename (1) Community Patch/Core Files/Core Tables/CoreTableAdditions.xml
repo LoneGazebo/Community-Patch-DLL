@@ -25,6 +25,77 @@
 			<MinCity>0</MinCity>
 		</Row>
 	</Yields>
+	<Table name="Accomplishments">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+	</Table>
+	<Accomplishments>
+		<Row>
+			<ID>0</ID>
+			<Type>ACCOMPLISHMENT_POLICY_BRANCH_ANCIENT</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_POLICY_BRANCH_MEDIEVAL</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_POLICY_BRANCH_INDUSTRIAL</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_CHOOSE_IDEOLOGY</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_BELIEF_PANTHEON</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_BELIEF_FOUNDER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_BELIEF_FOLLOWER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_BELIEF_ENHANCER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_BELIEF_REFORMATION</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_GENERAL</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_ADMIRAL</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_PROPHET</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_WRITER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_ARTIST</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_MUSICIAN</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_ENGINEER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_MERCHANT</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_SCIENTIST</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_LONGCOUNT_DIPLOMAT</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_ELIMINATE_PLAYER</Type>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST</Type>
+		</Row>
+	</Accomplishments>
 	<Table name="SpyPassiveBonuses">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
