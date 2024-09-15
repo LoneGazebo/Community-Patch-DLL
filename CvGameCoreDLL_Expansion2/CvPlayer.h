@@ -2129,8 +2129,12 @@ public:
 	bool IsRefuseResearchAgreementTrade();
 	void SetRefuseResearchAgreementTrade(bool refuseTrade);
 
-	bool IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield);
+	bool IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield) const;
 	void SetInstantYieldNotificationDisabled(InstantYieldType eInstantYield, bool bNewValue);
+
+	bool IsAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const;
+	int GetNumTimesAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const;
+	void CompleteAccomplishment(AccomplishmentTypes eAccomplishment);
 
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
@@ -3450,6 +3454,8 @@ protected:
 	bool m_bHasAdoptedStateReligion;
 	bool m_bWorkersIgnoreImpassable;
 
+	std::vector<int> m_aiAccomplishments;
+
 	std::vector<int> m_aiCityYieldChange;
 	std::vector<int> m_aiCoastalCityYieldChange;
 	std::vector<int> m_aiCapitalYieldChange;
@@ -4252,6 +4258,7 @@ SYNC_ARCHIVE_VAR(PlayerTypes, m_eConqueror)
 SYNC_ARCHIVE_VAR(bool, m_bLostHolyCity)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eHolyCityConqueror)
 SYNC_ARCHIVE_VAR(bool, m_bHasAdoptedStateReligion)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiAccomplishments)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCoastalCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldChange)
