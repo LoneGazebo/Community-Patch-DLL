@@ -1015,8 +1015,6 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	newReligion.m_Beliefs.SetReligion(RELIGION_PANTHEON);
 	m_CurrentReligions.push_back(newReligion);
 
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_PANTHEON);
-
 	if (MOD_TRAITS_OTHER_PREREQS)
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();
 
@@ -1160,12 +1158,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer)->m_Beliefs;
 		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
 		{
-			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
+			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI), false);
 		}
 	}
-
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOUNDER);
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1370,21 +1365,21 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, kPlayer.GetID())->m_Beliefs;
 		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++) 
 		{
-			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI));
+			kReligion.m_Beliefs.AddBelief(beliefs.GetBelief(iI), false);
 		}
 	}
 
-	kReligion.m_Beliefs.AddBelief(eBelief1);
-	kReligion.m_Beliefs.AddBelief(eBelief2);
+	kReligion.m_Beliefs.AddBelief(eBelief1, false);
+	kReligion.m_Beliefs.AddBelief(eBelief2, false);
 
 	if(eBelief3 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief3);
+		kReligion.m_Beliefs.AddBelief(eBelief3, false);
 	}
 
 	if(eBelief4 != NO_BELIEF)
 	{
-		kReligion.m_Beliefs.AddBelief(eBelief4);
+		kReligion.m_Beliefs.AddBelief(eBelief4, false);
 	}
 
 	if(szCustomName != NULL && strlen(szCustomName) <= sizeof(kReligion.m_szCustomName))
@@ -1463,9 +1458,6 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		CUSTOMLOG("Trying to enhance a religion/pantheon that doesn't exist!!!");
 		return;
 	}
-
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
 
 	if (kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1648,8 +1640,6 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		CvAssertMsg(false, "Internal error in religion code.");
 		return;
 	}
-
-	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_REFORMATION);
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
