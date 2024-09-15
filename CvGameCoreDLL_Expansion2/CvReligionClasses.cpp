@@ -1464,6 +1464,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		return;
 	}
 
+	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
 	kPlayer.CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
 
 	if (kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
