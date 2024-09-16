@@ -1490,6 +1490,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsGlobalQuest);
 	Method(IsPersonalQuest);
 
+	Method(IsAccomplishmentCompleted);
+	Method(GetNumTimesAccomplishmentCompleted);
+	Method(CompleteAccomplishment);
+
 	Method(IsInstantYieldNotificationDisabled);
 	Method(SetInstantYieldNotificationDisabled);
 }
@@ -18230,6 +18234,35 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lIsAccomplishmentCompleted(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const AccomplishmentTypes eAccomplishment = (AccomplishmentTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsAccomplishmentCompleted(eAccomplishment);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetNumTimesAccomplishmentCompleted(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const AccomplishmentTypes eAccomplishment = (AccomplishmentTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetNumTimesAccomplishmentCompleted(eAccomplishment);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lCompleteAccomplishment(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const AccomplishmentTypes eAccomplishment = (AccomplishmentTypes)lua_tointeger(L, 2);
+
+	pkPlayer->CompleteAccomplishment(eAccomplishment);
 	return 1;
 }
 

@@ -9398,7 +9398,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 
 		int iModifier = 0;
 
-		if (GD_INT_GET(QUEST_DISABLED_COUP) < 1)
+		if (/*1*/ GD_INT_GET(QUEST_DISABLED_COUP) < 1)
 		{
 			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
