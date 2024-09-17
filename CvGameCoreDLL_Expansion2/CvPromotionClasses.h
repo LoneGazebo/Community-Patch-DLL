@@ -336,8 +336,10 @@ public:
 	std::pair<int, bool> GetInstantYields(int i) const;
 #endif
 
-	bool GetTerrainIgnoreCost(int i) const;
-	bool GetFeatureIgnoreCost(int i) const;
+	bool GetIgnoreTerrainCostIn(int i) const;
+	bool GetIgnoreTerrainCostFrom(int i) const;
+	bool GetIgnoreFeatureCostIn(int i) const;
+	bool GetIgnoreFeatureCostFrom(int i) const;
 	bool GetTerrainDoubleMove(int i) const;
 	bool GetFeatureDoubleMove(int i) const;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -659,8 +661,10 @@ protected:
 	int* m_piTerrainPassableTech;
 	int* m_piFeaturePassableTech;
 
-	bool* m_pbTerrainIgnoreCost;
-	bool* m_pbFeatureIgnoreCost;
+	bool* m_pbIgnoreTerrainCostIn;
+	bool* m_pbIgnoreTerrainCostFrom;
+	bool* m_pbIgnoreFeatureCostIn;
+	bool* m_pbIgnoreFeatureCostFrom;
 	bool* m_pbTerrainDoubleMove;
 	bool* m_pbFeatureDoubleMove;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)

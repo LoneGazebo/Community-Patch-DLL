@@ -260,14 +260,23 @@ ALTER TABLE UnitPromotions ADD CombatBonusImprovement integer DEFAULT -1;
 ALTER TABLE UnitPromotions_Domains ADD Attack integer DEFAULT 0;
 ALTER TABLE UnitPromotions_Domains ADD Defense integer DEFAULT 0;
 
--- Units with this promotion ignore terrain cost when moving onto tiles of the specified terrain/feature
--- Whether this includes rivers is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
-ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCost boolean DEFAULT 0;
-ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCost boolean DEFAULT 0;
-
 -- Heal rate is doubled for units with this promotion on tiles of the specified terrain/feature
 ALTER TABLE UnitPromotions_Terrains ADD DoubleHeal boolean DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD DoubleHeal boolean DEFAULT 0;
+
+-- Note for below abilities: if a feature is present on a tile, the feature cost overrides the tile's base terrain cost, EXCEPT for Hills and Mountains, which add +1 movement cost
+
+-- Units with this promotion ignore terrain cost when moving onto tiles containing the specified terrain/feature
+-- Example: if set to true (1) for Forest, then when entering a Forest/Hill tile, both the Forest and the Hill cost are ignored
+-- Whether the cost of rivers is ignored when doing this is determined by the IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS define
+ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostIn boolean DEFAULT 0;
+ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
+
+-- Units with this promotion ignore the terrain cost ADDED BY tiles of the specified terrain/feature
+-- Example: if set to true (1) for Forest, then when entering a Forest/Hill tile, ONLY the Forest cost is ignored, the Hill cost is still added
+-- Likewise, the cost of crossing a river isn't ignored by this
+ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
+ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 
 -- Movement cost is doubled for units with this promotion when moving onto tiles of the specified terrain/feature
 ALTER TABLE UnitPromotions_Terrains ADD HalfMove boolean DEFAULT 0;
