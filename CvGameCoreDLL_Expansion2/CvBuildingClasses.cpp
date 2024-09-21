@@ -90,7 +90,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGlobalCultureRateModifier(0),
 	m_iGreatPeopleRateModifier(0),
 	m_iGlobalGreatPeopleRateModifier(0),
-	m_iGPPRateModPerMarriage(0),
+	m_iGPRateModPerMarriage(0),
 	m_iGreatGeneralRateModifier(0),
 	m_iGreatPersonExpendGold(0),
 	m_iUnitUpgradeCostMod(0),
@@ -685,7 +685,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalCultureRateModifier = kResults.GetInt("GlobalCultureRateModifier");
 	m_iGreatPeopleRateModifier = kResults.GetInt("GreatPeopleRateModifier");
 	m_iGlobalGreatPeopleRateModifier = kResults.GetInt("GlobalGreatPeopleRateModifier");
-	m_iGPPRateModPerMarriage = kResults.GetInt("GPPRateModPerMarriage");
+	m_iGPRateModPerMarriage = kResults.GetInt("GPRateModPerMarriage");
 	m_iGreatGeneralRateModifier = kResults.GetInt("GreatGeneralRateModifier");
 	m_iGreatPersonExpendGold = kResults.GetInt("GreatPersonExpendGold");
 	m_iUnitUpgradeCostMod = kResults.GetInt("UnitUpgradeCostMod");
@@ -2042,9 +2042,9 @@ int CvBuildingEntry::GetGlobalGreatPeopleRateModifier() const
 }
 
 /// Modifier to great people per active marriage with a CS
-int CvBuildingEntry::GetGPPRateModPerMarriage() const
+int CvBuildingEntry::GetGPRateModPerMarriage() const
 {
-	return m_iGPPRateModPerMarriage;
+	return m_iGPRateModPerMarriage;
 }
 
 /// Change in spawn rate for great generals

@@ -155,6 +155,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsEraScaling" type="boolean" default="false"/>
+		<Column name="GoldenAgeOnly" type="boolean" default="false"/>
 	</Table>
 	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below. Same as above, but from any combat. Operates at the player level, so be careful about using this on anything but wonders! -->
 	<Table name="Building_YieldFromVictoryGlobalPlayer">
@@ -424,5 +425,41 @@
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="NumUnits" type="integer" notnull="true"/>
+	</Table>
+	<!-- Allows the player to train the specified unit class, overriding tech restrictions-->
+	<Table name="Building_UnitClassTrainingAllowed">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+	</Table>
+	<!-- On building construction, claim all tiles within working range with the specified resource. If IncludeOwnedByOtherPlayer is true, also tiles owned by someone else are claimed and a diplomatic penalty is applied-->
+	<Table name="Building_ResourceClaim">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="IncludeOwnedByOtherPlayer" type="boolean" default="false"/>
+	</Table>
+	<!-- Gives yields to all lakes tiles in the empire-->
+	<Table name="Building_LakePlotYieldChangesGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Gives instant yields to the city when the empire starts a golden age-->
+	<Table name="Building_YieldFromGoldenAgeStart">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields permanently added to the city whenever the empire starts a golden age, capping at YieldCap-->
+	<Table name="Building_YieldChangesPerGoldenAge">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="YieldCap" type="integer" notnull="true"/>
+	</Table>
+	<!-- Instant yield when purchasing a unit or a building in any city-->
+	<Table name="Building_YieldFromPurchaseGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 </GameData>
