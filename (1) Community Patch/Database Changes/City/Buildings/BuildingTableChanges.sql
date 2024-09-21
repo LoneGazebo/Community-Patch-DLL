@@ -289,6 +289,9 @@ ALTER TABLE Buildings ADD GlobalCityAutomatonWorkersChange integer DEFAULT 0;
 ALTER TABLE Buildings ADD CityWorkingChange integer DEFAULT 0;
 ALTER TABLE Buildings ADD GlobalCityWorkingChange integer DEFAULT 0;
 
+-- Modifier to Great Person Point generation per active Marriage with City-States not at war with (Austria UA)
+ALTER TABLE Buildings ADD GPRateModifierPerMarriage integer DEFAULT 0;
+
 -- GLOBAL_GREATWORK_YIELDTYPES
 ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAULT 'YIELD_CULTURE';
 

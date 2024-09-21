@@ -185,7 +185,7 @@ CvCity::CvCity() :
 	, m_iExtraHitPoints()
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
-	, m_iGPPRateModPerMarriage()
+	, m_iGPRateModPerMarriage()
 	, m_iJONSCultureStored()
 	, m_iJONSCultureLevel()
 	, m_iJONSCulturePerTurnFromPolicies()
@@ -1180,7 +1180,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iExtraHitPoints = 0;
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
-	m_iGPPRateModPerMarriage = 0;
+	m_iGPRateModPerMarriage = 0;
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
 	m_iJONSCulturePerTurnFromPolicies = 0;
@@ -14217,7 +14217,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
-		changeGPPRateModPerMarriage(pBuildingInfo->GetGPPRateModPerMarriage() * iChange);
+		changeGPRateModPerMarriage(pBuildingInfo->GetGPRateModPerMarriage() * iChange);
 
 		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
@@ -17280,7 +17280,7 @@ int CvCity::getGreatPeopleRateModifier() const
 	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
 	if (iNumMarried > 0)
 	{
-		iValue += (iNumMarried * getGPPRateModPerMarriage());
+		iValue += (iNumMarried * getGPRateModPerMarriage());
 		if (isCapital())
 		{
 			iValue += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
@@ -17385,17 +17385,17 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getGPPRateModPerMarriage() const
+int CvCity::getGPRateModPerMarriage() const
 {
 	VALIDATE_OBJECT
-	return m_iGPPRateModPerMarriage;
+	return m_iGPRateModPerMarriage;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeGPPRateModPerMarriage(int iChange)
+void CvCity::changeGPRateModPerMarriage(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iGPPRateModPerMarriage = (m_iGPPRateModPerMarriage + iChange);
+	m_iGPRateModPerMarriage = (m_iGPRateModPerMarriage + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31412,7 +31412,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iExtraHitPoints);
 	visitor(city.m_iBaseGreatPeopleRate);
 	visitor(city.m_iGreatPeopleRateModifier);
-	visitor(city.m_iGPPRateModPerMarriage);
+	visitor(city.m_iGPRateModPerMarriage);
 	visitor(city.m_iJONSCultureStored);
 	visitor(city.m_iJONSCultureLevel);
 	visitor(city.m_iJONSCulturePerTurnFromPolicies);

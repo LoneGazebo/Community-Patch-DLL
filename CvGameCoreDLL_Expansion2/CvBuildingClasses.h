@@ -182,7 +182,7 @@ public:
 	int GetGlobalCultureRateModifier() const;
 	int GetGreatPeopleRateModifier() const;
 	int GetGlobalGreatPeopleRateModifier() const;
-	int GetGPPRateModPerMarriage() const;
+	int GetGPRateModPerMarriage() const;
 	int GetGreatGeneralRateModifier() const;
 	int GetGreatPersonExpendGold() const;
 	int GetUnitUpgradeCostMod() const;
@@ -745,7 +745,7 @@ private:
 	int m_iGlobalCultureRateModifier;
 	int m_iGreatPeopleRateModifier;
 	int m_iGlobalGreatPeopleRateModifier;
-	int m_iGPPRateModPerMarriage;
+	int m_iGPRateModPerMarriage;
 	int m_iGreatGeneralRateModifier;
 	int m_iGreatPersonExpendGold;
 	int m_iUnitUpgradeCostMod;
