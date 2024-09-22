@@ -10580,19 +10580,17 @@ void CvPlayer::DoUnitReset()
 
 		// then damage it again
 		int iCitadelDamage = pUnitPlot->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
-		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false) && !pLoopUnit->isTrade())
 		{
-
 			pLoopUnit->changeDamage(iCitadelDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
 		}
 
-		if (pUnitPlot->isDeepWater())
+		if (pUnitPlot->isDeepWater() && !pLoopUnit->isTrade())
 		{
 			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
-
 				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
