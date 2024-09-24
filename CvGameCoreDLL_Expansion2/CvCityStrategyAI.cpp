@@ -4086,6 +4086,32 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
 		iInstant += kPlayer.GetPlayerTraits()->GetGrowthBoon();
 	}
+	if (pkBuildingInfo->GetYieldFromBirthEraScaling(eYield) > 0)
+	{
+		//we want these as early as possible!
+		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+
+		iInstant += (iEra * pkBuildingInfo->GetYieldFromBirthEraScaling(eYield)) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		if (pCity->isCapital())
+		{
+			iInstant += kPlayer.GetCapitalGrowthMod();
+		}
+		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+		iInstant += kPlayer.GetPlayerTraits()->GetGrowthBoon();
+	}
+	if (pkBuildingInfo->GetGPPOnCitizenBirth() > 0)
+	{
+		//we want these as early as possible!
+		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+
+		iInstant += (iEra * pkBuildingInfo->GetGPPOnCitizenBirth()) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		if (pCity->isCapital())
+		{
+			iInstant += kPlayer.GetCapitalGrowthMod();
+		}
+		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+		iInstant += kPlayer.GetPlayerTraits()->GetGrowthBoon();
+	}
 
 	///////////////
 	// Yield Modifiers
