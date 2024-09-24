@@ -27643,7 +27643,9 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			if (eSpecialist == NO_SPECIALIST)
 				continue;
 
-			// 1st step: Get the percent to progress towards the next GP
+			// 1st step: Get the progress towards the next GP
+			// if bPercentValue is true, the number of GPP points given is (iValue) percent of the GP threshold
+			// if bPercentValue is false, iValue contains the absolute number of GPP points given
 			int iValue = 0;
 			bool bPercentValue = true;
 			switch (iType)
@@ -27712,12 +27714,9 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 				if (pkSpecialistInfo)
 				{
-					int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					//Get % of threshold for test.
-					iValue;
 					if (bPercentValue)
 					{
-						iValue *= iGPThreshold;
+						iValue *= pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 						iValue /= 100;
 					}
 					CvGreatPersonInfo* pGreatPerson = GC.getGreatPersonInfo(eGreatPerson);
