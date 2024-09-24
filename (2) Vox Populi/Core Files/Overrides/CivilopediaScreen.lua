@@ -986,7 +986,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 	for building in GameInfo.Buildings() do
 		-- exclude wonders etc.
 		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-		if thisBuildingClass.MaxGlobalInstances > 0 and building.IsCorporation > 0 then
+		if thisBuildingClass.MaxGlobalInstances > 0 and building.IsCorporation then
 			local article = {};
 			local name = Locale.ConvertTextKey( building.Description )
 			article.entryName = name;
