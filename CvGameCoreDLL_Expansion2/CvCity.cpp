@@ -186,6 +186,7 @@ CvCity::CvCity() :
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
 	, m_iGPRateModPerMarriage()
+	, m_iGPPOnCitizenBirth()
 	, m_iJONSCultureStored()
 	, m_iJONSCultureLevel()
 	, m_iJONSCulturePerTurnFromPolicies()
@@ -1181,6 +1182,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
 	m_iGPRateModPerMarriage = 0;
+	m_iGPPOnCitizenBirth = 0;
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
 	m_iJONSCulturePerTurnFromPolicies = 0;
@@ -14218,6 +14220,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeGPRateModPerMarriage(pBuildingInfo->GetGPRateModPerMarriage() * iChange);
+		ChangeGPPOnCitizenBirth(pBuildingInfo->GetGPPOnCitizenBirth() * iChange);
 
 		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
@@ -17026,6 +17029,33 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				// Two triggers: one era scaling and one not
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
+				
+				// GPPOnCitizenBirth: instant GPP for the great person with the most points
+				if (GetGPPOnCitizenBirth() > 0)
+				{
+					GreatPersonTypes eBestGreatPerson = NO_GREATPERSON;
+					int iCurrentPointsOfBestGreatPerson = -1;
+					for (int iGreatPersonTypes = 0; iGreatPersonTypes < GC.getNumGreatPersonInfos(); iGreatPersonTypes++)
+					{
+						GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPersonTypes;
+						if (eGreatPerson == NO_GREATPERSON)
+							continue;
+
+						SpecialistTypes eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
+						if (eSpecialist == NO_SPECIALIST)
+							continue;
+
+						if (GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist) > iCurrentPointsOfBestGreatPerson)
+						{
+							iCurrentPointsOfBestGreatPerson = GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist);
+							eBestGreatPerson = eGreatPerson;
+						}
+					}
+					if (eBestGreatPerson != NO_GREATPERSON)
+					{
+						GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_BIRTH, false, this, NO_BUILDING, iPopChange, eBestGreatPerson);
+					}
+				}
 
 				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 				if (eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
@@ -17396,6 +17426,20 @@ void CvCity::changeGPRateModPerMarriage(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iGPRateModPerMarriage = (m_iGPRateModPerMarriage + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetGPPOnCitizenBirth() const
+{
+	VALIDATE_OBJECT
+	return m_iGPPOnCitizenBirth;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeGPPOnCitizenBirth(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iGPPOnCitizenBirth = (m_iGPPOnCitizenBirth + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31413,6 +31457,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iBaseGreatPeopleRate);
 	visitor(city.m_iGreatPeopleRateModifier);
 	visitor(city.m_iGPRateModPerMarriage);
+	visitor(city.m_iGPPOnCitizenBirth);
 	visitor(city.m_iJONSCultureStored);
 	visitor(city.m_iJONSCultureLevel);
 	visitor(city.m_iJONSCulturePerTurnFromPolicies);

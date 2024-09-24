@@ -10445,7 +10445,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
-		if (!getInstantYieldText(eInstantYield).empty() && getInstantYieldText(eInstantYield) != NULL)
+		if (getInstantYieldText(eInstantYield) && !getInstantYieldText(eInstantYield).empty())
 		{
 			// Instant yield
 			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
@@ -10456,13 +10456,17 @@ void CvPlayer::doTurnPostDiplomacy()
 				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
 			}
 			setInstantYieldText(eInstantYield, "");
+		}
+		if (getInstantGreatPersonProgressText(eInstantYield) && !getInstantGreatPersonProgressText(eInstantYield).empty())
+		{
 			// Instant great person progress
 			Localization::String strInstantGreatPersonProgress = Localization::Lookup(getInstantGreatPersonProgressText(eInstantYield));
-			/*if (pNotifications) // Can't get this to work correctly for some reason
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE");
 				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
-			}*/
+			}
 			setInstantGreatPersonProgressText(eInstantYield, "");
 		}
 	}
@@ -27633,6 +27637,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 
 			// 1st step: Get the percent to progress towards the next GP
 			int iValue = 0;
+			bool bPercentValue = true;
 			switch (iType)
 			{
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
@@ -27682,6 +27687,13 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					}
 					break;
 				}
+				case INSTANT_YIELD_TYPE_BIRTH:
+				{
+					// this is not a percentage value
+					bPercentValue = false;
+					iValue = iPassValue * pLoopCity->GetGPPOnCitizenBirth() * max(1, (int)GetCurrentEra());
+					break;
+				}
 				default:
 				UNREACHABLE(); // Other types should never be passed into this function.
 			}
@@ -27693,20 +27705,22 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				if (pkSpecialistInfo)
 				{
 					int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					iGPThreshold *= 100;
 					//Get % of threshold for test.
-					iGPThreshold *= iValue;
-					iGPThreshold /= 100;
-					int iGPThresholdString = iGPThreshold / 100;
+					iValue;
+					if (bPercentValue)
+					{
+						iValue *= iGPThreshold;
+						iValue /= 100;
+					}
 					CvGreatPersonInfo* pGreatPerson = GC.getGreatPersonInfo(eGreatPerson);
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPThreshold, false); // Dont spawn the GP yet, so the points given to all cities remain the same
+					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iValue * 100, false); // Dont spawn the GP yet, so the points given to all cities remain the same
 					// 3rd step: Notifications
 					if (GetID() == GC.getGame().getActivePlayer() && iValue > 0)
 					{
 						char text[256] = { 0 };
 
 						gpString.Format("%s+%%d[ENDCOLOR] %s", "[COLOR_WHITE]", pGreatPerson->GetIconString());
-						sprintf_s(text, gpString, iGPThresholdString);
+						sprintf_s(text, gpString, iValue);
 						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 					}
 					if (citynameString.empty())
@@ -27717,7 +27731,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					{
 						citygpString += ", ";
 					}
-					citygpString += GetLocalizedText("TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS", pGreatPerson->GetDescriptionKey(), pGreatPerson->GetIconString(), iGPThresholdString);
+					citygpString += GetLocalizedText("TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS", pGreatPerson->GetDescriptionKey(), pGreatPerson->GetIconString(), iValue);
 				}
 			}
 		}
@@ -27749,6 +27763,24 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				if (getInstantGreatPersonProgressText(iType).empty() || getInstantGreatPersonProgressText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
+					localizedText << totalgpString;
+					//We do this at the player level once per turn.
+					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalgpString;
+					//We do this at the player level once per turn.
+					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+				}
+				break;
+			}
+			case INSTANT_YIELD_TYPE_BIRTH:
+			{
+				if (getInstantGreatPersonProgressText(iType).empty() || getInstantGreatPersonProgressText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH");
 					localizedText << totalgpString;
 					//We do this at the player level once per turn.
 					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());

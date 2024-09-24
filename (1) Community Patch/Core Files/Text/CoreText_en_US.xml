@@ -7341,7 +7341,7 @@
 			<Text>Bonus Great Person Points in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS">
-			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+			<Text>+{3_Num} {2_Icon} {1_Name} Points</Text>
 		</Row>
 		
 		<!-- Instant Yield Text -->
