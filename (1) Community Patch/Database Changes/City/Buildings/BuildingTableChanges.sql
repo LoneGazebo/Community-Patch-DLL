@@ -299,9 +299,6 @@ ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAU
 ALTER TABLE Buildings ADD GlobalConversionModifier integer DEFAULT 0;
 ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 
--- modifies GPP Rate in the City per active marriage with CS (not at war)
-ALTER TABLE Buildings ADD GPPRateModPerMarriage integer DEFAULT 0;
-
 -- instant GPP for the great person with the most points currently, scaling with Era
 ALTER TABLE Buildings ADD GPPOnCitizenBirth integer DEFAULT 0;
 
