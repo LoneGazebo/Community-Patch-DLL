@@ -21610,7 +21610,7 @@ int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextK
 		{
 			CvUnit* pEnemyUnit = pSplashPlot->getUnitByIndex(iJ);
 			//logically we should damage non-enemy units as well? but that is too complex to consider ... 
-			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
+			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()) && !pEnemyUnit->isTrade())
 			{
 				//no splash damage in cities/forts
 				if (pSplashPlot->isFortification(pEnemyUnit->getTeam()))

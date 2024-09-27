@@ -10565,47 +10565,51 @@ void CvPlayer::DoUnitReset()
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		// First heal the unit
-		pLoopUnit->doHeal();
-
-		//collect some stats
-		gTactMovesCount[pLoopUnit->getTacticalMove()]++;
-		gHomeMovesCount[pLoopUnit->getHomelandMove()]++;
-
-		CvPlot* pUnitPlot = pLoopUnit->plot();
-
-		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pUnitPlot->getNumUnits() == 1)
-			OutputDebugString( CvString::format("ouch, general %d about to be captured at %d:%d!\n",pLoopUnit->GetID(), pLoopUnit->getX(), pLoopUnit->getY()).c_str());
-
-		// then damage it again
-		int iCitadelDamage = pUnitPlot->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
-		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false) && !pLoopUnit->isTrade())
+		// Trade units don't heal, take plot damage or fortify
+		if (!pLoopUnit->isTrade())
 		{
-			pLoopUnit->changeDamage(iCitadelDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
-			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
-		}
+			// First heal the unit
+			pLoopUnit->doHeal();
 
-		if (pUnitPlot->isDeepWater() && !pLoopUnit->isTrade())
-		{
-			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
-			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
+			//collect some stats
+			gTactMovesCount[pLoopUnit->getTacticalMove()]++;
+			gHomeMovesCount[pLoopUnit->getHomelandMove()]++;
+
+			CvPlot* pUnitPlot = pLoopUnit->plot();
+
+			// Sanity check
+			if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pUnitPlot->getNumUnits() == 1)
+				OutputDebugString( CvString::format("ouch, general %d about to be captured at %d:%d!\n",pLoopUnit->GetID(), pLoopUnit->getX(), pLoopUnit->getY()).c_str());
+
+			// then damage it again
+			int iCitadelDamage = pUnitPlot->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
+			if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 			{
-				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
-				if (iTempDamage > 0)
+				pLoopUnit->changeDamage(iCitadelDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
+				pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
+			}
+
+			if (pUnitPlot->isDeepWater())
+			{
+				CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
+				if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())
+					int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
+					if (iTempDamage > 0)
 					{
-						pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
-						pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
+						if (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())
+						{
+							pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
+							pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
+						}
 					}
 				}
 			}
-		}
 
-		// Bonus for entrenched units
-		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
-			pLoopUnit->SetFortified(true);
+			// Bonus for entrenched units
+			if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
+				pLoopUnit->SetFortified(true);
+		}
 
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();

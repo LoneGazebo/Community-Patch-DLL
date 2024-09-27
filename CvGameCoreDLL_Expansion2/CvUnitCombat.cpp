@@ -3076,11 +3076,12 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 					{
 						if(pLoopUnit != pkAttacker)
 						{
+							bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what
 							if(!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
 							{
 								int iNukeDamage = 0;
 								// How much destruction is unleashed on nearby Units?
-								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
+								if (iDamageLevel == 1 && pLoopPlot != pkTargetPlot && !bTradeUnit)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
 									iNukeDamage = (/*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY)));
 								}
@@ -3090,9 +3091,9 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 									iNukeDamage = pLoopUnit->GetMaxHitPoints();
 								}
 
-								if(pLoopCity != NULL)
+								if (pLoopCity && !bTradeUnit)
 								{
-									iNukeDamage *= std::max(0, (pLoopCity->getNukeModifier() + 100));
+									iNukeDamage *= std::max(0, pLoopCity->getNukeModifier() + 100);
 									iNukeDamage /= 100;
 								}
 
