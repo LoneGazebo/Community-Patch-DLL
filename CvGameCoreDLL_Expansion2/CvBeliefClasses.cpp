@@ -1908,7 +1908,7 @@ ReligionTypes CvReligionBeliefs::GetReligion() const
 }
 
 /// Store off data on bonuses from beliefs
-void CvReligionBeliefs::AddBelief(BeliefTypes eBelief, bool bTriggerAccomplishment)
+void CvReligionBeliefs::AddBelief(BeliefTypes eBelief, PlayerTypes ePlayer, bool bTriggerAccomplishment)
 {
 	ASSERT(eBelief != NO_BELIEF);
 	CvBeliefEntry* belief = GC.GetGameBeliefs()->GetEntry(eBelief);
@@ -1919,36 +1919,16 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief, bool bTriggerAccomplishme
 
 	if (bTriggerAccomplishment)
 	{
-		PlayerTypes eAccomplisher = NO_PLAYER;
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligion(), NO_PLAYER);
-		if (pReligion)
-		{
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pReligion->m_bPantheon && pHolyCityPlot == NULL)
-			{
-				PlayerTypes ePantheonFounder = pReligion->m_eFounder;
-				if (ePantheonFounder != NO_PLAYER)
-					eAccomplisher = ePantheonFounder;
-			}
-			//don't care about founder, ownership counts!
-			else if (pHolyCityPlot)
-			{
-				PlayerTypes eReligionOwner = pHolyCityPlot->getOwner();
-				if (eReligionOwner != NO_PLAYER)
-					eAccomplisher = eReligionOwner;
-			}
-		}
-
 		if (belief->IsPantheonBelief())
-			GET_PLAYER(eAccomplisher).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_PANTHEON);
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_PANTHEON);
 		else if (belief->IsFounderBelief())
-			GET_PLAYER(eAccomplisher).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOUNDER);
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOUNDER);
 		else if (belief->IsFollowerBelief())
-			GET_PLAYER(eAccomplisher).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_FOLLOWER);
 		else if (belief->IsEnhancerBelief())
-			GET_PLAYER(eAccomplisher).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_ENHANCER);
 		else if (belief->IsReformationBelief())
-			GET_PLAYER(eAccomplisher).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_REFORMATION);
+			GET_PLAYER(ePlayer).CompleteAccomplishment(ACCOMPLISHMENT_BELIEF_REFORMATION);
 	}
 }
 

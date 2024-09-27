@@ -74,6 +74,7 @@ local YieldTypes_NUM_YIELD_TYPES_1 = YieldTypes.NUM_YIELD_TYPES-1
 local GameInfoTechnologies = GameInfo.Technologies
 local GameInfoPolicies = GameInfo.Policies
 local GameInfoBeliefs = GameInfo.Beliefs
+local GameInfoAccomplishments = GameInfo.Accomplishments
 
 local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
 local gk_mode = type( Game.GetReligionName ) == "function"
@@ -85,7 +86,7 @@ local civ5_bnw_mode = bnw_mode and civ5_mode
 local MouseEvents_MouseMove = MouseEvents.MouseMove
 local Controls_TheBox = Controls.TheBox
 
-local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isNoob, g_isCivilianYields
+local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isAccomplishmentsEnabled, g_isNoob, g_isCivilianYields
 
 local g_tipTimer = 0
 local g_tipLevel = 0
@@ -239,6 +240,14 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	local function BeliefFilter(row)
 
 		return row and not plotBeliefs[ row.ID ] and availableBeliefs[ row.ID ]
+	end
+
+	------------------
+	-- Accomplishments Filter
+	local function AccomplishmentFilter(row)
+		local numTimesCompleted = ( plotOwner and plotOwner:GetNumTimesAccomplishmentCompleted( row.ID ) ) or 0
+		local maxTimesCompletable = row.MaxPossibleCompletions or -1
+		return row and ( not plotOwner or maxTimesCompletable == -1 or numTimesCompleted < maxTimesCompletable )
 	end
 
 	------------------
@@ -464,6 +473,9 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			end
 			if g_isReligionEnabled then
 				insertYieldChanges( tips, bullet, "[COLOR_WHITE]", "BeliefType", BeliefFilter, GameInfoBeliefs, GameInfo.Belief_ImprovementYieldChanges( thisImprovementType ) )
+			end
+			if g_isAccomplishmentsEnabled then
+				insertYieldChanges( tips, bullet, "[COLOR_YELLOW]", "AccomplishmentType", AccomplishmentFilter, GameInfoAccomplishments, GameInfo.Improvement_AccomplishmentYieldChanges( thisImprovementType ) )
 			end
 		end
 	end
@@ -1160,6 +1172,7 @@ local function UpdateOptions()
 	g_isPoliciesEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 	g_isHappinessEnabled = civ5_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 	g_isReligionEnabled = civ5_mode and gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)
+	g_isAccomplishmentsEnabled = true
 	g_isNoob = civ5_mode and not OptionsManager.IsNoBasicHelp()
 	ResetAll()
 end

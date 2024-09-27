@@ -105,6 +105,8 @@ public:
 	bool IsAllowsAirliftTo() const;
 #endif
 
+	bool IsBlockTileSteal() const;
+
 	bool IsHillsMakesValid() const;
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool IsMountainsMakesValid() const;
@@ -218,6 +220,8 @@ public:
 	int* GetTechFreshWaterYieldChangesArray(int i);
 	int GetRouteYieldChanges(int i, int j) const;
 	int* GetRouteYieldChangesArray(int i);				// For Moose - CvWidgetData XXX
+	int GetAccomplishmentYieldChanges(int i, int j) const;
+	int* GetAccomplishmentYieldChangesArray(int i);
 
 	int  GetImprovementResourceYield(int i, int j) const;
 	bool IsImprovementResourceMakesValid(int i) const;
@@ -228,6 +232,9 @@ public:
 
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
+
+	int GetDomainProductionModifier(int i) const;
+	int GetDomainFreeExperience(int i) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -281,6 +288,8 @@ protected:
 	bool m_bAllowsAirliftFrom;
 	bool m_bAllowsAirliftTo;
 #endif
+
+	bool m_bBlockTileSteal;
 
 	bool m_bHillsMakesValid;
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
@@ -353,6 +362,9 @@ protected:
 	int* m_piAdjacentMountainYieldChange;
 	int* m_piFlavorValue;
 
+	int* m_piDomainProductionModifier;
+	int* m_piDomainFreeExperience;
+
 	bool* m_pbTerrainMakesValid;
 	bool* m_pbFeatureMakesValid;
 	bool* m_pbImprovementMakesValid;
@@ -367,6 +379,7 @@ protected:
 	int** m_ppiTechNoFreshWaterYieldChanges;
 	int** m_ppiTechFreshWaterYieldChanges;
 	int** m_ppiRouteYieldChanges;
+	int** m_ppiAccomplishmentYieldChanges;
 
 	CvImprovementResourceInfo* m_paImprovementResource;
 

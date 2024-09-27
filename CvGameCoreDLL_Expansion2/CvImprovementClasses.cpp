@@ -106,6 +106,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAllowsAirliftFrom(false),
 	m_bAllowsAirliftTo(false),
 #endif
+	m_bBlockTileSteal(false),
 	m_bHillsMakesValid(false),
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid(false),
@@ -171,6 +172,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piAdjacentCityYieldChange(NULL),
 	m_piAdjacentMountainYieldChange(NULL),
 	m_piFlavorValue(NULL),
+	m_piDomainProductionModifier(NULL),
+	m_piDomainFreeExperience(NULL),
 	m_pbTerrainMakesValid(NULL),
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
@@ -184,6 +187,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
 	m_ppiRouteYieldChanges(NULL),
+	m_ppiAccomplishmentYieldChanges(NULL),
 	m_paImprovementResource(NULL),
 	m_eSpawnsAdjacentResource(NO_RESOURCE)
 {
@@ -205,6 +209,8 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_piAdjacentCityYieldChange);
 	SAFE_DELETE_ARRAY(m_piAdjacentMountainYieldChange);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
@@ -251,6 +257,11 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiRouteYieldChanges);
 	}
+
+	if (m_ppiAccomplishmentYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiAccomplishmentYieldChanges);
+	}
 }
 
 /// Read from XML file
@@ -278,6 +289,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bAllowsAirliftFrom = kResults.GetBool("AllowsAirliftFrom");
 	m_bAllowsAirliftTo = kResults.GetBool("AllowsAirliftTo");
 #endif
+	m_bBlockTileSteal = kResults.GetBool("BlockTileSteal");
 	m_bHillsMakesValid = kResults.GetBool("HillsMakesValid");
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid = kResults.GetBool("MountainsMakesValid");
@@ -425,6 +437,26 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	kUtility.SetYields(m_piPrereqNatureYield, "Improvement_PrereqNatureYields", "ImprovementType", szImprovementType);
 
 	kUtility.SetFlavors(m_piFlavorValue, "Improvement_Flavors", "ImprovementType", szImprovementType);
+
+	kUtility.PopulateArrayByValue(
+		m_piDomainProductionModifier,
+		"Domains",
+		"Improvement_DomainProductionModifier",
+		"DomainType",
+		"ImprovementType",
+		szImprovementType,
+		"Modifier"
+	);
+
+	kUtility.PopulateArrayByValue(
+		m_piDomainFreeExperience,
+		"Domains",
+		"Improvement_DomainFreeExperience",
+		"DomainType",
+		"ImprovementType",
+		szImprovementType,
+		"Experience"
+	);
 
 	{
 		//Initialize Improvement Resource Types to number of Resources
@@ -793,6 +825,37 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	}
 
+	//AccomplishmentYieldChanges
+	{
+		const int iNumAccomplishments = kUtility.MaxRows("Accomplishments");
+		kUtility.Initialize2DArray(m_ppiAccomplishmentYieldChanges, iNumAccomplishments, iNumYields);
+
+		std::string strKey = "Improvements - AccomplishmentYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Accomplishments.ID as AccomplishmentID, Yield from Improvement_AccomplishmentYieldChanges inner join Yields on YieldType = Yields.Type inner join Accomplishments on AccomplishmentType = Accomplishments.Type where ImprovementType = ?;");
+		}
+
+		pResults->Bind(1, szImprovementType, lenImprovementType, false);
+
+		while (pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int accomplishment_idx = pResults->GetInt(1);
+			CvAssert(accomplishment_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiAccomplishmentYieldChanges[accomplishment_idx][yield_idx] = yield;
+		}
+
+		pResults->Reset();
+
+	}
+
 	return true;
 }
 
@@ -1078,6 +1141,11 @@ bool CvImprovementEntry::IsAllowsAirliftTo() const
 	return m_bAllowsAirliftTo;
 }
 #endif
+
+bool CvImprovementEntry::IsBlockTileSteal() const
+{
+	return m_bBlockTileSteal;
+}
 
 /// Requires hills to be constructed
 bool CvImprovementEntry::IsHillsMakesValid() const
@@ -1636,6 +1704,21 @@ int* CvImprovementEntry::GetRouteYieldChangesArray(int i)				// For Moose - CvWi
 	return m_ppiRouteYieldChanges[i];
 }
 
+/// Improvement yields from completing accomplishments
+int CvImprovementEntry::GetAccomplishmentYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < NUM_ACCOMPLISHMENTS_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiAccomplishmentYieldChanges[i][j];
+}
+
+int* CvImprovementEntry::GetAccomplishmentYieldChangesArray(int i)				// For Moose - CvWidgetData XXX
+{
+	return m_ppiAccomplishmentYieldChanges[i];
+}
+
 /// How much a yield improves when a resource is present with the improvement
 int CvImprovementEntry::GetImprovementResourceYield(int i, int j) const
 {
@@ -1699,6 +1782,21 @@ int CvImprovementEntry::GetFlavorValue(int i) const
 	return m_piFlavorValue[i];
 }
 
+// Production modifier from improvement for given domain
+int CvImprovementEntry::GetDomainProductionModifier(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Indes out of bounds");
+	return m_piDomainProductionModifier[i];
+}
+
+// Free unit experience from improvement for given domain
+int CvImprovementEntry::GetDomainFreeExperience(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Indes out of bounds");
+	return m_piDomainFreeExperience[i];
+}
 
 //=====================================
 // CvPromotionEntryXMLEntries
