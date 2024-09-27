@@ -2490,7 +2490,7 @@ local function UpdateCityViewNow()
 				local buildingClass = GameInfo.BuildingClasses[ building.BuildingClass ]
 				local buildings
 				local greatWorkCount = civ5bnw_mode and building.GreatWorkCount or 0
-				local corporation = building.IsCorporation > 0
+				local corporation = building.IsCorporation
 				local areSpecialistsAllowedByBuilding = city:GetNumSpecialistsAllowedByBuilding(buildingID) > 0
 
 				if (corporation) then
