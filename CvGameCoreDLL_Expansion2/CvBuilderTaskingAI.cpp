@@ -3621,6 +3621,12 @@ int CvBuilderTaskingAI::GetResourceSpawnWorkableChance(CvPlot* pPlot, int& iTile
 		aPossibleSpawnPlots.push_back(pAdjacentPlot);
 	}
 
+	if (aPossibleSpawnPlots.empty())
+	{
+		iTileClaimChance = 0;
+		return 0;
+	}
+
 	int iWorkableSpawnPlots = 0;
 	int iNonWorkableSpawnPlots = 0;
 	int iClaimTiles = 0;
