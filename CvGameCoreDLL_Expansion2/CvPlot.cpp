@@ -10667,6 +10667,18 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			// Team Tech Yield Changes
 			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
 		}
+
+		// Player Accomplishment Yield Changes
+		for (int iI = 0; iI < NUM_ACCOMPLISHMENTS_TYPES; iI++)
+		{
+			AccomplishmentTypes eAccomplishment = (AccomplishmentTypes)iI;
+			int iCompletions = kPlayer.GetNumTimesAccomplishmentCompleted(eAccomplishment);
+
+			if (iCompletions == 0)
+				continue;
+
+			iYield += pImprovement->GetAccomplishmentYieldChanges(eAccomplishment, eYield) * iCompletions;
+		}
 	}
 
 	bool bIsCityConnection = IsCityConnection(ePlayer);

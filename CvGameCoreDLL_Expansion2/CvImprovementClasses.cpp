@@ -184,6 +184,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
 	m_ppiRouteYieldChanges(NULL),
+	m_ppiAccomplishmentYieldChanges(NULL),
 	m_paImprovementResource(NULL),
 	m_eSpawnsAdjacentResource(NO_RESOURCE)
 {
@@ -250,6 +251,11 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	if(m_ppiRouteYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiRouteYieldChanges);
+	}
+
+	if (m_ppiAccomplishmentYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiAccomplishmentYieldChanges);
 	}
 }
 
@@ -787,6 +793,37 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 			const int yield = pResults->GetInt(2);
 
 			m_ppiRouteYieldChanges[route_idx][yield_idx] = yield;
+		}
+
+		pResults->Reset();
+
+	}
+
+	//AccomplishmentYieldChanges
+	{
+		const int iNumAccomplishments = kUtility.MaxRows("Accomplishments");
+		kUtility.Initialize2DArray(m_ppiAccomplishmentYieldChanges, iNumAccomplishments, iNumYields);
+
+		std::string strKey = "Improvements - AccomplishmentYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Accomplishments.ID as AccomplishmentID, Yield from Improvement_AccomplishmentYieldChanges inner join Yields on YieldType = Yields.Type inner join Accomplishments on AccomplishmentType = Accomplishments.Type where ImprovementType = ?;");
+		}
+
+		pResults->Bind(1, szImprovementType, lenImprovementType, false);
+
+		while (pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int accomplishment_idx = pResults->GetInt(1);
+			CvAssert(accomplishment_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiAccomplishmentYieldChanges[accomplishment_idx][yield_idx] = yield;
 		}
 
 		pResults->Reset();
@@ -1634,6 +1671,21 @@ int CvImprovementEntry::GetRouteYieldChanges(int i, int j) const
 int* CvImprovementEntry::GetRouteYieldChangesArray(int i)				// For Moose - CvWidgetData XXX
 {
 	return m_ppiRouteYieldChanges[i];
+}
+
+/// Improvement yields from completing accomplishments
+int CvImprovementEntry::GetAccomplishmentYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < NUM_ACCOMPLISHMENTS_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiAccomplishmentYieldChanges[i][j];
+}
+
+int* CvImprovementEntry::GetAccomplishmentYieldChangesArray(int i)				// For Moose - CvWidgetData XXX
+{
+	return m_ppiAccomplishmentYieldChanges[i];
 }
 
 /// How much a yield improves when a resource is present with the improvement

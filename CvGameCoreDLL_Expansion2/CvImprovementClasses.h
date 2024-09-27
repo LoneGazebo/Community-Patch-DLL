@@ -218,6 +218,8 @@ public:
 	int* GetTechFreshWaterYieldChangesArray(int i);
 	int GetRouteYieldChanges(int i, int j) const;
 	int* GetRouteYieldChangesArray(int i);				// For Moose - CvWidgetData XXX
+	int GetAccomplishmentYieldChanges(int i, int j) const;
+	int* GetAccomplishmentYieldChangesArray(int i);
 
 	int  GetImprovementResourceYield(int i, int j) const;
 	bool IsImprovementResourceMakesValid(int i) const;
@@ -367,6 +369,7 @@ protected:
 	int** m_ppiTechNoFreshWaterYieldChanges;
 	int** m_ppiTechFreshWaterYieldChanges;
 	int** m_ppiRouteYieldChanges;
+	int** m_ppiAccomplishmentYieldChanges;
 
 	CvImprovementResourceInfo* m_paImprovementResource;
 
