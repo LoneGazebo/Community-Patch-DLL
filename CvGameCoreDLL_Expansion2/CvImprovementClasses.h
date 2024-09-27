@@ -229,6 +229,9 @@ public:
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
 
+	int GetDomainProductionModifier(int i) const;
+	int GetDomainFreeExperience(int i) const;
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 	int m_iGoldMaintenance;
@@ -352,6 +355,9 @@ protected:
 	int* m_piAdjacentCityYieldChange;
 	int* m_piAdjacentMountainYieldChange;
 	int* m_piFlavorValue;
+
+	int* m_piDomainProductionModifier;
+	int* m_piDomainFreeExperience;
 
 	bool* m_pbTerrainMakesValid;
 	bool* m_pbFeatureMakesValid;

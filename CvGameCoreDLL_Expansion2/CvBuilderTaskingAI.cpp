@@ -2816,6 +2816,31 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			iSecondaryScore += iProductionFromChop * GetYieldBaseModifierTimes100(YIELD_PRODUCTION) / 50;
 	}
 
+	// Bonuses to domain (give simple linear bonuses for now, should be fine)
+	CvCity* pActualOwningCity = pPlot->getOwningCity();
+	if (pkImprovementInfo && pActualOwningCity)
+	{
+		for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+		{
+			DomainTypes eDomain = (DomainTypes)iI;
+
+			if (eDomain == DOMAIN_SEA && !pActualOwningCity->isCoastal())
+				continue;
+
+			int iDomainProductionModifier = pkImprovementInfo->GetDomainProductionModifier(iI);
+			if (iDomainProductionModifier != 0)
+			{
+				iSecondaryScore += iDomainProductionModifier * 50;
+			}
+
+			int iDomainFreeExperience = pkImprovementInfo->GetDomainFreeExperience(iI);
+			if (iDomainFreeExperience != 0)
+			{
+				iSecondaryScore += iDomainFreeExperience * 20;
+			}
+		}
+	}
+
 	int iExtraResource = 0;
 	if ((pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE)
 	{

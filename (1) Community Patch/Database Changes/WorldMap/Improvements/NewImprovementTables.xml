@@ -57,4 +57,16 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Improvement: gives a production bonus to the city owning the tile for a particular unit domain -->
+	<Table name="Improvement_DomainProductionModifier">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Improvement: gives bonus experience for units of a particular domain constructed in the city owning the tile -->
+	<Table name="Improvement_DomainFreeExperience">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Experience" type="integer" notnull="true"/>
+	</Table>
 </GameData>

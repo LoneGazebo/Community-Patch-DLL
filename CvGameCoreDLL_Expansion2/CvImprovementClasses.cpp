@@ -171,6 +171,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piAdjacentCityYieldChange(NULL),
 	m_piAdjacentMountainYieldChange(NULL),
 	m_piFlavorValue(NULL),
+	m_piDomainProductionModifier(NULL),
+	m_piDomainFreeExperience(NULL),
 	m_pbTerrainMakesValid(NULL),
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
@@ -205,6 +207,8 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_piAdjacentCityYieldChange);
 	SAFE_DELETE_ARRAY(m_piAdjacentMountainYieldChange);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
@@ -425,6 +429,26 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	kUtility.SetYields(m_piPrereqNatureYield, "Improvement_PrereqNatureYields", "ImprovementType", szImprovementType);
 
 	kUtility.SetFlavors(m_piFlavorValue, "Improvement_Flavors", "ImprovementType", szImprovementType);
+
+	kUtility.PopulateArrayByValue(
+		m_piDomainProductionModifier,
+		"Domains",
+		"Improvement_DomainProductionModifier",
+		"DomainType",
+		"ImprovementType",
+		szImprovementType,
+		"Modifier"
+	);
+
+	kUtility.PopulateArrayByValue(
+		m_piDomainFreeExperience,
+		"Domains",
+		"Improvement_DomainFreeExperience",
+		"DomainType",
+		"ImprovementType",
+		szImprovementType,
+		"Experience"
+	);
 
 	{
 		//Initialize Improvement Resource Types to number of Resources
@@ -1699,6 +1723,21 @@ int CvImprovementEntry::GetFlavorValue(int i) const
 	return m_piFlavorValue[i];
 }
 
+// Production modifier from improvement for given domain
+int CvImprovementEntry::GetDomainProductionModifier(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Indes out of bounds");
+	return m_piDomainProductionModifier[i];
+}
+
+// Free unit experience from improvement for given domain
+int CvImprovementEntry::GetDomainFreeExperience(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Indes out of bounds");
+	return m_piDomainFreeExperience[i];
+}
 
 //=====================================
 // CvPromotionEntryXMLEntries
