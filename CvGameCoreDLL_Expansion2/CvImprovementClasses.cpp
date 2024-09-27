@@ -106,6 +106,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAllowsAirliftFrom(false),
 	m_bAllowsAirliftTo(false),
 #endif
+	m_bBlockTileSteal(false),
 	m_bHillsMakesValid(false),
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid(false),
@@ -278,6 +279,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bAllowsAirliftFrom = kResults.GetBool("AllowsAirliftFrom");
 	m_bAllowsAirliftTo = kResults.GetBool("AllowsAirliftTo");
 #endif
+	m_bBlockTileSteal = kResults.GetBool("BlockTileSteal");
 	m_bHillsMakesValid = kResults.GetBool("HillsMakesValid");
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid = kResults.GetBool("MountainsMakesValid");
@@ -1078,6 +1080,11 @@ bool CvImprovementEntry::IsAllowsAirliftTo() const
 	return m_bAllowsAirliftTo;
 }
 #endif
+
+bool CvImprovementEntry::IsBlockTileSteal() const
+{
+	return m_bBlockTileSteal;
+}
 
 /// Requires hills to be constructed
 bool CvImprovementEntry::IsHillsMakesValid() const

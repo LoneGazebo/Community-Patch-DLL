@@ -1520,7 +1520,7 @@ public:
 
 	// Plot acquisition
 
-	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false);
+	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false) const;
 	bool CanBuyAnyPlot(void);
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
 	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices = 3);

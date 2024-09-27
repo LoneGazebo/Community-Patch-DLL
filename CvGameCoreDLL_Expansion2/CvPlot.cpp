@@ -15279,6 +15279,21 @@ bool CvPlot::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	return false;
 }
 
+// Is tile stealing blocked by the presence of an improvement
+bool CvPlot::IsStealBlockedByImprovement() const
+{
+	if (getOwner() == NO_PLAYER)
+		return false;
+
+	if (getImprovementType() == NO_IMPROVEMENT)
+		return false;
+
+	if (IsImprovementPillaged())
+		return false;
+
+	return GC.getImprovementInfo(getImprovementType())->IsBlockTileSteal();
+}
+
 ///-------------------------------------
 /// Is an enemy city next to us?
 bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const

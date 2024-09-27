@@ -7965,20 +7965,20 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
 
- /// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
- void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
- {
+/// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
+void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
+{
 	VALIDATE_OBJECT;
 	m_miInstantYieldsTotal[eYield] += iValue;
- }
+}
  
- int CvCity::GetInstantYieldTotal(YieldTypes eYield)
- {
-	 return m_miInstantYieldsTotal[eYield];
- }
+int CvCity::GetInstantYieldTotal(YieldTypes eYield)
+{
+	return m_miInstantYieldsTotal[eYield];
+}
 
- void CvCity::ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue)
- {
+void CvCity::ChangeUnitClassTrainingAllowed(UnitClassTypes eUnitClass, int iValue)
+{
 	VALIDATE_OBJECT;
 	m_miUnitClassTrainingAllowed[eUnitClass] += iValue;
 
@@ -7988,69 +7988,72 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	}
 
 	GET_PLAYER(getOwner()).UpdateUnitClassTrainingAllowedAnywhere(eUnitClass);
- }
+}
  
- int CvCity::GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const
- {
-	 if (m_miUnitClassTrainingAllowed.count(eUnitClass) > 0)
-	 {
-		 return m_miUnitClassTrainingAllowed.find(eUnitClass)->second;
-	 }
-	 return 0;
- }
+int CvCity::GetUnitClassTrainingAllowed(UnitClassTypes eUnitClass) const
+{
+	if (m_miUnitClassTrainingAllowed.count(eUnitClass) > 0)
+	{
+		return m_miUnitClassTrainingAllowed.find(eUnitClass)->second;
+	}
+	return 0;
+}
 
- map<UnitClassTypes, int> CvCity::GetUnitClassTrainingAllowed() const
- {
-	 return m_miUnitClassTrainingAllowed;
- }
+map<UnitClassTypes, int> CvCity::GetUnitClassTrainingAllowed() const
+{
+	return m_miUnitClassTrainingAllowed;
+}
 
 
- std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const
- {
-	 std::vector<CvPlot*> vPlotsClaimed;
+std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) const
+{
+	std::vector<CvPlot*> vPlotsClaimed;
 
-	 CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-	 if (pBuildingInfo == NULL)
-		 return vPlotsClaimed;
+	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pBuildingInfo == NULL)
+		return vPlotsClaimed;
 
-	 set<std::pair<int, bool>> sBuildingResourceClaim = pBuildingInfo->GetResourceClaim();
-	 if (sBuildingResourceClaim.empty())
-		 return vPlotsClaimed;
+	set<std::pair<int, bool>> sBuildingResourceClaim = pBuildingInfo->GetResourceClaim();
+	if (sBuildingResourceClaim.empty())
+		return vPlotsClaimed;
 
-	 // loop through all unowned plots within working range and check if they have one of the required resources
-	 for (int i = RING0_PLOTS; i < GetNumWorkablePlots(); i++)
-	 {
-		 CvPlot* pLoopPlot = iterateRingPlots(plot(), i);
-		 if (!pLoopPlot)
-			 continue;
+	// loop through all unowned plots within working range and check if they have one of the required resources
+	for (int i = RING0_PLOTS; i < GetNumWorkablePlots(); i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(plot(), i);
+		if (!pLoopPlot)
+			continue;
 		 
-		 // already our plot?
-		 if (pLoopPlot->getOwner() == getOwner())
-			 continue;
+		// already our plot?
+		if (pLoopPlot->getOwner() == getOwner())
+			continue;
 
-		 if (!pLoopPlot->isRevealed(getTeam()))
-			 continue;
+		if (!pLoopPlot->isRevealed(getTeam()))
+			continue;
 
-		 ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
-		 if (eResource == NO_RESOURCE)
-			 continue;
+		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
+		if (eResource == NO_RESOURCE)
+			continue;
 
-		 // resource claimed, including tiles owned by other players?
-		 if (sBuildingResourceClaim.count(make_pair((int)eResource, true)) > 0)
-		 {
-			 vPlotsClaimed.push_back(pLoopPlot);
-		 }
-		 // resource claimed, not including tiles owned by other players?
-		 else if (sBuildingResourceClaim.count(make_pair((int)eResource, false)) > 0)
-		 {
-			 if (!pLoopPlot->isOwned())
-			 {
-				 vPlotsClaimed.push_back(pLoopPlot);
-			 }
-		 }
-	 }
-	 return vPlotsClaimed;
- }
+		if (pLoopPlot->IsStealBlockedByImprovement())
+			continue;
+
+		// resource claimed, including tiles owned by other players?
+		if (sBuildingResourceClaim.count(make_pair((int)eResource, true)) > 0)
+		{
+			vPlotsClaimed.push_back(pLoopPlot);
+		}
+		// resource claimed, not including tiles owned by other players?
+		else if (sBuildingResourceClaim.count(make_pair((int)eResource, false)) > 0)
+		{
+			if (!pLoopPlot->isOwned())
+			{
+				vPlotsClaimed.push_back(pLoopPlot);
+			}
+		}
+	}
+	return vPlotsClaimed;
+}
 
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer) const
 {
@@ -27282,7 +27285,7 @@ int CvCity::GetWarValue() const
 
 //	--------------------------------------------------------------------------------
 /// Can a specific plot be bought for the city
-bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
+bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 {
 	VALIDATE_OBJECT
 
@@ -27302,23 +27305,22 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	// if this plot belongs to someone, bail!
 	if (pTargetPlot->getOwner() != NO_PLAYER)
 	{
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
-		{
-			if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
-				return false;
-
-			//can't buy the master's plots if you're a vassal
-			if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
-				return false;
-
-			// Bad idea for AI to steal?
-			if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
-				return false;
-		}
-		else
-		{
+		if (!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 			return false;
-		}
+
+		if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
+			return false;
+
+		//can't buy the master's plots if you're a vassal
+		if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
+			return false;
+
+		// Bad idea for AI to steal?
+		if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
+			return false;
+
+		if (pTargetPlot->IsStealBlockedByImprovement())
+			return false;
 	}
 
 	//VP: can't buy plot with enemy combat units (except Barbarians)
@@ -27497,6 +27499,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					// Can't buy self-owned plots or city plots
 					if (pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
+						continue;
+
+					if (pLoopPlot->IsStealBlockedByImprovement())
 						continue;
 				}
 

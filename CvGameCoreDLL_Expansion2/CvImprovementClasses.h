@@ -105,6 +105,8 @@ public:
 	bool IsAllowsAirliftTo() const;
 #endif
 
+	bool IsBlockTileSteal() const;
+
 	bool IsHillsMakesValid() const;
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool IsMountainsMakesValid() const;
@@ -281,6 +283,8 @@ protected:
 	bool m_bAllowsAirliftFrom;
 	bool m_bAllowsAirliftTo;
 #endif
+
+	bool m_bBlockTileSteal;
 
 	bool m_bHillsMakesValid;
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
