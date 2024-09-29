@@ -2735,7 +2735,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumCities = m_pPlayer->getNumCities();
 
 	int iWorstCaseWorkerPerCityRatio = 25; // one worker for four cities
-	int iCurrentWorkerPerCityRatio = (100 * iNumWorkers) / iNumCities;
+	int iCurrentWorkerPerCityRatio = (100 * iNumWorkers) / max(1, iNumCities);
 	if (iCurrentWorkerPerCityRatio <= iWorstCaseWorkerPerCityRatio)
 		return;
 
