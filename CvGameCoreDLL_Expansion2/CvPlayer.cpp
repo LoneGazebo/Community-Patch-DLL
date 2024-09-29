@@ -4430,6 +4430,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 	// New owner should update city specializations
 	GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_ENEMY_CITY_CAPTURED);
+	pNewCity->GetCityCitizens()->DoReallocateCitizens(true);
 
 	// Display the notification for the spoils of plundering
 	if (GC.getGame().getActivePlayer() == GetID())
