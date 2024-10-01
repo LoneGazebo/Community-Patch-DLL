@@ -9389,6 +9389,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	//DoUpdateApproachTowardsUsGuesses();
 
 	// Player Opinion & Approach
+	TestOpinionModifiers();
 	DoUpdateOpinions();
 	DoUpdateGlobalPolitics();
 
@@ -14449,8 +14450,6 @@ bool CvDiplomacyAI::WouldBeUpsetIfAttackedFriend(PlayerTypes ePlayer, PlayerType
 /// Determines our Diplomatic Opinions of all players we've met
 void CvDiplomacyAI::DoUpdateOpinions()
 {
-	TestOpinionModifiers();
-
 	// Loop through all (known) Majors
 	bool bMPDealUpdates = MOD_ACTIVE_DIPLOMACY && GC.getGame().isReallyNetworkMultiPlayer() && !GetPlayer()->isHuman();
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
