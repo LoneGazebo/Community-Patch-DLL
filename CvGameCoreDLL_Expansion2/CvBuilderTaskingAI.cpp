@@ -1972,7 +1972,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 		}
 		if (pPlot->GetPlannedRouteState(m_pPlayer->GetID()) == ROAD_PLANNING_PRIORITY_CONSTRUCTION)
 		{
-			AddRouteOrRepairDirective(aDirectives, pPlot, eBestRoute, 1000, NO_ROUTE_PURPOSE);
+			AddRouteOrRepairDirective(aDirectives, pPlot, eBestRoute, 1000, PURPOSE_MANUAL);
 		}
 	}
 

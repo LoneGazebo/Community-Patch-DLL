@@ -13411,7 +13411,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 			if(pLoopUnit && pLoopUnit != this)
 			{
-				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
+				if(pLoopUnit->IsWork() && pLoopUnit->IsWorking())
 				{
 					return false;
 				}
@@ -15619,6 +15619,13 @@ BuildTypes CvUnit::getBuildType() const
 	return NO_BUILD;
 }
 
+//	----------------------------------------------------------------------------
+bool CvUnit::IsWorking() const
+{
+	VALIDATE_OBJECT
+	const MissionData* pkMissionNode = HeadMissionData();
+	return pkMissionNode && (pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO() || pkMissionNode->eMissionType == CvTypes::getMISSION_BUILD());
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
@@ -29520,7 +29527,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(), PT_BUILD_ROUTE, ePlayerBestRouteBuild, ePlayerBestRoute, NO_ROUTE_PURPOSE, false);
+	SPathFinderUserData data(getOwner(), PT_BUILD_ROUTE, ePlayerBestRouteBuild, ePlayerBestRoute, PURPOSE_MANUAL, false);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!

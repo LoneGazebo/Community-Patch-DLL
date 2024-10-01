@@ -651,6 +651,7 @@ public:
 
 	bool canBuildRoute() const;
 	BuildTypes getBuildType() const;
+	bool IsWorking() const;
 	int workRate(bool bMax, BuildTypes eBuild = NO_BUILD) const;
 
 	bool isNoBadGoodies() const;
