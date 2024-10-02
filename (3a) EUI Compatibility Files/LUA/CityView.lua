@@ -2990,10 +2990,10 @@ UpdateOptionsAndCityView()
 Events.SerialEventEnterCityScreen.Add(
 function()
 
---	local city = UI_GetHeadSelectedCity()
---	if city then
---		Network.SendUpdateCityCitizens( city:GetID() )
---	end
+	local city = UI_GetHeadSelectedCity()
+	if city and not city:IsPuppet() then
+		Network.SendUpdateCityCitizens( city:GetID() )
+	end
 
 	LuaEvents.TryQueueTutorial("CITY_SCREEN", true)
 

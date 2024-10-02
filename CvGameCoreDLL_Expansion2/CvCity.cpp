@@ -2354,11 +2354,20 @@ void CvCity::doTurn()
 	setMadeAttack(false);
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
-	//not a full re-allocation but see if we can shift some citizens around
-	//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
-	GetCityCitizens()->DoVerifyWorkingPlots();
-	GetCityCitizens()->OptimizeWorkedPlots(false);
-	updateNetHappiness();
+	
+	if (foodDifferenceTimes100(true) < 0)
+	{
+		// avoid starvation if possible
+		GetCityCitizens()->DoReallocateCitizens(true);
+	}
+	else
+	{
+		//not a full re-allocation but see if we can shift some citizens around
+		//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
+		GetCityCitizens()->DoVerifyWorkingPlots();
+		GetCityCitizens()->OptimizeWorkedPlots(false);
+		updateNetHappiness();
+	}
 	UpdateTerrainImprovementNeed();
 
 	GetCityStrategyAI()->DoTurn();
