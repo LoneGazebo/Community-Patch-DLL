@@ -2388,6 +2388,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	PlayerTypes ePlayer = data.ePlayer;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	bool bThisPlayerIsMinor = kPlayer.isMinorCiv();
+	bool bIsManual = data.eRoutePurpose == PURPOSE_MANUAL;
 
 	//can we build it?
 	RouteTypes eRoute = data.eRoute;
@@ -2404,7 +2405,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
 		return FALSE;
 
-	if (pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
+	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
 		return FALSE;
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
@@ -2430,14 +2431,17 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	}
 
 	if ((ePlotOwnerPlayer == NO_PLAYER || ePlotOwnerPlayer == ePlayer) && kPlayer.GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
-		return true;
+		return TRUE;
 
 	//if the plot and its parent are both too far from our borders, don't build here
-	if (!kPlayer.IsPlotSafeForRoute(pNewPlot, true /*bIncludeAdjacent*/))
+	if (!bIsManual)
 	{
-		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
-		if (!kPlayer.IsPlotSafeForRoute(pFromPlot, true /*bIncludeAdjacent*/))
-			return FALSE;
+		if (!kPlayer.IsPlotSafeForRoute(pNewPlot, true /*bIncludeAdjacent*/))
+		{
+			CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+			if (!kPlayer.IsPlotSafeForRoute(pFromPlot, true /*bIncludeAdjacent*/))
+				return FALSE;
+		}
 	}
 
 	return TRUE;
