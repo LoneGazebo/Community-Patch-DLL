@@ -12645,7 +12645,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 										{
 											//Simplification - errata yields not worth considering.
-											if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+											if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 												break;
 
 											int iYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION)) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
@@ -18034,7 +18034,7 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
@@ -18060,7 +18060,7 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
@@ -18086,7 +18086,7 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		UpdateYieldPerXFeature(((YieldTypes)iI), eFeature);
@@ -27040,7 +27040,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 						// Skip errata yields
-						if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_GOLDEN_AGE_POINTS)
+						if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
 							break;
 
 						int iWeight = (eYield == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
@@ -27149,7 +27149,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 									YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
 
 									// Skip errata yields
-									if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_GOLDEN_AGE_POINTS)
+									if (!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
 										break;
 
 									int iWeight = (eYield == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;

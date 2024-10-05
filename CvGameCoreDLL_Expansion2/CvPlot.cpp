@@ -2817,7 +2817,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
 		if (pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer, getFeatureType(), getResourceType(GET_PLAYER(ePlayer).getTeam()), NULL) < pkImprovementInfo->GetPrereqNatureYield(iI))
@@ -7362,7 +7362,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
 				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 					break;
 
 				pOwningCity->UpdateYieldPerXTerrain((YieldTypes)iI, getTerrainType());
@@ -7456,7 +7456,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
 				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 					break;
 
 				pOwningCity->UpdateYieldPerXFeature((YieldTypes)iI, eNewValue);
@@ -11116,7 +11116,7 @@ bool CvPlot::hasYield() const
 	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			return false;
 
 		if(getYield((YieldTypes)iI) > 0)
@@ -13273,7 +13273,7 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 					{
 						//Simplification - errata yields not worth considering.
-						if ((YieldTypes)iJ > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						if ((YieldTypes)iJ > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 							break;
 
 						pArea->changeYieldRateModifier(pCity->getOwner(), ((YieldTypes)iJ), (pkBuildingInfo->GetAreaYieldModifier(iJ) * iChange * pCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding)));
