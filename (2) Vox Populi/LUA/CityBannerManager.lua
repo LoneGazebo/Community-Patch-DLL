@@ -983,7 +983,16 @@ function OnCityDestroyed(hexPos, playerID, cityID, newPlayerID)
 	local active_team = Players[Game.GetActivePlayer()]:GetTeam();
 	local team = Players[playerID]:GetTeam();
 
-	if(active_team ~= team)
+	local globalObserverMode = false
+	if Players[Game.GetActivePlayer()]:IsObserver() then
+		if Game:GetObserverUIOverridePlayer() == -1 then
+			globalObserverMode = true
+		else
+			active_team = Players[Game:GetObserverUIOverridePlayer()]:GetTeam();
+		end
+	end
+	
+	if(active_team ~= team and not globalObserverMode)
 	then
 	    g_OtherIM:ReleaseInstance( banner.SubControls );
     else
