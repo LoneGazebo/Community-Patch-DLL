@@ -5818,7 +5818,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
 	//Simplification - errata yields not worth considering.
-	if(eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+	if(eYield > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 	{
 		return 0;
 	}
