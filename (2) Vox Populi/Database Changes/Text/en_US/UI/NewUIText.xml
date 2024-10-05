@@ -228,6 +228,9 @@
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_FINAL_TT">
 			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]Total Network Points gained per Turn: {1_Num}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_NO_ACTIONS_POSSIBLE">
+			<Text>No Spy Actions Possible</Text>
+		</Row>
 
 		<!-- City-State screen/tooltip -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
