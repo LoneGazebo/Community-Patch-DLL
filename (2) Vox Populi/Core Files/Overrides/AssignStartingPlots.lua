@@ -318,6 +318,7 @@ function AssignStartingPlots.Create()
 		PlaceBonusResources = AssignStartingPlots.PlaceBonusResources,
 		IsEvenMoreResourcesActive = AssignStartingPlots.IsEvenMoreResourcesActive,
 		IsAloeVeraResourceActive = AssignStartingPlots.IsAloeVeraResourceActive,
+		IsAdditionalLuxuriesModActive  = AssignStartingPlots.IsAdditionalLuxuriesModActive,
 		IsReducedSupplyActive = AssignStartingPlots.IsReducedSupplyActive,
 		Plot_GetPlotsInCircle = AssignStartingPlots.Plot_GetPlotsInCircle,
 		Plot_GetFertilityInRange = AssignStartingPlots.Plot_GetFertilityInRange,
@@ -784,7 +785,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.amber_ID,		35},
 		{self.silver_ID,	30},
 		{self.copper_ID,	20},
-		{self.quartz_ID,	20},
 		{self.salt_ID,		15},
 		{self.gems_ID,		10},
 		{self.jade_ID,		10},
@@ -802,6 +802,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[1], {self.tin_ID,		10});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[1], {self.quartz_ID,	20});
+	end
 
 	-- Added for snow bias
 	self.luxury_region_weights[10] = self.luxury_region_weights[1];
@@ -850,7 +853,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[4] = { -- Desert 
-		{self.camel_ID,		50},
 		{self.incense_ID,	35},
 		{self.lapis_ID,		35},
 		{self.gold_ID,		20},
@@ -859,7 +861,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.jade_ID,		15},
 		{self.copper_ID,	10},
 		{self.amber_ID,		10},
-		{self.quartz_ID,	10},
 		{self.gems_ID,		10},
 		{self.sugar_ID,		10},
 		{self.cotton_ID,	10},
@@ -876,14 +877,17 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[4], {self.tin_ID,		10});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[4], {self.quartz_ID,	10});
+		table.insert(self.luxury_region_weights[4], {self.camel_ID,		50});
+	end
+
 
 	self.luxury_region_weights[5] = { -- Hills
-		{self.alpaca_ID,	30},
 		{self.gold_ID,		20},
 		{self.copper_ID,	20},
 		{self.gems_ID,		20},
 		{self.jade_ID,		20},
-		{self.quartz_ID,	20},
 		{self.salt_ID,		10},
 		{self.amber_ID,		10},
 		{self.lapis_ID,		10},
@@ -901,6 +905,10 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[5], {self.tin_ID,		20});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[5], {self.alpaca_ID,	30});
+		table.insert(self.luxury_region_weights[5], {self.quartz_ID,	20});
+	end
 
 	-- Added for mountain bias
 	self.luxury_region_weights[9] = self.luxury_region_weights[5];
@@ -912,7 +920,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.incense_ID,	20},
 		{self.cotton_ID,	20},
 		{self.salt_ID,		15},
-		{self.alpaca_ID,	15},
 		{self.tobacco_ID,	15},
 		{self.tea_ID,		15},
 		{self.perfume_ID,	15},
@@ -928,7 +935,10 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[6], {self.poppy_ID,		40});
 	end
 	-- MOD.HungryForFood: End
-
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[6], {self.alpaca_ID,	15});
+	end
+	
 	self.luxury_region_weights[7] = { -- Grass
 		{self.tobacco_ID,	50},
 		{self.tea_ID,		50},
@@ -937,7 +947,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.wine_ID,		20},
 		{self.olives_ID,	20},
 		{self.coffee_ID,	20},
-		{self.alpaca_ID,	15},
 		{self.sugar_ID,		10},
 		{self.gold_ID,		10},
 		{self.whale_ID,		14},
@@ -952,7 +961,10 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[7], {self.poppy_ID,		50});
 	end
 	-- MOD.HungryForFood: End
-
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[7], {self.alpaca_ID,	15});
+	end
+	
 	self.luxury_region_weights[8] = { -- Hybrid
 		{self.gold_ID,		30},      -- MOD.Barathor: Favor very flexible resources, like resources that are mined or in the water.
 		{self.copper_ID,	30},
@@ -960,9 +972,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.salt_ID,		30},
 		{self.jade_ID,		30},
 		{self.amber_ID,		30},
-		{self.quartz_ID,	30},
 		{self.lapis_ID,		30},
-		{self.alpaca_ID,	05},
 		{self.coffee_ID,	05},
 		{self.tobacco_ID,	05},
 		{self.tea_ID,		05},
@@ -991,7 +1001,11 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[8], {self.poppy_ID,		05});
 	end
 	-- MOD.HungryForFood: End
-
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[8], {self.alpaca_ID,	05});
+		table.insert(self.luxury_region_weights[8], {self.quartz_ID,	30});
+	end
+	
 	self.luxury_fallback_weights = { -- Random / Fallback
 		{self.gold_ID,		10},     -- MOD.Barathor: Favor water resources since they work great as randoms and make the coasts more interesting.
 		{self.copper_ID,	10},     -- Also, slightly favor mined resources for their flexibility.
@@ -999,9 +1013,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.salt_ID,		10},
 		{self.jade_ID,		10},
 		{self.amber_ID,		10},
-		{self.quartz_ID,	30},
 		{self.lapis_ID,		10},
-		{self.alpaca_ID,	05},
 		{self.coffee_ID,	05},
 		{self.tobacco_ID,	05},
 		{self.tea_ID,		05},
@@ -1010,7 +1022,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.wine_ID,		05},
 		{self.olives_ID,	05},
 		{self.incense_ID,	05},
-		{self.camel_ID,		05},
 		{self.truffles_ID,	05},
 		{self.silk_ID,		05},
 		{self.dye_ID,		05},
@@ -1032,6 +1043,12 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_fallback_weights, {self.poppy_ID,		05});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_fallback_weights, {self.camel_ID,	05});
+		table.insert(self.luxury_fallback_weights, {self.alpaca_ID,	05});
+		table.insert(self.luxury_fallback_weights, {self.quartz_ID,	30});
+	end
+	
 
 	self.luxury_city_state_weights = { -- City States
 		{self.gold_ID,		10},       -- MOD.Barathor: Slightly favor water resources since they're flexible and most city-states are coastal.
@@ -1041,7 +1058,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		{self.salt_ID,		10},
 		{self.jade_ID,		10},
 		{self.amber_ID,		10},
-		{self.quartz_ID,	10},
 		{self.lapis_ID,		10},
 		{self.coffee_ID,	05},
 		{self.tobacco_ID,	05},
@@ -1075,6 +1091,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	end
 	-- MOD.HungryForFood: End
 	-- MOD.Barathor: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_city_state_weights, {self.quartz_ID,	10});
+	end
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:__CustomInit()
@@ -8859,7 +8878,6 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								allowed_luxuries[self.salt_ID] = true;
 								allowed_luxuries[self.jade_ID] = true;
 								allowed_luxuries[self.amber_ID] = true;
-								allowed_luxuries[self.quartz_ID] = true; 
 								allowed_luxuries[self.lapis_ID] = true;
 								allowed_luxuries[self.fur_ID] = true;
 								-- MOD.HungryForFood
@@ -8867,6 +8885,9 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 									allowed_luxuries[self.obsidian_ID] = true;
 									allowed_luxuries[self.platinum_ID] = true;
 									allowed_luxuries[self.tin_ID] = true;
+								end
+								if self:IsAdditionalLuxuriesModActive() then
+									allowed_luxuries[self.quartz_ID] = true; 
 								end
 							elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 								allowed_luxuries[self.gold_ID] = true;
@@ -8877,10 +8898,8 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								allowed_luxuries[self.cotton_ID] = true;
 								allowed_luxuries[self.jade_ID] = true;
 								allowed_luxuries[self.amber_ID] = true;
-								allowed_luxuries[self.quartz_ID] = true; 
 								allowed_luxuries[self.lapis_ID] = true;
 								allowed_luxuries[self.incense_ID] = true;
-								allowed_luxuries[self.camel_ID] = true;
 								if plot:GetFeatureType() == FeatureTypes.FEATURE_FLOOD_PLAINS then
 									allowed_luxuries[self.sugar_ID] = true;
 								end
@@ -8891,15 +8910,17 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 									allowed_luxuries[self.poppy_ID] = true;
 									allowed_luxuries[self.tin_ID] = true;
 								end
+								if self:IsAdditionalLuxuriesModActive() then
+									allowed_luxuries[self.quartz_ID] = true; 
+									allowed_luxuries[self.camel_ID] = true;
+								end
 							elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
 								allowed_luxuries[self.gold_ID] = true;
 								allowed_luxuries[self.copper_ID] = true;
 								allowed_luxuries[self.gems_ID] = true;
 								allowed_luxuries[self.salt_ID] = true;
 								allowed_luxuries[self.jade_ID] = true;
-								allowed_luxuries[self.amber_ID] = true;
-								allowed_luxuries[self.alpaca_ID] = true; 
-								allowed_luxuries[self.quartz_ID] = true; 
+								allowed_luxuries[self.amber_ID] = true; 
 								allowed_luxuries[self.lapis_ID] = true;
 								allowed_luxuries[self.spices_ID] = true;
 								allowed_luxuries[self.silk_ID] = true;
@@ -8923,14 +8944,16 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 									allowed_luxuries[self.poppy_ID] = true;
 									allowed_luxuries[self.tin_ID] = true;
 								end
+								if self:IsAdditionalLuxuriesModActive() then
+									allowed_luxuries[self.quartz_ID] = true; 
+									allowed_luxuries[self.alpaca_ID] = true;
+								end
 							elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 								allowed_luxuries[self.gold_ID] = true;
 								allowed_luxuries[self.copper_ID] = true;
 								allowed_luxuries[self.gems_ID] = true;
 								allowed_luxuries[self.jade_ID] = true;
 								allowed_luxuries[self.amber_ID] = true;
-								allowed_luxuries[self.alpaca_ID] = true; 
-								allowed_luxuries[self.quartz_ID] = true; 
 								allowed_luxuries[self.lapis_ID] = true;
 								allowed_luxuries[self.spices_ID] = true;
 								allowed_luxuries[self.silk_ID] = true;
@@ -8954,6 +8977,10 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 									allowed_luxuries[self.platinum_ID] = true;
 									allowed_luxuries[self.poppy_ID] = true;
 									allowed_luxuries[self.tin_ID] = true;
+								end
+								if self:IsAdditionalLuxuriesModActive() then
+									allowed_luxuries[self.quartz_ID] = true; 
+									allowed_luxuries[self.alpaca_ID] = true;
 								end
 							end
 						end
@@ -10664,7 +10691,7 @@ function AssignStartingPlots:AdjustTiles()
 			   res_ID == self.lapis_ID or
 			   res_ID == self.jade_ID or
 			   res_ID == self.amber_ID or
-			   res_ID == self.quartz_ID or
+			   (self:IsAdditionalLuxuriesModActive() and res_ID == self.quartz_ID) or
 			   -- MOD.HungryForFood: Start
 			   self:IsEvenMoreResourcesActive() and
 			   (
@@ -10753,7 +10780,7 @@ function AssignStartingPlots:AdjustTiles()
 				   res_ID == self.tea_ID or
 				   res_ID == self.perfume_ID or
 				   res_ID == self.cotton_ID or
-				   res_ID == self.alpaca_ID or
+				   (self:IsAdditionalLuxuriesModActive() and res_ID == self.alpaca_ID) or
 				   -- MOD.HungryForFood: Start
 				   self:IsEvenMoreResourcesActive() and
 				   (
@@ -10762,7 +10789,7 @@ function AssignStartingPlots:AdjustTiles()
 				   -- MOD.HungryForFood: End
 				   then
 
-				if res_ID == self.alpaca_ID then
+				if self:IsAdditionalLuxuriesModActive() and res_ID == self.alpaca_ID then
 					-- Always want it on bare hills.
 					plot:SetPlotType(PlotTypes.PLOT_HILLS, false, true);
 					plot:SetFeatureType(FeatureTypes.NO_FEATURE);
@@ -10855,9 +10882,11 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 	print(self.perfume_ID,  "Perfume.: ", self.amounts_of_resources_placed[self.perfume_ID + 1]);
 	print(self.coral_ID,  	"Coral...: ", self.amounts_of_resources_placed[self.coral_ID + 1]);
 	print(self.lapis_ID,  	"Lapis...: ", self.amounts_of_resources_placed[self.lapis_ID + 1]);
-	print(self.alpaca_ID, 	"Alpaca..: ", self.amounts_of_resources_placed[self.alpaca_ID + 1]);
-	print(self.camel_ID, 	"Camel...: ", self.amounts_of_resources_placed[self.camel_ID + 1]);
-	print(self.quartz_ID,   "Quartz..: ", self.amounts_of_resources_placed[self.quartz_ID + 1]); 
+	if self:IsAdditionalLuxuriesModActive() then
+		print(self.alpaca_ID, 	"Alpaca..: ", self.amounts_of_resources_placed[self.alpaca_ID + 1]);
+		print(self.camel_ID, 	"Camel...: ", self.amounts_of_resources_placed[self.camel_ID + 1]);
+		print(self.quartz_ID,   "Quartz..: ", self.amounts_of_resources_placed[self.quartz_ID + 1]);
+	end
 	print("-");
 	-- MOD.HungryForFood: Start
 	if self:IsEvenMoreResourcesActive() then
@@ -11444,6 +11473,27 @@ function AssignStartingPlots:IsAloeVeraResourceActive()
 
 	if not isUsingCommunityPatch then -- fallback method for modpack mode
 		for _ in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_JAR_ALOE_VERA'") do
+			return true;
+		end
+	end
+	return false;
+end
+--------------------------------------------------------------------------------
+function AssignStartingPlots:IsAdditionalLuxuriesModActive()
+	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
+	local AddLuxuriesModID = "8634880a-749f-4d64-aa68-560378e0f007";
+	local isUsingCommunityPatch = false;
+
+	for _, mod in pairs(Modding.GetActivatedMods()) do
+		if mod.ID == communityPatchModID then -- if Community Patch is not activated, then we are running in modpack mode
+			isUsingCommunityPatch = true;
+		elseif mod.ID == AddLuxuriesModID then
+			return true;
+		end
+	end
+
+	if not isUsingCommunityPatch then -- fallback method for modpack mode
+		for _ in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_QUARTZ'") do
 			return true;
 		end
 	end
