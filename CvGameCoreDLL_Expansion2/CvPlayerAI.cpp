@@ -1975,7 +1975,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	int iEmbassies = GetImprovementLeagueVotes();
-	int iDesiredEmb = range(iFlavorDiplo*2 - 3, 1, iNumMinors);
+	int iDesiredEmb = range((iFlavorDiplo*2) - 3, 1, iNumMinors);
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
 	CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);

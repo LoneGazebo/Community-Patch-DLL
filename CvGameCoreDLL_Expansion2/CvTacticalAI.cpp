@@ -5014,7 +5014,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if(iTurns != MAX_INT)
 			{
 				//tricky to make a good score avoiding ties ...
-				int iScore = 1000 + iExtraScore - 20 * iTurns - plotDistance(*pTarget,*pLoopUnit->plot());
+				int iScore = 1000 + iExtraScore - (20 * iTurns) - plotDistance(*pTarget,*pLoopUnit->plot());
 				possibleUnits.push_back( OptionWithScore<CvUnit*>(pLoopUnit, iScore));
 			}
 		}
@@ -6679,7 +6679,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 		//the method is called findSafePlot; this should be safe enough
 		if (iDanger < iHealRate * nFriends)
 		{
-			int iScore = iHealRate * 2 + nFriends * 3 - iDanger;
+			int iScore = (iHealRate * 2) + (nFriends * 3) - iDanger;
 			//tiebreaker
 			iScore -= GET_PLAYER(pUnit->getOwner()).GetCityDistancePathLength(pPlot);
 
@@ -7432,7 +7432,7 @@ bool ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 
 		//bias depends on the ratio of friendly to enemy units
-		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
+		int iScaledDamage = int((iDamageDealt*fAggBias*fAggFactor) + 0.5f);
 		int iDamageDelta = iScaledDamage - iDamageReceived;
 		bool bVoluntaryCancel = (bBelowHpLimitAfterMeleeAttack && iDamageDelta < 0 && result.eAssignmentType != A_MELEEKILL && result.eAssignmentType != A_MELEEKILL_NO_ADVANCE);
 		bool bSuicideCancel = (pUnit->GetCurrHitPoints() - iDamageReceived < 1) && eAggLvl != AL_BRAVEHEART;
@@ -8829,7 +8829,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					//subtract a little for wasted movement points to balance out what we added in the ref assignment
 					gPossibleMoves.push_back(
 						STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy,
-							iBonus - unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR), A_FINISH_TEMP));
+							iBonus - (unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR)), A_FINISH_TEMP));
 				}
 			}
 		}
@@ -8903,7 +8903,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 	//we don't want the blocked moves for all units to have the same score
 	//so use the number of alternatives as an indicator how urgent this is
-	int iBlockedScore = max(0, 3 - (int)gPossibleMoves.size() / 3);
+	int iBlockedScore = max(0, 3 - ((int)gPossibleMoves.size() / 3));
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());

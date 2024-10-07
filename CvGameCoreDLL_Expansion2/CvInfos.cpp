@@ -3502,7 +3502,7 @@ int CvHandicapInfo::getYieldAmountForDifficultyBonus(int iEra, int iHistoricEven
 	ASSERT(iEra >= 0 && iEra < x);
 	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
 	ASSERT(iYield >= 0 && iYield < z);
-	const int index = iEra * y * z + iHistoricEvent * z + iYield;
+	const int index = (iEra * y * z) + (iHistoricEvent * z) + iYield;
 	return m_pppiDifficultyBonus[index];
 }
 
@@ -3812,7 +3812,7 @@ int CvHandicapInfo::getYieldAmountForAIDifficultyBonus(int iEra, int iHistoricEv
 	ASSERT(iEra >= 0 && iEra < x);
 	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
 	ASSERT(iYield >= 0 && iYield < z);
-	const int index = iEra * y * z + iHistoricEvent * z + iYield;
+	const int index = (iEra * y * z) + (iHistoricEvent * z) + iYield;
 	return m_pppiAIDifficultyBonus[index];
 }
 
@@ -4568,7 +4568,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			const int amount = pResults->GetInt(3);
 
 			// Manually index the array
-			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
+			const int index = (era_idx * iNumHistoricEvents * iNumYields) + (historicevent_idx * iNumYields) + yield_idx;
 			m_pppiDifficultyBonus[index] = amount;
 		}
 	}
@@ -4599,7 +4599,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			const int amount = pResults->GetInt(3);
 
 			// Manually index the array
-			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
+			const int index = (era_idx * iNumHistoricEvents * iNumYields) + (historicevent_idx * iNumYields) + yield_idx;
 			m_pppiAIDifficultyBonus[index] = amount;
 		}
 	}

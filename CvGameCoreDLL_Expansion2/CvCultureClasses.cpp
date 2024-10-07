@@ -280,7 +280,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 			}
 		}
 
-		int iTotalValueTimes100 = iBaseValueTimes100 + 100 * iAddedValue;
+		int iTotalValueTimes100 = iBaseValueTimes100 + (100 * iAddedValue);
 		if (iTotalValueTimes100 != 0) {
 			if(iTotalValueTimes100 % 100 == 0)
 			{
@@ -3039,7 +3039,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 							if (iNewRestingInfluenceTimes100 <= kOwner.GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(m_pPlayer->GetID()))
 								kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
 							else
-								kOwner.GetMinorCivAI()->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), iExtraInfluence * 100 + iNewRestingInfluenceTimes100);
+								kOwner.GetMinorCivAI()->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), (iExtraInfluence * 100) + iNewRestingInfluenceTimes100);
 						}
 						else
 							kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iExtraInfluence);
@@ -6291,7 +6291,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
 	// Great Works
 	// Ignore those Great Works in storage, ie not generating a yield
-	int iGWTourism = GetNumGreatWorks(false) * (/*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + kCityPlayer.GetGreatWorkYieldChange(YIELD_TOURISM)) + m_pCity->GetGreatWorkYieldChange(YIELD_TOURISM);
+	int iGWTourism = (GetNumGreatWorks(false) * (/*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + kCityPlayer.GetGreatWorkYieldChange(YIELD_TOURISM))) + m_pCity->GetGreatWorkYieldChange(YIELD_TOURISM);
 	iGWTourism += ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + kCityPlayer.GetGreatWorksTourismModifierGlobal()) * iGWTourism / 100);
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 

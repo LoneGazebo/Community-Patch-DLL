@@ -297,7 +297,7 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 	int maximumIndex = -1;
 	for(int i=0; i<6; i++)
 	{
-		float dotProduct = iDX * hexspaceDirections[i][0] + iDY * hexspaceDirections[i][1] + iDZ * hexspaceDirections[i][2];
+		float dotProduct = (iDX * hexspaceDirections[i][0]) + (iDY * hexspaceDirections[i][1]) + (iDZ * hexspaceDirections[i][2]);
 		if(dotProduct > maximum)
 		{
 			maximum = dotProduct;
@@ -332,9 +332,9 @@ int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDe
 	int iDZA = iDestAZ - iStartZ;
 	int iDZB = iDestBZ - iStartZ;
 
-	float fRawDotProduct = (float) iDXA *iDXB + iDYA * iDYB + iDZA * iDZB;
-	float fNormA2 = (float) iDXA*iDXA + iDYA*iDYA + iDZA*iDZA;
-	float fNormB2 = (float) iDXB*iDXB + iDYB*iDYB + iDZB*iDZB;
+	float fRawDotProduct = ((float) iDXA *iDXB) + (iDYA * iDYB) + (iDZA * iDZB);
+	float fNormA2 = ((float) iDXA*iDXA) + (iDYA*iDYA) + (iDZA*iDZA);
+	float fNormB2 = ((float) iDXB*iDXB) + (iDYB*iDYB) + (iDZB*iDZB);
 
 	//this should be between -1 and +1
 	float fNormDotProduct = fRawDotProduct / sqrtf( fNormA2*fNormB2 );

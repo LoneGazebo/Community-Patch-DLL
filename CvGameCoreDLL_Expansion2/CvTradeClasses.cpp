@@ -1233,7 +1233,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	// calculate turns per circuit
 	int iRawSpeed = kOriginPlayer.GetTrade()->GetTradeRouteSpeed(eDomain);
 	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
-	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
+	int iRouteSpeed = int(0.5f + (iSpeedFactor*iRawSpeed / 100.f));
 
 	float fTurnsPerCircuit = 1;
 	if (iRouteSpeed != 0)
@@ -6448,8 +6448,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta += int((iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER)) + 0.5);
+				iReligionDelta -= int((iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER)) + 0.5);
 			}
 		}
 	}
@@ -7055,8 +7055,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
 
-				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
-				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
+				iReligionDelta += int((iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER)) + 0.5);
+				iReligionDelta -= int((iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER)) + 0.5);
 			}
 		}
 	}
@@ -7601,5 +7601,5 @@ int TradeConnection::GetMovementSpeed()
 	int iRawSpeed = GET_PLAYER(m_eOriginOwner).GetTrade()->GetTradeRouteSpeed(m_eDomain);
 
 	//unfortunately have to round the result to integer, so often the speed factor won't matter
-	return int(0.5f + m_iSpeedFactor*iRawSpeed / 100.f);
+	return int(0.5f + (m_iSpeedFactor*iRawSpeed / 100.f));
 }

@@ -1275,7 +1275,7 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 
 			int iNetFoodNow = cache.iFoodRateTimes100 - cache.iFoodConsumptionTimes100;
 			// food consumption also depends on how many specialists are worked
-			int iNetFoodThen = iNetFoodNow + iYield100 - iNumSpecialistsAdded * (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
+			int iNetFoodThen = iNetFoodNow + iYield100 - (iNumSpecialistsAdded * (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100()));
 
 			// special case of building a settler: all excess food is converted into production
 			if (m_pCity->isFoodProduction())
@@ -3833,10 +3833,10 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 	{
 		// the smallest possible increase in yield rate that would reduce unhappiness from the respective need by 1
 		// (see the calculations in GetDistress etc.)
-		iBasicNeedsRateChangeForReducedDistress = iDistress > 0 ? (int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false))) : INT_MAX;
-		iGoldRateChangeForReducedPoverty = iPoverty > 0 ? (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false)) : INT_MAX;
-		iScienceRateChangeForReducedIlliteracy = iIlliteracy > 0 ? (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false)) : INT_MAX;
-		iCultureRateChangeForReducedBoredom = iBoredom > 0 ? (int)(pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - pCity->GetBoredomRaw(false) + 1) - pCity->getJONSCulturePerTurn(false) * 100) : INT_MAX;
+		iBasicNeedsRateChangeForReducedDistress = iDistress > 0 ? (int)((pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1)) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false))) : INT_MAX;
+		iGoldRateChangeForReducedPoverty = iPoverty > 0 ? (int)((pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1)) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false)) : INT_MAX;
+		iScienceRateChangeForReducedIlliteracy = iIlliteracy > 0 ? (int)((pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1)) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false)) : INT_MAX;
+		iCultureRateChangeForReducedBoredom = iBoredom > 0 ? (int)((pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - pCity->GetBoredomRaw(false) + 1)) - (pCity->getJONSCulturePerTurn(false) * 100)) : INT_MAX;
 
 		// the smallest possible decrease in yield rate that would increase unhappiness from the respective need by 1
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
@@ -3848,22 +3848,22 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 		{
 			// for additional distress to count, it must get us over the flat reduction threshold
 			int iNewDistressRaw = max(pCity->GetDistressRaw(false) + 1, pCity->GetDistressFlatReduction() + kPlayer.GetDistressFlatReductionGlobal() + 1);
-			iBasicNeedsRateChangeForIncreasedDistress =(int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - iNewDistressRaw + 1) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false)));
+			iBasicNeedsRateChangeForIncreasedDistress =(int)((pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - iNewDistressRaw + 1)) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false)));
 		}
 		if (iPoverty < iLimit)
 		{
 			int iNewPovertyRaw = max(pCity->GetPovertyRaw(false) + 1, pCity->GetPovertyFlatReduction() + kPlayer.GetPovertyFlatReductionGlobal() + 1);
-			iGoldRateChangeForIncreasedPoverty = (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - iNewPovertyRaw + 1) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false));
+			iGoldRateChangeForIncreasedPoverty = (int)((pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - iNewPovertyRaw + 1)) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false));
 		}
 		if (iIlliteracy < iLimit)
 		{
 			int iNewIlliteracyRaw = max(pCity->GetIlliteracyRaw(false) + 1, pCity->GetIlliteracyFlatReduction() + kPlayer.GetIlliteracyFlatReductionGlobal() + 1);
-			iScienceRateChangeForIncreasedIlliteracy = (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - iNewIlliteracyRaw + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false));
+			iScienceRateChangeForIncreasedIlliteracy = (int)((pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - iNewIlliteracyRaw + 1)) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false));
 		}
 		if (iBoredom < iLimit)
 		{
 			int iNewBoredomRaw = max(pCity->GetBoredomRaw(false) + 1, pCity->GetBoredomFlatReduction() + kPlayer.GetBoredomFlatReductionGlobal() + 1);
-			iCultureRateChangeForIncreasedBoredom = (int)(pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - iNewBoredomRaw + 1) - pCity->getJONSCulturePerTurn(false) * 100);
+			iCultureRateChangeForIncreasedBoredom = (int)((pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - iNewBoredomRaw + 1)) - (pCity->getJONSCulturePerTurn(false) * 100));
 		}
 	}
 }

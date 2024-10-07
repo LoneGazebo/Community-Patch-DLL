@@ -218,8 +218,8 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 		int iHalfWidth = GC.getMap().getGridWidth() * 1000 / 2;
 		int iHalfHeight = GC.getMap().getGridHeight() * 1000 / 2;
 
-		int iDX = pPlot->getX() * 1000 - m_iAvgX;
-		int iDY = pPlot->getY() * 1000 - m_iAvgY;
+		int iDX = (pPlot->getX() * 1000) - m_iAvgX;
+		int iDY = (pPlot->getY() * 1000) - m_iAvgY;
 
 		if (GC.getMap().isWrapX() && iDX < -iHalfWidth)
 			iDX += 2 * iHalfWidth;

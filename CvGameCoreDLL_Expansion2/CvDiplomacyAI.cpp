@@ -3441,7 +3441,7 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 	}
 	else
 	{
-		iProgress = min(iProgress, 59 + 20 * iExtra);
+		iProgress = min(iProgress, 59 + (20 * iExtra));
 	}
 
 	return iProgress;
@@ -3501,7 +3501,7 @@ int CvDiplomacyAI::GetCultureVictoryProgress() const
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true);
 		iPolicies = min(iPolicies, 27);
-		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+		iProgress = min(iLowestPercent, 18 + (iPolicies * 3));
 	}
 
 	return iProgress;
@@ -11649,10 +11649,10 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 				if (iThirdPartyWarCount > 0)
 				{
-					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
+					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - (iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER)));
 					iThirdPartyAttackValue *= iScale;
 					iThirdPartyAttackValue /= 100;
-					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
+					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - (iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER)));
 					iThirdPartyDefenseValue *= iScale;
 					iThirdPartyDefenseValue /= 100;
 				}
@@ -11892,10 +11892,10 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 				if (iThirdPartyWarCount > 0)
 				{
-					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
+					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - (iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER)));
 					iThirdPartyAttackValue *= iScale;
 					iThirdPartyAttackValue /= 100;
-					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
+					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - (iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER)));
 					iThirdPartyDefenseValue *= iScale;
 					iThirdPartyDefenseValue /= 100;
 				}
@@ -11927,7 +11927,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		if (iOurWarCount > 0)
 		{
-			iOurOverallDefense *= max(/*20*/ GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 100 - iOurWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
+			iOurOverallDefense *= max(/*20*/ GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 100 - (iOurWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER)));
 			iOurOverallDefense /= 100;
 		}
 
@@ -11976,8 +11976,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 
 		// Calculate our overall ATTACK vs. their overall DEFENSE
-		int iOurOverallAttack = iOurMilitaryStrength + iAllyAttackBonus + iEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100;
-		int iTheirOverallDefense = iTheirMilitaryStrength + iTheirEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100;
+		int iOurOverallAttack = iOurMilitaryStrength + iAllyAttackBonus + (iEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100);
+		int iTheirOverallDefense = iTheirMilitaryStrength + (iTheirEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100);
 
 		// Careful in the early game when the number of units is very low ...
 		if (bEarlyGameCaution)
@@ -11995,7 +11995,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		if (iTheirWarCount > 0)
 		{
-			iTheirOverallDefense *= max(/*20*/ GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 100 - iTheirWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
+			iTheirOverallDefense *= max(/*20*/ GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 100 - (iTheirWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER)));
 			iTheirOverallDefense /= 100;
 		}
 

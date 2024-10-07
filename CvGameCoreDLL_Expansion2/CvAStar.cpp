@@ -2974,7 +2974,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 
 		if (bValid)
 		{
-			int iNormalizedDistanceRaw = (temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
+			int iNormalizedDistanceRaw = ((temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost) + 1;
 			plots.insertNoIndex( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
 		}
 	}

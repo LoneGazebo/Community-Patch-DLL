@@ -13647,7 +13647,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 			iScore += 100000;
 			break;
 		case ALIGNMENT_SELF:
-			iScore += max((/*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + 30 * iOurPercent), 1);
+			iScore += max((/*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + (30 * iOurPercent)), 1);
 			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:

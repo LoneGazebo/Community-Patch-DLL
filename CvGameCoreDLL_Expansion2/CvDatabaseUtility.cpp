@@ -89,10 +89,10 @@ bool CvDatabaseUtility::Initialize2DArray(int**& ppArray, const char* szTable1Na
 		return false;
 	}
 
-	unsigned int iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
+	unsigned int iNumBytes = (iCount1 * sizeof(int*)) + (iCount1 * iCount2 * sizeof(int));
 	unsigned char* pData = FNEW(unsigned char[iNumBytes], c_eCiv5GameplayDLL, 0);
 	ppArray = (int**)pData;
-	ppArray[0] = (int*)(pData + iCount1 * sizeof(int*));
+	ppArray[0] = (int*)(pData + (iCount1 * sizeof(int*)));
 	for(int i = 0; i < iCount2; ++i)
 	{
 		ppArray[0][i] = iDefault;
@@ -117,10 +117,10 @@ void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, 
 		return;
 	}
 
-	unsigned int iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
+	unsigned int iNumBytes = (iCount1 * sizeof(int*)) + (iCount1 * iCount2 * sizeof(int));
 	unsigned char* pData = FNEW(unsigned char[iNumBytes], c_eCiv5GameplayDLL, 0);
 	ppArray = (int**)pData;
-	ppArray[0] = (int*)(pData + iCount1 * sizeof(int*));
+	ppArray[0] = (int*)(pData + (iCount1 * sizeof(int*)));
 	for(unsigned int i = 0; i < iCount2; ++i)
 	{
 		ppArray[0][i] = iDefault;

@@ -109,12 +109,12 @@ public:
 	inline unsigned int GetOverallFriendlyStrength() const
 	{
 		//siege units are very vulnerable to melee units, so give a bonus to melee
-		return (m_iFriendlyMeleeStrength*4)/3 + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
+		return ((m_iFriendlyMeleeStrength*4)/3) + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
 	}
 	inline unsigned int GetOverallEnemyStrength() const
 	{
 		//siege units are very vulnerable to melee units, so give a bonus to melee
-		return (m_iEnemyMeleeStrength*4)/3 + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
+		return ((m_iEnemyMeleeStrength*4)/3) + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
 	}
 	inline unsigned int GetFriendlyMeleeStrength() const
 	{

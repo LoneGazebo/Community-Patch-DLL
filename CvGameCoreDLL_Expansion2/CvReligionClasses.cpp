@@ -7726,7 +7726,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlo
 
 	if (iNumUnownedLandTilesToExpand > 0)
 	{
-		int iPreferredNewCities = min(6, max(3, 1 + iNumUnownedLandTilesToExpand / 20)) - m_pPlayer->getNumCities();
+		int iPreferredNewCities = min(6, max(3, 1 + (iNumUnownedLandTilesToExpand / 20))) - m_pPlayer->getNumCities();
 		iScoreCityPotential += iPreferredNewCities * ScorePantheonBeliefAtCity(pEntry, NULL) / 2;
 	}
 	
@@ -8263,7 +8263,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 	bool bIsCapital = pCity && pCity->isCapital();
 
 	// todo
-	iHappinessMultiplier = min(15, max(6, iFlavorOffense * 2 + iFlavorHappiness - iFlavorDefense));
+	iHappinessMultiplier = min(15, max(6, (iFlavorOffense * 2) + iFlavorHappiness - iFlavorDefense));
 	
 
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
@@ -8726,7 +8726,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	int iFlavorHappiness = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
 	int iFlavorGP = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
 
-	int iHappinessNeedFactor = iFlavorOffense * 2 + iFlavorHappiness - iFlavorDefense;
+	int iHappinessNeedFactor = (iFlavorOffense * 2) + iFlavorHappiness - iFlavorDefense;
 	if (iHappinessNeedFactor > 15)
 	{
 		iHappinessMultiplier = 15;
@@ -10737,7 +10737,7 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 	
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		int iNumFutureLuxEstimate = 2 + 2 * m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity();
+		int iNumFutureLuxEstimate = 2 + (2 * m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity());
 		if (pPlayerTraits->IsDiplomat())
 			iNumFutureLuxEstimate++;
 		if(pPlayerTraits->IsImportsCountTowardsMonopolies())

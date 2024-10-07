@@ -243,12 +243,12 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 
 	if (pfVarX)
 	{
-		float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
+		float fVarX = (iTotalX2/fNUnits) - ((iTotalX/fNUnits)*(iTotalX/fNUnits));
 		*pfVarX = fVarX;
 	}
 	if (pfVarY)
 	{
-		float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
+		float fVarY = (iTotalY2/fNUnits) - ((iTotalY/fNUnits)*(iTotalY/fNUnits));
 		*pfVarY = fVarY;
 	}
 
@@ -262,7 +262,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		{
 			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
 			int iDistToTarget = pGoal ? plotDistance(*pUnit->plot(),*pGoal) : 0;
-			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
+			vPlots.push_back( SPlotWithScore(pUnit->plot(),(iDistToCOM*100)+iDistToTarget) );
 
 			pUnit = GetNextUnit(pUnit);
 		}

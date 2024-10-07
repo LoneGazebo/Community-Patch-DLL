@@ -294,7 +294,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		//try to explore close to our cities first to find potential settle spots
 		int iCityDistance = m_pPlayer->GetCityDistancePathLength(pEvalPlot);
-		iRating = max(1, 100 + 2*iRating - iCityDistance); 
+		iRating = max(1, 100 + (2*iRating) - iCityDistance); 
 
 		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
 		if (it==reachablePlots.end())
@@ -414,7 +414,7 @@ void CvHomelandAI::FindHomelandTargets()
 					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(eTeam, DOMAIN_SEA, true);
 					if (iSuspiciousNeighbors > 0)
 					{
-						int iWeight = m_pPlayer->GetCityDistancePathLength(pLoopPlot) + iSuspiciousNeighbors*2;
+						int iWeight = m_pPlayer->GetCityDistancePathLength(pLoopPlot) + (iSuspiciousNeighbors*2);
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 23;
 
@@ -2593,7 +2593,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	const int iScoreWeightSquared = 1;
 	int iBuildTimeWeightSquared = 25;
 
-	return iSign * (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
+	return (iSign * (iScore * iScore) * iScoreWeightSquared) - ((iBuildTime * iBuildTime) * iBuildTimeWeightSquared);
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)

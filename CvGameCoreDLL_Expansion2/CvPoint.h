@@ -42,7 +42,7 @@ public:
 
 	inline float operator* (const CvPoint3& pt) const
 	{
-		return x*pt.x+y*pt.y+z*pt.z;
+		return (x*pt.x)+(y*pt.y)+(z*pt.z);
 	}
 
 	inline CvPoint3 operator* (float fScalar) const
@@ -63,7 +63,7 @@ public:
 
 	inline float Length() const
 	{
-		return sqrt(x * x + y * y + z * z);
+		return sqrt((x * x) + (y * y) + (z * z));
 	}
 
 	inline float Unitize()
