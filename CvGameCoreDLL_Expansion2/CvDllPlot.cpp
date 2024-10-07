@@ -304,7 +304,7 @@ bool CvDllPlot::GetAnyBuildProgress() const
 //------------------------------------------------------------------------------
 void CvDllPlot::UpdateLayout(bool bDebug)
 {
-	return m_pPlot->updateLayout(bDebug);
+	m_pPlot->updateLayout(bDebug);
 }
 //------------------------------------------------------------------------------
 ICvUnit1* CvDllPlot::GetCenterUnit()
@@ -327,13 +327,13 @@ ICvUnit1* CvDllPlot::GetUnitByIndex(int iIndex) const
 void CvDllPlot::AddUnit(ICvUnit1* pUnit, bool bUpdate)
 {
 	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
-	return m_pPlot->addUnit(pkUnit, bUpdate);
+	m_pPlot->addUnit(pkUnit, bUpdate);
 }
 //------------------------------------------------------------------------------
 void CvDllPlot::RemoveUnit(ICvUnit1* pUnit, bool bUpdate)
 {
 	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
-	return m_pPlot->removeUnit(pkUnit, bUpdate);
+	m_pPlot->removeUnit(pkUnit, bUpdate);
 }
 //------------------------------------------------------------------------------
 const IDInfo* CvDllPlot::NextUnitNode(const IDInfo* pNode) const
