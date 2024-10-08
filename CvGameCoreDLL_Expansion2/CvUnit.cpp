@@ -12569,6 +12569,10 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			if (ePlotOwner == getOwner())
 				continue;
 
+			// Can't steal blocked tiles
+			if (pLoopPlot->IsStealBlockedByImprovement())
+				continue;
+
 			if (ePlotOwner != NO_PLAYER)
 			{
 				// Notify plot owner
