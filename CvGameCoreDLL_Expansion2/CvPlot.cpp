@@ -1722,7 +1722,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 
 						double a = fP1Y - fP0Y;
 						double b = fP0X - fP1X;
-						double c = (fP0Y * fP1X) - (fP1Y * fP0X);
+						double c = fP0Y * fP1X - fP1Y * fP0X;
 
 						double fFirstInwardX = (double) pFirstInwardPlot->getX();
 						double fFirstInwardY = (double) pFirstInwardPlot->getY();
@@ -1730,7 +1730,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						{
 							fFirstInwardX += 0.5;
 						}
-						double fFirstDist = (a * fFirstInwardX) + (b * fFirstInwardY) + c;
+						double fFirstDist = a * fFirstInwardX + b * fFirstInwardY + c;
 						fFirstDist = abs(fFirstDist);
 						// skip the extra distance since it is the same for both equations
 
@@ -1740,7 +1740,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						{
 							fSecondInwardX += 0.5;
 						}
-						double fSecondDist = (a * fSecondInwardX) + (b * fSecondInwardY) + c;
+						double fSecondDist = a * fSecondInwardX + b * fSecondInwardY + c;
 						fSecondDist = abs(fSecondDist);
 						// skip the extra distance since it is the same for both equations
 
@@ -1992,7 +1992,7 @@ void CvPlot::ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, 
 
 						double a = fP1Y - fP0Y;
 						double b = fP0X - fP1X;
-						double c = (fP0Y * fP1X) - (fP1Y * fP0X);
+						double c = fP0Y * fP1X - fP1Y * fP0X;
 
 						double fFirstInwardX = (double)pFirstInwardPlot->getX();
 						double fFirstInwardY = (double)pFirstInwardPlot->getY();
@@ -2000,7 +2000,7 @@ void CvPlot::ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, 
 						{
 							fFirstInwardX += 0.5;
 						}
-						double fFirstDist = (a * fFirstInwardX) + (b * fFirstInwardY) + c;
+						double fFirstDist = a * fFirstInwardX + b * fFirstInwardY + c;
 						fFirstDist = abs(fFirstDist);
 						// skip the extra distance since it is the same for both equations
 
@@ -2010,7 +2010,7 @@ void CvPlot::ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, 
 						{
 							fSecondInwardX += 0.5;
 						}
-						double fSecondDist = (a * fSecondInwardX) + (b * fSecondInwardY) + c;
+						double fSecondDist = a * fSecondInwardX + b * fSecondInwardY + c;
 						fSecondDist = abs(fSecondDist);
 						// skip the extra distance since it is the same for both equations
 
@@ -2235,8 +2235,8 @@ bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes e
 		double directionY = displacements[eFacingDirection][1];
 
 		//compute angle off of direction
-		double crossProduct = (directionX * dy) - (directionY * dx); //cross product
-		double dotProduct = (directionX * dx) + (directionY * dy); //dot product
+		double crossProduct = directionX * dy - directionY * dx; //cross product
+		double dotProduct = directionX * dx + directionY * dy; //dot product
 
 		double theta = atan2(crossProduct, dotProduct);
 		double spread = 75 * (double) M_PI / 180;
@@ -3370,7 +3370,7 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 	iBuildTime = std::max(1, iBuildTime);
 
 	// Rounds up
-	return ((iBuildTime - 1) / iBuildRate) + 1;
+	return (iBuildTime - 1) / iBuildRate + 1;
 }
 
 
@@ -15944,5 +15944,5 @@ FDataStream& operator>>(FDataStream& loadFrom, SPlotWithTwoScoresL2& writeTo)
 
 CvSeeder CvPlot::GetPseudoRandomSeed() const
 {
-	return CvSeeder((static_cast<uint>(getX()) * 17) + (static_cast<uint>(getY()) * 23));
+	return CvSeeder(static_cast<uint>(getX()) * 17 + static_cast<uint>(getY()) * 23);
 }

@@ -92,7 +92,7 @@ int CvAIOperation::GetMaximumRecruitTurns() const
 {
 	//extend the range each turn
 	int iElapsedTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-	return /*5*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT) + (iElapsedTurns/2);
+	return /*5*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT) + iElapsedTurns/2;
 }
 
 const char * CvAIOperation::GetOperationName() const
@@ -496,7 +496,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 					iExtraScore += 42;
 			}
 
-			choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() + iExtraScore - (iTurnsToReachCheckpoint * 30)));
+			choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() + iExtraScore - iTurnsToReachCheckpoint * 30));
 		}
 	}
 
@@ -3127,7 +3127,7 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 				continue;
 
 			// bonus for captured civilians (settlers and workers, not missionaries)
-			int iBonus = (pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3) + (pPlot->getNumUnitsOfAIType(UNITAI_WORKER) * 2);
+			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_WORKER) * 2;
 
 			int iCityLoop = 0;
 			// Loop through each of our cities

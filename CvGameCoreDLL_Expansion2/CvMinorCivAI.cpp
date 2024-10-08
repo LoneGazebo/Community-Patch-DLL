@@ -362,7 +362,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Influence (no gamespeed scaling!)
 	if (pkSmallAwardInfo->GetInfluence() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetInfluence() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		if (bRecalc)
@@ -388,7 +388,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Gold
 	if (pkSmallAwardInfo->GetGold() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetGold() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetGold() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -419,7 +419,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Science
 	if (pkSmallAwardInfo->GetScience() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetScience() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetScience() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -445,7 +445,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Culture
 	if (pkSmallAwardInfo->GetCulture() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetCulture() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetCulture() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -482,7 +482,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Faith
 	if (pkSmallAwardInfo->GetFaith() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetFaith() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetFaith() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -514,7 +514,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Golden Age Points
 	if (pkSmallAwardInfo->GetGAP() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetGAP() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetGAP() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -551,7 +551,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Food (in Capital)
 	if (pkSmallAwardInfo->GetFood() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetFood() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetFood() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -588,7 +588,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Production (in Capital)
 	if (pkSmallAwardInfo->GetProduction() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetProduction() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetProduction() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -614,7 +614,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Tourism
 	if (pkSmallAwardInfo->GetTourism() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetTourism() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetTourism() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -674,7 +674,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Great Person points (in Capital; no gamespeed scaling!)
 	if (pkSmallAwardInfo->GetGPPoints() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetGPPoints() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetGPPoints() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
@@ -708,7 +708,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Great Person points (in all Cities; no gamespeed scaling!)
 	if (pkSmallAwardInfo->GetGPPointsGlobal() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetGPPointsGlobal() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetGPPointsGlobal() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -742,7 +742,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Great General points
 	if (pkSmallAwardInfo->GetGeneralPoints() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetGeneralPoints() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetGeneralPoints() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -773,7 +773,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Great Admiral points
 	if (pkSmallAwardInfo->GetAdmiralPoints() > 0)
 	{
-		int iBaseBonus = ((pkSmallAwardInfo->GetAdmiralPoints() * iEraScaler)/100) + iRandomContribution;
+		int iBaseBonus = (pkSmallAwardInfo->GetAdmiralPoints() * iEraScaler)/100 + iRandomContribution;
 		int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 		iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();

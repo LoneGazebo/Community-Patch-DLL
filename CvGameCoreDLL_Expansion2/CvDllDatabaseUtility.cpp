@@ -269,7 +269,7 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
-		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", ((2*MAX_CITY_RADIUS)+1));
+		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
 
 		// These values are present in the base game but we don't have them here which would not be a problem
 		// if not for mods possibly relying on them; PlotHelpManager for instance references CITY_PLOTS_RADIUS
@@ -838,10 +838,10 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	int* piBuffer = FNEW(int[iEstimatedNumActionInfos * 4], c_eCiv5GameplayDLL, 0);
 	memset(piBuffer,0, sizeof(int) * iEstimatedNumActionInfos * 4);
 
-	int* piIndexList = piBuffer + (iEstimatedNumActionInfos * 0);				//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
-	int* piPriorityList = piBuffer + (iEstimatedNumActionInfos * 1);			//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
-	int* piActionInfoTypeList = piBuffer + (iEstimatedNumActionInfos * 2);	//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
-	int* piOrderedIndex = piBuffer + (iEstimatedNumActionInfos * 3);			//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
+	int* piIndexList = piBuffer + iEstimatedNumActionInfos * 0;				//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
+	int* piPriorityList = piBuffer + iEstimatedNumActionInfos * 1;			//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
+	int* piActionInfoTypeList = piBuffer + iEstimatedNumActionInfos * 2;	//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
+	int* piOrderedIndex = piBuffer + iEstimatedNumActionInfos * 3;			//FNEW(int[iNumActionInfos], c_eCiv5GameplayDLL, 0);
 
 
 	//Gather all available infos, checking for NULL entries as they may have been removed.

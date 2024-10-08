@@ -14782,7 +14782,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= getHandicapInfo().getTrainPercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (getHandicapInfo().getTrainPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, getHandicapInfo().getTrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 
 				if (!isHuman())
@@ -14790,7 +14790,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 					iProductionNeeded *= GC.getGame().getHandicapInfo().getAITrainPercent();
 					iProductionNeeded /= 100;
 
-					iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getAITrainPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+					iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAITrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 					iProductionNeeded /= 100;
 				}
 			}
@@ -14799,7 +14799,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= getHandicapInfo().getCivilianPercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (getHandicapInfo().getCivilianPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, getHandicapInfo().getCivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 
 				if (!isHuman())
@@ -14807,7 +14807,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 					iProductionNeeded *= GC.getGame().getHandicapInfo().getAICivilianPercent();
 					iProductionNeeded /= 100;
 
-					iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getAICivilianPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+					iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAICivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 					iProductionNeeded /= 100;
 				}
 			}
@@ -14819,7 +14819,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getCityStateTrainPercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getCityStateTrainPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getCityStateTrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
 			else
@@ -14827,7 +14827,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getCityStateCivilianPercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getCityStateCivilianPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getCityStateCivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
 		}
@@ -14995,7 +14995,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			iProductionNeeded *= getHandicapInfo().getConstructPercent();
 			iProductionNeeded /= 100;
 
-			iProductionNeeded *= std::max(0, (getHandicapInfo().getConstructPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+			iProductionNeeded *= std::max(0, getHandicapInfo().getConstructPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iProductionNeeded /= 100;
 
 			if (!isHuman())
@@ -15003,7 +15003,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getAIConstructPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAIConstructPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
 		}
@@ -15013,7 +15013,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 		iProductionNeeded *= GC.getGame().getHandicapInfo().getCityStateConstructPercent();
 		iProductionNeeded /= 100;
 
-		iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getCityStateConstructPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+		iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getCityStateConstructPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 		iProductionNeeded /= 100;
 	}
 
@@ -15056,7 +15056,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 			iProductionNeeded *= getHandicapInfo().getCreatePercent();
 			iProductionNeeded /= 100;
 
-			iProductionNeeded *= std::max(0, (getHandicapInfo().getCreatePerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+			iProductionNeeded *= std::max(0, getHandicapInfo().getCreatePerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iProductionNeeded /= 100;
 
 			if (!isHuman())
@@ -15064,7 +15064,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAICreatePercent();
 				iProductionNeeded /= 100;
 
-				iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getAICreatePerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAICreatePerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
 		}
@@ -15074,7 +15074,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 		iProductionNeeded *= GC.getGame().getHandicapInfo().getCityStateCreatePercent();
 		iProductionNeeded /= 100;
 
-		iProductionNeeded *= std::max(0, (GC.getGame().getHandicapInfo().getCityStateCreatePerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+		iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getCityStateCreatePerEraModifier() * GC.getGame().getCurrentEra() + 100);
 		iProductionNeeded /= 100;
 	}
 
@@ -15380,7 +15380,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 						{
 							for(CvCity* pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
 							{
-								pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + (iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange()))));
+								pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange())));
 							}
 						}
 					}
@@ -16364,7 +16364,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	{
 		iSupply = m_pTraits->GetExtraSupply() + GC.getGame().getStartEraInfo().getUnitSupplyBase();
 		iSupply += getHandicapInfo().getUnitSupplyBase() + getHandicapInfo().getUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
-		iSupply += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase() + (GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra());
+		iSupply += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
 	}
 	else if (isMinorCiv())
 	{
@@ -23952,7 +23952,7 @@ void CvPlayer::DoProcessVotes()
 			return;
 
 		int iFollowingCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eStateReligion);
-		ChangeFaithToVotesTimes100(iTestFaith + (iFollowingCities * GetVotesPerFollowingCityTimes100()));
+		ChangeFaithToVotesTimes100(iTestFaith + iFollowingCities * GetVotesPerFollowingCityTimes100());
 	}
 }
 
@@ -31700,7 +31700,7 @@ int CvPlayer::calculateNuclearMight(PlayerTypes ePlayer, bool bComputeShelterNum
 
 		// Assume the nuke destroys one land unit and four air units on the city plot
 		// Reduced by 75% with a Bomb Shelter
-		int iBasePower = (iHighestLandOrSeaPower * 3) + (iHighestAirPower * 12);
+		int iBasePower = iHighestLandOrSeaPower * 3 + iHighestAirPower * 12;
 		if (iBombShelterPercent != 0 && iNukeModifier != 0)
 		{
 			iBasePower *= 100 - (iBombShelterPercent * iNukeModifier / 100);

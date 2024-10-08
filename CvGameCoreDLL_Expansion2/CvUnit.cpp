@@ -6740,7 +6740,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 		if (iTheirCombat > 0)
 		{
 			int iMyCombat = m_pUnitInfo->GetCombat();
-			int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + (iMyCombat * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER) / iTheirCombat);
+			int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + iMyCombat * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER) / iTheirCombat;
 			return min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
 		}
 	}
@@ -16289,7 +16289,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			if(pCapital)
 			{
 				int iDistanceToCapital = plotDistance(pBattlePlot->getX(), pBattlePlot->getY(), pCapital->getX(), pCapital->getY());
-				int iTempModifier = GetCapitalDefenseModifier() + (iDistanceToCapital * GetCapitalDefenseFalloff());
+				int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
 				if (iTempModifier > 0)
 				{
 					iModifier += iTempModifier;
@@ -17198,7 +17198,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (pCapital)
 		{
 			int iDistanceToCapital = plotDistance(pMyPlot->getX(), pMyPlot->getY(), pCapital->getX(), pCapital->getY());
-			int iTempModifier = GetCapitalDefenseModifier() + (iDistanceToCapital * GetCapitalDefenseFalloff());
+			int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
 			if (iTempModifier > 0)
 			{
 				iModifier += iTempModifier;

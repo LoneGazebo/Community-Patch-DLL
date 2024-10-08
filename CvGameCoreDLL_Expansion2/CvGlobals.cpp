@@ -2579,7 +2579,7 @@ void CvGlobals::init()
 	};
 
 
-	int aaiRingPlotIndex[(2*MAX_CITY_RADIUS)+1][(2*MAX_CITY_RADIUS)+1] =
+	int aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1] =
 	{
 		// this is the 5 ring layout
 		//	 -5  -4  -3  -2  -1   0   1   2   3  4  5  -- in the Y direction

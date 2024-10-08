@@ -1322,7 +1322,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	}
 
 	//we have 17 eligible plots, so max score is 51
-	int iScore = (nGoodPlots * 3) + nUsablePlots;
+	int iScore = nGoodPlots * 3 + nUsablePlots;
 	int iResult = (iScore * 100) / iScale;
 
 	if (gDebugOutput)
@@ -1680,7 +1680,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	//these are only land units!
 	//offensive units and navy are checked later
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
-	int iModifier = 100 + (iFlavorDefense*2);
+	int iModifier = 100 + iFlavorDefense*2;
 
 	// 1 Unit per City & 1 per Settler
 	iNumUnitsWantedDefense += (int)(m_pPlayer->getNumCities() * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
@@ -1721,7 +1721,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	// this is the total number for offense, we split between land and sea later
 	// in practice some defensive land units can be used as offensive land units as well ...
-	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + (m_pPlayer->GetDiplomacyAI()->GetBoldness()/2) + (iFlavorOffense/2);
+	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
 
 	//Look at our competitors ...
 	if (m_pPlayer->isMajorCiv())
@@ -1745,7 +1745,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	// now how many should be naval units?
 	int iCoastalPercent = (iNumCoastalCities * 100) / max(1,m_pPlayer->getNumCities());
 	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iNavalPercent = range(iFlavorNaval*5,10,50) + (iCoastalPercent/3);
+	int iNavalPercent = range(iFlavorNaval*5,10,50) + iCoastalPercent/3;
 
 	//you don't always get what you want ...
 	iNumUnitsWantedOffense = min(iNumUnitsWantedOffense, iMaxOffensiveUnitsPossible);
@@ -2647,7 +2647,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		// Can I scrap this unit?
 		if (!bCheckObsolete || bIsObsolete || bResourceDeficit)
 		{
-			int iScore = (pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost()) + pLoopUnit->getLevel(); //tiebreaker
+			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel(); //tiebreaker
 			if (bResourceDeficit)
 				iScore /= 2;
 
@@ -3705,7 +3705,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 	CvAssert(pStrategy != NULL);
 	if(pStrategy)
 	{
-		int iStrategyWeight = (iBarbarianCampCount * 75) + (iVisibleBarbarianCount * 25);   // Two visible camps or 3 roving Barbarians will trigger this
+		int iStrategyWeight = iBarbarianCampCount * 75 + iVisibleBarbarianCount * 25;   // Two visible camps or 3 roving Barbarians will trigger this
 		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
 		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
 

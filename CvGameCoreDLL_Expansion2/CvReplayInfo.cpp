@@ -481,7 +481,7 @@ int CvReplayInfo::getMapWidth() const
 
 bool CvReplayInfo::getPlotState(unsigned int x, unsigned int y, unsigned int uiTurn, PlotState& plotState) const
 {
-	size_t idx = x + (y * m_iMapWidth);
+	size_t idx = x + y * m_iMapWidth;
 	if(idx < m_listPlots.size())
 	{
 		const PlotStatePerTurn& plotStatePerTurn = m_listPlots[idx];

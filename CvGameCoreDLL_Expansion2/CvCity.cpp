@@ -10364,7 +10364,7 @@ int CvCity::getFoodTurnsLeft() const
 	VALIDATE_OBJECT
 	int iDeltaPerTurn = foodDifferenceTimes100(false);
 	int iFoodStored = getFoodTimes100();
-	int iFoodNeededToGrow = ((growthThreshold() * 100) - iFoodStored);
+	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
 	//growing
 	if (iDeltaPerTurn > 0)
@@ -12030,7 +12030,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 				iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 				iCost /= 100;
 
-				iCost *= std::max(0, (GC.getGame().getHandicapInfo().getAITrainPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iCost *= std::max(0, GC.getGame().getHandicapInfo().getAITrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iCost /= 100;
 			}
 		}
@@ -12047,7 +12047,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 				iCost *= GC.getGame().getHandicapInfo().getAICivilianPercent();
 				iCost /= 100;
 
-				iCost *= std::max(0, (GC.getGame().getHandicapInfo().getAICivilianPerEraModifier() * GC.getGame().getCurrentEra()) + 100);
+				iCost *= std::max(0, GC.getGame().getHandicapInfo().getAICivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iCost /= 100;
 			}
 		}
@@ -13469,7 +13469,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
 	iFoodProduction *= 100;
 
-	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + (getFeatureProduction() * 100)) : 0);
+	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + getFeatureProduction() * 100) : 0);
 
 	// Sum up difference
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
@@ -13689,7 +13689,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			// Global Pop change
 			if (pBuildingInfo->GetPopulationChange() != 0)
 			{
-				setPopulation(std::max(1, (getPopulation() + (iChange * pBuildingInfo->GetPopulationChange()))));
+				setPopulation(std::max(1, (getPopulation() + iChange * pBuildingInfo->GetPopulationChange())));
 			}
 
 			// Capital
@@ -16021,7 +16021,7 @@ int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 	int iNonSpecialists = max(0, (getPopulation() - iSpecialists)) + iExtra;
 
-	return max(100, (foodConsumptionNonSpecialistTimes100() * iNonSpecialists) + (foodConsumptionSpecialistTimes100() * iSpecialists));
+	return max(100, foodConsumptionNonSpecialistTimes100() * iNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
 }
 
 
@@ -19102,7 +19102,7 @@ void CvCity::setFoodTimes100(int iNewValue)
 	VALIDATE_OBJECT
 	if (GetID() == g_iCityToTrace)
 	{
-		OutputDebugString(CvString::format("Turn %d, food %d, delta %d\n", GC.getGame().getGameTurn(), getFood(), (iNewValue / 100) - getFood()).c_str());
+		OutputDebugString(CvString::format("Turn %d, food %d, delta %d\n", GC.getGame().getGameTurn(), getFood(), iNewValue / 100 - getFood()).c_str());
 	}
 
 	if (getFoodTimes100() != iNewValue)
@@ -19116,7 +19116,7 @@ void CvCity::setFoodTimes100(int iNewValue)
 void CvCity::changeFood(int iChange)
 {
 	VALIDATE_OBJECT
-	setFoodTimes100(getFoodTimes100() + (100 * iChange));
+	setFoodTimes100(getFoodTimes100() + 100 * iChange);
 }
 
 
@@ -21589,7 +21589,7 @@ int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = (getJONSCulturePerTurn(false) * 100) + iAssumedExtraYieldRate;
+	int iTotalYield = getJONSCulturePerTurn(false) * 100 + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -27242,7 +27242,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 		iRefDistance = 0;
 
 	//note: we don't use getPLOT_INFLUENCE_DISTANCE_MULTIPLIER() here because the influence distance is already pre-multiplied
-	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE + ((iDistance - iRefDistance) / iPLOT_INFLUENCE_DISTANCE_DIVISOR);
+	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE + (iDistance - iRefDistance) / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
 	if (pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 	{
 		iInfluenceCostFactor += iPLOT_BUY_RESOURCE_COST;

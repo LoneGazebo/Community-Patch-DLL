@@ -1553,13 +1553,13 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 			for(uint y = 0; y < uiMapHeight; ++y)
 			{
 				lua_createtable(L, 0, uiFieldCount);
-				ModDataEntry kPlot = sg_kSave.m_kModData.GetPlotDataEntry(x + (y * uiMapWidth));
+				ModDataEntry kPlot = sg_kSave.m_kModData.GetPlotDataEntry(x + y * uiMapWidth);
 				for(uint uiField = 0; uiField < uiFieldCount; ++uiField)
 				{
 					if(kPlot.IsFieldDefaultValue(uiField))
 					{
-						lua_pushvalue(L, iFieldStart + (2 * uiField));
-						lua_pushvalue(L, iFieldStart + (2 * uiField) + 1);
+						lua_pushvalue(L, iFieldStart + 2 * uiField);
+						lua_pushvalue(L, iFieldStart + 2 * uiField + 1);
 						lua_rawset(L, -3);
 					}
 					else
@@ -1569,7 +1569,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 						case ModType::TYPE_BOOL:
 						{
 							const bool bValue = kPlot.GetFieldAsBool(uiField);
-							lua_pushvalue(L, iFieldStart + (2 * uiField));
+							lua_pushvalue(L, iFieldStart + 2 * uiField);
 							lua_pushboolean(L, bValue);
 							lua_rawset(L, -3);
 						}
@@ -1578,7 +1578,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 						case ModType::TYPE_FLOAT:
 						{
 							const float fValue = kPlot.GetFieldAsFloat(uiField);
-							lua_pushvalue(L, iFieldStart + (2 * uiField));
+							lua_pushvalue(L, iFieldStart + 2 * uiField);
 							lua_pushnumber(L, fValue);
 							lua_rawset(L, -3);
 						}
@@ -1587,7 +1587,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 						case ModType::TYPE_STRING:
 						{
 							const char* szField = kPlot.GetFieldAsString(uiField);
-							lua_pushvalue(L, iFieldStart + (2 * uiField));
+							lua_pushvalue(L, iFieldStart + 2 * uiField);
 							lua_pushstring(L, szField);
 							lua_rawset(L, -3);
 						}
@@ -1602,7 +1602,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 								const char* szMember = pkEnum->GetMember((uint)iValue);
 								if(szMember != NULL)
 								{
-									lua_pushvalue(L, iFieldStart + (2 * uiField));
+									lua_pushvalue(L, iFieldStart + 2 * uiField);
 									lua_pushstring(L, szMember);
 									lua_rawset(L, -3);
 								}

@@ -1208,7 +1208,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			update.iTurnNumber = path.vPlots[i].turns * 100;
 			update.iTurnNumber += 10 * (min(pkUnit->baseMoves(pPlot->needsEmbarkation(pkUnit)), 9));
 			if (path.vPlots[i].moves>0)
-				update.iTurnNumber += min((((int)path.vPlots[i].moves-1)/GD_INT_GET(MOVE_DENOMINATOR))+1, 9); //movement points left
+				update.iTurnNumber += min(((int)path.vPlots[i].moves-1)/GD_INT_GET(MOVE_DENOMINATOR)+1, 9); //movement points left
 
 			//in debug mode just use the raw number, it's actually the known cost (in debug mode)
 			if (eMode==TC_DEBUG)

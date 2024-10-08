@@ -469,7 +469,7 @@ int CvTreasury::CalculateBaseNetGoldTimes100()
 	if (m_pPlayer->IsAnarchy())
 		return 0;
 
-	return CalculateGrossGoldTimes100() - (CalculateTotalCosts() * 100);
+	return CalculateGrossGoldTimes100() - CalculateTotalCosts() * 100;
 }
 
 /// Compute unit maintenance cost for the turn

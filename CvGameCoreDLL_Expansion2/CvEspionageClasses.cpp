@@ -8930,7 +8930,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 						}
 					}
 					// the less holdouts there are, the higher is the score. if there is more than one option, give the highest score to the players for which we still need the longest
-					iTourismScore += max(100, (500 - (100 * iNumPlayersNotInfluential))) * (100 - 100 * iNumWorsePlayers / iNumPlayers) / 100;
+					iTourismScore += max(100, (500 - 100 * iNumPlayersNotInfluential)) * (100 - 100 * iNumWorsePlayers / iNumPlayers) / 100;
 				}
 			}
 		}
@@ -8940,7 +8940,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 		// if we're friendly towards the other player, we are more likely to use a diplomat, so we use the negative diplo modifier here
 		int iDiploMod = -GetPlayerModifier(eTargetPlayer, /*bOnlyDiplo*/ true);
 		// a high tourism score means the diplomat is important for winning the game, so we don't apply a diplo modifier to it
-		int iTotalScore = (((int)pDiploAI->GetCivApproach(eTargetPlayer) + iLeagueScore) * (100 + iDiploMod)) + (iTourismScore * 100);
+		int iTotalScore = ((int)pDiploAI->GetCivApproach(eTargetPlayer) + iLeagueScore) * (100 + iDiploMod) + iTourismScore * 100;
 		iTotalScore /= 100;
 
 		kEntry.m_iScore = iTotalScore;
@@ -9552,8 +9552,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 				else
 				{
 					// how close are we?
-					int iNumRiggingsNeeded = 1 + ((iAllyInfluence - iOurInfluence) / iRiggingInfluence);
-					iLeagueValue += 25 + max(25, 50 - (5 * iNumRiggingsNeeded));
+					int iNumRiggingsNeeded = 1 + (iAllyInfluence - iOurInfluence) / iRiggingInfluence;
+					iLeagueValue += 25 + max(25, 50 - 5 * iNumRiggingsNeeded);
 				}
 			}
 		}
@@ -9564,8 +9564,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			if (bAllied)
 			{
 				// how close is the contender?
-				int iNumRiggingsNeeded = 1 + ((iOurInfluence - iContenderInfluence) / iRiggingInfluence);
-				iLeagueValue += max(25, 50 - (5 * iNumRiggingsNeeded));
+				int iNumRiggingsNeeded = 1 + (iOurInfluence - iContenderInfluence) / iRiggingInfluence;
+				iLeagueValue += max(25, 50 - 5 * iNumRiggingsNeeded);
 			}
 		}
 		else
@@ -9573,8 +9573,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			// if we don't want to defend our votes, reduce score for CS we're already allied with
 			if (bAllied)
 			{
-				int iNumRiggingsNeeded = 1 + ((iOurInfluence - iContenderInfluence) / iRiggingInfluence);
-				iLeagueValue -= min(50, 25 + (5 * iNumRiggingsNeeded));
+				int iNumRiggingsNeeded = 1 + (iOurInfluence - iContenderInfluence) / iRiggingInfluence;
+				iLeagueValue -= min(50, 25 + 5 * iNumRiggingsNeeded);
 			}
 		}
 
@@ -9585,8 +9585,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 			{
 				iLeagueValue += 50;
 				// how close are we?
-				int iNumRiggingsNeeded = 1 + ((iAllyInfluence - iOurInfluence) / iRiggingInfluence);
-				iLeagueValue += max(25, 50 - (5 * iNumRiggingsNeeded));
+				int iNumRiggingsNeeded = 1 + (iAllyInfluence - iOurInfluence) / iRiggingInfluence;
+				iLeagueValue += max(25, 50 - 5 * iNumRiggingsNeeded);
 			}
 		}
 

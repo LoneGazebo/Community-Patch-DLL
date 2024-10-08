@@ -206,7 +206,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 					{
 						int iXX = iX % iHintsWidth;  // wrap
 						int iYY = iY % iHintsHeight; // wrap
-						int iHintsI = (iYY*iHintsWidth) + iXX;
+						int iHintsI = iYY*iHintsWidth + iXX;
 
 						DEBUG_VARIABLE(iHintsLength);
 						CvAssertMsg(iHintsI < iHintsLength, "iHintsI out of range");

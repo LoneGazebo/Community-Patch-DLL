@@ -271,7 +271,7 @@ void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
 		fSum += m_iFlavorMultiplier[i];
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
-		m_iFlavorMultiplier[i] = int(0.5f + (m_iFlavorMultiplier[i]/fSum * 100));
+		m_iFlavorMultiplier[i] = int(0.5f + m_iFlavorMultiplier[i]/fSum * 100);
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
