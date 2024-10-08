@@ -91,3 +91,5 @@ ALTER TABLE Improvements ADD MakesPassable integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsRebaseTo integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftFrom integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftTo integer DEFAULT 0;
+
+ALTER TABLE Improvements ADD BlockTileSteal boolean DEFAULT 0;
