@@ -289,12 +289,12 @@ bool CvDllGame::HasTurnTimerExpired(PlayerTypes playerID)
 //------------------------------------------------------------------------------
 void CvDllGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
 {
-	return m_pGame->TurnTimerSync(fCurTurnTime, fTurnStartTime);
+	m_pGame->TurnTimerSync(fCurTurnTime, fTurnStartTime);
 }
 //------------------------------------------------------------------------------
 void CvDllGame::GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime)
 {
-	return m_pGame->GetTurnTimerData(fCurTurnTime, fTurnStartTime);
+	m_pGame->GetTurnTimerData(fCurTurnTime, fTurnStartTime);
 }
 //------------------------------------------------------------------------------
 void CvDllGame::Init(HandicapTypes eHandicap)
