@@ -1745,7 +1745,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_abInstantYieldNotificationsDisabled.resize(NUM_INSTANT_YIELD_TYPES, false);
 
 	m_aiAccomplishments.clear();
-	m_aiAccomplishments.resize(NUM_ACCOMPLISHMENTS, 0);
+	m_aiAccomplishments.resize(NUM_ACCOMPLISHMENTS_TYPES, 0);
 
 	m_aiCityYieldChange.clear();
 	m_aiCityYieldChange.resize(NUM_YIELD_TYPES, 0);

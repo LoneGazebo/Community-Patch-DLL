@@ -29,71 +29,102 @@
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="MaxPossibleCompletions" type="integer" default="0"/>
 	</Table>
 	<Accomplishments>
 		<Row>
 			<ID>0</ID>
 			<Type>ACCOMPLISHMENT_POLICY_BRANCH_ANCIENT</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_ANCIENT</Description>
+			<MaxPossibleCompletions>3</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_POLICY_BRANCH_MEDIEVAL</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_MEDIEVAL</Description>
+			<MaxPossibleCompletions>3</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_POLICY_BRANCH_INDUSTRIAL</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_INDUSTRIAL</Description>
+			<MaxPossibleCompletions>3</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_CHOOSE_IDEOLOGY</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_CHOOSE_IDEOLOGY</Description>
+			<MaxPossibleCompletions>1</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_BELIEF_PANTHEON</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_BELIEF_PANTHEON</Description>
+			<MaxPossibleCompletions>1</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_BELIEF_FOUNDER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_BELIEF_FOUNDER</Description>
+			<MaxPossibleCompletions>1</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_BELIEF_FOLLOWER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_BELIEF_FOLLOWER</Description>
+			<MaxPossibleCompletions>2</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_BELIEF_ENHANCER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_BELIEF_ENHANCER</Description>
+			<MaxPossibleCompletions>1</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_BELIEF_REFORMATION</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_BELIEF_REFORMATION</Description>
+			<MaxPossibleCompletions>1</MaxPossibleCompletions>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_GENERAL</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_GENERAL</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_ADMIRAL</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ADMIRAL</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_PROPHET</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_PROPHET</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_WRITER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_WRITER</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_ARTIST</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ARTIST</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_MUSICIAN</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_MUSICIAN</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_ENGINEER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ENGINEER</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_MERCHANT</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_MERCHANT</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_SCIENTIST</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_SCIENTIST</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_LONGCOUNT_DIPLOMAT</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_DIPLOMAT</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_ELIMINATE_PLAYER</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_ELIMINATE_PLAYER</Description>
 		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST</Description>
 		</Row>
 	</Accomplishments>
 	<Table name="SpyPassiveBonuses">
@@ -2093,6 +2124,25 @@
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Improvement: gives a production bonus to the city owning the tile for a particular unit domain -->
+	<Table name="Improvement_DomainProductionModifier">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Improvement: gives bonus experience for units of a particular domain constructed in the city owning the tile -->
+	<Table name="Improvement_DomainFreeExperience">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Experience" type="integer" notnull="true"/>
+	</Table>
+	<!-- Improvement: gain yields from accomplishments -->
+	<Table name="Improvement_AccomplishmentYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Promotion: Unit gains a bonus from revealing tiles. Value is equal to the number of tiles explored this turn. -->
 	<Table name="UnitPromotions_YieldFromScouting">

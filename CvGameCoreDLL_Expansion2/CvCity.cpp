@@ -7946,17 +7946,17 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
 
- /// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
- void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
- {
+/// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
+void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
+{
 	VALIDATE_OBJECT;
 	m_miInstantYieldsTotal[eYield] += iValue;
- }
+}
  
- int CvCity::GetInstantYieldTotal(YieldTypes eYield)
- {
-	 return m_miInstantYieldsTotal[eYield];
- }
+int CvCity::GetInstantYieldTotal(YieldTypes eYield)
+{
+	return m_miInstantYieldsTotal[eYield];
+}
 
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer) const
 {
@@ -26777,7 +26777,7 @@ int CvCity::GetWarValue() const
 
 //	--------------------------------------------------------------------------------
 /// Can a specific plot be bought for the city
-bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
+bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 {
 	VALIDATE_OBJECT
 
@@ -26797,23 +26797,22 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	// if this plot belongs to someone, bail!
 	if (pTargetPlot->getOwner() != NO_PLAYER)
 	{
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
-		{
-			if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
-				return false;
-
-			//can't buy the master's plots if you're a vassal
-			if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
-				return false;
-
-			// Bad idea for AI to steal?
-			if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
-				return false;
-		}
-		else
-		{
+		if (!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 			return false;
-		}
+
+		if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
+			return false;
+
+		//can't buy the master's plots if you're a vassal
+		if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
+			return false;
+
+		// Bad idea for AI to steal?
+		if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
+			return false;
+
+		if (pTargetPlot->IsStealBlockedByImprovement())
+			return false;
 	}
 
 	//VP: can't buy plot with enemy combat units (except Barbarians)
@@ -26992,6 +26991,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					// Can't buy self-owned plots or city plots
 					if (pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
+						continue;
+
+					if (pLoopPlot->IsStealBlockedByImprovement())
 						continue;
 				}
 

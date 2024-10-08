@@ -467,6 +467,8 @@ ALTER TABLE Improvements ADD COLUMN 'ConnectsAllResources' BOOLEAN DEFAULT 0;
 -- Improvement grants a Great Person Point generation percentage bonus.
 ALTER TABLE Improvements ADD COLUMN 'GreatPersonRateModifier' INTEGER DEFAULT 0;
 
+ALTER TABLE Improvements ADD BlockTileSteal boolean DEFAULT 0;
+
 -- Table for Civilopedia Game Concepts to add more in boxes...
 ALTER TABLE Concepts ADD COLUMN 'Extended' TEXT DEFAULT NULL;
 ALTER TABLE Concepts ADD COLUMN 'DesignNotes' TEXT DEFAULT NULL;

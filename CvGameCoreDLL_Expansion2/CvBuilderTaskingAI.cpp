@@ -2788,6 +2788,21 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		iSecondaryScore += 300;
 	}
 
+	if (pkImprovementInfo && pkImprovementInfo->IsBlockTileSteal())
+	{
+		iSecondaryScore += 100;
+		if (pPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true, true, true))
+			iSecondaryScore += 200;
+	}
+	else if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() && !bIsCultureBomb)
+	{
+		// Prioritize building GPTIs in safe positions (unless they block tile stealing or are culture bombs)
+		if (pPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true, true, true))
+			iSecondaryScore -= 500;
+		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), true))
+			iSecondaryScore -= 100;
+	}
+
 	// Give a flat bonus for GPP Rate (200 per 5%)
 	if (pkImprovementInfo->GetGreatPersonRateModifier() != 0)
 	{
@@ -2814,6 +2829,31 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		int iProductionFromChop = pPlot->getFeatureProduction(eBuild, m_pPlayer->GetID(), NULL);
 		if (iProductionFromChop > 0)
 			iSecondaryScore += iProductionFromChop * GetYieldBaseModifierTimes100(YIELD_PRODUCTION) / 50;
+	}
+
+	// Bonuses to domain (give simple linear bonuses for now, should be fine)
+	CvCity* pActualOwningCity = pPlot->getOwningCity();
+	if (pkImprovementInfo && pActualOwningCity)
+	{
+		for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+		{
+			DomainTypes eDomain = (DomainTypes)iI;
+
+			if (eDomain == DOMAIN_SEA && !pActualOwningCity->isCoastal())
+				continue;
+
+			int iDomainProductionModifier = pkImprovementInfo->GetDomainProductionModifier(iI);
+			if (iDomainProductionModifier != 0)
+			{
+				iSecondaryScore += iDomainProductionModifier * 50;
+			}
+
+			int iDomainFreeExperience = pkImprovementInfo->GetDomainFreeExperience(iI);
+			if (iDomainFreeExperience != 0)
+			{
+				iSecondaryScore += iDomainFreeExperience * 20;
+			}
+		}
 	}
 
 	int iExtraResource = 0;
@@ -3493,6 +3533,9 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				continue;
 
 			if (pAdjacentPlot->getOwner() == m_pPlayer->GetID())
+				continue;
+
+			if (pAdjacentPlot->IsStealBlockedByImprovement())
 				continue;
 
 			if (pAdjacentPlot->IsImprovementEmbassy())

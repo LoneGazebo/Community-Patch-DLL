@@ -3073,6 +3073,9 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 				if (eOwner == GetID())
 					continue;
 
+				if (pAdjacentPlot->IsStealBlockedByImprovement())
+					continue;
+
 				// We shouldn't steal from them
 				if (GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{

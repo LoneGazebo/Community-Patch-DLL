@@ -8094,6 +8094,27 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
+			CvCity* pActualOwningCity = getOwningCity();
+			if (pActualOwningCity)
+			{
+				for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+				{
+					DomainTypes eDomain = (DomainTypes)iI;
+
+					int iDomainProductionModifier = oldImprovementEntry.GetDomainProductionModifier(iI);
+					if (iDomainProductionModifier != 0)
+					{
+						pActualOwningCity->changeDomainProductionModifier(eDomain, -iDomainProductionModifier);
+					}
+
+					int iDomainFreeExperience = oldImprovementEntry.GetDomainFreeExperience(iI);
+					if (iDomainFreeExperience != 0)
+					{
+						pActualOwningCity->changeDomainFreeExperience(eDomain, -iDomainFreeExperience);
+					}
+				}
+			}
+
 			//must be false now
 			SetImprovementPassable(false);
 			//displace units which cannot stay here any longer (question: what if we replace one passable improvement with another? that let's ignore that case)
@@ -8339,6 +8360,27 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
 				{
 					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+				}
+			}
+
+			CvCity* pActualOwningCity = getOwningCity();
+			if (pActualOwningCity)
+			{
+				for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+				{
+					DomainTypes eDomain = (DomainTypes)iI;
+
+					int iDomainProductionModifier = newImprovementEntry.GetDomainProductionModifier(iI);
+					if (iDomainProductionModifier != 0)
+					{
+						pActualOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier);
+					}
+
+					int iDomainFreeExperience = newImprovementEntry.GetDomainFreeExperience(iI);
+					if (iDomainFreeExperience != 0)
+					{
+						pActualOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience);
+					}
 				}
 			}
 
@@ -8994,6 +9036,28 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 							pAdjacentPlot->updateYield();
 							break;
 						}
+					}
+				}
+			}
+
+			// Change to city Domain modifiers
+			CvCity* pActualOwningCity = getOwningCity();
+			if (pActualOwningCity)
+			{
+				for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+				{
+					DomainTypes eDomain = (DomainTypes)iI;
+
+					int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+					if (iDomainProductionModifier != 0)
+					{
+						pActualOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier * iChange);
+					}
+
+					int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+					if (iDomainFreeExperience != 0)
+					{
+						pActualOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience * iChange);
 					}
 				}
 			}
@@ -10666,6 +10730,18 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		{
 			// Team Tech Yield Changes
 			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
+		}
+
+		// Player Accomplishment Yield Changes
+		for (int iI = 0; iI < NUM_ACCOMPLISHMENTS_TYPES; iI++)
+		{
+			AccomplishmentTypes eAccomplishment = (AccomplishmentTypes)iI;
+			int iCompletions = kPlayer.GetNumTimesAccomplishmentCompleted(eAccomplishment);
+
+			if (iCompletions == 0)
+				continue;
+
+			iYield += pImprovement->GetAccomplishmentYieldChanges(eAccomplishment, eYield) * iCompletions;
 		}
 	}
 
@@ -15201,6 +15277,21 @@ bool CvPlot::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	}
 
 	return false;
+}
+
+// Is tile stealing blocked by the presence of an improvement
+bool CvPlot::IsStealBlockedByImprovement() const
+{
+	if (getOwner() == NO_PLAYER)
+		return false;
+
+	if (getImprovementType() == NO_IMPROVEMENT)
+		return false;
+
+	if (IsImprovementPillaged())
+		return false;
+
+	return GC.getImprovementInfo(getImprovementType())->IsBlockTileSteal();
 }
 
 ///-------------------------------------
