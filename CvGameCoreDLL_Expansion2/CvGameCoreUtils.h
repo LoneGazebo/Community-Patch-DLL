@@ -489,7 +489,7 @@ public:
 	inline bool operator>=(const fraction &rhs) const { return !operator<(rhs); };
 	inline bool operator>(const fraction &rhs) const { return !operator<(rhs) && !operator==(rhs); };
 	
-	friend fraction abs(const fraction &rhs);
+	friend fraction abs(const fraction &lhs);
 	friend bool operator==(const int lhs, const fraction &rhs);
 	friend bool operator!=(const int lhs, const fraction &rhs);
 	
