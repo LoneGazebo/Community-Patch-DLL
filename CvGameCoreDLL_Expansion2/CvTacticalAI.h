@@ -298,6 +298,7 @@ public:
 	std::vector<CvTacticalUnit>::size_type size() const { return m_vec.size(); }
 	std::vector<CvTacticalUnit>::reference operator[](std::vector<CvTacticalUnit>::size_type _Pos) { return m_vec[_Pos]; }
 	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
+	CvTacticalUnit& back() { return m_vec.back(); }
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
 	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
@@ -531,6 +532,7 @@ enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEE
 
 struct STacticalAssignment
 {
+	//todo: use smaller data types
 	eUnitAssignmentType eAssignmentType;
 	int iUnitID;
 	int iScore;
@@ -541,10 +543,12 @@ struct STacticalAssignment
 
 	int iDamage; //just in case of attack, not set in constructor
 	int iSelfDamage; //only relevant for melee ...
+	int iKillOrNearKillId; //unit or city we might have killed (for danger estimation)
 
 	//convenience constructor
 	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnitID_ = 0, int iRemainingMoves_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE, int iScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
-		eAssignmentType(eType_), iUnitID(iUnitID_), iScore(iScore_), iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iDamage(0), iSelfDamage(0) {}
+		eAssignmentType(eType_), iUnitID(iUnitID_), iScore(iScore_), iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), 
+		iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iDamage(0), iSelfDamage(0), iKillOrNearKillId(-1) {}
 
 	//sort descending
 	bool operator<(const STacticalAssignment& rhs) const { return iScore>rhs.iScore; }
@@ -673,6 +677,7 @@ struct SIntPairHash
 
 typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
 typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
+typedef tr1::unordered_map<int, unsigned char> TUnitFlagLookup;
 
 //forward
 class CvTacticalPosition;
