@@ -34241,8 +34241,11 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-int CvCity::addDamageReceivedThisTurn(int iDamage)
+int CvCity::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
+	if (pAttacker && !isHuman())
+		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
+
 	m_iDamageTakenThisTurn += iDamage;
 	return m_iDamageTakenThisTurn;
 }

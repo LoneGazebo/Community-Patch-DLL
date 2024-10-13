@@ -44361,19 +44361,10 @@ int CvPlayer::GetDangerPlotAge() const
 	return m_pDangerPlots->GetTurnSliceBuilt();
 }
 
-std::vector<CvUnit*> CvPlayer::GetPrevTurnKnownEnemyUnits() const
+bool CvPlayer::IsVanishedUnit(const IDInfo& id) const
 {
-	std::vector<CvUnit*> result;
-
-	const UnitSet& units = m_pDangerPlots->GetPrevTurnKnownEnemyUnits();
-	for (UnitSet::const_iterator it = units.begin(); it != units.end(); ++it)
-	{
-		result.push_back(GET_PLAYER(it->first).getUnit(it->second));
-		if (result.back() == NULL)
-			result.pop_back();
-	}
-
-	return result;
+	const UnitSet& units = m_pDangerPlots->GetVanishedUnits();
+	return units.find(make_pair(id.eOwner,id.iID)) != units.end();
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck)

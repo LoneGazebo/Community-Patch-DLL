@@ -11155,12 +11155,15 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 			iNumNeeded++;
 	}
 
+	/*
+	//basic sanity check
 	int iThreshold = max(3, m_pPlayer->getNumCities() / 5);
 	if (iNumNeeded > iThreshold && iNumInquisitors > iThreshold)
 	{
 		CUSTOMLOG("Warning: Player %d seems to need more inquisitors but already has a lot.", m_pPlayer->GetID());
 		iNumNeeded = 3;
 	}
+	*/
 
 	// In later phases we may want to have defensive inquisitors ...
 	// This condition is for Spain in particular, they should go for missionaries in the beginning even though they could have inquisitors

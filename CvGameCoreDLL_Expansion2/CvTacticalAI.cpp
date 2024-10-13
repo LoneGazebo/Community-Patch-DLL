@@ -164,6 +164,28 @@ bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain) const
 	return false;
 }
 
+void CvTacticalTarget::SetLastAttackUnits(const CTacticalUnitArray& units)
+{
+	m_vLastUnits.clear();
+	for (vector<CvTacticalUnit>::const_iterator it = units.begin(); it != units.end(); ++it)
+		m_vLastUnits.push_back(it->GetID());
+}
+
+bool CvTacticalTarget::UnitsAreSameAsLastTime(const CTacticalUnitArray& units) const
+{
+	if (m_vLastUnits.size() != units.size())
+		return false;
+
+	//theoretically need to compare moves/attacks left as well
+	//or even killed enemies but this is good enough
+	//we really only need to catch the case of a failed sim being repeated back to back
+	for (vector<CvTacticalUnit>::const_iterator it = units.begin(); it != units.end(); ++it)
+		if (std::find(m_vLastUnits.begin(),m_vLastUnits.end(),it->GetID())==m_vLastUnits.end())
+			return false;
+
+	return true;
+}
+
 template<typename FocusArea, typename Visitor>
 void CvFocusArea::Serialize(FocusArea& focusArea, Visitor& visitor)
 {
@@ -530,9 +552,9 @@ void CvTacticalAI::FindTacticalTargets()
 			}
 			else
 			{
-				// ... enemy combat unit?
-				CvUnit* pUnit = pLoopPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-				if (pUnit != NULL)
+				// ... enemy combat unit? we allow visible ones and some we remember from the previous turn
+				CvUnit* pUnit = pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
+				if (pUnit != NULL && (pLoopPlot->isVisible(m_pPlayer->getTeam()) || m_pPlayer->IsVanishedUnit(pUnit->GetIDInfo())))
 				{
 					//minors ignore barbarians until they are close to their borders
 					if (!m_pPlayer->isMinorCiv() || !pUnit->isBarbarian() || pUnit->plot()->isAdjacentTeam(m_pPlayer->getTeam()))
@@ -945,7 +967,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY, AL_HIGH); pTarget!=NULL; pTarget = GetNextZoneTarget(AL_HIGH))
 	{
 		//mark the target whether the attack happened or not - we won't have a better chance this turn
-		pTarget->SetLastAggLvl(AL_HIGH);
+		pTarget->SetLastAggLevel(AL_HIGH);
 
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1032,12 +1054,28 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 					continue;
 				}
 
-				if (GC.getLogging() && GC.getAILogging())
+				//don't repeat ourselves
+				if (pTarget->UnitsAreSameAsLastTime(m_CurrentMoveUnits))
 				{
-					CvString strLogString;
-					strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected max damage per turn %d",
-						pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str(), iRequiredDamage, iExpectedDamagePerTurn);
-					LogTacticalMessage(strLogString);
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Zone %d, skipping redundant attack on %s", pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str());
+						LogTacticalMessage(strLogString);
+					}
+					continue;
+				}
+				else
+				{
+					pTarget->SetLastAttackUnits(m_CurrentMoveUnits);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected max damage per turn %d",
+							pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str(), iRequiredDamage, iExpectedDamagePerTurn);
+						LogTacticalMessage(strLogString);
+					}
 				}
 
 				//finally do the attack. be a bit more careful if we have few melee units
@@ -1151,7 +1189,8 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 	{
 		// See what units we have who can reach targets this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		CvUnit* pDefender = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+		// May also be invisible if we remember it from last turn!
+		CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),NULL,true,true);
 		if (pDefender && !pDefender->isDelayedDeath())
 		{
 			//if we're not about to make a kill, stay away from zones we are supposed to avoid
@@ -1188,7 +1227,8 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 
 	for (size_t i=0; i<targets.size(); i++)
 	{
-		CvUnit* pDefender = targets[i].pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+		// May also be invisible if we remember it from last turn!
+		CvUnit* pDefender = targets[i].pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 		if (!pDefender)
 			continue;
 
@@ -1215,34 +1255,49 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 		{
 			const char* task = bMustBeAbleToKill ? "killing" : "damaging";
 			CvString strLogString;
-			CvString strPlayerName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
+			CvString strEnemyName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pDefender->getUnitType());
-			CvString strTemp = (pkUnitInfo != NULL) ? pkUnitInfo->GetDescription() : "Unknown Unit Type";
-
+			CvString strUnit = (pkUnitInfo != NULL) ? pkUnitInfo->GetDescription() : "UnknownUnit";
+			const char* prio = "unknown";
+			const char* visible = pDefender->plot()->isVisible(m_pPlayer->getTeam()) ? "visible" : "remembered";
 			switch (targetType)
 			{
 			case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s high priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
+				prio = "high";
 				break;
 			case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s medium priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
+				prio = "mid";
 				break;
 			case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s low priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
+				prio = "low";
 				break;
 			default:
-				UNREACHABLE(); // Unsupported `targetType`.
+				UNREACHABLE();
 			}
-			strLogString += strPlayerName;
+
+			strLogString.Format("Looking at %s %s, id %d, owner %s, prio %s, agg %d, X: %d, Y: %d, %s",
+				task, strUnit.c_str(), pDefender->GetID(), strEnemyName.c_str(), prio, aggLvl, pDefender->getX(), pDefender->getY(), visible);
+
 			LogTacticalMessage(strLogString);
 		}
 
 		//mark the target no matter if the attack succeeds
-		targets[i].pTarget->SetLastAggLvl(aggLvl);
+		targets[i].pTarget->SetLastAggLevel(aggLvl);
 
 		//return true if target was killed
 		if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
 			continue;
+
+		//don't repeat ourselves
+		if (targets[i].pTarget->UnitsAreSameAsLastTime(m_CurrentMoveUnits))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+				LogTacticalMessage("skipping redundant attack");
+
+			continue;
+		}
+		else
+			targets[i].pTarget->SetLastAttackUnits(m_CurrentMoveUnits);
 
 		ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
 	}
@@ -2909,7 +2964,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 		for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextUnitTarget())
 		{
 			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-			CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+			CvUnit* pEnemyUnit = pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 			if(pEnemyUnit)
 			{
 				int iExpectedDamage = 0;
@@ -2980,7 +3035,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 		for (size_t i = 0; i < possibleAttackers.size(); i++)
 		{
 			CvPlot* pPlot = GC.getMap().plot( possibleAttackers[i]->GetTargetX(), possibleAttackers[i]->GetTargetY() );
-			CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+			CvUnit* pEnemyUnit = pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 
 			//the siege units are the dangerous ones! cities should target them first
 			//for counterattack with units the tactical combat simulation chooses attacks based on estimated damage
@@ -3019,7 +3074,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 					if(pTarget->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
 					{
 						CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-						CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+						CvUnit* pEnemyUnit = pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 						if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->GetMaxRangedCombatStrength(NULL, NULL, true) > pEnemyUnit->GetMaxAttackStrength(NULL, pLoopPlot, NULL))
 						{
 							if(plotDistance(pEnemyUnit->getX(), pEnemyUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= pEnemyUnit->GetRange())
@@ -3131,7 +3186,7 @@ void CvTacticalAI::UpdateTargetScores()
 			it->SetAuxIntData( it->GetAuxIntData() + 25 );
 
 			CvPlot* pPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-			CvUnit* pUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+			CvUnit* pUnit = pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 			if (pUnit)
 			{
 				//if the target is damaged, give it a further boost
@@ -3145,7 +3200,7 @@ void CvTacticalAI::UpdateTargetScores()
 			it->SetAuxIntData( it->GetAuxIntData() + 50 );
 
 			CvPlot* pPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-			CvUnit* pUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+			CvUnit* pUnit = pPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
 			if (pUnit)
 			{
 				//if the target is damaged, give it a further boost
@@ -3251,7 +3306,7 @@ CvTacticalTarget* CvTacticalAI::GetFirstZoneTarget(AITacticalTargetType eType, e
 
 	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
 	{
-		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
+		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLevel() <= eMaxLvl)
 		{
 			if (m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
 			{
@@ -3271,7 +3326,7 @@ CvTacticalTarget* CvTacticalAI::GetNextZoneTarget(eAggressionLevel eMaxLvl)
 
 	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
 	{
-		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
+		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLevel() <= eMaxLvl)
 		{
 			if (m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
 			{
@@ -3679,12 +3734,36 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 		}
 	}
 
-	if (vOptions.empty())
-		return false;
+	if (!vOptions.empty())
+	{
+		std::stable_sort(vOptions.begin(), vOptions.end());
+		ExecuteMoveToPlot(vOptions.front().option.first, vOptions.front().option.second, false, CvUnit::MOVEFLAG_NO_EMBARK);
+		return true;
+	}
 
-	std::stable_sort(vOptions.begin(), vOptions.end());
-	ExecuteMoveToPlot(vOptions.front().option.first, vOptions.front().option.second, false, CvUnit::MOVEFLAG_NO_EMBARK);
-	return true;
+	//last resort. use an air sweep to an adjacent plot for recon
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTargetPlot);
+	for (unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+			if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(m_pPlayer->getTeam()))
+			{
+				if (pUnit && pUnit->canAirSweepAt(pAdjacentPlot->getX(), pAdjacentPlot->getY()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+					CUSTOMLOG("using air sweep for recon!")
+					if (pUnit->isOutOfAttacks())
+						UnitProcessed(m_CurrentAirSweepUnits[iI].GetID());
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
@@ -4637,7 +4716,7 @@ void CvTacticalAI::ExecuteAirSweepMoves()
 bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 {
 	//mark the target no matter if the attack succeeds
-	kTarget.SetLastAggLvl(AL_LOW);
+	kTarget.SetLastAggLevel(AL_LOW);
 
 	//todo: how can we make sure that city and units focus fire on the same targets?
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
@@ -4653,8 +4732,19 @@ bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 			return true;
 
 		// Make attacks - this includes melee attacks but only very safe ones
-		if (FindUnitsWithinStrikingDistance(pTargetPlot) && ComputeTotalExpectedDamage(kTarget)>0)
-			return ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
+		if (FindUnitsWithinStrikingDistance(pTargetPlot) && ComputeTotalExpectedDamage(kTarget) > 0)
+		{
+			if (kTarget.UnitsAreSameAsLastTime(m_CurrentMoveUnits))
+			{
+				if (GC.getLogging() && GC.getAILogging())
+					LogTacticalMessage("skipping redundant attack");
+			}
+			else
+			{
+				kTarget.SetLastAttackUnits(m_CurrentMoveUnits);
+				return ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
+			}
+		}
 	}
 
 	return false;
@@ -4670,12 +4760,23 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 	eAggressionLevel aggLevel = bLoneBarbInCamp ? AL_HIGH : AL_MEDIUM;
 
 	//mark the target no matter if the attack succeeds
-	kTarget.SetLastAggLvl(aggLevel);
+	kTarget.SetLastAggLevel(aggLevel);
 
 	// Make attacks
 	CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-	if (pDefender && FindUnitsWithinStrikingDistance(pTargetPlot) && ComputeTotalExpectedDamage(kTarget)>0)
-		return ExecuteAttackWithUnits(pTargetPlot, aggLevel);
+	if (pDefender && FindUnitsWithinStrikingDistance(pTargetPlot) && ComputeTotalExpectedDamage(kTarget) > 0)
+	{
+		if (kTarget.UnitsAreSameAsLastTime(m_CurrentMoveUnits))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+				LogTacticalMessage("skipping redundant attack");
+		}
+		else
+		{
+			kTarget.SetLastAttackUnits(m_CurrentMoveUnits);
+			return ExecuteAttackWithUnits(pTargetPlot, aggLevel);
+		}
+	}
 
 	return false;
 }
@@ -5508,12 +5609,16 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 
 	if (iTurns <= iMaxTurns)
 	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
-
 		//for inspection in GUI
 		pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
 
-		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
+		//may not actually move if there is no safe path
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
+		
+		//try tactsim first, but it may fail if there are not good options
+		if (!TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true))
+			//last attempt, use the stupid approach
+			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, false);
 
 		//don't call finish moves, otherwise we won't heal!
 		if (pUnit->canMove())
@@ -6322,6 +6427,9 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 
 		//no loop needed, there is only one unit anyway
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage);
+		if (vAssignments.empty())
+			return false;
+
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
@@ -6364,7 +6472,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Performing ranged opportunity attack with %s at (%d:%d) on (%d:%d)",
+			strMsg.Format("Performing stationary ranged opportunity attack with %s at (%d:%d) on (%d:%d)",
 				pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), pBestTarget->getX(), pBestTarget->getY());
 			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 		}
