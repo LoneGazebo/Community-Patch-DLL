@@ -208,11 +208,13 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	TeamTypes thisTeam = thisPlayer.getTeam();
 
 	//units we know from last turn are reset on turn change but not on war state change
+	UnitSet knownUnitsPrevTurn = m_knownUnits;
 	if (!bKeepKnownUnits)
-		m_knownUnitsPrevTurn = m_knownUnits;
-
-	//about to be refreshed
-	m_knownUnits.clear();
+	{
+		//about to be refreshed
+		m_knownUnits.clear();
+		m_vanishedUnits.clear();
+	}
 
 	// for each opposing civ
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
@@ -236,7 +238,8 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 		{
 			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
-				m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
+				if (!bKeepKnownUnits)
+					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 2, false);
 			}
 		}
@@ -272,7 +275,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	}
 
 	// now compare the new known units with the previous known units
-	for (UnitSet::iterator it = m_knownUnitsPrevTurn.begin(); it != m_knownUnitsPrevTurn.end(); ++it)
+	for (UnitSet::iterator it = knownUnitsPrevTurn.begin(); it != knownUnitsPrevTurn.end(); ++it)
 	{
 		//might have made peace ...
 		if (ShouldIgnorePlayer(it->first))
@@ -285,7 +288,11 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-				UpdateDangerSingleUnit(pVanishedUnit, true, plotsToIgnoreForZOC);
+			{
+				if (UpdateDangerSingleUnit(pVanishedUnit, true, plotsToIgnoreForZOC))
+					if (!bKeepKnownUnits)
+						m_vanishedUnits.insert(*it);
+			}
 		}
 	}
 
@@ -581,7 +588,7 @@ void CvDangerPlots::Serialize(DangerPlots& dangerPlots, Visitor& visitor)
 	if (bLoading)
 		mutDangerPlots.Init(dangerPlots.m_ePlayer, true);
 	visitor(dangerPlots.m_knownUnits);
-	visitor(dangerPlots.m_knownUnitsPrevTurn);
+	visitor(dangerPlots.m_vanishedUnits);
 }
 
 /// reads in danger plots info

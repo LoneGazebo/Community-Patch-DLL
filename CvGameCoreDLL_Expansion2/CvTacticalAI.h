@@ -159,6 +159,30 @@ private:
 	int m_iExpectedTargetDamage;
 };
 
+//a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
+class CTacticalUnitArray
+{
+public:
+	CTacticalUnitArray() : m_eCurrentMoveType(AI_TACTICAL_MOVE_NONE) {}
+
+	std::vector<CvTacticalUnit>::const_iterator begin() const { return m_vec.begin(); }
+	std::vector<CvTacticalUnit>::const_iterator end() const { return m_vec.end(); }
+	std::vector<CvTacticalUnit>::iterator begin() { return m_vec.begin(); }
+	std::vector<CvTacticalUnit>::iterator end() { return m_vec.end(); }
+	std::vector<CvTacticalUnit>::size_type size() const { return m_vec.size(); }
+	std::vector<CvTacticalUnit>::reference operator[](std::vector<CvTacticalUnit>::size_type _Pos) { return m_vec[_Pos]; }
+	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
+	CvTacticalUnit& back() { return m_vec.back(); }
+	void push_back(const CvTacticalUnit& unit);
+	void clear() { m_vec.clear(); }
+	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType = move; }
+	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
+
+private:
+	std::vector<CvTacticalUnit> m_vec;
+	AITacticalMove m_eCurrentMoveType;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalTarget
 //!  \brief		A target of opportunity for the tactical AI this turn
@@ -182,7 +206,8 @@ public:
 		m_iZoneID = -1;
 		m_pUnit = NULL;
 		m_iAuxData = 0;
-		m_eAggLvl = AL_NONE;
+		m_eLastAggLvl = AL_NONE;
+		m_vLastUnits.clear();
 	};
 	inline bool operator<(const CvTacticalTarget& target) const
 	{
@@ -226,8 +251,14 @@ public:
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer) const;
 	bool IsTargetValidInThisDomain(DomainTypes eDomain) const;
 
-	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
-	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
+	void SetLastAggLevel(eAggressionLevel lvl) { m_eLastAggLvl = lvl; }
+	void SetLastAttackUnits(const CTacticalUnitArray& units);
+
+	//this is a bit hackish, we have two dimensions, aggression level and units
+	//they are not independent. high-prio / many unit attacks come first
+	//within the same aggression level we use the units to avoid repetition
+	eAggressionLevel GetLastAggLevel() const { return m_eLastAggLvl; }
+	bool UnitsAreSameAsLastTime(const CTacticalUnitArray& units) const;
 
 	inline CvUnit* GetUnitPtr() const
 	{
@@ -258,7 +289,8 @@ private:
 	CvUnit* m_pUnit;
 	int m_iAuxData;
 	int m_iZoneID;
-	eAggressionLevel m_eAggLvl;
+	eAggressionLevel m_eLastAggLvl;
+	UnitIdContainer m_vLastUnits;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -283,32 +315,6 @@ FDataStream& operator<<(FDataStream&, const CvFocusArea&);
 FDataStream& operator>>(FDataStream&, CvFocusArea&);
 
 typedef vector<CvTacticalTarget> TacticalList;
-
-#if defined(MOD_BALANCE_CORE)
-//a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
-class CTacticalUnitArray
-{
-public:
-	CTacticalUnitArray() : m_eCurrentMoveType(AI_TACTICAL_MOVE_NONE) {}
-
-	std::vector<CvTacticalUnit>::const_iterator begin() const { return m_vec.begin(); }
-	std::vector<CvTacticalUnit>::const_iterator end() const { return m_vec.end(); }
-	std::vector<CvTacticalUnit>::iterator begin() { return m_vec.begin(); }
-	std::vector<CvTacticalUnit>::iterator end() { return m_vec.end(); }
-	std::vector<CvTacticalUnit>::size_type size() const { return m_vec.size(); }
-	std::vector<CvTacticalUnit>::reference operator[](std::vector<CvTacticalUnit>::size_type _Pos) { return m_vec[_Pos]; }
-	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
-	CvTacticalUnit& back() { return m_vec.back(); }
-	void push_back(const CvTacticalUnit& unit);
-	void clear() { m_vec.clear(); }
-	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
-	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
-
-private:
-	std::vector<CvTacticalUnit> m_vec;
-	AITacticalMove m_eCurrentMoveType;
-};
-#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalAI

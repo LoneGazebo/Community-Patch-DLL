@@ -1180,7 +1180,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					pCity->changeDamage(iDamage);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-					pCity->addDamageReceivedThisTurn(iDamage);
+					pCity->addDamageReceivedThisTurn(iDamage, pkAttacker);
 #endif
 
 					if(pCity->getOwner() == GC.getGame().getActivePlayer())
@@ -1382,7 +1382,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		pkDefender->changeDamage(iAttackerDamageInflicted);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
+		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
 		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 		
@@ -2085,6 +2085,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pCity->clearCombat();
 				pCity->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 				pCity->changeDamage(iAttackerDamageInflicted);
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+				pCity->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
+#endif
 				pkAttacker->changeDamage(iDefenderDamageInflicted, pCity->getOwner());
 
 				if(pkAttacker->IsDead())
@@ -4701,6 +4704,10 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 			if(pkUnit)
 			{
 				pkUnit->changeDamage(kEntry.GetDamage(), pkAttacker->getOwner());
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+				pkUnit->addDamageReceivedThisTurn(kEntry.GetDamage(), pkAttacker);
+#endif
+
 				if (pkUnit->IsDead())
 				{
 					//unit kill is delayed. in case of multiple attacks this turn we remove / switch the garrison manually

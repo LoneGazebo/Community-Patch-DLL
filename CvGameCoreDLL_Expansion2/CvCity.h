@@ -1709,7 +1709,7 @@ public:
 	int GetConnectionGoldTimes100() const;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	int addDamageReceivedThisTurn(int iDamage);
+	int addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker = NULL);
 	void flipDamageReceivedPerTurn();
 	bool isInDangerOfFalling(bool bExtraCareful=false) const;
 	bool isUnderSiege() const;

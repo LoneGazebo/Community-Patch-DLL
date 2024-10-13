@@ -2507,7 +2507,7 @@ public:
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
 	int GetDangerPlotAge() const;
-	std::vector<CvUnit*> GetPrevTurnKnownEnemyUnits() const;
+	bool IsVanishedUnit(const IDInfo& id) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
