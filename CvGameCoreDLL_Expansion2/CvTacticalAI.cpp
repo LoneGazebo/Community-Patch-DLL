@@ -1222,13 +1222,13 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 			switch (targetType)
 			{
 			case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s high priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				strLogString.Format("Looking at %s high priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
 				break;
 			case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s medium priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				strLogString.Format("Looking at %s medium priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
 				break;
 			case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-				strLogString.Format("Looking at %s low priority %s, X: %d, Y: %d, ", task, strTemp.GetCString(), pDefender->getX(), pDefender->getY());
+				strLogString.Format("Looking at %s low priority %s, agg %d, X: %d, Y: %d, ", task, strTemp.GetCString(), aggLvl, pDefender->getX(), pDefender->getY());
 				break;
 			default:
 				UNREACHABLE(); // Unsupported `targetType`.
