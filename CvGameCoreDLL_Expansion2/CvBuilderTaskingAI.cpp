@@ -2874,11 +2874,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
 
+				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair() && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->IsImprovementPillaged())
+					eOtherImprovement = pAdjacentPlot->getImprovementType();
+
 				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
 				if (!pkOtherImprovementInfo)
 					continue;
 
-				if (pkOtherImprovementInfo->IsCreatedByGreatPerson())
+				if (pkOtherImprovementInfo->IsCreatedByGreatPerson() && !pkOtherBuildInfo->isRepair())
 					continue;
 
 				if (!m_pPlayer->canBuild(pAdjacentPlot, eOtherBuild, true))
