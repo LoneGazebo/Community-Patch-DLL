@@ -2387,7 +2387,6 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 
 	PlayerTypes ePlayer = data.ePlayer;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	bool bThisPlayerIsMinor = kPlayer.isMinorCiv();
 	bool bIsManual = data.eRoutePurpose == PURPOSE_MANUAL;
 
 	//can we build it?
@@ -2396,35 +2395,23 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		return FALSE;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	if(!bThisPlayerIsMinor && !(pNewPlot->isRevealed(kPlayer.getTeam())))
+	if (!(pNewPlot->isRevealed(kPlayer.getTeam())))
 		return FALSE;
 
-	if(pNewPlot->isWater())
+	if (pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
+	if (!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.IsWorkersIgnoreImpassable()))
 		return FALSE;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
 		return FALSE;
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
-	if(ePlotOwnerPlayer != NO_PLAYER && pNewPlot->getTeam() != kPlayer.getTeam() && !GET_TEAM(pNewPlot->getTeam()).IsVassal(kPlayer.getTeam()))
+	if (ePlotOwnerPlayer != NO_PLAYER && pNewPlot->getTeam() != kPlayer.getTeam() && !GET_TEAM(pNewPlot->getTeam()).IsVassal(kPlayer.getTeam()))
 	{
-		PlayerTypes eMajorPlayer = NO_PLAYER;
-		PlayerTypes eMinorPlayer = NO_PLAYER;
 		bool bPlotOwnerIsMinor = GET_PLAYER(ePlotOwnerPlayer).isMinorCiv();
-		if(bThisPlayerIsMinor && !bPlotOwnerIsMinor)
-		{
-			eMajorPlayer = ePlotOwnerPlayer;
-			eMinorPlayer = ePlayer;
-		}
-		else if(bPlotOwnerIsMinor && !bThisPlayerIsMinor)
-		{
-			eMajorPlayer = ePlayer;
-			eMinorPlayer = ePlotOwnerPlayer;
-		}
-		else
+		if(!bPlotOwnerIsMinor || kPlayer.IsAtWarWith(ePlayer))
 		{
 			return FALSE;
 		}
@@ -2447,7 +2434,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	return TRUE;
 }
 
-bool BothHaveSamePassabilityAndDomain(const CvPlot* pA, const CvPlot* pB)
+static bool BothHaveSamePassabilityAndDomain(const CvPlot* pA, const CvPlot* pB)
 {
 	return (pA->isImpassable() == pB->isImpassable()) && (pA->isWater() == pB->isWater());
 }
