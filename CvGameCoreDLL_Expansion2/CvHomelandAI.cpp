@@ -950,6 +950,15 @@ void CvHomelandAI::PlotWorkerMoves()
 		}
 	}
 
+	for (list<int>::iterator it = m_greatPeopleForImprovements.begin(); it != m_greatPeopleForImprovements.end(); ++it)
+	{
+		CvHomelandUnit unit;
+		unit.SetID(*it);
+		m_CurrentMoveUnits.push_back(unit);
+	}
+
+	m_greatPeopleForImprovements.clear();
+
 	// Human players may have only non-automated workers which nevertheless need to be given directives
 	if(m_CurrentMoveUnits.size() > 0 || m_pPlayer->isHuman())
 	{
@@ -2864,14 +2873,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 		allWorkers.push_back(pUnit->GetID());
 	}
-
-	// Great people that the AI wants to build improvements with
-	for (list<int>::iterator it = m_greatPeopleForImprovements.begin(); it != m_greatPeopleForImprovements.end(); ++it)
-	{
-		allWorkers.push_back(*it);
-	}
-
-	m_greatPeopleForImprovements.clear();
 
 	// Humans also have non-automated workers. Pretend they are automated as well to avoid going where they are.
 	// We also throw in all great people that can build anything here so they get recommendations as well.
