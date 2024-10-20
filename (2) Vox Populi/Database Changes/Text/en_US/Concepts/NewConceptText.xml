@@ -189,6 +189,9 @@
 				[ICON_BULLET][COLOR_CYAN]Insert Bottom All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+ALT+LCLICK[ENDCOLOR] an item to add it to the bottom of every eligible cities construction queues.[NEWLINE]
 				[ICON_BULLET][COLOR_CYAN]Insert Top All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+CTRL+LCLICK[ENDCOLOR] an item to add it to the top of every eligible owned cities construction queues.[NEWLINE]
 				[ICON_BULLET][COLOR_CYAN]Invest All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] a buildings invest button to invest in every copy of this building in any cities active construction queue.[NEWLINE]
+				
+				[NEWLINE][COLOR_POSITIVE_TEXT]Citizen Management Modifiers:[ENDCOLOR][NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Set Yield Focus All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] a focus type to have all cities emphasize the production of that yield type.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW">

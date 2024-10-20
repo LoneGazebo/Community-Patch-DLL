@@ -2842,10 +2842,21 @@ end
 -- Citizen Focus
 local FocusButtonBehavior = {
 	[Mouse.eLClick] = function( focus )
-		local city = GetSelectedModifiableCity()
-		if city then
-			Network.SendSetCityAIFocus( city:GetID(), focus )
-			return Network.SendUpdateCityCitizens( city:GetID() )
+		if UI.ShiftKeyDown() then
+			-- Set focus for all cities
+			for cityX in g_activePlayer:Cities() do
+				if ( not cityX:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() )) then
+					Network.SendSetCityAIFocus( cityX:GetID(), focus )
+					Network.SendUpdateCityCitizens( cityX:GetID() )
+				end
+			end
+		else
+			-- Set focus for local city only
+			local city = GetSelectedModifiableCity()
+			if city then
+				Network.SendSetCityAIFocus( city:GetID(), focus )
+				return Network.SendUpdateCityCitizens( city:GetID() )
+			end
 		end
 	end,
 }
