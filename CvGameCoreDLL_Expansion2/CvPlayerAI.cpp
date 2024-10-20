@@ -1786,7 +1786,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		int iPotentialArmies = max(1, GetMilitaryAI()->GetNumLandUnits() - getNumCities() * 3) / 13;
 
 		int iDesiredNumCommanders = max(1, (iWars + iPotentialArmies) / 2);
-		if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+		if (iCommanders < iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
@@ -1915,6 +1915,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	if (!bHasAdmiralNegation && pGreatAdmiral->getArmyID() != -1)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
+	// We might have multiple admirals... First get an overview
 	int iCommanders = 0;
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
@@ -1936,24 +1937,24 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		}
 	}
 
-	if (!bHasAdmiralNegation)
-	{
-		// During war we want field commanders
-		int iWars = IsAtWar() ? 2 : 0;
-		// Just a rough estimation
-		int iPotentialArmies = max(1, GetMilitaryAI()->GetNumNavalUnits() - getNumCities()) / 5;
-
-		int iDesiredNumCommanders = max(1, (iWars + iPotentialArmies) / 2);
-		if (iCommanders <= iDesiredNumCommanders || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
-			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-
 	// Can this admiral build improvements?
 	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		BuildTypes eBuild = static_cast<BuildTypes>(iI);
 		if (pGreatAdmiral->canBuild(NULL, eBuild))
 			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+	}
+
+	if (!bHasAdmiralNegation)
+	{
+		// During war we want field commanders
+		int iWars = static_cast<int>(GetPlayersAtWarWith().size());
+		// Just a rough estimation
+		int iPotentialArmies = max(1, GetMilitaryAI()->GetNumNavalUnits() - getNumCities()) / 5;
+
+		int iDesiredNumCommanders = max(1, (iWars + iPotentialArmies) / 2);
+		if (iCommanders < iDesiredNumCommanders || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
 	// We're unhappy or have too many admirals; expend some!
@@ -1964,7 +1965,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
-	return bHasAdmiralNegation ? GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND : NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	// Default
+	return bHasAdmiralNegation ? NO_GREAT_PEOPLE_DIRECTIVE_TYPE : GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
