@@ -13,5 +13,1214 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_UNKNOWN">
 			<Text>An unknown civilization has enhanced their pantheon by adding a new belief.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT">
+			<Text>A {1_Resource:textkey} has brought inspiration!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_UNIT">
+			<Text>The birth of a {1_Resource:textkey} causes a Culture Boost in your Empire!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S">
+			<Text>{1_CityName} can no longer work on {2_BldgName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S">
+			<Text>New Defensive Pact</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DEFENSIVE_PACT">
+			<Text>{1_CivName} and {2_CivName} have signed a Defensive Pact!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM_S">
+			<Text>{1_CivDesc} kept their expansion promise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_THEM">
+			<Text>It has been many years since {1_CivDesc}'s promise to not settle near you. They consider that promise to be fulfilled.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DOF_S_BROKEN">
+			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
+			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S">
+			<Text>Coop War Cancelled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF">
+			<Text>Due to a new Declaration of Friendship with {1_CivName}, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP">
+			<Text>Due to a new Defensive Pact with {1_CivName}, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET">
+			<Text>Because {1_CivName} is no longer a valid war target, your cooperative war agreement with {2_CivName} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION">
+			<Text>Because your friendship with {1_CivName} was prematurely terminated, your cooperative war agreements with them have ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_ELIMINATED">
+			<Text>Because {1_CivName} is no longer able to assist you in war, your cooperative war agreements with them have ended.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED_SUMMARY">
+			<Text>{1_CivName:textkey} captured, Unit Gift returned!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CS_GIFT_RETURNED">
+			<Text>Because {1_CivName:textkey} was captured, your gifted {2_Unit} was returned to you.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} needs {1_Resource:textkey}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
+			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE">
+			<Text>You have captured {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE_TT">
+			<Text>Choose the fate of {1_City}...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE_S">
+			<Text>Peace with {1_Civ} possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE">
+			<Text>{1_Civ} is no longer Allies with a civilization you're at war with. Peace with {1_Civ} is now possible again.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_S">
+			<Text>{2_Civ} terrorizes {1_CS}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS">
+			<Text>{2_Civ} bullied {1_CS}, reducing your [ICON_INFLUENCE] Influence with {1_CS} by {3_Influence}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S">
+			<Text>You tighten your grip on {1_CS}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU">
+			<Text>Your bullying of {1_CS} increased your [ICON_INFLUENCE] Influence by {2_Influence}, and reduced the [ICON_INFLUENCE] Influence of other Civiliations by {3_Percent}%!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_MP_DIPLO_CONTACT_SUMMARY">
+			<Text>Incoming message from {1_LeaderName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER_S">
+			<Text>Your {1_Unit} inflicted a Status Effect!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER">
+			<Text>{3_Promotion} Status Effect inflicted on {1_Unit} to {2_Unit} during combat!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER_S_THEM_S">
+			<Text>Your {1_Unit} received a Status Effect!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER_THEM">
+			<Text>{3_Promotion} Status Effect was inflicted on our {2_Unit} by an enemy {1_Unit} during combat!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_S">
+			<Text>{1_Unit} was routed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK">
+			<Text>Our {2_Unit} was forced to retreat by an enemy {1_Unit}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM_S">
+			<Text>Enemy {1_Unit} forced to retreat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM">
+			<Text>Our {1_Unit} forced an enemy {2_Unit} to retreat!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_S">
+			<Text>{1_CivName} brokers peace on your behalf!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE">
+			<Text>Your diplomats have learned that {1_PlayerName} paid {2_CivName} to make peace with you!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_OTHER_S">
+			<Text>{1_CivName} brokers peace between {2_CivName} and {3_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_OTHER">
+			<Text>Your diplomats have learned that {1_PlayerName} paid {2_CivName} to make peace with {3_CivName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_SUCCESS_S">
+			<Text>Foreign Coup in {1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_SUCCESS">
+			<Text>An unknown civilization staged a coup in {1_CityName}, ousted the {2_CivAdj} supporters, and installed their own supporters in the government to become the new ally of the city-state.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_FAILURE_S">
+			<Text>Foreign Coup in {1_CityName} Failed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_FAILURE">
+			<Text>An unknown civilization attempted a coup in {1_CityName} but failed to overthrow the {2_CivAdj} supporters that have an alliance with the city-state.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY_S">
+			<Text>{1_ReligionName} is now your majority [ICON_RELIGION] Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY">
+			<Text>{1_ReligionName} has become your new majority [ICON_RELIGION] Religion. This shift in religious status may affect your relationship with other Civilizations, as well as your own population.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION_S">
+			<Text>{1_ReligionName} now your primary [ICON_RELIGION] Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
+			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid. All stored [ICON_PEACE] Faith is converted into [ICON_GOLDEN_AGE] Golden Age Points (except for Civilizations guaranteed a [ICON_RELIGION] Religion).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY">
+			<Text>Holy City of {1_CityName:textkey} captured!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_LOST_HOLY">
+			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eligible, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Enhancer Bonuses. If {3_Religion} was your primary Religion, you will lose access to its Beliefs until you retake it.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
+			<Text>Holy City of {1_CityName:textkey} taken!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY">
+			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary religion, thus giving you access to the Founder and Enhancer Belief bonuses associated with it (so long as you retain control of the City).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE">
+			<Text>Tourism and Trade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your sea Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
+			<Text>City-State Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS">
+			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY">
+			<Text>Historic Event</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_ERA">
+			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
+			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War (Warscore of 25 or more), your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
+			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WW">
+			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY">
+			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GOLDEN_AGE">
+			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI_SUMMARY">
+			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI">
+			<Text>{1_Player:textkey} returned your captured {@2_UnitName} to you. How nice!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ANARCHY_BEGINS_SUMMARY">
+			<Text>Anarchy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ANARCHY_BEGINS">
+			<Text>Your empire has entered a state of anarchy! This will last for {1_num} {1_num: plural 1?Turn; other?Turns;}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE_S">
+			<Text>{1_CS} bullied by {2_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
+			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
+			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
+		</Row>
+
+		<!-- Influence shift -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SUMMARY">
+			<Text>Influence Shift!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Civ}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Civ}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1_BAD">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2_BAD">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3_BAD">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4_BAD">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5_BAD">
+			<Text>{1_CivAdj} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
+		</Row>
+
+		<!-- Pledge of Protection -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
+			<Text>Pledge of Protection secured.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
+			<Text>Your military status in the world and/or alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
+			<Text>Pledge of Protection warning!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening Military Power. Increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_DISTANCE">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to distance. Ally {1_CSName} or make sure you are within Trade Route range within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;} to maintain this promise!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY_AND_DISTANCE">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled, both due to distance and your weakening Military Power. Ally {1_CSName} or make sure you are within Trade Route range AND increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;} to maintain this promise!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
+			<Text>Pledge of Protection in jeopardy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY">
+			<Text>If you do not improve your Military Power by {3_Num}% within {2_Num} {2_Num: plural 1?Turn; other?Turns;}, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_DISTANCE">
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range before {2_Num} {2_Num: plural 1?Turn; other?Turns;} pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY_AND_DISTANCE">
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range AND increase your Military Power by {3_Num}% before {2_Num} {2_Num: plural 1?Turn; other?Turns;} pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL">
+			<Text>Because one or both of you have no cities, {1_CSName} has annulled your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">
+			<Text>Because of {1_CSName}'s anger with you, they no longer value your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that your military is no longer capable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_DISTANCE">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY_AND_DISTANCE">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances and your weakening Military Power render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+
+		<!-- Ancient ruins -->
+		<Row Tag="TXT_KEY_MISC_OTHER_RECEIVED_GOODY_S">
+			<Text>Bonus from Ancient Ruins</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_OTHER_RECEIVED_GOODY">
+			<Text>{1_Civ:textkey} {@1_CivName: plural 1?has; other?have;} received rewards from Ancient Ruins: {@2_Reward}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_RECEIVED_SCIENCE">
+			<Text>[SPACE]You have received {1_Num} [ICON_RESEARCH] Science!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_RECEIVED_CULTURE">
+			<Text>[SPACE]You have received {1_Num} [ICON_CULTURE] Culture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_RECEIVED_FAITH">
+			<Text>[SPACE]You have received {1_Num} [ICON_PEACE] Faith!</Text>
+		</Row>
+
+		<!-- Instant yields -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE">
+			<Text>Empire-Wide Bonus Yields</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
+			<Text>Bonus Yields Update</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_IN_CITY">
+			<Text>Bonus Yields in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
+			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
+			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE">
+			<Text>Total Number of Technologies Researched:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_ERA">
+			<Text>Entering a new [ICON_RESEARCH] Era:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_POLICY">
+			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
+			<Text>Instant Yield:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
+			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
+			<Text>Constructing a Building:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
+			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PROPOSAL">
+			<Text>Passing a [ICON_INFLUENCE] Proposal:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_USE">
+			<Text>Expending a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_BORN">
+			<Text>Birth of a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONQUEST">
+			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
+			<Text>[ICON_VICTORY_DOMINATION] Winning a Battle:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
+			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
+			<Text>[ICON_PRODUCTION] Producing a Military Unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
+			<Text>[ICON_GOLD] Purchasing a Unit or Building:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
+			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FOUND">
+			<Text>[ICON_GOLDEN_AGE] Founding a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TRADE_ROUTE">
+			<Text>Completing a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONVERSION">
+			<Text>Converting a City to your [ICON_RELIGION] Religion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GROWTH_EXTRA">
+			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
+			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName}:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
+			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FOREIGN_SPREAD">
+			<Text>Spreading your [ICON_RELIGION] Religion to a Foreign City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
+			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN">
+			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route in Foreign Territory:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SCOUTING">
+			<Text>[ICON_MOVES] Exploration:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_LEVEL_UP">
+			<Text>[ICON_STRENGTH] {2_Unit} Leveled Up:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DELEGATES">
+			<Text>Total [ICON_DIPLOMAT] Delegates:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SPIES">
+			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_MINOR_QUEST">
+			<Text>[ICON_CITY_STATE] Completing Quest for {2_MinorName} ({1_Data}):[NEWLINE]{3_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_HEAVY_TRIBUTE_QUEST">
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName} - Quest Reward ({1_Data}):[NEWLINE]{3_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
+			<Text>Expanding [ICON_CULTURE] Borders by Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_REMOVE_HERESY">
+			<Text>Removing [ICON_INQUISITOR] Religious Heresy:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE">
+			<Text>[ICON_RELIGION] Faith Purchase in City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
+			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED">
+			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
+			<Text>Process in Destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
+			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
+			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
+			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">
+			<Text>Starting a Golden Age:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
+			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_REFUND">
+			<Text>[ICON_PEACE] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">
+			<Text>Construct Route</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME">
+			<Text>Kill Camp</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME">
+			<Text>Connect Resource</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME">
+			<Text>Build Wonder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME">
+			<Text>Generate Great Person</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME">
+			<Text>Kill City-State</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME">
+			<Text>Find Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_NAME">
+			<Text>Find City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME">
+			<Text>Find Natural Wonder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME">
+			<Text>Give Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME">
+			<Text>Pledge Protection</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME">
+			<Text>Culture Contest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME">
+			<Text>Faith Contest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME">
+			<Text>Tech Contest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME">
+			<Text>Invest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME">
+			<Text>Demand Tribute from City-State</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME">
+			<Text>Denounce Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME">
+			<Text>Spread Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME">
+			<Text>Establish Trade Route</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_WAR_NAME">
+			<Text>Start War against Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME">
+			<Text>Build National Wonder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME">
+			<Text>Gift Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME">
+			<Text>Find City-State</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME">
+			<Text>Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME">
+			<Text>Tourism Contest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME">
+			<Text>Archaeology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME">
+			<Text>Circumnavigation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME">
+			<Text>Liberate City-State</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME">
+			<Text>Quell Horde</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME">
+			<Text>Quell Rebellion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_EXPLORE_AREA_NAME">
+			<Text>Discover Land</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">
+			<Text>Construct Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPY_ON_MAJOR_NAME">
+			<Text>Conduct Espionage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_COUP_NAME">
+			<Text>Perform Coup</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ACQUIRE_CITY_NAME">
+			<Text>Conquer City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_HAPPINESS">
+			<Text>+{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_INFLUENCE">
+			<Text>+{1_Num} [ICON_INFLUENCE] Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_EXPERIENCE">
+			<Text>+{1_Num} [ICON_STRENGTH] Experience for all Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_GPP_GLOBAL">
+			<Text>+{1_Num} [ICON_GREAT_PEOPLE] Great Person Points in all Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_GPP">
+			<Text>+{1_Num} [ICON_GREAT_PEOPLE] Great Person Points in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_ADDENDUM">
+			<Text>[NEWLINE]{1_Num}</Text>
+		</Row>
+
+		<!-- Instant Great Person progress -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">
+			<Text>Empire-Wide Bonus Great Person Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS">
+			<Text>Bonus Great Person Points Update</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_IN_CITY">
+			<Text>Bonus Great Person Points in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name} Points</Text>
+		</Row>
+
+		<!-- City-State quests -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_FIND_CITY">
+			<Text>{@2_CivName} seeks {@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_FIND_CITY">
+			<Text>{@2_CivName} is looking for new trade opportunities. They have heard of a distant city named "{@1_CityName}." If you are able to find the city of {@1_CityName}, you will be rewarded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_FIND_CITY">
+			<Text>{@1_CityName} discovered for {@2_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_CITY">
+			<Text>Your discovery of {@1_CityName} has greatly pleased the merchants of {@2_MinorCivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY">
+			<Text>{@2_CivName} wants you to capture {@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY">
+			<Text>Tactical experts from {@2_CivName} believe {@1_CityName} to be of significant strategic importance. Acquire it by any means, and you will be greatly rewarded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_COMPLETE">
+			<Text>Successful city capture for {@1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_COMPLETE">
+			<Text>The tactical experts from {@1_CivName} commend you for your efforts, and hope that the city is as militarily useful as they foresaw.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC">
+			<Text>{@2_CivName} wants you to conquer {@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC">
+			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC_COMPLETE">
+			<Text>Successfully conquered city for {@1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC_COMPLETE">
+			<Text>The tactical experts from {@1_CivName} thank you for conquering the city they targeted.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COUP">
+			<Text>Intelligence from {@1_Civ}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP">
+			<Text>Intelligence reports from {@2_CivName} indicate that {@1_CityName} is ripe for a coup. Complete this coup, and you will be greatly rewarded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_COUP_COMPLETE">
+			<Text>Successful coup for {@1_Civname}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_COMPLETE">
+			<Text>{@2_Civname} commends you for your successful coup against {@1_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED_S">
+			<Text>Coup failed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED">
+			<Text>Your coup has failed, either because your spy has died or {@1_City} is no longer a valid target. As such, the quest from {@2_Civname} was withdrawn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED_B">
+			<Text>Coup failed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED_B_S">
+			<Text>Your coup has failed, either because your spy has died or the city is no longer a valid target. As such, the quest from {@1_Civname} was withdrawn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR">
+			<Text>Intelligence update from {@1_Civ}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR">
+			<Text>Rogue agents in {@2_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR] against {@1_Civ}, you will be greatly rewarded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_ON_MAJOR_COMPLETE">
+			<Text>Espionage action completed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR_COMPLETE">
+			<Text>The rogue agents in {@2_Civ} are proud of your successful espionage efforts against {@1_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_BUILD_X_BUILDINGS">
+			<Text>Construction project from {@1_Civ}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS">
+			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across non-puppet cities in your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_BUILDINGS_COMPLETE">
+			<Text>Construction project completed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS_COMPLETE">
+			<Text>The builders from {@1_Civ} are dazzled by your monumental construction efforts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA">
+			<Text>Cartographic commission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA">
+			<Text>Cartographers from {@1_Civ} request your help completing a mapmaking project. Explore the general vicinity of the indicated area as much as needed. They will reward you with what they have.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA_COMPLETE">
+			<Text>Cartographic mission complete!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA_COMPLETE">
+			<Text>The cartographers from {@1_Civ} thank you for your assistance in their mapmaking project.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PLOT_DISCOVERY_FAILED_S">
+			<Text>Cartographic mission ended early</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PLOT_DISCOVERY_FAILED">
+			<Text>The mapmaking project from {1_Civ} has terminated early, as rumors abound that another civilization has claimed the uncharted lands as their own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE_ATTACKED">
+			<Text>{1_CivName:textkey} was attacked by {3_TargetName:textkey}, and needs help. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?turn; other?turns;}, so act fast if you intend to intervene!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CS_WAR">
+			<Text>Peace between {1_Civ} and {2_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CS_WAR">
+			<Text>The war between {1_Civ} and {2_Civ} has ended with a white peace. The world breathes a sigh of relief knowing that the war did not escalate further.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CS_PEACE_MADE">
+			<Text>The war between {1_Civ} and {2_Civ} has ended, thanks to your diplomatic efforts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CS_OTHER_PEACE_MADE">
+			<Text>The war between {1_Civ} and {2_Civ} has ended, thanks to the diplomatic actions of {3_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONSTRUCT_WONDER_TIME">
+			<Text>{@2_CivName} no longer desires {@1_WonderName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CONSTRUCT_WONDER_TIME">
+			<Text>After waiting for a long time, the leaders of {2_MinorCivName:textkey} are no longer interested in the construction of {@1_WonderName} and have canceled the quest they had previously given to you.</Text>
+		</Row>
+
+		<!-- City-State quest rewards -->
+		<!-- Also used in UI (CityStateStatusHelper.lua) -->
+		<Row Tag="TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH">
+			<Text>[COLOR_POSITIVE_TEXT]     Quest Reward:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_BONUS_HEADER_START">
+			<Text>[COLOR_POSITIVE_TEXT]     Potential Quest Reward:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_INFLUENCE">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_INFLUENCE] Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_ADMIRAL">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_GENERAL">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_CULTURE">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_CULTURE] Culture</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_EXPERIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] Experience for all Military Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_JUGGERNAUTS">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] Juggernaut {1_Num: plural 1?Unit; other?Units;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_JUGGERNAUTS_XP">
+			<Text> ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] Bonus XP)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_FAITH">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_PEACE] Faith</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_FOOD">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_FOOD] Food in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_GAP">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_GOLD">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GOLD] Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_GPP">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GREAT_PEOPLE] Great People Points in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_GPP_GLOBAL">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_GREAT_PEOPLE] Great Person Points in all Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_HAPPINESS">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_TOURISM">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with all known Civilizations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_PRODUCTION">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_PRODUCTION] Production in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_SCIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_RESEARCH] Science</Text>
+		</Row>
+
+		<!-- Project completion -->
+		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST">
+			<Text>{1_PlyrName} first to complete {@2_PrjctName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST">
+			<Text>{@1_PrjctName} was completed first in a far away land!</Text>
+		</Row>
+
+		<!-- {1_CityName:textkey} has {2_ResourceName:textkey}! -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
+			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_UnitCombat}[ENDCOLOR]: {2_CostModifier}%{3_EraInfo}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING">
+			<Text>Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE">
+			<Text>(Prerequisite: {1_RequiredEra})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE">
+			<Text>(Obsoletes: {1_ObsoleteEra})</Text>
+		</Row>
+
+		<!-- Declare war/make peace -->
+		<Row Tag="TXT_KEY_YOUR_ALLIES">
+			<Text>[NEWLINE][NEWLINE]Your vassals and allies: {1_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OTHER_PLAYER_ALLIES">
+			<Text>[NEWLINE][NEWLINE]The vassals and allies of {1_Civ}: {2_Str}</Text>
+		</Row>
+
+		<!-- You have declared war on {1_TeamName}! -->
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_DETAILED">
+			<Text>You have declared war on {1_TeamName}! All allies or vassals of either side are also at war. {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, {2_PlyrName} has joined {1_DefensivePactTeam} in the war against you! All allies or vassals of either side are also at war. {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_MINOR_DETAILED">
+			<Text>You have declared war on {1_TeamName}! Your allies and vassals have also declared war. {2_OurAllies}</Text>
+		</Row>
+
+		<!-- {1_PlyrName} has declared war on you! -->
+		<Row Tag="TXT_KEY_MISC_DECLARED_WAR_ON_YOU_DETAILED">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_PlyrName} has declared war on you! All allies and vassals of either side are also at war.[ENDCOLOR] {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_DECLARED_WAR_ON_YOU_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, you have joined {1_DefensivePactTeam} in the war against {2_TeamName}! All allies and vassals of either side are also at war.[ENDCOLOR] {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_MINOR_DECLARED_WAR_ON_YOU_DETAILED">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_PlyrName} has declared war on you! Your allies and vassals are also at war with {1_PlyrName}.[ENDCOLOR] {2_OurAllies}</Text>
+		</Row>
+
+		<!-- {1_PlyrName} has declared war on {2_PlyrName}! -->
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName}! All allies and vassals of either side are also at war. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DEFENSIVE_PACT_WITH_YOU_DETAILED">
+			<Text>Because of a Defensive Pact, {2_PlyrName} has joined you in the war against {1_PlyrName}! All allies and vassals of either side are also at war. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, {3_PlyrName} has joined {1_DefensivePactTeam} in the war against {2_PlyrName}! All allies and vassals of either side are also at war. {4_FirstPlayerAllies} {5_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_MINOR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName}! The allies or vassals of {1_PlyrName} are also at war with {2_PlayerName}. {3_FirstPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOME_MINOR_DECLARED_WAR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName} and on their allies and vassals! {3_SecondPlayerAllies}</Text>
+		</Row>
+
+		<!-- You have made peace with {1_TeamName}! -->
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED">
+			<Text>You have made peace with {1_TeamName}! All allies and vassals of either side have also made peace with each other. {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_MINOR_DETAILED">
+			<Text>You have made peace with {1_TeamName}! Your allies and vassals have also made peace. {2_OurAllies}</Text>
+		</Row>
+
+		<!-- {1_PlyrName} has made peace with {2_PlyrName}! -->
+		<Row Tag="TXT_KEY_MISC_SOMEONE_MADE_PEACE_DETAILED">
+			<Text>{1_PlyrName} has made peace with {2_PlyrName}! All allies or vassals of either side have also made peace with each other. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_MADE_PEACE_MINOR_DETAILED">
+			<Text>{1_PlyrName} has made peace with {2_PlyrName}! The allies or vassals of {1_PlyrName} have also made peace. {3_FirstPlayerAllies}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
+			<Text>Revolutionary Unrest Brewing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
+			<Text>Because your Empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will restore the sovereignty of {3_CivName}. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
+			<Text>Because your Empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+
+		<!-- A City Revolts! -->
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN">
+			<Text>A City has revolted and joined {3_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
+			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
+		</Row>
+
+		<!-- Denouncement -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_IDEOLOGY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to ideological divisions!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_WARMONGER">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing concerns over warmongering!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_MINORS">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to competition over City-States!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_NUKED">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to the use of nuclear weapons!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_LAND">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing border disputes!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DOF">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} out of respect towards the opinions of friends!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DOGPILE">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to their poor global reputation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_UNTRUSTWORTHY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to a breakdown in foreign relations!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DIGGING">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} as a result of archaeological theft!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_FAITH">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to religious differences!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_WONDERS">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} as a result of World Wonder competition!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_VICTORY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing competition over global supremacy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_UNFORGIVEABLE">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, stating that they are unforgiveable!</Text>
+		</Row>
+
+		<!-- Intrigues -->
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY_S">
+			<Text>{1_PlayerName} is constructing {2_WonderOrProject}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} is constructing {4_WonderOrProject} in one of their cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES_S">
+			<Text>{1_CivName} has bought votes from {2_CivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has bought votes for the upcoming world congress session from {4_PlayerName}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES_S">
+			<Text>{1_CivName} has sold votes to {2_CivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has sold some of their votes for the upcoming world congress session to {4_PlayerName}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_S">
+			<Text>{1_CivName} brokers war against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} bribed {4_CivName} to go to war with you!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S">
+			<Text>{1_CivName} brokers war against {2_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} bribed {4_CivName} to go to war with {5_CivName}!</Text>
+		</Row>
+		<!-- For observers and debug mode -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OBSERVER">
+			<Text>{1_PlayerName} has bribed {2_CivName} to go to war with {3_CivName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_S">
+			<Text>{1_CivName} and {2_CivName} are planning a war against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} and {4_CivName} are preparing to go to war with you!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_OTHER_S">
+			<Text>{1_CivName} and {2_CivName} are planning a war against {3_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_OTHER">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} and {4_CivName} are preparing to go to war with {5_CivName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_MILITARY_MIGHT_RISEN_S">
+			<Text>The military might of {1_CivName} has risen strongly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_MILITARY_MIGHT_RISEN">
+			<Text>{1_SpyRank} {2_SpyName} discovered that the military might of {3_PlayerName} has risen strongly in recent times. They might be preparing for a war!</Text>
+		</Row>
+
+		<!-- Nukes -->
+		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED_S">
+			<Text>Nuclear Strike!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED">
+			<Text>We were struck by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuke!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUKE_STRIKE_S">
+			<Text>Nuclear Strike!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY">
+			<Text>A Nuke has been detonated by {1_CivName} in the territory of {2_CIV}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY">
+			<Text>A Nuke has been detonated by {1_CivName} in neutral territory!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S">
+			<Text>Atomic Bomb Interception!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US_S">
+			<Text>Atomic Bomb Intercepted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US">
+			<Text>Defenses in {2_City} intercepted our Atomic Bomb, destroying it!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S">
+			<Text>Nuke Partial Interception!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US_S">
+			<Text>Nuke Partially Intercepted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US">
+			<Text>Defenses in {2_City} partially intercepted our Nuclear Missile, reducing its damage done!</Text>
+		</Row>
+
+		<!-- Arabia -->
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS">
+			<Text>Another Night, Another Tale...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST">
+			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER">
+			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST">
+			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN">
+			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT">
+			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER">
+			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT">
+			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
+		</Row>
+		<!-- Default message -->
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS">
+			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+		</Row>
+
+		<!-- Brazil -->
+		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
+			<Text>Carnival begins!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
+			<Text>Carnival has begun! All Cities will celebrate Carnival for {1_Num} turns, during which time [ICON_HAPPINESS_3] Unhappiness from needs is reduced by 50% in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
+		</Row>
+
+		<!-- Unused mechanics -->
+		<Row Tag="TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS">
+			<Text>Manifest Destiny!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_ADOPT_GP_BONUS">
+			<Text>Your City gains +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT">
+			<Text>New executive policies have been issued which benefit our economy. Your City gains +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER">
+			<Text>New executive policies have been issued which benefit our industry. Your City gains +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST">
+			<Text>New executive policies have been issued which benefit our research. Your City gains +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT">
+			<Text>{1_CityName:textkey} loves the King!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT">
+			<Text>The birth of a {1_Unit:textkey} causes the city of {2_CityName:textkey} to enter "We Love the King Day"!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT">
+			<Text>{1_CityName:textkey} has found us a military unit to serve!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT">
+			<Text>Nomads from {2_CityName:textkey} have formed a unit of {1_Unit:textkey} ready to serve us.</Text>
+		</Row>
+
+		<!-- Mod option support -->
+		<Row Tag="TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA">
+			<Text>Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_S">
+			<Text>Your {1_Unit} is spreading plague!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER">
+			<Text>A virulent plague was spread from your {1_Unit} to their {2_Unit} during combat!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S">
+			<Text>Plague spreads to your {1_Unit}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM">
+			<Text>A virulent plague was spread to our {1_Unit} from their {2_Unit} during combat!</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

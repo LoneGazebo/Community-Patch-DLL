@@ -1543,11 +1543,6 @@ size_t CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
 	return iCount;
 }
 
-bool CvMultiUnitFormationInfo::IsRequiresNavalUnitConsistency() const
-{
-	return m_bRequiresNavalUnitConsistency;
-}
-
 const CvFormationSlotEntry& CvMultiUnitFormationInfo::getFormationSlotEntry(size_t index) const
 {
 	return m_vctSlotEntries[index];
@@ -1564,8 +1559,8 @@ bool CvMultiUnitFormationInfo::CacheResults(Database::Results& kResults, CvDatab
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
+	// Unused, but could be useful for logging purposes so it stays
 	m_strFormationName = kResults.GetText("Name");
-	m_bRequiresNavalUnitConsistency = kResults.GetBool("RequiresNavalUnitConsistency");
 
 	//Slot entries
 	{
@@ -5879,7 +5874,6 @@ CvResourceInfo::CvResourceInfo() :
 	m_aiiiBuildingProductionCostModifiersLocal(),
 #endif
 	m_piResourceQuantityTypes(NULL),
-	m_piFlavor(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
 	m_pbFeature(NULL),
@@ -5902,7 +5896,6 @@ CvResourceInfo::~CvResourceInfo()
 	m_aiiiBuildingProductionCostModifiersLocal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
-	SAFE_DELETE_ARRAY(m_piFlavor);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
 	SAFE_DELETE_ARRAY(m_pbFeature);
@@ -6513,13 +6506,6 @@ bool CvResourceInfo::isFeatureTerrain(int i) const
 	return m_pbFeatureTerrain ?	m_pbFeatureTerrain[i] : false;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getFlavorValue(int i) const
-{
-	CvAssertMsg(i < GC.getNumFlavorTypes(), "index out of bounds");
-	CvAssertMsg(i > -1, "index out of bounds");
-	return m_piFlavor[i];
-}
-//------------------------------------------------------------------------------
 bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -6603,7 +6589,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	kUtility.SetYields(m_piYieldChangeFromMonopoly, "Resource_YieldChangeFromMonopoly", "ResourceType", szResourceType);
 	kUtility.SetYields(m_piCityYieldModFromMonopoly, "Resource_CityYieldModFromMonopoly", "ResourceType", szResourceType);
 #endif
-	kUtility.SetFlavors(m_piFlavor, "Resource_Flavors", "ResourceType", szResourceType);
 
 	kUtility.PopulateArrayByExistence(m_pbTerrain, "Terrains", "Resource_TerrainBooleans", "TerrainType", "ResourceType", szResourceType);
 	kUtility.PopulateArrayByExistence(m_pbFeature, "Features", "Resource_FeatureBooleans", "FeatureType", "ResourceType", szResourceType);

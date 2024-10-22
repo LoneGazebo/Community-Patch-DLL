@@ -512,8 +512,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	}
 
 	const int iNumYields = kUtility.MaxRows("Yields");
-	const int iNumImprovements = kUtility.MaxRows("Improvements");
-	CvAssertMsg(iNumImprovements > 0, "Num Improvement Infos <= 0");
 	//YieldPerXAdjacentImprovement
 	{
 		// add the vanilla adjacent culture column here

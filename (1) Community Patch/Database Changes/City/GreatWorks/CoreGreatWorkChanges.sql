@@ -1,3 +1,6 @@
+-- Image for artifacts
+UPDATE GreatWorks SET Image = 'artifact.dds' WHERE GreatWorkClassType = 'GREAT_WORK_ARTIFACT' AND NOT ArtifactClassType = 'ARTIFACT_SARCOPHAGUS';
+
 -- Background image change for music
 UPDATE GreatWorks SET Image = 'BG_sum_01.dds' WHERE Type = 'GREAT_WORK_NIN_ME_SCHARA';
 UPDATE GreatWorks SET Image = 'BG_grc_01.dds' WHERE Type = 'GREAT_WORK_HYMN_TO_THE_MUSE';

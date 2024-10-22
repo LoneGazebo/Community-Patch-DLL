@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is for new tables that are primarily used as foreign keys in other tables. -->
+<!-- The DLL must have a corresponding CLOSED enum for each of these tables, and both must be synchronized with each other. -->
+<GameData>
+	<!-- Used by the Leaders table. Gives a hint to the AI about which victory conditions a civ's kit is best suited for. -->
+	<Table name="VictoryPursuitTypes">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+	</Table>
+	<!-- Defines the different types of historic events (prefixed with HISTORIC_EVENT_), as well as types of difficulty bonus triggers (prefixed with DIFFICULTY_BONUS_). -->
+	<Table name="HistoricEventTypes">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+	</Table>
+	<!-- Used by the MinorCivilizations table. A minor civ with a specified personality type will always have that personality instead of randomly picking one. -->
+	<!-- Overrides the BALANCE_CITY_STATE_PERSONALITIES option. -->
+	<Table name="MinorCivPersonalityTypes">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+	</Table>
+	<!-- Accomplishments are like in-game achievements that can be completed by each player, and various components may give benefits based on the number of specific accomplishments completed. -->
+	<!-- Accomplishments can stack if repeatedly completed, with exceptions. -->
+	<!-- Accomplishments can NEVER be undone. Once completed, they stay completed. -->
+	<!-- The MaxPossibleCompletions column is for plot tooltip UI only - there isn't any cap on the DLL side. -->
+	<!-- This system can effectively replace many tables and help with AI evaluation, once devs get to it. -->
+	<Table name="Accomplishments">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="MaxPossibleCompletions" type="integer"/>
+	</Table>
+</GameData>

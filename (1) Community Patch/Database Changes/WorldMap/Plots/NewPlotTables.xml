@@ -10,9 +10,22 @@
 		<Column name="PortraitIndex" type="integer" default="-1"/>
 		<Column name="IconAtlas" type="text" reference="IconTextureAtlases(Atlas)"/>
 	</Table>
+
+	<!-- Base plot yields -->
 	<Table name="Plot_Yields">
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Extra yields on plots per adjacent tile with the specified feature -->
+	<!-- IgnoreNaturalWonderPlots = true means that plots with natural wonders will not gain a bonus from an adjacent feature (useful for multi-tile natural wonders). -->
+	<!-- Needs the PLOTS_EXTENSIONS option to function -->
+	<Table name="Plot_AdjacentFeatureYieldChanges">
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IgnoreNaturalWonderPlots" type="boolean" default="false"/>
 	</Table>
 </GameData>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In MP games, these messages are automatically sent when triggered -->
+<GameData>
+	<Language_en_US>
+		<!-- Host schedules forced resync -->
+		<Row Tag="TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED">
+			<Text>I scheduled a forced resync. Next turn, the session will be reloaded.</Text>
+		</Row>
+		<!-- Desync warning -->
+		<Row Tag="TXT_KEY_VP_MP_WARNING_DESYNC">
+			<Text>My client has desynced, undefined behavior may occur. Please open a bug report on GitHub: https://github.com/LoneGazebo/Community-Patch-DLL/issues</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

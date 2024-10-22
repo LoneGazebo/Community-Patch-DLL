@@ -1201,7 +1201,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteOtherTraitBonus);
 	Method(GetInternationalTradeRouteRiverModifier);
 	Method(GetTradeConnectionDiplomatModifierTimes100);
-	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistanceValueModifierTimes100);
 	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistance);

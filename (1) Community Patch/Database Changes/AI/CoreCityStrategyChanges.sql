@@ -1,1 +1,0 @@
-UPDATE AICityStrategies SET WeightThreshold = 1 WHERE Type = 'AICITYSTRATEGY_WANT_TILE_IMPROVERS';

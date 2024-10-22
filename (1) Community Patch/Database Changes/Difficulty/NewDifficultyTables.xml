@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Handicap yields to AI empire when they complete the specified historic events -->
+	<!-- Food, production, border growth points, and population are divided across all (non-puppet, unless Venice) cities instead -->
+	<Table name="HandicapInfo_AIDifficultyBonus">
+		<Column name="HandicapType" type="text" reference="HandicapInfos(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="HistoricEventType" type="text" reference="HistoricEventTypes(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+	<!-- Handicap yields to human player empire when they complete the specified historic events -->
+	<!-- Food, production, border growth points, and population are divided across all (non-puppet, unless Venice) cities instead -->
+	<Table name="HandicapInfo_DifficultyBonus">
+		<Column name="HandicapType" type="text" reference="HandicapInfos(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="HistoricEventType" type="text" reference="HistoricEventTypes(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+</GameData>

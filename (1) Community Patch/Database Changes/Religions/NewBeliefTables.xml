@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Documentation and sorting -->
+<GameData>
+	<Table name="Belief_CapitalYieldChanges">
+		<!-- Refer to Policy_CapitalYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_CityYieldFromUnimprovedFeature">
+		<!-- Refer to Traits.FaithFromUnimprovedForest -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_CoastalCityYieldChanges">
+		<!-- Refer to Policy_CoastalCityYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_GreatPersonExpendedYield">
+		<!-- Refer to Beliefs.GreatPersonExpendedFaith -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_GreatWorkYieldChanges">
+		<!-- Refer to Policy_GreatWorkYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_SpecialistYieldChanges">
+		<!-- Refer to Trait_SpecialistYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_TradeRouteYieldChange">
+		<!-- Refer to Policies.Land/SeaTradeRouteGoldChange -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_UnimprovedFeatureYieldChanges">
+		<!-- Refer to Trait_UnimprovedFeatureYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldFromBarbarianKills">
+		<!-- Refer to Policies.CultureFromBarbarianKills, Yield is percentage of combat str of killed unit -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldFromKills">
+		<!-- Refer to Beliefs/Traits.FaithFromKills, Policies/Traits.CultureFromKills, Units.GoldenAgeValueFromKills and Unit_YieldFromKills, Yield is percentage of combat str of killed unit -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldPerFollowingCity">
+		<!-- Refer to Beliefs.GoldPerFollowingCity -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_LakePlotYield">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldPerOtherReligionFollower">
+		<!-- Refer to Beliefs.SciencePerOtherReligionFollower -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldPerXFollowers">
+		<!-- Refer to Beliefs.GoldPerXFollowers -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PerXFollowers" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_YieldChangePerXCityStateFollowers">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PerXFollowers" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Not yield related, but done at the same time, so they live here -->
+	<Table name="Belief_GoldenAgeGreatPersonRateModifier">
+		<!-- Refer to Traits.GoldenAgeGreatArtist/Muscian/WriterRateModifier -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Capital Only -->
+	<Table name="Belief_GreatPersonPoints">
+		<!-- Refer to Traits.GoldenAgeGreatArtist/Muscian/WriterRateModifier -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. -->
+	<Table name="Belief_YieldPerPop">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Allows you to define any belief to grant 1 yield per x active trade routes, in capital. -->
+	<Table name="Belief_YieldPerActiveTR">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Allows you to define any belief to grant x yield per constructed building (EXCEPT World Wonders). -->
+	<Table name="Belief_YieldPerConstruction">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Same but for World Wonders -->
+	<Table name="Belief_YieldPerWorldWonderConstruction">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X gpt, where X is the number below. -->
+	<Table name="Belief_YieldPerGPT">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every unique luxury, where X is the number below-->
+	<Table name="Belief_YieldPerLux">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every border growth, where X is the number below.-->
+	<Table name="Belief_YieldPerBorderGrowth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every use of the faith healer ability, where X is the number below.-->
+	<Table name="Belief_YieldPerHeal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Allows you to define any belief to grant x yield for every birth, where X is the number below. (-->
+	<Table name="Belief_YieldPerBirth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Same, but only for births in the Holy City. -->
+	<Table name="Belief_YieldPerHolyCityBirth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per x science rate, where X is the number below. -->
+	<Table name="Belief_YieldPerScience">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define a yield value gained per known Pantheon in the world -->
+	<Table name="Belief_YieldFromKnownPantheons">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Reformation: Allows you to define a yield value gained while the Host of the World Congress -->
+	<Table name="Belief_YieldFromHost">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Reformation: Allows you to define any a value gained from passing a proposal in WC -->
+	<Table name="Belief_YieldFromProposal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define yields gained by working (not just owning!) x type of terrain/feature. Can be modified by 'NoImprovement' and 'NoImprovementFeature elementss
+		Works by taking the 'yield' value below and multiplying it against the number of plots being worked, then dividing by 100. So '25' Yield = +1 yield per every 4 worked tile of that type. (25 * 4) / 100 = 1;
+	-->
+	<!-- Note: for TERRAIN_MOUNTAIN, plot does not have to be worked to count towards the total)-->
+	<Table name="Belief_CityYieldPerXTerrainTimes100">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_CityYieldPerXFeatureTimes100">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant X yield from GP use, where X is the number below. -->
+	<Table name="Belief_YieldFromGPUse">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield % bonus in Holy City during a golden age, where X is the number below.  -->
+	<Table name="Belief_YieldBonusGoldenAge">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from spreading your faith, where X is the number below.  -->
+	<Table name="Belief_YieldFromSpread">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from spreading your faith abroad, where X is the number below. -->
+	<Table name="Belief_YieldFromForeignSpread">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from conquering a city, where X is the number below.  -->
+	<Table name="Belief_YieldFromConquest">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from unlocking a policy, where X is the number below. (Golden Age Points and Faith only) -->
+	<Table name="Belief_YieldFromPolicyUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from unlocking a new era, where X is the number below. -->
+	<Table name="Belief_YieldFromEraUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from converting a city, where X is the number below.  -->
+	<Table name="Belief_YieldFromConversion">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from converting a city, where X is the number below. Scales based directly on number of cities converted. -->
+	<Table name="Belief_YieldFromConversionExpo">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x % yield boost during a WLTKD, where X is the number below.  -->
+	<Table name="Belief_YieldFromWLTKD">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Grants yield when you change the religious majority in a city from removing heresy -->
+	<Table name="Belief_YieldFromRemoveHeresy">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Grants WC votes for every x type of improvement owned by a player. -->
+	<Table name="Belief_VotePerXImprovementOwned">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="Amount" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- FOLLOWER: Allows you to define a policy to grant a yield per follower in a city, up to a maximum amount. -->
+	<Table name="Belief_MaxYieldPerFollower">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" notnull="true"/>
+	</Table>
+	<!-- Same as above, but x * followers / 100 -->
+	<Table name="Belief_MaxYieldPerFollowerPercent">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Same as vanilla but percent (as above)-->
+	<Table name="Belief_MaxYieldModifierPerFollowerPercent">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" notnull="true"/>
+	</Table>
+
+	<Table name="Belief_YieldFromFaithPurchase">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants free promotions to units trained in a city with the religion. -->
+	<Table name="Belief_FreePromotions">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+	</Table>
+
+	<!-- BELIEF: Founder only. Grants yields to the holy city when researching technology. Scales with number of followers. -->
+	<Table name="Belief_YieldFromTechUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants yields to the owning city, or capital, when finishing an improvement if religion is the player's majority. Note that roads are not considered improvements. -->
+	<Table name="Belief_YieldFromImprovementBuild">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!--
+	BELIEF: Grants yields when pillaging with units trained from any city if the religion is the player's majority. 
+			Intended as a Pantheon, in which case yields are granted at the capital or holy city.
+			Can work as a Follower, though beware of balance, as yields will be granted at every city where the majority religion has this belief.
+			Naming is to follow the Building versions of the table.
+	-->
+	<Table name="Belief_YieldFromPillageGlobal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+	<!-- Allows you to set a specific unit type (not class!) that can be purchased with faith if you take a belief tenet. -->
+	<Table name="Belief_SpecificFaithUnitPurchase">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+	</Table>
+	<Table name="Belief_PlotYieldChanges">
+		<!-- Refer to Belief_TerrainYieldChanges -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+</GameData>

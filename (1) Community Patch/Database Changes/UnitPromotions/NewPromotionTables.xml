@@ -64,7 +64,8 @@
 		<Column name="Attack" type="integer" default="0"/>
 		<Column name="Defense" type="integer" default="0"/>
 	</Table>
-	<!-- Unit has its name changed when gaining this promotion (PROMOTIONS_UNIT_NAMING) -->
+	<!-- Unit has its name changed when gaining this promotion -->
+	<!-- Needs the PROMOTIONS_UNIT_NAMING option to function -->
 	<Table name="UnitPromotions_UnitName">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>

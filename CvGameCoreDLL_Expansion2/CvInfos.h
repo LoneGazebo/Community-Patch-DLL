@@ -490,14 +490,12 @@ public:
 	size_t getNumFormationSlotEntriesRequired() const;
 	const CvFormationSlotEntry& getFormationSlotEntry(size_t index) const;
 	void addFormationSlotEntry(const CvFormationSlotEntry& slotEntry);
-	bool IsRequiresNavalUnitConsistency() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
 	CvString m_strFormationName;
 	std::vector<CvFormationSlotEntry> m_vctSlotEntries;
-	bool m_bRequiresNavalUnitConsistency;
 };
 
 
@@ -1867,7 +1865,6 @@ public:
 	bool isHills() const;
 	bool isFlatlands() const;
 	bool isNoRiverSide() const;
-	bool isNormalize() const;
 	bool isOnlyMinorCivs() const;
 
 	CivilizationTypes GetRequiredCivilization() const;
@@ -1920,8 +1917,6 @@ public:
 	bool isTerrain(int i) const;
 	bool isFeature(int i) const;
 	bool isFeatureTerrain(int i) const;
-
-	int getFlavorValue(int i) const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1983,7 +1978,6 @@ protected:
 #endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;
-	int* m_piFlavor;
 
 	bool* m_pbTerrain;
 	bool* m_pbFeature;

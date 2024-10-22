@@ -5492,6 +5492,17 @@ bool CvLeague::IsCityStateEmbargo()
 
 	return false;
 }
+// This only checks whether the resolution is active
+bool CvLeague::IsIdeologyEmbargoed()
+{
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	{
+		if (it->GetEffects()->bEmbargoIdeology)
+			return true;
+	}
+
+	return false;
+}
 bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	CvAssertMsg(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader. Please send Anton your save file and version.");
@@ -9893,6 +9904,18 @@ bool CvGameLeagues::IsCityStateEmbargo(PlayerTypes ePlayer)
 				return true;
 			}
 		}
+	}
+
+	return false;
+}
+
+// This only checks whether the resolution is active for leagues ePlayer is in
+bool CvGameLeagues::IsIdeologyEmbargoed(PlayerTypes ePlayer)
+{
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); ++it)
+	{
+		if (it->IsMember(ePlayer) && it->IsIdeologyEmbargoed())
+			return true;
 	}
 
 	return false;

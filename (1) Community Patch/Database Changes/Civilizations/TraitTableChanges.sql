@@ -89,6 +89,7 @@ ALTER TABLE Traits ADD EventTourismBoost integer DEFAULT 0;
 ALTER TABLE Traits ADD EventGP integer DEFAULT 0;
 
 -- Picks a random Great Engineer, Great Scietist, or Great Merchant Points to Player Cities (scaling with era) when you adopt a new social policy, ideology, or branch.
+-- Also grants production, science, or gold corresponding to the selected specialist type (not a type of instant yields).
 ALTER TABLE Traits ADD PolicyGEorGM integer DEFAULT 0;
 
 -- Changes City Ranged Strike during Golden Ages

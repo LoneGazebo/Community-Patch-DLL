@@ -229,7 +229,6 @@ public:
 	int GetMonopolyModFlat() const;
 	int GetMonopolyModPercent() const;
 	bool IsDummy() const;
-	bool IsOpener() const;
 	bool IsFinisher() const;
 	int GetCityStateCombatModifier() const;
 	int GetGreatEngineerRateModifier() const;
@@ -673,7 +672,6 @@ private:
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
 	bool m_bDummy;
-	bool m_bOpener;
 	bool m_bFinisher;
 	int m_iCityStateCombatModifier;
 	int m_iGreatEngineerRateModifier;

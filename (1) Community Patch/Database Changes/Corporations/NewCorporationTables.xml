@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Table name="Corporations">
-		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="ID" type="integer" primarykey="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
