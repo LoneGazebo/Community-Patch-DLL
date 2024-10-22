@@ -1,21 +1,4 @@
 -- New Goody Hut rewards
-CREATE TEMP TABLE HandicapsList (
-	HandicapType text
-);
-
-INSERT INTO HandicapsList
-	(HandicapType)
-VALUES
-	('HANDICAP_SETTLER'),
-	('HANDICAP_CHIEFTAIN'),
-	('HANDICAP_WARLORD'),
-	('HANDICAP_PRINCE'),
-	('HANDICAP_KING'),
-	('HANDICAP_EMPEROR'),
-	('HANDICAP_IMMORTAL'),
-	('HANDICAP_DEITY'),
-	('HANDICAP_AI_DEFAULT');
-
 CREATE TEMP TABLE GoodyHutRewards (
 	GoodyType text
 );
@@ -46,13 +29,10 @@ VALUES
 INSERT INTO HandicapInfo_Goodies
 	(HandicapType, GoodyType)
 SELECT
-	a.HandicapType, b.GoodyType
-FROM HandicapsList a, GoodyHutRewards b;
+	a.Type, b.GoodyType
+FROM HandicapInfos a, GoodyHutRewards b;
 
-DROP TABLE HandicapsList;
 DROP TABLE GoodyHutRewards;
-
-
 
 CREATE TEMP TABLE TriggerYields (
 	HistoricEventType text,

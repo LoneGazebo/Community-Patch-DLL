@@ -246,8 +246,8 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	-- Accomplishments Filter
 	local function AccomplishmentFilter(row)
 		local numTimesCompleted = ( plotOwner and plotOwner:GetNumTimesAccomplishmentCompleted( row.ID ) ) or 0
-		local maxTimesCompletable = row.MaxPossibleCompletions or -1
-		return row and ( not plotOwner or maxTimesCompletable == -1 or numTimesCompleted < maxTimesCompletable )
+		local maxTimesCompletable = row.MaxPossibleCompletions
+		return row and ( not plotOwner or not maxTimesCompletable or numTimesCompleted < maxTimesCompletable )
 	end
 
 	------------------

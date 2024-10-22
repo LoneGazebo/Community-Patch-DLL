@@ -144,5 +144,15 @@ ALTER TABLE Units ADD CanChangePort integer DEFAULT 0;
 ALTER TABLE Units ADD NumberStackingUnits integer DEFAULT 0;
 ALTER TABLE Units ADD StackCombat integer DEFAULT 0;
 
+-- Amount of units of this class that the player can have per owned city. No limit if -1. Overrides the MaxPlayerInstances column.
+ALTER TABLE UnitClasses ADD UnitInstancePerCity integer DEFAULT -1;
+
 -- This name can only be used when the unit spawns in the specified era, or adjacent eras as a fallback
 ALTER TABLE Unit_UniqueNames ADD EraType text REFERENCES Eras (Type);
+
+-- Add useful properties to UnitCombatInfos for easy SQL reference
+-- Please don't use this to determine properties of individual unit classes/units
+ALTER TABLE UnitCombatInfos ADD IsMilitary boolean DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsRanged boolean DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsNaval boolean DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsAerial boolean DEFAULT 0;

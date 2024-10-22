@@ -2,6 +2,11 @@
 <GameData>
 	<GameOptions>
 		<Row>
+			<Type>GAMEOPTION_RANDOM_VICTORY</Type>
+			<Description>TXT_KEY_GAMEOPTION_RANDOM_VICTORY</Description>
+			<Help>TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP</Help>
+		</Row>
+		<Row>
 			<Type>GAMEOPTION_RESEARCH_AGREEMENTS</Type>
 			<Description>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS</Description>
 			<Help>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP</Help>

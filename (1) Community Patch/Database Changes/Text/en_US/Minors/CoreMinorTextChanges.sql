@@ -1,0 +1,11 @@
+UPDATE Language_en_US
+SET Text = 'Kyiv'
+WHERE Tag = 'TXT_KEY_CITYSTATE_KIEV';
+
+UPDATE Language_en_US
+SET Text = 'Kyivan'
+WHERE Tag = 'TXT_KEY_CITYSTATE_KIEV_ADJ';
+
+UPDATE Language_en_US
+SET Text = 'According to legend, Kyiv was founded by three Slavic brothers - Kyi, Schek, and Khoryv -around the beginning of the 6th Century AD. Since then, Kyiv, one of the oldest cities in Eastern Europe, has passed through times of great prominence and periods of relative obscurity. Throughout the centuries, however, it has remained the most important Slavic cultural center, playing a pivotal role in the development of the medieval East Slavic civilization.[NEWLINE][NEWLINE]Located on the Dnieper trade route between Constantinople and Scandinavia, Kyiv came under the control of local Varangian (Viking) nobility and became the nucleus of the state of Rus. During the 1000s, it reached its ascendancy, a cultural hub with over 400 churches, eight markets, docks and a caravansary, and magnificent homes. With the founding of the Kyiv-Mogilyanskaya Academy in 1632, the city became the center of Ukrainian learning and scholarship. But as the capital of Kyivan Rus, the city was repeatedly sacked and occupied.[NEWLINE][NEWLINE]In 1667 the city became part of the Russian Empire; Kyiv remained an ecclesiastical and cultural center, but its political and economic influence was marginalized. Kyiv experienced growing "Russification" in the 1800s, as a result of Russian migration, educational policies, and industrialization. However, enthusiasts among ethnic Ukrainian nobles, military officers and merchants kept the native culture alive in Kyiv, often through clandestine activities such as book-printing, amateur theater, private soirees, folk festivals and the like.[NEWLINE][NEWLINE]Forcefully incorporated into the Soviet Union, the city weathered all manner of troubles: the famine of 1932-1933 devastated the lower classes, Stalin''s 1937-1938 purges almost obliterated the city''s intelligensia, and the 1941-1943 Nazi invasion brought death and destruction. But Kyiv survived, and in the wake of the collapse of the Soviet Union an independent Ukraine was proclaimed in 1991, with resurgent Kyiv as its capital and cultural heart.'
+WHERE Tag = 'TXT_KEY_CIV5_KIEV_TEXT';

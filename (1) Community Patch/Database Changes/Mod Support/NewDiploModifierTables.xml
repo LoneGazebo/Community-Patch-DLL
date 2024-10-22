@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Extra diplomatic opinion types specific to FromCivilizationType when evaluating ToCivilizationType -->
+	<!-- The opinion amount is obtained through the GetDiploModifier game event (Lua) -->
+	<!-- Needs the EVENTS_DIPLO_MODIFIERS option to function -->
+	<Table name="DiploModifiers">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" notnull="true"/>
+		<Column name="FromCivilizationType" type="text" reference="Civilizations(Type)"/>
+		<Column name="ToCivilizationType" type="text" reference="Civilizations(Type)"/>
+	</Table>
+</GameData>

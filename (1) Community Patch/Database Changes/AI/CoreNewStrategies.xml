@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<AICityStrategies>
+		<Row>
+			<Type>AICITYSTRATEGY_LAKEBOUND</Type>
+			<CheckTriggerTurnCount>1</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>75</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+		</Row>
+		<Row>
+			<Type>AICITYSTRATEGY_NEW_CONTINENT_FEEDER</Type>
+			<CheckTriggerTurnCount>50</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>100</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+		</Row>
+		<Row>
+			<Type>AICITYSTRATEGY_POCKET_CITY</Type>
+			<CheckTriggerTurnCount>50</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>50</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+		</Row>
+		<Row>
+			<Type>AICITYSTRATEGY_ENOUGH_SETTLERS</Type>
+			<CheckTriggerTurnCount>5</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+		</Row>
+	</AICityStrategies>
+	<AIMilitaryStrategies>
+		<Row>
+			<Type>MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL</Type>
+			<CheckTriggerTurnCount>5</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>10</MinimumNumTurnsExecuted>
+			<FirstTurnExecuted>20</FirstTurnExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+			<WeightThreshold>150</WeightThreshold>
+			<Advisor>MILITARY</Advisor>
+			<AdvisorCounsel>TXT_KEY_MILITARYAISTRATEGY_ERADICATE_BARBARIANS</AdvisorCounsel>
+			<AdvisorCounselImportance>1</AdvisorCounselImportance>
+		</Row>
+	</AIMilitaryStrategies>
+</GameData>

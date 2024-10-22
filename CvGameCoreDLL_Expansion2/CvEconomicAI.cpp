@@ -636,10 +636,6 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer);
 				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_SpaceshipHomestretch(m_pPlayer);
-				else if (strStrategyName == "ECONOMICAISTRATEGY_NAVAL_MAP")
-					bStrategyShouldBeActive = false; //not used anymore, handled directly in unit production AI
-				else if (strStrategyName == "ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP")
-					bStrategyShouldBeActive = false; //not used anymore; covered by EXPAND_TO_OTHER_CONTINENTS
 				else if(strStrategyName == "ECONOMICAISTRATEGY_DEVELOPING_RELIGION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TECH_LEADER")

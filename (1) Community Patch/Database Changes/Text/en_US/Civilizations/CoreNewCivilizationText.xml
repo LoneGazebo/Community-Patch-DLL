@@ -1,0 +1,2244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Spy names -->
+		<!-- America -->
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
+			<Text>Snowden</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_11">
+			<Text>Miles</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_12">
+			<Text>Donald</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_13">
+			<Text>Algernon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_14">
+			<Text>Bourne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_15">
+			<Text>Lydia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_16">
+			<Text>Constance</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_17">
+			<Text>Julia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_18">
+			<Text>Sharon</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_19">
+			<Text>Whittaker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_20">
+			<Text>John</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_21">
+			<Text>Robert</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_22">
+			<Text>Mrs. Jones</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_23">
+			<Text>Richard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_24">
+			<Text>Uncle</Text>
+		</Row>
+		<!-- Arabia -->
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_10">
+			<Text>Khaleel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_11">
+			<Text>Bahamoot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_12">
+			<Text>Hisham</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_13">
+			<Text>Gharib</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_14">
+			<Text>Yasmeen</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_15">
+			<Text>Amir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_16">
+			<Text>Fadil</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_17">
+			<Text>Khalila</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_18">
+			<Text>Zahida</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_19">
+			<Text>Fahima</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_20">
+			<Text>Saleh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_21">
+			<Text>Tahmid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_22">
+			<Text>Haniyah</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_23">
+			<Text>Rafiq</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ARABIA_24">
+			<Text>Osama</Text>
+		</Row>
+		<!-- Aztec -->
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_10">
+			<Text>Ollin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_11">
+			<Text>Couatl</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_12">
+			<Text>Xilixoch</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_13">
+			<Text>Xochitl</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_14">
+			<Text>Izel</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_15">
+			<Text>Cuicatl</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_16">
+			<Text>Centehua</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_17">
+			<Text>Necuametl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_18">
+			<Text>Nahuatl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_19">
+			<Text>Tlaloc</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_20">
+			<Text>Tochtli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_21">
+			<Text>Tlazopilli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_22">
+			<Text>Ixtli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_23">
+			<Text>Ihuicatl</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AZTEC_24">
+			<Text>Iccauhtli</Text>
+		</Row>
+		<!-- China -->
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_10">
+			<Text>Qiang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_11">
+			<Text>Shui</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_12">
+			<Text>Xiang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_13">
+			<Text>Shushu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_14">
+			<Text>Tai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_15">
+			<Text>Zheng</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_16">
+			<Text>Zhi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_17">
+			<Text>Jiang</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_18">
+			<Text>Hai</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_19">
+			<Text>Bo</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_20">
+			<Text>Wei</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_21">
+			<Text>Wen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_22">
+			<Text>Xiu</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_23">
+			<Text>Hong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CHINA_24">
+			<Text>Guo</Text>
+		</Row>
+		<!-- Egypt -->
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_10">
+			<Text>Akh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_11">
+			<Text>Padubast</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_12">
+			<Text>Chefren</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_13">
+			<Text>Menes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_14">
+			<Text>Braheem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_15">
+			<Text>Anku</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_16">
+			<Text>Hotephetes</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_17">
+			<Text>Khata</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_18">
+			<Text>Benemba</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_19">
+			<Text>Sofh</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_20">
+			<Text>Thermuthis</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_21">
+			<Text>Bektmut</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_22">
+			<Text>Rebu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_23">
+			<Text>Khufu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_EGYPT_24">
+			<Text>Sebek</Text>
+		</Row>
+		<!-- England -->
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_10">
+			<Text>Bond</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_11">
+			<Text>Percy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_12">
+			<Text>Smiley</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_13">
+			<Text>Moneypenny</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_14">
+			<Text>Grace</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_15">
+			<Text>Milicent</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_16">
+			<Text>Harriet</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_17">
+			<Text>Beatrice</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_18">
+			<Text>Abigail</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_19">
+			<Text>Fleming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_20">
+			<Text>Auntie</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_21">
+			<Text>Benedict</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_22">
+			<Text>Alistair</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_23">
+			<Text>Merlin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ENGLAND_24">
+			<Text>Spencer</Text>
+		</Row>
+		<!-- France -->
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_10">
+			<Text>Adrien</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_11">
+			<Text>Claude</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_12">
+			<Text>Alain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_13">
+			<Text>Gérard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_14">
+			<Text>Camille</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_15">
+			<Text>Pierre</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_16">
+			<Text>Chevalier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_17">
+			<Text>Michelle</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_18">
+			<Text>Suzanne</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_19">
+			<Text>Henri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_20">
+			<Text>Ninette</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_21">
+			<Text>Evonne</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_22">
+			<Text>Blaise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_23">
+			<Text>Grenouille</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_FRANCE_24">
+			<Text>Oncle</Text>
+		</Row>
+		<!-- Germany -->
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_10">
+			<Text>Andreas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_11">
+			<Text>Theodor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_12">
+			<Text>Immanuel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_13">
+			<Text>Anja</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_14">
+			<Text>Erich</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_15">
+			<Text>Reiner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_16">
+			<Text>Gerhard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_17">
+			<Text>Mareike</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_18">
+			<Text>Hanna</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_19">
+			<Text>Elke</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_20">
+			<Text>Katrin</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_21">
+			<Text>Schimanski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_22">
+			<Text>Conrad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_23">
+			<Text>Max</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GERMANY_24">
+			<Text>Wolfgang</Text>
+		</Row>
+		<!-- Greece -->
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_10">
+			<Text>Arsenios</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_11">
+			<Text>Ligeia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_12">
+			<Text>Nikandros</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_13">
+			<Text>Heron</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_14">
+			<Text>Gaiane</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_15">
+			<Text>Eutychia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_16">
+			<Text>Drakon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_17">
+			<Text>Kleon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_18">
+			<Text>Chrysanthe</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_19">
+			<Text>Theophila</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_20">
+			<Text>Phiobe</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_21">
+			<Text>Phaidros</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_22">
+			<Text>Zosime</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_23">
+			<Text>Straton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_GREECE_24">
+			<Text>Iolaus</Text>
+		</Row>
+		<!-- India -->
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_10">
+			<Text>Chandra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_11">
+			<Text>Mahinder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_12">
+			<Text>Jasvinder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_13">
+			<Text>Girish</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_14">
+			<Text>Deepak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_15">
+			<Text>Prabhu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_16">
+			<Text>Rabindra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_17">
+			<Text>Vritra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_18">
+			<Text>Sarala</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_19">
+			<Text>Kasi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_20">
+			<Text>Lavanya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_21">
+			<Text>Amrita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_22">
+			<Text>Uma</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_23">
+			<Text>Tara</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDIA_24">
+			<Text>Gita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Iroquois -->
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_10">
+			<Text>Dekanawida</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_11">
+			<Text>Shenandoah</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_12">
+			<Text>Orenda</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_13">
+			<Text>Tekakwitha</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_14">
+			<Text>Oheo</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_15">
+			<Text>Adsila</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_16">
+			<Text>Caneadea</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_17">
+			<Text>Sachem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_18">
+			<Text>Wahta</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_19">
+			<Text>Hadawako</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_20">
+			<Text>Sheauga</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_21">
+			<Text>Shikellamy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_22">
+			<Text>Ho-sa-gowwa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_23">
+			<Text>Garakonthie</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_IROQUOIS_24">
+			<Text>Erielhonan</Text>
+		</Row>
+		<!-- Japan -->
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_10">
+			<Text>Akira</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_11">
+			<Text>Takeshi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_12">
+			<Text>Oji</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_13">
+			<Text>Shiro</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_14">
+			<Text>Orochi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_15">
+			<Text>Noboru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_16">
+			<Text>Yuichi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_17">
+			<Text>Michio</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_18">
+			<Text>Yuriko</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_19">
+			<Text>Usagi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_20">
+			<Text>Sora</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_21">
+			<Text>Amaya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_22">
+			<Text>Haruka</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_23">
+			<Text>Chiyoko</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_JAPAN_24">
+			<Text>Natsuko</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Ottoman -->
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_10">
+			<Text>Emir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_11">
+			<Text>Hasan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_12">
+			<Text>Melike</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_13">
+			<Text>Bekir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_14">
+			<Text>Dilber</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_15">
+			<Text>Mustafa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_16">
+			<Text>Sara</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_17">
+			<Text>Avranos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_18">
+			<Text>Hadice</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_19">
+			<Text>Ramazan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_20">
+			<Text>Zühal</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_21">
+			<Text>Timurhan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_22">
+			<Text>Fatima</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_23">
+			<Text>Yakub</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_OTTOMAN_24">
+			<Text>Cemal</Text>
+		</Row>
+		<!-- Persia -->
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_10">
+			<Text>Ahriman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_11">
+			<Text>Merikh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_12">
+			<Text>Khodadad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_13">
+			<Text>Naveed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_14">
+			<Text>Papak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_15">
+			<Text>Sohrab</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_16">
+			<Text>Sher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_17">
+			<Text>Bahram</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_18">
+			<Text>Leila </Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_19">
+			<Text>Esther</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_20">
+			<Text>Zenana</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_21">
+			<Text>Roshan</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_22">
+			<Text>Nahid</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_23">
+			<Text>Anahita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PERSIA_24">
+			<Text>Pari</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Rome -->
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_10">
+			<Text>Caelius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_11">
+			<Text>Domitia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_12">
+			<Text>Vesperus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_13">
+			<Text>Valeria</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_14">
+			<Text>Quintus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_15">
+			<Text>Aurelia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_16">
+			<Text>Septimus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_17">
+			<Text>Hyacintha</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_18">
+			<Text>Avunculus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_19">
+			<Text>Caecilia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_20">
+			<Text>Titus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_21">
+			<Text>Tullia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_22">
+			<Text>Fabianus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_23">
+			<Text>Petronius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ROME_24">
+			<Text>Vitus</Text>
+		</Row>
+		<!-- Russia -->
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_10">
+			<Text>Igor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_11">
+			<Text>Grigory</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_12">
+			<Text>Magdalina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_13">
+			<Text>Katenka</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_14">
+			<Text>Sofiya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_15">
+			<Text>Yulia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_16">
+			<Text>Zoya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_17">
+			<Text>Irina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_18">
+			<Text>Elena</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_19">
+			<Text>Dyadya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_20">
+			<Text>Kolmogorov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_21">
+			<Text>Maxim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_22">
+			<Text>Valeriy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_23">
+			<Text>Yuri</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_RUSSIA_24">
+			<Text>Fedosiy</Text>
+		</Row>
+		<!-- Siam -->
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_10">
+			<Text>Lamai</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_11">
+			<Text>Anong</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_12">
+			<Text>Bussaba</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_13">
+			<Text>Phailin</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_14">
+			<Text>Sasithorn</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_15">
+			<Text>Ubon</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_16">
+			<Text>Sukhon</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_17">
+			<Text>Klahan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_18">
+			<Text>Channarong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_19">
+			<Text>Sunan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_20">
+			<Text>Thinnakorn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_21">
+			<Text>Piyabutr</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_22">
+			<Text>Somboon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_23">
+			<Text>Prasert</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SIAM_24">
+			<Text>Mongkut</Text>
+		</Row>
+		<!-- Songhai -->
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_10">
+			<Text>Ekene</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_11">
+			<Text>Chuks</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_12">
+			<Text>Olubunmi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_13">
+			<Text>Eniola</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_14">
+			<Text>Ime</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_15">
+			<Text>Olabode</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_16">
+			<Text>Yewande</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_17">
+			<Text>Alaba</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_18">
+			<Text>Simisola</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_19">
+			<Text>Folami</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_20">
+			<Text>Kayode</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_21">
+			<Text>Monifa</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_22">
+			<Text>Abidemi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_23">
+			<Text>Babajide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SONGHAI_24">
+			<Text>Enitan</Text>
+		</Row>
+		<!-- Austria -->
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_10">
+			<Text>Lukas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_11">
+			<Text>Maximilian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_12">
+			<Text>Niklas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_13">
+			<Text>Dominik</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_14">
+			<Text>Laurenz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_15">
+			<Text>Christoph</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_16">
+			<Text>Onkel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_17">
+			<Text>Lothar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_18">
+			<Text>Elfriede</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_19">
+			<Text>Jana</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_20">
+			<Text>Vera</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_21">
+			<Text>Sophie</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_22">
+			<Text>Lotte</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_23">
+			<Text>Matthias</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_AUSTRIA_24">
+			<Text>Valentin</Text>
+		</Row>
+		<!-- Byzantium -->
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_10">
+			<Text>Anthemius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_11">
+			<Text>Theios</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_12">
+			<Text>Euthymius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_13">
+			<Text>Maximos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_14">
+			<Text>Heraclonas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_15">
+			<Text>Petros</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_16">
+			<Text>Stephanos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_17">
+			<Text>Sophronius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_18">
+			<Text>Nymphodora</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_19">
+			<Text>Licinia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_20">
+			<Text>Eudocia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_21">
+			<Text>Metrodora</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_22">
+			<Text>Aelia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_23">
+			<Text>Sophia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BYZANTIUM_24">
+			<Text>Theociste</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Carthage -->
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_10">
+			<Text>Asdrubal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_11">
+			<Text>Esbmunazar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_12">
+			<Text>Merbal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_13">
+			<Text>Tetramnestus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_14">
+			<Text>Zaracas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_15">
+			<Text>Hamiscora</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_16">
+			<Text>Jezebel</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_17">
+			<Text>Adonia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_18">
+			<Text>Melita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_19">
+			<Text>Tanis</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_20">
+			<Text>Fuabal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_21">
+			<Text>Salicar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_22">
+			<Text>Agbal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_23">
+			<Text>Abimilki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CARTHAGE_24">
+			<Text>Rhodanus</Text>
+		</Row>
+		<!-- Celts -->
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_10">
+			<Text>Brennus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_11">
+			<Text>Albin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_12">
+			<Text>Eoghan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_13">
+			<Text>Niall</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_14">
+			<Text>Fionn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_15">
+			<Text>Gwyneth</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_16">
+			<Text>Rhowen</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_17">
+			<Text>Úna</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_18">
+			<Text>Órlaith</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_19">
+			<Text>Eithne</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_20">
+			<Text>Rian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_21">
+			<Text>Diarmuid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_22">
+			<Text>Floin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_23">
+			<Text>Riaghán</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_CELTS_24">
+			<Text>Maedóc</Text>
+		</Row>
+		<!-- Ethiopia -->
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_10">
+			<Text>Akaleneh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_11">
+			<Text>Baheru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_12">
+			<Text>Engeda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_13">
+			<Text>Gedebu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_14">
+			<Text>Kabede</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_15">
+			<Text>Obi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_16">
+			<Text>Tigist</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_17">
+			<Text>Leyesh</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_18">
+			<Text>Ifrah</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_19">
+			<Text>Bogalech</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_20">
+			<Text>Nesanet</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_21">
+			<Text>Selanawit</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_22">
+			<Text>Fere Heywet</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_23">
+			<Text>Jember</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ETHIOPIA_24">
+			<Text>Yebza</Text>
+		</Row>
+		<!-- Huns -->
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_10">
+			<Text>Alani</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_11">
+			<Text>Tabiti</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_12">
+			<Text>Argimpasa</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_13">
+			<Text>Gulnar</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_14">
+			<Text>Inzhu</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_15">
+			<Text>Mormo</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_16">
+			<Text>Tharizdun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_17">
+			<Text>Vund</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_18">
+			<Text>Gurathnaka</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_19">
+			<Text>Hastur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_20">
+			<Text>Aksungur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_21">
+			<Text>Rugila</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_22">
+			<Text>Timur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_23">
+			<Text>Bendguz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_HUNS_24">
+			<Text>Ernakh</Text>
+		</Row>
+		<!-- Maya -->
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_10">
+			<Text>Bahlem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_11">
+			<Text>Tzicnal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_12">
+			<Text>Chicchan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_13">
+			<Text>Ekchuah</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_14">
+			<Text>Hozanek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_15">
+			<Text>Itzamna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_16">
+			<Text>Votan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_17">
+			<Text>Xaman Ek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_18">
+			<Text>Ixaxaluoh</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_19">
+			<Text>Colel Cab</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_20">
+			<Text>Akna</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_21">
+			<Text>Bolontiku</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_22">
+			<Text>Chaac</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_23">
+			<Text>Oxlahuntiku</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MAYA_24">
+			<Text>Chowen</Text>
+		</Row>
+		<!-- Netherlands -->
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_10">
+			<Text>Doortje</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_11">
+			<Text>Geerard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_12">
+			<Text>Katrijn</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_13">
+			<Text>Hannes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_14">
+			<Text>Aaltje</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_15">
+			<Text>Caspar</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_16">
+			<Text>Maaike</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_17">
+			<Text>Klaas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_18">
+			<Text>Lijsbeth</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_19">
+			<Text>Oom</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_20">
+			<Text>Willemina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_21">
+			<Text>Rutger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_22">
+			<Text>Rasmus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_23">
+			<Text>Lieven</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_NETHERLANDS_24">
+			<Text>Piet</Text>
+		</Row>
+		<!-- Sweden -->
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_10">
+			<Text>Annborg</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_11">
+			<Text>Tova</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_12">
+			<Text>Svea</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_13">
+			<Text>Gunilla</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_14">
+			<Text>Ide</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_15">
+			<Text>Mona</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_16">
+			<Text>Karin</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_17">
+			<Text>Ander</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_18">
+			<Text>Torsten</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_19">
+			<Text>Pelle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_20">
+			<Text>Olov</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_21">
+			<Text>Nils</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_22">
+			<Text>Espen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_23">
+			<Text>Björn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SWEDEN_24">
+			<Text>Asmund</Text>
+		</Row>
+		<!-- Assyria -->
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_10">
+			<Text>Asnappar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_11">
+			<Text>Nukimmut</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_12">
+			<Text>Seruya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_13">
+			<Text>Bilit</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_14">
+			<Text>Izdubar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_15">
+			<Text>Tiamat</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_16">
+			<Text>Hananu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_17">
+			<Text>Apiashal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_18">
+			<Text>Samano</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_19">
+			<Text>Erishum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_20">
+			<Text>Naramsin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_21">
+			<Text>Lamashtu</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_22">
+			<Text>Edimmu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_23">
+			<Text>Ugallu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ASSYRIA_24">
+			<Text>Kusarikku</Text>
+		</Row>
+		<!-- Brazil -->
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_10">
+			<Text>Aloisio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_11">
+			<Text>Bonifacio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_12">
+			<Text>Cristiano</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_13">
+			<Text>Anselmo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_14">
+			<Text>Faustino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_15">
+			<Text>Gustavo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_16">
+			<Text>Natanael</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_17">
+			<Text>Tio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_18">
+			<Text>Tacito</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_19">
+			<Text>Timoteo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_20">
+			<Text>Zeferino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_21">
+			<Text>Marcelino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_22">
+			<Text>Gabriela</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_23">
+			<Text>Clementina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BRAZIL_24">
+			<Text>Vitoria</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Indonesia -->
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_10">
+			<Text>Suparman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_11">
+			<Text>Ridwan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_12">
+			<Text>Sonny</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_13">
+			<Text>Handoko</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_14">
+			<Text>Paman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_15">
+			<Text>Indra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_16">
+			<Text>Suhendra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_17">
+			<Text>Yandi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_18">
+			<Text>Verawati</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_19">
+			<Text>Farida</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_20">
+			<Text>Susanti</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_21">
+			<Text>Widyawati</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_22">
+			<Text>Sri</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_23">
+			<Text>Gunardi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INDONESIA_24">
+			<Text>Teguh</Text>
+		</Row>
+		<!-- Morocco -->
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_10">
+			<Text>ibn-Rachid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_11">
+			<Text>ibn-Wasim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_12">
+			<Text>Elias</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_13">
+			<Text>Karim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_14">
+			<Text>Awadah</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_15">
+			<Text>Zubaida</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_16">
+			<Text>Cherifa</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_17">
+			<Text>Khatija</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_18">
+			<Text>Wacila</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_19">
+			<Text>Soulef</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_20">
+			<Text>Zahra</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_21">
+			<Text>Bilal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_22">
+			<Text>Sofian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_23">
+			<Text>al-Ahmar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MOROCCO_24">
+			<Text>al-Jabiri</Text>
+		</Row>
+		<!-- Poland -->
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_10">
+			<Text>Natasza</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_11">
+			<Text>Fryderyka</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_12">
+			<Text>Justyna</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_13">
+			<Text>Kassia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_14">
+			<Text>Edyta</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_15">
+			<Text>Weronika</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_16">
+			<Text>Alojzy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_17">
+			<Text>Klaudiusz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_18">
+			<Text>Marek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_19">
+			<Text>Stefan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_20">
+			<Text>Wiktor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_21">
+			<Text>Ziemowit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_22">
+			<Text>Gerwazy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_23">
+			<Text>Leszek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLAND_24">
+			<Text>Wujek</Text>
+		</Row>
+		<!-- Portugal -->
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_10">
+			<Text>Debora</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_11">
+			<Text>Santos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_12">
+			<Text>Matilde</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_13">
+			<Text>Carlito</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_14">
+			<Text>Terese</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_15">
+			<Text>Berengar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_16">
+			<Text>Judite</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_17">
+			<Text>Salome</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_18">
+			<Text>Felipe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_19">
+			<Text>Rosa</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_20">
+			<Text>Gregorio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_21">
+			<Text>Benedita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_22">
+			<Text>Inigo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_23">
+			<Text>Joaquim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_PORTUGAL_24">
+			<Text>Frederico</Text>
+		</Row>
+		<!-- Shoshone -->
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_10">
+			<Text>Kimama</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_11">
+			<Text>Haiwee</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_12">
+			<Text>Huittsuu</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_13">
+			<Text>Deheya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_14">
+			<Text>Okaipin</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_15">
+			<Text>Hupia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_16">
+			<Text>Nunukki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_17">
+			<Text>Catahecassa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_18">
+			<Text>Hokolesqua</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_19">
+			<Text>Lalawethika</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_20">
+			<Text>Tenskwatawa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_21">
+			<Text>Ahtahkokoop</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_22">
+			<Text>Kawacatoose</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_23">
+			<Text>Muscowequan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SHOSHONE_24">
+			<Text>Kisecawchuck</Text>
+		</Row>
+		<!-- Venice -->
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_10">
+			<Text>Alessio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_11">
+			<Text>Maurizio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_12">
+			<Text>Severo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_13">
+			<Text>Nero</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_14">
+			<Text>Zio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_15">
+			<Text>Ercole</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_16">
+			<Text>Dante</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_17">
+			<Text>Carlo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_18">
+			<Text>Elisabetta</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_19">
+			<Text>Desideria</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_20">
+			<Text>Renata</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_21">
+			<Text>Nicoletta</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_22">
+			<Text>Graziella</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_23">
+			<Text>Maura</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_VENICE_24">
+			<Text>Marcella</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Zulu -->
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_10">
+			<Text>Azisa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_11">
+			<Text>Dabulamanzi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_12">
+			<Text>Engameli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_13">
+			<Text>Hluphizwe</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_14">
+			<Text>Kwanele</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_15">
+			<Text>Zwelikunde</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_16">
+			<Text>Umalume</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_17">
+			<Text>Phesheya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_18">
+			<Text>Nkanyezi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_19">
+			<Text>Zondlile</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_20">
+			<Text>Vemvane</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_21">
+			<Text>Uminathi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_22">
+			<Text>Thembisile</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_23">
+			<Text>Lethiwe</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_ZULU_24">
+			<Text>Gonothi</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Babylon -->
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_10">
+			<Text>Ahi-Kilim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_11">
+			<Text>Hasis-adra</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_12">
+			<Text>Kurigalzu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_13">
+			<Text>Nusku</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_14">
+			<Text>Belit</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_15">
+			<Text>Tanith</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_16">
+			<Text>Ku-aya</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_17">
+			<Text>Anunit</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_18">
+			<Text>Damkina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_19">
+			<Text>Kishar</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_20">
+			<Text>Sabitum</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_21">
+			<Text>Rihat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_22">
+			<Text>Urhammu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_23">
+			<Text>Sargon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_BABYLON_24">
+			<Text>Ismi-dagan</Text>
+		</Row>
+		<!-- Denmark -->
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_10">
+			<Text>Asbjørn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_11">
+			<Text>Erik</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_12">
+			<Text>Hrolf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_13">
+			<Text>Haldur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_14">
+			<Text>Knud</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_15">
+			<Text>Adela</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_16">
+			<Text>Gitte</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_17">
+			<Text>Ingred</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_18">
+			<Text>Annelise</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_19">
+			<Text>Birte</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_20">
+			<Text>Else</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_21">
+			<Text>Ingebjørg</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_22">
+			<Text>Farbor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_23">
+			<Text>Oluf</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_DENMARK_24">
+			<Text>Sven</Text>
+		</Row>
+		<!-- Inca -->
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_10">
+			<Text>Huaman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_11">
+			<Text>Copacati</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_12">
+			<Text>Vicaquirao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_13">
+			<Text>Micay</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_14">
+			<Text>Pachama</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_15">
+			<Text>Quinuama</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_16">
+			<Text>Yupanqui</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_17">
+			<Text>Acahuana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_18">
+			<Text>Cocohuay</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_19">
+			<Text>Huitaca</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_20">
+			<Text>Cavillaca</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_21">
+			<Text>Maricanchi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_22">
+			<Text>Runtu</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_23">
+			<Text>Quehuar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_INCA_24">
+			<Text>Guacamaya</Text>
+		</Row>
+		<!-- Korea -->
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_10">
+			<Text>Gi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_11">
+			<Text>Hyun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_12">
+			<Text>Haneul</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_13">
+			<Text>Jeong</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_14">
+			<Text>Sang</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_15">
+			<Text>Wook</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_16">
+			<Text>Gyeong</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_17">
+			<Text>Myeong</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_18">
+			<Text>Seok</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_19">
+			<Text>Jin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_20">
+			<Text>Yoon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_21">
+			<Text>Hwan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_22">
+			<Text>Dong</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_23">
+			<Text>Seung</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_KOREA_24">
+			<Text>Ajeossi</Text>
+		</Row>
+		<!-- Mongolia -->
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_10">
+			<Text>Avga Akh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_11">
+			<Text>Nergüi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_12">
+			<Text>Naranbaatar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_13">
+			<Text>Chingis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_14">
+			<Text>Otgonbayar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_15">
+			<Text>Altai</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_16">
+			<Text>Enkhjargal</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_17">
+			<Text>Narantsetseg</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_18">
+			<Text>Odtsetseg</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_19">
+			<Text>Sarangerel</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_20">
+			<Text>Ganzorig</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_21">
+			<Text>Sükh</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_22">
+			<Text>Odval</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_23">
+			<Text>Tuul</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_MONGOL_24">
+			<Text>Baatarsaikh</Text>
+		</Row>
+		<!-- Polynesia -->
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_10">
+			<Text>Tonton</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_11">
+			<Text>Ikaia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_12">
+			<Text>Nahele</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_13">
+			<Text>Kekipi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_14">
+			<Text>Peleke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_15">
+			<Text>Pilipo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_16">
+			<Text>Moana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_17">
+			<Text>Keoki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_18">
+			<Text>Kapena</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_19">
+			<Text>Kaimana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_20">
+			<Text>Alamea</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_21">
+			<Text>Ulani</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_22">
+			<Text>Okelani</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_23">
+			<Text>Kekepania</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_POLYNESIA_24">
+			<Text>Hokulani</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<!-- Spain -->
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_10">
+			<Text>Tercero</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_11">
+			<Text>Santiago</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_12">
+			<Text>Ricardo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_13">
+			<Text>Alfonso</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_14">
+			<Text>Enrique</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_15">
+			<Text>Fernando</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_16">
+			<Text>Julio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_17">
+			<Text>Pablo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_18">
+			<Text>Catalina</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_19">
+			<Text>Gracia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_20">
+			<Text>Juanita</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_21">
+			<Text>Miguela</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_22">
+			<Text>Valencia</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_23">
+			<Text>Inez</Text>
+			<Gender>feminine</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_NAME_SPAIN_24">
+			<Text>Estrella</Text>
+			<Gender>feminine</Gender>
+		</Row>
+	</Language_en_US>
+</GameData>

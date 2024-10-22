@@ -113,6 +113,7 @@ UPDATE Defines SET Value = -25 WHERE Name = 'MINOR_CIV_QUEST_REWARD_HOSTILE';
 
 ---------------------------------------------------------------------------------------------------------
 -- Quest reward multipliers for CS types (multiplicative, applied after above modifiers)
+-- TODO: make a table for this
 ---------------------------------------------------------------------------------------------------------
 
 -- Food (in Capital)

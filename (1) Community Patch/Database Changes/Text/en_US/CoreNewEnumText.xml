@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_ANCIENT">
+			<Text>Completing an Ancient Policy Branch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_MEDIEVAL">
+			<Text>Completing a Medieval Policy Branch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_POLICY_BRANCH_INDUSTRIAL">
+			<Text>Completing an Industrial Policy Branch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_CHOOSE_IDEOLOGY">
+			<Text>Choosing an Ideology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_BELIEF_PANTHEON">
+			<Text>Selecting a Pantheon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_BELIEF_FOUNDER">
+			<Text>Selecting a Founder Belief</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_BELIEF_FOLLOWER">
+			<Text>Selecting a Follower Belief</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_BELIEF_ENHANCER">
+			<Text>Selecting an Enhancer Belief</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_BELIEF_REFORMATION">
+			<Text>Selecting a Reformation Belief</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_GENERAL">
+			<Text>Mayan Long Count General</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ADMIRAL">
+			<Text>Mayan Long Count Admiral</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_PROPHET">
+			<Text>Mayan Long Count Prophet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_WRITER">
+			<Text>Mayan Long Count Writer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ARTIST">
+			<Text>Mayan Long Count Artist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_MUSICIAN">
+			<Text>Mayan Long Count Musician</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_ENGINEER">
+			<Text>Mayan Long Count Engineer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_MERCHANT">
+			<Text>Mayan Long Count Merchant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_SCIENTIST">
+			<Text>Mayan Long Count Scientist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_LONGCOUNT_DIPLOMAT">
+			<Text>Mayan Long Count Diplomat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_ELIMINATE_PLAYER">
+			<Text>Eliminating a Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST">
+			<Text>Performing a Diplomatic Mission</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

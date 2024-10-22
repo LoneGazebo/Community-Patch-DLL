@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_MISSIONARY">
+			<Text>Spread Religion (Automated)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_MISSIONARY_HELP">
+			<Text>Automate all [COLOR_UNIT_TEXT]Missionary[ENDCOLOR] actions. The unit will remain automated until you cancel its automation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_MISSIONARY_DISABLED_HELP">
+			<Text>No valid targets for Spreading Religion at this time.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_ARCHAEOLOGIST">
+			<Text>Dig Up Artifacts (Automated)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_ARCHAEOLOGIST_HELP">
+			<Text>Automate all [COLOR_UNIT_TEXT]Archaeologist[ENDCOLOR] actions. The unit will remain automated until you cancel its automation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_ARCHAEOLOGIST_DISABLED_HELP">
+			<Text>No valid targets for archaeology at this time.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

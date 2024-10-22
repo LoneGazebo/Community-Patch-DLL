@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Below monopoly tables need the BALANCE_CORE_RESOURCE_MONOPOLIES option to function -->
+	<!-- For the tables that have IsGlobalMonopoly and IsStrategicMonopoly columns, as strategic and global monopolies are not mutually exclusive, setting both to true will double the modifier when a global monopoly is reached -->
+
+	<!-- Extra yields on tiles with this resource if the tile owner has a global monopoly of it -->
+	<Table name="Resource_YieldChangeFromMonopoly">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield modifier in all cities if the player has a global monopoly of this resource -->
+	<Table name="Resource_CityYieldModFromMonopoly">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Combat modifier on all units if the player has a monopoly of this resource -->
+	<Table name="Resource_MonopolyCombatModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Attack" type="integer" default="0"/>
+		<Column name="Defense" type="integer" default="0"/>
+	</Table>
+	<!-- GPP modifier in all cities if the player has a monopoly of this resource -->
+	<Table name="Resource_MonopolyGreatPersonRateModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Flat GPP for all great people in all cities if the player has a monopoly of this resource -->
+	<Table name="Resource_MonopolyGreatPersonRateChanges">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Value" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Below production cost modifier tables need the RESOURCES_PRODUCTION_COST_MODIFIERS option to function -->
+	<!-- Production cost modifier to units of the specified combat in cities that have this resource connected -->
+	<!-- The unit's era must be on or later than RequiredEra and earlier than ObsoleteEra, if those columns are specified. If the unit doesn't have a prereq tech, the player's era is used instead. -->
+	<Table name="Resource_UnitCombatProductionCostModifiersLocal">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
+		<Column name="CostModifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Production cost modifier to non-wonder buildings in cities that have this resource connected -->
+	<!-- The building's era must be on or later than RequiredEra and earlier than ObsoleteEra, if those columns are specified. If the building doesn't have a prereq tech, the player's era is used instead. -->
+	<Table name="Resource_BuildingProductionCostModifiersLocal">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
+		<Column name="CostModifier" type="integer" notnull="true"/>
+	</Table>
+</GameData>

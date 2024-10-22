@@ -1,7 +1,18 @@
 -- Remove the conflict between FEATURE_LAKE == FEATURE_ICE and FEATURE_RIVER == FEATURE_JUNGLE
 UPDATE FakeFeatures SET ID = ID + 200;
 
-UPDATE Features SET Impassable = 1 WHERE Type = 'FEATURE_ICE';
+UPDATE Features SET Impassable = 1, NoImprovement = 0 WHERE Type = 'FEATURE_ICE';
+
+-- They shouldn't be as obstructive as mountains
+UPDATE Features
+SET SeeThrough = 0
+WHERE Type IN (
+	'FEATURE_SOLOMONS_MINES',
+	'FEATURE_CRATER',
+	'FEATURE_FOUNTAIN_YOUTH'
+);
+
+UPDATE Features SET SeeThrough = 1 WHERE Type = 'FEATURE_GEYSER';
 
 -- Natural Wonder placement criteria/post-placement effects
 UPDATE Natural_Wonder_Placement
@@ -27,9 +38,16 @@ SET
 	CoreTileCanBeTundra = 0,
 	AdjacentTilesCareAboutTerrainTypes = 0,
 	AdjacentTilesAvoidGrass = 0,
-	MaximumAllowedAdjacentGrass = 99,
-	ChangeCoreTileToMountain = 0
+	MaximumAllowedAdjacentGrass = 99
 WHERE NaturalWonderType = 'FEATURE_MESA';
+
+UPDATE Natural_Wonder_Placement
+SET
+	CoreTileCanBeAnyTerrainType = 0,
+	CoreTileCanBeShallowWater = 1,
+	AdjacentTilesCareAboutTerrainTypes = 1,
+	RequiredNumberOfAdjacentShallowWater = 4
+WHERE NaturalWonderType = 'FEATURE_VOLCANO';
 
 UPDATE Natural_Wonder_Placement
 SET

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<!-- For civ-specific messages, see CoreNewDiplomacyResponses.sql for systematic insertion -->
+	<!-- For leader-specific messages, see CoreNewDiplomacyResponses.sql for systematic insertion -->
 	<Diplomacy_Responses>
 		<!-- Human asks AI about their opinions -->
 		<Row LeaderType="GENERIC">
@@ -66,20 +66,16 @@
 			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_MOVE_TROOPS_NEUTRAL_HOSTILE</ResponseType>
-			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_CONQUEST</ResponseType>
 			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_DECEPTIVE</ResponseType>
-			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE</Response>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_HOSTILE</ResponseType>
-			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE</Response>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE%</Response>
 		</Row>
 
 		<!-- New intrigues -->
@@ -121,29 +117,29 @@
 		<!-- Human influential over AI -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__AI_CLASSICAL%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_RENAISSANCE%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__AI_RENAISSANCE%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_MODERN</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__AI_MODERN%</Response>
 		</Row>
 
 		<!-- AI influential over human -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__HUMAN_CLASSICAL%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__HUMAN_RENAISSANCE%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN</ResponseType>
-			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN%</Response>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON__HUMAN_MODERN%</Response>
 		</Row>
 
 		<!-- Victory Competition statements -->
@@ -345,7 +341,7 @@
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DENOUNCE_MINORS</ResponseType>
-			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORS%</Response>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORSX%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DENOUNCE_MINORS_BULLY</ResponseType>
@@ -406,10 +402,10 @@
 			<Response>TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST%</Response>
 		</Row>
 
-		<!-- Peace offer: AI warscore > 5 -->
+		<!-- Peace offer: AI warscore >= 10 -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
-			<Response>TXT_KEY_GENERIC_PEACE_OFFER%</Response>
+			<Response>TXT_KEY_GENERIC_WINNER_PEACE_OFFER%</Response>
 		</Row>
 	</Diplomacy_Responses>
 </GameData>

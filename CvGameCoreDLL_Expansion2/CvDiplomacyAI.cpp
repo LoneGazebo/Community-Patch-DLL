@@ -31821,10 +31821,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if (bHuman)
 		{
 			int iOurWarScore = GetWarScore(ePlayer);
-			int iTheirWarScore = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarScore(GetID());
-			if (iOurWarScore > (iTheirWarScore + 10))
+			if (iOurWarScore >= 10)
 			{
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_WINNER_PEACE_OFFER);
+			}
+			else if (iOurWarScore <= -10)
+			{
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_PEACE_MADE_BY_HUMAN_GRACIOUS);
 			}
 			else
 			{

@@ -1,0 +1,1697 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Save menu -->
+		<!-- Hopefully removed if option is not needed or better solution in place -->
+		<Row Tag="TXT_KEY_FORCE_MP_SAVE">
+			<Text>Force Mid-Turn New Save (Not recommended - may corrupt save game!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FORCE_MP_SAVE_TOOLTIP">
+			<Text>DANGER! Emulate vanilla where a save of the current turn state could be made mid-turn by exploiting a bug in the overwrite file check. Normally a save is/was just a renamed copy of the most recent autosave. With this option enabled mid-turn state can be saved BUT Firaxis explicitly tried to prevent this, presumably because it can cause issues. This option is in NO WAY recommended and to use at own risk.</Text>
+		</Row>
+
+		<!-- Replay message -->
+		<Row Tag="TXT_KEY_MISC_COMPLETES_PROJECT_FIRST">
+			<Text>{1_PlyrName} is the first to complete {@2_PrjctName}!</Text>
+		</Row>
+
+		<!-- Tech tree -->
+		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_CORPS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Corporations Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
+			<Text>{1_Build}: {2_Turns} {2_Turns: plural 1?Turn; other?Turns;} Required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_TECH_BOOST_CHOP">
+			<Text>+{1_Num}% [ICON_PRODUCTION] Production from Chopping Forests/Jungles (+25 [ICON_PRODUCTION])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_ENABLES_CORPORATIONS">
+			<Text>Enables Corporations to be founded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
+			<Text>Embarking/disembarking in owned cities expends only 1 Movement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING">
+			<Text>Embarking/disembarking in owned cities expends only 0.1 Movement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_HAPPINESS_BUMP">
+			<Text>+{1_Num} [ICON_HAPPINESS_1] Happiness in all Cities.</Text>
+		</Row>
+		<!-- Don't work as described - see TechTableChanges.sql -->
+		<Row Tag="TXT_KEY_ABLTY_CITY_RANGE_INCREASE">
+			<Text>+1 City Attack Range</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE">
+			<Text>+1 City Indirect Attack Range</Text>
+		</Row>
+
+		<!-- Theming bonus -->
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">
+			<Text>[COLOR_POSITIVE_TEXT]Active Theme Bonus:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS_NEEDED">
+			<Text>[COLOR_POSITIVE_TEXT]If you meet Theme requirements on this Building, gain:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+
+		<!-- Conquest picker -->
+		<Row Tag="TXT_KEY_POPUP_DESTROY_CAPTURED_CITY">
+			<Text>Destroy the City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY">
+			<Text>The City is instantly destroyed. In a One City Challenge, HUMAN players cannot keep captured cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_HEADER">
+			<Text>Repercussions from [COLOR_NEGATIVE_TEXT]conquering[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be greatly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be somewhat upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_HEADER">
+			<Text>Bonuses from [COLOR_POSITIVE_TEXT]liberating[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be very grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be a little grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
+		</Row>
+
+		<!-- Trade route picker -->
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD">
+			<Text>Open Borders [ICON_GOLD] Gold Bonus: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
+			<Text>Land route: {1_Num}x</Text>
+		</Row>
+
+		<!-- Top panel -->
+		<!-- Golden Age Point -->
+		<Row Tag="TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE">
+			<Text>Next Golden Age: {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
+		</Row>
+		<!-- Instant yields -->
+		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
+			<Text>[NEWLINE]        [ICON_BULLET] This Turn: +{1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES">
+			<Text>[NEWLINE]        [ICON_BULLET] Average: +{1_Num} Per Turn Per City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TOTAL">
+			<Text>[ICON_BULLET] {2_YieldIcon} {3_YieldColorString}{1_YieldType}[ENDCOLOR]: {4_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT][ICON_TOURISM] Tourism Instant Yields Per Player:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM_NAME">
+			<Text>[NEWLINE] [ICON_BULLET] {1_Civ}: {2_Val} [ICON_TOURISM] Tourism (+{3_Avg} Per Turn)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER">
+			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and the prior {1_Num} {1_Num: plural 1?Turn; other?Turns;}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER_EMPTY">
+			<Text>Instant Yields are gained in many ways, including Policies, Beliefs, and Buildings. A sum of Instant Yields earned from this turn, and the past 10 turns, will be listed here.</Text>
+		</Row>
+		<!-- Trade routes -->
+		<Row Tag="TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT">
+			<Text>{1_Num} [ICON_TOURISM] Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
+			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+
+		<!-- Buildings -->
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
+			<Text>Damage Reduction: +{1_Num}</Text>
+		</Row>
+
+		<!-- City screen/banner -->
+		<Row Tag="TXT_KEY_FOODMOD_EATEN_FOOD">
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE">
+			<Text>[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE">
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
+			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Traits): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
+			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EVENT">
+			<Text>[NEWLINE][ICON_BULLET][ICON_CITIZEN] Event Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_WLTKD_UA">
+			<Text>[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the King Day" Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
+			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Supply Cap): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Policies: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Policies: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Class: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Domain from Pledges: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Religion: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_EVENTMOD">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from local Event: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_NUM_SPECIALISTS">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Number of Specialists: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_UNITPROMOTION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Unit Garrison: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_UNIT_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit from Corporation: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Past Era Buildings: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_MONOPOLY_RESOURCE">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Resource Monopoly: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_UNITPROMOTION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Wonders from Unit Garrison: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Corporation: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_TRAIT_BONUS_CONQUEST">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Conquest {2_Num}: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_TRAIT_BONUS_CONQUEST_TURNS">
+			<Text>({1_Num} {1_Num: plural 1?Turn; other?Turns;} remaining)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_IMPROVEMENT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Wonders from Improvements: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Unit Garrison: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Unit Garrison: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Improvements: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Policies: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Resources: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Player Traits: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Beliefs): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Traits): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD">
+			<Text>[NEWLINE][ICON_BULLET]"We Love the King Day" Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD_RELIGION">
+			<Text>[NEWLINE][ICON_BULLET]"We Love the King Day" Modifier (Beliefs): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]"We Love the King Day" Modifier (Player): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_GREAT_WORKS">
+			<Text>[NEWLINE][ICON_BULLET]Great Works Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_SPIES">
+			<Text>[NEWLINE][ICON_BULLET]Active Spies Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_FOLLOWERS">
+			<Text>[NEWLINE][ICON_BULLET]Religious Followers Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOLDMOD_YIELD_BLOCKADE">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Water Blockade (Enemy Naval Units adjacent to City): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION">
+			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EMPIRE_POP">
+			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP_FAITH">
+			<Text>{1_Num} [ICON_PEACE] from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from [ICON_WONDER] World Wonders</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from your Civilization Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GA_BONUS">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from {2_Num}% of the [ICON_CULTURE] Culture of your [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_MOD_HOLY_CITY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Holy City of the World Religion: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_FROM_TRADE_ROUTES">
+			<Text>{1_perTurn:number "#.##"} [ICON_TOURISM] from Trade Routes established with this city</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
+			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
+			<Text>{1_Num} {2_IconString} from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TRAIT_BONUS">
+			<Text>{1_Num} {2_IconString} from Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
+			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RELIGIOUS_PRESSURE_STRING_EXTENDED">
+			<Text>({1_Pressure} Pressure, +{2_PressurePerTurn} per Turn)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RELIGION_TOOLTIP_EXTENDED">
+			<Text>{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} {5_Num:plural 1?Source City; other?Source Cities;})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
+			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your maximum Supply cap!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
+			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your maximum Supply cap!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING_PURCHASE">
+			<Text>[NEWLINE]You cannot [ICON_GOLD] Purchase this Unit without {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}} constructed in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PLAYER_CITY_COUNT_MAX">
+			<Text>[NEWLINE]Only {1_Num} allowed per player city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_ONE_CORP_ONLY">
+			<Text>[NEWLINE]{1_BuildingName:textkey} cannot be constructed while you are constructing {2_BuildingName:textkey} elsewhere in your Empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED">
+			<Text>[NEWLINE]Blocked because of recent Spy Mission ({1_Num} {1_Num: plural 1?Turn; other?Turns;} remaining).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_LOCAL_FEATURE">
+			<Text>[NEWLINE]Requires {1_FeatureName:textkey} near this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY">
+			<Text>[NEWLINE]Requires a Monopoly of {2_ResourceIcon} {1_ResourceName:textkey}. You currently control {3_Percent}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_TENETS_COUNT_NEEDED">
+			<Text>[NEWLINE]You need to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;} unlocked to build this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP">
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Citizen; other?Citizens;} in your Empire to build this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP">
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Citizen; other?Citizens;} in this City to build this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP">
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Follower; other?Followers;} of your [ICON_RELIGION] Religion in your Empire to build this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP">
+			<Text>[NEWLINE]You need to have {1_Percent}% more Global Followers of your [ICON_RELIGION] Religion to build this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES">
+			<Text>Additional Policies needed to unlock: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALREADY_INVESTED">
+			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALREADY_INVESTED_UNIT">
+			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this unit. This unit's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
+			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH">
+			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL">
+			<Text>[NEWLINE]You recently made a [ICON_PEACE] Faith purchase in this city, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED">
+			<Text>[ICON_BULLET] Access required:</Text>
+		</Row>
+		<!-- Happiness -->
+		<Row Tag="TXT_KEY_POTENTIAL_HAPPINESS_GROWTH">
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH">
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to change as follows:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Unit panel -->
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES">
+			<Text>You need access to {1_ResourcesString} to upgrade this Unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE">
+			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Combat simulator -->
+		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
+			<Text>Unit Health</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_CHANCE">
+			<Text>[COLOR_CYAN]Status Effect Chance ({1_Name})[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ALREADY_PLAGUED">
+			<Text>[COLOR_CYAN]Has {1_Num} Status Effect[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_IMMUNE_PLAGUED">
+			<Text>[COLOR_CYAN]Immune to {1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
+			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE_100_PERCENT">
+			<Text>[COLOR_CYAN]Unit will withdraw from the attack[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_CAPTURE_CHANCE_100_PERCENT">
+			<Text>[COLOR_CYAN]Unit will be captured if defeated[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
+			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_IGNORE_ZOC">
+			<Text>[COLOR_CYAN]Ignores ZoC Effects[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RESISTANCE_POWER">
+			<Text>Anti-Warmonger Fervor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_CITY_BLOCKADED">
+			<Text>Blockaded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_FULLY_HEALED_UNITS">
+			<Text>Bonus VS Fully-Healed Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_MORE_50_HP_UNITS">
+			<Text>Target above 50% HP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_LESS_50_HP_UNITS">
+			<Text>Target below/at 50% HP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
+			<Text>Multi-Attack Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
+			<Text>Hellenic League</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
+			<Text>Terrain Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER">
+			<Text>Ranged Defense Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP">
+			<Text>Defender of the Faith</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP">
+			<Text>Crusader Zeal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
+			<Text>Golden Age Conquest Of The World Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT">
+			<Text>Bonus from Adjacent Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
+			<Text>Resource Monopoly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
+			<Text>Resource Monopoly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_COUNTERSPY_DEFENSE">
+			<Text>Counterspy Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_EMBARKATION_DEFENSE">
+			<Text>Embarkation Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_UNITCLASS_NEAR">
+			<Text>Near Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS">
+			<Text>Bonus from Nearby Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS">
+			<Text>Near City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS">
+			<Text>No Adjacent Friendly Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN">
+			<Text>Penalty VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_BONUS_VS_DOMAIN">
+			<Text>Attack Bonus VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_PENALTY_VS_DOMAIN">
+			<Text>Attack Penalty VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_DEFENSE_BONUS_VS_DOMAIN">
+			<Text>Defense Bonus VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_DEFENSE_PENALTY_VS_DOMAIN">
+			<Text>Defense Penalty VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_BONUS">
+			<Text>Miscellaneous</Text>
+		</Row>
+
+		<!-- Forced resync button -->
+		<Row Tag="TXT_KEY_MP_FORCE_RESYNC_TITLE">
+			<Text>Schedule a forced resync</Text>
+		</Row>
+
+		<!-- Cultural overview -->
+		<!-- Tourism/Happiness screen -->
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
+			<Text>Influenced by the number of civilizations not following our Ideology:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_RECENTLY_ADOPTED">
+			<Text>Influence due to only recently adopting/switching Ideologies:</Text>
+		</Row>
+		<!-- CV progress screen -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_INSTANT_TT_VALUE">
+			<Text>+{1_Num} [ICON_TOURISM] Tourism per Turn (on Average) from Instant Yields with this Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">
+			<Text>+{1_Num}% for being on the Same Team[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE">
+			<Text>+{1_Num}% due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE_NEGATIVE">
+			<Text>-{1_Num}% due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
+			<Text>-{1_Num}% from Empire Size ({2_NumCity} City Difference)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
+			<Text>+{1_Num}% Bonus from Highest Warscore[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA">
+			<Text>-{1_Num}% from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES">
+			<Text>+{1_Num}% from your Corporate Franchises in their Empire[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
+			<Text>+100% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
+			<Text>+50% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FAMILIAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_POPULAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_INFLUENTIAL_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_DOMINANT_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_STATIC_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: Static</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_SLOWLY_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FALLING_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Religion overview -->
+		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM">
+			<Text>Save for {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+
+		<!-- Espionage overview -->
+		<Row Tag="TXT_KEY_SPY_STATE_UNASSIGNED_TT">
+			<Text>{1_RankName} {2_SpyName} is unassigned.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is the [ICON_CAPITAL] Capital of {@2_CivShortDesc}. You can send either [ICON_SPY] Spies or [ICON_DIPLOMAT] Diplomats to this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YOUR_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is your [ICON_CAPITAL] Capital. It is a high priority target for enemy [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
+			<Text>Allied with the {1_Player}.</Text>
+		</Row>
+		<!-- Intrigue list -->
+		<Row Tag="TXT_KEY_INTRIGUE_BRIBE_WAR_US">
+			<Text>{1_PlayerName} bribed {2_PlayerName} to go to war against you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_BRIBE_WAR_OTHER">
+			<Text>{1_PlayerName} bribed {2_PlayerName} to go to war against {3_PlayerName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_COOP_WAR_US">
+			<Text>{1_PlayerName} and {2_PlayerName} are preparing to go to war against you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_COOP_WAR_OTHER">
+			<Text>{1_PlayerName} and {2_PlayerName} are preparing to go to war against {3_PlayerName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_MILITARY_MIGHT_RISEN">
+			<Text>The military might of {1_PlayerName} has risen strongly over the recent turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_BOUGHT_VOTES">
+			<Text>{1_PlayerName} has bought world congress votes from {2_PlayerName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INTRIGUE_SOLD_VOTES">
+			<Text>{1_PlayerName} has sold world congress votes to {2_PlayerName}.</Text>
+		</Row>
+
+		<!-- World Congress screen -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_PATRONAGE_FINISHER_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Policies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Reformation Belief</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_FAITH_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Religious Authority</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_CAPITALS_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Conquered Capitals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DOF_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Declarations of Friendship</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RA_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Research Agreements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Defense Pacts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_IMPROVEMENT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from City-State Embassies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_GPT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Gold Per Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_NEUTRAL">
+			<Text>[NEWLINE][NEWLINE]Civilizations mostly unaffected by this:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINIONS_END">
+			<Text>[NEWLINE][NEWLINE]Civilizations will vote to help themselves and friends, and hurt their enemies/competitors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_UNKNOWN">
+			<Text>[NEWLINE][ICON_BULLET]Unknown: {1_NumDelegates} {1_NumDelegates: plural 1?Delegate; other?Delegates;} ({2_NumCivs} {2_NumCivs: plural 1?Civ; other?Civs;})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
+			<Text>Resolution proposed prior Session, cannot be proposed again until next Session.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION">
+			<Text>Prevented by an active or proposed resolution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ">
+			<Text>Unavailable until a World Ideology is active.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS">
+			<Text>Not allowed due to the absence of Vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP">
+			<Text>Prevented by an active or proposed resolution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER">
+			<Text>You must be the current ally of a City-State in order to propose this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_CHOICE_CITY_CSD">
+			<Text>{@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PREFIX_PROPOSER">
+			<Text>{1_CivAdj}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
+			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI">
+			<Text>Spheres of Influence: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI_ENTRY">
+			<Text>{@1_CivName} (for {@2_CivName})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR">
+			<Text>Open Doors: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR_ENTRY">
+			<Text>{@1_CivName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_VASSAL_MAINTENANCE">
+			<Text>+{1_VassalMaintenancePercent}% [ICON_GOLD] Gold cost for Vassal Unit/City Maintenance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_LIMIT">
+			<Text>{1_Spaceship}% [ICON_PRODUCTION] Production when building SS Parts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_PURCHASE">
+			<Text>+{1_Spaceship}% costs for [ICON_GOLD] Gold purchases of SS parts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_WAR">
+			<Text>{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties greatly decreased</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WAR_PEACE">
+			<Text>+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties unchanged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_IDEOLOGY">
+			<Text>No [ICON_INTERNATIONAL_TRADE] Trade Routes with Ideological opponents or non-allied City-States. Allied City-State [ICON_INFLUENCE] Influence does not decay.</Text>
+		</Row>
+
+		<!-- Diplomacy overview / player icon tooltip -->
+		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_ALLIES">
+			<Text>{1_Num} from City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_MILITARY">
+			<Text>{1_Num} from Military Power</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
+			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Opinion modifiers -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>Gandhi's words are backed with NUCLEAR WEAPONS!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS">
+			<Text>We will declare war on them in {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS">
+			<Text>We were previously friends with their civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
+			<Text>We are completely untrustworthy to them.</Text>
+		</Row>
+		<!-- Approach indicators -->
+		<Row Tag="TXT_KEY_DIPLO_ELIMINATED_INDICATOR">
+			<Text>This leader has been eliminated from the game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_HUMAN_TEAMMATE">
+			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_FRIENDLY">
+			<Text>They have no strong feelings about us one way or the other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_HOSTILE">
+			<Text>They do not consider us relevant to their interests.</Text>
+		</Row>
+		<!-- Base opinion from difficulty -->
+		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
+			<Text>Diplomacy is much easier on your difficulty level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
+			<Text>Diplomacy is easier on your difficulty level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
+			<Text>Diplomacy is more difficult on your difficulty level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
+			<Text>Diplomacy is much more difficult on your difficulty level.</Text>
+		</Row>
+		<!-- Player has done nice stuff, or we share the same position -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
+			<Text>We have shared embassies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
+			<Text>We have an embassy in their capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DIPLOMAT">
+			<Text>We have a Diplomat in their capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
+			<Text>We have opened our borders to each other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_US">
+			<Text>We have opened our borders to them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
+			<Text>They have opened their borders to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP">
+			<Text>We have made a Defensive Pact!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_ENEMY">
+			<Text>You have made a Defensive Pact with one of their enemies!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
+			<Text>We have made a Research Agreement!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_CAPITAL">
+			<Text>You gave them back their original capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_LIBERATED_HOLY_CITY">
+			<Text>You liberated their Holy City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_HOLY_CITY">
+			<Text>You gave them back their Holy City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
+			<Text>We have Pledged to Protect the same City-States.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_MUTUAL">
+			<Text>We have made a Defensive Pact with the same leaders!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
+			<Text>We are vassals of the same master!</Text>
+		</Row>
+		<!-- Player has done mean stuff -->
+		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
+			<Text>You captured their Holy City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CULTURE_BOMB_HUMAN">
+			<Text>You stole their territory!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED">
+			<Text>You killed or captured their civilians!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
+			<Text>You killed or captured civilians from other civilizations!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
+			<Text>You excavated their cultural artifacts!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PLOTTED_AGAINST_US">
+			<Text>You were caught plotting against them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
+			<Text>Your spies usurped their City-State Alliance in a coup d'état.</Text>
+		</Row>
+		<!-- Disputes -->
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">
+			<Text>You are competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK_FIERCE">
+			<Text>They are jealous of our superior technology!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_TECH_BLOCK">
+			<Text>You are not competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK">
+			<Text>You are competing for cultural advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE">
+			<Text>They are jealous of our superior culture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_BLOCK">
+			<Text>You are not competing for cultural advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WONDER_SPAMMER">
+			<Text>They believe we are building World Wonders too aggressively!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
+			<Text>You are not competing for World Wonders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
+			<Text>You are not competing for the favor of the same City-States.</Text>
+		</Row>
+		<!-- Victory dispute -->
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
+			<Text>They fear you are competing with them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG">
+			<Text>They suspect you are competing with them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE">
+			<Text>They know you are competing with them, and they hate it!</Text>
+		</Row>
+		<!-- Victory block -->
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK">
+			<Text>Your success worries them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG">
+			<Text>Your success angers them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE">
+			<Text>Your success infuriates them.</Text>
+		</Row>
+		<!-- Denouncing -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
+			<Text>We have denounced each other!</Text>
+		</Row>
+		<!-- Religions / Policies -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
+			<Text>We have similar Social Policies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_POLICIES">
+			<Text>We have divergent Social Policies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES_VASSAL">
+			<Text>You have both adopted the {1_PolicyTree} Ideology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL">
+			<Text>You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL">
+			<Text>We have different religious beliefs.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES">
+			<Text>Religious differences strain your relationship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SAME_STATE_RELIGIONS">
+			<Text>We have adopted the same religion in the majority of our cities.</Text>
+		</Row>
+		<!-- Aggressive posture -->
+		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">
+			<Text>Your military deployment is threatening.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
+			<Text>Your military deployment is extremely threatening.</Text>
+		</Row>
+		<!-- Promises -->
+		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
+			<Text>You promised not to declare war on each other for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
+			<Text>You promised not to settle near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
+			<Text>You promised not to buy land near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
+			<Text>They promised not to settle near you for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<!-- World Congress -->
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING">
+			<Text>We helped them remain the host of the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously passed their proposal in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously defeated their proposal in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY">
+			<Text>Your votes supported their civ's interests in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY">
+			<Text>Your votes opposed their civ's interests in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL">
+			<Text>We placed sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to place sanctions on them in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL">
+			<Text>We freed them from sanctions in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL">
+			<Text>We tried to free them from sanctions in the World Congress.</Text>
+		</Row>
+		<!-- United Nations -->
+		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
+			<Text>They liked our proposal to the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN">
+			<Text>They disliked our proposal to the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN">
+			<Text>We passed their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN">
+			<Text>We defeated their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
+			<Text>We helped them become the host of the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN">
+			<Text>We helped them remain the host of the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously passed their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously defeated their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_VOTING_HISTORY_UN">
+			<Text>Your votes supported their civ's interests in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_VOTING_HISTORY_UN">
+			<Text>Your votes opposed their civ's interests in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We placed sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to place sanctions on them in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_SUCCESSFUL_UN">
+			<Text>We freed them from sanctions in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_UNSANCTIONED_THEM_UNSUCCESSFUL_UN">
+			<Text>We tried to free them from sanctions in the United Nations.</Text>
+		</Row>
+		<!-- Backstabs -->
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS">
+			<Text>If you denounce them or declare war on them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS">
+			<Text>If you declare war on them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS">
+			<Text>If you denounce them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_OWN_VASSAL">
+			<Text>You declared war on your own vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ATTACKED_RESURRECTED_CIV">
+			<Text>You have declared war on civilizations that you've resurrected!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
+			<Text>You restored their civilization and then declared war on them!</Text>
+		</Row>
+		<!-- War stuff -->
+		<Row Tag="TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR">
+			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MAXIMAL">
+			<Text>[SPACE](They furiously abhor warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
+			<Text>[SPACE](They hate warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MINIMAL">
+			<Text>[SPACE](They ignore most warmongering.)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_BLOODTHIRSTY">
+			<Text>[SPACE](They are bloodthirsty warmongers!)</Text>
+		</Row>
+		<!-- Debug messages -->
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_WAR">
+			<Text>Real Approach is War.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR">
+			<Text>Real Approach is Planning War.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE">
+			<Text>Real Approach is Hostile.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE">
+			<Text>Real Approach is Deceptive.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_GUARDED">
+			<Text>Real Approach is Guarded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_AFRAID">
+			<Text>Real Approach is Afraid.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY">
+			<Text>Real Approach is Friendly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL">
+			<Text>Real Approach is Neutral.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_FRIEND">
+			<Text>Top Friend:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
+			<Text>Top DP:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY">
+			<Text>Top WC Ally:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
+			<Text>Top WC Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN">
+			<Text>Top UN Ally:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN">
+			<Text>Top UN Rival:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
+			<Text>Top Competitor:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
+			<Text>None</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_YOU">
+			<Text>You</Text>
+		</Row>
+
+		<!-- Leader screen -->
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT">
+			<Text>They cannot negotiate peace with you for another {1_Num} {1_Num: plural 1?turn; other?turns;} because of a deal they made with another player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
+			<Text>You are always at war with this player!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP">
+			<Text>May not attack this player until current Peace Treaty with their ally (Defensive Pact or Master) expires.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT">
+			<Text>May not declare war as a vassal (war is automatically declared when your Master declares war with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT">
+			<Text>You cannot declare war on your Master until you request independence or are liberated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_MAKE_PEACE_VASSAL">
+			<Text>May not make peace with a vassal of another civilization (you must make peace with their master, {1_CivName}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
+			<Text>May not make peace as a vassal (peace is automatically made when your Master makes peace with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
+			<Text>Demand tribute from this civilization. This option carries a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
+			<Text>Request Help</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
+			<Text>Request help from a player whom you've made a Declaration of Friendship with. This option does not carry a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON">
+			<Text>REQUEST</Text>
+		</Row>
+		<!-- Warscore tooltip -->
+		<Row Tag="TXT_KEY_WAR_SCORE">
+			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_SCORE_EXPLANATION">
+			<Text>This value indicates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are very weak.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are weaker.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] We are equals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are strong.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are mighty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are immense!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're in shambles!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are pathetic.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are poor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] We are equal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are robust.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are wealthy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_NO_PEACE_OFFER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_WHITE_PEACE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] White Peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Armistice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Small settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Large settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Minor concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Some concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CESSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Major concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Huge concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender!</Text>
+		</Row>
+
+		<!-- Declare war popup -->
+		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
+			<Text>DEFENSIVE PACTS</Text>
+		</Row>
+
+		<!-- Trade screen -->
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_NO_LIMIT_TT">
+			<Text>If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TRADE_WLTKD_RESOURCE_CITIES">
+			<Text>The following cities currently demand this Resource:</Text>
+		</Row>
+		<!-- Deal value (normal) -->
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR">
+			<Text>Deal Value for Them: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_ACCEPTABLE">
+			<Text>Deal Value for Them: Acceptable</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_IMPOSSIBLE">
+			<Text>Deal Value for Them: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_TT">
+			<Text>The leader's current valuation of this Deal. If the value here is negative or 'Impossible!', the leader refuses to trade one or more of the items in the Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO">
+			<Text>SANCTIONED BY WORLD CONGRESS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO_TT">
+			<Text>You cannot make deals during peacetime with this Civilization until the Sanction is lifted.</Text>
+		</Row>
+		<!-- Deal value (peace deal) -->
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR">
+			<Text>Peace Deal Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_IMPOSSIBLE">
+			<Text>Peace Deal Value: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_TT">
+			<Text>The leader's current valuation of this Peace Deal. If the value here is 'Impossible!', the leader refuses to trade one or more of the items in the Peace Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR">
+			<Text>Max Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR_TT">
+			<Text>Maximum value of items in Peace Deal. If the value to the left of this exceeds this number, the leader will refuse the deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR">
+			<Text>Min Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR_TT">
+			<Text>Minimum value of items in Peace Deal. If this number exceeds the value to the left, the leader will refuse the deal.</Text>
+		</Row>
+		<!-- Tooltip for invalid items -->
+		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
+			<Text>Cannot add to non-surrendering party in Peace Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS">
+			<Text>At least one player lacks the required funds for this agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
+			<Text>Cannot trade one-time items (such as Gold) for items given over time (such as Resources).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
+			<Text>A human teammate prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT">
+			<Text>Not allowed in Peace Deals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL">
+			<Text>We do not have a Capital City to receive their Embassy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL_THEM">
+			<Text>They do not have a Capital City to receive our Embassy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_DENOUNCEMENT">
+			<Text>Embassies cannot be established if either Civilization has denounced the other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_INSUFFICIENT_MAJORS">
+			<Text>No other non-Vassal Civilizations are currently alive.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_DISABLED_BY_OPTIONS">
+			<Text>Defensive Pacts have been disabled by this game's options.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_EXISTING_VASSALAGE">
+			<Text>Vassals may not form Defensive Pacts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE">
+			<Text>Not allowed if deal contains Vassalage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED">
+			<Text>You may not make Defensive Pacts with more than {1_Num} civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM">
+			<Text>They may not make Defensive Pacts with more than {1_Num} civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL">
+			<Text>You are already their vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL">
+			<Text>They are already your vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL">
+			<Text>You are a vassal of {1_PlayerName:textkey} and cannot adopt vassals of your own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL">
+			<Text>They are a vassal of {1_PlayerName:textkey} and cannot adopt vassals of their own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED">
+			<Text>We must reach the Medieval Era to create vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED">
+			<Text>They must reach the Medieval Era to create vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL">
+			<Text>You are already a vassal of {1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL">
+			<Text>They are already a vassal of {1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON">
+			<Text>You cannot become their vassal for {1_Num} {1_Num: plural 1?turn; other?turns;} because it has been too soon since your vassalage ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON">
+			<Text>They cannot become your vassal for {1_Num} {1_Num: plural 1?turn; other?turns;} because it has been too soon since their vassalage ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION">
+			<Text>You cannot become their vassal because you have no cities or population!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION">
+			<Text>They cannot become your vassal because they have no cities or population!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM">
+			<Text>Not allowed if deal contains a Defensive Pact or Liberation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_YOU_DECLARE_WAR_REQUIRED">
+			<Text>They must be able to declare war on everyone you are at war with.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_THEM_DECLARE_WAR_REQUIRED">
+			<Text>You must be able to declare war on everyone they are at war with.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS">
+			<Text>We have no vassals to liberate!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS">
+			<Text>They have no vassals to liberate!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER">
+			<Text>We cannot ask our master to liberate their vassals!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER">
+			<Text>They cannot ask their master to liberate vassals!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_TOO_SOON">
+			<Text>We recently vassalized someone and cannot perform this action for another {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_TOO_SOON">
+			<Text>They recently vassalized someone and cannot perform this action for another {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
+			<Text>Can only include allied City-States in a Peace Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE_VASSAL">
+			<Text>Vassals cannot make peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_LOCKED_INTO_WAR">
+			<Text>A war agreement with another leader prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_DIPLOMACY">
+			<Text>A leader who has a Defensive Pact with the target also has a Declaration of Friendship or Defensive Pact with one of us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_GAME_RULE">
+			<Text>A special game rule prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
+			<Text>Warscore must be at least {1_Num}. Current Warscore: {2_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE_TEAM">
+			<Text>Warscore against all civs on this team must be at least {1_Num}. Lowest Warscore: {2_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL">
+			<Text>Vassals cannot declare war.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL_TARGET">
+			<Text>Cannot broker war against a vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_OUR_MASTER">
+			<Text>You cannot broker war against your master.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_THEIR_MASTER">
+			<Text>They cannot broker war against their master.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
+			<Text>A Defensive Pact prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_OUR_MASTER">
+			<Text>Our master's Defensive Pact prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_THEIR_MASTER">
+			<Text>Their master's Defensive Pact prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
+			<Text>A Declaration of Friendship prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_PTP">
+			<Text>A Pledge of Protection prevents this action.</Text>
+		</Row>
+		<!-- Multiplayer only -->
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN">
+			<Text>Denounce</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN_TT">
+			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
+		</Row>
+
+		<!-- Discussion/Dialogue options -->
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
+			<Text>What do you think of...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
+			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the leader refuses to help and decides to warn the targeted player. This may have diplomatic repercussions![NEWLINE][NEWLINE]Depending on the leader's response, a cooperative war could begin immediately, after 10 turns have passed, or as soon as one of you goes to war with the target.[NEWLINE][NEWLINE]Cooperative wars are cancelled if you prematurely end your friendship with this leader (including through denouncements or war).[NEWLINE][NEWLINE]If you befriend the target, form a Defensive Pact with them, or become unable to declare war on them, your agreement with this leader will also be cancelled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_NOT_FRIENDS_TT">
+			<Text>A Declaration of Friendship is needed in order to discuss this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_NO_TARGET_TT">
+			<Text>There must be at least one civilization that you can both declare war on. NOTE: The target civilization must have at least one city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
+			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.[NEWLINE][NEWLINE]If you denounce or declare war on this player within [COLOR_NEGATIVE_TEXT]10[ENDCOLOR] turns of cancelling your Declaration of Friendship, you will receive a diplomatic penalty for backstabbing them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS">
+			<Text>Please move your troops from our borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE">
+			<Text>Going to attack us, swine?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT">
+			<Text>Ask the leader to remove their troops from your border. If the leader agrees to your request, [COLOR_WARNING_TEXT]both of you[ENDCOLOR] will promise not to declare war on each other for 20 turns. If you break this promise, other leaders might view you as a backstabber![NEWLINE][NEWLINE]If the leader rejects your request, they will declare war on you, so be careful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DURATION_PROMISE">
+			<Text>This Promise will last for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] {1_Num: plural 1?Turn; other?Turns;}. If you violate this Promise during this time, this player will feel betrayed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DURATION_MILITARY_PROMISE">
+			<Text>Selecting this option creates a [COLOR_WARNING_TEXT]mutual[ENDCOLOR] promise not to declare war on each other for [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] {1_Num: plural 1?Turn; other?Turns;}. If you break this promise, other leaders might view you as a backstabber!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DURATION_ATTACK_MINOR_PROMISE">
+			<Text>This Promise [COLOR_WARNING_TEXT]does not expire[ENDCOLOR]. If you violate this Promise, other leaders might view you as a backstabber!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
+			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
+			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
+		</Row>
+
+		<!-- Declare war popup -->
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
+			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
+		</Row>
+
+		<!-- City-State screen/tooltip -->
+		<Row Tag="TXT_KEY_NEUTRAL_CSTATE">
+			<Text>Neutral</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_TURNS">
+			<Text>Peace Blocked for {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT">
+			<Text>You aggressively attacked this City-State and cannot make peace for {1_Num} {1_Num: plural 1?turn; other?turns;}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CSTATE_JERK_STATUS">
+			<Text>[COLOR_NEGATIVE_TEXT]You aggressively attacked this City-State![ENDCOLOR][NEWLINE]For the next [COLOR_NEGATIVE_TEXT]{1_JerkRate}[ENDCOLOR] {1_JerkRate: plural 1?Turn; other?Turns;}, the City-State will not give you any Quests, and your [ICON_INFLUENCE] Influence anchor will be reduced.[NEWLINE]If you [COLOR_POSITIVE_TEXT]become Friends[ENDCOLOR] with this City-State during this time, these penalties will be removed early.[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD">
+			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the tribute threshold of [COLOR_CYAN]{2_Threshold}%[ENDCOLOR]:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_NO_CAPITAL">
+			<Text>No Capital City</Text>
+		</Row>
+		<!-- Quests -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_FIND_CITY_FORMAL">
+			<Text>They want you to find the city of {@1_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL">
+			<Text>Explore an unrevealed area of the world ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% complete).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
+			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in non-puppet cities in your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL">
+			<Text>Conduct a Spy Mission against {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_FORMAL">
+			<Text>Stage a coup in {1_Civ}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_FORMAL">
+			<Text>Acquire the city of {1_City}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_OCC_FORMAL">
+			<Text>They want you to conquer the city of {1_City}.</Text>
+		</Row>
+
+		<!-- Plot popup -->
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE">
+			<Text>Viking</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
+			<Text>Area Damage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY">
+			<Text>Pilum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
+			<Text>Splash Damage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
+			<Text>Enemy Defection</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE">
+			<Text>Rend</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_BULLIED_POPUP">
+			<Text>BULLIED:</Text>
+		</Row>
+
+		<!-- Plot tooltip -->
+		<Row Tag="TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG">
+			<Text>{1_Civ} wants you to acquire this city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG">
+			<Text>{1_Civ} wants you to explore around this tile.</Text>
+		</Row>
+
+		<!-- Banner message -->
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
+			<Text>Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
+			<Text>Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLOMATIC_MISSION_RESULT_NO_GOLD">
+			<Text>You have gained {1_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
+			<Text>{2_Num} {1_Improvement}{2_Num: plural 1?; other?s;} pillaged near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT">
+			<Text>{2_Num} {1_Num: plural 1?source; other?sources;} of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
+			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACKED_CITY_CP">
+			<Text>Your {@2_UnitName} bombarded the enemy City of {@1_CityName} ({3_Num} damage)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
+			<Text>Your {@1_UnitName} bombarded the enemy City of {2_CityName} ({3_Num} damage), and was not intercepted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_INTERCEPTED_KILLED">
+			<Text>Your {@2_UnitName} was killed during interception by an enemy {@1_AttUnitName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
+			<Text>While attacking {4_CityName}, an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">
+			<Text>An enemy {@1_IntUnitName} intercepted your {@2_AttUnitName} ({3_Num} damage)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
+			<Text>The City of {@1_CityName} was bombarded by an enemy {@2_EnUName} ({3_Num} damage)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
+			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
+			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>
+		</Row>
+		<!-- Unused - paradrop units cannot be killed by interceptions -->
+		<Row Tag="TXT_KEY_PARADROP_AA_KILLED">
+			<Text>Your {1_Unit} was killed by an enemy {2_EnUName}!</Text>
+		</Row>
+
+		<!-- End turn blocking message -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE">
+			<Text>CHOOSE CITY FATE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE_TT">
+			<Text>Choose a Captured City's Fate...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
+			<Text>MAKE EVENT CHOICE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT_TT">
+			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST">
+			<Text>PENDING DIPLOMACY</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST_TT">
+			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

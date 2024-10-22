@@ -1,6 +1,67 @@
 UPDATE Units SET Moves = 2 WHERE Type = 'UNIT_CARAVAN';
 UPDATE Units SET Moves = 4, MinAreaSize = 3 WHERE Type = 'UNIT_CARGO_SHIP';
 
+-- Make Work Boats buildable regardless of whether the water body has resources
+UPDATE Units SET PrereqResources = 0 WHERE Type = 'UNIT_WORKBOAT';
+
+-- Update Hover Units to obey coast/ocean tiles
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_EMBARKATION'),
+	('UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_DEFENSIVE_EMBARKATION'),
+	('UNIT_HELICOPTER_GUNSHIP', 'PROMOTION_ALLWATER_EMBARKATION');
+
+-- Barbarian units require nearby resources
+INSERT INTO Unit_ResourceQuantityRequirements
+	(UnitType, ResourceType, Cost)
+VALUES
+	('UNIT_BARBARIAN_HORSEMAN', 'RESOURCE_HORSE', 1),
+	('UNIT_BARBARIAN_SWORDSMAN', 'RESOURCE_IRON', 1);
+
+-- Unit selection sound fix
+INSERT INTO UnitGameplay2DScripts
+	(UnitType, FirstSelectionSound, SelectionSound)
+SELECT
+	'UNIT_BARBARIAN_HORSEMAN', FirstSelectionSound, SelectionSound
+FROM UnitGameplay2DScripts
+WHERE UnitType = 'UNIT_HORSEMAN';
+
+UPDATE UnitGameplay2DScripts SET FirstSelectionSound = 'AS2D_BIRTH_WARRIER', SelectionSound = 'AS2D_SELECT_WARRIER' WHERE UnitType = 'UNIT_BARBARIAN_WARRIOR';
+UPDATE UnitGameplay2DScripts SET FirstSelectionSound = 'AS2D_BIRTH_CANNON' WHERE UnitType = 'UNIT_GATLINGGUN';
+UPDATE UnitGameplay2DScripts SET FirstSelectionSound = 'AS2D_BIRTH_FRIGATE' WHERE UnitType = 'UNIT_PRIVATEER';
+UPDATE UnitGameplay2DScripts SET FirstSelectionSound = 'AS2D_BIRTH_MUSKETMAN' WHERE UnitType = 'UNIT_SWEDISH_CAROLEAN';
+
+-----------------------------------------------------
+-- Unit combat categories
+-----------------------------------------------------
+
+UPDATE UnitCombatInfos SET IsMilitary = 1
+WHERE ID <= 13;
+
+UPDATE UnitCombatInfos SET IsRanged = 1
+WHERE Type IN (
+	'UNITCOMBAT_ARCHER',
+	'UNITCOMBAT_SIEGE',
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsNaval = 1
+WHERE Type IN (
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_NAVALMELEE',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsAerial = 1
+WHERE Type IN (
+	'UNITCOMBAT_FIGHTER',
+	'UNITCOMBAT_BOMBER'
+);
+
 -----------------------------------------------------
 -- Great Writer names
 -----------------------------------------------------

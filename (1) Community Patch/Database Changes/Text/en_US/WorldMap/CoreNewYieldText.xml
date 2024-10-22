@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_YIELD_TOURISM">
+			<Text>Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GOLDEN_AGE_POINTS">
+			<Text>Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GREAT_GENERAL_POINTS">
+			<Text>Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS">
+			<Text>Great Admiral Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_POPULATION">
+			<Text>Population</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
+			<Text>Border Growth Points</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

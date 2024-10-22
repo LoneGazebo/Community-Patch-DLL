@@ -1,3 +1,4 @@
+-- This table is unused in BNW and repurposed to be used for city state quests
 ALTER TABLE SmallAwards ADD Influence integer DEFAULT 0;
 ALTER TABLE SmallAwards ADD GlobalGPPoints integer DEFAULT 0;
 ALTER TABLE SmallAwards ADD CapitalGPPoints integer DEFAULT 0;
