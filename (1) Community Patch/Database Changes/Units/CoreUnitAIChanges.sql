@@ -1,0 +1,11 @@
+-- Remove duplicates
+DELETE FROM Unit_AITypes
+WHERE ROWID NOT IN (
+	SELECT MIN(ROWID)
+	FROM Unit_AITypes
+	GROUP BY UnitType, UnitAIType
+);
+
+-- Anti-air fix
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';

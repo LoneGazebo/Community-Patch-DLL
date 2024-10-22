@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<GoodyHuts>
+		<Row>
+			<Type>GOODY_PRODUCTION</Type>
+			<Description>TXT_KEY_GOODY_PRODUCTION</Description>
+			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_PRODUCTION</ChooseDescription>
+			<Production>30</Production>
+		</Row>
+		<Row>
+			<Type>GOODY_GOLDEN_AGE</Type>
+			<Description>TXT_KEY_GOODY_GOLDEN_AGE</Description>
+			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE</ChooseDescription>
+			<GoldenAge>200</GoldenAge>
+		</Row>
+		<Row>
+			<Type>GOODY_TILES</Type>
+			<Description>TXT_KEY_GOODY_TILES</Description>
+			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_FREE_TILES</ChooseDescription>
+			<FreeTiles>4</FreeTiles>
+		</Row>
+		<Row>
+			<Type>GOODY_SCIENCE</Type>
+			<Description>TXT_KEY_GOODY_SCIENCE</Description>
+			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_SCIENCE</ChooseDescription>
+			<Science>35</Science>
+		</Row>
+	</GoodyHuts>
+</GameData>

@@ -409,6 +409,8 @@ VALUES
 	('PERSONALITY_FLAVOR_MIN_VALUE', 1),
 	('INFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE', 3),
 	('UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', 0),
+	('MAX_CITY_ATTACK_RANGE', 2), -- For EVENTS_CITY_BOMBARD: base city attack range
+	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
 	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
@@ -1448,4 +1450,16 @@ VALUES
 INSERT INTO PostDefines
 	(Name, Key, "Table")
 VALUES
-	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions');
+	('ANCIENT_ERA', 'ERA_ANCIENT', 'Eras'),
+	('MEDIEVAL_ERA', 'ERA_MEDIEVAL', 'Eras'),
+	('INDUSTRIAL_ERA', 'ERA_INDUSTRIAL', 'Eras'),
+	('TOURISM_START_TECH', 'TECH_AGRICULTURE', 'Technologies'),
+	('TOURISM_START_ERA', 'ERA_ANCIENT', 'Eras'),
+	('RELIGION_LAST_FOUND_ERA', 'ERA_RENAISSANCE', 'Eras'),
+	('RELIGION_GP_FAITH_PURCHASE_ERA', 'ERA_INDUSTRIAL', 'Eras'),
+	('IDEOLOGY_START_ERA', 'ERA_INDUSTRIAL', 'Eras'),
+	('IDEOLOGY_PREREQ_ERA', 'ERA_INDUSTRIAL', 'Eras'),
+	('MARCH_PROMOTION', 'PROMOTION_MARCH', 'UnitPromotions'),
+	('MORALE_PROMOTION', 'PROMOTION_MORALE', 'UnitPromotions'),
+	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions'),
+	('NUKE_TRIGGER_PROJECT', 'PROJECT_MANHATTAN_PROJECT', 'Projects');

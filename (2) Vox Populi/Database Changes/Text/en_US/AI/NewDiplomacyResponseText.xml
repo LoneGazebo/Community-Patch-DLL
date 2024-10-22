@@ -17,13 +17,13 @@
 		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_3">
 			<Text>Oh? What brings the tyrant to my doorstep? Have you come to spit on us and our pride further?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_1">
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSALX_1">
 			<Text>Welcome, master, to my lands. How may I be of service?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_2">
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSALX_2">
 			<Text>Greetings! I hope you're pleased to know our workers are hard at work producing resources for your use.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_3">
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSALX_3">
 			<Text>Ah, welcome master! What assistance do you seek from us?</Text>
 		</Row>
 		<!-- AI master greets human vassal -->
@@ -55,13 +55,13 @@
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_3">
 			<Text>My people want independence and there's nothing you can do to stop us. Now, we can do this the easy way, or the hard way. The choice is yours.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_1">
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGEX_1">
 			<Text>The time has come for my people to seek their own path in this world. We desire an independent nation. What say you?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_2">
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGEX_2">
 			<Text>Your occupation of our empire is no longer tolerable among my subjects and I am issuing a formal request that you allow my people to live as an individual sovereign state.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_3">
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGEX_3">
 			<Text>We believe the time has come to terminate our Vassalage agreement. Our people desire independent rule. Will you accept this?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_1">
@@ -96,7 +96,7 @@
 			<Text>Who do you think you're talking to? My puppets won't leave me that easily. Now I will bring down your insurrection.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_2">
-			<Text>You honestly thought that I would let you go that easily? Ha! No...now prepare to die.</Text>
+			<Text>You honestly thought that I would let you go that easily? Ha! No... now prepare to die.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_3">
 			<Text>You're nuts, right? Did you honestly think I would be that pathetic? I will enjoy smashing your armies into pieces.</Text>

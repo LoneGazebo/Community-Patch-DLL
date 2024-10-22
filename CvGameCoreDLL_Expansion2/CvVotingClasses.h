@@ -658,6 +658,7 @@ public:
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
 	bool IsCityStateEmbargo();
+	bool IsIdeologyEmbargoed();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 	int GetTourismMod();
 	bool IsSphereOfInfluenceActive(PlayerTypes eTargetMinor, PlayerTypes eNotThisMajor);
@@ -829,6 +830,7 @@ public:
 	int IsWorldWar(PlayerTypes ePlayer);
 	int GetUnitMaintenanceMod(PlayerTypes ePlayer);
 	bool IsCityStateEmbargo(PlayerTypes ePlayer);
+	bool IsIdeologyEmbargoed(PlayerTypes ePlayer);
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 
 	// General Logging

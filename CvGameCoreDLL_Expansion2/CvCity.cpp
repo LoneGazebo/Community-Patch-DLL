@@ -1788,12 +1788,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 		AI_reset();
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-		if (m_eOwner != NO_PLAYER) {
-			setAutomatons(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCityAutomatonWorkersChange());
-			setAutomatons(GET_PLAYER(getOwner()).GetCityAutomatonWorkersChange());
+		if (m_eOwner != NO_PLAYER)
+		{
+			int iAutomaton = GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCityAutomatonWorkersChange() + GET_PLAYER(getOwner()).GetCityAutomatonWorkersChange();
+			setAutomatons(iAutomaton);
 		}
-#endif
 	}
 
 	m_iVassalLevyEra = 0;
@@ -13124,28 +13123,25 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				}
 			}
 		}
-		int iNumberOfImprovements = 0;
-		CvPlot* pLoopPlot = NULL;
+
+		iTempMod = 0;
 		for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
 		{
-			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
-			if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+			if (pLoopPlot && pLoopPlot->getOwner() == getOwner())
 			{
-				if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+				if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 				{
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if (pImprovementInfo->GetWonderProductionModifier() > 0)
-					{
-						iTempMod = pImprovementInfo->GetWonderProductionModifier();
-						iMultiplier += iTempMod;
-						iNumberOfImprovements++;
-					}
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+					iTempMod += pImprovementInfo->GetWonderProductionModifier();
 				}
 			}
 		}
-		if (toolTipSink && iTempMod && iNumberOfImprovements)
+		iMultiplier += iTempMod;
+		if (toolTipSink && iTempMod)
 		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod * iNumberOfImprovements);
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod);
 		}
 	}
 	// Not-wonder bonus

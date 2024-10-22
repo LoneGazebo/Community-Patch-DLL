@@ -11909,32 +11909,15 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 	iChangeThisTurn += iShift;
 
-	if (iChangeThisTurn < 0)
+	if (iChangeThisTurn < 0 && IsAllies(ePlayer))
 	{
 		// No City-State decay while at war?
-		if (IsAllies(ePlayer) && GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
-		{
+		if (GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
 			iChangeThisTurn = 0;
-		}
+
 		// Cold War fun?
-		else if (IsAllies(ePlayer))
-		{
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL)
-			{
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					if (eLoopPlayer != NO_PLAYER)
-					{
-						if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
-						{
-							iChangeThisTurn = 0;
-						}
-					}
-				}
-			}
-		}
+		else if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer))
+			iChangeThisTurn = 0;
 	}
 
 	// Mod everything by game speed

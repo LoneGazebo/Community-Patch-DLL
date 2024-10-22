@@ -1,6 +1,19 @@
 -- Default value for new column. Will be changed in VP.
 UPDATE Resources SET TechImproveable = TechCityTrade;
 
+-- Iron can appear in any forest
+INSERT INTO Resource_FeatureBooleans
+	(ResourceType, FeatureType)
+VALUES
+	('RESOURCE_IRON', 'FEATURE_FOREST');
+
+INSERT INTO Resource_FeatureTerrainBooleans
+	(ResourceType, TerrainType)
+VALUES
+	('RESOURCE_IRON', 'TERRAIN_GRASS'),
+	('RESOURCE_IRON', 'TERRAIN_PLAINS'),
+	('RESOURCE_IRON', 'TERRAIN_TUNDRA');
+
 --------------------------------------------------------------------------
 -- Resource classifications (used in modmods)
 -- Resources that don't have graphics are not assigned

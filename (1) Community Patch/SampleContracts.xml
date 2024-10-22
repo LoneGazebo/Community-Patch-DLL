@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NOTE! These contracts are not loaded in-game. They are just here as examples of structure! -->
+<GameData>
+	<Contracts>
+		<Row>
+			<ID>0</ID>
+			<Type>CONTRACT_KNIGHTS_OF_GAZEBO</Type>
+			<Description>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO</Description>
+			<Help>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_HELP</Help>
+			<Adjective>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_ADJ</Adjective>
+			<Civilopedia>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_PEDIA</Civilopedia>
+			<Category>TXT_KEY_CATEGORY_KNIGHTS</Category>
+			<IsHolyOrder>true</IsHolyOrder>
+			<PromotionType>PROMOTION_DRILL_1</PromotionType>
+			<Maintenance>10</Maintenance>
+			<ContractTurns>30</ContractTurns>
+		</Row>
+	</Contracts>
+	<Contract_YieldCost>
+		<Row>
+			<ContractType>CONTRACT_KNIGHTS_OF_GAZEBO</ContractType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>100</Yield>
+		</Row>
+	</Contract_YieldCost>
+	<Contract_Flavor>
+		<Row>
+			<ContractType>CONTRACT_KNIGHTS_OF_GAZEBO</ContractType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+	</Contract_Flavor>
+</GameData>

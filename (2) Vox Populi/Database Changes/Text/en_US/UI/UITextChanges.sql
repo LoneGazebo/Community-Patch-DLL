@@ -112,15 +112,15 @@ SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Citie
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 50%!'
+SET Text = 'Your approval rating is below 50%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 35% - your Empire is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!'
+SET Text = 'Your approval rating is below 35% - your Empire is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 20% - your Empire is fracturing! Rebels (barbarians) will spawn more frequently and Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!'
+SET Text = 'Your approval rating is below 20% - your Empire is fracturing! Rebels (barbarians) will spawn more frequently and Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY';
 
 UPDATE Language_en_US
@@ -170,6 +170,10 @@ WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC';
 UPDATE Language_en_US
 SET Text = '{1_Num} [ICON_TOURISM] Tourism from Theming Bonuses'
 WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_THEMING_BONUSES';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the Empress Day" Modifier: {1_Num}%'
+WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD_UA';
 
 UPDATE Language_en_US
 SET Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT][ICON_HAPPINESS_3] Unhappiness Modifier: {1_Num}%[ENDCOLOR]'
@@ -644,30 +648,6 @@ UPDATE Language_en_US
 SET Text = 'Conquer {1_CityStateName:textkey} (full reward), or Ally both {1_CityStateName:textkey} and this City-State (partial reward).'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL';
 
-UPDATE Language_en_US
-SET Text = 'War breaks out between {2_CivName:textkey} and {1_TargetName:textkey}'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CITY_STATE';
-
-UPDATE Language_en_US
-SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;}, so act fast if you intend to intervene!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE';
-
-UPDATE Language_en_US
-SET Text = '{1_TargetName:textkey} defeated by {2_CivName:textkey}!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_KILL_CITY_STATE';
-
-UPDATE Language_en_US
-SET Text = 'The war between {2_CivName:textkey} and {1_TargetName:textkey} has ended, with {2_CivName:textkey} emerging as the clear victor. Your advisors worry that this outcome may lead to future conflict.'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CITY_STATE';
-
-
-------------------------------------------------
--- Advisor Counsel (suppresses them because we build XP buildings in every city)
-------------------------------------------------
-UPDATE AICityStrategies
-SET Advisor = NULL
-WHERE AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_NAVAL_GROWTH' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_HAVE_TRAINING_FACILITY' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_WANT_TILE_IMPROVERS';
-
 ------------------------------------------------
 -- Tech tree
 ------------------------------------------------
@@ -874,7 +854,7 @@ SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]Global Hegemony[ENDCOLOR] proposal
 WHERE Tag = 'TXT_KEY_LEAGUE_SPLASH_MESSAGE_ERA_DIPLO_VICTORY_POSSIBLE';
 
 ------------------------------------------------
--- Toast
+-- Banner message
 ------------------------------------------------
 UPDATE Language_en_US
 SET Text = 'You have gained {1_Num} [ICON_GOLD] Gold and {2_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!'

@@ -633,7 +633,7 @@
 			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities. All Baths cost an additional 3 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_3">
-			<Text>Encourage people to find more...creative means of getting clean.</Text>
+			<Text>Encourage people to find more... creative means of getting clean.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_3_HELP">
 			<Text>Aqueducts in all Cities: +1 [ICON_CULTURE] Culture.</Text>

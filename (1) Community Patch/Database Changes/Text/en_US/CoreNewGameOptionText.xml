@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS">
+			<Text>Barbarian GG/GA Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP">
+			<Text>Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS">
+			<Text>Enable Events System</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
+			<Text>Check to enable Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD">
+			<Text>No Good Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP">
+			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL">
+			<Text>No Neutral Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP">
+			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD">
+			<Text>No Bad Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP">
+			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE">
+			<Text>No Trade Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP">
+			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS">
+			<Text>No Civ-Specific Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP">
+			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS">
+			<Text>Chill Barbarians</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP">
+			<Text>Barbarian spawn rates reduced slightly, and camps do not spawn two units when created. Groovy, man.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN">
+			<Text>Hide Unmet Civs In Pregame</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP">
+			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEW_LINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.[NEW_LINE]</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

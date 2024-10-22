@@ -2206,6 +2206,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 				continue;
 
 			// find player with which a coop war has been agreed to
+			bool bReported = false;
 			for (uint ui2 = 0; ui2 < aiMajorCivIndex.size(); ui2++)
 			{
 				PlayerTypes eThirdPlayer = (PlayerTypes)aiMajorCivIndex[ui2];
@@ -2219,11 +2220,14 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 				if (pTargetDiploAI->GetCoopWarState(eThirdPlayer, eOtherOtherPlayer) >= COOP_WAR_STATE_PREPARING)
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, eThirdPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_COOP_WAR, uiSpyIndex, pCity, true);
+					bReported = true;
 					break;
 				}
 			}
+
 			// If a coop war is reported, bust out of the loop
-			break;
+			if (bReported)
+				break;
 		}
 	}
 

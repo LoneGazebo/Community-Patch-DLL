@@ -99,17 +99,14 @@ UPDATE Technologies SET FeatureProductionModifier = 100 WHERE Type = 'TECH_BRONZ
 -- Reduce Tourism modifier from Internet
 UPDATE Technologies SET InfluenceSpreadModifier = 50 WHERE Type = 'TECH_INTERNET';
 
--- 1 move cost to embark from/disembark into canal tiles
+-- 1 move cost to embark from/disembark into cities or canal tiles
 UPDATE Technologies SET CityLessEmbarkCost = 1 WHERE Type = 'TECH_NAVIGATION';
 
--- 0.1 move cost to embark from/disembark into canal tiles
+-- 0.1 move cost to embark from/disembark into cities or canal tiles
 UPDATE Technologies SET CityNoEmbarkCost = 1 WHERE Type = 'TECH_ROCKETRY';
 
 -- Some bonus Happiness for Future Tech
 UPDATE Technologies SET Happiness = 1 WHERE Type = 'TECH_FUTURE_TECH';
-
--- City Bombard base range
-UPDATE Technologies SET BombardRange = 1 WHERE Type = 'TECH_AGRICULTURE';
 
 -- Free Promotions for lategame civilians
 INSERT INTO Technology_FreePromotions

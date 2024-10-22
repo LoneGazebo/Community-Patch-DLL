@@ -3,6 +3,9 @@
 	<Language_en_US>
 		<!-- Great Works of Writing -->
 		<!-- Titles -->
+		<Row Tag="TXT_KEY_GREAT_WORK_GENESIS">
+			<Text>Genesis</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_WORK_WW_010">
 			<Text>Epic of Gilgamesh</Text>
 		</Row>
@@ -166,6 +169,9 @@
 			<Text>La vraie gloire est ici (Genuine glory is here)</Text>
 		</Row>
 		<!-- Excerpts -->
+		<Row Tag="TXT_KEY_GREAT_WORK_GENESIS_QUOTE">
+			<Text>In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters. And God said, “Let there be light,” and there was light. God saw that the light was good, and he separated the light from the darkness. God called the light “day,” and the darkness he called “night.” And there was evening, and there was morning — the first day.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_WQ_010">
 			<Text>Even the gods took fright at the Deluge,[NEWLINE]they left and went up to the heaven of Anu,[NEWLINE]lying like dogs curled up in the open.[NEWLINE]The goddess cried out like a woman in childbirth,[NEWLINE]Belet-ili wailed, whose voice is so sweet:[NEWLINE]'It is I who give birth, these people are mine![NEWLINE]And now, like fish, they fill the ocean!'</Text>
 		</Row>
@@ -329,6 +335,51 @@
 			<Text>Thirst and hunger,[NEWLINE]Laughs and tears,[NEWLINE]Sweetness, injuries,[NEWLINE]Fury, regrets,[NEWLINE]We will discard none,[NEWLINE]We will carry them all,[NEWLINE]Everlasting viatica,[NEWLINE]For a long journey.</Text>
 		</Row>
 		<!-- Great Works of Art -->
+		<Row Tag="TXT_KEY_GREAT_WORK_SUTTON_HOO">
+			<Text>Sutton Hoo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_CHINESE_LANDSCAPE">
+			<Text>Chinese Spring</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_EGYPTIAN_SCULPTURE">
+			<Text>Nefertem of Egypt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_JAPANESE_LANDSCAPE">
+			<Text>The Geisha</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AUGUSTUS">
+			<Text>Statue of Emperor Augustus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_JUSTINIAN">
+			<Text>Relief of Emperor Justinian I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_KELLS_2">
+			<Text>Book of Kells</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_LASCAUX">
+			<Text>Lascaux Cave Paintings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_MEDIEVAL_DRAGON">
+			<Text>Medieval Dragon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_ASHURBANIPAL">
+			<Text>Ashurbanipal Slaying Lions</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_AZTEC">
+			<Text>Aztec Gods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_BAYEUX_TAPESTRY">
+			<Text>The Bayeux Tapestry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_GREEK_POTTERY">
+			<Text>Grecian Pottery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_KALAMKARI">
+			<Text>Kalamkari</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_PERSIAN_SOLDIERS">
+			<Text>Persian Soldiers</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_WORK_AW_010">
 			<Text>Thamyris painting her picture of the goddess Diana</Text>
 		</Row>

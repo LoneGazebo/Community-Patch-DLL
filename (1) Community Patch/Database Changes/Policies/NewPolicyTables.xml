@@ -1,9 +1,389 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Documentation and sorting -->
 <GameData>
 	<Table name="Policy_PlotYieldChanges">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<Table name="Policy_CityYieldFromUnimprovedFeature">
+		<!-- Refer to Traits.FaithFromUnimprovedForest -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_FeatureYieldChanges">
+		<!-- Refer to Belief_FeatureYieldChanges -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_GreatPersonExpendedYield">
+		<!-- Refer to Beliefs.GreatPersonExpendedFaith -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_ResourceYieldChanges">
+		<!-- Refer to Belief_ResourceYieldChanges -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_SpecialistYieldChanges">
+		<!-- Refer to Trait_SpecialistYieldChanges -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_TerrainYieldChanges">
+		<!-- Refer to Belief_TerrainYieldChanges -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_TradeRouteYieldChange">
+		<!-- Refer to Policies.Land/SeaTradeRouteGoldChange -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_UnimprovedFeatureYieldChanges">
+		<!-- Refer to Trait_UnimprovedFeatureYieldChanges -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldChangesNaturalWonder">
+		<!-- Refer to Belief_YieldChangeNaturalWonder and Trait_YieldChangesNaturalWonder -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldChangeTradeRoute">
+		<!-- Refer to Belief_YieldChangeTradeRoute -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldChangeWorldWonder">
+		<!-- Refer to Belief_YieldChangeWorldWonder -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldFromMinorDemand">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldFromXMilitaryUnits">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldFromBarbarianKills">
+		<!-- Refer to Policies.CultureFromBarbarianKills, Yield is percentage of combat str of killed unit -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Policy_YieldFromKills">
+		<!-- Refer to Beliefs/Traits.FaithFromKills, Policies/Traits.CultureFromKills, Units.GoldenAgeValueFromKills and Unit_YieldFromKills, Yield is percentage of combat str of killed unit -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<Table name="Policy_GoldenAgeGreatPersonRateModifier">
+		<!-- Refer to Traits.GoldenAgeGreatArtist/Muscian/WriterRateModifier -->
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Allows you to define any building to be given to any # of cities by any policy. -->
+	<Table name="Policy_FreeBuilding">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Count" type="integer" notnull="true"/>
+	</Table>
+	<!-- The policy will give you a franchise for each of the specified improvement -->
+	<Table name="Policy_FranchisePerImprovement">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="NumFranchise" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a resource gained from having a CS Ally -->
+	<Table name="Policy_ResourcefromCSAlly">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Number" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an yield granted to the capital based on x% of empire population.-->
+	<Table name="Policy_CapitalYieldPerPopChangeEmpire">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed.-->
+	<Table name="Policy_YieldFromConstruction">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Same but for Wonders -->
+	<Table name="Policy_YieldFromWorldWonderConstruction">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a tech is researched. -->
+	<Table name="Policy_YieldFromTech">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when border growth occurrs.-->
+	<Table name="Policy_YieldFromBorderGrowth">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a GP is expended. -->
+	<Table name="Policy_YieldGPExpend">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield that is calculated (per population) for a city when it is captured. The yield is doubled for capitals.-->
+	<Table name="Policy_ConquerorYield">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield gained for when a city is founded.-->
+	<Table name="Policy_FounderYield">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield modifier that is granted by a building if your majority religion is present -->
+	<Table name="Policy_ReligionBuildingYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldMod" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a unit class that gains a production boost -->
+	<Table name="Policy_UnitClassProductionModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="ProductionModifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield that is granted by a building if your majority religion is present -->
+	<Table name="Policy_ReligionYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield that is increased due to Golden Ages -->
+	<Table name="Policy_GoldenAgeYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Gain this yield for liberating cities -->
+	<Table name="Policy_YieldForLiberation">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Gain this yield for identifying a foreign spy-->
+	<Table name="Policy_YieldForSpyID">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Liberating a city gives that city this buildingclass -->
+	<Table name="Policy_BuildingClassInLiberatedCities">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Count" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Building provides additional City Security-->
+	<Table name="Policy_BuildingClassSecurityChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="SecurityChange" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a policy yield that is increased by WLTKD -->
+	<Table name="Policy_WLTKDYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in a city -->
+	<Table name="Policy_YieldFromBirth">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital -->
+	<Table name="Policy_YieldFromBirthCapital">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in a city. Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromBirthRetroactive">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from researching a technology. Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromTechRetroactive">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromBirthCapitalRetroactive">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- TODO: Group these into one table using GreatWorkClasses -->
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_MusicYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_ArtifactYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_ArtYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_LitYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_RelicYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_FilmYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield % granted for every GW in a city, up to 20%! -->
+	<Table name="Policy_YieldModifierFromGreatWorks">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted for every x type of non-specialist citizens. -->
+	<Table name="Policy_YieldFromNonSpecialistCitizens">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield % granted for every active spy, up to 30%! -->
+	<Table name="Policy_YieldModifierFromActiveSpies">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define an instant yield granted for every delegate. -->
+	<Table name="Policy_YieldFromDelegateCount">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield in all cities, as a percent of the number of religions present in the city. -->
+	<Table name="Policy_YieldChangesPerReligion">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- POLICY: Replaces all units of ReplacedUnitClassType with ReplacementUnitClassType. Does a few things: -->
+	<!--         - Converts all of the player's existing units of the replaced class with the appropriate unit of the replacement class. -->
+	<!--         - Units normally upgrading to the replaced unit class will upgrade to the replacement instead, unless the replaced is a unique unit. -->
+	<!--         - The replaced unit will no longer be buildable, unless the replaced is a unique unit. -->
+	<!--         - Anything that normally spawns the replaced class now spawns the replacement class. Example: events, city razing, city state gifts. Again, unless the replaced is a unique unit. -->
+	<!--         Requires POLICIES_UNIT_CLASS_REPLACEMENTS in CustomModOptions. -->
+	<!--         Multiple policies (or other sources in the future) giving a replacement will result in the last policy only taking effect. -->
+	<!--         After that, undoing the replacement will not return the effect of previous policies. -->
+	<Table name="Policy_UnitClassReplacements">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ReplacedUnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="ReplacementUnitClassType" type="text" reference="UnitClasses(Type)"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a modifier (+X%) to any type of yield of international trade routes (other than FOOD and PRODUCTION)
+	Interops with UNIFIED_YIELD changes to allow faith, culture, etc. -->
+	<Table name="Policy_InternationalRouteYieldModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- POLICY: Provides yields in every city for which the city strength is at least the define value 'CITY_STRENGTH_THRESHOLD_FOR_BONUSES' -->
+	<Table name="Policy_YieldPerCityOverStrengthThreshold">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- RELIGION_POLICY_BRANCH_FAITH_GP -->
+	<Table name="Policy_FaithPurchaseUnitClasses">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
 	</Table>
 </GameData>

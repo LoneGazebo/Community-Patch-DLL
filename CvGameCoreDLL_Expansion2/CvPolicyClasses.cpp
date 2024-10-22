@@ -221,7 +221,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
 	m_bDummy(false),
-	m_bOpener(false),
 	m_bFinisher(false),
 	m_iCityStateCombatModifier(0),
 	m_iGreatEngineerRateModifier(0),
@@ -655,7 +654,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 	m_bDummy = kResults.GetBool("IsDummy");
-	m_bOpener = kResults.GetBool("IsOpener");
 	m_bFinisher = kResults.GetBool("IsFinisher");
 	m_iCityStateCombatModifier = kResults.GetInt("CityStateCombatModifier");
 	m_iGreatEngineerRateModifier = kResults.GetInt("GreatEngineerRateModifier");
@@ -2402,10 +2400,6 @@ int CvPolicyEntry::GetMonopolyModPercent() const
 bool CvPolicyEntry::IsDummy() const
 {
 	return m_bDummy;
-}
-bool CvPolicyEntry::IsOpener() const
-{
-	return m_bOpener;
 }
 bool CvPolicyEntry::IsFinisher() const
 {

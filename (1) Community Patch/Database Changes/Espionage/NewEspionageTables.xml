@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="SpyPassiveBonuses">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="NetworkPointsNeeded" type="integer" notnull="true" unique="true"/>
+		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
+		<Column name="SciencePercentAdded" type="integer" default="0"/>
+		<Column name="TilesRevealed" type="integer" default="0"/>
+		<Column name="RevealCityScreen" type="boolean" default="false"/>
+	</Table>
+	<Table name="SpyPassiveBonusesDiplomat">
+		<Column name="ID" type="integer" primarykey="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="NetworkPointsNeeded" type="integer" notnull="true" unique="true"/>
+		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
+		<Column name="TradeRouteGoldBonus" type="integer" default="0"/>
+		<Column name="ReceiveIntrigues" type="boolean" default="false"/>
+		<Column name="RevealTechTree" type="boolean" default="false"/>
+		<Column name="RevealPolicyTree" type="boolean" default="false"/>
+		<Column name="RevealMilitaryUnitCount" type="boolean" default="false"/>
+		<Column name="RevealTradeDeals" type="boolean" default="false"/>
+		<Column name="RevealTrueApproaches" type="boolean" default="false"/>
+		<Column name="VoteTradePercent" type="integer" default="0"/>
+	</Table>
+</GameData>

@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
-			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked.[ENDCOLOR]</Text>
+		<!-- Randomized victory popup -->
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
+			<Text>Victory Condition Enabled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_DIPLO">
+			<Text>Human history is a history of violence, yet a new era dawns, and with it, a chance at human redemption. The World Congress is the battleground of the future; the prize is leadership over all other nations as the first World Leader.[NEWLINE][COLOR_POSITIVE_TEXT]Secure power as the Global Hegemon via a Diplomatic Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CULTURE">
+			<Text>The survival of humanity depends on the creation of a single, unifying cultural entity, a monolith of ideas, ideologies, and values. The world's cultural powers will each strive to define this monolith themselves - it is up to you to show the world what a truly unifed culture should look like.[NEWLINE][COLOR_POSITIVE_TEXT]Unify the world via a Cultural Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_SPACERACE">
+			<Text>Modernity has not been kind to planet earth. The very vessel upon which we depend - Spaceship Earth - may soon perish. Our first flights took us to the edge of space; we must harness this power and be the first to discover a new home for humanity.[NEWLINE][COLOR_POSITIVE_TEXT]Be the first to escape a dying planet via a Spaceship Victory![ENDCOLOR]</Text>
+		</Row>
+		<!-- Normally unused, but could be if all of the above victories are removed from the game -->
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
+			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution. To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Espionage -->
@@ -236,6 +250,33 @@
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
 			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PTP_ALL_CORRECT">
+			<Text>[ENDCOLOR][NEWLINE][NEWLINE]You cannot Pledge to Protect because:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_NO_CAPITAL">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Both you and the City-State must have at least one City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more {1_Turns: plural 1?turn; other?turns;} to pledge.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power (adjusted by proximity to them). Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PTP_ANY_CORRECT">
+			<Text>[ENDCOLOR][NEWLINE][NEWLINE]One of these attributes must have a [ICON_CHECKBOX] next to it:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_ACHIEVED">
+			<Text>[SPACE][SPACE][ICON_CHECKBOX]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] Allied with City-State.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NOT_CLOSE_ENOUGH_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] Can trade with City-State.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NO_TRADE_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] City-State connected via trade.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT">
 			<Text>You currently refuse to receive [ICON_INFLUENCE] Influence from completing Quests for [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. You may change your stance and allow [ICON_INFLUENCE] Influence to be rewarded again for completing Quests.</Text>
 		</Row>
@@ -250,6 +291,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
 			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well as the non-influence yields of all active personal quests from the City-States. The quests will then be canceled.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED">
+			<Text>Recently liberated</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER">
 			<Text>Contender:</Text>
@@ -268,6 +312,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_CSTATE_CAN_EMBASSY">
 			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX">
 			<Text>Forcefully Annex City-State</Text>
@@ -396,42 +449,15 @@
 			<Text>Rearrange Great Works into potential Themes. Swaps Great Works with other Civilizations and may put excess Great Works up for trade (if needed).</Text>
 		</Row>
 		<!-- Tourism/Happiness screen -->
-		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
-			<Text>Influenced by the number of civilizations not following our Ideology:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_RECENTLY_ADOPTED">
-			<Text>Influence due to only recently adopting/switching Ideologies:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
-			<Text>{1_Num} [ICON_TOURISM] Tourism from [ICON_WONDER] World Wonders</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES">
-			<Text>{1_Num} [ICON_TOURISM] Tourism from your Civilization Trait</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GA_BONUS">
-			<Text>{1_Num} [ICON_TOURISM] Tourism from {2_Num}% of the [ICON_CULTURE] Culture of your [ICON_CAPITAL] Capital</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TOURISM_MOD_HOLY_CITY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for Holy City of the World Religion: {1_Num}%</Text>
 		</Row>
 		<!-- CV progress screen -->
 		<Row Tag="TXT_KEY_CO_TAB_PLAYER_INFLUENCE2">
 			<Text>Influence on Player</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
-			<Text>-{1_NumTurns}% from Empire Size ({2_NumCity} City Difference)[NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
-			<Text>+{1_Num}% Bonus from Highest Warscore[NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA">
-			<Text>{1_Num}% Penalty from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES">
-			<Text>+{1_Num}% Bonus from your Corporate Franchises in their Empire[NEWLINE]</Text>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_BOREDOM">
+			<Text>+{1_Num}% from Boredom in their Empire[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_INFLUENCE_BONUSES_EXOTIC">
 			<Text>[NEWLINE][NEWLINE][COLOR_CYAN]Influence Benefits:[ENDCOLOR][NEWLINE][COLOR_POSITIVE_TEXT]Trade Routes to this Civ Generate:[ENDCOLOR][NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]+5%[ENDCOLOR] [ICON_FOOD] Growth in Origin City[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]+2[ENDCOLOR] [ICON_GOLD] Gold[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]+2[ENDCOLOR] [ICON_RESEARCH] Science[NEWLINE][COLOR_POSITIVE_TEXT]Espionage Bonuses versus this Civ:[ENDCOLOR][NEWLINE][ICON_BULLET] [ICON_SPY] Spies Establish Surveillance in [COLOR_POSITIVE_TEXT]5[ENDCOLOR] turns[NEWLINE][COLOR_POSITIVE_TEXT]City Conquest Bonuses versus this Civ:[ENDCOLOR][NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]-15%[ENDCOLOR] [ICON_RESISTANCE] Unrest Time[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]-15%[ENDCOLOR] [ICON_CITIZEN] Citizen loss from City conquest</Text>
@@ -686,10 +712,10 @@
 			<Text>{1_Val} ([ICON_HAPPINESS_1][COLOR_POSITIVE_TEXT]{3_Val}[ENDCOLOR]/[ICON_HAPPINESS_3][COLOR_NEGATIVE_TEXT]{2_Val}[ENDCOLOR] )</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
+			<Text>Your approval rating is below 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
+			<Text>Your approval rating is below 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>
 		<Row TAG="TXT_KEY_TP_UNHAPPINESS_EMPIRE_PENALTIES">
 			<Text>[ICON_FOOD] Growth is reduced by {1_NumGrowth}% in all Cities and Settler costs are increased by {2_NumSettlerCost}%! [ICON_STRENGTH] Combat effectiveness is also reduced by {3_NumCombatStrength}%!</Text>
@@ -724,6 +750,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
 			<Text>{TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY}[NEWLINE]Highest War Weariness: {19_CivName} {20_Num}%</Text>
+		</Row>
+
+		<!-- Conquest picker -->
+		<Row Tag="TXT_KEY_POPUP_REMOVE_SPHERE_CAPTURED_CITY">
+			<Text>Remove Sphere of Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_REMOVE_SPHERE">
+			<Text>Removes the Sphere of Influence placed on {1_CivName}. The city will be returned to the City-State, and your [ICON_INFLUENCE] Influence with them will be reset to 0. No warmongering penalties will be incurred for removing a Sphere of Influence.</Text>
 		</Row>
 
 		<!-- Trade Route picker -->
@@ -784,6 +818,9 @@
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_INFLUENCE_OTHER">
 			<Text>Our [ICON_TOURISM]: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DISTANCE_MOD">
+			<Text>Proximity Penalty: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_CONNECTED">
 			<Text>[ICON_CONNECTED]</Text>
 		</Row>
@@ -807,12 +844,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER">
 			<Text>+{1_Num}% from Policies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_PROD">
-			<Text>+{1_Num}% [ICON_PRODUCTION] Production from Policies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_FOOD">
-			<Text>+{1_Num}% [ICON_FOOD] Food from Policies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER">
 			<Text>Diplomat present: +{1_Num}%</Text>
@@ -843,6 +874,21 @@
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_RELIGIOUS_PRESSURE_SHORT">
 			<Text>{1_ReligionIcon}+{2_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_FOOD">
+			<Text>+{1_Num}% [ICON_FOOD] Food from Policies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_PROD">
+			<Text>+{1_Num}% [ICON_PRODUCTION] Production from Policies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN">
+			<Text>Total: {1_Num} [ICON_RESEARCH] Science (due to trading within your Empire)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN">
+			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to trading within your Empire)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_MINOR_CS_TT_BONUS">
+			<Text>Gold bonus from trading within your Empire: {2_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAS_FRANCHISE_TT">
 			<Text>[COLOR_POSITIVE_TEXT]Corporation Franchise Present[ENDCOLOR][NEWLINE][NEWLINE]</Text>
@@ -963,50 +1009,6 @@
 			<Text>Corporate Franchise can be established.</Text>
 		</Row>
 
-		<!-- Combat simulator -->
-		<Row Tag="TXT_KEY_EUPANEL_CITY_BLOCKADED">
-			<Text>Blockaded</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_FULLY_HEALED_UNITS">
-			<Text>Bonus VS Fully-Healed Units</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_MORE_50_HP_UNITS">
-			<Text>Target above 50% HP</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_LESS_50_HP_UNITS">
-			<Text>Target below/at 50% HP</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
-			<Text>Multi-Attack Bonus</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
-			<Text>Hellenic League</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
-			<Text>Terrain Modifier</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER">
-			<Text>Ranged Defense Modifier</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP">
-			<Text>Defender of the Faith</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP">
-			<Text>Crusader Zeal</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT">
-			<Text>Bonus from Adjacent Units</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
-			<Text>Resource Monopoly</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
-			<Text>Resource Monopoly</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_COUNTERSPY_DEFENSE">
-			<Text>Counterspy Bonus</Text>
-		</Row>
-
 		<!-- Unit panel -->
 		<Row Tag="TXT_KEY_BUILD_TOURISM_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_TOURISM] Tourism</Text>
@@ -1022,6 +1024,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_CULTURE_LOCAL_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_CULTURE_LOCAL] Border Growth Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPANEL_BUILDER_STRENGTH">
+			<Text>Build Charges</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPANEL_BUILDER_STRENGTH_TT">
+			<Text>The number of times you can use this unit to build. At zero, the unit is consumed, unless it is a military unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UPANEL_REPAIR_CHARGES">
 			<Text>Fleet Repair Charges</Text>
@@ -1049,6 +1057,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT">
 			<Text>Only {1_Num} allowed in the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED">
+			<Text>{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} is required to construct {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@4_ImprovementName:textkey}}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ORIGIN_CITY">
+			<Text>Created by: {1_City}</Text>
 		</Row>
 
 		<!-- Tech tree -->
@@ -1087,47 +1101,11 @@
 		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
 			<Text>[NEWLINE][ICON_BULLET]Resolution Growth Modifier: {1_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_FOODMOD_WLTKD_UA">
-			<Text>[NEWLINE][ICON_BULLET]"We Love the Empress Day" Modifier: +{1_Num}% [ICON_FOOD] Growth</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_GOLDEN_AGE">
-			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Policies: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Policies: {1_Num}%</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD">
-			<Text>[NEWLINE][ICON_BULLET]Modified due to Happiness: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_UNIT_CORPORATION">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for Corporation: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_CORPORATION">
-			<Text>[NEWLINE][ICON_BULLET][ICON_INVEST]Corporation Modifier: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS">
-			<Text>[NEWLINE][ICON_BULLET]Modified by Civilizing Mission: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
-			<Text>[NEWLINE][ICON_BULLET]Modified by Religion: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_YIELD_MONOPOLY_RESOURCE">
-			<Text>[NEWLINE][ICON_BULLET]Modifier from Resource Monopoly: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Military and Settler Units from Local Unhappiness: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for Resolutions: +{1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_TRAIT_BONUS_CONQUEST">
-			<Text>[NEWLINE][ICON_BULLET]Modifier from Esprit de Corps {2_Num}: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_TRAIT_BONUS_CONQUEST_TURNS">
-			<Text>({1_Num} {1_Num: plural 1?Turn; other?Turns;} remaining)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GOLDMOD_YIELD_BLOCKADE">
-			<Text>[NEWLINE][ICON_BULLET]City Modifier from Water Blockade (Enemy Naval Units adjacent to City): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Resolutions: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
 			<Text>{1_Num} [ICON_RESEARCH] added by Great Works</Text>
@@ -1234,6 +1212,15 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION">
 			<Text>{1_Num} {2_IconString} from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
+			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENTS_GP_MOD">
+			<Text>[ICON_BULLET] Improvement Bonus: +{1_num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RELIGIONS_GP_MOD">
+			<Text>[ICON_BULLET] Religion Bonus: +{1_num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
 			<Text>Corporations</Text>
 		</Row>
@@ -1308,12 +1295,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED">
 			<Text>A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_ONE_CORP_ONLY">
-			<Text>[NEWLINE]{1_BuildingName:textkey} cannot be constructed while you are constructing {2_BuildingName:textkey} elsewhere in your Empire.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NO_ACTION_PRODUCTION_SPY_BLOCKED">
-			<Text>[NEWLINE]Blocked because of recent Spy Mission ({1_Num} {1_Num: plural 1?Turn; other?Turns;} remaining).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
 			<Text>Automate production for this city.</Text>
@@ -1621,6 +1602,21 @@
 		<Row Tag="TXT_KEY_PEDIA_TOURISM_LABEL">
 			<Text>Tourism:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TRADEROUTE_CBP_LABEL">
+			<Text>Bonus on City Connections:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_IMPROVADJTERRAINYIELD_LABEL">
+			<Text>Bonus to Adjacent:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL">
+			<Text>Adjacent Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL">
+			<Text>Improvement Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
+			<Text>Yield Per Era:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MELEE">
 			<Text>Melee Promotions</Text>
 		</Row>
@@ -1731,6 +1727,18 @@
 		</Row>
 
 		<!-- Buildings -->
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_MODIFIER">
+			<Text>[ICON_FOOD] Food: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FAITH_MODIFIER">
+			<Text>[ICON_PEACE] Faith: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
+			<Text>[ICON_STRENGTH] Defense: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_MODIFIER">
+			<Text>[ICON_CULTURE] Culture: +{1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER">
 			<Text>[ICON_FOOD] and [ICON_PRODUCTION] Basic Needs Median in this City: {1_num}%</Text>
 		</Row>
@@ -1779,6 +1787,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_AIR_STRENGTH">
 			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
+			<Text>Damage Reduction:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_GP_CHANGE">
 			<Text>Additional +{1_Num}% [ICON_GREAT_PEOPLE] Great Person Rate from Corporation</Text>
 		</Row>
@@ -1787,6 +1798,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_EXC_BLDG_LABEL">
 			<Text>Exclusive Buildings:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
+			<Text>Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL">
+			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
+			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_COST_INCREASE_METRIC">
+			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from two Eras earlier: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INVESTED">
+			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Victory overview -->
@@ -1817,18 +1846,17 @@
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_REVOLUTIONARY_WAVE_VC">
 			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Currently: [COLOR_NEGATIVE_TEXT]Revolutionary Wave[ENDCOLOR].</Text>
 		</Row>
-		<!-- Leading space intended -->
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU">
-			<Text> {1_PlayerName} controls you as a Vassal.</Text>
+			<Text>[SPACE]{1_PlayerName} controls you as a Vassal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_YOU_VASSALIZE_OTHER_PLAYER">
-			<Text> You control {1_CivName} as a Vassal.</Text>
+			<Text>[SPACE]You control {1_CivName} as a Vassal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER">
-			<Text> {1_PlayerName} controls {2_CivName} as a Vassal.</Text>
+			<Text>[SPACE]{1_PlayerName} controls {2_CivName} as a Vassal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_UNMET_PLAYER_VASSALIZE_UNMET_PLAYER">
-			<Text> An unmet player controls another unmet civilization as a Vassal.</Text>
+			<Text>[SPACE]An unmet player controls another unmet civilization as a Vassal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING_TT">
 			<Text>Team {1_Team} controls {2_num} original [ICON_CAPITAL] Capitals/Vassals.</Text>
@@ -1856,6 +1884,9 @@
 		</Row>
 
 		<!-- Policy tree -->
+		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
+			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked.[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA_ALT">
 			<Text>[COLOR_WARNING_TEXT]If you enter the {1_EraString:textkey} you can bypass the Policy requirement.[ENDCOLOR]</Text>
 		</Row>
@@ -1928,86 +1959,11 @@
 		</Row>
 
 		<!-- World Congress screen -->
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
-			<Text>Resolution proposed prior Session, cannot be proposed again until next Session.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION">
-			<Text>Prevented by an active or proposed resolution.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ">
-			<Text>Unavailable until a World Ideology is active.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS">
-			<Text>Not allowed due to the absence of Vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_PATRONAGE_FINISHER_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Policies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Reformation Belief</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_FAITH_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Religious Authority</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_CAPITALS_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Conquered Capitals</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DOF_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Declarations of Friendship</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RA_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Research Agreements</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Defense Pacts</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_IMPROVEMENT_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from City-State Embassies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI">
-			<Text>Spheres of Influence: {1_CivsList}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI_ENTRY">
-			<Text>{@1_CivName} (for {@2_CivName})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR">
-			<Text>Open Doors: {1_CivsList}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR_ENTRY">
-			<Text>{@1_CivName}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RESOLUTION_CHOICE_CITY_CSD">
-			<Text>{@1_CityName}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PREFIX_PROPOSER">
-			<Text>{1_CivAdj}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_LIMIT">
-			<Text>{1_Spaceship}% [ICON_PRODUCTION] Production when building SS Parts</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_PURCHASE">
-			<Text>+{1_Spaceship}% costs for [ICON_GOLD] Gold purchases of SS parts</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_WAR">
-			<Text>{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties greatly decreased</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WAR_PEACE">
-			<Text>+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties unchanged.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_IDEOLOGY">
-			<Text>No [ICON_INTERNATIONAL_TRADE] Trade Routes with Ideological opponents or non-allied City-States. Allied City-State [ICON_INFLUENCE] Influence does not decay.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_SCIENCEY">
 			<Text>Boost to [ICON_FOOD]/[ICON_RESEARCH] for Civilizations with Scores below global average. +{1_GreatPersonRateMod}% generation rate for {2_GreatPersonList}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_ARTSY">
 			<Text>Boost to [ICON_PRODUCTION]/[ICON_CULTURE] for Civilizations with Scores below global average. +{1_GreatPersonRateMod}% generation rate for {2_GreatPersonList}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_VASSAL_MAINTENANCE">
-			<Text>+{1_VassalMaintenancePercent}% [ICON_GOLD] Gold cost for Vassal Unit/City Maintenance</Text>
 		</Row>
 
 		<!-- Trade screen -->
@@ -2075,20 +2031,6 @@
 			<Text>This civilization abandons mastery over all vassals. Only valid if the player has vassals and is able to liberate them.</Text>
 		</Row>
 
-		<!-- Toast -->
-		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
-			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
-			<Text>{2_Num} {1_Improvement}{2_Num: plural 1?; other?s;} pillaged near {3_City} due to Event Choice!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT">
-			<Text>{2_Num} {1_Num: plural 1?source; other?sources;} of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
-			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>
-		</Row>
-
 		<!-- Replay message -->
 		<Row Tag="TXT_KEY_MISC_SOMEONE_MAKES_VASSAL">
 			<Text>{1_TeamName} has become the vassal of {2_TeamName}!</Text>
@@ -2139,23 +2081,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TOO_MANY_VASSALS">
 			<Text>They fear your acquisition of multiple vassals!</Text>
-		</Row>
-
-		<!-- Plot popup -->
-		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE">
-			<Text>Viking</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
-			<Text>Area Damage</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY">
-			<Text>Pilum</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
-			<Text>Splash Damage</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
-			<Text>Enemy Defection</Text>
 		</Row>
 
 		<!-- Plot tooltip -->

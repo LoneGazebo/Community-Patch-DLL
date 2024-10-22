@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	For a list of all values that can be added to each difficulty level, see the end of this file.
+	The default value is what the game will use if the value is not specified in this table.
+
+	NOTE: The following values must be specified for all difficulty levels, or they will default to 0:
+	- ImprovementCostPercent
+	- BuildingCostPercent
+	- UnitCostPercent
+	- ResearchPercent
+	- PolicyPercent
+	- AIBuildingCostPercent
+	- AIUnitCostPercent
+	- AIUnitUpgradePercent
+	- AIGrowthPercent
+	- AITrainPercent
+	- AIWorldTrainPercent
+	- AIConstructPercent
+	- AICreatePercent
+-->
+<GameData>
+	<HandicapInfos>
+		<Row>
+			<ID>0</ID>
+			<Type>HANDICAP_SETTLER</Type>
+			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
+			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>15</HappinessDefault>
+			<ExtraHappinessPerLuxury>1</ExtraHappinessPerLuxury>
+			<EmpireSizeUnhappinessMod>-60</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-60</PopulationUnhappinessMod>
+			<UnitSupplyBase>10</UnitSupplyBase>
+			<UnitSupplyPerCity>3</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>34</ImprovementCostPercent>
+			<BuildingCostPercent>50</BuildingCostPercent>
+			<UnitCostPercent>50</UnitCostPercent>
+			<ResearchPercent>90</ResearchPercent>
+			<PolicyPercent>50</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
+			<AIGrowthPercent>160</AIGrowthPercent>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>175</AIProphetPercent>
+			<AICivilianPercent>175</AICivilianPercent>
+			<AITrainPercent>175</AITrainPercent>
+			<AIWorldTrainPercent>160</AIWorldTrainPercent>
+			<AIConstructPercent>160</AIConstructPercent>
+			<AIWorldConstructPercent>160</AIWorldConstructPercent>
+			<AICreatePercent>160</AICreatePercent>
+			<AIWorldCreatePercent>160</AIWorldCreatePercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateGrowthPercent>128</CityStateGrowthPercent>
+			<CityStateCivilianPercent>210</CityStateCivilianPercent>
+			<CityStateTrainPercent>210</CityStateTrainPercent>
+			<CityStateConstructPercent>192</CityStateConstructPercent>
+			<CityStateCreatePercent>192</CityStateCreatePercent>
+
+			<!-- Barbarians -->
+			<EarliestBarbarianReleaseTurn>10000</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>70</BonusVSBarbarians>
+			<AIBonusVSBarbarians>75</AIBonusVSBarbarians>
+			<BarbarianCampGold>50</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>8</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>1</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>2</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>32</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>50</LandDisputePercent>
+			<WonderDisputePercent>50</WonderDisputePercent>
+			<MinorCivDisputePercent>50</MinorCivDisputePercent>
+			<VictoryDisputePercent>50</VictoryDisputePercent>
+			<VictoryDisputeMod>1</VictoryDisputeMod>
+			<VictoryBlockPercent>50</VictoryBlockPercent>
+			<VictoryBlockMod>2</VictoryBlockMod>
+			<WonderBlockPercent>50</WonderBlockPercent>
+			<WonderBlockMod>-2</WonderBlockMod>
+			<TechBlockPercent>50</TechBlockPercent>
+			<TechBlockMod>2</TechBlockMod>
+			<PolicyBlockPercent>50</PolicyBlockPercent>
+			<PolicyBlockMod>1</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>20</PeaceTreatyDampenerTurns>
+			<HumanOpinionChange>-30</HumanOpinionChange>
+		</Row>
+		<Row>
+			<Type>HANDICAP_CHIEFTAIN</Type>
+			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
+			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>12</HappinessDefault>
+			<ExtraHappinessPerLuxury>1</ExtraHappinessPerLuxury>
+			<EmpireSizeUnhappinessMod>-40</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-40</PopulationUnhappinessMod>
+			<UnitSupplyBase>7</UnitSupplyBase>
+			<UnitSupplyPerCity>3</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>50</ImprovementCostPercent>
+			<BuildingCostPercent>67</BuildingCostPercent>
+			<UnitCostPercent>67</UnitCostPercent>
+			<ResearchPercent>95</ResearchPercent>
+			<PolicyPercent>67</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIUnitUpgradePercent>65</AIUnitUpgradePercent>
+			<AIGrowthPercent>130</AIGrowthPercent>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>130</AIProphetPercent>
+			<AICivilianPercent>130</AICivilianPercent>
+			<AITrainPercent>130</AITrainPercent>
+			<AIWorldTrainPercent>130</AIWorldTrainPercent>
+			<AIConstructPercent>130</AIConstructPercent>
+			<AIWorldConstructPercent>130</AIWorldConstructPercent>
+			<AICreatePercent>130</AICreatePercent>
+			<AIWorldCreatePercent>130</AIWorldCreatePercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateGrowthPercent>104</CityStateGrowthPercent>
+			<CityStateCivilianPercent>156</CityStateCivilianPercent>
+			<CityStateTrainPercent>156</CityStateTrainPercent>
+			<CityStateConstructPercent>156</CityStateConstructPercent>
+			<CityStateCreatePercent>156</CityStateCreatePercent>
+
+			<!-- Barbarians -->
+			<EarliestBarbarianReleaseTurn>60</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>60</BonusVSBarbarians>
+			<AIBonusVSBarbarians>70</AIBonusVSBarbarians>
+			<BarbarianCampGold>40</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>5</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>2</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>2</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>64</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>60</LandDisputePercent>
+			<WonderDisputePercent>60</WonderDisputePercent>
+			<MinorCivDisputePercent>60</MinorCivDisputePercent>
+			<VictoryDisputePercent>60</VictoryDisputePercent>
+			<VictoryDisputeMod>1</VictoryDisputeMod>
+			<VictoryBlockPercent>60</VictoryBlockPercent>
+			<VictoryBlockMod>2</VictoryBlockMod>
+			<WonderBlockPercent>60</WonderBlockPercent>
+			<WonderBlockMod>-2</WonderBlockMod>
+			<TechBlockPercent>60</TechBlockPercent>
+			<TechBlockMod>2</TechBlockMod>
+			<PolicyBlockPercent>60</PolicyBlockPercent>
+			<PolicyBlockMod>1</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>20</PeaceTreatyDampenerTurns>
+			<HumanOpinionChange>-20</HumanOpinionChange>
+		</Row>
+		<Row>
+			<Type>HANDICAP_WARLORD</Type>
+			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
+			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>12</HappinessDefault>
+			<EmpireSizeUnhappinessMod>-25</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-25</PopulationUnhappinessMod>
+			<UnitSupplyBase>7</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>75</ImprovementCostPercent>
+			<BuildingCostPercent>85</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>85</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>10</AIUnitSupplyBonusPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>75</AIBuildingCostPercent>
+			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIUnitUpgradePercent>55</AIUnitUpgradePercent>
+			<AIGrowthPercent>110</AIGrowthPercent>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>110</AIProphetPercent>
+			<AICivilianPercent>110</AICivilianPercent>
+			<AITrainPercent>110</AITrainPercent>
+			<AIWorldTrainPercent>110</AIWorldTrainPercent>
+			<AIConstructPercent>110</AIConstructPercent>
+			<AIWorldConstructPercent>110</AIWorldConstructPercent>
+			<AICreatePercent>110</AICreatePercent>
+			<AIWorldCreatePercent>110</AIWorldCreatePercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>10</CityStateUnitSupplyBonusPercent>
+			<CityStateGrowthPercent>88</CityStateGrowthPercent>
+			<CityStateCivilianPercent>132</CityStateCivilianPercent>
+			<CityStateTrainPercent>132</CityStateTrainPercent>
+			<CityStateConstructPercent>132</CityStateConstructPercent>
+			<CityStateCreatePercent>132</CityStateCreatePercent>
+
+			<!-- Barbarians -->
+			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>50</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>30</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>3</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>2</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>3</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>128</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>70</LandDisputePercent>
+			<WonderDisputePercent>70</WonderDisputePercent>
+			<MinorCivDisputePercent>70</MinorCivDisputePercent>
+			<VictoryDisputePercent>80</VictoryDisputePercent>
+			<VictoryDisputeMod>2</VictoryDisputeMod>
+			<VictoryBlockPercent>80</VictoryBlockPercent>
+			<VictoryBlockMod>2</VictoryBlockMod>
+			<WonderBlockPercent>80</WonderBlockPercent>
+			<WonderBlockMod>-2</WonderBlockMod>
+			<TechBlockPercent>80</TechBlockPercent>
+			<TechBlockMod>2</TechBlockMod>
+			<PolicyBlockPercent>80</PolicyBlockPercent>
+			<PolicyBlockMod>2</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>20</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>2</AggressionIncrease>
+			<HumanStrengthPerceptionMod>10</HumanStrengthPerceptionMod>
+			<HumanOpinionChange>-10</HumanOpinionChange>
+		</Row>
+		<Row>
+			<Type>HANDICAP_PRINCE</Type>
+			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
+			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>9</HappinessDefault>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>20</AIUnitSupplyBonusPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIUnitCostPercent>85</AIUnitCostPercent>
+			<AIUnitUpgradePercent>50</AIUnitUpgradePercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AITrainPercent>100</AITrainPercent>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>100</AIConstructPercent>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
+			<AICreatePercent>100</AICreatePercent>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>20</CityStateUnitSupplyBonusPercent>
+			<CityStateGrowthPercent>80</CityStateGrowthPercent>
+			<CityStateCivilianPercent>120</CityStateCivilianPercent>
+			<CityStateTrainPercent>120</CityStateTrainPercent>
+			<CityStateConstructPercent>120</CityStateConstructPercent>
+			<CityStateCreatePercent>120</CityStateCreatePercent>
+
+			<!-- Barbarians -->
+			<BonusVSBarbarians>40</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>4</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>256</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>85</LandDisputePercent>
+			<WonderDisputePercent>85</WonderDisputePercent>
+			<MinorCivDisputePercent>85</MinorCivDisputePercent>
+			<VictoryDisputePercent>100</VictoryDisputePercent>
+			<VictoryDisputeMod>2</VictoryDisputeMod>
+			<VictoryBlockPercent>100</VictoryBlockPercent>
+			<VictoryBlockMod>3</VictoryBlockMod>
+			<WonderBlockPercent>100</WonderBlockPercent>
+			<WonderBlockMod>-1</WonderBlockMod>
+			<TechBlockPercent>100</TechBlockPercent>
+			<TechBlockMod>3</TechBlockMod>
+			<PolicyBlockPercent>100</PolicyBlockPercent>
+			<PolicyBlockMod>2</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>18</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>4</AggressionIncrease>
+			<HumanStrengthPerceptionMod>20</HumanStrengthPerceptionMod>
+		</Row>
+		<Row>
+			<Type>HANDICAP_KING</Type>
+			<Description>TXT_KEY_HANDICAP_KING</Description>
+			<Help>TXT_KEY_HANDICAP_KING_HELP</Help>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>9</HappinessDefault>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>30</AIUnitSupplyBonusPercent>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIWorkRateModifier>20</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>85</AIBuildingCostPercent>
+			<AIUnitCostPercent>80</AIUnitCostPercent>
+			<AIUnitUpgradePercent>38</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-2</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>90</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-2</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>85</AIProphetPercent>
+			<AICivilianPercent>85</AICivilianPercent>
+			<AICivilianPerEraModifier>-2</AICivilianPerEraModifier>
+			<AITrainPercent>85</AITrainPercent>
+			<AITrainPerEraModifier>-2</AITrainPerEraModifier>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>85</AIConstructPercent>
+			<AIConstructPerEraModifier>-2</AIConstructPerEraModifier>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
+			<AICreatePercent>85</AICreatePercent>
+			<AICreatePerEraModifier>-2</AICreatePerEraModifier>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIFreeXP>10</AIFreeXP>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>30</CityStateUnitSupplyBonusPercent>
+			<CityStateWorkRateModifier>20</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>72</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-2</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>102</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-2</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>102</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-2</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>102</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-2</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>102</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-2</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>10</CityStateFreeXP>
+
+			<!-- Barbarians -->
+			<BonusVSBarbarians>30</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>4</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>384</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>100</LandDisputePercent>
+			<WonderDisputePercent>100</WonderDisputePercent>
+			<MinorCivDisputePercent>100</MinorCivDisputePercent>
+			<VictoryDisputePercent>110</VictoryDisputePercent>
+			<VictoryDisputeMod>2</VictoryDisputeMod>
+			<VictoryBlockPercent>110</VictoryBlockPercent>
+			<VictoryBlockMod>3</VictoryBlockMod>
+			<WonderBlockPercent>110</WonderBlockPercent>
+			<WonderBlockMod>-1</WonderBlockMod>
+			<TechBlockPercent>110</TechBlockPercent>
+			<TechBlockMod>3</TechBlockMod>
+			<PolicyBlockPercent>110</PolicyBlockPercent>
+			<PolicyBlockMod>2</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>16</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>6</AggressionIncrease>
+			<HumanStrengthPerceptionMod>25</HumanStrengthPerceptionMod>
+		</Row>
+		<Row>
+			<Type>HANDICAP_EMPEROR</Type>
+			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
+			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>9</HappinessDefault>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-19</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-19</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>30</AIUnitSupplyBonusPercent>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIWorkRateModifier>50</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>80</AIBuildingCostPercent>
+			<AIUnitCostPercent>75</AIUnitCostPercent>
+			<AIUnitUpgradePercent>32</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-3</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>80</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-3</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>80</AIProphetPercent>
+			<AICivilianPercent>80</AICivilianPercent>
+			<AICivilianPerEraModifier>-3</AICivilianPerEraModifier>
+			<AITrainPercent>80</AITrainPercent>
+			<AITrainPerEraModifier>-3</AITrainPerEraModifier>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>75</AIConstructPercent>
+			<AIConstructPerEraModifier>-3</AIConstructPerEraModifier>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
+			<AICreatePercent>80</AICreatePercent>
+			<AICreatePerEraModifier>-3</AICreatePerEraModifier>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIFreeXP>10</AIFreeXP>
+			<AIFreeXPPercent>25</AIFreeXPPercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>30</CityStateUnitSupplyBonusPercent>
+			<CityStateWorkRateModifier>50</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>64</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-3</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>96</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-3</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>96</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-3</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>90</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-3</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>90</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-3</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>10</CityStateFreeXP>
+			<CityStateFreeXPPercent>25</CityStateFreeXPPercent>
+
+			<!-- Barbarians -->
+			<BonusVSBarbarians>20</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>5</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>512</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>110</LandDisputePercent>
+			<WonderDisputePercent>110</WonderDisputePercent>
+			<MinorCivDisputePercent>110</MinorCivDisputePercent>
+			<VictoryDisputePercent>125</VictoryDisputePercent>
+			<VictoryDisputeMod>2</VictoryDisputeMod>
+			<VictoryBlockPercent>125</VictoryBlockPercent>
+			<VictoryBlockMod>4</VictoryBlockMod>
+			<WonderBlockPercent>125</WonderBlockPercent>
+			<WonderBlockMod>0</WonderBlockMod>
+			<TechBlockPercent>125</TechBlockPercent>
+			<TechBlockMod>4</TechBlockMod>
+			<PolicyBlockPercent>125</PolicyBlockPercent>
+			<PolicyBlockMod>2</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>14</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>9</AggressionIncrease>
+			<HumanStrengthPerceptionMod>30</HumanStrengthPerceptionMod>
+		</Row>
+		<Row>
+			<Type>HANDICAP_IMMORTAL</Type>
+			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
+			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>9</HappinessDefault>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-24</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-24</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>40</AIUnitSupplyBonusPercent>
+			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIWorkRateModifier>75</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>65</AIBuildingCostPercent>
+			<AIUnitCostPercent>65</AIUnitCostPercent>
+			<AIUnitUpgradePercent>22</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-4</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>70</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-4</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>65</AIProphetPercent>
+			<AICivilianPercent>65</AICivilianPercent>
+			<AICivilianPerEraModifier>-4</AICivilianPerEraModifier>
+			<AITrainPercent>65</AITrainPercent>
+			<AITrainPerEraModifier>-4</AITrainPerEraModifier>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>60</AIConstructPercent>
+			<AIConstructPerEraModifier>-4</AIConstructPerEraModifier>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
+			<AICreatePercent>65</AICreatePercent>
+			<AICreatePerEraModifier>-4</AICreatePerEraModifier>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIFreeXP>30</AIFreeXP>
+			<AIFreeXPPercent>50</AIFreeXPPercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>40</CityStateUnitSupplyBonusPercent>
+			<CityStateWorkRateModifier>75</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>56</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-4</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>78</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-4</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>78</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-4</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>72</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-4</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>72</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-4</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>30</CityStateFreeXP>
+			<CityStateFreeXPPercent>50</CityStateFreeXPPercent>
+
+			<!-- Barbarians -->
+			<BonusVSBarbarians>10</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>6</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>768</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>125</LandDisputePercent>
+			<WonderDisputePercent>125</WonderDisputePercent>
+			<MinorCivDisputePercent>125</MinorCivDisputePercent>
+			<VictoryDisputePercent>134</VictoryDisputePercent>
+			<VictoryDisputeMod>3</VictoryDisputeMod>
+			<VictoryBlockPercent>134</VictoryBlockPercent>
+			<VictoryBlockMod>4</VictoryBlockMod>
+			<WonderBlockPercent>134</WonderBlockPercent>
+			<WonderBlockMod>0</WonderBlockMod>
+			<TechBlockPercent>134</TechBlockPercent>
+			<TechBlockMod>4</TechBlockMod>
+			<PolicyBlockPercent>134</PolicyBlockPercent>
+			<PolicyBlockMod>3</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>12</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>12</AggressionIncrease>
+			<HumanStrengthPerceptionMod>40</HumanStrengthPerceptionMod>
+		</Row>
+		<Row>
+			<Type>HANDICAP_DEITY</Type>
+			<Description>TXT_KEY_HANDICAP_DEITY</Description>
+			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
+			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
+			<!-- Player Bonuses -->
+			<HappinessDefault>9</HappinessDefault>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- AI Bonuses -->
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIEmpireSizeUnhappinessMod>-33</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-33</AIPopulationUnhappinessMod>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>50</AIUnitSupplyBonusPercent>
+			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
+			<AIStartingWorkerUnits>2</AIStartingWorkerUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIWorkRateModifier>100</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>50</AIBuildingCostPercent>
+			<AIUnitCostPercent>50</AIUnitCostPercent>
+			<AIUnitUpgradePercent>15</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-5</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>55</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-5</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
+			<AIProphetPercent>50</AIProphetPercent>
+			<AICivilianPercent>50</AICivilianPercent>
+			<AICivilianPerEraModifier>-5</AICivilianPerEraModifier>
+			<AITrainPercent>50</AITrainPercent>
+			<AITrainPerEraModifier>-5</AITrainPerEraModifier>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>50</AIConstructPercent>
+			<AIConstructPerEraModifier>-5</AIConstructPerEraModifier>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
+			<AICreatePercent>50</AICreatePercent>
+			<AICreatePerEraModifier>-5</AICreatePerEraModifier>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIFreeXP>30</AIFreeXP>
+			<AIFreeXPPercent>100</AIFreeXPPercent>
+
+			<!-- City-States -->
+			<CityStateUnitSupplyBase>7</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>3</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>50</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBonusPercent>50</CityStateUnitSupplyBonusPercent>
+			<CityStateWorkRateModifier>100</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>44</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-5</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>60</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-5</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>60</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-5</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>60</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-5</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>60</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-5</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>30</CityStateFreeXP>
+			<CityStateFreeXPPercent>100</CityStateFreeXPPercent>
+
+			<!-- Barbarians -->
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>7</BarbarianSeaTargetRange>
+
+			<!-- AI Behavior Modifiers -->
+			<!-- Tactical AI -->
+			<TacticalSimMaxCompletedPositions>2560</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<!-- Diplomacy AI -->
+			<LandDisputePercent>134</LandDisputePercent>
+			<WonderDisputePercent>134</WonderDisputePercent>
+			<MinorCivDisputePercent>134</MinorCivDisputePercent>
+			<VictoryDisputePercent>150</VictoryDisputePercent>
+			<VictoryDisputeMod>3</VictoryDisputeMod>
+			<VictoryBlockPercent>150</VictoryBlockPercent>
+			<VictoryBlockMod>5</VictoryBlockMod>
+			<WonderBlockPercent>150</WonderBlockPercent>
+			<WonderBlockMod>0</WonderBlockMod>
+			<TechBlockPercent>150</TechBlockPercent>
+			<TechBlockMod>5</TechBlockMod>
+			<PolicyBlockPercent>150</PolicyBlockPercent>
+			<PolicyBlockMod>3</PolicyBlockMod>
+			<PeaceTreatyDampenerTurns>11</PeaceTreatyDampenerTurns>
+			<AggressionIncrease>15</AggressionIncrease>
+			<HumanStrengthPerceptionMod>50</HumanStrengthPerceptionMod>
+		</Row>
+		<Row>
+			<Type>HANDICAP_AI_DEFAULT</Type>
+			<Description>TXT_KEY_HANDICAP_AI_DEFAULT</Description>
+			<Help>TXT_KEY_HANDICAP_AI_DEFAULT</Help>
+			<!-- The values listed here are applied to the AI on all difficulty levels. Only Player Bonuses can be applied here. -->
+			<ImprovementCostPercent>100</ImprovementCostPercent>
+			<BuildingCostPercent>100</BuildingCostPercent>
+			<UnitCostPercent>100</UnitCostPercent>
+			<ResearchPercent>100</ResearchPercent>
+			<PolicyPercent>100</PolicyPercent>
+
+			<!-- Unused, but specified just in case -->
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIUnitCostPercent>100</AIUnitCostPercent>
+			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
+			<AITrainPercent>100</AITrainPercent>
+			<AIWorldTrainPercent>100</AIWorldTrainPercent>
+			<AIConstructPercent>100</AIConstructPercent>
+			<AICreatePercent>100</AICreatePercent>
+		</Row>
+	</HandicapInfos>
+</GameData>
+<!--
+	Below is a list of all values that can be added to each difficulty level.
+
+    [Player Bonuses]
+	MapPlacementPriority: Determines the order in which players are added to pregenerated maps. Lower numbers = higher priority. Default 3.
+	StartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
+	StartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
+	AdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
+	HappinessDefault: Free Global Happiness. Default 0.
+	HappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
+	ExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
+	EmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
+	PopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
+	FreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
+	MaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
+	UnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	UnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	UnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	UnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	UnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with UnitSupplyBonusPercent. Default 0.
+	UnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with UnitSupplyPerEraModifier. Default 0.
+	StartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
+	StartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	StartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	StartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
+	WorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	ImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	BuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	UnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	InflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
+	UnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 100.
+	UnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with UnitUpgradePercent. Default 0.
+	GrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
+	GrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with GrowthPercent. Default 0.
+	ResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 0; the normal value must be specified.
+	ResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with ResearchPercent. Default 0.
+	TechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
+	PolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 0; the normal value must be specified.
+	PolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with PolicyPercent. Default 0.
+	PolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
+	ProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
+	GreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
+	GoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
+	CivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	CivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CivilianPercent. Default 0.
+	TrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
+	TrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with TrainPercent. Default 0.
+	WorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 100.
+	ConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
+	ConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with ConstructPercent. Default 0.
+	WorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 100.
+	CreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
+	CreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CreatePercent. Default 0.
+	WorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 100.
+	ProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
+	ProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with ProcessBonus and other modifiers to Process yields. Default 0.
+	FreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	FreeXPPercent: % modifier to XP gained from combat. Default 0.
+	FreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with FreeXPPercent. Default 0.
+	CombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	ResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against this player when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
+	VisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
+	DifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_PLAYER_TURNS_PASSED trigger will occur for this player every DifficultyBonusTurnInterval turns. Default 0.
+
+	[AI Bonuses]
+	AIStartingGold: Amount of Gold at game start. Scales with game speed. Default 0.
+	AIStartingPolicyPoints: Amount of Culture at game start. Scales with game speed. Default 0.
+	AIAdvancedStartPointsMod: % modifier to starting Gold/Culture given for free in Advanced Starts (starting later than the Ancient Era). Final value scales with game speed. Default 0.
+	AIHappinessDefault: Free Global Happiness. Default 0.
+	AIHappinessDefaultCapital: Free Local Happiness in the Capital. Default 0.
+	AIExtraHappinessPerLuxury: Extra Global Happiness for each unique owned Luxury Resource. Default 0.
+	AIEmpireSizeUnhappinessMod: Multiplicative % modifier to Unhappiness from # of cities. Default 0.
+	AIPopulationUnhappinessMod: Multiplicative % modifier to Unhappiness from # of citizens. Default 0.
+	AIFreeCulturePerTurn: Amount of Culture per turn given for free. Default 0.
+	AIMaintenanceFreeUnits: Amount of Units that do not count when calculating Unit Maintenance. Default 0.
+	AIUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	AIUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	AIUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	AIUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	AIUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with AIUnitSupplyBonusPercent. Default 0.
+	AIUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with AIUnitSupplyPerEraModifier. Default 0.
+	AIStartingUnitMultiplier: Multiplier to free units (normally, one Settler) granted by Civilization_FreeUnits. Additive with StartingUnitMultiplier from start era. Default 0.
+	AIStartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	AIStartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	AIStartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
+	AIWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	AIImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 100.
+	AIBuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	AIUnitCostPercent: % of normal Unit Maintenance (100 = normal cost). Default 0; the normal value must be specified.
+	AIInflationPercent: % of normal increase in Unit Maintenance costs as the game progresses (100 = normal cost increase). Default 100.
+	AIUnitUpgradePercent: % of normal Unit Upgrade Cost (100 = normal cost). Default 0; the normal value must be specified.
+	AIUnitUpgradePerEraModifier: % modifier to Unit Upgrade cost for each era reached after the Ancient Era. Multiplicative with AIUnitUpgradePercent. Default 0.
+	AIGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 0; the normal value must be specified.
+	AIGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with AIGrowthPercent. Default 0.
+	AIResearchPercent: % of normal Science required to research Technologies (100 = normal cost). Default 100.
+	AIResearchPerEraModifier: % modifier to Science required to research Technologies for each era reached after the Ancient Era. Multiplicative with AIResearchPercent. Default 0.
+	AITechCatchUpMod: Boosts the existing reduction to Technology costs based on the % of civs that have already researched it. Final value is multiplicative with the above two bonuses. Default 0.
+	AIPolicyPercent: % of normal Culture required to adopt Policies (100 = normal cost). Default 100.
+	AIPolicyPerEraModifier: % modifier to Culture required to research Policies for each era reached after the Ancient Era. Multiplicative with AIPolicyPercent. Default 0.
+	AIPolicyCatchUpMod: Reduces the cost of adopting a Policy based on the % of major civs that have adopted more Policies. Multiplicative with the above two bonuses. Default 0.
+	AIProphetPercent: % of normal Faith required to spawn a Great Prophet (100 = normal cost). Default 100.
+	AIGreatPeoplePercent: % of normal Great Person Points required to spawn a Great Person (100 = normal cost). Default 100.
+	AIGoldenAgePercent: % of normal Golden Age Points required to start a Golden Age (100 = normal cost). Default 100.
+	AICivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	AICivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with AICivilianPercent. Default 0.
+	AITrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 0; the normal value must be specified.
+	AITrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with AITrainPercent. Default 0.
+	AIWorldTrainPercent: % of normal Production required to train a "WorldClass Unit", which is currently unused. (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AIConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 0; the normal value must be specified.
+	AIConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with AIConstructPercent. Default 0.
+	AIWorldConstructPercent: % of normal Production required to construct World Wonders and World Projects, which are *NOT the same as World Congress Projects* (100 = normal cost). Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AICreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 0; the normal value must be specified.
+	AICreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with AICreatePercent. Default 0.
+	AIWorldCreatePercent: % of normal Production required to create World Congress Projects (100 = normal cost). A value of 90 would increase this player's contribution by 10%. Replaces the above two bonuses. Default 0; the normal value must be specified.
+	AIProcessBonus: % modifier to yields gained from Processes (positive = good). Additive with other modifiers to Process yields. Default 0.
+	AIProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with AIProcessBonus and other modifiers to Process yields. Default 0.
+	AIFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	AIFreeXPPercent: % modifier to XP gained from combat. Default 0.
+	AIFreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Additive with AIFreeXPPercent. Default 0.
+	AICombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	AIResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against the AI when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
+	AIVisionBonus: Extra Sight (in tiles) given to this player's non-trade units. Default 0.
+	AIDifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_AI_TURNS_PASSED trigger will occur for this player every AIDifficultyBonusTurnInterval turns. Default 0.
+
+	[City-States]
+	StartingCityStateWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
+	StartingCityStateDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
+	CityStateUnitSupplyBase: Amount of base Unit Supply given for free. Default 0.
+	CityStateUnitSupplyPerCity: Amount of Unit Supply given for each owned city. Default 0.
+	CityStateUnitSupplyPopulationPercent: % of population in each city added to Unit Supply. Default 0.
+	CityStateUnitSupplyPerEraFlat: Amount of Unit Supply given after reaching each era after the Ancient Era. Default 0.
+	CityStateUnitSupplyPerEraModifier: % modifier to total Unit Supply for each era reached after the Ancient Era. Additive with CityStateUnitSupplyBonusPercent. Default 0.
+	CityStateUnitSupplyBonusPercent: % modifier to total Unit Supply. Additive with CityStateUnitSupplyPerEraModifier. Default 0.
+	CityStateWorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
+	CityStateGrowthPercent: % of normal Food required for cities to grow (100 = normal cost). Default 100.
+	CityStateGrowthPerEraModifier: % modifier to Food required for cities to grow for each era reached after the Ancient Era. Multiplicative with CityStateGrowthPercent. Default 0.
+	CityStateCivilianPercent: % of normal Production required to train a NON-COMBAT unit (100 = normal cost). Default 100.
+	CityStateCivilianPerEraModifier: % modifier to Production required to train a NON-COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateCivilianPercent. Default 0.
+	CityStateTrainPercent: % of normal Production required to train a COMBAT unit (100 = normal cost). Default 100.
+	CityStateTrainPerEraModifier: % modifier to Production required to train a COMBAT unit for each era reached after the Ancient Era. Multiplicative with CityStateTrainPercent. Default 0.
+	CityStateConstructPercent: % of normal Production required to construct most buildings (100 = normal cost). Default 100.
+	CityStateConstructPerEraModifier: % modifier to Production required to construct most buildings for each era reached after the Ancient Era. Multiplicative with CityStateConstructPercent. Default 0.
+	CityStateCreatePercent: % of normal Production required to construct non-World Projects (100 = normal cost). Default 100.
+	CityStateCreatePerEraModifier: % modifier to Production required to construct non-World Projects for each era reached after the Ancient Era. Multiplicative with CityStateCreatePercent. Default 0.
+	CityStateFreeXP: Free XP given to all new combat units. Scales with game speed. Default 0.
+	CityStateFreeXPPercent: % modifier to XP gained from combat. Default 0.
+	CityStateCombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
+	CityStateVisionBonus: Extra Sight (in tiles) given to this City-State's non-trade units. Default 0.
+
+	[Barbarians]
+	EarliestBarbarianReleaseTurn: The earliest game turn # that Barbarians can enter owned tiles, enter tiles with Settler units, or spawn from events. A random number between 0 and 14 is added to this number. Default 0.
+	BonusVSBarbarians: Human players' combat bonus VS Barbarians. Default 0.
+	AIBonusVSBarbarians: AI players' combat bonus VS Barbarians. Default 0.
+	BarbarianCampGold: The amount of Gold that human players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
+	AIBarbarianCampGold: The amount of Gold that AI players receive when clearing a Barbarian Encampment. Scales with game speed. Default 0.
+	BarbarianSpawnDelay: The # of base turns added to the spawn timer of Barbarian units from Encampments and Cities. Scales with game speed. Default 0.
+	BarbarianLandTargetRange: Pathfinder range for land Barbarian units (they will roam towards a target up to BarbarianLandTargetRange turns away). Default 0.
+	BarbarianSeaTargetRange: Pathfinder range for sea Barbarian units (they will roam towards a target up to BarbarianSeaTargetRange turns away). Default 0.
+
+	[AI Behavior Modifiers]
+	- Weighted Randomized Choices -
+	CityProductionChoiceCutoffThreshold: The % of the top scoring choice that a City Production choice must have to be included in the weighted randomization. Default 90.
+	TechChoiceCutoffThreshold: The % of the top scoring choice that a Technology choice must have to be included in the weighted randomization. Default 90.
+	PolicyChoiceCutoffThreshold: The % of the top scoring choice that a Policy choice must have to be included in the weighted randomization. Default 90.
+	BeliefChoiceCutoffThreshold: The % of the top scoring choice that a Belief choice must have to be included in the weighted randomization. Default 90.
+
+	- Tactical AI -
+	TacticalSimMaxCompletedPositions: Controls the Tactical AI simulator's search depth. Default 512.
+	TacticalSimMaxBranches: Controls the Tactical AI simulator's search depth. Default 4.
+	TacticalSimMaxChoicesPerUnit: Controls the Tactical AI simulator's search depth. Default 4.
+
+	- Diplomacy AI -
+	LandDisputePercent: Controls how aggressive the AI is about territorial disputes and reckless expansion (100 = normal aggression). Default 100.
+	WonderDisputePercent: Controls how aggressive the AI is about World Wonder competition (100 = normal aggression). Default 100.
+	MinorCivDisputePercent: Controls how aggressive the AI is about City-State Influence competition (100 = normal aggression). Default 100.
+	VictoryDisputePercent: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
+	VictoryDisputeMod: Controls how aggressive the AI is about competition for the same victory condition (if victory competition is enabled). Default 0.
+	VictoryBlockPercent: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled; 100 = normal aggression). Default 100.
+	VictoryBlockMod: Controls how aggressive the AI is about competition for a different victory condition (if victory competition is enabled). Default 0.
+	WonderBlockPercent: Controls how aggressive the AI is about World Wonder spamming (100 = normal aggression). Default 100.
+	WonderBlockMod: Added to the threshold at which the AI will consider another player to be World Wonder spamming. Default 0.
+	TechBlockPercent: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled; 100 = normal aggression). Default 100.
+	TechBlockMod: Controls how aggressive the AI is about other players' superior technology (if default Primary Victory Pursuit is SCIENCE and victory competition is enabled). Default 0.
+	PolicyBlockPercent: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled; 100 = normal aggression). Default 100.
+	PolicyBlockMod: Controls how aggressive the AI is about other players' superior culture (if default Primary Victory Pursuit is CULTURE and victory competition is enabled). Default 0.
+	PeaceTreatyDampenerTurns: Controls for how many turns after a Peace Treaty is signed the AI will be docile for, but also unwilling to make Declarations of Friendship or Defensive Pacts. Default 20.
+	AggressionIncrease: A value which, if above 0, increases AI's desire to expand and its diplomatic aggression towards players that it has an unfavorable Opinion of. Default 0.
+	HumanStrengthPerceptionMod: % modifier to the strength perception of human players (EXCLUDING NUKES). If the human is doing poorly enough, this modifier may only be partially applied, or not at all. Default 0.
+	HumanTradeModifier: % modifier to the selling price of AI items in trade when selling to human players. Default 0.
+	HumanOpinionChange: Change to the AI's Opinion score for human players. Negative = good, positive = bad. Default 0.
+	HumanWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanNeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanNeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	HumanFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for human players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	HumanFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for human players. High values do not guarantee adopting the approach. Default 0.
+	AIOpinionChange: Change to the AI's Opinion score for AI players. Negative = good, positive = bad. Default 0.
+	AIWarApproachChangeFlat: Flat weight added to the AI's WAR approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIWarApproachChangePercent: Multiplicative % modifier to the AI's WAR approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIHostileApproachChangeFlat: Flat weight added to the AI's HOSTILE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIHostileApproachChangePercent: Multiplicative % modifier to the AI's HOSTILE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIDeceptiveApproachChangeFlat: Flat weight added to the AI's DECEPTIVE approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIDeceptiveApproachChangePercent: Multiplicative % modifier to the AI's DECEPTIVE approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIGuardedApproachChangeFlat: Flat weight added to the AI's GUARDED approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIGuardedApproachChangePercent: Multiplicative % modifier to the AI's GUARDED approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIAfraidApproachChangeFlat: Flat weight added to the AI's AFRAID approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIAfraidApproachChangePercent: Multiplicative % modifier to the AI's AFRAID approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AINeutralApproachChangeFlat: Flat weight added to the AI's NEUTRAL approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AINeutralApproachChangePercent: Multiplicative % modifier to the AI's NEUTRAL approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+	AIFriendlyApproachChangeFlat: Flat weight added to the AI's FRIENDLY approach score for AI players. 100 = +1 weight. High values do not guarantee adopting the approach. Default 0.
+	AIFriendlyApproachChangePercent: Multiplicative % modifier to the AI's FRIENDLY approach score for AI players. High values do not guarantee adopting the approach. Default 0.
+-->

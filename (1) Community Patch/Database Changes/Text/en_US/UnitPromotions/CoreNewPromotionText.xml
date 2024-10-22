@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Cannot End Turn on Ocean Tile -->
+		<Row Tag="TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP">
+			<Text>Cannot end turn in [COLOR_NEGATIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]Can move through visible Ocean if destination is visible Coast.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION">
+			<Text>Ocean Embarkation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION_HELP">
+			<Text>Permits hovering units to embark at the coastal/ocean boundary.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION">
+			<Text>Ocean Embarkation with Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION_HELP">
+			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive +100% [ICON_STRENGTH] defensive bonus.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

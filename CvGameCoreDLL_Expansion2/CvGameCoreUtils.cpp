@@ -234,7 +234,7 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 			iDeltaHexY = iThisRing;
 			break;
 		default:
-			return 0;
+			return NULL;
 		}
 
 	}
