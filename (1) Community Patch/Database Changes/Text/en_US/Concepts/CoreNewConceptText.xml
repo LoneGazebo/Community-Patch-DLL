@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CONCEPT_THEMING_BONUSES">
+			<Text>[COLOR_YELLOW]Themes and Theming Bonuses[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_THEMING_BONUSES_BODY">
+			<Text>If a Building has more than one slot for Great Works, there's a good chance that a certain combination of Great Works may 'Theme' this building, resulting in powerful yield bonuses. Theming requires the Great Works in the building to meet a set of specific criteria, be it different Eras, Civilizations, or even Great Work Types. This information is revealed when you hover over the Building's Theming Bonus yield value in the City Screen.[NEWLINE][NEWLINE]Themes provide additional [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture for your Civilization, based on the indicated value in your City Screen. [COLOR_YELLOW]In some cases, buildings may provide an additional Theming Bonus yield - this bonus is indicated in the Building's Help tooltip.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_THEMING_BONUSES_QUEST">
+			<Text>What are themes?</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

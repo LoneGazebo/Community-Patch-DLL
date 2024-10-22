@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_REPLAY_DATA_TOURISMPERTURN">
+			<Text>Tourism [ICON_TOURISM] Per Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_REPLAY_DATA_GAPPERTURN">
+			<Text>Golden Age Points [ICON_GOLDEN_AGE] Per Turn</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

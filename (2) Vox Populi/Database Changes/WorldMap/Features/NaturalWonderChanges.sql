@@ -45,6 +45,13 @@ WHERE NaturalWonderType IN (
 	'FEATURE_ULURU'
 );
 
+UPDATE Features
+SET SeeThrough = 1
+WHERE Type IN (
+	'FEATURE_MESA',
+	'FEATURE_ULURU'
+);
+
 -- Non-mountains are no longer impassable
 UPDATE Features
 SET Impassable = 0, Movement = 2, Defense = 10

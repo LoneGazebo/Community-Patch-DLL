@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Move most of these to (1) unless the text is explicitly VP only (with MOD_BALANCE_VP check) -->
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY">
-			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} is constructing {4_WonderOrProject} in one of their cities.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY_S">
-			<Text>{1_PlayerName} is constructing {2_WonderOrProject}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES">
-			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has bought votes for the upcoming world congress session from {4_PlayerName}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES_S">
-			<Text>{1_CivName} has bought votes from {2_CivName}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES">
-			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has sold some of their votes for the upcoming world congress session to {4_PlayerName}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES_S">
-			<Text>{1_CivName} has sold votes to {2_CivName}.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
 		</Row>
@@ -750,12 +733,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_DIPLOMAT">
 			<Text>Diplomat {2_SpyName} has collected enough Network Points in {3_City} to unlock the following bonuses:[NEWLINE][NEWLINE] {4_Missions}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
-			<Text>MAKE EVENT CHOICE</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT_TT">
-			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION">
 			<Text>{1_Cost}{2_Yield}{3_City}{4_Turns}</Text>

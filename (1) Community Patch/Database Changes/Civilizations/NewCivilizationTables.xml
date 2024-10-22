@@ -8,4 +8,9 @@
 		<Column name="CivilizationType" type="text"/>
 		<Column name="StartPreferSnow" type="boolean" default="0"/>
 	</Table>
+	<!-- Blocks the specified city state from appearing if the associated major civ is present at game start -->
+	<Table name="MajorBlocksMinor">
+		<Column name="MajorCiv" type="text" notnull="true" reference="Civilizations(Type)"/>
+		<Column name="MinorCiv" type="text" notnull="true" reference="MinorCivilizations(Type)"/>
+	</Table>
 </GameData>

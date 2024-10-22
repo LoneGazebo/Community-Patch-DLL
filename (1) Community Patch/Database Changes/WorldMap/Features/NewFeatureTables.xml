@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Yields on tiles with this feature adjacent to lake or coast -->
+	<Table name="Feature_CoastalLandYields">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on fresh water tiles with this feature -->
+	<Table name="Feature_FreshWaterYields">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on tiles with this feature if owner has researched the specified tech -->
+	<Table name="Feature_TechYieldChanges">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="TechType" type="text" reference="Technologies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on tiles with this feature per new era entered -->
+	<Table name="Feature_EraYieldChanges">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+</GameData>

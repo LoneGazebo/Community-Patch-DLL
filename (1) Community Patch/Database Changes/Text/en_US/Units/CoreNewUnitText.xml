@@ -2,6 +2,9 @@
 <GameData>
 	<Language_en_US>
 		<!-- Great Writer names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_MOSES">
+			<Text>Moses</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_W__010">
 			<Text>Sin-Leqi-Unninni</Text>
 		</Row>
@@ -165,6 +168,51 @@
 			<Text>François Cheng (Chéng Bàoyi)</Text>
 		</Row>
 		<!-- Great Artist names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_SUTTON_HOO">
+			<Text>Sutton Hoo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ZHAN_ZIQIAN">
+			<Text>Zhan Ziqian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_MERYMOSE">
+			<Text>Morimose</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_KORYU_MIROKU">
+			<Text>Koryu-ji Miroku</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_POLYKLEITOS">
+			<Text>Polykleitos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_CHRYSOTOM">
+			<Text>Chrysostom</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_IONA">
+			<Text>Ionian Monks</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_LASCAUX">
+			<Text>The Lascaux</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ALEXANDRINUS">
+			<Text>Alexandrinus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_KALHU">
+			<Text>Kalhu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_TIZOC">
+			<Text>Tizoc</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_BISHOP_ODO">
+			<Text>Bishop Odo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ONATAS">
+			<Text>Onatas</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_GOLCONDA">
+			<Text>Golconda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ARTAXERXES">
+			<Text>Artaxerxes</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_A__010">
 			<Text>Thamyris</Text>
 		</Row>

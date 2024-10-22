@@ -1,0 +1,31 @@
+-- Missing building flavors
+INSERT INTO Building_Flavors
+	(BuildingType, FlavorType, Flavor)
+VALUES
+	('BUILDING_NEUSCHWANSTEIN', 'FLAVOR_WONDER', 40),
+	('BUILDING_NEUSCHWANSTEIN', 'FLAVOR_HAPPINESS', 60),
+	('BUILDING_NEUSCHWANSTEIN', 'FLAVOR_CULTURE', 50);
+
+UPDATE Technology_Flavors SET Flavor = 50 WHERE TechType = 'TECH_SAILING' AND FlavorType = 'FLAVOR_NAVAL';
+
+-- Replace flavors from some policy openers
+DELETE FROM Policy_Flavors
+WHERE PolicyType IN (
+	'POLICY_TRADITION',
+	'POLICY_LIBERTY',
+	'POLICY_PIETY'
+);
+
+INSERT INTO Policy_Flavors
+	(PolicyType, FlavorType, Flavor)
+VALUES
+	('POLICY_TRADITION', 'FLAVOR_CULTURE', 15),
+	('POLICY_TRADITION', 'FLAVOR_GROWTH', 15),
+	('POLICY_TRADITION', 'FLAVOR_WONDER', 10),
+	('POLICY_LIBERTY', 'FLAVOR_EXPANSION', 15),
+	('POLICY_PIETY', 'FLAVOR_RELIGION', 15);
+
+DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND FlavorType = 'FLAVOR_DEFENSE';
+
+-- Remove duplicates
+DELETE FROM Unit_Flavors WHERE UnitType = 'UNIT_WORKBOAT' AND FlavorType = 'FLAVOR_NAVAL_TILE_IMPROVEMENT' AND Flavor = 9;

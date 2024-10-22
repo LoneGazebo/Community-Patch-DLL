@@ -5998,12 +5998,8 @@ int CvLuaUnit::lGetReligion(lua_State* L)
 int CvLuaUnit::lGetConversionStrength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
 	int iReligiousStrength = pkUnit->GetConversionStrength(pkCity);
-#else
-	int iReligiousStrength = pkUnit->GetConversionStrength();
-#endif
 
 	lua_pushinteger(L, iReligiousStrength);
 

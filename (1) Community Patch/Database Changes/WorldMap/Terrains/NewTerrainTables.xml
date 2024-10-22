@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Yields on tiles of this terrain adjacent to lake or coast -->
+	<Table name="Terrain_CoastalLandYields">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Yields on fresh water tiles of this terrain -->
+	<Table name="Terrain_FreshWaterYields">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Yields on tiles of this terrain if owner has researched the specified tech -->
+	<Table name="Terrain_TechYieldChanges">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="TechType" type="text" reference="Technologies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+</GameData>

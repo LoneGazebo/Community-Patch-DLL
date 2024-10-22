@@ -15,7 +15,7 @@
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_GREETING_VASSALAGE_VASSAL</ResponseType>
-			<Response>TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL%</Response>
+			<Response>TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSALX%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_VASSALAGE_REVOKED_HUMAN_PEACEFUL</ResponseType>
@@ -23,7 +23,7 @@
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_VASSALAGE_REVOKE_VASSALAGE</ResponseType>
-			<Response>TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE%</Response>
+			<Response>TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGEX%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_VASSALAGE_REVOKE_VASSALAGE_HOSTILE</ResponseType>

@@ -38,7 +38,7 @@ END;
 -- If a unit's class or combat class changes, and its new combat class is melee/gunpowder, add it
 CREATE TRIGGER VP_PolynesiaCompatibility_Build_UpdateTo
 AFTER UPDATE OF Class, CombatClass ON Units
-WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
+WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN') AND OLD.CombatClass NOT IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	INSERT INTO Trait_BuildsUnitClasses
 		(TraitType, UnitClassType, BuildType)
@@ -52,7 +52,7 @@ END;
 -- If there are no units of melee/gunpowder combat class left in a given class, remove it
 CREATE TRIGGER VP_PolynesiaCompatibility_Build_UpdateAway
 AFTER UPDATE OF Class, CombatClass ON Units
-WHEN (OLD.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
+WHEN (OLD.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN') AND NEW.CombatClass NOT IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	DELETE FROM Trait_BuildsUnitClasses
 	WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS'

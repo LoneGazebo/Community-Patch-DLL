@@ -99,7 +99,7 @@ INSERT INTO Policy_YieldFromNonSpecialistCitizens
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 100);
-	
+
 INSERT INTO Policy_SpecialistExtraYields
 	(PolicyType, YieldType, Yield)
 VALUES

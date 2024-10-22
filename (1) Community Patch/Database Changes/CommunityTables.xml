@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- "Public facing" mod options. These are converted into CustomModOptions and Defines via SQL. -->
+	<Table name="Community">
+		<Column name="Type" type="text"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+
+	<!-- Determines which options the player has enabled -->
+	<!-- Logic is handled in CustomMods.cpp -->
+	<Table name="CustomModOptions">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Value" type="integer" default="1"/>
+		<!-- Class (unused in code, for modder reference) - Data=0, BugFix, API, Events, Minor, Common, Major -->
+		<Column name="Class" type="integer" default="5"/>
+		<Column name="DbUpdates" type="integer" default="0"/>
+	</Table>
+
+	<!-- Values inserted in runtime into CustomModOptions by reference to GameInfoTypes[GameInfo[Table].Type] -->
+	<!-- Similar to the relationship between PostDefines and Defines -->
+	<Table name="CustomModPostDefines">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Table" type="text"/>
+		<Column name="Type" type="text"/>
+	</Table>
+
+	<!-- Records database update success -->
+	<!-- Usage: insert a row of Value = 1 at the very end of your required database changes -->
+	<!-- If an entry is expected in here (CustomModOptions.DbUpdates = 1) and there isn't one, the corresponding option won't be enabled -->
+	<!-- Not used in CP and VP anymore (we have decided that silent failures are bad for development), but functionality remains -->
+	<Table name="CustomModDbUpdates">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+</GameData>
