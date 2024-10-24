@@ -482,7 +482,7 @@ protected:
 	int m_iGoodyHutYieldBonus;
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
-	bool m_bGainsXPFromPillaging;
+	bool m_bGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
 	bool m_bGainsXPFromSpotting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;
