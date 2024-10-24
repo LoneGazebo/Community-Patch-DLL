@@ -544,7 +544,7 @@ protected:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader;
+	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -2193,7 +2193,7 @@ private:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader;
+	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;

@@ -3,58 +3,77 @@
 <GameData>
 	<!-- Improvement: allows a city's "We Love the King Day" to boost the base yield of this improvement when controlled by the city -->
 	<Table name="Improvement_WLTKDYields">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Improvement: allows a players Golden Age to boost the base yield of this improvement -->
 	<Table name="Improvement_GoldenAgeYields">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Improvement: allows an adjacent improvement to boost the yield of this improvement -->
+	<!-- Yield boost to the tile per NumRequired adjacent tiles with OtherImprovementType -->
 	<Table name="Improvement_YieldPerXAdjacentImprovement">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="NumRequired" type="integer" notnull="true"/>
 	</Table>
-	<!-- Improvement: yields that an adjacent terrain type provides to this improvement -->
+	<!-- Yield boost to the tile per NumRequired adjacent tiles of the specified terrain -->
 	<Table name="Improvement_YieldPerXAdjacentTerrain">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-		<Column name="NumRequired" type="integer" default="1"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="NumRequired" type="integer" notnull="true"/>
 	</Table>
 	<!-- Improvement: allows a resource to boost the base yield of this improvement when adjacent -->
 	<Table name="Improvement_AdjacentResourceYieldChanges">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Improvement: allows this improvement to boost the base yield of another plot with the corresponding terrain -->
 	<Table name="Improvement_AdjacentTerrainYieldChanges">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Improvement: allows a feature to boost the base yield of this improvement when adjacent -->
 	<Table name="Improvement_AdjacentFeatureYieldChanges">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="FeatureType" type="text" reference="Features(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Improvement: allows a feature to boost the base yield of this improvement when on the same tile -->
 	<Table name="Improvement_FeatureYieldChanges">
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="FeatureType" type="text" reference="Features(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Production modifier for units of specified domain in the city owning this tile -->
+	<Table name="Improvement_DomainProductionModifier">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<!-- Extra XP for units of specified domain trained in the city owning this tile -->
+	<Table name="Improvement_DomainFreeExperience">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Experience" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield boost to the tlie per specified accomplishment completed by the player owning this tile -->
+	<Table name="Improvement_AccomplishmentYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 </GameData>

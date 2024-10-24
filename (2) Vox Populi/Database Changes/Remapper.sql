@@ -91,6 +91,15 @@ SET seq = (SELECT COUNT(ID) FROM Concepts) - 1
 WHERE name = 'Concepts';
 
 CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
+INSERT INTO IDRemapper (Type) SELECT Type FROM CitySpecializations ORDER BY ID;
+UPDATE CitySpecializations SET ID = (SELECT IDRemapper.id - 1 FROM IDRemapper WHERE CitySpecializations.Type = IDRemapper.Type);
+DROP TABLE IDRemapper;
+
+UPDATE sqlite_sequence
+SET seq = (SELECT COUNT(ID) FROM CitySpecializations) - 1
+WHERE name = 'CitySpecializations';
+
+CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
 INSERT INTO IDRemapper (Type) SELECT Type FROM AICityStrategies ORDER BY ID;
 UPDATE AICityStrategies SET ID = (SELECT IDRemapper.id - 1 FROM IDRemapper WHERE AICityStrategies.Type = IDRemapper.Type);
 DROP TABLE IDRemapper;
@@ -98,6 +107,15 @@ DROP TABLE IDRemapper;
 UPDATE sqlite_sequence
 SET seq = (SELECT COUNT(ID) FROM AICityStrategies) - 1
 WHERE name = 'AICityStrategies';
+
+CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
+INSERT INTO IDRemapper (Type) SELECT Type FROM AIEconomicStrategies ORDER BY ID;
+UPDATE AIEconomicStrategies SET ID = (SELECT IDRemapper.id - 1 FROM IDRemapper WHERE AIEconomicStrategies.Type = IDRemapper.Type);
+DROP TABLE IDRemapper;
+
+UPDATE sqlite_sequence
+SET seq = (SELECT COUNT(ID) FROM AIEconomicStrategies) - 1
+WHERE name = 'AIEconomicStrategies';
 
 CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
 INSERT INTO IDRemapper (Type) SELECT Type FROM MinorCivilizations ORDER BY ID;

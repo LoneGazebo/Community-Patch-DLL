@@ -1,3 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+	<!-- Production modifier for units of specified combat classes in all cities -->
+	<Table name="Project_UnitCombatProductionModifiersGlobal">
+		<Column name="ProjectType" type="text" reference="Projects(Type)" notnull="true"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Instant yields to all cities when the player conquers a city, scaling with era -->
+	<Table name="Project_YieldFromConquestAllCities">
+		<Column name="ProjectType" type="text" reference="Projects(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 </GameData>
