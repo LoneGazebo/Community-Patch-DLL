@@ -31733,7 +31733,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if (bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_BECOME_VASSAL);
-			CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, pDeal, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+			CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_POSITIVE);
 		}
 		else
 		{
