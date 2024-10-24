@@ -15,7 +15,7 @@
 			<Text>Universal Healthcare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR]: Receive a free Hospital in every City. +50 [ICON_CULTURE] when a Citizen is born in any City, scaling with Era.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR]: Receive a free Hospital in every City. +50 [ICON_CULTURE] when a [ICON_CITIZEN] Citizen is born in any City, scaling with Era.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">

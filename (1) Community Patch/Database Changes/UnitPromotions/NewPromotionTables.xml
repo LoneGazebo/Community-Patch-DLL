@@ -1,74 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<!-- Instant yields to the origin city of unit with this promotion when it defeats a barbarian unit, scaling with the combat strength of the defeated unit -->
+	<!-- Instant yields to the origin city of the unit when it defeats a barbarian unit, scaling with the combat strength of the defeated unit -->
 	<Table name="UnitPromotions_YieldFromBarbarianKills">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the origin city of unit with this promotion when it defeats a unit, scaling with the combat strength of the defeated unit -->
+	<!-- Instant yields to the origin city of the unit when it defeats a unit, scaling with the combat strength of the defeated unit -->
 	<Table name="UnitPromotions_YieldFromKills">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the nearest owned city when unit with this promotion reveals unexplored tiles, scaling with tiles revealed (weighted) -->
+	<!-- Instant yields to the nearest owned city when the unit reveals unexplored tiles, scaling with tiles revealed (weighted) -->
 	<Table name="UnitPromotions_YieldFromScouting">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the origin city of unit with this promotion when this promotion is acquired -->
+	<!-- Instant yields to the origin city of the unit when this promotion is acquired -->
 	<Table name="UnitPromotions_InstantYields">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
-	<!-- Instant yields to the origin city of unit with this promotion when it pillages an improvement -->
+	<!-- Instant yields to the origin city of the unit when it pillages an improvement -->
 	<Table name="UnitPromotions_YieldFromPillage">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" default="0"/>
 		<Column name="YieldNoScale" type="integer" default="0"/>
 	</Table>
-	<!-- Yields on city when unit with this promotion is a garrison, scaling with unit's combat strength / 8 -->
-	<Table name="UnitPromotions_GarrisonYield">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+	<!-- Instant yields to the origin city of the unit when it picks up an ancient ruin -->
+	<Table name="UnitPromotions_YieldFromAncientRuins">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Yields on tile with fortification improvement when unit with this promotion is on it, scaling with unit's combat strength / 8 -->
-	<Table name="UnitPromotions_FortificationYield">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+	<!-- Instant yields to the origin city of the unit when it plunders a trade route -->
+	<Table name="UnitPromotions_YieldFromTRPlunder">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Yield modifiers in city when unit with this promotion is a garrison -->
-	<Table name="UnitPromotions_YieldModifiers">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+	<!-- Instant yields to the origin city of the unit when it gains XP from combat, scaling with amount of XP gained -->
+	<Table name="UnitPromotions_YieldFromCombatExperienceTimes100">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Yields in city when unit with this promotion is a garrison -->
+
+	<!-- Yields in city when the unit is a garrison -->
 	<Table name="UnitPromotions_YieldChanges">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Unit with this promotion gains the specified combat modifiers per adjacent owned unit of the specified combat -->
+	<!-- Yields in city when the unit is a garrison, scaling with unit's combat strength / 8 -->
+	<Table name="UnitPromotions_GarrisonYield">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yields on tile with fortification improvement when the unit is on it, scaling with unit's combat strength / 8 -->
+	<Table name="UnitPromotions_FortificationYield">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yield modifiers in city when the unit is a garrison -->
+	<Table name="UnitPromotions_YieldModifiers">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Unit gains the specified combat modifiers per adjacent owned unit of the specified combat -->
 	<Table name="UnitPromotions_CombatModPerAdjacentUnitCombat">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)" notnull="true"/>
 		<Column name="Modifier" type="integer" default="0"/>
 		<Column name="Attack" type="integer" default="0"/>
 		<Column name="Defense" type="integer" default="0"/>
 	</Table>
+
+	<!-- Unit inflicts PlaguePromotionType on enemy units of DomainType (all domains if NULL) with ApplyChance% chance on attack or defense depending on ApplyOnAttack and ApplyOnDefense -->
+	<!-- Both PlaguePriority of the plague promotion and the UnitPromotions_BlockedPromotions table may block plagues from being inflicted -->
+	<Table name="UnitPromotions_Plagues">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="PlaguePromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="ApplyOnAttack" type="boolean" default="false"/>
+		<Column name="ApplyOnDefense" type="boolean" default="false"/>
+		<Column name="ApplyChance" type="integer" default="100"/>
+	</Table>
+
+	<!-- Unit immediately loses the specified blocked promotions, and cannot gain them by any means -->
+	<Table name="UnitPromotions_BlockedPromotions">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="BlockedPromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+	</Table>
+
 	<!-- Unit has its name changed when gaining this promotion -->
 	<!-- Needs the PROMOTIONS_UNIT_NAMING option to function -->
 	<Table name="UnitPromotions_UnitName">
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
-		<Column name="UnitType" type="text" reference="Units(Type)"/>
-		<Column name="Name" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="UnitType" type="text" reference="Units(Type)" notnull="true"/>
+		<Column name="Name" type="text" reference="Language_en_US(Tag)" notnull="true"/>
 	</Table>
 </GameData>

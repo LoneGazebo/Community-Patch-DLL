@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Table name="Civilization_Start_Prefer_Mountain">
-		<Column name="CivilizationType" type="text"/>
-		<Column name="StartPreferMountain" type="boolean" default="0"/>
+		<Column name="CivilizationType" type="text" reference="Civilizations(Type)" notnull="true"/>
+		<Column name="StartPreferMountain" type="boolean" notnull="true" default="true"/>
 	</Table>
 	<Table name="Civilization_Start_Prefer_Snow">
-		<Column name="CivilizationType" type="text"/>
-		<Column name="StartPreferSnow" type="boolean" default="0"/>
+		<Column name="CivilizationType" type="text" reference="Civilizations(Type)" notnull="true"/>
+		<Column name="StartPreferSnow" type="boolean" notnull="true" default="true"/>
 	</Table>
 	<!-- Blocks the specified city state from appearing if the associated major civ is present at game start -->
 	<Table name="MajorBlocksMinor">

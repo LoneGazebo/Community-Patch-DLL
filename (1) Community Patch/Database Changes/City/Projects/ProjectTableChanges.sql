@@ -24,3 +24,9 @@ ALTER TABLE Projects ADD IdeologyRequired boolean DEFAULT 0;
 
 -- require x tier 3 tenets prior to construction
 ALTER TABLE Projects ADD NumRequiredTier3Tenets integer DEFAULT 0;
+
+-- Modifier to the EMPIRE_SIZE_NEED_MODIFIER_CITIES variable
+ALTER TABLE Projects ADD EmpireSizeModifierPerCityMod integer DEFAULT 0;
+
+-- The civilization that can exclusively work on this
+ALTER TABLE Projects ADD CivilizationType text REFERENCES Civilizations (Type);

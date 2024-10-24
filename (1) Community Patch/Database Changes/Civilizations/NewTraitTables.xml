@@ -38,6 +38,15 @@
 		<Column name="Value" type="integer" notnull="true"/>
 	</Table>
 
+	<!-- Yield change on specified improvements when empire enters a golden age. Increased yields cap at YieldCap if not NULL. -->
+	<Table name="Trait_ImprovementYieldChangesFromGoldenAge">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="YieldCap" type="integer"/>
+	</Table>
+
 	<!-- Yields on non-lake water tiles -->
 	<Table name="Trait_SeaPlotYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
@@ -75,6 +84,12 @@
 	<Table name="Trait_ResourceYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields on all luxury resources -->
+	<Table name="Trait_LuxuryYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
@@ -157,12 +172,25 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- Yields in every city when you start a WLTKD in any city. Affected by Traits.PermanentYieldsDecreaseEveryEra -->
+	<!-- Yield change in every city when a WLTKD starts in any city. Affected by Traits.PermanentYieldsDecreaseEveryEra. -->
 	<Table name="Trait_PermanentYieldChangeWLTKD">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yield change in every city when empire enters a golden age. Affected by Traits.PermanentYieldsDecreaseEveryEra. -->
+	<Table name="Trait_PermanentYieldChangeGoldenAge">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield change in every city when acquiring a city (including the new city). Affected by Traits.PermanentYieldsDecreaseEveryEra. -->
+	<Table name="Trait_YieldChangeFromCityGain">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
 	<!-- Yields in cities with your pantheon or religion as majority -->
 	<Table name="Trait_YieldFromOwnPantheon">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
@@ -173,18 +201,6 @@
 	<Table name="Trait_YieldChangeTradeRoute">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
-		<Column name="Yield" type="integer" notnull="true"/>
-	</Table>
-	<!-- Yields per unique exported luxury -->
-	<Table name="Trait_YieldFromExport">
-		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
-		<Column name="Yield" type="integer" notnull="true"/>
-	</Table>
-	<!-- Yields per unique imported luxury -->
-	<Table name="Trait_YieldFromImport">
-		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields in capital per CS ally (not friends) -->
@@ -209,7 +225,7 @@
 	<Table name="Trait_YieldChangesPerImprovementBuilt">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields in cities per adjacent unimproved specified feature (up to 2, or up to 3 if ALTERNATE_CELTS custom mod option is on) -->
@@ -219,11 +235,31 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yields per unique exported luxury -->
+	<Table name="Trait_YieldFromExport">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields per unique imported luxury -->
+	<Table name="Trait_YieldFromImport">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- Yield modifier in every city during golden ages, or an ALWAYS ON GROWTH modifier if YIELD_FOOD is specified -->
 	<Table name="Trait_GoldenAgeYieldModifiers">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Yield modifier on empire when it is unhappy -->
+	<!-- Only works for yields that can be global (gold, science, culture, faith, GAP, tourism) -->
+	<Table name="Trait_UnhappyYieldModifiers">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
@@ -237,8 +273,8 @@
 	<Table name="Trait_TradeRouteEndYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
-		<Column name="YieldDomestic" type="integer" default="0"/>
-		<Column name="YieldInternational" type="integer" default="0"/>
+		<Column name="YieldDomestic" type="integer" notnull="true" default="0"/>
+		<Column name="YieldInternational" type="integer" notnull="true" default="0"/>
 	</Table>
 	<!-- Instant yields to origin city when a unit is promoted, scaling with (new level - 1) ^ 2 -->
 	<Table name="Trait_YieldFromLevelUp">
@@ -343,7 +379,7 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
-		<Column name="IsEraScaling" type="boolean" default="false"/>
+		<Column name="IsEraScaling" type="boolean" notnull="true" default="false"/>
 	</Table>
 	<!-- Instant yields to origin city on birth of specified great people -->
 	<Table name="Trait_GreatPersonBornYield">
@@ -390,7 +426,7 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)" notnull="true"/>
 		<Column name="CostModifier" type="integer" notnull="true"/>
-		<Column name="IsGoldenAgeOnly" type="boolean" default="false"/>
+		<Column name="IsGoldenAgeOnly" type="boolean" notnull="true" default="false"/>
 	</Table>
 
 	<!-- Faith/GPP cost modifier for specified great people -->
@@ -461,6 +497,21 @@
 		<Column name="BuildType" type="text" reference="Builds(Type)" notnull="true"/>
 	</Table>
 
+	<!-- All units gain the specified bonuses when the specified great person is born -->
+	<Table name="Trait_BonusFromGPBirth">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
+		<Column name="Heal" type="integer" notnull="true" default="0"/>
+		<Column name="Experience" type="integer" notnull="true" default="0"/>
+	</Table>
+
+	<!-- Spawns the specified resources with ResourceQuantity on random tiles within owned territory on world wonder completion -->
+	<Table name="Trait_FreeResourceOnWonderCompletion">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="ResourceQuantity" type="integer" notnull="true" default="1"/>
+	</Table>
+
 	<!-- Alternate reveal and tradeable techs for specified resources. Will default back to the techs defined in Resources table if NULL. -->
 	<Table name="Trait_AlternateResourceTechs">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
@@ -475,8 +526,8 @@
 	<Table name="Trait_TradeRouteProductionSiphon">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="SiphonPercent" type="integer" notnull="true"/>
-		<Column name="PercentIncreaseWithOpenBorders" type="integer" default="0"/>
-		<Column name="IsInternationalOnly" type="boolean" default="false"/>
+		<Column name="PercentIncreaseWithOpenBorders" type="integer" notnull="true" default="0"/>
+		<Column name="IsInternationalOnly" type="boolean" notnull="true" default="false"/>
 	</Table>
 
 	<!-- Requires TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY custom mod option -->
@@ -486,6 +537,6 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
-		<Column name="IsGrantedToTradePartner" type="boolean" default="true"/>
+		<Column name="IsGrantedToTradePartner" type="boolean" notnull="true" default="true"/>
 	</Table>
 </GameData>

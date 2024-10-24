@@ -53,8 +53,8 @@ VALUES
 
 UPDATE Leaders
 SET
-	PrimaryVictoryPursuit = (SELECT PrimaryVictoryPursuit FROM Leader_VictoryPursuits WHERE TempLeaderType = LeaderType),
-	SecondaryVictoryPursuit = (SELECT SecondaryVictoryPursuit FROM Leader_VictoryPursuits WHERE TempLeaderType = LeaderType)
-WHERE EXISTS (SELECT 1 FROM Leader_VictoryPursuits WHERE TempLeaderType = LeaderType);
+	PrimaryVictoryPursuit = (SELECT PrimaryVictoryPursuit FROM Leader_VictoryPursuits WHERE TempLeaderType = Type),
+	SecondaryVictoryPursuit = (SELECT SecondaryVictoryPursuit FROM Leader_VictoryPursuits WHERE TempLeaderType = Type)
+WHERE EXISTS (SELECT 1 FROM Leader_VictoryPursuits WHERE TempLeaderType = Type);
 
 DROP TABLE Leader_VictoryPursuits;

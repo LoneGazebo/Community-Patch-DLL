@@ -1,4 +1,5 @@
 -- TODO: Documentation
+-- Unless otherwise stated, effects are applied to the city with the building.
 
 ALTER TABLE Buildings ADD AddsFreshWater integer DEFAULT 0;
 ALTER TABLE Buildings ADD PurchaseOnly integer DEFAULT 0;
@@ -289,6 +290,30 @@ ALTER TABLE Buildings ADD GlobalCityAutomatonWorkersChange integer DEFAULT 0;
 ALTER TABLE Buildings ADD CityWorkingChange integer DEFAULT 0;
 ALTER TABLE Buildings ADD GlobalCityWorkingChange integer DEFAULT 0;
 
+-- Modifier for GP rate per active marriage with city state (not at war)
+ALTER TABLE Buildings ADD GPRateModifierPerMarriage integer DEFAULT 0;
+
+-- Modifier for GP rate per completed great work theme
+ALTER TABLE Buildings ADD GPRateModifierPerLocalTheme integer DEFAULT 0;
+
+-- Instant GPP for the great person with the most points when a citizen is born, scaling with era
+ALTER TABLE Buildings ADD GPPOnCitizenBirth integer DEFAULT 0;
+
+-- Global happiness per major civ currently at war with the player
+ALTER TABLE Buildings ADD GlobalHappinessPerMajorWar integer DEFAULT 0;
+
+-- Modifier for military unit production per major civ currently at war with the player
+ALTER TABLE Buildings ADD MilitaryProductionModPerMajorWar integer DEFAULT 0;
+
+-- Non-specialists cannot consume more than the city's food per turn
+ALTER TABLE Buildings ADD NoStarvationNonSpecialist boolean DEFAULT 0;
+
+-- 1 city strength per X national/world wonder
+ALTER TABLE Buildings ADD DefensePerXWonder integer DEFAULT 0;
+
+-- Modifier for ranged combat strength of garrison when attacking
+ALTER TABLE Buildings ADD GarrisonRangedAttackModifier integer DEFAULT 0;
+
 -- GLOBAL_GREATWORK_YIELDTYPES
 ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAULT 'YIELD_CULTURE';
 
@@ -296,7 +321,9 @@ ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAU
 ALTER TABLE Buildings ADD GlobalConversionModifier integer DEFAULT 0;
 ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 
--- modifies GPP Rate in the City per active marriage with CS (not at war)
-ALTER TABLE Buildings ADD GPPRateModPerMarriage integer DEFAULT 0;
-
 ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
+
+-- The tech required to boost the building
+-- If NULL, will fall back to using Buildings.EnhancedYieldTech
+-- Does nothing if both columns are NULL
+ALTER TABLE Building_TechEnhancedYieldChanges ADD TechType text REFERENCES Technologies (Type);
