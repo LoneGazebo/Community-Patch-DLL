@@ -2232,7 +2232,7 @@ protected:
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
-	int m_iGainsXPFromPillaging;
+	int m_iGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
 	int m_iGainsXPFromSpotting;
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;

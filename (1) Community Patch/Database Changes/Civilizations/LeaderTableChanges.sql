@@ -8,8 +8,8 @@ CREATE TABLE Leaders_NEW (
 	ID integer PRIMARY KEY,
 	Type text NOT NULL UNIQUE,
 	Description text REFERENCES Language_en_US (Tag),
-	Civilopedia text REFERENCES Language_en_US (Tag),
-	CivilopediaTag text REFERENCES Language_en_US (Tag),
+	Civilopedia text, -- unused?
+	CivilopediaTag text,
 	ArtDefineTag text,
 	Personality text,
 	PrimaryVictoryPursuit text REFERENCES VictoryPursuitTypes (Type),

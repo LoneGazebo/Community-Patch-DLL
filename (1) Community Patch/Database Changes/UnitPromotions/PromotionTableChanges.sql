@@ -179,7 +179,7 @@ ALTER TABLE UnitPromotions ADD StackedGreatGeneralXP integer DEFAULT 0;
 -- Promotions 
 ALTER TABLE UnitPromotions ADD GoodyHutYieldBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromScouting boolean DEFAULT 0;
-ALTER TABLE UnitPromotions ADD GainsXPFromPillaging boolean DEFAULT 0;
+ALTER TABLE UnitPromotions ADD GainsXPFromPillaging boolean DEFAULT 0; -- OBSOLETE: to be removed in VP5.0, replaced by XPFromPillaging
 ALTER TABLE UnitPromotions ADD GainsXPFromSpotting boolean DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD MultiAttackBonus integer DEFAULT 0;
@@ -229,15 +229,74 @@ ALTER TABLE UnitPromotions ADD NoAttackInOcean boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD AuraRangeChange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD AuraEffectChange integer DEFAULT 0;
 
--- Add columns to UnitPromotions to handle grouping of ranked promotions
-ALTER TABLE UnitPromotions ADD RankList text;
-ALTER TABLE UnitPromotions ADD RankNumber integer DEFAULT 0;
--- to hold visibility preference for each promotion
-ALTER TABLE UnitPromotions ADD FlagPromoOrder integer DEFAULT 0;
+-- Combat strength modifier when unit is on a border tile
+ALTER TABLE UnitPromotions ADD BorderMod integer DEFAULT 0;
 
-ALTER TABLE UnitPromotions ADD SimpleHelpText boolean;
-ALTER TABLE UnitPromotions ADD ShowInUnitPanel boolean DEFAULT 1;
-ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag boolean DEFAULT 1;
+-- Combat strength modifier per active marriage with city state (not at war), capped at MarriageModCap
+ALTER TABLE UnitPromotions ADD MarriageMod integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD MarriageModCap integer DEFAULT 0;
+
+-- Combat strength modifier per level above 1
+ALTER TABLE UnitPromotions ADD CombatModPerLevel integer DEFAULT 0;
+
+-- Modifier for damage taken from all sources
+ALTER TABLE UnitPromotions ADD DamageTakenMod integer DEFAULT 0;
+
+-- Influence towards the nearest city state per XP gained from combat
+ALTER TABLE UnitPromotions ADD InfluenceFromCombatXpTimes100 integer DEFAULT 0;
+
+-- Unit doesn't lose movement when attacking, including from any terrain cost, river crossing, or ZoC
+ALTER TABLE UnitPromotions ADD FreeAttackMoves boolean DEFAULT 0;
+
+-- Used with CapitalDefenseModifier and CapitalDefenseFalloff
+-- Combat strength modifier near player's capital, starting at CapitalDefenseModifier on the capital tile and decreasing by CapitalDefenseFalloff per tile away from the capital
+-- Modifier is capped by CapitalDefenseLimit
+ALTER TABLE UnitPromotions ADD CapitalDefenseLimit integer DEFAULT 0;
+
+-- Combat strength modifier against units from unhappy empire
+ALTER TABLE UnitPromotions ADD VsUnhappyMod integer DEFAULT 0;
+
+-- Unit pillages the target tile's fortifications when attacking and defeating a unit
+-- On pillage effects (e.g. heal, gold steal, instant yields) are not triggered by this
+ALTER TABLE UnitPromotions ADD PillageFortificationsOnKill boolean DEFAULT 0;
+
+-- Combat strength modifier when attacking per attack done by units with this promotion on the same turn, capped at AttackModPerSamePromotionAttackCap
+ALTER TABLE UnitPromotions ADD AttackModPerSamePromotionAttack integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD AttackModPerSamePromotionAttackCap integer DEFAULT 0;
+
+-- Combat strength modifier per city state ally, capped at BALANCE_MAX_CS_ALLY_STRENGTH allies
+ALTER TABLE UnitPromotions ADD CombatModPerCSAlliance integer DEFAULT 0;
+
+-- HP to all adjacent owned units when pillaging improvements that do not block healing
+ALTER TABLE UnitPromotions ADD AoEHealOnPillage integer DEFAULT 0;
+
+-- Extra XP when defeating a unit
+ALTER TABLE UnitPromotions ADD ExtraXPOnKill integer DEFAULT 0;
+
+-- XP when pillaging an improvement
+ALTER TABLE UnitPromotions ADD XPFromPillaging integer DEFAULT 0;
+
+-- Unit cannot have its HP increased by any means
+ALTER TABLE UnitPromotions ADD CannotHeal boolean DEFAULT 0;
+
+-- % Multiplier on fortify combat strength bonus (FORTIFY_MODIFIER_PER_TURN)
+ALTER TABLE UnitPromotions ADD FortifyEffectiveness integer DEFAULT 100;
+
+-- Extra damage on all units on target tile when unit attacks without having moved this turn
+-- This damage is not affected by any damage modifying effects on the target(s), and sets off all on-kill triggers
+ALTER TABLE UnitPromotions ADD TileDamageIfNotMoved integer DEFAULT 0;
+
+-- When unit is expended, the current yields from the tile (after factoring in the improvement that might be built by the unit) is added to the player's capital
+ALTER TABLE UnitPromotions ADD CopyYieldsFromExpendTile boolean DEFAULT 0;
+
+-- When unit is expended, all owned units on the same tile gain XP
+ALTER TABLE UnitPromotions ADD TileXPOnExpend integer DEFAULT 0;
+
+-- This promotion is only effective if the unit starts its turn affected by leadership aura (great general or great admiral depending on domain)
+ALTER TABLE UnitPromotions ADD RequiresLeadership boolean DEFAULT 0;
+
+-- This promotion is only effective if the unit starts its turn at or above this percentage of health
+ALTER TABLE UnitPromotions ADD MinEffectiveHealth integer DEFAULT 0;
 
 -- PROMOTIONS_CROSS_ICE
 ALTER TABLE UnitPromotions ADD CanCrossIce integer DEFAULT 0;
@@ -255,6 +314,16 @@ ALTER TABLE UnitPromotions ADD EmbarkedDeepWater integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyImprovementCombatBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyImprovementBonusRange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD CombatBonusImprovement integer DEFAULT -1;
+
+-- Add columns to UnitPromotions to handle grouping of ranked promotions
+ALTER TABLE UnitPromotions ADD RankList text;
+ALTER TABLE UnitPromotions ADD RankNumber integer DEFAULT 0;
+-- to hold visibility preference for each promotion
+ALTER TABLE UnitPromotions ADD FlagPromoOrder integer DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD SimpleHelpText boolean;
+ALTER TABLE UnitPromotions ADD ShowInUnitPanel boolean DEFAULT 1;
+ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag boolean DEFAULT 1;
 
 -- Attack and defense modifiers against units of this domain
 ALTER TABLE UnitPromotions_Domains ADD Attack integer DEFAULT 0;

@@ -163,7 +163,7 @@ ALTER TABLE Traits ADD NewCitiesStartWithCapitalReligion boolean DEFAULT 0;
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD NoSpread boolean DEFAULT 0;
 
--- New Traits - GG XP bonus when spawned and removes damage from all owned units
+-- OBSOLETE: to be removed in VP5.0, replaced by Trait_BonusFromGPBirth
 ALTER TABLE Traits ADD XPBonusFromGGBirth integer DEFAULT 0;
 
 -- New Traits - Military x% better at intimidating CSs
@@ -343,3 +343,12 @@ ALTER TABLE Traits ADD ObsoletePolicy text REFERENCES Policies (Type);
 ALTER TABLE Traits ADD PrereqPolicy text REFERENCES Policies (Type);
 
 ALTER TABLE Traits ADD SeaTradeRouteRangeBonus integer DEFAULT 0;
+
+-- All cities gain this production modifier for units when empire is unhappy
+ALTER TABLE Traits ADD UnhappyUnitProductionMod integer DEFAULT 0;
+
+-- Cities cannot avoid growth
+ALTER TABLE Traits ADD NoAvoidGrowth boolean DEFAULT 0;
+
+-- Modifier for city revolution countdown timer when empire is very unhappy
+ALTER TABLE Traits ADD RevoltTimerMod integer DEFAULT 0;
