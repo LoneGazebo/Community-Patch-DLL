@@ -78,13 +78,10 @@ ALTER TABLE Units ADD BaseLandAirDefense integer DEFAULT 0;
 -- Adds Mounted trait to a unit that isn't in the unitcombat_mounted combat class
 ALTER TABLE Units ADD IsMounted boolean DEFAULT 0;
 
-ALTER TABLE Units ADD NoSupply integer DEFAULT 0;
+ALTER TABLE Units ADD NoSupply boolean DEFAULT 0;
 
 -- Unit Upgrades for free when reaching it's UnitClass Upgrade Tech
 ALTER TABLE Units ADD FreeUpgrade boolean DEFAULT 0;
-
--- Naval units can only attack coastal tiles regardless of range.
-ALTER TABLE Units ADD CoastalFireOnly boolean DEFAULT 0;
 
 -- Unit gets a new Combat Strength in specific Era, must be set to 'true' or 1, if using Unit_EraCombatStrength, and Unit_EraCombatStrength must be filled in.
 ALTER TABLE Units ADD UnitEraUpgrade boolean DEFAULT 0;
@@ -115,10 +112,10 @@ ALTER TABLE Units ADD RestingPointChange integer DEFAULT 0;
 ALTER TABLE Units ADD ProductionCostAddedPerEra integer DEFAULT 0;
 
 -- EVENTS_CAN_MOVE_INTO
-ALTER TABLE Units ADD SendCanMoveIntoEvent integer DEFAULT 0;
+ALTER TABLE Units ADD SendCanMoveIntoEvent boolean DEFAULT 0;
 
 -- GLOBAL_CANNOT_EMBARK
-ALTER TABLE Units ADD CannotEmbark integer DEFAULT 0;
+ALTER TABLE Units ADD CannotEmbark boolean DEFAULT 0;
 
 -- This unit can only be gifted by a city state as its unique unit (BALANCE_CORE_MINOR_CIV_GIFT)
 ALTER TABLE Units ADD MinorCivGift boolean DEFAULT 0;
@@ -127,17 +124,17 @@ ALTER TABLE Units ADD MinorCivGift boolean DEFAULT 0;
 ALTER TABLE Units ADD NoMinorCivGift boolean DEFAULT 0;
 
 -- This unit cannot be a city state's unique unit, but can still be gifted by city states if all other requirements are met (GLOBAL_EXCLUDE_FROM_GIFTS)
-ALTER TABLE Units ADD NoMinorGifts integer DEFAULT 0;
+ALTER TABLE Units ADD NoMinorGifts boolean DEFAULT 0;
 
 -- GLOBAL_MOVE_AFTER_UPGRADE
-ALTER TABLE Units ADD MoveAfterUpgrade integer DEFAULT 0;
+ALTER TABLE Units ADD MoveAfterUpgrade boolean DEFAULT 0;
 
 -- GLOBAL_PROMOTION_CLASSES
 ALTER TABLE Units ADD PromotionClass text REFERENCES UnitCombatInfos (Type);
 
 -- GLOBAL_SEPARATE_GREAT_ADMIRAL
-ALTER TABLE Units ADD CanRepairFleet integer DEFAULT 0;
-ALTER TABLE Units ADD CanChangePort integer DEFAULT 0;
+ALTER TABLE Units ADD CanRepairFleet boolean DEFAULT 0;
+ALTER TABLE Units ADD CanChangePort boolean DEFAULT 0;
 
 -- GLOBAL_STACKING_RULES
 -- Additional units that can stack with this unit 

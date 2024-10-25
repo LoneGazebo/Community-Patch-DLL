@@ -708,7 +708,7 @@
 			<Strategy>TXT_KEY_BUILDING_FORTRESS_STRATEGY</Strategy>
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<ArtDefineTag>CASTLE</ArtDefineTag>
-			<CityIndirectFire>1</CityIndirectFire>
+			<CityIndirectFire>true</CityIndirectFire>
 			<CitySupplyModifier>10</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
@@ -726,7 +726,7 @@
 			<PrereqTech>TECH_BALLISTICS</PrereqTech>
 			<Water>true</Water>
 			<DeepWaterTileDamage>5</DeepWaterTileDamage>
-			<BorderObstacleWater>1</BorderObstacleWater>
+			<BorderObstacleWater>true</BorderObstacleWater>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
 		</Row>
