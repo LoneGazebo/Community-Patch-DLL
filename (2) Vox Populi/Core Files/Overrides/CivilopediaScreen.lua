@@ -814,7 +814,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		--Add Faith Buildings first
 		local tableid = 1;
 		sortedList[CategoryBuildings][sectionID] = {};
-		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.ShowInPedia = 1 and Buildings.Cost = -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.ShowInPedia = 1 and Buildings.Cost = -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 			AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 0 to sectionID
 			tableid = tableid + 1;
 		end
@@ -825,7 +825,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	--Add Corporation Buildings Second
 	local tableid = 1;
 	sortedList[CategoryBuildings][sectionID] = {};
-	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and Buildings.ShowInPedia = 1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation = 1 and Buildings.ShowInPedia = 1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 		AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 1 to sectionID
 		tableid = tableid + 1;
 	end
@@ -892,7 +892,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 	for building in GameInfo.Buildings() do
 		-- exclude wonders etc.
 		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-		if thisBuildingClass.MaxGlobalInstances > 0 and building.IsCorporation == 0 then
+		if thisBuildingClass.MaxGlobalInstances > 0 and not building.IsCorporation then
 			local article = {};
 			local name = Locale.ConvertTextKey( building.Description )
 			article.entryName = name;
@@ -3009,7 +3009,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		if thisUnit.MinAreaSize >= 10 then sText = sText.."[NEWLINE][ICON_BULLET]Moves on [COLOR_CYAN]Sea[ENDCOLOR] only"; end
 		AnalyzeUnit("CombatClass", "UnitCombatInfos", "Class");
 		--AnalyzeUnit("IsMounted");
-		if thisUnit.IsMounted == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Mounted[ENDCOLOR] unit"; end
+		if thisUnit.IsMounted then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Mounted[ENDCOLOR] unit"; end
 		AnalyzeUnit("Special", "SpecialUnits", "Special unit");
 		AnalyzeUnit("GoodyHutUpgradeUnitClass", "UnitClasses", "Upgraded by Ruins to");
 		AnalyzeUnit("PolicyType", "Policies", "Requires policy");
@@ -3084,17 +3084,17 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("DontShowYields");
 		--AnalyzeUnit("ShowInPedia");
 		AnalyzeUnit("MoveRate"); -- MovementRates doesn't have Description
-		AnalyzeUnit("FoundMid", "");
-		AnalyzeUnit("FoundLate", "");
-		AnalyzeUnit("CityAttackOnly", "");
+		AnalyzeUnit("FoundMid");
+		AnalyzeUnit("FoundLate");
+		AnalyzeUnit("CityAttackOnly");
 		AnalyzeUnit("CulExpOnDisbandUpgrade");
 		AnalyzeUnit("PuppetPurchaseOverride");
 		AnalyzeUnit("GoodyModifier");
 		AnalyzeUnit("SupplyCapBoost");
 		AnalyzeUnit("NumFreeLux", "");
 		AnalyzeUnit("GPExtra");
-		AnalyzeUnit("MinorCivGift", "");
-		AnalyzeUnit("NoMinorCivGift", "");
+		AnalyzeUnit("MinorCivGift");
+		AnalyzeUnit("NoMinorCivGift");
 		AnalyzeUnit("PurchaseCooldown", "");
 		AnalyzeUnit("GlobalFaithPurchaseCooldown");
 		--AnalyzeUnit("BaseLandAirDefense");
@@ -3332,7 +3332,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("CanMoveImpassable");
 		AnalyzePromotion("NoCapture");
 		AnalyzePromotion("OnlyDefensive");
-		if thisPromotion.NoAttackInOcean == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot attack in ocean[ENDCOLOR]"; end
+		if thisPromotion.NoAttackInOcean then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot attack in ocean[ENDCOLOR]"; end
 		AnalyzePromotion("NoDefensiveBonus");
 		AnalyzePromotion("NukeImmune");
 		AnalyzePromotion("HiddenNationality");
@@ -3445,10 +3445,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("BarbarianCombatBonus");
 		AnalyzePromotion("MoraleBreakChance");
 		--AnalyzePromotion("BarbarianOnly");
-		if thisPromotion.BarbarianOnly == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Barbarian Only[ENDCOLOR]"; end
+		if thisPromotion.BarbarianOnly then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Barbarian Only[ENDCOLOR]"; end
 		AnalyzePromotion("CityStateOnly");
-		--AnalyzePromotion("StrongerDamaged");
-		if thisPromotion.StrongerDamaged == 1 then sText = sText.."[NEWLINE][ICON_BULLET]StrongerDamaged"; end
+		AnalyzePromotion("StrongerDamaged");
 		AnalyzePromotion("MountainsDoubleMove");
 		AnalyzePromotion("CombatBonusFromNearbyUnitClass");
 		AnalyzePromotion("NearbyUnitClassBonusRange");
@@ -3489,20 +3488,17 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("NearbyHealNeutralTerritory");
 		AnalyzePromotion("NearbyHealFriendlyTerritory");
 		AnalyzePromotion("IgnoreTerrainDamage");
-		--if thisPromotion.CanCrossIce == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ice tiles"; end
-		--AnalyzePromotion("IgnoreFeatureDamage");
-		if thisPromotion.IgnoreFeatureDamage == 1 then sText = sText.."[NEWLINE][ICON_BULLET]IgnoreFeatureDamage"; end
+		AnalyzePromotion("IgnoreFeatureDamage");
 		AnalyzePromotion("ExtraTerrainDamage");
-		--AnalyzePromotion("ExtraFeatureDamage");
-		if thisPromotion.ExtraFeatureDamage == 1 then sText = sText.."[NEWLINE][ICON_BULLET]ExtraFeatureDamage"; end
+		AnalyzePromotion("ExtraFeatureDamage");
 		--AnalyzePromotion("CanCrossIce");
-		if thisPromotion.CanCrossIce == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ice tiles"; end
+		if thisPromotion.CanCrossIce then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ice tiles"; end
 		--AnalyzePromotion("CanCrossMountains");
-		if thisPromotion.CanCrossMountains == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Mountain tiles"; end
+		if thisPromotion.CanCrossMountains then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Mountain tiles"; end
 		--AnalyzePromotion("CanCrossOceans");
-		if thisPromotion.CanCrossOceans == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ocean tiles"; end
+		if thisPromotion.CanCrossOceans then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ocean tiles"; end
 		--AnalyzePromotion("EmbarkedDeepWater");
-		if thisPromotion.EmbarkedDeepWater == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can embark onto Ocean tiles"; end
+		if thisPromotion.EmbarkedDeepWater then sText = sText.."[NEWLINE][ICON_BULLET]Can embark onto Ocean tiles"; end
 		AnalyzePromotion("NearbyImprovementCombatBonus");
 		AnalyzePromotion("NearbyImprovementBonusRange");
 		AnalyzePromotion("CombatBonusImprovement");
@@ -4327,7 +4323,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 			sText = sText .. AnalyzeObjectField(thisBuilding, sField, sSuffix);
 		end
 		--AnalyzeBuilding("CapitalOnly", "");
-		if thisBuilding.CapitalOnly == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Only in [ICON_CAPITAL] [COLOR_CYAN]Capital[ENDCOLOR]"; end
+		if thisBuilding.CapitalOnly then sText = sText.."[NEWLINE][ICON_BULLET]Only in [ICON_CAPITAL] [COLOR_CYAN]Capital[ENDCOLOR]"; end
 		--AnalyzeBuilding("UnlockedByBelief");
 		if thisBuilding.UnlockedByBelief then sText = sText.."[NEWLINE][ICON_BULLET]Unlocked by [COLOR_CYAN]Belief[ENDCOLOR]"; end
 		--AnalyzeBuilding("UnlockedByLeague");
@@ -4337,7 +4333,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		--AnalyzeBuilding("PolicyType");
 		if thisBuilding.PolicyType ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Requires [COLOR_CYAN]"..Locale.Lookup(GameInfo.Policies[thisBuilding.PolicyType].Description).."[ENDCOLOR]"; end
 		--AnalyzeBuilding("IsCorporation");
-		if thisBuilding.IsCorporation == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Corporation[ENDCOLOR]"; end
+		if thisBuilding.IsCorporation then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Corporation[ENDCOLOR]"; end
 		AnalyzeBuilding("TeamShare");
 		AnalyzeBuilding("Water");
 		--AnalyzeBuilding("MinAreaSize");
@@ -4467,13 +4463,13 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("ArtInfoCulturalVariation");
 		AnalyzeBuilding("ArtInfoEraVariation");
 		AnalyzeBuilding("ArtInfoRandomVariation");
-		AnalyzeBuilding("IsNoWater", "");
-		AnalyzeBuilding("IsNoRiver", "");
+		AnalyzeBuilding("IsNoWater");
+		AnalyzeBuilding("IsNoRiver");
 		AnalyzeBuilding("NumPoliciesNeeded", "");
 		AnalyzeBuilding("NationalPopRequired", "");
 		AnalyzeBuilding("LocalPopRequired", "");
-		AnalyzeBuilding("BorderObstacleCity", "");
-		AnalyzeBuilding("BorderObstacleWater", "");
+		AnalyzeBuilding("BorderObstacleCity");
+		AnalyzeBuilding("BorderObstacleWater");
 		AnalyzeBuilding("AllowsFoodTradeRoutesGlobal");
 		AnalyzeBuilding("AllowsProductionTradeRoutesGlobal");
 		AnalyzeBuilding("CityConnectionGoldModifier");
@@ -4491,7 +4487,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("GlobalBuildingGoldMaintenanceMod");
 		AnalyzeBuilding("NationalFollowerPopRequired");
 		AnalyzeBuilding("GlobalFollowerPopRequired");
-		AnalyzeBuilding("IsReformation", "");
+		AnalyzeBuilding("IsReformation");
 		AnalyzeBuilding("ResourceType");
 		--if thisPromotion.TechPrereq ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Requires [COLOR_CYAN]"..Locale.Lookup(GameInfo.Technologies[thisPromotion.TechPrereq].Description).."[ENDCOLOR]"; end
 		AnalyzeBuilding("PuppetPurchaseOverride");
@@ -4510,7 +4506,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("CitySupplyFlat", "[ICON_WAR]");
 		AnalyzeBuilding("CitySupplyFlatGlobal", "[ICON_WAR]");
 		AnalyzeBuilding("CityRangedStrikeRange", "");
-		AnalyzeBuilding("CityIndirectFire", "");
+		AnalyzeBuilding("CityIndirectFire");
 		AnalyzeBuilding("RangedStrikeModifier");
 		AnalyzeBuilding("ExtraMissionaryStrengthGlobal");
 		AnalyzeBuilding("ReformationFollowerReduction");

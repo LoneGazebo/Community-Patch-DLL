@@ -1,9 +1,9 @@
 -- TODO: Documentation
 
-ALTER TABLE UnitPromotions ADD IgnoreTerrainDamage integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD IgnoreFeatureDamage integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD ExtraTerrainDamage integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD ExtraFeatureDamage integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD IgnoreTerrainDamage boolean DEFAULT 0;
+ALTER TABLE UnitPromotions ADD IgnoreFeatureDamage boolean DEFAULT 0;
+ALTER TABLE UnitPromotions ADD ExtraTerrainDamage boolean DEFAULT 0;
+ALTER TABLE UnitPromotions ADD ExtraFeatureDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsChange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsModifier integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD PartialHealOnPillage integer DEFAULT 0;
@@ -21,7 +21,7 @@ ALTER TABLE UnitPromotions ADD AttackAbove50HealthMod integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD AttackBelowEqual50HealthMod integer DEFAULT 0;
 
 -- ranged attacks benefit from other units flanking the target
-ALTER TABLE UnitPromotions ADD RangedFlankAttack integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD RangedFlankAttack boolean DEFAULT 0;
 -- counts as extra units when supporting a flank
 ALTER TABLE UnitPromotions ADD ExtraFlankPower integer DEFAULT 0;
 
@@ -142,7 +142,7 @@ ALTER TABLE UnitPromotions ADD GetGroundAttackDamage integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MilitaryCapChange integer DEFAULT 0;
 
 -- Combat Modifier for determined range near a defined UnitClass
-ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass integer DEFAULT -1;
+ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass text REFERENCES UnitClasses (Type);
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus integer DEFAULT 0;
 
@@ -160,23 +160,24 @@ ALTER TABLE UnitPromotions ADD LandAirDefenseBonus integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD DiploMissionInfluence integer DEFAULT 0;
 
--- Plague Stuff
+-- OBSOLETE: to be removed in VP5.0, replaced by UnitPromotions_Plagues and UnitPromotions_BlockedPromotions tables
 ALTER TABLE UnitPromotions ADD PlagueChance integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD PlaguePromotion text REFERENCES UnitPromotions (Type);
+ALTER TABLE UnitPromotions ADD PlagueIDImmunity integer DEFAULT -1;
+
 ALTER TABLE UnitPromotions ADD PlagueID integer DEFAULT -1;
 ALTER TABLE UnitPromotions ADD PlaguePriority integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD PlagueIDImmunity integer DEFAULT -1;
 
 -- Modify CS/RCS based on terrain roughness
 ALTER TABLE UnitPromotions ADD OpenFromMod integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RoughFromMod integer DEFAULT 0;
 
-ALTER TABLE UnitPromotions ADD NoSupply integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD NoSupply boolean DEFAULT 0;
 
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD StackedGreatGeneralXP integer DEFAULT 0;
 
--- Promotions 
+-- Promotions
 ALTER TABLE UnitPromotions ADD GoodyHutYieldBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromScouting boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromPillaging boolean DEFAULT 0; -- OBSOLETE: to be removed in VP5.0, replaced by XPFromPillaging
@@ -299,21 +300,21 @@ ALTER TABLE UnitPromotions ADD RequiresLeadership boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MinEffectiveHealth integer DEFAULT 0;
 
 -- PROMOTIONS_CROSS_ICE
-ALTER TABLE UnitPromotions ADD CanCrossIce integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD CanCrossIce boolean DEFAULT 0;
 
 -- PROMOTIONS_CROSS_MOUNTAINS
-ALTER TABLE UnitPromotions ADD CanCrossMountains integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD CanCrossMountains boolean DEFAULT 0;
 
 -- PROMOTIONS_CROSS_OCEANS
-ALTER TABLE UnitPromotions ADD CanCrossOceans integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD CanCrossOceans boolean DEFAULT 0;
 
 -- PROMOTIONS_DEEP_WATER_EMBARKATION
-ALTER TABLE UnitPromotions ADD EmbarkedDeepWater integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD EmbarkedDeepWater boolean DEFAULT 0;
 
 -- PROMOTIONS_IMPROVEMENT_BONUS
 ALTER TABLE UnitPromotions ADD NearbyImprovementCombatBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyImprovementBonusRange integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD CombatBonusImprovement integer DEFAULT -1;
+ALTER TABLE UnitPromotions ADD CombatBonusImprovement text REFERENCES Improvements (Type);
 
 -- Add columns to UnitPromotions to handle grouping of ranked promotions
 ALTER TABLE UnitPromotions ADD RankList text;
@@ -321,7 +322,7 @@ ALTER TABLE UnitPromotions ADD RankNumber integer DEFAULT 0;
 -- to hold visibility preference for each promotion
 ALTER TABLE UnitPromotions ADD FlagPromoOrder integer DEFAULT 0;
 
-ALTER TABLE UnitPromotions ADD SimpleHelpText boolean;
+ALTER TABLE UnitPromotions ADD SimpleHelpText boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD ShowInUnitPanel boolean DEFAULT 1;
 ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag boolean DEFAULT 1;
 

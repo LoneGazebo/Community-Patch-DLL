@@ -307,7 +307,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 						or ( building.River and not owningCityPlot:IsRiver())
 						or ( building.FreshWater and not owningCityPlot:IsFreshWater() )
 -- CP
-						or ( (building.IsNoWater == 1) and owningCityPlot:IsFreshWater() )
+						or ( building.IsNoWater and owningCityPlot:IsFreshWater() )
 -- END
 						or ( building.Hill and not owningCityPlot:IsHills() )
 						or ( building.Flat and owningCityPlot:IsHills() )
@@ -973,7 +973,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				local buildID = build.ID
 				local buildTip = L(build.Description)
 
-				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia ~= false and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
+				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
 				local isBasicBuild = true
 				local buildImprovementID = build.ImprovementType
 				local buildImprovement = GameInfo.Improvements[ buildImprovementID or -1 ]
