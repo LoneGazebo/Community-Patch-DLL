@@ -461,11 +461,11 @@ protected:
 	int m_iGoldenAgeValueFromKills;
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int m_iPlagueChance;
-	int m_iPlaguePromotion;
+	int m_iPlagueChance; // OBSOLETE: to be removed in VP5.0
+	int m_iPlaguePromotion; // OBSOLETE: to be removed in VP5.0
 	int m_iPlagueID;
 	int m_iPlaguePriority;
-	int m_iPlagueIDImmunity;
+	int m_iPlagueIDImmunity; // OBSOLETE: to be removed in VP5.0
 #endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefenseModifier;

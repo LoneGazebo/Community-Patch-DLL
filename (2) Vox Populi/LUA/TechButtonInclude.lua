@@ -126,8 +126,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
   	for thisUnitInfo in GameInfo.Units(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to make this unit
 		if validUnitBuilds[thisUnitInfo.Class] == thisUnitInfo.Type then
-			local iMinorCivGift = thisUnitInfo.MinorCivGift
-			if (iMinorCivGift ~= 1) then
+			if not thisUnitInfo.MinorCivGift then
 				local buttonName = "B"..tostring(buttonNum);
 				local thisButton = thisTechButtonInstance[buttonName];
 				if thisButton then

@@ -387,7 +387,7 @@ function RefreshMonopolies()
 	local resources = {};
 	for pResource in GameInfo.Resources() do
 		local eResource = pResource.ID;
-		if(pResource.IsMonopoly == 1) then
+		if(pResource.IsMonopoly) then
 			local ePlayer = ChooseMonopolyPlayer(eResource);
 
 			local iMonopolyPercent = 0;

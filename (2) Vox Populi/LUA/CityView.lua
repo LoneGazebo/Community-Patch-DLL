@@ -1542,7 +1542,7 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
-				if not (building.IsCorporation == 1) then
+				if not building.IsCorporation then
 					local buildingID= building.ID;
 					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
 						if (pCity:IsHasBuilding(buildingID)) then
@@ -1608,7 +1608,7 @@ function OnCityViewUpdate()
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
 				local buildingID= building.ID;
-				if not (building.IsCorporation == 1) then
+				if not building.IsCorporation then
 					if (pCity:IsHasBuilding(buildingID)) then
 						numWondersInThisCity = numWondersInThisCity + 1;
 						if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
@@ -1667,7 +1667,7 @@ function OnCityViewUpdate()
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
 				local thisBuilding = GameInfo.Buildings[building.ID];
 				if thisBuilding.GreatWorkCount > 0 then
-					if not (building.IsCorporation == 1) then
+					if not building.IsCorporation then
 						if (pCity:IsHasBuilding(building.ID)) then
 							numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
 							local element = {};
@@ -1710,11 +1710,10 @@ function OnCityViewUpdate()
 		sortedList = {};
 		thisId = 1;
 		for building in GameInfo.Buildings() do
-			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if (building.IsCorporation == 1) then
+			if building.IsCorporation then
 				local buildingID= building.ID;
 				if (pCity:IsHasBuilding(buildingID)) then
-					numCorpsInThisCity = numCorpsInThisCity + 1;				
+					numCorpsInThisCity = numCorpsInThisCity + 1;
 					local element = {};
 					local name = Locale.ConvertTextKey( building.Description )
 					element.name = name;
@@ -1755,10 +1754,10 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
-				if not (building.IsCorporation == 1) then
+				if not building.IsCorporation then
 					local buildingID= building.ID;
 					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0 and GameInfo.Buildings[buildingID].IsDummy == 0) then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0 and not GameInfo.Buildings[buildingID].IsDummy) then
 							numBuildingsInThisCity = numBuildingsInThisCity + 1;
 							local element = {};
 							local name = Locale.ConvertTextKey( building.Description )

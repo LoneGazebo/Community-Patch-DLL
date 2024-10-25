@@ -201,7 +201,7 @@ local function UnitFlagToolTip( button )
 		local i = 0
 		if not( unit.IsTrade and unit:IsTrade() ) then
 			for unitPromotion in GameInfo.UnitPromotions() do
-				if unit:IsHasPromotion(unitPromotion.ID) and unitPromotion.ShowInUnitPanel ~= false then
+				if unit:IsHasPromotion(unitPromotion.ID) and unitPromotion.ShowInUnitPanel then
 					i = i + 1
 					local instance = g_usedPromotions[i]
 					if not instance then
@@ -796,7 +796,7 @@ local function UpdatePromotions(playerID, unitID)
 
 	for promo in GameInfo.UnitPromotions() do
 		local promoID = promo.ID
-		if unit:IsHasPromotion(promoID) and promo.IsVisibleAboveFlag > 0 then
+		if unit:IsHasPromotion(promoID) and promo.IsVisibleAboveFlag then
 			local showPromo = true
 			
 			--don't show promos from leader traits
