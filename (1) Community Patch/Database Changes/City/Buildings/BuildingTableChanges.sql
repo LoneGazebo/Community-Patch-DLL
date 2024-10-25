@@ -1,8 +1,8 @@
 -- TODO: Documentation
 -- Unless otherwise stated, effects are applied to the city with the building.
 
-ALTER TABLE Buildings ADD AddsFreshWater integer DEFAULT 0;
-ALTER TABLE Buildings ADD PurchaseOnly integer DEFAULT 0;
+ALTER TABLE Buildings ADD AddsFreshWater boolean DEFAULT 0;
+ALTER TABLE Buildings ADD PurchaseOnly boolean DEFAULT 0;
 
 -- Create buildings that cannot have access to fresh water.
 ALTER TABLE Buildings ADD IsNoWater boolean DEFAULT 0;
@@ -54,10 +54,10 @@ ALTER TABLE Buildings ADD LocalPopRequired integer DEFAULT 0;
 ALTER TABLE Buildings ADD PopulationChange integer DEFAULT 0;
 
 -- Movement speed penalty (like Great Wall) for land plots worked by a City.
-ALTER TABLE Buildings ADD BorderObstacleCity integer DEFAULT 0;
+ALTER TABLE Buildings ADD BorderObstacleCity boolean DEFAULT 0;
 
 -- Movement speed penalty (like Great Wall) for water plots worked by a City.
-ALTER TABLE Buildings ADD BorderObstacleWater integer DEFAULT 0;
+ALTER TABLE Buildings ADD BorderObstacleWater boolean DEFAULT 0;
 
 -- x damage to units that end turn on a deep water tile owned by a city
 ALTER TABLE Buildings ADD DeepWaterTileDamage integer DEFAULT 0;
@@ -171,7 +171,7 @@ ALTER TABLE Buildings ADD CitySupplyFlatGlobal integer DEFAULT 0;
 
 -- Allows buildings to modify a city's ranged strike parameters.
 ALTER TABLE Buildings ADD CityRangedStrikeRange integer DEFAULT 0;
-ALTER TABLE Buildings ADD CityIndirectFire integer DEFAULT 0;
+ALTER TABLE Buildings ADD CityIndirectFire boolean DEFAULT 0;
 ALTER TABLE Buildings ADD RangedStrikeModifier integer DEFAULT 0;
 
 -- Missionaries built by a city gain % more strength

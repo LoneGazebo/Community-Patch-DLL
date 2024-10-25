@@ -100,7 +100,6 @@ public:
 #endif
 	void SetCombat(int iNum);
 	int GetRangedCombat() const;
-	bool IsCoastalFireOnly() const;
 	bool IsNoSupply() const;
 	int GetMaxHitPoints() const;
 	int GetSpecialCargo() const;
@@ -326,7 +325,6 @@ private:
 	int m_iSpecialUnitCargoLoad;
 #endif
 	int m_iRangedCombat;
-	bool m_bCoastalFire;
 	bool m_bNoSupply;
 	int m_iMaxHitPoints;
 	int m_iSpecialCargo;

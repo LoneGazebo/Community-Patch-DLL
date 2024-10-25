@@ -1312,7 +1312,7 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 	local promos			= {}	
 	for promo in GameInfo.UnitPromotions() do
 		local promoID = promo.ID
-		if unit:IsHasPromotion(promoID) and promo.ShowInUnitPanel ~= false then
+		if unit:IsHasPromotion(promoID) and promo.ShowInUnitPanel then
 			local showPromo = true
 
 			if promo.RankList then

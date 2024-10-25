@@ -494,12 +494,8 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- units unlocked by this tech
 	for row in GameInfo.Units( thisPrereqTech ) do
-		local unitType = row.Type
-		if(unitType) then
-			local iMinorCivGift = row.MinorCivGift
-			if (iMinorCivGift ~= 1) and (validUnitBuilds[row.Class] == unitType ) then
-				addSmallArtButton( AdjustArtOnGrantedUnitButton, row )
-			end
+		if not row.MinorCivGift and validUnitBuilds[row.Class] == row.Type then
+			addSmallArtButton( AdjustArtOnGrantedUnitButton, row )
 		end
 	end
 
