@@ -1359,6 +1359,8 @@ public:
 	void changeDomainProductionModifier(DomainTypes eIndex, int iChange);
 
 	bool isEverLiberated(PlayerTypes eIndex) const;
+	bool isEverLiberatedAfterAquiringSelfDeterminism(PlayerTypes eIndex) const;
+
 	void setEverLiberated(PlayerTypes eIndex, bool bNewValue);
 
 	bool isRevealed(TeamTypes eIndex, bool bDebug, bool bAdjacentIsGoodEnough) const;

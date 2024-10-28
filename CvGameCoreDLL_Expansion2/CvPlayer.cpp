@@ -8844,7 +8844,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	bool bFirstLiberation = false;
 	if (!bForced || bSphereRemoval)
 	{
-		if (!pNewCity->isEverLiberated(GetID()))
+		if (!pNewCity->isEverLiberatedAfterAquiringSelfDeterminism(GetID()))
 		{
 			bFirstLiberation = true;
 			pNewCity->setEverLiberated(GetID(), true);
@@ -8878,7 +8878,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Liberated player's bonuses always apply
 	if (!bForced || bSphereRemoval)
 	{
-		if (bFirstLiberation)
+		if (bFirstLiberation) // bFirstLiberation after aquiring the policy
 		{
 			//gain yields for liberation
 			int iPop = pNewCity->getPopulation();

@@ -25785,6 +25785,21 @@ bool CvCity::isEverLiberated(PlayerTypes eIndex) const
 	return m_abEverLiberated[eIndex];
 }
 
+//	--------------------------------------------------------------------------------
+// This function return true if the city was ever liberated after the player acquired Self Determination policy
+bool CvCity::isEverLiberatedAfterAquiringSelfDeterminism(PlayerTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+
+	if (m_abEverLiberated[eIndex] && GET_PLAYER(eIndex).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
