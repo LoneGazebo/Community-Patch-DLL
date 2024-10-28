@@ -2666,26 +2666,26 @@ int CvLuaCity::lGetPopulation(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::getPopulation);
 }
 //------------------------------------------------------------------------------
-//void setPopulation(int iNewValue);
+//void setPopulation(int iNewValue, bool bReassignPop = true);
 int CvLuaCity::lSetPopulation(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	int iValue = lua_tointeger(L, 2);
-	int bReassignPop = lua_toboolean(L, 3);
-	CvAssertMsg(bReassignPop != 0, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
+	bool bReassignPop = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
+	CvAssertMsg(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
 	pkCity->setPopulation(iValue, bReassignPop);
 
 	return 1;
 //	return BasicLuaMethod(L, &CvCity::setPopulation);
 }
 //------------------------------------------------------------------------------
-//void changePopulation(int iChange);
+//void changePopulation(int iChange, bool bReassignPop = true);
 int CvLuaCity::lChangePopulation(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	int iChange = lua_tointeger(L, 2);
-	int bReassignPop = lua_toboolean(L, 3);
-	CvAssertMsg(bReassignPop != 0, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
+	bool bReassignPop = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
+	CvAssertMsg(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
 	pkCity->changePopulation(iChange, bReassignPop);
 
 	return 1;
