@@ -19643,8 +19643,8 @@ bool CvCity::DoRazingTurn()
 
 				if (GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
 				{
-					bool bNotification = SpawnPlayerUnitsNearby(eFormerOwner, iNumRebels, true);
-					if (bNotification)
+					int iNumRebelSpawned = SpawnPlayerUnitsNearby(eFormerOwner, iNumRebels, true);
+					if (iNumRebelSpawned > 0)
 					{
 						//the former owner hates the razing and wants it back
 						if (!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsInFocusArea(plot()))
@@ -34399,95 +34399,119 @@ void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 
 // Spawn iNumber best military units owned by ePlayer around the best plot near this city
 // ePlayer could be city owner, barbarian, or other players
-bool CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs, const bool bIncludeShips, const bool bNoResource) const
+// Returns the number of units successfully spawned
+int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs, bool bIncludeShips, const bool bNoResource) const
 {
 	if (iNumber <= 0)
-		return false;
+		return 0;
 
-	int iBestPlot = -1;
-	int iBestPlotWeight = -1;
+	// Don't spawn ships if city isn't coastal
+	if (!isCoastal())
+		bIncludeShips = false;
+
+	int iNumUnitSpawned = 0;
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	CvCityCitizens* pCitizens = GetCityCitizens();
 
-	// Start at 1, since ID 0 is the city plot itself
-	for (int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-	{
-		CvPlot *pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-		// Could be outside of the map...
-		if (!pPlot)
-			continue;
-
-		// Can't be impassable
-		if (!pPlot->isValidMovePlot(getOwner()))
-			continue;
-
-		// Can't be water
-		if (pPlot->isWater())
-			continue;
-
-		// Don't pick plots that aren't ours
-		if (pPlot->getOwner() != getOwner())
-			continue;
-
-		// Don't place on a plot where a unit is already standing
-		if (pPlot->getNumUnits() > 0)
-			continue;
-
-		int iTempWeight = GC.getGame().randRangeExclusive(0, 10, CvSeeder(GET_PLAYER(getOwner()).GetMilitaryMight()).mix(pPlot->GetPseudoRandomSeed()));
-
-		// Add weight if there's an improvement here!
-		if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-		{
-			iTempWeight += 4;
-
-			// If there's also a resource, even more weight!
-			if (pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-				iTempWeight += 3;
-		}
-
-		// Add weight if there's a defensive bonus for this plot
-		if (pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-			iTempWeight += 4;
-
-		if (iTempWeight > iBestPlotWeight)
-		{
-			iBestPlotWeight = iTempWeight;
-			iBestPlot = iPlotLoop;
-		}
-	}
-
-	// Couldn't find a valid spot
-	if (iBestPlot == -1)
-		return false;
-
-	CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-	bool bUnitCreated = false;
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-
-	// Spawn the units - should give us more melee than ranged
+	// Melee -> Ranged -> Repeat
 	bool bCanBeRanged = false;
 	for (int i = 0; i < iNumber; i++)
 	{
+		// Pick a unit to spawn
 		UnitTypes eUnit = kPlayer.GetCompetitiveSpawnUnitType(bCanBeRanged, bIncludeShips, false, bIncludeUUs, this, bNoResource, false, true);
 		bCanBeRanged = !bCanBeRanged;
 		if (eUnit == NO_UNIT)
 			continue;
 
-		CvUnit* pUnit = kPlayer.initUnit(eUnit, pPlot->getX(), pPlot->getY());
+		// Pick the best plot to spawn this unit
+		CvPlot* pBestPlot = NULL;
+		int iBestPlotWeight = -1;
+		CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+
+		for (int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
+		{
+			// Don't let foreign units spawn in the city!
+			if (iPlotLoop == 0 && ePlayer != getOwner())
+				continue;
+
+			CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+
+			// Could be outside of the map...
+			if (!pPlot)
+				continue;
+
+			// Can't be impassable
+			if (!pPlot->isValidMovePlot(getOwner()))
+				continue;
+
+			// Can't be water for land units
+			if (pPlot->isWater() && pUnitInfo->GetDomainType() != DOMAIN_SEA)
+				continue;
+
+			// Can't be land for naval units; this deliberately excludes the city plot
+			if (!pPlot->isWater() && pUnitInfo->GetDomainType() == DOMAIN_SEA)
+				continue;
+
+			// Don't pick plots that aren't ours
+			if (pPlot->getOwner() != getOwner())
+				continue;
+
+			// Don't place on a plot where a combat unit is already standing (that can include a unit that's just placed)
+			if (pPlot->GetNumCombatUnits() > 0)
+				continue;
+
+			// Prioritize city plot if there's no garrison and it's spawning our land unit
+			if (iPlotLoop == 0)
+			{
+				pBestPlot = pPlot;
+				break;
+			}
+			else
+			{
+				int iTempWeight = GC.getGame().randRangeExclusive(0, 10, CvSeeder(GET_PLAYER(getOwner()).GetMilitaryMight()).mix(pPlot->GetPseudoRandomSeed()));
+
+				// Add weight if there's an improvement here!
+				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					iTempWeight += 10;
+
+					// If there's also a resource, even more weight!
+					if (pPlot->getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
+						iTempWeight += 10;
+				}
+
+				// Add weight if there's a defensive bonus for this plot
+				iTempWeight += pPlot->defenseModifier(kPlayer.getTeam(), false, false);
+
+				if (iTempWeight > iBestPlotWeight)
+				{
+					iBestPlotWeight = iTempWeight;
+					pBestPlot = pPlot;
+				}
+			}
+		}
+
+		// Couldn't find a valid spot
+		if (!pBestPlot)
+			return iNumUnitSpawned;
+
+		// Actually spawn the unit
+		CvUnit* pUnit = kPlayer.initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY());
 		if (!pUnit->jumpToNearestValidPlotWithinRange(3))
 		{
-			pUnit->kill(false); // Could not find a spot!
+			CvAssertMsg(false, "This really shouldn't happen after all those checks");
+			pUnit->kill(false);
 		}
 		else
 		{
-			bUnitCreated = true;
+			iNumUnitSpawned++;
 			pUnit->finishMoves();
 			if (!kPlayer.isBarbarian())
 				addProductionExperience(pUnit);
 		}
 	}
 
-	return bUnitCreated;
+	return iNumUnitSpawned;
 }
 
 // If existing number of free buildings < iValue, convert existing non-free buildings to free versions and give refund (if applicable)
