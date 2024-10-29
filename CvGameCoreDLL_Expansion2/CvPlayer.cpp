@@ -32308,7 +32308,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		// Entire team is dead
 		if (!GET_TEAM(getTeam()).isAlive())
 		{
-			for (int i = 0; i < MAX_TEAMS; i++)
+			for (int i = 0; i < BARBARIAN_TEAM; i++)
 			{
 				TeamTypes eTheirTeam = (TeamTypes)i;
 				if (getTeam() != eTheirTeam)
