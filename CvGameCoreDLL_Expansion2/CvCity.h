@@ -1767,7 +1767,7 @@ public:
 	int GetVassalLevyEra() const;
 
 	void SpawnFreeUnit(UnitTypes eUnit);
-	bool SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, const bool bIncludeShips = false, const bool bNoResource = false) const;
+	int SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, bool bIncludeShips = false, const bool bNoResource = false) const;
 
 	bool SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue, const bool bRefund = true, const bool bValidate = true);
 	BuildingTypes GetBuildingTypeFromClass(const BuildingClassTypes eBuildingClass, const bool bFallback = false) const;
