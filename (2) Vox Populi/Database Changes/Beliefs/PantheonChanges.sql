@@ -61,7 +61,7 @@ VALUES
 -- Religious Settlements (now God of the Expanse)
 UPDATE Beliefs
 SET
-	PlotCultureCostModifier = 0,
+	PlotCultureCostModifier = -25,
 	BorderGrowthRateIncreaseGlobal = 25
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS';
 
