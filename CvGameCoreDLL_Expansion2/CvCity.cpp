@@ -12824,7 +12824,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	if (thisPlayer.GetPlayerTraits()->GetNumPledgeDomainProductionModifier(pkUnitInfo->GetDomainType()) != NO_DOMAIN)
 	{
 		int iProtections = 0;
-		for (int iMinorLoop = 0; iMinorLoop < MAX_MINOR_CIVS; iMinorLoop++)
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iMinorLoop;
 			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
