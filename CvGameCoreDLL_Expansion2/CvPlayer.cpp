@@ -46955,7 +46955,7 @@ void CvPlayer::DoVassalLevy()
 				if (!bHasUU)
 				{
 					UnitTypes eBaseUnit = static_cast<UnitTypes>(GC.getUnitClassInfo(eUnitClass)->getDefaultUnitIndex());
-					if (IsUnitValidForVassalLevy(eBaseUnit, kTeamLoop, pLoopCity))
+					if (eBaseUnit != NO_UNIT && IsUnitValidForVassalLevy(eBaseUnit, kTeamLoop, pLoopCity))
 						currentUnits.insert(eUnit);
 				}
 			}

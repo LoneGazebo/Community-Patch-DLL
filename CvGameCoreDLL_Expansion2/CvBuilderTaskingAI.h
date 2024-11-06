@@ -57,7 +57,7 @@ struct BuilderDirective
 
 	bool operator==(const BuilderDirective& rhs) const
 	{
-		return m_eDirectiveType == rhs.m_eDirectiveType && m_eBuild == rhs.m_eBuild && m_eResource == rhs.m_eResource && m_sX == rhs.m_sX && m_sY == rhs.m_sY && m_bIsGreatPerson == rhs.m_bIsGreatPerson;
+		return m_eBuild == rhs.m_eBuild && m_sX == rhs.m_sX && m_sY == rhs.m_sY;
 	};
 	bool operator<(const BuilderDirective& rhs) const
 	{
@@ -154,6 +154,8 @@ public:
 
 	int GetResourceSpawnWorkableChance(CvPlot* pPlot, int& iTileClaimChance);
 
+	void UpdateCityWorstPlots(const CvCity* pCity, const SBuilderState& sState);
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
@@ -173,8 +175,12 @@ protected:
 	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
 	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
 
-	void UpdateCurrentPlotYields(CvPlot* pPlot);
-	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, RouteTypes eForceCityConnection);
+	void UpdateCurrentPlotYields(const CvPlot* pPlot);
+	void UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTypes eBuild, RouteTypes eForceCityConnection);
+
+	void UpdateAllCityWorstPlots();
+	int GetWorstWorkedPlotValue(const CvCity* pCity);
+	int GetPlotYieldValueSimplified(const CvPlot* pPlot, BuildTypes eBuild);
 
 	bool IsPlannedRouteForPurpose(const CvPlot* pPlot, RoutePurpose ePurpose) const;
 	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, const SPath& path, RoutePurpose ePurpose, bool bUseRivers);
@@ -206,6 +212,7 @@ protected:
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;
+	map<const CvCity*, int> m_worstCityPlotValues;
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
