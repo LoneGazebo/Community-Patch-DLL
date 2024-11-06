@@ -2581,15 +2581,12 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	int iScore = eDirective.GetScore();
 
 	if (eDirective.m_iPotentialBonusScore != 0)
-		iScore += eDirective.m_bIsGreatPerson ? eDirective.m_iPotentialBonusScore : eDirective.m_iPotentialBonusScore / 3;
+		iScore += eDirective.m_iPotentialBonusScore / 3;
+
+	if (eDirective.m_bIsGreatPerson)
+		return iScore - iMoveTurns;
 
 	iScore /= 10;
-
-	int iSign = iScore >= 0 ? 1 : -1;
-
-	// Try to avoid moving around too much with workers
-	if (!eDirective.m_bIsGreatPerson)
-		iMoveTurns *= 10;
 
 	int iBuildTime = iBuildTurns + iMoveTurns;
 
@@ -2597,15 +2594,22 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	const int SQRT_INT_MAX = 46340;
 
 	if (iScore > SQRT_INT_MAX)
-		return INT_MAX; // Cap at INT_MAX if iScore squared would overflow
+	{
+		int iDivideFirst = iScore / (1 + iBuildTime);
 
-	const int iScoreWeightSquared = 1;
-	int iBuildTimeWeightSquared = 25;
+		if (iDivideFirst > INT_MAX / iScore)
+			return INT_MAX;
 
-	return iSign * (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
+		return iDivideFirst * iScore;
+	}
+
+	if (iScore >= 0)
+		return (iScore * iScore) / (1 + iBuildTime);
+	else
+		return -(iScore * iScore) * (1 + iBuildTime);
 }
 
-static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
+static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
 {
 	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
@@ -2621,6 +2625,9 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 		BuilderDirective eOtherDirective = *it;
 
 		if (eDirective.m_eBuild == eOtherDirective.m_eBuild)
+			continue;
+
+		if (eOtherDirective.m_bIsGreatPerson)
 			continue;
 
 		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
@@ -2645,7 +2652,7 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 			if (eOtherDirective.m_eBuild > eDirective.m_eBuild)
 				continue;
 
-		if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
+		if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->canBuild(pPlot, eOtherDirective.m_eBuild, true))
 			continue;
 
 		return false;
@@ -2734,6 +2741,12 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			continue;
 		}
 
+		if (!IsBestDirectiveForPlot(eDirective, m_pPlayer, aDirectives))
+		{
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			continue;
+		}
+
 		list<OptionWithScore<CvUnit*>> sortedWorkers;
 
 		// First sort by plot distance between worker and directive, it's a good heuristic and reduces the number of needed calls to
@@ -2788,9 +2801,6 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 
 			// If the weighted score is lower than the best weighted score we have found with 0 move steps, it will never be better than the best weighted score
 			if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= max(iBestBuilderWeightedScore, iBestWeightedScore))
-				continue;
-
-			if (!IsBestDirectiveForBuilderAndPlot(eDirective, pUnit, m_pPlayer, aDirectives))
 				continue;
 
 			CvPlot* pStartPlot = pUnit->plot();
@@ -2881,9 +2891,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			bool bIsBuilder = pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER   || pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL
-	                       || pLoopUnit->AI_getUnitAIType() == UNITAI_ENGINEER || pLoopUnit->AI_getUnitAIType() == UNITAI_SCIENTIST
-				           || pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT || pLoopUnit->AI_getUnitAIType() == UNITAI_PROPHET;
+			bool bIsBuilder = pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER     || pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL
+	                       || pLoopUnit->AI_getUnitAIType() == UNITAI_ENGINEER   || pLoopUnit->AI_getUnitAIType() == UNITAI_SCIENTIST
+				           || pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT   || pLoopUnit->AI_getUnitAIType() == UNITAI_PROPHET
+				           || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || pLoopUnit->AI_getUnitAIType() == UNITAI_ADMIRAL;
 			if (!pLoopUnit->TurnProcessed() && bIsBuilder && find(allWorkers.begin(), allWorkers.end(), pLoopUnit->GetID()) == allWorkers.end())
 			{
 				allWorkers.push_back(pLoopUnit->GetID());
@@ -2978,7 +2989,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvString strLogString;
 				CvBuildInfo* pkBuild = GC.getBuildInfo(eDirective.m_eBuild);
 				CvString strTemp = pkBuild->GetDescription();
-				strLogString.Format("%s at (%d, %d), value=%d, potential bonus=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
+				strLogString.Format("Planning to %s at (%d, %d), value=%d, potential bonus=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
 					eDirective.m_iScore, eDirective.m_iPotentialBonusScore, eDirective.m_iScorePenalty, pUnitAndDirectiveWithScore.score);
 				LogHomelandMessage(strLogString);
 			}
@@ -2991,7 +3002,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvString strLogString;
 				CvBuildInfo* pkBuild = GC.getBuildInfo(eDirective.m_eBuild);
 				CvString strTemp = pkBuild->GetDescription();
-				strLogString.Format("Planning to %s at (%d, %d), but we can not build it yet", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY);
+				strLogString.Format("Planning to %s at (%d, %d), but can't build it yet, value=%d, potential bonus=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
+					eDirective.m_iScore, eDirective.m_iPotentialBonusScore, eDirective.m_iScorePenalty, pUnitAndDirectiveWithScore.score);
 				LogHomelandMessage(strLogString);
 			}
 		}
@@ -3010,6 +3022,41 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 
 			vector<BuilderDirective> aNewBuilderDirectives;
+
+			const CvCity* pOwningCity = pDirectivePlot->getEffectiveOwningCity();
+
+			if (!pOwningCity)
+			{
+				// If we are performing a culture bomb, find which city will be owning the plot
+				bool bIsCultureBomb = pkImprovementInfo ? pkImprovementInfo->GetCultureBombRadius() > 0 : false;
+				bool bIsTileClaim = pkImprovementInfo ? pkImprovementInfo->IsNewOwner() : false;
+				if (bIsCultureBomb || bIsTileClaim)
+				{
+					int iBestCityDistance = INT_MAX;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if (pPlot)
+						{
+							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+							if (iDistance < iBestCityDistance)
+							{
+								// If we can't work the tile, we don't care
+								if (pLoopCity->IsWithinWorkRange(pPlot))
+									pOwningCity = pLoopCity;
+
+								iBestCityDistance = iDistance;
+							}
+						}
+					}
+				}
+			}
+
+			if (pOwningCity)
+				pBuilderTaskingAI->UpdateCityWorstPlots(pOwningCity, sState);
 
 			// Resource considerations
 			bool bResourceStateChanged = false;
@@ -3079,7 +3126,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			{
 				if ((eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType()) || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
 				{
-					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
+					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()].second = eImprovement;
 					bImprovementStateChanged = true;
 				}
 			}
@@ -3164,6 +3211,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						if (eFeature != NO_FEATURE && pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(eFeature) && pkImprovementInfo && pkImprovementInfo->GetFeatureMakesValid(eFeature))
 							continue;
 
+						// Don't build GP improvements where we want to build better things
+						if (pkOtherImprovementInfo && pkOtherImprovementInfo->IsCreatedByGreatPerson())
+							continue;
+
 						if (eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
 						{
 							pair<int,int> pScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
@@ -3174,7 +3225,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							// If we are planning to build something else here in the future, downscale the priority of this by 1/3
 							eOtherDirective.m_iScore = iScore;
 							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-							eOtherDirective.m_iScorePenalty += iScore / 3;
+							eOtherDirective.m_iScorePenalty = iScore / 3;
 							if (eOtherDirective.m_iScorePenalty >= eOtherDirective.m_iScore + eOtherDirective.m_iPotentialBonusScore)
 								continue;
 							bDirectiveUpdated = true;
@@ -3205,8 +3256,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							eOtherDirective.m_iScore = iScore;
 							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-							bDirectiveUpdated = true;
 						}
+
+						bDirectiveUpdated = true;
 					}
 				}
 
@@ -3232,8 +3284,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							{
 								eOtherDirective.m_iScore = iScore;
 								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-								bDirectiveUpdated = true;
 							}
+
+							bDirectiveUpdated = true;
 						}
 					}
 				}
@@ -3258,8 +3311,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							{
 								eOtherDirective.m_iScore = iScore;
 								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-								bDirectiveUpdated = true;
 							}
+
+							bDirectiveUpdated = true;
 						}
 					}
 				}
@@ -3283,8 +3337,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							{
 								eOtherDirective.m_iScore = iScore;
 								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-								bDirectiveUpdated = true;
 							}
+
+							bDirectiveUpdated = true;
 						}
 					}
 				}
@@ -3304,8 +3359,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							eOtherDirective.m_iScore = iScore;
 							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-							bDirectiveUpdated = true;
 						}
+
+						bDirectiveUpdated = true;
 					}
 				}
 
@@ -4407,6 +4463,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
 		{
 			m_greatPeopleForImprovements.push_back(pUnit->GetID());
+			continue;
 		}
 		// this is for the citadel/culture bomb
 		else if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
@@ -4552,6 +4609,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
 		{
 			m_greatPeopleForImprovements.push_back(pUnit->GetID());
+			continue;
 		}
 		//if he's a commander but not in an army, put him up in a city for a while
 		else if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)

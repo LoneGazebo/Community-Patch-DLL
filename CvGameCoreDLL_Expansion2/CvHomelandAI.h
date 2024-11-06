@@ -362,7 +362,7 @@ struct SPatrolTarget {
 struct SBuilderState {
 	map<ResourceTypes, int> mExtraResources;
 	map<int, FeatureTypes> mChangedPlotFeatures;
-	map<int, ImprovementTypes> mChangedPlotImprovements;
+	map<int, pair<BuildTypes, ImprovementTypes>> mChangedPlotImprovements;
 
 	SBuilderState(){};
 	static const SBuilderState& DefaultInstance() {
