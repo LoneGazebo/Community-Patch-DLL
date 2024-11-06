@@ -10532,7 +10532,8 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	{
 		if(ePlayer != NO_PLAYER)
 		{
-			if(IsTradeUnitRoute())
+			// Ignore trade routes when planning improvements (they are not static).
+			if(IsTradeUnitRoute() && eForceCityConnection == NUM_ROUTE_TYPES)
 			{
 				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
 				{
@@ -15785,7 +15786,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	// Evaluate based on surrounding plots
 	int iMaxAdjacentThreat = 0;
 
-	int iNearestCityDistance = 0;
+	int iNearestOwnedCityDistance = 0;
 
 	int iAdjacentOwnedLand = 0;
 	int iNearbyDefensiveStructures = 0;
@@ -15810,14 +15811,14 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			if (pAdjacentPlot->isWater())
 				continue;
 
-			if (pAdjacentPlot->getOwner() == eOwner || (iCultureBombRadius >= iRingID && eBuild != NO_BUILD && !pAdjacentPlot->isCity()))
+			if (pAdjacentPlot->getOwner() == eOwner)
 			{
 				if (iRingID == 1)
 					iAdjacentOwnedLand++;
 
 				// Avoid building next to cities
 				if (pAdjacentPlot->isCity())
-					iNearestCityDistance = iRingID;
+					iNearestOwnedCityDistance = iRingID;
 
 				if (iImprovementDamage > 0 && iRingID == 1)
 				{
@@ -15835,8 +15836,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 						if (pLoopAdjacentAdjacentPlot->getOwner() != eOwner)
 							continue;
 
-						map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(pLoopAdjacentAdjacentPlot->GetPlotIndex());
-						ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
+						map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = sState.mChangedPlotImprovements.find(pLoopAdjacentAdjacentPlot->GetPlotIndex());
+						ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
 
 						// If we are not planning on building an improvement here, use the one that exists already
 						if (eAdjacentImprovement == NO_IMPROVEMENT && !pLoopAdjacentAdjacentPlot->IsImprovementPillaged())
@@ -15858,8 +15859,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 						iTotalAdjacentDamage += iImprovementDamage - iMaxDamageAlreadyInPlot;
 				}
 
-				map<int, ImprovementTypes>::const_iterator it = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-				ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second : NO_IMPROVEMENT;
+				map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
+				ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
 
 				// If we are not planning on building an improvement here, use the one that exists already
 				if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
@@ -15876,6 +15877,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pAdjacentPlot->getOwner());
 
 				iMaxAdjacentThreat = max(iMaxAdjacentThreat, GetDefensiveApproachMultiplierTimes100(eApproach) * GetDefensiveStrengthMultiplierTimes100(eStrength) / 100);
+
+				if (iCultureBombRadius >= iRingID && eBuild != NO_BUILD && !pAdjacentPlot->isCity() && !pAdjacentPlot->IsStealBlockedByImprovement())
+					iAdjacentOwnedLand++;
 			}
 		}
 	}
@@ -15898,8 +15902,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	iDefensiveValueTimes100 -= 50 * iNearbyDefensiveStructures;
 
 	//Avoid building next to cities
-	if (iNearestCityDistance > 0)
-		iDefensiveValueTimes100 -= 150 * (3 - iNearestCityDistance);
+	if (iNearestOwnedCityDistance > 0)
+		iDefensiveValueTimes100 -= 150 * (3 - iNearestOwnedCityDistance);
 
 	if (iDefensiveValueTimes100 <= 0)
 		return 0;
