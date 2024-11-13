@@ -335,7 +335,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsInvisible);
 	Method(IsNukeImmune);
 	Method(IsRangeAttackOnlyInDomain);
-	Method(IsCoastalAttackOnly);
 	Method(IsCityAttackOnly);
 
 	Method(GetAirInterceptRange);
