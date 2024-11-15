@@ -9,12 +9,18 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
+		Clang-Debug|Win32 = Clang-Debug|Win32
+		Clang-Release|Win32 = Clang-Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Debug|Win32.Build.0 = Debug|Win32
 		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Release|Win32.ActiveCfg = Release|Win32
 		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Release|Win32.Build.0 = Release|Win32
+		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Clang-Debug|Win32.ActiveCfg = Clang-Debug|Win32
+		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Clang-Debug|Win32.Build.0 = Clang-Debug|Win32
+		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Clang-Release|Win32.ActiveCfg = Clang-Release|Win32
+		{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}.Clang-Release|Win32.Build.0 = Clang-Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
