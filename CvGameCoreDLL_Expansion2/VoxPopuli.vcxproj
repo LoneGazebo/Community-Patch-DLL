@@ -9,6 +9,14 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Clang-Debug|Win32">
+      <Configuration>Clang-Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Clang-Release|Win32">
+      <Configuration>Clang-Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2D4B6CDC-0887-4EE1-97B9-0865CC82FAF3}</ProjectGuid>
@@ -28,6 +36,18 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v90</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Clang-Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v90</PlatformToolset>
+    <OutDir>$(SolutionDir)clang-output\Debug\</OutDir>
+    <IntDir>$(SolutionDir)clang-build\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Clang-Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <PlatformToolset>v90</PlatformToolset>
+    <OutDir>$(SolutionDir)clang-output\Release\</OutDir>
+    <IntDir>$(SolutionDir)clang-build\Release\</IntDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -102,6 +122,16 @@
     </Link>
     <PreBuildEvent>
       <Command>..\update_commit_id.bat</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Clang-Debug|Win32'">
+    <PreBuildEvent>
+      <Command>cd "$(SolutionDir)" &amp; python build_vp_clang.py --config debug &amp; type clang-output\Debug\build.log</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Clang-Release|Win32'">
+    <PreBuildEvent>
+      <Command>cd "$(SolutionDir)" &amp; python build_vp_clang.py --config release &amp; type clang-output\Release\build.log</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
