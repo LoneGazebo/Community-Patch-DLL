@@ -262,52 +262,52 @@
     <ClCompile Include="CvDllWorldInfo.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaArea.cpp">
+    <ClCompile Include="Lua\CvLuaArea.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaArgsHandle.cpp">
+    <ClCompile Include="Lua\CvLuaArgsHandle.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaCity.cpp">
+    <ClCompile Include="Lua\CvLuaCity.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaDeal.cpp">
+    <ClCompile Include="Lua\CvLuaDeal.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaEnums.cpp">
+    <ClCompile Include="Lua\CvLuaEnums.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaFractal.cpp">
+    <ClCompile Include="Lua\CvLuaFractal.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaGame.cpp">
+    <ClCompile Include="Lua\CvLuaGame.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaGameInfo.cpp">
+    <ClCompile Include="Lua\CvLuaGameInfo.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaLeague.cpp">
+    <ClCompile Include="Lua\CvLuaLeague.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaMap.cpp">
+    <ClCompile Include="Lua\CvLuaMap.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaPlayer.cpp">
+    <ClCompile Include="Lua\CvLuaPlayer.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaPlot.cpp">
+    <ClCompile Include="Lua\CvLuaPlot.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaSupport.cpp">
+    <ClCompile Include="Lua\CvLuaSupport.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaTeam.cpp">
+    <ClCompile Include="Lua\CvLuaTeam.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaTeamTech.cpp">
+    <ClCompile Include="Lua\CvLuaTeamTech.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="lua\CvLuaUnit.cpp">
+    <ClCompile Include="Lua\CvLuaUnit.cpp">
       <Filter>interface</Filter>
     </ClCompile>
   </ItemGroup>
@@ -594,58 +594,58 @@
     <ClInclude Include="CvDllWorldInfo.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaUnit.h">
+    <ClInclude Include="Lua\CvLuaUnit.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaArea.h">
+    <ClInclude Include="Lua\CvLuaArea.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaArgsHandle.h">
+    <ClInclude Include="Lua\CvLuaArgsHandle.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaCity.h">
+    <ClInclude Include="Lua\CvLuaCity.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaDeal.h">
+    <ClInclude Include="Lua\CvLuaDeal.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaEnums.h">
+    <ClInclude Include="Lua\CvLuaEnums.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaFractal.h">
+    <ClInclude Include="Lua\CvLuaFractal.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaGame.h">
+    <ClInclude Include="Lua\CvLuaGame.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaGameInfo.h">
+    <ClInclude Include="Lua\CvLuaGameInfo.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaLeague.h">
+    <ClInclude Include="Lua\CvLuaLeague.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaMap.h">
+    <ClInclude Include="Lua\CvLuaMap.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaPlayer.h">
+    <ClInclude Include="Lua\CvLuaPlayer.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaPlot.h">
+    <ClInclude Include="Lua\CvLuaPlot.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaScopedIndirectInstance.h">
+    <ClInclude Include="Lua\CvLuaScopedIndirectInstance.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaScopedInstance.h">
+    <ClInclude Include="Lua\CvLuaScopedInstance.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaSupport.h">
+    <ClInclude Include="Lua\CvLuaSupport.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaTeam.h">
+    <ClInclude Include="Lua\CvLuaTeam.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="lua\CvLuaTeamTech.h">
+    <ClInclude Include="Lua\CvLuaTeamTech.h">
       <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
