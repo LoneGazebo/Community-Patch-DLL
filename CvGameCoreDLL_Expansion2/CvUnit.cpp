@@ -18110,7 +18110,7 @@ inline int CvUnit::getIsConvertUnit() const
 	VALIDATE_OBJECT
 	return	m_iConvertUnit;
 }
-inline bool CvUnit::isConvertUnit() const
+bool CvUnit::isConvertUnit() const
 {
 	VALIDATE_OBJECT
 	return getIsConvertUnit() > 0;

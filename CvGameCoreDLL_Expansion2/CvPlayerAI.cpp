@@ -44,7 +44,7 @@
 
 static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
 
-inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
