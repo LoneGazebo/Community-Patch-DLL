@@ -18123,6 +18123,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	int iDifficultyBonusPercent = GC.getGame().getGameSpeedInfo().getDifficultyBonusPercent();
 	int iEra = GC.getGame().getCurrentEra();
 
+	if (iEra < 0)
+		iEra = 0; // Use as fallback when game era is not yet set
+
 	// First do the human difficulty bonus
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(getHandicapType());
 	if (pHandicapInfo)
