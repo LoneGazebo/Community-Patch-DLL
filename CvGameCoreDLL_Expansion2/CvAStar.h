@@ -68,7 +68,7 @@ public:
 	virtual bool IsInitialized(int iXstart, int iYstart, int iXdest, int iYdest);
 
 	// Generates a path
-	bool FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
+	bool FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest);
 
 	// Verifies if the given path is still valid
 	bool VerifyPath(const SPath& path);

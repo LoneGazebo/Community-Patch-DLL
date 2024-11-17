@@ -330,11 +330,8 @@ int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvA
 //	--------------------------------------------------------------------------------
 // Generates a path from iXstart,iYstart to iXdest,iYdest
 // private method - not threadsafe!
-bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest)
 {
-	if (data.ePath != m_sData.ePath)
-		return false;
-
 	if (!IsInitialized(iXstart, iYstart, iXdest, iYdest))
 		return false;
 
@@ -343,7 +340,6 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if (m_iCurrentGenerationID==0xFFFF)
 		m_iCurrentGenerationID = 1;
 
-	m_sData = data;
 	m_iXdest = iXdest;
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
@@ -419,7 +415,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 
 	CvUnit* pUnit = m_sData.iUnitID > 0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
 #if defined(VPDEBUG)
-	if ( timer.GetDeltaInSeconds()>0.2 && data.ePath==PT_UNIT_MOVEMENT )
+	if ( timer.GetDeltaInSeconds()>0.2 && m_sData.ePath==PT_UNIT_MOVEMENT )
 	{
 		//debug hook
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
@@ -2716,6 +2712,8 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 /// can do only certain types of path here
 bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 {
+	m_sData = config;
+
 	//there is no good place to do this but we need to make sure the dangerplots are not dirty
 	//otherwise there will be a recursive pathfinding call with unpredictable results
 	if (config.ePlayer != NO_PLAYER && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
@@ -2736,7 +2734,6 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 		return false;
 	}
 
-	m_sData.ePath = config.ePath;
 	return true;
 }
 
@@ -2778,6 +2775,8 @@ bool CvStepFinder::AddStopNodeIfRequired(const CvAStarNode*, const CvAStarNode*)
 //////////////////////////////////////////////////////////////////////////
 bool CvStepFinder::Configure(const SPathFinderUserData& config)
 {
+	m_sData = config;
+
 	switch(config.ePath)
 	{
 	case PT_GENERIC_SAME_AREA:
@@ -2849,7 +2848,6 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		return false;
 	}
 
-	m_sData.ePath = config.ePath;
 	return true;
 }
 
@@ -2864,7 +2862,7 @@ SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, co
 		gDLL->GetGameCoreLock();
 
 	SPath result;
-	if (Configure(data) && CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
+	if (Configure(data) && CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest))
 		result = CvAStar::GetCurrentPath(eMode);
 
 	if(!bHadLock)
@@ -2954,7 +2952,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	ReachablePlots plots;
 	
 	//there is no destination! the return value will always be false
-	CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1, data);
+	CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1);
 
 	//iterate all previously touched nodes
 	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
@@ -3014,7 +3012,7 @@ map<int,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<C
 	std::stable_sort( vDestPlots.begin(), vDestPlots.end(), PrSortByPlotIndex() );
 
 	//there is no destination! the return value will always be false
-	CvAStar::FindPathWithCurrentConfiguration(pStartPlot->getX(),pStartPlot->getY(), -1, -1, data);
+	CvAStar::FindPathWithCurrentConfiguration(pStartPlot->getX(),pStartPlot->getY(), -1, -1);
 
 	//iterate all previously touched nodes
 	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
