@@ -918,7 +918,7 @@ public:
 
 	bool isExhausted() const;
 	bool isEarlyFinish() const;
-	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
+	bool addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID);
 	bool isKillOrImprovedPosition() const;
 	void countEnemiesAndCheckVisibility();
 	void refreshVolatilePlotProperties();
@@ -1040,7 +1040,8 @@ namespace TacticalAIHelpers
 	bool IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
-	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
+	bool FindAndExecuteBestUnitAssignments(vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl);
+	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 }
 
