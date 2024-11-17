@@ -373,17 +373,18 @@ eTacticalDominanceFlags CvTacticalDominanceZone::SetOverallDominance(int iDomina
 			int iDominancePercentageFriendly = max(10,iDominancePercentage); //cannot go below 10
 			int iDominancePercentageEnemy = min(90,iDominancePercentage); //cannot go above 100
 
-			//adjust the threshold if we're away from home
+			//adjust the threshold if we're away from home (there might be unseen units ...)
 			if (m_eTerritoryType == TACTICAL_TERRITORY_ENEMY)
 				iDominancePercentageFriendly += 30;
 
-			//a bit complex to make sure there is no overflow
-			int iRatio = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
-			if (iRatio > 100 + iDominancePercentageFriendly)
+			//a bit complex to make sure there is no overflow and we get the ratios right
+			int iFriendToEnemy = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
+			int iEnemyToFriend = int(0.5f + 100 * (float(GetOverallEnemyStrength()) / max(1u, GetOverallFriendlyStrength())));
+			if (iFriendToEnemy > 100 + iDominancePercentageFriendly)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_FRIENDLY;
 			}
-			else if (iRatio < 100 - iDominancePercentageEnemy)
+			else if (iEnemyToFriend > 100 + iDominancePercentageEnemy)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_ENEMY;
 			}
@@ -616,7 +617,8 @@ void CvTacticalAnalysisMap::Invalidate()
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshIfOutdated()
 {
-	if (IsUpToDate())
+	//do not update from the UI thread, might lead to desyncs!
+	if (IsUpToDate() || !gDLL->IsGameCoreThread())
 		return;
 
 	//this is where the sausage is made

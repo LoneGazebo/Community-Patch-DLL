@@ -26,7 +26,6 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 
 		//this is called after a declaration of war and after loading a savegame
 		kPlayer.invalidatePlotFoundValues();
-		kPlayer.SetDangerPlotsDirty();
 		kPlayer.UpdateAreaEffectUnits();
 		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateMilitaryStats();
@@ -35,12 +34,9 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		kPlayer.UpdateMonopolyCache();
 #endif
 
-		//only after loading, force danger update (only known enemy units are serialized)
-		if(!bWarStateChanged && kPlayer.m_pDangerPlots)
-			kPlayer.UpdateDangerPlots(true);
-
 		if (bWarStateChanged)
 		{
+			kPlayer.SetDangerPlotsDirty();
 			kPlayer.UpdatePlotBlockades();
 			kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 			GC.getGame().GetGameTrade()->InvalidateTradePathCache(ePlayer);

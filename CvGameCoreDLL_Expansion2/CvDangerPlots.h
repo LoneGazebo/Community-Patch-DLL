@@ -117,10 +117,10 @@ public:
 	CvDangerPlots(void);
 	~CvDangerPlots(void);
 
-	void Init(PlayerTypes ePlayer, bool bAllocate);
+	void Init(PlayerTypes ePlayer);
 	void Uninit();
 
-	void UpdateDanger(bool bKeepKnownUnits=true);
+	void UpdateDanger();
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage=0, AirActionType iAirAction=AIR_ACTION_ATTACK);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, bool bFixedDamageOnly);
@@ -133,7 +133,6 @@ public:
 
 	void SetDirty();
 	bool IsDirty() const { return m_bDirty; }
-	int GetTurnSliceBuilt() const { return m_iTurnSliceBuilt; }
 
 	template<typename DangerPlots, typename Visitor>
 	static void Serialize(DangerPlots& dangerPlots, Visitor& visitor);
@@ -143,7 +142,7 @@ public:
 protected:
 
 	void AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRange, bool bCheckOwnership);
-	void UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexContainer& plotsToIgnoreForZOC);
+	void UpdateDangerInternal(const PlotIndexContainer& plotsToIgnoreForZOC, bool bTurnChange, bool bWarChange);
 	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, const PlotIndexContainer& plotsToIgnoreForZOC);
 
 	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
@@ -156,7 +155,7 @@ protected:
 
 	PlayerTypes m_ePlayer;
 	bool m_bDirty;
-	int m_iTurnSliceBuilt;
+	int m_iTurnBuilt;
 	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
 	UnitSet m_vanishedUnits;
