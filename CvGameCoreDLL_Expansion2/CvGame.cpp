@@ -10774,8 +10774,11 @@ int CvGame::GetCultureMedian() const
 
 void CvGame::initSpyThreshold()
 {
+	// MOD_COMMUNITY_PATCH should always be true
+	ASSERT(MOD_COMMUNITY_PATCH);
+
 	// Early return if spy balance module is not active
-	if (!MOD_COMMUNITY_PATCH || !MOD_BALANCE_CORE_SPIES)
+	if (!MOD_BALANCE_CORE_SPIES)
 		return;
 
 	// Get the values with safety checks
