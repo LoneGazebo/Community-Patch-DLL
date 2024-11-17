@@ -46908,6 +46908,8 @@ void CvPlayer::SetVassalLevy(bool bValue)
 bool CvPlayer::IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech) const
 {
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+	if (!pUnitInfo)
+		return false;
 
 	// Both vassal and master can't have the obsolete tech for the unit
 	TechTypes eObsoleteTech = static_cast<TechTypes>(pUnitInfo->GetObsoleteTech());
