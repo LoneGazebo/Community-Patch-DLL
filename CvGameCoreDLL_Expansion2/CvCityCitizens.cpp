@@ -955,7 +955,8 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 	switch (eYield)
 	{
 	case YIELD_FOOD:
-		if (bAssumeStarving)
+		// in small cities, treat being under the growth threshold like starvation
+		if (bAssumeStarving || (bAssumeBelowGrowthThreshold && m_pCity->getPopulation() <= 3))
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
 		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
 			iYieldMod =  /*32*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
@@ -1333,7 +1334,7 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 			// for the scoring, we split the difference in excess food in the different parts and value them accordingly
 			// the code below is a more efficient calculation of the following:
 			// for (i = iLower; i < iHigher; i++) { if (i < 0) {iFoodValue += iValuePerFoodStarving} ; if (0 <= i < GrowthThreshold) {iFoodValue += iValueBelowThreshold} ; if(i > iGrowthThreshold) {...} }
-			
+
 			// how much of the difference (iHigher - iLower) corresponds to food in the "starving" area?
 			// case 1) if both iHigher and iLower < 0   -> iHigher - iLower
 			// case 2) if iLower < 0 and iHigher > 0    -> 0 - iLower
@@ -2060,7 +2061,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	const int iNumOptionsSpecialists = 5;
 
 	//failsafe against switching back and forth, don't try this too often
-	while (iCount < m_pCity->getPopulation() / 2)
+	while (iCount < max(1, m_pCity->getPopulation() / 2))
 	{
 		//now the real check. unassigning a tile might cause the valuation of the other tiles to change, so we have to consider combinations
 		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
