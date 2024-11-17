@@ -42,13 +42,14 @@ const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more si
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(8000);
+CvTactPosStorage gTactPosStorage(5000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
 vector<STacticalAssignment> gPossibleMoves;
 vector<STacticalAssignment> gOverAllChoices;
 vector<STacticalAssignment> gMovesToAdd;
+map<int, int> gBadUnitsCount;
 UnitIdContainer gEnemiesToIgnore;
 TUnitFlagLookup gSafePlotCount;
 float gAggBiasBias;
@@ -2894,21 +2895,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	if (pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 		return false;
 
-	int iCount = 0;
-	bool bSuccess = false;
-	do
-	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(ourUnitsFinal, pClosestEnemyPlot, AL_MEDIUM, gTactPosStorage);
-		if (vAssignments.empty())
-			break;
-
-		//restarts might happen when new enemies become visible
-		bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments);
-		iCount++;
-	}
-	while (!bSuccess && iCount < 4);
-
-	return bSuccess;
+	return TacticalAIHelpers::FindAndExecuteBestUnitAssignments(ourUnitsFinal,pClosestEnemyPlot,AL_MEDIUM);
 }
 
 void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
@@ -3841,21 +3828,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 		LogTacticalMessage(CvString::format("trying attack on %d:%d, agg level %d", pTargetPlot->getX(), pTargetPlot->getY(), eAggLvl));
 #endif
 
-	int iCount = 0;
-	bool bSuccess = false;
-	do
-	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnits, pTargetPlot, eAggLvl, gTactPosStorage);
-		if (vAssignments.empty())
-			break;
-		
-		//true if everything went according to plan. if not, repeat!
-		bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments);
-		iCount++;
-	}
-	while (!bSuccess && iCount < 4);
-
-	return bSuccess;
+	return TacticalAIHelpers::FindAndExecuteBestUnitAssignments(vUnits, pTargetPlot, eAggLvl);
 }
 
 //target can be friendly, neutral or hostile
@@ -3868,19 +3841,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		LogTacticalMessage(CvString::format("seeking defensive positioning around %d:%d", pTarget->getX(), pTarget->getY()));
 
 	//first round: in case there are enemies around, do a combat simulation
-	int iCount = 0;
-	bool bSuccess = false;
-	do
-	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnits, pTarget, AL_NONE, gTactPosStorage);
-		if (vAssignments.empty())
-			break;
-		
-		//true if everything went according to plan. if not, repeat!
-		bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments);
-		iCount++;
-	}
-	while (!bSuccess && iCount < 4);
+	vector<CvUnit*> vSimUnits = vUnits; //make a copy we can modify!
+	bool bTactSimSuccess = TacticalAIHelpers::FindAndExecuteBestUnitAssignments(vSimUnits, pTarget, AL_NONE);
 
 	//sometimes tactsim cannot use all units, eg if they are too far out
 	vector<CvUnit*> farout;
@@ -3896,7 +3858,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pUnit->TurnProcessed())
 			continue;
 		
-		if (bSuccess && plotDistance(*pTarget, *pUnit->plot()) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+		if (bTactSimSuccess && plotDistance(*pTarget, *pUnit->plot()) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			continue; //do not end the turn ... we may want to shuffle them around later
 
 		farout.push_back(pUnit);
@@ -3959,7 +3921,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		}
 	}
 
-	return bSuccess;
+	return bTactSimSuccess;
 }
 
 void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
@@ -6426,7 +6388,8 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		}
 
 		//no loop needed, there is only one unit anyway
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage);
+		set<int> dummy;
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage, dummy);
 		if (vAssignments.empty())
 			return false;
 
@@ -7568,7 +7531,7 @@ bool ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
 		int iDamageDelta = iScaledDamage - iDamageReceived;
 		bool bVoluntaryCancel = (bBelowHpLimitAfterMeleeAttack && iDamageDelta < 0 && result.eAssignmentType != A_MELEEKILL && result.eAssignmentType != A_MELEEKILL_NO_ADVANCE);
-		bool bSuicideCancel = (pUnit->GetCurrHitPoints() - iDamageReceived < 1) && eAggLvl != AL_BRAVEHEART;
+		bool bSuicideCancel = (pUnit->GetCurrHitPoints() - iDamageReceived < 3) && eAggLvl != AL_BRAVEHEART; //in the real event there will be some randomness!
 		if (bVoluntaryCancel || bSuicideCancel)
 		{
 			result.iScore = -INT_MAX;
@@ -8915,6 +8878,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 	//what is the score for simply staying put and doing nothing?
 	//important not to pass zero moves left, otherwise we might ignore possible attacks
+	//but problem: if we score attacks that we won't allow in the final analysis, this makes the ref assignment better then it really is ...
 	//do not score danger so we compare apples to apples below
 	STacticalAssignment refAssignment = ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex, 0, unit.iMovesLeft, 0), *this, EM_INTERMEDIATE);
 
@@ -8950,8 +8914,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		{
 			STacticalAssignment newAssignment = ScorePlotForPillageMove(unit, testPlot, *it, *this);
 			//pillaging must have a positive score
-			if (newAssignment.iScore > 0 && (newAssignment.iRemainingMoves>0 || couldEndTurnAfterThisAssignment(newAssignment)))
+			if (newAssignment.iScore > 0 && (newAssignment.iRemainingMoves > 0 || couldEndTurnAfterThisAssignment(newAssignment)))
+			{
 				gPossibleMoves.push_back(newAssignment);
+			}
 			else if (refAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 			{
 				int iBonus = 0;
@@ -8979,10 +8945,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(refAssignment);
 				if (bCanEndTurnHere)
 				{
-					//subtract a little for wasted movement points to balance out what we added in the ref assignment
+					//score is ref assignment minus itself plus bonus
 					gPossibleMoves.push_back(
-						STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy,
-							iBonus - unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR), A_FINISH_TEMP));
+						STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, iBonus, A_FINISH_TEMP));
 				}
 			}
 		}
@@ -9057,10 +9022,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		}
 	}
 
-	//we don't want the blocked moves for all units to have the same score
-	//so use the number of alternatives as an indicator how urgent this is
-	int iBlockedScore = max(0, 3 - (int)gPossibleMoves.size() / 3);
-
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
@@ -9074,8 +9035,12 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	}
 
 	//always add a 'do-nothing' move; this does not guarantee that it will get picked but it allows move-attack-flee for damaged units
-	//order does not matter, the parent function will sort again ...
-	gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, iBlockedScore, A_BLOCKED));
+	//order does not matter, the parent function will sort again ... BLOCKED should be strictly worse than FINISH_TEMP
+	//would be nice to have a way to make sure the "important" blocks (no other options) are picked over unimportant blocks (many other options)
+	//but we should not give a bonus score for wasting movement points to paint ourselves into a corner!
+	//also cannot check for the existamce of good moves here because we don't know yet if we can actually execute the good-looking moves
+	//could also sort the moves by a secondary criterion, but best solution seems to be the "bad unit' mechanism to restart the sim
+	gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, -10, A_BLOCKED));
 }
 
 //if we have many units we won't look at all of them (for performance reasons)
@@ -9299,7 +9264,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				//do we need to keep working on this one?
 				if (pNewChild->isEarlyFinish() || pNewChild->isExhausted())
 				{
-					if (pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish()))
+					int iProblemUnit = -1;
+					if (pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish(),iProblemUnit))
 					{
 						//good case, we're done
 						completedPositions.push_back(pNewChild);
@@ -9311,6 +9277,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 						//position is illegal, forget about it so we can re-use the memory
 						removeChild(pNewChild);
 						giInvalidEndPos++;
+
+						//remember the id of the bad unit so if necessary we can try again without that unit
+						//there might be double-counting or omissions of bad units but we just need to produce a plausible candidate
+						gBadUnitsCount[iProblemUnit]++;
 					}
 				}
 				else
@@ -9414,10 +9384,8 @@ bool CvTacticalPosition::isExhausted() const
 
 //see if all the plots where our units would end their turn are acceptable
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
-bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
+bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID)
 { 
-	int iBadUnitID = -1; //for debugging
-
 	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else will hopefully pick up the pieces
 	for (size_t i=0; i<notQuiteFinishedUnits.size(); i++)
 	{
@@ -9472,6 +9440,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 	if (bEarlyFinish)
 	{
 		notQuiteFinishedUnits.clear();
+		iBadUnitID = -1;
 		return true;
 	}
 	
@@ -9480,6 +9449,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 	if (isKillOrImprovedPosition())
 	{
 		notQuiteFinishedUnits.clear();
+		iBadUnitID = -1;
 		return true;
 	}
 
@@ -10253,8 +10223,12 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		iTotalScore += newAssignment.iScore;
 
 		//when in doubt, increasing our visibility is good
-		iScoreOverParent += visibilityResult.first;
-		iTotalScore += visibilityResult.first;
+		//but only for our first line units ... need to be careful with the others
+		if (itUnit->eMoveStrategy == MS_FIRSTLINE)
+		{
+			iScoreOverParent += visibilityResult.first;
+			iTotalScore += visibilityResult.first;
+		}
 	}
 
 	//are we done or can we do further moves with this unit?
@@ -10841,9 +10815,52 @@ const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 	return dummyPlot;
 }
 
+bool TacticalAIHelpers::FindAndExecuteBestUnitAssignments(vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl)
+{
+	int iCount = 0;
+	bool bSuccess = false;
+	set<int> unuseableUnits;
+	vector<CvUnit*> currentUnits = vUnits;
+	do
+	{
+		iCount++;
+
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(currentUnits, pTarget, eAggLvl, gTactPosStorage, unuseableUnits);
+		if (vAssignments.empty())
+		{
+			if (unuseableUnits.size()>0 && currentUnits.size()>unuseableUnits.size())
+			{
+				//drop the offending units and try again
+				vector<CvUnit*> remainingUnits;
+				for (vector<CvUnit*>::iterator it = currentUnits.begin(); it != currentUnits.end(); ++it)
+				{
+					if (unuseableUnits.find((*it)->GetID())==unuseableUnits.end())
+						remainingUnits.push_back(*it);
+				}
+				currentUnits = remainingUnits;
+			}
+			else
+				break; //give up
+		}
+		else
+			//restarts might happen when new enemies become visible
+			bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(vUnits.front()->getOwner(), vAssignments);
+	}
+	while (!bSuccess && iCount < 4);
+
+	return bSuccess;
+}
+
+//make sure our units come in a defined order (important for reproducability, don't want to sort pointers!)
+template<typename T>
+struct PrSortPairBySecondAsc
+{
+	bool operator()(const pair<T, T>& lhs, const pair<T, T>& rhs) const { return lhs.second < rhs.second; }
+};
+
 //try to find a combination of unit actions (move, attack etc) which does maximal damage to the enemy while exposing us to minimal risk
 vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
-	const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage)
+	const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits)
 {
 	/*
 	abstract:
@@ -10912,6 +10929,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	gReachablePlotsLookup.clear();
 	gRangeAttackPlotsLookup.clear();
 	gSafePlotCount.clear();
+	gBadUnitsCount.clear();
+	unuseableUnits.clear();
 
 	//basic leader trait dependence
 	gAggBiasBias = GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) > 6 ? 0.f : 0.1f;
@@ -11064,7 +11083,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 				for (size_t i = 0; i < openPositionsHeap.size(); i++)
 				{
-					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
+					int iDummy;
+					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false),iDummy)
 						completedPositions.push_back(openPositionsHeap[i]);
 				}
 
@@ -11079,10 +11099,17 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	timer.EndPerfTest();
 
-	//normally the score for a completed position should be higher than for a finished one
-	//but if there are too many unassigned units it can tip
-	if (!completedPositions.empty())
+	if (completedPositions.empty())
 	{
+		//bad but maybe we can recover ... we should have picked BLOCKED moves for impossible units but that doesn't always happen
+		//since search breadth is limited and it only turns out at the end whether a chosen move was actually impossible
+		//the next best thing is to try again without the problematic units
+		for (map<int,int>::iterator i = gBadUnitsCount.begin(); i != gBadUnitsCount.end(); ++i)
+			unuseableUnits.insert(i->first);
+	}
+	else
+	{
+		//good case, pick the best one
 		//need the predicate, else we sort the pointers by address!
 		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 		result = completedPositions.front()->getAssignments();
