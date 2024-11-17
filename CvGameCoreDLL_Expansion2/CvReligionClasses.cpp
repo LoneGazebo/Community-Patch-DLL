@@ -7481,9 +7481,9 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 	}
 
 	// Open the log file
-	FILogFile* pLog = NULL;
-	pLog = LOGFILEMGR.GetLog("TotalBeliefScoringReligionLog.csv", FILogFile::kDontTimeStamp);
-	CvString strTemp;
+	//FILogFile* pLog = NULL;
+	//pLog = LOGFILEMGR.GetLog("TotalBeliefScoringReligionLog.csv", FILogFile::kDontTimeStamp);
+	//CvString strTemp;
 
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
 	// how far do we want to expand
