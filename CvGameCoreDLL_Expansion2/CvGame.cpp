@@ -10795,7 +10795,7 @@ void CvGame::initSpyThreshold()
 	int iMinThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN);
 	int iMaxThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX);
 
-#if defined(MOD_CORE_DEBUGGING)
+#if defined(VPDEBUG)
 	CUSTOMLOG("Spy Threshold Config: Ratio=%d, MajorMult=%d, Min=%d, Max=%d",
 		iSpyRatio, iMajorMultiplier, iMinThreshold, iMaxThreshold);
 	CUSTOMLOG("Spy Threshold Civs: Minors=%d, Majors=%d", iNumMinors, iNumMajors);
@@ -10808,7 +10808,7 @@ void CvGame::initSpyThreshold()
 	// Clamp the result between 33 and 100
 	m_iSpyThreshold = range(iThreshold, iMinThreshold, iMaxThreshold);
 
-#if defined(MOD_CORE_DEBUGGING)
+#if defined(VPDEBUG)
 	CUSTOMLOG("Spy Threshold Result: %d", m_iSpyThreshold);
 #endif
 }
