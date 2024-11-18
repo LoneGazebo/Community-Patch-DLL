@@ -186,6 +186,7 @@ CvCity::CvCity() :
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
 	, m_iGPRateModPerMarriage()
+	, m_iGPRateModifierPerLocalTheme()
 	, m_iGPPOnCitizenBirth()
 	, m_iJONSCultureStored()
 	, m_iJONSCultureLevel()
@@ -1182,6 +1183,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
 	m_iGPRateModPerMarriage = 0;
+	m_iGPRateModifierPerLocalTheme = 0;
 	m_iGPPOnCitizenBirth = 0;
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
@@ -14219,6 +14221,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeGPRateModPerMarriage(pBuildingInfo->GetGPRateModPerMarriage() * iChange);
+		changeGPRateModifierPerLocalTheme(pBuildingInfo->GetGPRateModifierPerLocalTheme() * iChange);
 		ChangeGPPOnCitizenBirth(pBuildingInfo->GetGPPOnCitizenBirth() * iChange);
 
 		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
@@ -17316,6 +17319,12 @@ int CvCity::getGreatPeopleRateModifier() const
 		}
 	}
 
+	int iGPRateModifierPerLocalTheme = getGPRateModifierPerLocalTheme();
+	if (iGPRateModifierPerLocalTheme > 0)
+	{
+		iValue += iGPRateModifierPerLocalTheme * GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
+
 	// Corporations: Great people rate modifier by number of franchises
 	int iGPRateCorp = GetGPRateModifierPerXFranchises();
 	if (iGPRateCorp > 0)
@@ -17425,6 +17434,20 @@ void CvCity::changeGPRateModPerMarriage(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iGPRateModPerMarriage = (m_iGPRateModPerMarriage + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getGPRateModifierPerLocalTheme() const
+{
+	VALIDATE_OBJECT
+	return m_iGPRateModifierPerLocalTheme;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeGPRateModifierPerLocalTheme(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iGPRateModifierPerLocalTheme = (m_iGPRateModifierPerLocalTheme + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31458,6 +31481,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iBaseGreatPeopleRate);
 	visitor(city.m_iGreatPeopleRateModifier);
 	visitor(city.m_iGPRateModPerMarriage);
+	visitor(city.m_iGPRateModifierPerLocalTheme);
 	visitor(city.m_iGPPOnCitizenBirth);
 	visitor(city.m_iJONSCultureStored);
 	visitor(city.m_iJONSCultureLevel);
