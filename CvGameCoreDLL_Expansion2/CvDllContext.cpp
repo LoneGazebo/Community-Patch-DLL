@@ -1204,13 +1204,13 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 				update.iTurnNumber = path.vPlots[i].turns;
 			else
 			{
-				// We can only pass a single integer to the UI
-				// But we want to fit in turn count and remaining moves
-				// Use MOVE_DENOMINATOR as the multiplier b/c that's used internally as well
-				int iMultiplier = GC.getMOVE_DENOMINATOR();
+				// We can only pass a single integer to the UI - but we want to fit in turn count and remaining moves
+				// Also for some reason it cannot be larger than 36000
+				// So use 600 as the scaler, this means we can handle up to 60 turns and 599 movement points
+				// Also it's a multiple of 60 so there will be no rounding
+				int iMultiplier = GC.getMOVE_DENOMINATOR() * 10;
 				int iRemaining = (int)path.vPlots[i].moves;
-				// Assume we will never have more than 60*60 remaining movement points ...
-				update.iTurnNumber = path.vPlots[i].turns * iMultiplier * iMultiplier + iRemaining;
+				update.iTurnNumber = path.vPlots[i].turns * iMultiplier + iRemaining;
 			}
 
 			pUpdateData.push_back(update);

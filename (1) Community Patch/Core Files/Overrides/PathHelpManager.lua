@@ -31,9 +31,10 @@ function BuildNode( data, bShowRemainingMoves )
     local instance = m_InstanceManager:GetInstance();
 
     -- see CvDllGameContext::TEMPCalculatePathFinderUpdates
-	local md = 60;
-	local wholeturns = math.floor(data.turn/md/md);
-	local remaining = data.turn - wholeturns*md*md;
+	local denominator = 60;
+	local scaler = denominator*10;
+	local wholeturns = math.floor(data.turn/scaler);
+	local remaining = data.turn - wholeturns*scaler;
 
 	if (remaining==0) then
 		-- full moves (turn start) or no movement left (turn finished)
@@ -47,7 +48,7 @@ function BuildNode( data, bShowRemainingMoves )
 
 	if (bShowRemainingMoves) then
 		-- for the plot the mouse is on we show extra info
-		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remaining .. "/" .. md);
+		instance.RemainingMoves:SetText("[ICON_MOVES]" .. remaining .. "/" .. denominator);
 	else
 		instance.RemainingMoves:SetText("");
 	end
