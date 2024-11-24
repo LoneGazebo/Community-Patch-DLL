@@ -18123,8 +18123,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	int iDifficultyBonusPercent = GC.getGame().getGameSpeedInfo().getDifficultyBonusPercent();
 	int iEra = GC.getGame().getCurrentEra();
 
+	// Possible for iEra to be 0 in custom scenarios (apparently cities are initialized before teams are?)
 	if (iEra < 0)
-		iEra = 0; // Use as fallback when game era is not yet set
+		iEra = 0;
 
 	// First do the human difficulty bonus
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(getHandicapType());
@@ -32311,7 +32312,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		// Entire team is dead
 		if (!GET_TEAM(getTeam()).isAlive())
 		{
-			for (int i = 0; i < BARBARIAN_TEAM; i++)
+			for (int i = 0; i < MAX_CIV_TEAMS; i++)
 			{
 				TeamTypes eTheirTeam = (TeamTypes)i;
 				if (getTeam() != eTheirTeam)

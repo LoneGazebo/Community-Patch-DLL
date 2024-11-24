@@ -10774,26 +10774,17 @@ int CvGame::GetCultureMedian() const
 
 void CvGame::initSpyThreshold()
 {
-	// MOD_COMMUNITY_PATCH should always be true
-	ASSERT(MOD_COMMUNITY_PATCH);
-
-	// Early return if spy balance module is not active
 	if (!MOD_BALANCE_CORE_SPIES)
 		return;
 
-	// Get the values with safety checks
-	int iNumMinors = max(1, GetNumMinorCivsEver(true));  // Ensure we don't divide by zero
-	int iNumMajors = max(1, GetNumMajorCivsEver(true));  // Ensure we don't divide by zero
+	int iSpyRatio = /*20*/ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO);
+	int iMajorMultiplier = /*2*/ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER);
+	int iMinThreshold = /*33*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN);
+	int iMaxThreshold = /*100*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX);
 
-	// Get configuration values:
-	// BALANCE_SPY_TO_PLAYER_RATIO = 20 
-	// BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER = 2
-	// BALANCE_SPY_POINT_THRESHOLD_MIN = 33
-	// BALANCE_SPY_POINT_THRESHOLD_MAX = 100
-	int iSpyRatio = GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO);
-	int iMajorMultiplier = GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER);
-	int iMinThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN);
-	int iMaxThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX);
+	// Avoid division by zero
+	int iNumMinors = max(1, GetNumMinorCivsEver(true));
+	int iNumMajors = max(1, GetNumMajorCivsEver(true));
 
 #if defined(VPDEBUG)
 	CUSTOMLOG("Spy Threshold Config: Ratio=%d, MajorMult=%d, Min=%d, Max=%d",
@@ -10801,8 +10792,7 @@ void CvGame::initSpyThreshold()
 	CUSTOMLOG("Spy Threshold Civs: Minors=%d, Majors=%d", iNumMinors, iNumMajors);
 #endif
 
-	// Calculate threshold using the formula:
-	// threshold = (100 * 20) / (numMinors + 2 * numMajors)
+	// iThreshold = (100 * 20) / (numMinors + 2 * numMajors)
 	int iThreshold = 100 * iSpyRatio / (iNumMinors + iMajorMultiplier * iNumMajors);
 
 	// Clamp the result between 33 and 100
@@ -10818,8 +10808,8 @@ int CvGame::GetSpyThreshold() const
 	// failsafe: if initSpyThreshold has not been called yet for some reason, calculate the threshold based on the number of players ever alive
 	if (m_iSpyThreshold == 0)
 	{
-		int iTempThreshold = 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(false) + /* 2 */ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(false));
-		iTempThreshold = range(iTempThreshold, /* 33 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /* 100 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
+		int iTempThreshold = 100 * /*20*/ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(false) + /*2*/ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(false));
+		iTempThreshold = range(iTempThreshold, /*33*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /*100*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
 		return iTempThreshold;
 	}
 
