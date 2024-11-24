@@ -863,23 +863,11 @@ CvGreatWorkBuildingInMyEmpire::CvGreatWorkBuildingInMyEmpire()
 : m_iCityID(-1)
 , m_eBuilding(NO_BUILDING)
 {
+	m_iGPThemingBonus = 0;
 	m_bThemed = false;
 	m_bEndangered = false;
 	m_bPuppet = false;
     m_eYieldType = NO_YIELD;
-}
-
-/// Constructor
-CvGreatWorkBuildingInMyEmpire::	CvGreatWorkBuildingInMyEmpire(int iCityID, BuildingTypes eBuilding)
-: m_iCityID(iCityID)
-, m_eBuilding(eBuilding)
-{
-	m_bThemed = false;
-	m_bEndangered = false;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	m_bPuppet = false;
-    m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
-#endif
 }
 
 //=====================================
@@ -1145,6 +1133,10 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 					CvGreatWorkBuildingInMyEmpire building;
 					building.m_eBuilding = eBuilding;
 					building.m_iCityID = pLoopCity->GetID();
+					if (pLoopCity->getGPRateModifierPerLocalTheme() > 0)
+					{
+						building.m_iGPThemingBonus = pLoopCity->getGPRateModifierPerLocalTheme() * pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
+					}
 
 					if (pLoopCity->isCapital())
 						building.m_bEndangered = false;
@@ -1252,6 +1244,10 @@ void CvPlayerCulture::DoSwapGreatWorks(YieldTypes eFocusYield)
 					CvGreatWorkBuildingInMyEmpire building;
 					building.m_eBuilding = eBuilding;
 					building.m_iCityID = pLoopCity->GetID();
+					if (pLoopCity->getGPRateModifierPerLocalTheme() > 0)
+					{
+						building.m_iGPThemingBonus = pLoopCity->getGPRateModifierPerLocalTheme() * pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
+					}
 
 					if (pLoopCity->isCapital())
 						building.m_bEndangered = false;
@@ -1333,7 +1329,9 @@ static bool SortThemingBonus(const CvGreatWorkBuildingInMyEmpire& kEntry1, const
 
 		if (pBonus1 && pBonus2)
 		{
-			return (pBonus1->GetAIPriority() > pBonus2->GetAIPriority());
+			int iBonus1 = 50 * pBonus1->GetAIPriority() + kEntry1.m_iGPThemingBonus;
+			int iBonus2 = 50 * pBonus2->GetAIPriority() + kEntry2.m_iGPThemingBonus;
+			return (iBonus1 > iBonus2);
 		}
 		else if (pBonus1)
 		{

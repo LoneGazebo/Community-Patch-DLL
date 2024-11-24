@@ -858,6 +858,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus += pkBuildingInfo->GetGPRateModPerMarriage() * GET_PLAYER(m_pCity->getOwner()).GetNumMarriedCityStatesNotAtWar();
 	}
 
+	if (pkBuildingInfo->GetGPRateModifierPerLocalTheme() > 0)
+	{
+		iBonus += pkBuildingInfo->GetGPRateModifierPerLocalTheme() * m_pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
+
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{
