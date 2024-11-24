@@ -156,10 +156,10 @@ class CvGreatWorkBuildingInMyEmpire
 {
 public:
 	CvGreatWorkBuildingInMyEmpire();
-	CvGreatWorkBuildingInMyEmpire(int iCityID, BuildingTypes eBuilding);
 
 	// Public data
 	int m_iCityID;
+	int m_iGPThemingBonus;
 	BuildingTypes m_eBuilding;
 	bool m_bThemed;
 	bool m_bEndangered;
