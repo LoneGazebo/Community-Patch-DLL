@@ -10772,14 +10772,45 @@ int CvGame::GetCultureMedian() const
 	return m_iCultureMedian;
 }
 
-
 void CvGame::initSpyThreshold()
 {
+	// MOD_COMMUNITY_PATCH should always be true
+	ASSERT(MOD_COMMUNITY_PATCH);
+
+	// Early return if spy balance module is not active
 	if (!MOD_BALANCE_CORE_SPIES)
 		return;
 
-	int iThreshold = 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(true) + /* 2 */ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(true));
-	m_iSpyThreshold = range(iThreshold, /* 33 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /* 100 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
+	// Get the values with safety checks
+	int iNumMinors = max(1, GetNumMinorCivsEver(true));  // Ensure we don't divide by zero
+	int iNumMajors = max(1, GetNumMajorCivsEver(true));  // Ensure we don't divide by zero
+
+	// Get configuration values:
+	// BALANCE_SPY_TO_PLAYER_RATIO = 20 
+	// BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER = 2
+	// BALANCE_SPY_POINT_THRESHOLD_MIN = 33
+	// BALANCE_SPY_POINT_THRESHOLD_MAX = 100
+	int iSpyRatio = GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO);
+	int iMajorMultiplier = GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER);
+	int iMinThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN);
+	int iMaxThreshold = GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX);
+
+#if defined(VPDEBUG)
+	CUSTOMLOG("Spy Threshold Config: Ratio=%d, MajorMult=%d, Min=%d, Max=%d",
+		iSpyRatio, iMajorMultiplier, iMinThreshold, iMaxThreshold);
+	CUSTOMLOG("Spy Threshold Civs: Minors=%d, Majors=%d", iNumMinors, iNumMajors);
+#endif
+
+	// Calculate threshold using the formula:
+	// threshold = (100 * 20) / (numMinors + 2 * numMajors)
+	int iThreshold = 100 * iSpyRatio / (iNumMinors + iMajorMultiplier * iNumMajors);
+
+	// Clamp the result between 33 and 100
+	m_iSpyThreshold = range(iThreshold, iMinThreshold, iMaxThreshold);
+
+#if defined(VPDEBUG)
+	CUSTOMLOG("Spy Threshold Result: %d", m_iSpyThreshold);
+#endif
 }
 
 int CvGame::GetSpyThreshold() const
