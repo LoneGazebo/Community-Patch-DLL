@@ -7,8 +7,8 @@ VALUES
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_CULTURE', 1),
-	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_FAITH', 2);
+	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_COUNCIL', 'YIELD_CULTURE', 1),
+	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_COUNCIL', 'YIELD_FAITH', 2);
 
 -- Tears of the Gods (now God of All Creation)
 INSERT INTO Belief_BuildingClassYieldChanges
@@ -324,7 +324,7 @@ VALUES
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_GODDESS_HUNT', 'BUILDINGCLASS_LODGE', 'YIELD_FOOD', 2);
+	('BELIEF_GODDESS_HUNT', 'BUILDINGCLASS_SMOKEHOUSE', 'YIELD_FOOD', 2);
 
 -- Religious Idols (now Goddess of Wisdom)
 INSERT INTO Belief_CityYieldChanges

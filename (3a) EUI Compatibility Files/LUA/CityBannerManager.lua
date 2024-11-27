@@ -1131,7 +1131,7 @@ local function RefreshCityBannersNow()
 			-- Blockaded ? / Sapped ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 			if (city:GetSappedTurns() > 0) then
-				instance.CityIsBlockaded:SetText("[ICON_VP_SAPPED]")
+				instance.CityIsBlockaded:SetText("[ICON_SAPPED]")
 			else
 				instance.CityIsBlockaded:SetText("[ICON_BLOCKADED]")
 			end
@@ -1152,7 +1152,7 @@ local function RefreshCityBannersNow()
 				if(delta <= 0) then
 					instance.CityIsUnhappy:SetHide(false)
 					if (delta == 0) then
-						instance.CityIsUnhappy:SetText("[ICON_ITP_HAPPINESS_NEUTRAL]");
+						instance.CityIsUnhappy:SetText("[ICON_HAPPINESS_NEUTRAL]");
 					else
 						instance.CityIsUnhappy:SetText("[ICON_HAPPINESS_3]");
 					end

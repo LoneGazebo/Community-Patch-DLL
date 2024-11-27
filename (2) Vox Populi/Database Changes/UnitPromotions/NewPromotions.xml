@@ -49,27 +49,27 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_3</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_WOODLAND_TRAILBLAZER_1</Type>
-			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_1</Description>
-			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_1_HELP</Help>
+			<Type>PROMOTION_TRAILBLAZER_1</Type>
+			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_1</Description>
+			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_1_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_1</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_1</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_WOODLAND_TRAILBLAZER_2</Type>
-			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2</Description>
-			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_1</PromotionPrereqOr1>
+			<Type>PROMOTION_TRAILBLAZER_2</Type>
+			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_2</Description>
+			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_2_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_TRAILBLAZER_1</PromotionPrereqOr1>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_2</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_2</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_WOODLAND_TRAILBLAZER_3</Type>
-			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3</Description>
-			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_2</PromotionPrereqOr1>
+			<Type>PROMOTION_TRAILBLAZER_3</Type>
+			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_3</Description>
+			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_3_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_TRAILBLAZER_2</PromotionPrereqOr1>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_3</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_3</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_COASTAL_ARTILLERY</Type>
@@ -115,9 +115,9 @@
 			<PediaEntry>TXT_KEY_PROMOTION_NAVIGATOR_2</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ANTIAIR_LAND_1</Type>
-			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_1</Description>
-			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_1_HELP</Help>
+			<Type>PROMOTION_AIR_DEFENSE_1</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_DEFENSE_1</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_DEFENSE_1_HELP</Help>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
@@ -128,25 +128,25 @@
 			<PromotionPrereqOr7>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr7>
 			<PromotionPrereqOr8>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr8>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_1</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_DEFENSE_1</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ANTIAIR_LAND_2</Type>
-			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_2</Description>
-			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_2_HELP</Help>
+			<Type>PROMOTION_AIR_DEFENSE_2</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_DEFENSE_2</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_DEFENSE_2_HELP</Help>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_AIR_DEFENSE_1</PromotionPrereqOr1>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_2</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_DEFENSE_2</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ANTIAIR_LAND_3</Type>
-			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_3</Description>
-			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_3_HELP</Help>
+			<Type>PROMOTION_AIR_DEFENSE_3</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_DEFENSE_3</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_DEFENSE_3_HELP</Help>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_AIR_DEFENSE_2</PromotionPrereqOr1>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_3</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_DEFENSE_3</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_CHARGE_2</Type>
@@ -165,91 +165,91 @@
 			<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_3</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SHOCK_4</Type>
-			<Description>TXT_KEY_PROMOTION_SHOCK_4</Description>
-			<Help>TXT_KEY_PROMOTION_SHOCK_4_HELP</Help>
+			<Type>PROMOTION_OVERRUN</Type>
+			<Description>TXT_KEY_PROMOTION_OVERRUN</Description>
+			<Help>TXT_KEY_PROMOTION_OVERRUN_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SHOCK_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_OVERRUN</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_DRILL_4</Type>
-			<Description>TXT_KEY_PROMOTION_DRILL_4</Description>
-			<Help>TXT_KEY_PROMOTION_DRILL_4_HELP</Help>
+			<Type>PROMOTION_STALWART</Type>
+			<Description>TXT_KEY_PROMOTION_STALWART</Description>
+			<Help>TXT_KEY_PROMOTION_STALWART_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_DRILL_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_STALWART</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BARRAGE_4</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE_4</Description>
-			<Help>TXT_KEY_PROMOTION_BARRAGE_4_HELP</Help>
+			<Type>PROMOTION_FIRING_DOCTRINE</Type>
+			<Description>TXT_KEY_PROMOTION_FIRING_DOCTRINE</Description>
+			<Help>TXT_KEY_PROMOTION_FIRING_DOCTRINE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIELD_3</PromotionPrereqOr2>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FIRING_DOCTRINE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ACCURACY_4</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY_4</Description>
-			<Help>TXT_KEY_PROMOTION_ACCURACY_4_HELP</Help>
+			<Type>PROMOTION_INFILTRATORS</Type>
+			<Description>TXT_KEY_PROMOTION_INFILTRATORS</Description>
+			<Help>TXT_KEY_PROMOTION_INFILTRATORS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_3</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_WOLFPACK_3</PromotionPrereqOr3>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INFILTRATORS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_TARGETING_4</Type>
-			<Description>TXT_KEY_PROMOTION_TARGETING_4</Description>
-			<Help>TXT_KEY_PROMOTION_TARGETING_4_HELP</Help>
+			<Type>PROMOTION_INDOMITABLE</Type>
+			<Description>TXT_KEY_PROMOTION_INDOMITABLE</Description>
+			<Help>TXT_KEY_PROMOTION_INDOMITABLE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_WOLFPACK_3</PromotionPrereqOr2>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TARGETING_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INDOMITABLE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BOMBARDMENT_4</Type>
-			<Description>TXT_KEY_PROMOTION_BOMBARDMENT_4</Description>
-			<Help>TXT_KEY_PROMOTION_BOMBARDMENT_4_HELP</Help>
+			<Type>PROMOTION_BROADSIDE</Type>
+			<Description>TXT_KEY_PROMOTION_BROADSIDE</Description>
+			<Help>TXT_KEY_PROMOTION_BROADSIDE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BOMBARDMENT_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_BROADSIDE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_COASTAL_RAIDER_4</Type>
-			<Description>TXT_KEY_PROMOTION_COASTAL_RAIDER_4</Description>
-			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP</Help>
+			<Type>PROMOTION_BLOCKADE</Type>
+			<Description>TXT_KEY_PROMOTION_BLOCKADE</Description>
+			<Help>TXT_KEY_PROMOTION_BLOCKADE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_RAIDER_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_BLOCKADE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BOARDING_PARTY_4</Type>
-			<Description>TXT_KEY_PROMOTION_BOARDING_PARTY_4</Description>
-			<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_4_HELP</Help>
+			<Type>PROMOTION_PINCER</Type>
+			<Description>TXT_KEY_PROMOTION_PINCER</Description>
+			<Help>TXT_KEY_PROMOTION_PINCER_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PINCER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_DAMAGE_REDUCTION</Type>
-			<Description>TXT_KEY_PROMOTION_DAMAGE_REDUCTION</Description>
-			<Help>TXT_KEY_PROMOTION_DAMAGE_REDUCTION_HELP</Help>
+			<Type>PROMOTION_DAUNTLESS</Type>
+			<Description>TXT_KEY_PROMOTION_DAUNTLESS</Description>
+			<Help>TXT_KEY_PROMOTION_DAUNTLESS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_DAMAGE_REDUCTION</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_DAUNTLESS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_PRESS_GANGS</Type>
-			<Description>TXT_KEY_PROMOTION_PRESS_GANGS</Description>
-			<Help>TXT_KEY_PROMOTION_PRESS_GANGS_HELP</Help>
+			<Type>PROMOTION_COMMERCE_RAIDER</Type>
+			<Description>TXT_KEY_PROMOTION_COMMERCE_RAIDER</Description>
+			<Help>TXT_KEY_PROMOTION_COMMERCE_RAIDER_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_WOLFPACK_2</PromotionPrereqOr2>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PRESS_GANGS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_COMMERCE_RAIDER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_PIRACY</Type>
@@ -260,20 +260,20 @@
 			<PediaEntry>TXT_KEY_PROMOTION_PIRACY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SKIRMISHER_MOBILITY</Type>
-			<Description>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY</Description>
-			<Help>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP</Help>
+			<Type>PROMOTION_PARTHIAN_TACTICS</Type>
+			<Description>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</Description>
+			<Help>TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SKIRMISHER_POWER</Type>
-			<Description>TXT_KEY_PROMOTION_SKIRMISHER_POWER</Description>
-			<Help>TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP</Help>
+			<Type>PROMOTION_COUP_DE_GRACE</Type>
+			<Description>TXT_KEY_PROMOTION_COUP_DE_GRACE</Description>
+			<Help>TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_POWER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_COUP_DE_GRACE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SKIRMISHER_MARCH</Type>
@@ -292,20 +292,20 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BETTER_BOMBARDMENT</Type>
-			<Description>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT</Description>
-			<Help>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT_HELP</Help>
+			<Type>PROMOTION_SHRAPNEL_ROUNDS</Type>
+			<Description>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS</Description>
+			<Help>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_COASTAL_TERROR</Type>
-			<Description>TXT_KEY_PROMOTION_COASTAL_TERROR</Description>
-			<Help>TXT_KEY_PROMOTION_COASTAL_TERROR_HELP</Help>
+			<Type>PROMOTION_VANGUARD</Type>
+			<Description>TXT_KEY_PROMOTION_VANGUARD</Description>
+			<Help>TXT_KEY_PROMOTION_VANGUARD_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_TERROR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_VANGUARD</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_SIEGE</Type>
@@ -362,7 +362,7 @@
 			<Help>TXT_KEY_PROMOTION_FROGMAN_HELP</Help>
 			<TechPrereq>TECH_RAILROAD</TechPrereq>
 			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_3</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_TRAILBLAZER_3</PromotionPrereqOr2>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FROGMAN</PediaEntry>
 		</Row>
@@ -371,7 +371,7 @@
 			<Description>TXT_KEY_PROMOTION_SCREENING</Description>
 			<Help>TXT_KEY_PROMOTION_SCREENING_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_3</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_TRAILBLAZER_3</PromotionPrereqOr2>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SCREENING</PediaEntry>
 		</Row>
@@ -393,12 +393,12 @@
 			<PediaEntry>TXT_KEY_PROMOTION_HUNTER_KILLER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_TRUE_WOLFPACK</Type>
-			<Description>TXT_KEY_PROMOTION_TRUE_WOLFPACK</Description>
-			<Help>TXT_KEY_PROMOTION_TRUE_WOLFPACK_HELP</Help>
+			<Type>PROMOTION_VP_WOLFPACK</Type>
+			<Description>TXT_KEY_PROMOTION_VP_WOLFPACK</Description>
+			<Help>TXT_KEY_PROMOTION_VP_WOLFPACK_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PediaType>PEDIA_CARSUB</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TRUE_WOLFPACK</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_VP_WOLFPACK</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_PREDATOR</Type>
@@ -461,25 +461,25 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FASTER_WORKER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_KILL_HEAL</Type>
-			<Description>TXT_KEY_PROMOTION_KILL_HEAL</Description>
-			<Help>TXT_KEY_PROMOTION_KILL_HEAL_HELP</Help>
+			<Type>PROMOTION_ENDURANCE</Type>
+			<Description>TXT_KEY_PROMOTION_ENDURANCE</Description>
+			<Help>TXT_KEY_PROMOTION_ENDURANCE_HELP</Help>
 			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_KILL_HEAL</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ENDURANCE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_HONOR_BONUS</Type>
-			<Description>TXT_KEY_PROMOTION_HONOR_BONUS</Description>
-			<Help>TXT_KEY_PROMOTION_HONOR_BONUS_HELP</Help>
+			<Type>PROMOTION_CONSCRIPTION</Type>
+			<Description>TXT_KEY_PROMOTION_CONSCRIPTION</Description>
+			<Help>TXT_KEY_PROMOTION_CONSCRIPTION_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_HONOR_BONUS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_CONSCRIPTION</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_IMPERIALISM_OPENER</Type>
-			<Description>TXT_KEY_PROMOTION_IMPERIALISM_OPENER</Description>
-			<Help>TXT_KEY_PROMOTION_IMPERIALISM_OPENER_HELP</Help>
+			<Type>PROMOTION_IMPERIALISM</Type>
+			<Description>TXT_KEY_PROMOTION_IMPERIALISM</Description>
+			<Help>TXT_KEY_PROMOTION_IMPERIALISM_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_IMPERIALISM_OPENER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_IMPERIALISM</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FASTER_GENERAL</Type>
@@ -489,32 +489,32 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FASTER_GENERAL</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BETTER_LEADERSHIP</Type>
-			<Description>TXT_KEY_PROMOTION_BETTER_LEADERSHIP</Description>
-			<Help>TXT_KEY_PROMOTION_BETTER_LEADERSHIP_HELP</Help>
+			<Type>PROMOTION_REGIMENTAL_TRADITIONS</Type>
+			<Description>TXT_KEY_PROMOTION_REGIMENTAL_TRADITIONS</Description>
+			<Help>TXT_KEY_PROMOTION_REGIMENTAL_TRADITIONS_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BETTER_LEADERSHIP</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_REGIMENTAL_TRADITIONS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_NAVAL_DEFENSE_BOOST</Type>
-			<Description>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</Description>
-			<Help>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP</Help>
+			<Type>PROMOTION_BANZAI</Type>
+			<Description>TXT_KEY_PROMOTION_BANZAI</Description>
+			<Help>TXT_KEY_PROMOTION_BANZAI_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_BANZAI</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_LIGHTNING_WARFARE_GUN</Type>
-			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN</Description>
-			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN_HELP</Help>
+			<Type>PROMOTION_LIGHTNING_WARFARE_GUNPOWDER</Type>
+			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER</Description>
+			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_LIGHTNING_WARFARE_ARMOR</Type>
-			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</Description>
-			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR_HELP</Help>
+			<Type>PROMOTION_LIGHTNING_WARFARE_ARMORED</Type>
+			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMORED</Description>
+			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMORED_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMORED</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_MARE_NOSTRUM</Type>
@@ -525,20 +525,20 @@
 		</Row>
 		<!-- Tech -->
 		<Row>
-			<Type>PROMOTION_ICE_BREAKERS</Type>
-			<Description>TXT_KEY_PROMOTION_ICE_BREAKERS</Description>
-			<Help>TXT_KEY_PROMOTION_ICE_BREAKERS_HELP</Help>
+			<Type>PROMOTION_ENGINEERING_CORP</Type>
+			<Description>TXT_KEY_PROMOTION_ENGINEERING_CORP</Description>
+			<Help>TXT_KEY_PROMOTION_ENGINEERING_CORP_HELP</Help>
 			<TechPrereq>TECH_BALLISTICS</TechPrereq>
 			<PediaType>PEDIA_CIVILIAN</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ICE_BREAKERS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ENGINEERING_CORP</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_FALLOUT_REDUCTION</Type>
-			<Description>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</Description>
-			<Help>TXT_KEY_PROMOTION_FALLOUT_REDUCTION_HELP</Help>
+			<Type>PROMOTION_FALLOUT_RESISTANCE</Type>
+			<Description>TXT_KEY_PROMOTION_FALLOUT_RESISTANCE</Description>
+			<Help>TXT_KEY_PROMOTION_FALLOUT_RESISTANCE_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<TechPrereq>TECH_PENICILIN</TechPrereq>
-			<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_RESISTANCE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FALLOUT_IMMUNITY</Type>
@@ -565,18 +565,18 @@
 		</Row>
 		<!-- Building -->
 		<Row>
-			<Type>PROMOTION_SIGNET</Type>
-			<Description>TXT_KEY_PROMOTION_SIGNET</Description>
-			<Help>TXT_KEY_PROMOTION_SIGNET_HELP</Help>
+			<Type>PROMOTION_ROYAL_SIGNET</Type>
+			<Description>TXT_KEY_PROMOTION_ROYAL_SIGNET</Description>
+			<Help>TXT_KEY_PROMOTION_ROYAL_SIGNET_HELP</Help>
 			<PediaType>PEDIA_DIPLO</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SIGNET</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ROYAL_SIGNET</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_EXPRESS</Type>
-			<Description>TXT_KEY_PROMOTION_EXPRESS</Description>
-			<Help>TXT_KEY_PROMOTION_EXPRESS_HELP</Help>
+			<Type>PROMOTION_WIRE_SERVICE</Type>
+			<Description>TXT_KEY_PROMOTION_WIRE_SERVICE</Description>
+			<Help>TXT_KEY_PROMOTION_WIRE_SERVICE_HELP</Help>
 			<PediaType>PEDIA_DIPLO</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_EXPRESS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_WIRE_SERVICE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LITERACY</Type>
@@ -586,18 +586,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_LITERACY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_IMMUNITY</Type>
-			<Description>TXT_KEY_PROMOTION_IMMUNITY</Description>
-			<Help>TXT_KEY_PROMOTION_IMMUNITY_HELP</Help>
+			<Type>PROMOTION_DIPLOMATIC_IMMUNITY</Type>
+			<Description>TXT_KEY_PROMOTION_DIPLOMATIC_IMMUNITY</Description>
+			<Help>TXT_KEY_PROMOTION_DIPLOMATIC_IMMUNITY_HELP</Help>
 			<PediaType>PEDIA_DIPLO</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_IMMUNITY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_DIPLOMATIC_IMMUNITY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_PAX</Type>
-			<Description>TXT_KEY_PROMOTION_PAX</Description>
-			<Help>TXT_KEY_PROMOTION_PAX_HELP</Help>
+			<Type>PROMOTION_IMPERIAL_SEAL</Type>
+			<Description>TXT_KEY_PROMOTION_IMPERIAL_SEAL</Description>
+			<Help>TXT_KEY_PROMOTION_IMPERIAL_SEAL_HELP</Help>
 			<PediaType>PEDIA_DIPLO</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PAX</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_IMPERIAL_SEAL</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NOBILITY</Type>
@@ -607,11 +607,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_NOBILITY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ALHAMBRA</Type>
-			<Description>TXT_KEY_PROMOTION_ALHAMBRA</Description>
-			<Help>TXT_KEY_PROMOTION_ALHAMBRA_HELP</Help>
+			<Type>PROMOTION_JINETE</Type>
+			<Description>TXT_KEY_PROMOTION_JINETE</Description>
+			<Help>TXT_KEY_PROMOTION_JINETE_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ALHAMBRA</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_JINETE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_IKLWA</Type>
@@ -629,11 +629,11 @@
 			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ARSENALE</Type>
-			<Description>TXT_KEY_PROMOTION_ARSENALE</Description>
-			<Help>TXT_KEY_PROMOTION_ARSENALE_HELP</Help>
+			<Type>PROMOTION_VENETIAN_CRAFTSMANSHIP</Type>
+			<Description>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP</Description>
+			<Help>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ARSENALE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_TREASURE_FLEET</Type>
@@ -644,11 +644,11 @@
 		</Row>
 		<!-- Unit -->
 		<Row>
-			<Type>PROMOTION_BARBARIAN_BONUS</Type>
-			<Description>TXT_KEY_PROMOTION_BARBARIAN_BONUS</Description>
-			<Help>TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP</Help>
+			<Type>PROMOTION_BRUTE_FORCE</Type>
+			<Description>TXT_KEY_PROMOTION_BRUTE_FORCE</Description>
+			<Help>TXT_KEY_PROMOTION_BRUTE_FORCE_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BARBARIAN_BONUS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_BRUTE_FORCE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FIELD_WORKS_0</Type>
@@ -679,11 +679,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_3</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_NAVAL_MISFIRE</Type>
-			<Description>TXT_KEY_PROMOTION_NAVAL_MISFIRE</Description>
-			<Help>TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP</Help>
+			<Type>PROMOTION_NAVAL_TARGET_PENALTY</Type>
+			<Description>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY</Description>
+			<Help>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_MISFIRE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_COVERING_FIRE_1</Type>
@@ -700,18 +700,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_COVERING_FIRE_2</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_MECH</Type>
-			<Description>TXT_KEY_PROMOTION_MECH</Description>
-			<Help>TXT_KEY_PROMOTION_MECH_HELP</Help>
+			<Type>PROMOTION_TITANIC</Type>
+			<Description>TXT_KEY_PROMOTION_TITANIC</Description>
+			<Help>TXT_KEY_PROMOTION_TITANIC_HELP</Help>
 			<PediaType>PEDIA_MOUNTED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MECH</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_TITANIC</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ROUGH_TERRAIN_HALF_TURN</Type>
-			<Description>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN</Description>
-			<Help>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP</Help>
+			<Type>PROMOTION_BEAM_AXLE</Type>
+			<Description>TXT_KEY_PROMOTION_BEAM_AXLE</Description>
+			<Help>TXT_KEY_PROMOTION_BEAM_AXLE_HELP</Help>
 			<PediaType>PEDIA_MOUNTED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_BEAM_AXLE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SKIRMISHER_DOCTRINE</Type>
@@ -728,25 +728,25 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SIEGE_INACCURACY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_RECON_EXPERIENCE</Type>
-			<Description>TXT_KEY_PROMOTION_RECON_EXPERIENCE</Description>
-			<Help>TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP</Help>
+			<Type>PROMOTION_RECONNAISSANCE</Type>
+			<Description>TXT_KEY_PROMOTION_RECONNAISSANCE</Description>
+			<Help>TXT_KEY_PROMOTION_RECONNAISSANCE_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECON_EXPERIENCE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_RECONNAISSANCE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_OCEAN_CROSSING</Type>
-			<Description>TXT_KEY_PROMOTION_OCEAN_CROSSING</Description>
-			<Help>TXT_KEY_PROMOTION_OCEAN_CROSSING_HELP</Help>
+			<Type>PROMOTION_OCEAN_EXPLORER</Type>
+			<Description>TXT_KEY_PROMOTION_OCEAN_EXPLORER</Description>
+			<Help>TXT_KEY_PROMOTION_OCEAN_EXPLORER_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_CROSSING</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_EXPLORER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SCOUT_XP_PILLAGE</Type>
-			<Description>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE</Description>
-			<Help>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE_HELP</Help>
+			<Type>PROMOTION_SCAVENGER</Type>
+			<Description>TXT_KEY_PROMOTION_SCAVENGER</Description>
+			<Help>TXT_KEY_PROMOTION_SCAVENGER_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SCAVENGER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_COMMANDO</Type>
@@ -763,32 +763,32 @@
 			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_INACCURACY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_OCEAN_HALF_MOVES</Type>
-			<Description>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES</Description>
-			<Help>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES_HELP</Help>
+			<Type>PROMOTION_SHALLOW_DRAFT</Type>
+			<Description>TXT_KEY_PROMOTION_SHALLOW_DRAFT</Description>
+			<Help>TXT_KEY_PROMOTION_SHALLOW_DRAFT_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SHALLOW_DRAFT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_AIR_MISFIRE</Type>
-			<Description>TXT_KEY_PROMOTION_AIR_MISFIRE</Description>
-			<Help>TXT_KEY_PROMOTION_AIR_MISFIRE_HELP</Help>
+			<Type>PROMOTION_STRAFING_RUNS</Type>
+			<Description>TXT_KEY_PROMOTION_STRAFING_RUNS</Description>
+			<Help>TXT_KEY_PROMOTION_STRAFING_RUNS_HELP</Help>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AIR_MISFIRE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_STRAFING_RUNS</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_RECON_RANGE_1</Type>
-			<Description>TXT_KEY_PROMOTION_RECON_RANGE_1</Description>
-			<Help>TXT_KEY_PROMOTION_RECON_RANGE_1_HELP</Help>
+			<Type>PROMOTION_AIR_RECON_RANGE_1</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_RECON_RANGE_1</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_RECON_RANGE_1_HELP</Help>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECON_RANGE_1</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_RECON_RANGE_1</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_RECON_RANGE_2</Type>
-			<Description>TXT_KEY_PROMOTION_RECON_RANGE_2</Description>
-			<Help>TXT_KEY_PROMOTION_RECON_RANGE_2_HELP</Help>
+			<Type>PROMOTION_AIR_RECON_RANGE_2</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_RECON_RANGE_2</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_RECON_RANGE_2_HELP</Help>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECON_RANGE_2</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_RECON_RANGE_2</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_STEALTH</Type>
@@ -826,11 +826,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_AMBASSADOR</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SUPPLY_BOOST</Type>
-			<Description>TXT_KEY_PROMOTION_SUPPLY_BOOST</Description>
-			<Help>TXT_KEY_PROMOTION_SUPPLY_BOOST_HELP</Help>
+			<Type>PROMOTION_MILITARY_TRADITION</Type>
+			<Description>TXT_KEY_PROMOTION_MILITARY_TRADITION</Description>
+			<Help>TXT_KEY_PROMOTION_MILITARY_TRADITION_HELP</Help>
 			<PediaType>PEDIA_CIVILIAN</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SUPPLY_BOOST</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_MILITARY_TRADITION</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_GREAT_DIPLOMAT</Type>
@@ -840,26 +840,26 @@
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_DIPLOMAT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_NUCLEAR_SILO</Type>
-			<Description>TXT_KEY_PROMOTION_NUCLEAR_SILO</Description>
-			<Help>TXT_KEY_PROMOTION_NUCLEAR_SILO_HELP</Help>
+			<Type>PROMOTION_SHIELDED_SILO</Type>
+			<Description>TXT_KEY_PROMOTION_SHIELDED_SILO</Description>
+			<Help>TXT_KEY_PROMOTION_SHIELDED_SILO_HELP</Help>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_NUCLEAR_SILO</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SHIELDED_SILO</PediaEntry>
 		</Row>
 		<!-- Unique unit -->
 		<Row>
-			<Type>PROMOTION_FLANK_ATTACK_BONUS_STRONG</Type>
-			<Description>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG</Description>
-			<Help>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG_HELP</Help>
+			<Type>PROMOTION_HEAVY_FLANKING</Type>
+			<Description>TXT_KEY_PROMOTION_HEAVY_FLANKING</Description>
+			<Help>TXT_KEY_PROMOTION_HEAVY_FLANKING_HELP</Help>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_FLANKING</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ENSLAVEMENT</Type>
-			<Description>TXT_KEY_PROMOTION_ENSLAVEMENT</Description>
-			<Help>TXT_KEY_PROMOTION_ENSLAVEMENT_HELP</Help>
+			<Type>PROMOTION_GIFT_OF_THE_PHARAOH</Type>
+			<Description>TXT_KEY_PROMOTION_GIFT_OF_THE_PHARAOH</Description>
+			<Help>TXT_KEY_PROMOTION_GIFT_OF_THE_PHARAOH_HELP</Help>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ENSLAVEMENT</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_GIFT_OF_THE_PHARAOH</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RAIDER</Type>
@@ -869,11 +869,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_RAIDER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_RECON_BANDEIRANTES</Type>
-			<Description>TXT_KEY_PROMOTION_RECON_BANDEIRANTES</Description>
-			<Help>TXT_KEY_PROMOTION_RECON_BANDEIRANTES_HELP</Help>
+			<Type>PROMOTION_FLAG_BEARER</Type>
+			<Description>TXT_KEY_PROMOTION_FLAG_BEARER</Description>
+			<Help>TXT_KEY_PROMOTION_FLAG_BEARER_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECON_BANDEIRANTES</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FLAG_BEARER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_ASSIZE_OF_ARMS</Type>
@@ -904,32 +904,32 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FOCUS_FIRE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_KNOCKOUT</Type>
-			<Description>TXT_KEY_PROMOTION_KNOCKOUT</Description>
-			<Help>TXT_KEY_PROMOTION_KNOCKOUT_HELP</Help>
+			<Type>PROMOTION_FASIMBA</Type>
+			<Description>TXT_KEY_PROMOTION_FASIMBA</Description>
+			<Help>TXT_KEY_PROMOTION_FASIMBA_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FASIMBA</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ESPRIT_DE_CORPS</Type>
-			<Description>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</Description>
-			<Help>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP</Help>
+			<Type>PROMOTION_WITHERING_FIRE</Type>
+			<Description>TXT_KEY_PROMOTION_WITHERING_FIRE</Description>
+			<Help>TXT_KEY_PROMOTION_WITHERING_FIRE_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_WITHERING_FIRE</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_AOE_STRIKE_ON_KILL</Type>
-			<Description>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL</Description>
-			<Help>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP</Help>
+			<Type>PROMOTION_GRENADIER</Type>
+			<Description>TXT_KEY_PROMOTION_GRENADIER</Description>
+			<Help>TXT_KEY_PROMOTION_GRENADIER_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_GRENADIER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_AOE_STRIKE_FORTIFY</Type>
-			<Description>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY</Description>
-			<Help>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP</Help>
+			<Type>PROMOTION_PILUM</Type>
+			<Description>TXT_KEY_PROMOTION_PILUM</Description>
+			<Help>TXT_KEY_PROMOTION_PILUM_HELP</Help>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PILUM</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_DOPPELSOLDNER</Type>
@@ -939,32 +939,32 @@
 			<PediaEntry>TXT_KEY_PROMOTION_DOPPELSOLDNER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SLINGER</Type>
-			<Description>TXT_KEY_PROMOTION_SLINGER</Description>
-			<Help>TXT_KEY_PROMOTION_SLINGER_HELP</Help>
+			<Type>PROMOTION_CONCUSSIVE_HIT</Type>
+			<Description>TXT_KEY_PROMOTION_CONCUSSIVE_HIT</Description>
+			<Help>TXT_KEY_PROMOTION_CONCUSSIVE_HIT_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SLINGER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_CONCUSSIVE_HIT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_REPEATER</Type>
-			<Description>TXT_KEY_PROMOTION_REPEATER</Description>
-			<Help>TXT_KEY_PROMOTION_REPEATER_HELP</Help>
+			<Type>PROMOTION_SIEGE_VOLLEY</Type>
+			<Description>TXT_KEY_PROMOTION_SIEGE_VOLLEY</Description>
+			<Help>TXT_KEY_PROMOTION_SIEGE_VOLLEY_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_REPEATER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SIEGE_VOLLEY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_HEAVY_SHIP</Type>
-			<Description>TXT_KEY_PROMOTION_HEAVY_SHIP</Description>
-			<Help>TXT_KEY_PROMOTION_HEAVY_SHIP_HELP</Help>
+			<Type>PROMOTION_HEAVY_ASSAULT</Type>
+			<Description>TXT_KEY_PROMOTION_HEAVY_ASSAULT</Description>
+			<Help>TXT_KEY_PROMOTION_HEAVY_ASSAULT_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_SHIP</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_ASSAULT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_MANY_GOLDEN_AGE_POINTS</Type>
-			<Description>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS</Description>
-			<Help>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS_HELP</Help>
+			<Type>PROMOTION_PRIDE_OF_THE_NATION</Type>
+			<Description>TXT_KEY_PROMOTION_PRIDE_OF_THE_NATION</Description>
+			<Help>TXT_KEY_PROMOTION_PRIDE_OF_THE_NATION_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PRIDE_OF_THE_NATION</PediaEntry>
 		</Row>
 		<!-- Post-combat -->
 		<Row>
@@ -1003,11 +1003,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BUSHIDO_HONOR</Type>
-			<Description>TXT_KEY_PROMOTION_BUSHIDO_HONOR</Description>
-			<Help>TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP</Help>
+			<Type>PROMOTION_HONOR</Type>
+			<Description>TXT_KEY_PROMOTION_HONOR</Description>
+			<Help>TXT_KEY_PROMOTION_HONOR_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO_HONOR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_HONOR</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LOYALTY</Type>
@@ -1054,11 +1054,11 @@
 		</Row>
 		<!-- Event -->
 		<Row>
-			<Type>PROMOTION_MORALE_EVENT</Type>
-			<Description>TXT_KEY_PROMOTION_MORALE_EVENT</Description>
-			<Help>TXT_KEY_PROMOTION_MORALE_HELP</Help>
+			<Type>PROMOTION_FERVOR</Type>
+			<Description>TXT_KEY_PROMOTION_FERVOR</Description>
+			<Help>TXT_KEY_PROMOTION_FERVOR_HELP</Help>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MORALE_EVENT</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FERVOR</PediaEntry>
 		</Row>
 		<!-- Barbarian -->
 		<Row>

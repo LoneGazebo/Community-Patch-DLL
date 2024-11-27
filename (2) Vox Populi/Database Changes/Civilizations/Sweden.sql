@@ -41,26 +41,4 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_SWEDISH_CAROLEAN', 'PROMOTION_MARCH'),
-	('UNIT_SWEDISH_CAROLEAN', 'PROMOTION_AOE_STRIKE_ON_KILL');
-
-----------------------------------------------------------
--- Unique Building: Skola (Public School)
-----------------------------------------------------------
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType, BuildingType)
-VALUES
-	('CIVILIZATION_SWEDEN', 'BUILDINGCLASS_PUBLIC_SCHOOL', 'BUILDING_SKOLA');
-
--- See BuildingCostSweeps.sql for cost changes
-UPDATE Buildings
-SET SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_PUBLIC_SCHOOL') + 1
-WHERE Type = 'BUILDING_SKOLA';
-
-UPDATE Building_YieldChangesPerPop
-SET Yield = 150 -- 50
-WHERE BuildingType = 'BUILDING_SKOLA' AND YieldType = 'YIELD_SCIENCE';
-
-INSERT INTO Building_YieldChangesPerPop
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_SKOLA', 'YIELD_CULTURE', 50);
+	('UNIT_SWEDISH_CAROLEAN', 'PROMOTION_GRENADIER');

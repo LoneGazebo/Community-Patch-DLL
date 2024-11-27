@@ -16,22 +16,22 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_TRADER_SIDS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRouteLandDistanceModifier>100</TradeRouteLandDistanceModifier>
 			<PortraitIndex>4</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
-			<Type>CORPORATION_LANDSEA_EXTRACTORS</Type>
-			<Description>TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS</Description>
-			<Help>TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP</Help>
-			<HeadquartersBuildingClass>BUILDINGCLASS_LANDSEA_EXTRACTORS_HQ</HeadquartersBuildingClass>
-			<OfficeBuildingClass>BUILDINGCLASS_LANDSEA_EXTRACTORS</OfficeBuildingClass>
-			<FranchiseBuildingClass>BUILDINGCLASS_LANDSEA_EXTRACTORS_FRANCHISE</FranchiseBuildingClass>
-			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS</ResourceBonusHelp>
-			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_LANDSEA_EXTRACTORS</OfficeBonusHelp>
-			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS</TradeRouteBonusHelp>
-			<OfficeBenefitHelper>TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<Type>CORPORATION_CENTAURUS_EXTRACTORS</Type>
+			<Description>TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS</Description>
+			<Help>TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS_HELP</Help>
+			<HeadquartersBuildingClass>BUILDINGCLASS_CENTAURUS_EXTRACTORS_HQ</HeadquartersBuildingClass>
+			<OfficeBuildingClass>BUILDINGCLASS_CENTAURUS_EXTRACTORS</OfficeBuildingClass>
+			<FranchiseBuildingClass>BUILDINGCLASS_CENTAURUS_EXTRACTORS_FRANCHISE</FranchiseBuildingClass>
+			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_CENTAURUS_EXTRACTORS</ResourceBonusHelp>
+			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_CENTAURUS_EXTRACTORS</OfficeBonusHelp>
+			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CENTAURUS_EXTRACTORS</TradeRouteBonusHelp>
+			<OfficeBenefitHelper>TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>
 			<PortraitIndex>20</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
 			<Type>CORPORATION_HEXXON_REFINERY</Type>
@@ -45,7 +45,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY</ResourceBonusHelp>
 			<PortraitIndex>8</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
 			<Type>CORPORATION_GIORGIO_ARMEIER</Type>
@@ -59,7 +59,7 @@
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<PortraitIndex>16</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
 			<Type>CORPORATION_FIRAXITE_MATERIALS</Type>
@@ -74,7 +74,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRoutesInvulnerable>true</TradeRoutesInvulnerable>
 			<PortraitIndex>28</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
 			<Type>CORPORATION_TWOKAY_FOODS</Type>
@@ -89,7 +89,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_TWOKAY_FOODS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRouteVisionBoost>1</TradeRouteVisionBoost>
 			<PortraitIndex>12</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 		<Row>
 			<Type>CORPORATION_CIVILIZED_JEWELERS</Type>
@@ -104,7 +104,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRouteSpeedModifier>200</TradeRouteSpeedModifier>
 			<PortraitIndex>24</PortraitIndex>
-			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 	</Corporations>
 </GameData>

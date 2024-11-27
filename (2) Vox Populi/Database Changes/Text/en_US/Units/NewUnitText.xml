@@ -1,72 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_DESC_MOUNTED_BOWMAN">
+		<Row Tag="TXT_KEY_UNIT_HEAVY_SKIRMISHER">
 			<Text>Heavy Skirmisher</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_HEAVY_SKIRMISHER_STRATEGY">
 			<Text>Heavy Skirmishers are Medieval-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort, but be careful about letting them get caught alone.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_HEAVY_SKIRMISHER_TEXT">
 			<Text>Mounted knights armed with lances proved ineffective against formations of pikemen combined with crossbowmen whose weapons could penetrate most knights' armor. The invention of pushlever and ratchet drawing mechanisms enabled the use of crossbows on horseback, leading to the development of new cavalry tactics. Knights and mercenaries deployed in triangular formations, with the most heavily armored knights at the front. Some of these riders would carry small, powerful all-metal crossbows of their own. Crossbows were eventually replaced in warfare by more powerful gunpowder weapons, although early guns had slower rates of fire and much worse accuracy than contemporary crossbows. Later, similar competing tactics would feature harquebusiers or musketeers in formation with pikemen (pike and shot), pitted against cavalry firing pistols or carbines.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP">
+		<Row Tag="TXT_KEY_UNIT_HEAVY_SKIRMISHER_HELP">
 			<Text>Ranged Medieval-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DESC_CUIRASSIER">
+		<Row Tag="TXT_KEY_UNIT_CUIRASSIER">
 			<Text>Cuirassier</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_CUIRASSIER_STRATEGY">
 			<Text>Cuirassiers are Renaissance-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_CUIRASSIER_TEXT">
 			<Text>Cuirassiers, from French cuirassier, were cavalry equipped with armour and firearms, first appearing in late 15th-century Europe. This French term means "the one with a cuirass" (cuirasse), the breastplate armour which they wore. The first cuirassiers were produced as a result of armoured cavalry, such as the man-at-arms and demi-lancer, discarding their lances and adopting the use of pistols as their primary weapon. In the later 17th century, the cuirassier lost his limb armour and subsequently employed only the cuirass (breastplate and backplate), and sometimes a helmet. By this time, the sword was the primary weapon of the cuirassier, pistols being relegated to a secondary function.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_HELP">
+		<Row Tag="TXT_KEY_UNIT_CUIRASSIER_HELP">
 			<Text>Ranged Renaissance-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_COMMANDO">
 			<Text>Commando</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_COMMANDO_STRATEGY_CBP">
+		<Row Tag="TXT_KEY_UNIT_COMMANDO_STRATEGY">
 			<Text>Commandos are scouts and attack units, specializing in striking vulnerable targets through difficult terrain and quickly withdrawing. Use these units to outflank and disrupt enemies on their back lines.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_COMMANDO_CBP">
+		<Row Tag="TXT_KEY_UNIT_COMMANDO_HELP">
 			<Text>Industrial-era exploration Unit. Has additional strength when Attacking, and withdraws from the first Melee attack each turn if possible. Gains Experience from pillaging non-road Improvements.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_COMMANDO_TEXT">
+		<Row Tag="TXT_KEY_UNIT_COMMANDO_TEXT">
 			<Text>A Commando is an elite light infantry specialized in attacking high-value targets and front-line reconnaissance. The term entered common usage after the Boer Wars and the Great Trek, where Boer Kommando militia employed guerilla and asymmetric tactics to great success against the Xhosa, Zulu, and British armies.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_EXPLORER_CBP">
-			<Text>Explorer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP">
-			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Medieval and Renaissance periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, but their reconaissance abilities are unparalleled until the advent of the Commando.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_EXPLORER_CBP">
+		<!-- Explorer -->
+		<Row Tag="TXT_KEY_UNIT_EXPLORER_HELP">
 			<Text>Mid-game exploration Unit that is stronger and has additional sight while embarked. Use these Units to discover new lands.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_EXPLORER_TEXT_CBP">
+		<Row Tag="TXT_KEY_UNIT_EXPLORER_TEXT">
 			<Text>Exploration is the act of searching for the purpose of discovery of information or resources. Exploration occurs in all non-sessile animal species, including humans. In human history, its most dramatic rise was during the Age of Discovery when European explorers sailed and charted much of the rest of the world, largely in a pursuit of material wealth. Since then, major explorations after the Age of Discovery have occurred for reasons mostly aimed at information discovery.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DESC_FIELD_GUN">
+		<Row Tag="TXT_KEY_UNIT_FIELD_GUN">
 			<Text>Field Gun</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_FIELD_GUN_TEXT">
 			<Text>A field gun is an artillery piece. The term was first used to describe smaller guns that could be taken with an army while marching. In battle the field gun could be quickly moved about the battlefield as needed. Guns installed in a fort, siege cannon and mortars were too large to be moved quickly, and would be used only in a long siege.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_FIELD_GUN_STRATEGY">
 			<Text>Field Guns have greater combat power than Cannons, albeit they lack the ability to see very far on their own. Use Field Guns to support your Industrial Era armies, but be careful about letting the enemy get near them!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_HELP">
+		<Row Tag="TXT_KEY_UNIT_FIELD_GUN_HELP">
 			<Text>Powerful Industrial Era Siege Unit capable of firing up to 2 tiles away. Moves at half speed in Enemy Territory.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_FCOMPANY">
+		<Row Tag="TXT_KEY_UNIT_FREE_COMPANY">
 			<Text>Free Company</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_FCOMPANY">
@@ -79,8 +74,8 @@
 			<Text>Where opportunity meets warfare and lawlessness, the life of a soldier can turn quickly to brigandry.[NEWLINE][NEWLINE]The Free Companies, also known as Great Companies or Companies of Adventurers, were bands of mercenary soldiers that operated throughout Europe from the 12th to the early 15th century. Often employed by nobles, they were known for their disregard for the laws of arms and usefulness as raiders. The Free Companies are most famous for their role during the unending conflicts of the 14th century, employed by the English to terrorize the French countryside during the Hundred Years' War.[NEWLINE][NEWLINE]While the Companies had work during wartime, they could become a scourge in times of peace; they often took to pillaging the lands of their former employers as soon as they stopped being paid to pillage someone else's. After the Peace of Bretigny in 1360, the Free Companies were released from their service and became uncontrollable. They went from fief to fief, attacking farms and castles alike, operating throughout western Europe and even managing to win against armies fielded against them. The peace and the Plague helped these bands grow in size and audacity, gaining wealth and infamy as they went abroad. Notable companies of this time included the White Company in Italy, the Catalan Company in Greece, and the Tard-Venus in France. Many of these adventurers gained considerable political power from their exploits, such as the Englishman John Hawkwood, who became a wealthy condottiere hired by several Italian states and the Pope.[NEWLINE][NEWLINE]The rebuilding of Western European states and the formation of professional armies and effective militias during the 15th century brought an end to the use of mercenaries' power. However, the death and destruction wrought by the Free Companies left a deep scar on the European memory.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_GUERILLA">
-			<Text>Mercenaries</Text>
+		<Row Tag="TXT_KEY_UNIT_MERCENARY">
+			<Text>Mercenary</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_GUERILLA_TEXT">
 			<Text>Soldiers in private military companies (PMCs) are the contemporary strand of the mercenary trade, providing logistics, soldiers, military training, and other services. Thus, PMC contractors are civilians (in governmental, international, and civil organizations) authorized to accompany an army to the field; hence, the term civilian contractor. Nevertheless, PMCs may use armed force, hence defined as: "legally established enterprises that make a profit, by either providing services involving the potential exercise of [armed] force in a systematic way and by military means, and/or by the transfer of that potential to clients through training and other practices, such as logistics support, equipment procurement, and intelligence gathering."</Text>
@@ -111,10 +106,10 @@
 		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
 			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_PIONEER_TEXT">
+		<Row Tag="TXT_KEY_UNIT_PIONEER_TEXT">
 			<Text>Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_PIONEER">
+		<Row Tag="TXT_KEY_UNIT_PIONEER_HELP">
 			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities next to anyone's border or if your Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 
@@ -124,54 +119,41 @@
 		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
 			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_COLONIST_TEXT">
+		<Row Tag="TXT_KEY_UNIT_COLONIST_TEXT">
 			<Text>Studying throughout history, one can witness how colonists, a type of setter, very often occupied land previously home to long-established peoples, designated as indigenous (also called "natives", "Aborigines" or, in the Americas, "Indians"). In some cases (such as Australia), as colonialist mentalities and laws change, the legal ownership of some lands is contested by indigenous people, who either claim or seek restoration of traditional usage, land rights, native title and related forms of legal ownership or partial control. The word "settler" was not originally usually used in relation to unfree labour immigrants, such as slaves (e.g. in the United States), indentured labourers (such as in Colonial America), or convicts (such as in British America, c. 1615–1775; Australia 1788-1868). More recently descendants of these immigrants may argue that they have as much right to use the word "settler" as the descendants of free immigrants. In the figurative usage, a "person who goes first or does something first" also applies to the American English use of "pioneer" to refer to a settler—a person who has migrated to a less occupied area and established permanent residence there, often to colonize the area; as first recorded in English in 1605. In United States history it refers to those people who helped to settle new lands. In this usage, pioneers are usually among the first to an area, whereas settlers can arrive after first settlement and join others in the process of human settlement.[citation needed] This correlates with the work of military pioneers who were tasked with construction of camps before the main body of troops would arrive at the designated camp site.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_COLONIST">
+		<Row Tag="TXT_KEY_UNIT_COLONIST_HELP">
 			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities next to anyone's border or if your Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_VP_SLINGER">
-			<Text>Slinger</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_VP_SLINGER_STRATEGY">
-			<Text>Slingers are the first ranged unit available in the game. Although they lack damage and range, a Slinger can still prevent a barbarian encampment from healing, and gives you a cheap, early option for fighting off small waves of invading barbarians.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_VP_SLINGER_TEXT">
-			<Text>Like most early weapon systems, the sling evolved from a tool for hunting game to one for killing people. Simply a pouch between two lengths of cord, the sling was used to swing a projectile - a stone, lump of lead, or anything else convenient - in an arc until it was launched. Although a thrown stone doesn't have the lethality of an arrow or bullet, it can still do a lot of damage. If nothing else, a rain of well-aimed stones gives an enemy pause before rushing in. In addition, it wasn't hard to find ammunition. With the exception of Australia, ancient slings have been found in archaeological digs all over the world. Slings are cheap, portable, and as the First Book of Samuel points out, a slinger can bring down even a Goliath...</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_VP_SLINGER_HELP">
-			<Text>First Ranged unit, available from the start of the Game.</Text>
-		</Row>
-
 		<!-- Galley -->
-		<Row Tag="TXT_KEY_UNIT_GALLEY_HELP">
+		<Row Tag="TXT_KEY_UNIT_VP_GALLEY_HELP">
 			<Text>Ancient Era Naval Unit used to wrest control of the seas.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER">
-			<Text>Destroyer</Text>
+		<Row Tag="TXT_KEY_UNIT_FLEET_DESTROYER">
+			<Text>Fleet Destroyer</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_STRATEGY">
-			<Text>Destroyers are naval melee units that can reveal nearby submarines if promoted. Use it for attack and escorting other units.</Text>
+		<Row Tag="TXT_KEY_UNIT_FLEET_DESTROYER_STRATEGY">
+			<Text>The Fleet Destroyer is a naval melee attack unit designed to hunt down submarines and to provide anti-aircraft support.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_PEDIA">
-			<Text>A Destroyer is a fast, maneuverable long-endurance warship intended to escort larger vessels in a fleet, convoy or battle group and defend them against smaller powerful short-range attackers. They were originally developed in the late 19th century as a defence against torpedo boats, hence the original name "torpedo boat destroyer". By World War I the name was shortened to simply "destroyer" by nearly all navies.[NEWLINE][NEWLINE]A typical destroyer built in 1910s and 1920s was 100m long with displacement approx. 1200 tons. The armament consisted of 4 to 6 102 mm caliber guns and multiple 533 mm torpedo tubes. The ship was able to achieve speed of 65 km/h.</Text>
+		<Row Tag="TXT_KEY_UNIT_FLEET_DESTROYER_TEXT">
+			<Text>A destroyer is a 20th century ship designed for patrol, escort, anti-air and anti-submarine duties. The earliest destroyers were light vessels not well-suited for oceanic cruises unless accompanied by "tenders" carrying additional fuel. By World War II the destroyers were fast, maneuverable and carried enough weaponry and supplies for long-range missions across the world's oceans.[NEWLINE][NEWLINE]For weaponry, destroyers carried anti-aircraft guns, light anti-ship guns, torpedoes and depth charges. They often accompanied carrier groups, patrolling the waters around the more valuable and larger ships for submarines and providing anti-aircraft cover as well. They escorted supply convoys and patrolled harbors and coasts as well. Duty aboard a World War II destroyer was dangerous indeed; during the war over 220 British, American, Australian and Canadian destroyers were lost, mostly to aircraft attack.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_HELP">
-			<Text>Modern-Era Naval Melee Unit capable of tracking Submarines if promoted.</Text>
+		<Row Tag="TXT_KEY_UNIT_FLEET_DESTROYER_HELP">
+			<Text>Fast late game ship making it highly effective at recon. Also used to hunt down and destroy enemy Submarines if promoted. Fights as a naval melee unit.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER">
+		<Row Tag="TXT_KEY_UNIT_SENSOR_COMBAT_SHIP">
 			<Text>Sensor Combat Ship</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_STRATEGY">
 			<Text>Sensor Combat Ships are a contemporary version of Destroyers that can carry 3 Missiles and has increased air interception range. It can be used as an attack or escort unit.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_TEXT">
 			<Text>A Guided-Missile Destroyer (NATO designation "DDG") is a destroyer designed to launch guided missiles. It is usually equipped with two large missile magazines, mostly in vertical-launch cells. In addition to the missiles and guns, many are also equipped to carry out anti-submarine, anti-air, and anti-surface operations. Some contain powerful radar systems and may be adopted for use in an anti-missile or ballistic-missile defense role. This is especially true of navies that do not operate cruisers, as other vessels must be adopted to fill in the gap.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_HELP">
+		<Row Tag="TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_HELP">
 			<Text>Information-Era Naval Melee Unit that can carry up to 3 Missiles, has increased Air Interception range and chance, and additional attack strength against Submarines.</Text>
 		</Row>
 
@@ -181,23 +163,23 @@
 		<Row Tag="TXT_KEY_UNIT_LIBURNA_STRATEGY">
 			<Text>Attacks with lethal barrages of arrows, making it the first naval unit with a ranged attack. It cannot end its turn in Ocean Tiles.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_LIBURNA_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_LIBURNA_TEXT">
 			<Text>A liburna was a small, fast type of galley used for raiding and patrols in the Mediterranean sea. First invented by Liburnians in present-day Dalmatia, the liburna was later adopted by the Roman Navy as an agile patrol ship against pirates.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LIBURNA_HELP">
 			<Text>Dominant Classical Era Naval Unit used to own the seas well into the Medieval Era with its ranged attack.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DESC_CRUISER">
+		<Row Tag="TXT_KEY_UNIT_CRUISER">
 			<Text>Cruiser</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CRUISER_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_CRUISER_STRATEGY">
 			<Text>Build Cruisers to augment your Ironclads, and to take control of the seas! Make sure you have plenty of Iron, however.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CRUISER_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_CRUISER_TEXT">
 			<Text>A cruiser is a type of warship. The term has been in use for several hundred years, and has had different meanings throughout this period. During the Age of Sail, the term cruising referred to certain kinds of missions: independent scouting, raiding or commerce protection fulfilled by a frigate or sloop, which were the cruising warships of a fleet. In the middle of the 19th century, cruiser came to be a classification for the ships intended for this kind of role, though cruisers came in a wide variety of sizes, from the small protected cruiser to armored cruisers which were as large (though not as powerful) as a battleship. By the early 20th century, cruisers could be placed on a consistent scale of warship size, smaller than a battleship but larger than a destroyer. In 1922, the Washington Naval Treaty placed a formal limit on cruisers, which were defined as warships of up to 10,000 tons displacement carrying guns no larger than 8 inches in calibre. These limits shaped cruisers up until the end of World War II. The very large battlecruisers of the World War I era were now classified, along with battleships, as capital ships.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CRUISER_HELP">
+		<Row Tag="TXT_KEY_UNIT_CRUISER_HELP">
 			<Text>Industrial-Era Ranged Naval Unit designed to support naval invasions, and to wreak havoc on the wooden ships of previous Eras.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]</Text>
 		</Row>
 
@@ -207,7 +189,7 @@
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_STRATEGY">
 			<Text>Dreadnoughts are capable of firing from a distance, but requires Iron to be built.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_TEXT">
 			<Text>The Dreadnought was the predominant type of battleship in the early 20th century. Its design had two revolutionary features: an "all-big-gun" armament scheme, with more heavy-caliber guns than previous ships, and steam turbine propulsion. The first of its kind, the Royal Navy's "Dreadnought" mounted ten 12-inch (305 mm) guns. The US Navy was the first to adopt oil-firing, deciding to do so in 1910 and ordering oil-fired boilers for the Nevada class, in 1911. Other major navies retained mixed coal-and-oil firing until the end of World War I.[NEWLINE][NEWLINE]Within five years of the commissioning of "Dreadnought", a new generation of more powerful "super-dreadnoughts" was being built. The first super-dreadnoughts are generally considered to be the British "Orion" class. What made them "super" was the introduction of the heavier 13.5-inch (343 mm) guns and the placement of all the main armament on the centerline. In 1917, the Japanese "Nagato" class was ordered, the first dreadnoughts to mount 16-inch (406 mm) guns, making them arguably the most powerful warships in the world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_HELP">
@@ -220,7 +202,7 @@
 		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_STRATEGY">
 			<Text>Attack Submarine is a naval offensive unit, stronger and faster than the predecessor. It can also carry a missile.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_TEXT">
 			<Text>An attack submarine or hunter-killer submarine is a sub specifically designed for the purpose of attacking and sinking other submarines and naval vessels. Some attack subs are also armed with cruise missiles mounted in vertical launch tubes, increasing the scope of their potential missions to include land targets.[NEWLINE][NEWLINE]The basis for most non-nuclear submarine designs worldwide through the 1950s was Type XXI U-boat, an advanced German submarine from WWII, equipped with a Walter hydrogen peroxide-fueled gas turbine and a high battery capacity allowing high sustained underwater speed.[NEWLINE][NEWLINE]In 1960s, the first ballistic missile submarines were put into service by both the United States (George Washington class) and the Soviet Union (Golf class) as part of the Cold War nuclear deterrent strategy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_HELP">
@@ -233,7 +215,7 @@
 		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_STRATEGY">
 			<Text>The Supercarrier is a specialized vessel which carries fighter airplanes, bombers, and atomic bombs. The aircraft it carries makes it the most powerful offensive weapon afloat. Defensively, the Supercarrier is much stronger than its predecessor, but should still be escorted by destroyers and submarines. You cannot have more than 2 active Supercarriers at one time.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_TEXT">
 			<Text>Supercarrier is an unofficial descriptive term for the largest type of aircraft carrier, typically those displacing over 70,000 tons. Supercarriers are the largest warships ever built.[NEWLINE][NEWLINE]The Nimitz-class supercarriers are a class of ten nuclear-powered aircraft carriers in service with the United States Navy. The lead ship of the class is named for World War II United States Pacific Fleet commander Fleet Admiral Chester W. Nimitz, the U.S. Navy's last fleet admiral. With an overall length of 1,092 ft (333 m) and full-load displacements of over 100,000 tons, they have been the largest warships built and in service, although they are being eclipsed by the upcoming Gerald R. Ford-class aircraft carriers.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_HELP">
@@ -246,7 +228,7 @@
 		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_STRATEGY">
 			<Text>A Rocket Missile is a one-shot unit which is destroyed when it attacks an enemy target. It can directly damage units garrisoned in cities. See the rules on Missiles for more information.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_PEDIA">
+		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_TEXT">
 			<Text>A Rocket is a self-propelled, unguided weapon system powered by a rocket motor. Historically they have been used mostly as air-to-surface and air-to-air weapons.[NEWLINE][NEWLINE]The first missiles to be used operationally were a series of missiles developed by Nazi Germany in World War II. Most famous of these are the V-1 flying bomb and V-2 rocket, both of which used a simple mechanical autopilot to keep the missile flying along a pre-chosen route.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_HELP">
@@ -260,10 +242,10 @@
 		<Row Tag="TXT_KEY_UNIT_EMISSARY_STRATEGY">
 			<Text>The Emissary is the first diplomatic unit available to a player, and represents the early attempts at peaceful cooperation between civilizations. As the culture of diplomacy is, in the Ancient Era, still quite crude, the Emissary is not terribly effective. Earning only around 20 Influence from a Diplomatic Mission, the Emissary has not yet mastered the art of statecraft, nor, unsurprisingly, the foreign languages of neighbouring city-states. Production cost scales with Era.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT">
+		<Row Tag="TXT_KEY_UNIT_EMISSARY_TEXT">
 			<Text>Though the cheapest and earliest-available diplomatic unit, Emissaries are not terribly reliable as a source of steady Influence. Players should only use Emissaries to secure or maintain relations with a city-state you are already friendly or allied with. As such, it is best to use these units simply to augment your efforts to fulfill city-state quests.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_EMISSARY">
+		<Row Tag="TXT_KEY_UNIT_EMISSARY_HELP">
 			<Text>Receives [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EMISSARY}[ENDCOLOR] Promotion for free, which grants 40 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence. Production cost scales with Era.</Text>
 		</Row>
 
@@ -271,26 +253,26 @@
 			<Text>Envoy</Text>
 			<Gender>neuter:an</Gender>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT">
+		<Row Tag="TXT_KEY_UNIT_ENVOY_TEXT">
 			<Text>During the Medieval period, the art of diplomacy finally came of age. New theories on foreign affairs emerged during this time that were no longer based on 'might is right,' but rather the arts of flattery, sophistication and, if necessary, intimidation. The Envoy represents this leap in diplomatic power and, as such, is both more effective than Emissaries and also more expensive. Production cost scales with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ENVOY_STRATEGY">
 			<Text>Envoys are much more useful as sources of diplomatic influence with city-states. This utility, however, comes with increased cost. Players will need ample Paper to supply the demand of their burgeoning diplomatic service. City-state quests are still very important for maintaining friendly or allied relations, however their importance is waning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_ENVOY">
+		<Row Tag="TXT_KEY_UNIT_ENVOY_HELP">
 			<Text>Receives [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ENVOY}[ENDCOLOR] Promotion for free, which grants 50 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence. Production cost scales with Era.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_DIPLOMAT">
 			<Text>Diplomat</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_INDUSTRIAL_DIPLOMAT_TEXT">
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT_TEXT">
 			<Text>With the philosophies of the Enlightenment and the might of modern industry in tow, diplomats during the Industrial Age are powerhouses of diplomacy and influence. Though increasingly expensive, Diplomats enable a player to greatly expand the scope of their influence on city-states around the world. Production cost scales with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DIPLOMAT_STRATEGY">
 			<Text>Diplomats are very expensive relative to Emissaries and Envoys. Players that have not continually increased their supply of Paper will have a difficult time continuing to have influence on city-states around the world. If, however, you have the resources, and the production, to build diplomats in great numbers, the world will bow before your empire of soft power and persuasive influence.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_DIPLOMAT">
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT_HELP">
 			<Text>Receives [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_DIPLOMAT}[ENDCOLOR] Promotion for free, which grants 60 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence. Production cost scales with Era.</Text>
 		</Row>
 
@@ -298,20 +280,20 @@
 			<Text>Ambassador</Text>
 			<Gender>neuter:an</Gender>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MODERN_AMBASSADOR_TEXT">
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR_TEXT">
 			<Text>The modern Ambassador, born out of the tensions created by the rise of atomic warfare, represents the pinnacle of diplomatic power. Years of formal training in linguistics, politics, culture and economics enable Ambassadors to control whatever city-state they choose. These talents, however, make Ambassadors the most costly diplomatic unit in the game - each Ambassador costs almost as much as a Tank! This investment may seem high, however, if a player chooses to abstain from city-state diplomacy, they will quickly see their influence on the global stage decline, as other players will undoubtedly come to dominate the World Congress. Production cost scales with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_AMBASSADOR_STRATEGY">
 			<Text>Ambassadors, though expensive, are essential to winning a Diplomatic Victory. Use them to wrest control of city-states from other players, maintain your own alliances, and, generally, keep the power of the World Congress in your hands. This power will enable you to enact any resolutions you choose, thus placing global supremacy within your grasp.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_HELP_AMBASSADOR">
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR_HELP">
 			<Text>Receives [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMBASSADOR}[ENDCOLOR] Promotion for free, which grants 70 [ICON_INFLUENCE] Influence from Diplomatic Missions.[ICON_MOVES] Move this unit to a City-State you are not at war with and conduct a Diplomatic Mission to receive [ICON_INFLUENCE] Influence. Production cost scales with Era.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT">
 			<Text>Great Diplomat</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_GREAT_DIPLOMAT_TEXT">
+		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT_TEXT">
 			<Text>Throughout every civilization's history, great mediators, counsellors, and dignitaries have emerged during times of strife or times of great power. Great Diplomats represent these important historical figures and, as such, have the ability to greatly increase a player's diplomatic power. Players may use them to immediately gain a large amount of influence with a city-state, or, if they are looking towards the future, they may be used to build an Embassy in a city-state's land, thus granting the player an additional vote in the World Congress when it is founded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY">

@@ -65,7 +65,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_3_HELP';
 
 -- Sentry
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight.'
+SET Text = '+1 [ICON_VISION] Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SENTRY_HELP';
 
 UPDATE Language_en_US
@@ -267,7 +267,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_HELP';
 
 -- Scouting
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Sight and Embarked Sight.'
+SET Text = '+1 [ICON_VISION] Sight and Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
 
 UPDATE Language_en_US
@@ -435,7 +435,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VP_VISION] Embarked Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Naval Movement
@@ -509,7 +509,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP';
 
 -- Extra Sight While Embarked
 UPDATE Language_en_US
-SET Text = '+1 [ICON_VP_VISION] Embarked Sight.'
+SET Text = '+1 [ICON_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_EMBARKED_SIGHT_HELP';
 
 -- Embarkation with Defense
@@ -523,7 +523,7 @@ SET Text = 'Can [COLOR_POSITIVE_TEXT]Paradrop[ENDCOLOR] up to 40 tiles away whil
 WHERE Tag = 'TXT_KEY_PROMOTION_EXTENDED_PARADROP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Oceanic Perils'
+SET Text = 'Oceanic Peril'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
 UPDATE Language_en_US
@@ -653,7 +653,7 @@ SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_
 WHERE Tag = 'TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Highlanders'
+SET Text = 'Highlander'
 WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY';
 
 UPDATE Language_en_US

@@ -1,0 +1,7 @@
+<Asset>
+  <Mesh file="Grapes_Improved.gr2" source="Max" />
+  <Animation file="Grapes_Improved_Idle.gr2" name="Idle" ec="100" source="Max" />
+  <Animation file="Grapes_Improved_Worked.gr2" name="Worked" ec="101" source="Max" />
+  <Texture file="Wine_Improved.dds" source="Max" />
+  <Texture file="Sunlight_America.dds" source="Max" />
+</Asset>

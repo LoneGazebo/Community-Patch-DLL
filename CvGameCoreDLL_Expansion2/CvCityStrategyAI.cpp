@@ -3459,7 +3459,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				// Does it grant a diplomatic production bonus?
-				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURT_SCRIBE"))
+				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_SCRIVENERS_OFFICE"))
 				{
 					bHasDiploBuilding = true;
 				}

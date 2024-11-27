@@ -37,8 +37,22 @@
 			<BoredomFlatReduction>1</BoredomFlatReduction>
 			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
 			<SpySecurityModifier>5</SpySecurityModifier>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
-			<PortraitIndex>13</PortraitIndex>
+			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+		</Row>
+		<!--
+			Unique Projects
+			Basic properties only. Gameplay properties should be added in respective Civilization sql files.
+		-->
+		<Row>
+			<Type>PROJECT_YASSA</Type>
+			<Description>TXT_KEY_PROJECT_YASSA</Description>
+			<Help>TXT_KEY_PROJECT_YASSA_HELP</Help>
+			<Civilopedia>TXT_KEY_PROJECT_YASSA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_PROJECT_YASSA_STRATEGY</Strategy>
+			<CivilizationType>CIVILIZATION_MONGOLIA</CivilizationType>
+			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
 		</Row>
 	</Projects>
 </GameData>

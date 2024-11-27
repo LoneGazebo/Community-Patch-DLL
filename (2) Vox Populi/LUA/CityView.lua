@@ -908,7 +908,7 @@ function OnCityViewUpdate()
 		if (pCity:IsBlockaded()) then
 			Controls.BlockadedIcon:SetHide(false);
 			if (pCity:GetSappedTurns() > 0) then
-				Controls.BlockadedIcon:SetText("[ICON_VP_SAPPED]")
+				Controls.BlockadedIcon:SetText("[ICON_SAPPED]")
 				Controls.BlockadedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SAPPED", pCity:GetSappedTurns())
 			else
 				Controls.BlockadedIcon:SetText("[ICON_BLOCKADED]")

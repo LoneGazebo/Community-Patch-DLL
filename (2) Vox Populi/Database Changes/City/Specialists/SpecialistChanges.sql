@@ -4,7 +4,7 @@ UPDATE SpecialistYields SET Yield = 1 WHERE SpecialistType = 'SPECIALIST_CITIZEN
 UPDATE Specialists
 SET
 	CulturePerTurn = 3,
-	IconAtlas = 'WRITER_SPECIALIST_ATLAS',
+	IconAtlas = 'SPECIALIST_ATLAS_VP',
 	PortraitIndex = 0
 WHERE Type = 'SPECIALIST_WRITER';
 
@@ -15,8 +15,8 @@ WHERE Type = 'SPECIALIST_ARTIST';
 UPDATE Specialists
 SET
 	CulturePerTurn = 5,
-	IconAtlas = 'MUSICIAN_SPECIALIST_ATLAS',
-	PortraitIndex = 0
+	IconAtlas = 'SPECIALIST_ATLAS_VP',
+	PortraitIndex = 1
 WHERE Type = 'SPECIALIST_MUSICIAN';
 
 UPDATE SpecialistYields SET Yield = 3 WHERE SpecialistType = 'SPECIALIST_SCIENTIST';

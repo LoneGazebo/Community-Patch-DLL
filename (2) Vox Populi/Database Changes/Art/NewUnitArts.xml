@@ -2,17 +2,132 @@
 <GameData>
 	<ArtDefine_UnitInfos>
 		<Row>
-			<Type>ART_DEF_UNIT_VP_SLINGER</Type>
+			<Type>ART_DEF_UNIT_OTOMI</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Phalanx</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SABUM_KIBITUM</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Phalanx</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_GOEDENDAG</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Pikeman</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_CHEWA</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultMelee</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_INTI_MACEMAN</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultMelee</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_YELLOW_BROW</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Pikeman</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_GRENZER</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>HonorableGunpowder</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_REDCOAT</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>HonorableGunpowder</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SLINGER</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>Archer</Formation>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_FIELD_GUN</Type>
+			<Type>ART_DEF_UNIT_DHANURDHARA</Type>
 			<DamageStates>1</DamageStates>
-			<Formation>Vehicle</Formation>
+			<Formation>Archer</Formation>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_HEAVY_SKIRMISH</Type>
+			<Type>ART_DEF_UNIT_SOFA</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Archer</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_PROWLER</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>UnFormed</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_CACADOR</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Scout</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_GREAT_BOMBARD</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>UnFormed</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_FIELD_GUN</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>ThreeBigGuns</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_LICORNE</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>ThreeBigGuns</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SUEA_MOP</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>ThreeBigGuns</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_KRUPP_GUN</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>TwoBigGuns</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_TARKHAN</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_IRON_CHARIOT</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>ChariotElephant</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_BLACK_TUG</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MAMLUK</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_QIZILBASH</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SCYTHED_CHARIOT</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>ChariotElephant</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_HEAVY_SKIRMISHER</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_PANCERNY</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>DefaultCavalry</Formation>
 		</Row>
@@ -22,17 +137,32 @@
 			<Formation>DefaultCavalry</Formation>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_OROMO_CAVALRY</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_ARMORED_CAR</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>Vehicle</Formation>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_EXPLORER_CBP</Type>
+			<Type>ART_DEF_UNIT_HASHEMITE_RAIDER</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>DefaultCavalry</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_HOLKAN</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>Scout</Formation>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_BANDEIRANTES</Type>
+			<Type>ART_DEF_UNIT_VP_EXPLORER</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>Scout</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_BANDEIRANTE</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>DefaultCavalry</Formation>
 		</Row>
@@ -42,23 +172,64 @@
 			<Formation>UnFormed</Formation>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_VP_GALLEY</Type>
+			<Type>ART_DEF_UNIT_KLEPHT</Type>
 			<DamageStates>1</DamageStates>
+			<Formation>UnFormed</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_VP_GALLEY</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_VAKA_NUI</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_LONGSHIP</Type>
+			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_CORVETTE</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_EARLY_DESTROYER</Type>
+			<Type>ART_DEF_UNIT_CORSAIR</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MISSILE_DESTROYER</Type>
+			<Type>ART_DEF_UNIT_ARMADA</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_VP_LIBURNA</Type>
+			<Type>ART_DEF_UNIT_MONITOR</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_AMAZONAS</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_FLEET_DESTROYER</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SENSOR_COMBAT_SHIP</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_LIBURNA</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_DJONG</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_FUSTA</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_TREASURE_SHIP</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
@@ -70,6 +241,10 @@
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_YAMATO</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_ATTACK_SUBMARINE</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
@@ -78,9 +253,15 @@
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_SPAD</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>FighterWing</Formation>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_ROCKET_MISSILE</Type>
 			<DamageStates>1</DamageStates>
 		</Row>
+		<!-- Settler units -->
 		<Row>
 			<Type>ART_DEF_UNIT_PIONEER</Type>
 			<DamageStates>1</DamageStates>
@@ -90,6 +271,11 @@
 			<Type>ART_DEF_UNIT_COLONIST</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>Vehicle</Formation>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_ASAMU</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>LooseCivilian</Formation>
 		</Row>
 		<!-- Diplo units -->
 		<Row>
@@ -114,6 +300,11 @@
 		</Row>
 		<!-- Great People -->
 		<Row>
+			<Type>ART_DEF_UNIT_INDUNA</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>UnFormed</Formation>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_GREAT_DIPLOMAT</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>UnFormed</Formation>
@@ -122,15 +313,20 @@
 			<Type>ART_DEF_UNIT_GREAT_DIPLOMAT_RENAISSANCE</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>UnFormed</Formation>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>11</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_GREAT_DIPLOMAT_MODERN</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>UnFormed</Formation>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>19</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_TADODAHO</Type>
+			<DamageStates>1</DamageStates>
+			<Formation>UnFormed</Formation>
 		</Row>
 		<!-- Policy-unlocked units -->
 		<Row>
@@ -146,6 +342,41 @@
 	</ArtDefine_UnitInfos>
 	<ArtDefine_UnitMemberInfos>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_OTOMI</Type>
+			<Scale>0.14</Scale>
+			<Model>Spearman_Aztec.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SABUM_KIBITUM</Type>
+			<Scale>0.14</Scale>
+			<Model>Kibitum.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_GOEDENDAG</Type>
+			<Scale>0.14</Scale>
+			<Model>Pikeman_England.fxsxml</Model>
+			<MaterialTypeTag>ARMOR</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>ARMOR</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_CHEWA</Type>
+			<Scale>0.14</Scale>
+			<Model>EthiopiaMedSwordsman.fxsxml</Model>
+			<MaterialTypeTag>ARMOR</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>ARMOR</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_INTI_MACEMAN</Type>
+			<Scale>0.14</Scale>
+			<Model>Warrior_Inca.fxsxml</Model>
+			<MaterialTypeTag>ARMOR</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>ARMOR</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_2</Type>
 			<Scale>0.14</Scale>
 			<Model>dopp_a.fxsxml</Model>
@@ -160,11 +391,67 @@
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_VP_SLINGER</Type>
+			<Type>ART_DEF_UNIT_MEMBER_YELLOW_BROW</Type>
+			<Scale>0.14</Scale>
+			<Model>civ5_iropi1.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_GRENZER</Type>
+			<Scale>0.14</Scale>
+			<Model>civ5_ausrm1.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_REDCOAT</Type>
+			<Scale>0.14</Scale>
+			<Model>civ5_engrm1.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SLINGER</Type>
 			<Scale>0.14</Scale>
 			<Model>hebrew_slinger.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_DHANURDHARA</Type>
+			<Scale>0.14</Scale>
+			<Model>EthiopiaCompBow.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SOFA</Type>
+			<Scale>0.14</Scale>
+			<Model>ZuluJavelineer.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_PROWLER</Type>
+			<Scale>0.14</Scale>
+			<Model>civ5_iromu1.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_CACADOR</Type>
+			<Scale>0.14</Scale>
+			<Model>ausgw1.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_GREAT_BOMBARD</Type>
+			<Scale>0.12</Scale>
+			<Model>Bombard.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_FIELD_GUN</Type>
@@ -174,9 +461,79 @@
 			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</Type>
+			<Type>ART_DEF_UNIT_MEMBER_LICORNE</Type>
+			<Scale>0.12</Scale>
+			<Model>Licorne.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SUEA_MOP</Type>
+			<Scale>0.12</Scale>
+			<Model>155mmDeBang.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_KRUPP_GUN</Type>
+			<Scale>0.12</Scale>
+			<Model>77cmFk.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_TARKHAN</Type>
+			<Scale>0.12</Scale>
+			<Model>Horseman_Turkey.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_IRON_CHARIOT</Type>
+			<Scale>0.13</Scale>
+			<Model>IronChariot.fxsxml</Model>
+			<MaterialTypeTag>ARMOR</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>ARMOR</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_BLACK_TUG</Type>
+			<Scale>0.12</Scale>
+			<Model>Knight_Turkey.fxsxml</Model>
+			<MaterialTypeTag>ARMOR</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>ARMOR</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_MAMLUK</Type>
+			<Scale>0.12</Scale>
+			<Model>Mamluk.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_QIZILBASH</Type>
+			<Scale>0.12</Scale>
+			<Model>Qizilbash.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SCYTHED_CHARIOT</Type>
+			<Scale>0.13</Scale>
+			<Model>Assets/Units/U_Egyptian_WarChariot/U_Egyptian_WarChariot.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODSM</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISHER</Type>
 			<Scale>0.12</Scale>
 			<Model>Keshik_Mongol.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_PANCERNY</Type>
+			<Scale>0.12</Scale>
+			<Model>Horseman_Viking.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -188,11 +545,32 @@
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_OROMO_CAVALRY</Type>
+			<Scale>0.12</Scale>
+			<Model>oromo_cavalry.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ARMORED_CAR</Type>
 			<Scale>0.11</Scale>
 			<Model>FordM1918.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>METALSM</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_HASHEMITE_RAIDER</Type>
+			<Scale>0.12</Scale>
+			<Model>u_dervish_maara_weyn.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_HOLKAN</Type>
+			<Scale>0.14</Scale>
+			<Model>Swordsman_Maya.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_BANDEIRANTE_FLAGBEARER</Type>
@@ -237,10 +615,25 @@
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_KLEPHT</Type>
+			<Scale>0.14</Scale>
+			<Model>civ5_ottrm.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_VP_GALLEY</Type>
 			<Scale>0.09</Scale>
 			<Domain>Sea</Domain>
 			<Model>battle_galley.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_LONGSHIP</Type>
+			<Scale>0.08</Scale>
+			<Domain>Sea</Domain>
+			<Model>U_Denmark_Longboat.fxsxml</Model>
 			<MaterialTypeTag>WOOD</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -253,15 +646,39 @@
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</Type>
-			<Scale>0.091</Scale>
+			<Type>ART_DEF_UNIT_MEMBER_CORSAIR</Type>
+			<Scale>0.14</Scale>
 			<Domain>Sea</Domain>
-			<Model>Wickes.fxsxml</Model>
+			<Model>Xebec_Sabbak.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_ARMADA</Type>
+			<Scale>0.14</Scale>
+			<Domain>Sea</Domain>
+			<Model>mod_spanish_galleon.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_AMAZONAS</Type>
+			<Scale>0.16</Scale>
+			<Domain>Sea</Domain>
+			<Model>IroncladBB.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_FLEET_DESTROYER</Type>
+			<Scale>0.109</Scale>
+			<Domain>Sea</Domain>
+			<Model>Z_Class.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</Type>
+			<Type>ART_DEF_UNIT_MEMBER_SENSOR_COMBAT_SHIP</Type>
 			<Scale>0.112</Scale>
 			<Domain>Sea</Domain>
 			<Model>Railgun_Cruiser.fxsxml</Model>
@@ -269,10 +686,34 @@
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_VP_LIBURNA</Type>
+			<Type>ART_DEF_UNIT_MEMBER_LIBURNA</Type>
 			<Scale>0.05</Scale>
 			<Domain>Sea</Domain>
 			<Model>minoan_galea.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_DJONG</Type>
+			<Scale>0.14</Scale>
+			<Domain>Sea</Domain>
+			<Model>WarJunk.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_FUSTA</Type>
+			<Scale>0.08</Scale>
+			<Domain>Sea</Domain>
+			<Model>lanternas.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_TREASURE_SHIP</Type>
+			<Scale>0.17</Scale>
+			<Domain>Sea</Domain>
+			<Model>RedJunk.fxsxml</Model>
 			<MaterialTypeTag>WOOD</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -293,6 +734,14 @@
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_YAMATO</Type>
+			<Scale>0.088</Scale>
+			<Domain>Sea</Domain>
+			<Model>Yamato_Class.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ATTACK_SUBMARINE</Type>
 			<Scale>0.085</Scale>
 			<Domain>Sea</Domain>
@@ -305,6 +754,14 @@
 			<Scale>0.095</Scale>
 			<Domain>Sea</Domain>
 			<Model>USS_Nimitz.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SPAD</Type>
+			<Scale>0.09</Scale>
+			<Domain>Air</Domain>
+			<Model>Nieuport_17.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -334,6 +791,20 @@
 			<Type>ART_DEF_UNIT_MEMBER_COLONIST4</Type>
 			<Scale>0.05</Scale>
 			<Model>Caravan_Late_F2.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_ASAMU</Type>
+			<Scale>0.14</Scale>
+			<Model>CarthageScout.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_TADODAHO</Type>
+			<Scale>0.14</Scale>
+			<Model>firekeeper.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -375,6 +846,49 @@
 	</ArtDefine_UnitMemberInfos>
 	<ArtDefine_UnitMemberCombats>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_OTOMI</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SABUM_KIBITUM</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GOEDENDAG</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CHEWA</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_INTI_MACEMAN</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_2</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
 			<ShortMoveRadius>12.0</ShortMoveRadius>
@@ -393,13 +907,93 @@
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_SLINGER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YELLOW_BROW</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GRENZER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_REDCOAT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SLINGER</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
 			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
 			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DHANURDHARA</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SOFA</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_PROWLER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CACADOR</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GREAT_BOMBARD</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 		</Row>
@@ -413,7 +1007,149 @@
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LICORNE</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SUEA_MOP</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_KRUPP_GUN</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TARKHAN</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>2</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+			<RushAttackFormation>DefaultCavalry</RushAttackFormation>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_IRON_CHARIOT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_BLACK_TUG</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>2</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+			<RushAttackFormation>DefaultCavalry</RushAttackFormation>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MAMLUK</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>2</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+			<RushAttackFormation>DefaultCavalry</RushAttackFormation>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_QIZILBASH</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>2</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+			<RushAttackFormation>DefaultCavalry</RushAttackFormation>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SCYTHED_CHARIOT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISHER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_PANCERNY</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
 			<ShortMoveRadius>24.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
@@ -440,7 +1176,22 @@
 			<TurnFacingRateMax>20.0</TurnFacingRateMax>
 			<TargetHeight>12.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
-			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_OROMO_CAVALRY</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasStationaryMelee>1</HasStationaryMelee>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -453,6 +1204,30 @@
 			<HasStationaryMelee>1</HasStationaryMelee>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HASHEMITE_RAIDER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>0.75</TurnRateMax>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasStationaryMelee>1</HasStationaryMelee>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+			<OnlyTurnInMovementActions>1</OnlyTurnInMovementActions>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HOLKAN</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_FLAGBEARER</UnitMemberType>
@@ -515,7 +1290,25 @@
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_KLEPHT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
+			<ShortMoveRate>0.35</ShortMoveRate>
+			<TargetHeight>8.0</TargetHeight>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+			<ReformBeforeCombat>1</ReformBeforeCombat>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_GALLEY</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LONGSHIP</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
@@ -530,24 +1323,66 @@
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CORSAIR</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ARMADA</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_LIBURNA</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_AMAZONAS</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_FLEET_DESTROYER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SENSOR_COMBAT_SHIP</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LIBURNA</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DJONG</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_FUSTA</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TREASURE_SHIP</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
@@ -560,6 +1395,13 @@
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YAMATO</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
@@ -579,6 +1421,14 @@
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SPAD</UnitMemberType>
+			<EnableActions>Idle Attack Bombard Death Run</EnableActions>
+			<AttackRadius>45.0</AttackRadius>
+			<MoveRate>4.8</MoveRate>
+			<TurnRateMin>0.75</TurnRateMin>
+			<TurnRateMax>1.5</TurnRateMax>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</UnitMemberType>
 			<EnableActions>Idle Attack Bombard Death Run</EnableActions>
 			<AttackRadius>48.0</AttackRadius>
@@ -589,6 +1439,16 @@
 			<PitchRateMax>3.0</PitchRateMax>
 			<HasCollisionAttack>1</HasCollisionAttack>
 			<AttackAltitude>50.0</AttackAltitude>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ASAMU</UnitMemberType>
+			<EnableActions>Idle Death BombardDefend Run</EnableActions>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TADODAHO</UnitMemberType>
+			<EnableActions>Idle Death BombardDefend Run</EnableActions>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_1</UnitMemberType>
@@ -636,6 +1496,86 @@
 	</ArtDefine_UnitMemberCombats>
 	<ArtDefine_UnitMemberCombatWeapons>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_OTOMI</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_OTOMI</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SABUM_KIBITUM</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SABUM_KIBITUM</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GOEDENDAG</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GOEDENDAG</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CHEWA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SWORD</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CHEWA</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_INTI_MACEMAN</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BLUNT</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_INTI_MACEMAN</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_2</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -649,6 +1589,7 @@
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_3</UnitMemberType>
@@ -658,19 +1599,111 @@
 			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_SLINGER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YELLOW_BROW</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
-			<WeaponTypeTag>ARROW</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>BOULDER</WeaponTypeSoundOverrideTag>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_SLINGER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YELLOW_BROW</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GRENZER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_REDCOAT</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SLINGER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BOULDER</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SLINGER</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DHANURDHARA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DHANURDHARA</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SOFA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<ProjectileSpeed>5.3</ProjectileSpeed>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SOFA</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_PROWLER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CACADOR</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GREAT_BOMBARD</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>5.0</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FIELD_GUN</UnitMemberType>
@@ -682,6 +1715,191 @@
 			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
 			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LICORNE</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>7.0</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SUEA_MOP</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>7.0</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_KRUPP_GUN</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>7.0</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TARKHAN</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SWORD</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TARKHAN</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_IRON_CHARIOT</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_IRON_CHARIOT</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_BLACK_TUG</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SWORD</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_BLACK_TUG</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MAMLUK</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SWORD</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_QIZILBASH</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>METAL</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SCYTHED_CHARIOT</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SCYTHED_CHARIOT</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISHER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISHER</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_PANCERNY</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_PANCERNY</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_OROMO_CAVALRY</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ARMORED_CAR</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_TANK_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HASHEMITE_RAIDER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_HOLKAN</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BLUNT</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>SPEAR</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_1</UnitMemberType>
@@ -719,51 +1937,24 @@
 			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_KLEPHT</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
-			<WeaponTypeTag>ARROW</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</UnitMemberType>
-			<Index>1</Index>
-			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10.0</VisKillStrengthMin>
-			<VisKillStrengthMax>20.0</VisKillStrengthMax>
-			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
-			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
-			<Index>0</Index>
-			<SubIndex>0</SubIndex>
-			<WeaponTypeTag>ARROW</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
-			<Index>1</Index>
-			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10.0</VisKillStrengthMin>
-			<VisKillStrengthMax>20.0</VisKillStrengthMax>
-			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_ARMORED_CAR</UnitMemberType>
-			<Index>0</Index>
-			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>25.0</VisKillStrengthMin>
-			<VisKillStrengthMax>50.0</VisKillStrengthMax>
-			<HitEffect>ART_DEF_VEFFECT_TANK_IMPACT_$(TERRAIN)</HitEffect>
-			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_GALLEY</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>0</VisKillStrengthMin>
+			<VisKillStrengthMax>0</VisKillStrengthMax>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LONGSHIP</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>0</VisKillStrengthMin>
@@ -783,7 +1974,37 @@
 			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CORSAIR</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ARMADA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_AMAZONAS</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_FLEET_DESTROYER</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>25.0</VisKillStrengthMin>
@@ -793,7 +2014,7 @@
 			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_FLEET_DESTROYER</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>25.0</VisKillStrengthMin>
@@ -803,7 +2024,7 @@
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SENSOR_COMBAT_SHIP</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
 			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
@@ -815,7 +2036,7 @@
 			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SENSOR_COMBAT_SHIP</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
 			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
@@ -827,7 +2048,7 @@
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_LIBURNA</UnitMemberType>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_LIBURNA</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>0</VisKillStrengthMin>
@@ -837,6 +2058,33 @@
 			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DJONG</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_FUSTA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>BULLET</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLET</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_TREASURE_SHIP</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CRUISER</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -868,6 +2116,26 @@
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YAMATO</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION1TON</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_YAMATO</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
 			<VisKillStrengthMin>25.0</VisKillStrengthMin>
@@ -908,6 +2176,42 @@
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SPAD</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<ProjectileSpeed>1.3</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_FIGHTER_MACHINE_GUN_HIT_$(TERRAIN)</HitEffect>
+			<HitRadius>20.0</HitRadius>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SPAD</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>1.0</VisKillStrengthMin>
+			<VisKillStrengthMax>1.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_FIGHTER_MACHINE_GUN_HIT_$(TERRAIN)</HitEffect>
+			<HitRadius>30.0</HitRadius>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SPAD</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>1</SubIndex>
+			<ID>PROJECTILE</ID>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>1.3</ProjectileSpeed>
+			<TargetGround>1</TargetGround>
+			<IsDropped>1</IsDropped>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -931,6 +2235,7 @@
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_2</UnitMemberType>
@@ -946,6 +2251,7 @@
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_3</UnitMemberType>
@@ -961,6 +2267,7 @@
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_4</UnitMemberType>
@@ -976,6 +2283,7 @@
 			<VisKillStrengthMin>10.0</VisKillStrengthMin>
 			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MERC_GUERILLA</UnitMemberType>
@@ -987,9 +2295,74 @@
 	</ArtDefine_UnitMemberCombatWeapons>
 	<ArtDefine_StrategicView>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_VP_SLINGER</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_OTOMI</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>OtomiFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SABUM_KIBITUM</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>KibitumFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_GOEDENDAG</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>GoedendagFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_CHEWA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>ShotelaiFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_INTI_MACEMAN</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_Inti_Maceman.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_YELLOW_BROW</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>YellowBrowFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_GRENZER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>LandwehrFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_REDCOAT</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_Redcoat.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SLINGER</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>Slinger_SV_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_DHANURDHARA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>DhanurgrahaFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SOFA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SofaFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_PROWLER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>ProwlerFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_CACADOR</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>CacadoresFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_GREAT_BOMBARD</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>GreatTurkishBombardFlag_128.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_FIELD_GUN</StrategicViewType>
@@ -997,12 +2370,92 @@
 			<Asset>svfieldgun.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_EXPLORER_CBP</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_LICORNE</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>LicorneFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SUEA_MOP</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SeirMorbFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_KRUPP_GUN</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>Krupp_Gun_SV.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_TARKHAN</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>TarkhanFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_IRON_CHARIOT</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>IronChariotFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_BLACK_TUG</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>BlackTugFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_MAMLUK</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>mamlukSV.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_QIZILBASH</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>QizilbashFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SCYTHED_CHARIOT</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>ScythedChariotFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_HEAVY_SKIRMISHER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_Keshik.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_PANCERNY</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>PancernyFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_CUIRASSIER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>svcuirassier.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_OROMO_CAVALRY</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_OromoCavalry.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_ARMORED_CAR</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>svarmoredcar.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_HASHEMITE_RAIDER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>HashemiteRaiderFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_HOLKAN</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>HolkanFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_VP_EXPLORER</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Explorer.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_BANDEIRANTES</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_BANDEIRANTE</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>svbandeirantes.dds</Asset>
 		</Row>
@@ -1012,19 +2465,9 @@
 			<Asset>sv_kommando.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_HEAVY_SKIRMISH</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_KLEPHT</StrategicViewType>
 			<TileType>Unit</TileType>
-			<Asset>SV_Keshik.dds</Asset>
-		</Row>
-		<Row>
-			<StrategicViewType>ART_DEF_UNIT_CUIRASSIER</StrategicViewType>
-			<TileType>Unit</TileType>
-			<Asset>svcuirassier.dds</Asset>
-		</Row>
-		<Row>
-			<StrategicViewType>ART_DEF_UNIT_ARMORED_CAR</StrategicViewType>
-			<TileType>Unit</TileType>
-			<Asset>svarmoredcar.dds</Asset>
+			<Asset>KlephtFlag_128.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_VP_GALLEY</StrategicViewType>
@@ -1032,24 +2475,69 @@
 			<Asset>SV_Galley.dds</Asset>
 		</Row>
 		<Row>
+			<StrategicViewType>ART_DEF_UNIT_VAKA_NUI</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>VakaNuiFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_LONGSHIP</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>LangskibFlag_128.dds</Asset>
+		</Row>
+		<Row>
 			<StrategicViewType>ART_DEF_UNIT_CORVETTE</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>svcorvette.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_EARLY_DESTROYER</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_CORSAIR</StrategicViewType>
 			<TileType>Unit</TileType>
-			<Asset>SV_EarlyDestroyer.dds</Asset>
+			<Asset>CorsairFlag_128.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_MISSILE_DESTROYER</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_ARMADA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>ArmadaFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_MONITOR</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>MonitorFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_AMAZONAS</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_Amazonas_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_FLEET_DESTROYER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_Destroyer.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SENSOR_COMBAT_SHIP</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>sv_ENW_advDestroya.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_UNIT_VP_LIBURNA</StrategicViewType>
+			<StrategicViewType>ART_DEF_UNIT_LIBURNA</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>sv_galea.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_DJONG</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>DjongFlagSV.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_FUSTA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>FustaFlag_128.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_TREASURE_SHIP</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>XiafanGuanjunFlag_128.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_CRUISER</StrategicViewType>
@@ -1062,6 +2550,11 @@
 			<Asset>SV_Dreadnought.dds</Asset>
 		</Row>
 		<Row>
+			<StrategicViewType>ART_DEF_UNIT_YAMATO</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>YamatoFlag_128.dds</Asset>
+		</Row>
+		<Row>
 			<StrategicViewType>ART_DEF_UNIT_ATTACK_SUBMARINE</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_AttackSubmarine.dds</Asset>
@@ -1070,6 +2563,11 @@
 			<StrategicViewType>ART_DEF_UNIT_SUPERCARRIER</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Supercarrier.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SPAD</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SPADFlag_128.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_ROCKET_MISSILE</StrategicViewType>
@@ -1083,6 +2581,11 @@
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_COLONIST</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_Settler.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_ASAMU</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Settler.dds</Asset>
 		</Row>
@@ -1107,9 +2610,19 @@
 			<Asset>CSDSVicon.dds</Asset>
 		</Row>
 		<Row>
+			<StrategicViewType>ART_DEF_UNIT_INDUNA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>IndunaFlag_128.dds</Asset>
+		</Row>
+		<Row>
 			<StrategicViewType>ART_DEF_UNIT_GREAT_DIPLOMAT</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>CSDSViconGD.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_TADODAHO</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>OnondagaUnitSV.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_FCOMPANY</StrategicViewType>

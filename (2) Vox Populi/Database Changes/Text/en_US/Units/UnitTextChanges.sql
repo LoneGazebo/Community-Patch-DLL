@@ -5,17 +5,17 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_SETTLER';
 
 -- Great Writer
 UPDATE Language_en_US
-SET Text = 'A Great Writer can create a [ICON_VP_GREATWRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
+SET Text = 'A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_WRITER_STRATEGY';
 
 -- Great Artist
 UPDATE Language_en_US
-SET Text = 'A Great Artist can create a [ICON_VP_GREATART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with [ICON_GOLDEN_AGE] Golden Age Point output, [ICON_TOURISM] Tourism output, and the number of [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] sets of [ICON_GREAT_WORK] Great Works. Great Artists are expended when used either of these ways.'
+SET Text = 'A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with [ICON_GOLDEN_AGE] Golden Age Point output, [ICON_TOURISM] Tourism output, and the number of [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] sets of [ICON_GREAT_WORK] Great Works. Great Artists are expended when used either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_ARTIST_STRATEGY';
 
 -- Great Musician
 UPDATE Language_en_US
-SET Text = 'A Great Musician can create a [ICON_VP_GREATMUSIC] Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR], increasing your [ICON_TOURISM] Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for 10 Turns plus 1 additional Turn for every owned [ICON_VP_GREATMUSIC] Great Work of Music. You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. This action consumes the unit.[NEWLINE][NEWLINE]You cannot perform a Concert Tour if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
+SET Text = 'A Great Musician can create a [ICON_GW_MUSIC] Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR], increasing your [ICON_TOURISM] Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for 10 Turns plus 1 additional Turn for every owned [ICON_GW_MUSIC] Great Work of Music. You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. This action consumes the unit.[NEWLINE][NEWLINE]You cannot perform a Concert Tour if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_MUSICIAN_STRATEGY';
 
 -- Great Scientist
@@ -54,7 +54,7 @@ WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
 
 -- Archaeologist
 UPDATE Language_en_US
-SET Text = 'Maximum [COLOR_POSITIVE_TEXT]3[ENDCOLOR] active Archaeologists per player at any one time. Archaeologists are a special subtype of Worker that are used to excavate Antiquity Sites to either create Landmark improvements or to extract [ICON_VP_ARTIFACT] Artifacts to fill in [ICON_GREAT_WORK] Great Work of Art slots in selected Buildings and Wonders. Archaeologists may work in territory owned by any player. They are consumed once they complete an Archaeological Dig at an Antiquity Site. Archaeologists may not be purchased with [ICON_GOLD] Gold and may only be built in a City with a [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MUSEUM}[ENDCOLOR].'
+SET Text = 'Maximum [COLOR_POSITIVE_TEXT]3[ENDCOLOR] active Archaeologists per player at any one time. Archaeologists are a special subtype of Worker that are used to excavate Antiquity Sites to either create Landmark improvements or to extract [ICON_ARTIFACT] Artifacts to fill in [ICON_GREAT_WORK] Great Work of Art slots in selected Buildings and Wonders. Archaeologists may work in territory owned by any player. They are consumed once they complete an Archaeological Dig at an Antiquity Site. Archaeologists may not be purchased with [ICON_GOLD] Gold and may only be built in a City with a [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MUSEUM}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHAEOLOGIST';
 
 -- Guided Missile
@@ -197,6 +197,11 @@ UPDATE Language_en_US
 SET Text = 'The Pathfinder is the game''s first reconnaissance unit. It fights poorly compared to a Warrior, but has better movement and vision.'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_PATHFINDER_STRATEGY';
 
+-- Explorer
+UPDATE Language_en_US
+SET Text = 'Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Medieval and Renaissance periods. They are fairly weak and, therefore, are easily defeated by contemporary military units. However, their reconaissance abilities are unparalleled until the advent of the Commando.'
+WHERE Tag = 'TXT_KEY_UNIT_EXPLORER_STRATEGY';
+
 -- Paratrooper
 UPDATE Language_en_US
 SET Text = 'Strong infantry Unit capable of paradropping up to 9 tiles from friendly territory. Paratrooper can also move and pillage after paradropping, but cannot enter combat until the following turn. Has a combat bonus versus Siege units.'
@@ -321,16 +326,13 @@ UPDATE Language_en_US
 SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough and carries a mean punch. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and destroyers make a fiendishly powerful armada.'
 WHERE Tag = 'TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY';
 
+-- Destroyer
 UPDATE Language_en_US
-SET Text = 'Fleet Destroyer'
-WHERE Tag = 'TXT_KEY_UNIT_DESTROYER';
-
-UPDATE Language_en_US
-SET Text = 'Fast late game ship making it highly effective at recon. Also used to hunt down and destroy enemy Submarines if promoted. Fights as a naval melee unit.'
+SET Text = 'Modern-Era Naval Melee Unit capable of tracking Submarines if promoted.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_DESTROYER';
 
 UPDATE Language_en_US
-SET Text = 'The Fleet Destroyer is a naval melee attack unit designed to hunt down submarines and to provide anti-aircraft support.'
+SET Text = 'Destroyers are naval melee units that can reveal nearby submarines if promoted. Use it for attack and escorting other units.'
 WHERE Tag = 'TXT_KEY_UNIT_DESTROYER_STRATEGY';
 
 UPDATE Language_en_US
@@ -383,6 +385,19 @@ WHERE Tag = 'TXT_KEY_CIV5_INDUSTRIAL_ANTITANKGUN_TEXT';
 UPDATE Language_en_US
 SET Text = 'Unit specialized in fighting Modern Armor and Tanks. It is capable of hovering over Mountains and Coast.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HELICOPTER_GUNSHIP';
+
+-- Slinger
+UPDATE Language_en_US
+SET Text = 'First Ranged unit, available from the start of the Game.'
+WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Slingers are the first ranged unit available in the game. Although they lack damage and range, a Slinger can still prevent a barbarian encampment from healing, and gives you a cheap, early option for fighting off small waves of invading barbarians.'
+WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Like most early weapon systems, the sling evolved from a tool for hunting game to one for killing people. Simply a pouch between two lengths of cord, the sling was used to swing a projectile - a stone, lump of lead, or anything else convenient - in an arc until it was launched. Although a thrown stone doesn''t have the lethality of an arrow or bullet, it can still do a lot of damage. If nothing else, a rain of well-aimed stones gives an enemy pause before rushing in. In addition, it wasn''t hard to find ammunition. With the exception of Australia, ancient slings have been found in archaeological digs all over the world. Slings are cheap, portable, and as the First Book of Samuel points out, a slinger can bring down even a Goliath...'
+WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_TEXT';
 
 -- Musketman
 UPDATE Language_en_US
