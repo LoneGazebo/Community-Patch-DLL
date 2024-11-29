@@ -337,8 +337,8 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			{
 				int iDifference = iCachedPeaceValue - iDealValueToMe;
 				int iPercentage = (iDifference * 100) / iCachedPeaceValue;
-				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() * 2 * iPercentage) / 100;
-				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -iRecentAssistBonus);
+				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() + (m_pPlayer->GetDiplomacyAI()->GetMaxRecentFailedAssistValue() * -1) * iPercentage) / 100;
+				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iRecentAssistBonus);
 
 				// If half or less of max value, mark it as generous for the text selection below
 				if (iPercentage >= 50)
@@ -374,7 +374,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 				const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_THANKFUL);
 				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
 				if (iDealValueToMe > 0)
-					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iDealValueToMe / -2);
+					GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iDealValueToMe / 2);
 
 				return;
 			}
@@ -482,23 +482,24 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 		vector<PlayerTypes> vMasterTeam = GET_TEAM(eOurMaster).getPlayers();
 		for (size_t i=0; i < vMasterTeam.size(); i++)
 		{
-			if (!GET_PLAYER(vMasterTeam[i]).isAlive() || !GET_PLAYER(vMasterTeam[i]).isMajorCiv() || GET_PLAYER(vMasterTeam[i]).getNumCities() == 0)
+			CvPlayer* pMaster = &GET_PLAYER(vMasterTeam[i]);
+			if (!pMaster->isAlive() || pMaster->getNumCities() == 0)
 				continue;
 
 			// This master is not strong enough to protect us.
-			if (GET_PLAYER(vMasterTeam[i]).GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(eFromPlayer) > STRENGTH_AVERAGE)
+			if (pMaster->GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(eFromPlayer) > STRENGTH_AVERAGE)
 				continue;
 
 			// Is our master failing to protect us? Then their protection isn't worth much.
-			if (pDiploAI->GetVassalFailedProtectScore(vMasterTeam[i]) > 0 && pDiploAI->GetVassalFailedProtectScore(vMasterTeam[i]) > (pDiploAI->GetVassalProtectScore(vMasterTeam[i]) * -1))
+			if (pDiploAI->GetVassalProtectValue(vMasterTeam[i]) < 0)
 				continue;
 
 			// Is our master neighbors with them?
-			if (GET_PLAYER(vMasterTeam[i]).GetProximityToPlayer(eFromPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+			if (pMaster->GetProximityToPlayer(eFromPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 				return DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER;
 
 			// Master is at least as close to us as they are? Refuse.
-			if (GET_PLAYER(vMasterTeam[i]).GetProximityToPlayer(eMyPlayer) >= eProximity)
+			if (pMaster->GetProximityToPlayer(eMyPlayer) >= eProximity)
 				return DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER;
 		}
 	}
@@ -2782,7 +2783,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
-		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 125;
@@ -2866,7 +2866,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
-		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_AFRAID:
 		case CIV_APPROACH_NEUTRAL:
@@ -6468,7 +6467,6 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		case CIV_OPINION_COMPETITOR:
 		case CIV_OPINION_ENEMY:
 		case CIV_OPINION_UNFORGIVABLE:
-		case NO_CIV_OPINION:
 			break; // No change.
 		}
 
@@ -7400,7 +7398,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 										bWorthIt = true;
 									}
 									break;
-								case NO_CIV_OPINION:
 								case CIV_OPINION_NEUTRAL:
 								case CIV_OPINION_COMPETITOR:
 								case CIV_OPINION_ENEMY:

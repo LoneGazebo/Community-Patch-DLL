@@ -3281,7 +3281,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						if (GET_PLAYER(eOldOwner).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eOldOwner).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 						{
-							GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCityValue);
+							GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iCityValue);
 						}
 					}
 				}
@@ -3307,6 +3307,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
 				pOldOwnerDiploAI->SetPlayerLiberatedHolyCity(GetID(), false);
 				pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
+				pOldOwnerDiploAI->SetNumCitiesEverLiberatedBy(GetID(), 0);
 				pOldOwnerDiploAI->SetPlayerReturnedCapital(GetID(), false);
 				pOldOwnerDiploAI->SetPlayerReturnedHolyCity(GetID(), false);
 				pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
@@ -8564,22 +8565,43 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	if (!bAlive && !bForced && !bSphereRemoval)
 		kLiberatedTeam.SetLiberatedByTeam(eTeam);
 
-	// Diplo bonus for returning the city
-	if (!bForced && kPlayer.isMajorCiv())
+	// Is this a first liberation? Removing a Sphere of Influence also counts as 'liberating' the city for one-time bonuses.
+	bool bFirstLiberation = false;
+	if (!bForced || bSphereRemoval)
 	{
+		if (!pCity->isEverLiberated(GetID()))
+		{
+			bFirstLiberation = true;
+			pCity->setEverLiberated(GetID(), true);
+		}
+	}
+
+	// Diplo bonus for returning the city
+	if (!bForced && isMajorCiv() && kPlayer.isMajorCiv())
+	{
+		bool bSpecialCity = false;
+
 		// Liberated the capital - big diplo bonus!
 		if (pCity->getX() == kPlayer.GetOriginalCapitalX() && pCity->getY() == kPlayer.GetOriginalCapitalY())
 		{
 			pDiploAI->SetPlayerLiberatedCapital(GetID(), true);
+			bSpecialCity = true;
 		}
-
 		// Liberated the Holy City - big bonus IF the Holy City status still remains
 		if (kPlayer.IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(kPlayer.GetReligions()->GetOriginalReligionCreatedByPlayer()))
 		{
 			pDiploAI->SetPlayerLiberatedHolyCity(GetID(), true);
+			bSpecialCity = true;
 		}
-
-		pDiploAI->ChangeNumCitiesLiberatedBy(GetID(), 1);
+		// Liberated a normal city
+		if (!bSpecialCity)
+		{
+			pDiploAI->ChangeNumCitiesLiberatedBy(GetID(), 1);
+		}
+		if (bFirstLiberation)
+		{
+			pDiploAI->ChangeNumCitiesEverLiberatedBy(GetID(), 1);
+		}
 	}
 
 	// Give the city back to the liberated player
@@ -8850,17 +8872,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		if (MOD_BALANCE_VP)
 		{
 			pNewCity->SpawnPlayerUnitsNearby(ePlayer, 1, false, false, false);
-		}
-	}
-
-	// Is this a first liberation? Removing a Sphere of Influence also counts as 'liberating' the city for one-time bonuses.
-	bool bFirstLiberation = false;
-	if (!bForced || bSphereRemoval)
-	{
-		if (!pNewCity->isEverLiberated(GetID()))
-		{
-			bFirstLiberation = true;
-			pNewCity->setEverLiberated(GetID(), true);
 		}
 	}
 
@@ -30833,8 +30844,15 @@ void CvPlayer::SetHasLostHolyCity(bool bValue, PlayerTypes eConqueror)
 {
 	if (bValue != m_bLostHolyCity)
 	{
+		PlayerTypes ePreviousConqueror = m_eHolyCityConqueror;
 		m_bLostHolyCity = bValue;
 		m_eHolyCityConqueror = eConqueror;
+		// If we regained our Holy City, forgive a master who liberated us for capturing it in the first place.
+		if (!bValue && isMajorCiv() && GET_PLAYER(ePreviousConqueror).isMajorCiv())
+		{
+			if (GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(ePreviousConqueror) || GetDiplomacyAI()->IsHappyAboutPlayerVassalagePeacefullyRevoked(ePreviousConqueror))
+				GetDiplomacyAI()->SetPlayerCapturedHolyCity(ePreviousConqueror, false);
+		}
 	}
 }
 
@@ -30870,12 +30888,20 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 	if (bValue == m_bLostCapital)
 		return;
 
+	PlayerTypes ePreviousConqueror = m_eConqueror;
 	m_bLostCapital = bValue;
 	m_eConqueror = eConqueror;
 
 	// Don't really care if a City-State lost its capital
 	if (!isMajorCiv())
 		return;
+
+	// If we regained our capital, forgive a master who liberated us for capturing it in the first place.
+	if (!bValue && GET_PLAYER(ePreviousConqueror).isMajorCiv())
+	{
+		if (GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(ePreviousConqueror) || GetDiplomacyAI()->IsHappyAboutPlayerVassalagePeacefullyRevoked(ePreviousConqueror))
+			GetDiplomacyAI()->SetPlayerCapturedCapital(ePreviousConqueror, false);
+	}
 
 	// Calculate who owns the most original capitals by iterating through all civs
 	// and finding out who owns their original capital.
@@ -33466,6 +33492,9 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 	GET_TEAM(getTeam()).changeNumCities(getNumCities());
 	GET_TEAM(getTeam()).changeTotalPopulation(getTotalPopulation());
 	GET_TEAM(getTeam()).changeTotalLand(getTotalLand());
+
+	if (isMajorCiv())
+		GetDiplomacyAI()->SetTeam(eTeam);
 }
 
 bool CvPlayer::IsAITeammateOfHuman() const

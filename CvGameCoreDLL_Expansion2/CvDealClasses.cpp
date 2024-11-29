@@ -4694,13 +4694,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 					if (!bWasVoluntary)
 					{
-						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						vector<PlayerTypes> vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
+						for (size_t i = 0; i<vVassalTeam.size(); i++)
 						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
-							{
+							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(vVassalTeam[i]);
+							if (GET_PLAYER(eLoopPlayer).isAlive())
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eReceivingTeam, true);
-							}
 						}
 					}
 				}
@@ -4789,7 +4788,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					// If AI was target, improve opinion of the peacemaker a bit and reevaluate them.
 					else
 					{
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer, false, false);
 					}
 				}
@@ -4834,13 +4833,13 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 							// Players at war with the target - penalty to recent assistance for the peacemaker and the warrior!
 							if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
 							{
-								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 							}
 							// DPs/vassals/friends of the target - bonus to recent assistance for the peacemaker!
 							else if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam) || GET_TEAM(eTeam).IsVassal(eTargetTeam))
 							{
-								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 							}
 							else
 							{
@@ -4851,7 +4850,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 									if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(vTargetTeam[i]))
 									{
-										GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+										GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 										break;
 									}
 								}
@@ -4865,18 +4864,18 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 							if (GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsAllies(ePlayer))
 							{
-								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 							}
 							else if (GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsFriends(ePlayer) || GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsProtectedByMajor(ePlayer))
 							{
 								if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomat()
 									|| GET_PLAYER(ePlayer).GetDiplomacyAI()->IsGoingForDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
 								{
-									GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+									GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 								}
 								else
 								{
-									GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -150);
+									GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 150);
 								}
 							}								
 						}
@@ -4963,15 +4962,15 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						// People at war with the target - bonus to opinion!
 						if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
 						{
-							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
+							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
 						}
 						// The target and their allies & friends - penalty to opinion!
 						else if (eTeam == eTargetTeam || GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam) || GET_TEAM(eTeam).IsVassal(eTargetTeam) || GET_TEAM(eTargetTeam).IsVassal(eTeam))
 						{
 							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eGivingPlayer, 1);
-							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
+							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
 							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eReceivingPlayer, 1);
-							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+							GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 						}
 						else
 						{
@@ -4982,8 +4981,8 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 								if (GET_PLAYER(*iter).GetDiplomacyAI()->IsDoFAccepted(vTargetTeam[i]))
 								{
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 									break;
 								}
 							}
@@ -5000,26 +4999,26 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 							if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == eTeam)
 							{
-								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
+								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(*iter))
 							{
-								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
+								GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(*iter))
 							{
 								if (GET_PLAYER(*iter).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(*iter).GetPlayerTraits()->IsDiplomat()
 									|| GET_PLAYER(*iter).GetDiplomacyAI()->IsGoingForDiploVictory() || GET_PLAYER(*iter).GetDiplomacyAI()->IsCloseToDiploVictory())
 								{
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -300);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 								}
 								else
 								{
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 150);
-									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 150);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, -150);
+									GET_PLAYER(*iter).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -150);
 								}
 							}
 						}

@@ -1416,7 +1416,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
 					{
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetBrokeVassalAgreement(eLoopPlayer2, true);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, -300);
 
 						// Friends of the vassal - penalty to recent assistance!
 						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -1428,7 +1428,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))
 							{
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, -300);
 							}
 						}
 					}
@@ -4562,9 +4562,32 @@ TeamTypes CvTeam::GetLiberatedByTeam() const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetLiberatedByTeam(TeamTypes eIndex)
 {
-	if(GetLiberatedByTeam() != eIndex)
+	if (GetLiberatedByTeam() != eIndex)
 	{
 		m_eLiberatedByTeam = eIndex;
+
+		// Remove the diplo penalty for previously capturing the capital or Holy City.
+		// The AI will normally hate anyone who captured their teammate's key cities, so it's necessary to remove it from the entire team when any resurrection occurs.
+		// This won't clear the "ever captured" flag, which prevents a diplo bonus from returning the key cities.
+		if (eIndex != NO_TEAM)
+		{
+			vector<PlayerTypes> vOurTeam = getPlayers();
+			vector<PlayerTypes> vTheirTeam = GET_TEAM(eIndex).getPlayers();
+			for (size_t i=0; i<vOurTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vOurTeam[i]).isMajorCiv())
+					continue;
+
+				for (size_t j=0; j<vTheirTeam.size(); j++)
+				{
+					if (!GET_PLAYER(vTheirTeam[j]).isMajorCiv())
+						continue;
+
+					GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetPlayerCapturedCapital(vTheirTeam[j], false);
+					GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetPlayerCapturedHolyCity(vTheirTeam[j], false);
+				}
+			}
+		}
 	}
 }
 
@@ -4865,7 +4888,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 							{
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetBrokeCoopWarPromise(eLoopPlayer, true);
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarAgreementScore(eLoopPlayer, -2);
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, -300);
 
 								CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
 								if (pNotify)
@@ -9924,7 +9947,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 							PlayerTypes eNewMaster = (PlayerTypes) iNewMasterPlayer;
 							if (GET_PLAYER(eNewMaster).isAlive() && GET_PLAYER(eNewMaster).getTeam() == eTeam)
 							{
-								GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eNewMaster, 300);
+								GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eNewMaster, -300);
 							}
 						}
 					}

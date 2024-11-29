@@ -147,10 +147,13 @@ VALUES
 	('DEAL_VALUE_PER_TURN_DECAY', 2), -- how fast recent trade value decays
 	('OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', 150), -- increases current and maximum trade bonus if player is considered a strategic trade partner
 
--- Your recent diplomatic actions please/disappoint them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT; scales with game speed)
-	('OPINION_WEIGHT_ASSIST_MAX', 30), -- maximum opinion bonus/penalty from recent assist value
+-- Your recent diplomatic actions please them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+	('OPINION_WEIGHT_ASSIST_MAX', -30), -- maximum opinion bonus from recent assist value
 	('ASSIST_VALUE_PER_OPINION_WEIGHT', 5), -- how much recent assist value equals +/- 1 opinion weight
 	('ASSIST_VALUE_PER_TURN_DECAY', 3), -- how fast recent assist value decays
+
+-- Your recent diplomatic actions disappoint them. (n.b. minimum recent assist value = OPINION_WEIGHT_FAILED_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+	('OPINION_WEIGHT_FAILED_ASSIST_MAX', 30), -- maximum opinion penalty from recent assist value
 
 -- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
 	('OPINION_WEIGHT_COMMON_FOE_MAX', -100),
@@ -585,15 +588,13 @@ VALUES
 	('OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER', 50),
 
 -- You protected their territory as their master! (n.b. maximum vassal protect value = OPINION_WEIGHT_VASSALAGE_PROTECT_MAX * VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
-	('OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50),
-	('VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', 50), -- how much vassal protection value equals -1 opinion weight
+	('OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50), -- maximum opinion bonus from vassal protection
+	('VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', 50), -- how much vassal protection value equals +/- 1 opinion weight
 	('VASSALAGE_PROTECTED_PER_TURN_DECAY', 25), -- how fast vassal protection value decays
 	('VASSALAGE_PROTECTED_CITY_DISTANCE', 6), -- How close to a vassal city must an enemy unit be (in tiles) for it to count for protect value.
 
--- You failed to protect their territory as their master! (n.b. maximum vassal failed protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT; scales with game speed)
-	('OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50),
-	('VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', 50), -- how much vassal failed protection value equals +1 opinion weight
-	('VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', 25), -- how fast vassal failed protection value decays
+-- You failed to protect their territory as their master! (n.b. minimum vassal protect value = OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX * VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
+	('OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50), -- maximum opinion penalty from failed vassal protection
 	('VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 0), -- How close to a vassal city must a vassal unit be for it to count for failed protect value (IF NOT IN OWNED TERRITORY). 0 = disabled.
 
 -- Trade Routes With Them
@@ -621,14 +622,14 @@ VALUES
 	('OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY_REVOKED', 50),
 
 -- Opinion Weight Change from Having 2+ Vassals
--- Each player on a team counts as one vassal. Your own vassals and players you have a DoF with don't apply this penalty.
+-- Each player on a team counts as one vassal. Your own vassals + players you have a DoF or DP with don't apply this penalty.
 	('OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', 20),
 
 --	//////////////////////////////////////
 --	// PROMISE DURATIONS
 --	//////////////////////////////////////
 
--- Defines how many turns a specific promise lasts for (for making the promise).
+-- Defines how many turns a specific promise lasts for (for making the promise), capped below at 1.
 -- Defines how many turns until the AI forgets that you ignored/broke a specific promise (for other values). Once the AI forgets that you ignored/broke a promise, they become able to ask you to make it again.
 -- Most promise lengths scale with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 
@@ -676,7 +677,7 @@ VALUES
 --	// BACKSTABBING PENALTY DURATIONS
 --	//////////////////////////////////////
 
--- Defines how many turns until the AI forgets that you backstabbed them.
+-- Defines how many turns until the AI forgets that you backstabbed them, capped below at 1.
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- NOTE: Broken military / CS conquest promises count as backstabbing penalties as well, but they are handled in the Promises section just above.
 
@@ -695,7 +696,7 @@ VALUES
 --	// OTHER OPINION MODIFIER DURATIONS
 --	//////////////////////////////////////
 
--- Defines the base number of turns until the AI forgets about an opinion modifier.
+-- Defines the base number of turns until the AI forgets about an opinion modifier, capped below at 1.
 -- When there are multiple "stacks" of a modifier, this instead is the time before the # of stacks is halved (rounded down).
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- The amount of turns is also increased or decreased based on leader flavors (and this increase/decrease also scales with game speed).

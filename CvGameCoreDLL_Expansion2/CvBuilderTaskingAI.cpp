@@ -2856,7 +2856,7 @@ static Likelyhood GetPlotTheftLikelyhood(const CvPlayer* pPlayer, const CvPlot* 
 
 			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
 
-			if (eApproach != NO_CIV_APPROACH && eApproach < eWorstApproach)
+			if (eApproach < eWorstApproach)
 				eWorstApproach = eApproach;
 		}
 	}
