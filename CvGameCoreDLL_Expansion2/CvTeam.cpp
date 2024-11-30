@@ -4439,6 +4439,8 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
 		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
 		{
+			kAttackingPlayer.UpdateCurrentAndFutureWars();
+			kAttackingPlayer.CalculateNetHappiness();
 			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
 			{
 				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
@@ -4451,7 +4453,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 			}
 		}
 	}
-
+	
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 }
 

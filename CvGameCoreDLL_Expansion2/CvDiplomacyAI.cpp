@@ -19442,6 +19442,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
+	// BONUSES FROM BEING AT WAR
+	////////////////////////////////////
+
+	if (GetPlayer()->getMilitaryProductionModPerMajorWar() > 0)
+	{
+		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetPlayer()->getMilitaryProductionModPerMajorWar() / 4;
+	}
+	if (GetPlayer()->getHappinessPerMajorWar() > 0 && GetPlayer()->IsEmpireUnhappy())
+	{
+		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetPlayer()->getHappinessPerMajorWar() / 2;
+	}
+
+	////////////////////////////////////
 	// WAR WEARINESS
 	////////////////////////////////////
 
@@ -25986,13 +25999,21 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			if (iPeaceScore > 0)
 			{
 				// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
-				// We should also be more reluctant to make peace if they've captured cities from us, or cities that we want to liberate
+				// We should also be more reluctant to make peace if they've captured cities from us, or cities that we want to liberate,
+				// and also if we get a golden age when winning a war or if we get happiness or production modifiers from being at war
 				// However, do not factor this in when losing
 				if (!bInTerribleShape)
 				{
-					if (iWarScore > 0 || (iWarScore > GetWarscoreThresholdNegative()/2 && GetRawTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE && GetWarState(ePlayer) > WAR_STATE_TROUBLED))
+					if (iWarScore >= 0 || (iWarScore > GetWarscoreThresholdNegative()/2 && GetRawTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE && GetWarState(ePlayer) > WAR_STATE_TROUBLED))
 					{
-						if (iWarScore < WARSCORE_THRESHOLD_POSITIVE && GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory() > 0)
+						if (GetPlayer()->IsEmpireUnhappy())
+						{
+							iPeaceScore -= GetPlayer()->getHappinessPerMajorWar();
+						}
+						iPeaceScore -= GetPlayer()->getMilitaryProductionModPerMajorWar() / 2;
+						iPeaceScore = max(iPeaceScore, 0);
+
+						if (iWarScore > 0 && iWarScore < WARSCORE_THRESHOLD_POSITIVE && GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory() > 0)
 						{
 							bAnyAztecException = true;
 							iPeaceScore /= 2;

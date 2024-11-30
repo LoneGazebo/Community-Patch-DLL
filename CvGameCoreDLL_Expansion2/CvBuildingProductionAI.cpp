@@ -533,10 +533,47 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////Happiness (VP)
 	////////
 
-	
-	if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
+	int iHappinessValue = 10; // value of one additional happiness
+	if (kPlayer.IsEmpireUnhappy())
 	{
-		iBonus += kPlayer.GetUnhappiness() * 10;
+		iHappinessValue *= 4;
+	}
+	if (kPlayer.IsEmpireSuperUnhappy())
+	{
+		iHappinessValue *= 4;
+	}
+	if (kPlayer.IsEmpireVeryUnhappy())
+	{
+		iHappinessValue *= 4;
+	}
+
+	if(pkBuildingInfo->GetHappiness() > 0)
+	{
+		iBonus += iHappinessValue * pkBuildingInfo->GetHappiness();
+		bGoodforHappiness = true;
+	}
+
+	if ( pkBuildingInfo->GetHappinessPerCity() > 0)
+	{
+		iBonus += iHappinessValue * pkBuildingInfo->GetHappinessPerCity() * kPlayer.getNumCities();
+		bGoodforHappiness = true;
+	}
+
+	if (pkBuildingInfo->GetHappinessPerXPolicies() > 0)
+	{
+		iBonus += iHappinessValue * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPolicies();
+		bGoodforHappiness = true;
+	}
+
+	if (pkBuildingInfo->GetUnmoddedHappiness() > 0)
+	{
+		iBonus += iHappinessValue * pkBuildingInfo->GetUnmoddedHappiness();
+		bGoodforHappiness = true;
+	}
+
+	if (pkBuildingInfo->GetGlobalHappinessPerMajorWar() > 0)
+	{
+		iBonus += iHappinessValue * pkBuildingInfo->GetGlobalHappinessPerMajorWar() * max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 		bGoodforHappiness = true;
 	}
 

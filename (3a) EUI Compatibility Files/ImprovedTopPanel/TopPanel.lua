@@ -1472,6 +1472,7 @@ if civ5_mode then
 			local CityStateHappiness = g_activePlayer:GetHappinessFromMinorCivs();
 			local HappinessFromAnnexedMinors = g_activePlayer:GetHappinessFromAnnexedMinors();
 			local VassalHappiness = g_activePlayer:GetHappinessFromVassals();
+			local WarWithMajorsHappiness = g_activePlayer:GetHappinessFromWarsWithMajors();
 			local HandicapHappiness = g_activePlayer:GetHandicapHappiness();
 
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
@@ -1485,6 +1486,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_FROM_ANNEXED_MINORS", HappinessFromAnnexedMinors )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_WAR_WITH_MAJORS", WarWithMajorsHappiness )
     		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", HandicapHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", LocalCityHappiness )
 			tips:insert( "[ENDCOLOR]" )
