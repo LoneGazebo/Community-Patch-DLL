@@ -1094,6 +1094,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsBullyAnnex);
 	Method(IsTraitBonusReligiousBelief);
 	Method(GetHappinessFromLuxury);
+	Method(GetHappinessFromWarsWithMajors);
 	Method(IsAbleToAnnexCityStates);
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
@@ -12483,6 +12484,11 @@ int CvLuaPlayer::lGetHappinessFromLuxury(lua_State* L)
 		lua_pushinteger(L, iLuxuryHappiness);
 	}
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetHappinessFromWarsWithMajors(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromWarsWithMajors);
 }
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsAbleToAnnexCityStates(lua_State* L)

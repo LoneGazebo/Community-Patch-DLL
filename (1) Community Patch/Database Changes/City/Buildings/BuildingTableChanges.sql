@@ -297,8 +297,8 @@ ALTER TABLE Buildings ADD GPPOnCitizenBirth integer DEFAULT 0;
 -- Global happiness per major civ currently at war with the player
 ALTER TABLE Buildings ADD GlobalHappinessPerMajorWar integer DEFAULT 0;
 
--- Modifier for military unit production per major civ currently at war with the player
-ALTER TABLE Buildings ADD MilitaryProductionModPerMajorWar integer DEFAULT 0;
+-- Global modifier for military unit production per major civ currently at war with the player
+ALTER TABLE Buildings ADD GlobalMilitaryProductionModPerMajorWar integer DEFAULT 0;
 
 -- Non-specialists cannot consume more than the city's food per turn
 ALTER TABLE Buildings ADD NoStarvationNonSpecialist boolean DEFAULT 0;

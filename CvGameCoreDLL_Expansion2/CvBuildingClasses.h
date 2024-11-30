@@ -191,6 +191,8 @@ public:
 	int GetGoldenAgeModifier() const;
 	int GetFreeExperience() const;
 	int GetGlobalFreeExperience() const;
+	int GetGlobalHappinessPerMajorWar() const;
+	int GetGlobalMilitaryProductionModPerMajorWar() const;
 	int GetFoodKept() const;
 	bool IsAirlift() const;
 	int GetAirModifier() const;
@@ -756,6 +758,8 @@ private:
 	int m_iGoldenAgeModifier;
 	int m_iFreeExperience;
 	int m_iGlobalFreeExperience;
+	int m_iGlobalHappinessPerMajorWar;
+	int m_iGlobalMilitaryProductionModPerMajorWar;
 	int m_iFoodKept;
 	bool m_bAirlift;
 	int m_iAirModifier;

@@ -1195,6 +1195,7 @@ protected:
 #endif
 	static int lIsTraitBonusReligiousBelief(lua_State* L);
 	static int lGetHappinessFromLuxury(lua_State* L);
+	static int lGetHappinessFromWarsWithMajors(lua_State* L);
 	static int lIsAbleToAnnexCityStates(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lIsDiplomaticMarriage(lua_State* L);

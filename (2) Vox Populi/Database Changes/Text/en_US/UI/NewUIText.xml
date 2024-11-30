@@ -654,6 +654,9 @@
 		<Row Tag="TXT_KEY_TP_HAPPINESS_MILITARY_UNITS">
 			<Text>{1_Num} from Military Units.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_WAR_WITH_MAJORS">
+			<Text>{1_Num} from Wars.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_VASSALS">
 			<Text>{1_Num} from Vassal Happiness.</Text>
 		</Row>
@@ -1106,6 +1109,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
 			<Text>[NEWLINE][ICON_BULLET]Modifier from Resolutions: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_MILITARY_PLAYER_WAR">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Wars: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
 			<Text>{1_Num} [ICON_RESEARCH] added by Great Works</Text>
