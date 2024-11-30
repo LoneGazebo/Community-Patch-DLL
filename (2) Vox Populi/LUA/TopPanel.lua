@@ -927,6 +927,11 @@ function HappinessTipHandler( control )
 			if (VassalHappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness);
 			end
+			
+			local WarWithMajorsHappiness = pPlayer:GetHappinessFromWarsWithMajors();
+			if (WarWithMajorsHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_WAR_WITH_MAJORS", WarWithMajorsHappiness);
+			end
 
 			local HandicapHappiness = pPlayer:GetHandicapHappiness();
 			if (HandicapHappiness ~= 0) then

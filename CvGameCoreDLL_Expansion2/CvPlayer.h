@@ -820,6 +820,11 @@ public:
 	int GetHappinessFromAnnexedMinors() const;
 	void UpdateHappinessFromAnnexedMinors();
 
+	int getHappinessPerMajorWar() const;
+	void changeHappinessPerMajorWar(int iValue);
+	int getMilitaryProductionModPerMajorWar() const;
+	void changeMilitaryProductionModPerMajorWar(int iValue);
+
 	int GetExtraLeagueVotes() const;
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
@@ -2866,6 +2871,7 @@ public:
 	int GetYieldPerTurnFromVassals(YieldTypes eYield) const;
 
 	int GetHappinessFromVassals() const;
+	int GetHappinessFromWarsWithMajors() const;
 	int GetHappinessFromVassal(PlayerTypes ePlayer) const;
 
 	int GetVassalGoldMaintenanceMod() const;
@@ -3069,6 +3075,8 @@ protected:
 	int m_iFaithPerTurnFromAnnexedMinors;
 	int	m_iHappinessFromAnnexedMinors;
 
+	int m_iHappinessPerMajorWar;
+	int m_iMilitaryProductionModPerMajorWar;
 	int m_iExtraLeagueVotes;
 	int m_iImprovementLeagueVotes;
 	int m_iFaithToVotes;
@@ -3924,6 +3932,8 @@ SYNC_ARCHIVE_VAR(int, m_iCulturePerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iSciencePerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iHappinessPerMajorWar)
+SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModPerMajorWar)
 SYNC_ARCHIVE_VAR(int, m_iExtraLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iImprovementLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iFaithToVotes)

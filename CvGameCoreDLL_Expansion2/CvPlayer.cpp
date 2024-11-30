@@ -170,6 +170,8 @@ CvPlayer::CvPlayer() :
 	, m_iSpyPoints()
 	, m_iSpyPointsTotal()
 	, m_iSpyStartingRank()
+	, m_iHappinessPerMajorWar()
+	, m_iMilitaryProductionModPerMajorWar()
 	, m_iExtraLeagueVotes()
 	, m_iWoundedUnitDamageMod()
 	, m_iUnitUpgradeCostMod()
@@ -1325,6 +1327,8 @@ void CvPlayer::uninit()
 	m_iSciencePerTurnFromAnnexedMinors = 0;
 	m_iFaithPerTurnFromAnnexedMinors = 0;
 	m_iHappinessFromAnnexedMinors = 0;
+	m_iHappinessPerMajorWar = 0;
+	m_iMilitaryProductionModPerMajorWar = 0;
 	m_iExtraLeagueVotes = 0;
 	m_iImprovementLeagueVotes = 0;
 	m_iFaithToVotes = 0;
@@ -15137,6 +15141,10 @@ int CvPlayer::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) cons
 			iTempMod = getMilitaryProductionModifier();
 			iMultiplier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_PLAYER", iTempMod);
+
+			iTempMod = getMilitaryProductionModPerMajorWar() * GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+			iMultiplier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_PLAYER_WAR", iTempMod);
 		}
 
 		// Settler bonus
@@ -15696,6 +15704,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	}
 
 	ChangeSpySecurityModifier(pBuildingInfo->GetGlobalSpySecurityModifier() * iChange);
+
+	changeHappinessPerMajorWar(pBuildingInfo->GetGlobalHappinessPerMajorWar() * iChange);
+	changeMilitaryProductionModPerMajorWar(pBuildingInfo->GetGlobalMilitaryProductionModPerMajorWar() * iChange);
 
 	ChangeExtraLeagueVotes(pBuildingInfo->GetExtraLeagueVotes() * iChange);
 	changeMaxAirUnits(pBuildingInfo->GetAirModifierGlobal() * iChange);
@@ -19691,6 +19702,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Increase from military units
 	m_iHappiness += GetHappinessFromMilitaryUnits();
 
+	// Increase from wars with major civs
+	m_iHappiness += GetHappinessFromWarsWithMajors();
+
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -22941,6 +22955,33 @@ void CvPlayer::UpdateHappinessFromAnnexedMinors()
 		m_iHappinessFromAnnexedMinors = iBonus * iNumCityStates;
 
 		CalculateNetHappiness();
+	}
+}
+
+
+int CvPlayer::getHappinessPerMajorWar() const
+{
+	VALIDATE_OBJECT
+	return m_iHappinessPerMajorWar;
+}
+void CvPlayer::changeHappinessPerMajorWar(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iHappinessPerMajorWar += iValue;
+	}
+}
+
+int CvPlayer::getMilitaryProductionModPerMajorWar() const
+{
+	VALIDATE_OBJECT
+	return m_iMilitaryProductionModPerMajorWar;
+}
+void CvPlayer::changeMilitaryProductionModPerMajorWar(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iMilitaryProductionModPerMajorWar += iValue;
 	}
 }
 
@@ -42667,6 +42708,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSciencePerTurnFromAnnexedMinors);
 	visitor(player.m_iFaithPerTurnFromAnnexedMinors);
 	visitor(player.m_iHappinessFromAnnexedMinors);
+	visitor(player.m_iHappinessPerMajorWar);
+	visitor(player.m_iMilitaryProductionModPerMajorWar);
 	visitor(player.m_iExtraLeagueVotes);
 	visitor(player.m_iImprovementLeagueVotes);
 	visitor(player.m_iFaithToVotes);
@@ -46782,6 +46825,18 @@ int CvPlayer::GetHappinessFromVassals() const
 
 	return max(0, iHappiness);
 }
+
+///	Get the amount of Happiness we're getting from wars with other civs
+int CvPlayer::GetHappinessFromWarsWithMajors() const
+{
+	int iHappiness = 0;
+	if (getHappinessPerMajorWar() != 0)
+	{
+		iHappiness += getHappinessPerMajorWar() * GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+	}
+	return iHappiness;
+}
+
 /// Happiness from a Vassal
 int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 {

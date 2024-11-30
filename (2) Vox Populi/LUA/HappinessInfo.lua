@@ -165,6 +165,7 @@ function UpdateScreen()
 	local luxuryHappiness = pPlayer:GetBonusHappinessFromLuxuriesFlat();
 	-- C4DF
 	local iHappinessFromVassal = pPlayer:GetHappinessFromVassals();
+	local iHappinessFromWarsWithMajors = pPlayer:GetHappinessFromWarsWithMajors();
 	-- END
 	
 	local iTotalHappiness = iHappiness;
@@ -270,6 +271,13 @@ function UpdateScreen()
 		Controls.VassalHappiness:SetHide(false);
 	else
 		Controls.VassalHappiness:SetHide(true);
+	end
+
+	if (iHappinessFromWarsWithMajors ~= 0) then
+		Controls.WarsWithMajorsHappinessValue:SetText(iHappinessFromWarsWithMajors);
+		Controls.WarsWithMajorsHappiness:SetHide(false);
+	else
+		Controls.WarsWithMajorsHappiness:SetHide(true);
 	end
 
 	-----------------------------------------------

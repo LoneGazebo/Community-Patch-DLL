@@ -99,6 +99,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGoldenAgeModifier(0),
 	m_iFreeExperience(0),
 	m_iGlobalFreeExperience(0),
+	m_iGlobalHappinessPerMajorWar(0),
+	m_iGlobalMilitaryProductionModPerMajorWar(0),
 	m_iFoodKept(0),
 	m_bAirlift(false),
 	m_iAirModifier(0),
@@ -696,6 +698,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGoldenAgeModifier = kResults.GetInt("GoldenAgeModifier");
 	m_iFreeExperience = kResults.GetInt("Experience");
 	m_iGlobalFreeExperience = kResults.GetInt("GlobalExperience");
+	m_iGlobalHappinessPerMajorWar = kResults.GetInt("GlobalHappinessPerMajorWar");
+	m_iGlobalMilitaryProductionModPerMajorWar = kResults.GetInt("GlobalMilitaryProductionModPerMajorWar");
 	m_iFoodKept = kResults.GetInt("FoodKept");
 	m_bAirlift = kResults.GetBool("Airlift");
 	m_iAirModifier = kResults.GetInt("AirModifier");
@@ -2097,6 +2101,18 @@ int CvBuildingEntry::GetFreeExperience() const
 int CvBuildingEntry::GetGlobalFreeExperience() const
 {
 	return m_iGlobalFreeExperience;
+}
+
+/// Global happiness per major civ currently at war with the player
+int CvBuildingEntry::GetGlobalHappinessPerMajorWar() const
+{
+	return m_iGlobalHappinessPerMajorWar;
+}
+
+/// Global Production modifier towards military units per major civ currently at war with the player
+int CvBuildingEntry::GetGlobalMilitaryProductionModPerMajorWar() const
+{
+	return m_iGlobalMilitaryProductionModPerMajorWar;
 }
 
 /// Percentage of food retained after city growth

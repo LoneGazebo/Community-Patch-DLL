@@ -4702,6 +4702,14 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iConquestValue += (pkBuildingInfo->GetUnitUpgradeCostMod() * -1);
 	}
+	if (pkBuildingInfo->GetMilitaryProductionModifier() > 0)
+	{
+		iConquestValue += pkBuildingInfo->GetMilitaryProductionModifier();
+	}
+	if (pkBuildingInfo->GetGlobalMilitaryProductionModPerMajorWar() > 0)
+	{
+		iConquestValue += pkBuildingInfo->GetGlobalMilitaryProductionModPerMajorWar() * kPlayer.getNumCities() * max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false));
+	}
 
 
 	if(pkBuildingInfo->GetGlobalSpaceProductionModifier() > 0)

@@ -85,6 +85,10 @@
 								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_VASSALS"/>
 								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="VassalHappinessValue"/>
 							</Box>
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="WarsWithMajorsHappiness">
+								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TP_HAPPINESS_WAR_WITH_MAJORS"/>
+								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="WarsWithMajorsHappinessValue"/>
+							</Box>
 							<!-- C4DF -->
 						</Stack>
 					</ScrollPanel>
