@@ -1945,8 +1945,8 @@ private:
 	char m_aeCivApproach[MAX_CIV_PLAYERS];
 	char m_aeCivStrategicApproach[MAX_MAJOR_CIVS];
 	char m_aeCachedSurfaceApproach[MAX_MAJOR_CIVS];
-	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
-	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
+	unsigned int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
+	unsigned int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 
 	// Minor Civs
 	bool m_abWantToRouteToMinor[MAX_MINOR_CIVS];
