@@ -185,8 +185,6 @@ public:
 	int* GetCoastalLandYieldChangeArray();
 	int GetHillsYieldChange(int i) const;
 	int* GetHillsYieldChangeArray();
-	int GetNoFreshWaterYieldChange(int i) const;
-	int* GetNoFreshWaterYieldChangeArray();				// For Moose - CvWidgetData XXX
 	int GetFreshWaterYieldChange(int i) const;
 	int* GetFreshWaterYieldChangeArray();				// For Moose - CvWidgetData XXX
 	int GetAdjacentCityYieldChange(int i) const;
