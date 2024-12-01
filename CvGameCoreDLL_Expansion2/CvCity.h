@@ -533,7 +533,7 @@ public:
 	int foodConsumptionNonSpecialistTimes100() const;
 	int foodConsumptionSpecialistTimes100() const;
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
+	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0, bool bAssumeNoReductionForNonSpecialists = false) const;
 	int foodDifference(bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
@@ -1011,6 +1011,9 @@ public:
 
 	void SetNoWarmonger(bool bValue);
 	bool IsNoWarmongerYet();
+
+	void ChangeNoStarvationNonSpecialist(int iValue);
+	bool IsNoStarvationNonSpecialist() const;
 
 	int GetNumTimesOwned(PlayerTypes ePlayer) const;
 	void SetNumTimesOwned(PlayerTypes ePlayer, int iValue);
@@ -2021,6 +2024,7 @@ protected:
 	int m_iNumNearbyMountains;
 	int m_iLocalUnhappinessMod;
 	bool m_bNoWarmonger;
+	int m_iNoStarvationNonSpecialist;
 	int m_iEmpireSizeModifierReduction;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
@@ -2421,6 +2425,7 @@ SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
 SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
 SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
+SYNC_ARCHIVE_VAR(int, m_iNoStarvationNonSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
 SYNC_ARCHIVE_VAR(int, m_iDistressFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReduction)

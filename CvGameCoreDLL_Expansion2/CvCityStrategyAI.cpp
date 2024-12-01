@@ -5240,6 +5240,15 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += pkBuildingInfo->GetFoodKept() * pCity->getPopulation();
 	}
+	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist())
+	{
+		iValue += 10 * pCity->getPopulation();
+		if (pCity->foodDifferenceTimes100(false) < 0)
+		{
+			// higher value if we are starving
+			iValue += (-2) * pCity->foodDifferenceTimes100(false);
+		}
+	}
 
 	if (pkBuildingInfo->AllowsFoodTradeRoutes())
 	{

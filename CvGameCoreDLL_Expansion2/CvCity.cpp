@@ -452,6 +452,7 @@ CvCity::CvCity() :
 	, m_iResourceDiversityModifier()
 	, m_iNoUnhappfromXSpecialists()
 	, m_bNoWarmonger()
+	, m_iNoStarvationNonSpecialist()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_abIsBestForWonder()
@@ -1390,6 +1391,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResourceDiversityModifier = 0;
 	m_iNoUnhappfromXSpecialists = 0;
 	m_bNoWarmonger = false;
+	m_iNoStarvationNonSpecialist = 0;
 #endif
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -14227,6 +14229,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			SetAllowPuppetPurchase(pBuildingInfo->IsAllowsPuppetPurchase() * iChange > 0);
 		}
+		if (pBuildingInfo->IsNoStarvationNonSpecialist())
+		{
+			ChangeNoStarvationNonSpecialist(iChange);
+		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeGPRateModPerMarriage(pBuildingInfo->GetGPRateModPerMarriage() * iChange);
@@ -16260,14 +16266,19 @@ int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
 	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
+int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra, bool bAssumeNoReductionForNonSpecialists) const
 {
 	VALIDATE_OBJECT
 
 	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 	int iNonSpecialists = max(0, (getPopulation() - iSpecialists)) + iExtra;
 
-	return max(100, foodConsumptionNonSpecialistTimes100() * iNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
+	int iConsumptionNonSpecialists = foodConsumptionNonSpecialistTimes100() * iNonSpecialists;
+	if (IsNoStarvationNonSpecialist() && !bAssumeNoReductionForNonSpecialists)
+	{
+		iConsumptionNonSpecialists = min(getYieldRateTimes100(YIELD_FOOD, false), iConsumptionNonSpecialists);
+	}
+	return max(100, iConsumptionNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
 }
 
 
@@ -22731,6 +22742,17 @@ bool CvCity::IsNoWarmongerYet()
 {
 	VALIDATE_OBJECT
 	return m_bNoWarmonger;
+}
+
+void CvCity::ChangeNoStarvationNonSpecialist(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNoStarvationNonSpecialist += iValue;
+}
+bool CvCity::IsNoStarvationNonSpecialist() const
+{
+	VALIDATE_OBJECT
+	return m_iNoStarvationNonSpecialist > 0;
 }
 
 int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
@@ -31658,6 +31680,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iLocalUnhappinessMod);
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
+	visitor(city.m_iNoStarvationNonSpecialist);
 	visitor(city.m_iDistressFlatReduction);
 	visitor(city.m_iPovertyFlatReduction);
 	visitor(city.m_iIlliteracyFlatReduction);
