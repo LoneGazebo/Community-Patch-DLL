@@ -41864,7 +41864,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
 
 		if (!GET_PLAYER(eAskingPlayer).isHuman())
-			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCivApproach(eAskingPlayer, CIV_APPROACH_WAR);
+			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
 	}
 
 	return eResponse;
