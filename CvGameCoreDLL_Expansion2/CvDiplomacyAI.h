@@ -206,11 +206,11 @@ public:
 	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 	void SetEndgameAggressiveTo(PlayerTypes ePlayer, bool bValue);
 
-	bool IsPlayerRecklessExpander(PlayerTypes ePlayer) const;
-	void SetPlayerRecklessExpander(PlayerTypes ePlayer, bool bValue);
+	bool IsRecklessExpander(PlayerTypes ePlayer) const;
+	void SetRecklessExpander(PlayerTypes ePlayer, bool bValue);
 
-	bool IsPlayerWonderSpammer(PlayerTypes ePlayer) const;
-	void SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue);
+	bool IsWonderSpammer(PlayerTypes ePlayer) const;
+	void SetWonderSpammer(PlayerTypes ePlayer, bool bValue);
 
 	// ------------------------------------
 	// Victory Progress

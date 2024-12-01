@@ -6436,7 +6436,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 			iTheirTotalHappy < 50 &&										// they need happiness
 			(pDiploAI->GetWarmongerThreat(eFromPlayer) < THREAT_MAJOR ||	// don't give out happiness to warmongers
 			pDiploAI->GetWarmongerHate() <= 5) &&							// only if we hate warmongers
-			!pDiploAI->IsPlayerRecklessExpander(eFromPlayer))				// don't give out happiness to reckless expanders
+			!pDiploAI->IsRecklessExpander(eFromPlayer))				// don't give out happiness to reckless expanders
 		{
 			bGiveUpOneLuxury = true;
 		}

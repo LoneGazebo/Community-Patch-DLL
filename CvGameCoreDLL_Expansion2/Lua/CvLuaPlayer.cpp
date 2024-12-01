@@ -11379,7 +11379,7 @@ int CvLuaPlayer::lIsPlayerRecklessExpander(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerRecklessExpander(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsRecklessExpander(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -14132,7 +14132,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Wonder Dispute
-			if (bPretendNoDisputes && !pDiplo->IsPlayerWonderSpammer(ePlayer))
+			if (bPretendNoDisputes && !pDiplo->IsWonderSpammer(ePlayer))
 			{
 				int iEra = (int)pkPlayer->GetCurrentEra();
 				if (iEra <= 0)

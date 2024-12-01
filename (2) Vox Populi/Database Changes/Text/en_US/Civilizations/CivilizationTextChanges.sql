@@ -354,7 +354,7 @@ SET Text = 'Blood and Iron'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Friend, and additionally +2 [ICON_CULTURE] Culture per Ally, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed or upgraded).'
+SET Text = '+2 [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Friend, and additionally +2 [ICON_CULTURE] Culture per Ally, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed).'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS';
 
 UPDATE Language_en_US

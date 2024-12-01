@@ -8590,7 +8590,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 						{
 							// city is constructing a wonder.
 							// are we spiteful enough to delay them just because? add a small bonus.
-							if (pDiplomacyAI->IsPlayerWonderSpammer(ePlayer) || (pDiplomacyAI->GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && pDiplomacyAI->GetCivOpinion(ePlayer) <= CIV_OPINION_COMPETITOR)
+							if (pDiplomacyAI->IsWonderSpammer(ePlayer) || (pDiplomacyAI->GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && pDiplomacyAI->GetCivOpinion(ePlayer) <= CIV_OPINION_COMPETITOR)
 								|| pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE
 								|| pDiplomacyAI->GetBiggestCompetitor() == ePlayer)
 							{

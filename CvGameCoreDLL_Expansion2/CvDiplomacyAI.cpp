@@ -906,8 +906,8 @@ void CvDiplomacyAI::SlotStateChange()
 
 			// Reset dispute values
 			SetMajorCompetitor(eMajor, false);
-			SetPlayerRecklessExpander(eMajor, false);
-			SetPlayerWonderSpammer(eMajor, false);
+			SetRecklessExpander(eMajor, false);
+			SetWonderSpammer(eMajor, false);
 			SetEndgameAggressiveTo(eMajor, false);
 			SetWonderDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetMinorCivDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
@@ -916,8 +916,8 @@ void CvDiplomacyAI::SlotStateChange()
 			SetTechBlockLevel(eMajor, BLOCK_LEVEL_NONE);
 			SetPolicyBlockLevel(eMajor, BLOCK_LEVEL_NONE);
 			pOther->SetMajorCompetitor(ID, false);
-			pOther->SetPlayerRecklessExpander(ID, false);
-			pOther->SetPlayerWonderSpammer(ID, false);
+			pOther->SetRecklessExpander(ID, false);
+			pOther->SetWonderSpammer(ID, false);
 			pOther->SetEndgameAggressiveTo(ID, false);
 			pOther->SetWonderDisputeLevel(ID, DISPUTE_LEVEL_NONE);
 			pOther->SetNumWondersBeatenTo(ID, 0); // only for killed player
@@ -1065,8 +1065,8 @@ void CvDiplomacyAI::SlotStateChange()
 				SetPotentialWarTarget(eLoopPlayer, true);
 				SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 				SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
-				SetPlayerRecklessExpander(eLoopPlayer, false);
-				SetPlayerWonderSpammer(eLoopPlayer, false);
+				SetRecklessExpander(eLoopPlayer, false);
+				SetWonderSpammer(eLoopPlayer, false);
 				SetEndgameAggressiveTo(eLoopPlayer, false);
 				SetStrategicTradePartner(eLoopPlayer, false);
 				SetMajorCompetitor(eLoopPlayer, false);
@@ -3243,31 +3243,31 @@ bool CvDiplomacyAI::IsEndgameAggressiveTo(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetEndgameAggressiveTo(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abEndgameAggressiveTo[ePlayer] = bValue;
 }
 
 /// Is this player expanding recklessly?
-bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsRecklessExpander(PlayerTypes ePlayer) const
 {
 	return m_abRecklessExpander[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerRecklessExpander(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetRecklessExpander(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abRecklessExpander[ePlayer] = bValue;
 }
 
 /// Is this player spamming World Wonders?
-bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsWonderSpammer(PlayerTypes ePlayer) const
 {
 	return m_abWonderSpammer[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerWonderSpammer(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetWonderSpammer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abWonderSpammer[ePlayer] = bValue;
 }
 
@@ -4004,7 +4004,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetMajorCompetitor(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abMajorCompetitor[ePlayer] = bValue;
 }
 
@@ -4016,7 +4016,7 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetStrategicTradePartner(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abStrategicTradePartner[ePlayer] = bValue;
 }
 
@@ -4028,7 +4028,7 @@ bool CvDiplomacyAI::IsWantsDoFWithPlayer(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abWantsDoFWithPlayer[ePlayer] = bValue;
 }
 
@@ -4040,7 +4040,7 @@ bool CvDiplomacyAI::IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abWantsDefensivePactWithPlayer[ePlayer] = bValue;
 }
 
@@ -4052,7 +4052,7 @@ bool CvDiplomacyAI::IsWantsToEndDoFWithPlayer(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWantsToEndDoFWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT((!bValue || IsDoFAccepted(ePlayer)) && NotTeam(ePlayer));
+	ASSERT(!bValue || (IsDoFAccepted(ePlayer) && NotTeam(ePlayer)));
 	m_abWantsToEndDoFWithPlayer[ePlayer] = bValue;
 }
 
@@ -4064,7 +4064,7 @@ bool CvDiplomacyAI::IsWantsToEndDefensivePactWithPlayer(PlayerTypes ePlayer) con
 
 void CvDiplomacyAI::SetWantsToEndDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT((!bValue || IsHasDefensivePact(ePlayer)) && NotTeam(ePlayer));
+	ASSERT(!bValue || (IsHasDefensivePact(ePlayer) && NotTeam(ePlayer)));
 	m_abWantsToEndDefensivePactWithPlayer[ePlayer] = bValue;
 }
 
@@ -4076,7 +4076,7 @@ bool CvDiplomacyAI::IsWantsResearchAgreementWithPlayer(PlayerTypes ePlayer) cons
 
 void CvDiplomacyAI::SetWantsResearchAgreementWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
@@ -5550,7 +5550,7 @@ int CvDiplomacyAI::GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(iValue >= 0 && NotTeam(ePlayer));
+	ASSERT(iValue >= 0);
 	m_aiNumMinorsConquered[ePlayer] = min(iValue, UCHAR_MAX);
 }
 
@@ -5675,7 +5675,7 @@ AggressivePostureTypes CvDiplomacyAI::GetMilitaryAggressivePosture(PlayerTypes e
 
 void CvDiplomacyAI::SetMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
-	ASSERT(ePosture >= 0 && ePosture < NUM_AGGRESSIVE_POSTURE_TYPES && NotTeam(ePlayer));
+	ASSERT(ePosture >= 0 && ePosture < NUM_AGGRESSIVE_POSTURE_TYPES && (ePosture == AGGRESSIVE_POSTURE_NONE || NotTeam(ePlayer)));
 	m_aeMilitaryAggressivePosture[ePlayer] = ePosture;
 }
 
@@ -5769,7 +5769,7 @@ AggressivePostureTypes CvDiplomacyAI::GetPlotBuyingAggressivePosture(PlayerTypes
 
 void CvDiplomacyAI::SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
-	ASSERT(ePosture >= 0 && ePosture < NUM_AGGRESSIVE_POSTURE_TYPES && NotTeam(ePlayer));
+	ASSERT(ePosture >= 0 && ePosture < NUM_AGGRESSIVE_POSTURE_TYPES && (ePosture == AGGRESSIVE_POSTURE_NONE || NotTeam(ePlayer)));
 	m_aePlotBuyingAggressivePosture[ePlayer] = ePosture;
 }
 
@@ -5787,7 +5787,7 @@ DisputeLevelTypes CvDiplomacyAI::GetLandDisputeLevel(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
-	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && NotTeam(ePlayer));
+	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && (eDisputeLevel == DISPUTE_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeLandDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
@@ -5799,7 +5799,7 @@ DisputeLevelTypes CvDiplomacyAI::GetVictoryDisputeLevel(PlayerTypes ePlayer) con
 
 void CvDiplomacyAI::SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
-	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && NotTeam(ePlayer));
+	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && (eDisputeLevel == DISPUTE_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeVictoryDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
@@ -5811,7 +5811,7 @@ BlockLevelTypes CvDiplomacyAI::GetVictoryBlockLevel(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel)
 {
-	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && NotTeam(ePlayer));
+	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && (eBlockLevel == BLOCK_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeVictoryBlockLevel[ePlayer] = eBlockLevel;
 }
 
@@ -5823,7 +5823,7 @@ DisputeLevelTypes CvDiplomacyAI::GetWonderDisputeLevel(PlayerTypes ePlayer) cons
 
 void CvDiplomacyAI::SetWonderDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
-	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && NotTeam(ePlayer));
+	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && (eDisputeLevel == DISPUTE_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeWonderDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
@@ -5835,7 +5835,7 @@ DisputeLevelTypes CvDiplomacyAI::GetMinorCivDisputeLevel(PlayerTypes ePlayer) co
 
 void CvDiplomacyAI::SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
-	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && NotTeam(ePlayer));
+	ASSERT(eDisputeLevel >= 0 && eDisputeLevel < NUM_DISPUTE_LEVELS && (eDisputeLevel == DISPUTE_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeMinorCivDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
@@ -5847,7 +5847,7 @@ BlockLevelTypes CvDiplomacyAI::GetTechBlockLevel(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetTechBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel)
 {
-	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && NotTeam(ePlayer));
+	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && (eBlockLevel == BLOCK_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aeTechBlockLevel[ePlayer] = eBlockLevel;
 }
 
@@ -5859,7 +5859,7 @@ BlockLevelTypes CvDiplomacyAI::GetPolicyBlockLevel(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetPolicyBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel)
 {
-	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && NotTeam(ePlayer));
+	ASSERT(eBlockLevel >= 0 && eBlockLevel < NUM_BLOCK_LEVELS && (eBlockLevel == BLOCK_LEVEL_NONE || NotTeam(ePlayer)));
 	m_aePolicyBlockLevel[ePlayer] = eBlockLevel;
 }
 
@@ -5877,7 +5877,7 @@ ThreatTypes CvDiplomacyAI::GetWarmongerThreat(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat)
 {
-	ASSERT(eWarmongerThreat >= 0 && eWarmongerThreat < NUM_THREAT_VALUES && NotTeam(ePlayer));
+	ASSERT(eWarmongerThreat >= 0 && eWarmongerThreat < NUM_THREAT_VALUES && (eWarmongerThreat == THREAT_NONE || NotTeam(ePlayer)));
 	m_aeWarmongerThreat[ePlayer] = eWarmongerThreat;
 }
 
@@ -5956,7 +5956,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetEasyTarget(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abEasyTarget[ePlayer] = bValue;
 }
 
@@ -9389,29 +9389,7 @@ void CvDiplomacyAI::DoUpdateCompetingForVictory()
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (!IsPlayerValid(eLoopPlayer))
-			{
-				SetEndgameAggressiveTo(eLoopPlayer, false);
-				continue;
-			}
-
-			if (!IsAtWar(eLoopPlayer))
-			{
-				if (GC.getGame().IsAIPassiveMode())
-				{
-					SetEndgameAggressiveTo(eLoopPlayer, false);
-					continue;
-				}
-
-				if (GET_PLAYER(eLoopPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
-				{
-					SetEndgameAggressiveTo(eLoopPlayer, false);
-					continue;
-				}
-			}
-
-			SetEndgameAggressiveTo(eLoopPlayer, GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition());
+			SetEndgameAggressiveTo(eLoopPlayer, IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition());
 		}
 	}
 	else
@@ -9588,7 +9566,7 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-			SetPlayerRecklessExpander(ePlayer, false);
+			SetRecklessExpander(ePlayer, false);
 		}
 		return;
 	}
@@ -9625,34 +9603,34 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 			int iNumPlots = GET_PLAYER(ePlayer).getTotalLand();
 			if (iNumCities < 4)
 			{
-				SetPlayerRecklessExpander(ePlayer, false);
+				SetRecklessExpander(ePlayer, false);
 				continue;
 			}
 
 			// If the player is too far away from us, we don't care
 			if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
 			{
-				SetPlayerRecklessExpander(ePlayer, false);
+				SetRecklessExpander(ePlayer, false);
 				continue;
 			}
 
 			// If we have at least as many cities OR land as them, don't worry about it
 			if (iNumCities <= GetPlayer()->getNumCities())
 			{
-				SetPlayerRecklessExpander(ePlayer, false);
+				SetRecklessExpander(ePlayer, false);
 				continue;
 			}
 
 			if (iNumPlots <= GetPlayer()->getTotalLand())
 			{
-				SetPlayerRecklessExpander(ePlayer, false);
+				SetRecklessExpander(ePlayer, false);
 				continue;
 			}
 
 			// If this guy's military is as strong as ours, then it probably means he's just stronger than us
 			if (GetTargetValue(ePlayer) <= TARGET_VALUE_DIFFICULT)
 			{
-				SetPlayerRecklessExpander(ePlayer, false);
+				SetRecklessExpander(ePlayer, false);
 				continue;
 			}
 
@@ -9666,7 +9644,7 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
 				if (iNumCities > (dAverageNumCities * 1.5))
 				{
-					SetPlayerRecklessExpander(ePlayer, true);
+					SetRecklessExpander(ePlayer, true);
 					continue;
 				}
 			}
@@ -9677,16 +9655,16 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
 				if (iNumPlots > (dAverageNumPlots * 1.5))
 				{
-					SetPlayerRecklessExpander(ePlayer, true);
+					SetRecklessExpander(ePlayer, true);
 					continue;
 				}
 			}
 
-			SetPlayerRecklessExpander(ePlayer, false);
+			SetRecklessExpander(ePlayer, false);
 		}
 		else
 		{
-			SetPlayerRecklessExpander(ePlayer, false);
+			SetRecklessExpander(ePlayer, false);
 		}
 	}
 }
@@ -9702,7 +9680,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-			SetPlayerWonderSpammer(ePlayer, false);
+			SetWonderSpammer(ePlayer, false);
 		}
 		return;
 	}
@@ -9742,14 +9720,14 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 			int iNumWonders = GET_PLAYER(ePlayer).GetWondersConstructed();
 			if (iNumWonders <= 2)
 			{
-				SetPlayerWonderSpammer(ePlayer, false);
+				SetWonderSpammer(ePlayer, false);
 				continue;
 			}
 
 			// We've constructed at least as many as them? Ignore.
 			if (GetPlayer()->GetWondersConstructed() >= iNumWonders)
 			{
-				SetPlayerWonderSpammer(ePlayer, false);
+				SetWonderSpammer(ePlayer, false);
 				continue;
 			}
 
@@ -9764,7 +9742,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 					{
 						if (eProximity < PLAYER_PROXIMITY_FAR)
 						{
-							SetPlayerWonderSpammer(ePlayer, false);
+							SetWonderSpammer(ePlayer, false);
 							continue;
 						}
 					}
@@ -9772,7 +9750,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 					{
 						if (eProximity < PLAYER_PROXIMITY_CLOSE)
 						{
-							SetPlayerWonderSpammer(ePlayer, false);
+							SetWonderSpammer(ePlayer, false);
 							continue;
 						}
 					}
@@ -9783,7 +9761,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 					{
 						if (eProximity < PLAYER_PROXIMITY_CLOSE)
 						{
-							SetPlayerWonderSpammer(ePlayer, false);
+							SetWonderSpammer(ePlayer, false);
 							continue;
 						}
 					}
@@ -9791,7 +9769,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 					{
 						if (eProximity < PLAYER_PROXIMITY_NEIGHBORS)
 						{
-							SetPlayerWonderSpammer(ePlayer, false);
+							SetWonderSpammer(ePlayer, false);
 							continue;
 						}
 					}
@@ -9806,16 +9784,16 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
 				if (iNumWonders >= (dAverageNumWonders * 1.5))
 				{
-					SetPlayerWonderSpammer(ePlayer, true);
+					SetWonderSpammer(ePlayer, true);
 					continue;
 				}
 			}
 
-			SetPlayerWonderSpammer(ePlayer, false);
+			SetWonderSpammer(ePlayer, false);
 		}
 		else
 		{
-			SetPlayerWonderSpammer(ePlayer, false);
+			SetWonderSpammer(ePlayer, false);
 		}
 	}
 }
@@ -10211,7 +10189,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
 			if (eCultureGrandStrategy == eTheirGrandStrategy)
 			{
-				if (!IsPlayerWonderSpammer(eLoopPlayer) && GetPolicyBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG && GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
+				if (!IsWonderSpammer(eLoopPlayer) && GetPolicyBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG && GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
 				{
 					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 					continue;
@@ -12094,8 +12072,8 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			// Do we particularly want to conquer them?
 			bool bWantsConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 			bWantsConquest |= GetWarState(ePlayer) == WAR_STATE_OFFENSIVE;
-			bWantsConquest |= IsPlayerRecklessExpander(ePlayer);
-			bWantsConquest |= IsPlayerWonderSpammer(ePlayer);
+			bWantsConquest |= IsRecklessExpander(ePlayer);
+			bWantsConquest |= IsWonderSpammer(ePlayer);
 			bWantsConquest |= IsEndgameAggressiveTo(ePlayer);
 			bWantsConquest |= GetBiggestCompetitor() == ePlayer;
 			bWantsConquest |= GetCivOpinion(ePlayer) == CIV_OPINION_UNFORGIVABLE;
@@ -16141,7 +16119,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// If they're nearby, more reasons are valid to want to attack them!
 			if (eOurProximity >= PLAYER_PROXIMITY_CLOSE)
 			{
-				bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= CIV_OPINION_COMPETITOR) || eOpinion <= CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer);
+				bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= CIV_OPINION_COMPETITOR) || eOpinion <= CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsRecklessExpander(ePlayer) || IsWonderSpammer(ePlayer);
 			}
 		}
 	}
@@ -16760,7 +16738,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		bBonus = false;
 		bVictoryCompetitor = true;
 	}
-	if (IsPlayerRecklessExpander(ePlayer))
+	if (IsRecklessExpander(ePlayer))
 	{
 		iMultiplier++;
 		bBonus = false;
@@ -16868,7 +16846,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier++;
 		bBonus = !bVictoryCompetitor && IsCompetingForVictory();
 	}
-	if (IsPlayerWonderSpammer(ePlayer))
+	if (IsWonderSpammer(ePlayer))
 	{
 		iMultiplier++;
 		bBonus = false;
@@ -17184,7 +17162,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = !bVictoryCompetitor && IsCompetingForVictory();
 		}
-		if (IsPlayerWonderSpammer(ePlayer))
+		if (IsWonderSpammer(ePlayer))
 		{
 			iMultiplier++;
 			bBonus = false;
@@ -19428,7 +19406,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
 
-	if (IsPlayerRecklessExpander(ePlayer))
+	if (IsRecklessExpander(ePlayer))
 	{
 		int iWarIncrease = vApproachBias[CIV_APPROACH_WAR] * 2;
 		int iHostileIncrease = vApproachBias[CIV_APPROACH_HOSTILE] * 2;
@@ -19457,7 +19435,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockPercent() : GC.getGame().getHandicapInfo().getWonderBlockPercent();
 
-	if (IsPlayerWonderSpammer(ePlayer))
+	if (IsWonderSpammer(ePlayer))
 	{
 		int iWarIncrease = vApproachBias[CIV_APPROACH_WAR] * 2;
 		int iHostileIncrease = vApproachBias[CIV_APPROACH_HOSTILE] * 2;
@@ -19794,7 +19772,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// More aggressive if competing for Influence, dig sites or Wonders, more friendly otherwise
-		if (bInfluenceOverUs || bStolenArtifacts || GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || IsPlayerWonderSpammer(ePlayer))
+		if (bInfluenceOverUs || bStolenArtifacts || GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || IsWonderSpammer(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] -= vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
@@ -21068,13 +21046,13 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 			continue;
 		}
 		
-		if (IsPlayerRecklessExpander(ePlayer))
+		if (IsRecklessExpander(ePlayer))
 		{
 			SetMajorCompetitor(ePlayer, true);
 			continue;
 		}
 		
-		if (IsPlayerWonderSpammer(ePlayer))
+		if (IsWonderSpammer(ePlayer))
 		{
 			SetMajorCompetitor(ePlayer, true);
 			continue;
@@ -28444,8 +28422,8 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	if (IsEasyTarget(ePlayer) || GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
 	{
 		PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-		bool bRecklessExpander = IsPlayerRecklessExpander(ePlayer);
-		bool bWonderSpammer = IsPlayerWonderSpammer(ePlayer);
+		bool bRecklessExpander = IsRecklessExpander(ePlayer);
+		bool bWonderSpammer = IsWonderSpammer(ePlayer);
 
 		if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 		{
@@ -41484,12 +41462,12 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	}
 
 	// Weight for expanding too fast
-	if (IsPlayerRecklessExpander(eTargetPlayer))
+	if (IsRecklessExpander(eTargetPlayer))
 	{
 		iScore += 10;
 	}
 	// Weight for spamming World Wonders
-	if (IsPlayerWonderSpammer(eTargetPlayer))
+	if (IsWonderSpammer(eTargetPlayer))
 	{
 		iScore += 5;
 	}
@@ -45268,7 +45246,7 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_WONDER_CULTURAL);
 		}
-		else if (!IsPlayerWonderSpammer(ePlayer))
+		else if (!IsWonderSpammer(ePlayer))
 		{
 			iOpinionWeight += (/*-5*/ GD_INT_GET(OPINION_WEIGHT_WONDER_NONE_CULTURAL) - GetNeediness()) * iEra / 2;
 		}
@@ -45525,7 +45503,7 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerRecklessExpander(ePlayer))
+	if (IsRecklessExpander(ePlayer))
 	{
 		iOpinionWeight += /*20*/ GD_INT_GET(OPINION_WEIGHT_RECKLESS_EXPANDER);
 
@@ -45580,7 +45558,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsPlayerWonderSpammer(ePlayer))
+	if (IsWonderSpammer(ePlayer))
 	{
 		iOpinionWeight += /*20*/ GD_INT_GET(OPINION_WEIGHT_WONDER_SPAMMER);
 
