@@ -1202,42 +1202,36 @@ bool CvDiplomacyAI::IsHasMet(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = 
 /// Determine if a player's team has a Defensive Pact with our team
 bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS && NotMe(eOtherPlayer));
 	return GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if a player's team has a Research Agreement with our team
 bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS && NotMe(eOtherPlayer));
 	return GET_TEAM(GetTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if we have an embassy with a player's team
 bool CvDiplomacyAI::IsHasEmbassy(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS && NotMe(eOtherPlayer));
 	return GET_TEAM(GetTeam()).HasEmbassyAtTeam(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if we have Open Borders with a player's team (we can enter their territory)
 bool CvDiplomacyAI::IsHasOpenBorders(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS && NotMe(eOtherPlayer));
 	return GET_PLAYER(eOtherPlayer).isMinorCiv() ? GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPlayerHasOpenBorders(GetID()) : GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetTeam());
 }
 
 /// Determine if we're a player's vassal
 bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS && NotMe(eOtherPlayer));
 	return GET_TEAM(GetTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if we're a player's master
 bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
 {
-	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS && NotMe(eOtherPlayer));
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetTeam());
 }
 
@@ -4648,8 +4642,8 @@ int CvDiplomacyAI::GetRecentTradeValue(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetRecentTradeValue(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(iValue >= 0 && NotMe(ePlayer));
-	m_aiTradeValue[ePlayer] = min(iValue, GetMaxRecentTradeValue());
+	ASSERT(NotMe(ePlayer));
+	m_aiTradeValue[ePlayer] = range(iValue, 0, GetMaxRecentTradeValue());
 }
 
 void CvDiplomacyAI::ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange)
@@ -4679,8 +4673,8 @@ int CvDiplomacyAI::GetCommonFoeValue(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetCommonFoeValue(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(iValue >= 0 && NotMe(ePlayer));
-	m_aiCommonFoeValue[ePlayer] = min(iValue, GetMaxCommonFoeValue());
+	ASSERT(NotMe(ePlayer));
+	m_aiCommonFoeValue[ePlayer] = range(iValue, 0, GetMaxCommonFoeValue());
 }
 
 void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
@@ -5051,8 +5045,8 @@ int CvDiplomacyAI::GetCivilianKillerValue(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetCivilianKillerValue(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(iValue >= 0 && NotTeam(ePlayer));
-	m_aiCivilianKillerValue[ePlayer] = min(iValue, GetMaxCivilianKillerValue());
+	ASSERT(NotTeam(ePlayer));
+	m_aiCivilianKillerValue[ePlayer] = range(iValue, 0, GetMaxCivilianKillerValue());
 }
 
 void CvDiplomacyAI::ChangeCivilianKillerValue(PlayerTypes ePlayer, int iChange)
@@ -5093,7 +5087,7 @@ WarStateTypes CvDiplomacyAI::GetWarState(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWarState(PlayerTypes ePlayer, WarStateTypes eWarState)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(eWarState == NO_WAR_STATE_TYPE || NotTeam(ePlayer));
 	m_aeWarState[ePlayer] = eWarState;
 }
 
@@ -5118,7 +5112,7 @@ int CvDiplomacyAI::GetWarProgressScore(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetWarProgressScore(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(iValue == 0 || NotTeam(ePlayer));
 	m_aiWarProgressScore[ePlayer] = range(iValue, SHRT_MIN, SHRT_MAX);
 }
 
@@ -5141,7 +5135,7 @@ PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToOffer(PlayerTypes ePlayer) con
 
 void CvDiplomacyAI::SetTreatyWillingToOffer(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(eTreaty == NO_PEACE_TREATY_TYPE || NotTeam(ePlayer));
 	m_aePeaceTreatyWillingToOffer[ePlayer] = eTreaty;
 }
 
@@ -5153,7 +5147,7 @@ PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToAccept(PlayerTypes ePlayer) co
 
 void CvDiplomacyAI::SetTreatyWillingToAccept(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(eTreaty == NO_PEACE_TREATY_TYPE || NotTeam(ePlayer));
 	m_aePeaceTreatyWillingToAccept[ePlayer] = eTreaty;
 }
 
@@ -5182,7 +5176,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetUntrustworthyFriend(PlayerTypes ePlayer, bool bValue)
 {
-	ASSERT(NotTeam(ePlayer));
+	ASSERT(!bValue || NotTeam(ePlayer));
 	m_abUntrustworthyFriend[ePlayer] = bValue;
 }
 
@@ -11762,7 +11756,7 @@ void CvDiplomacyAI::DoUpdateWarProgressScores()
 				ChangeWarProgressScore(ePlayer, /*-4*/ GD_INT_GET(WAR_PROGRESS_DECAY_VS_EQUAL));
 			}
 		}
-		else if (GET_PLAYER(ePlayer).isAlive())
+		else if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getTeam() != GetTeam())
 		{
 			SetWarProgressScore(ePlayer, /*100*/ GD_INT_GET(WAR_PROGRESS_INITIAL_VALUE));
 		}
@@ -44720,7 +44714,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
     for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
     {
 		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
-		if (!IsHasMet(ePlayer, true))
+		if (!IsHasMet(ePlayer, true) || ePlayer == GetID())
 			continue;
 
 		// Some promises generate notifications on their turn of expiry, handle that first
