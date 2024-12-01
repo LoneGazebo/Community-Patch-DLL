@@ -19,6 +19,7 @@ struct SPrecomputedExpensiveNumbers
 	bool bNeedUpdate;
 	int iFoodRateTimes100;
 	int iFoodConsumptionTimes100;
+	int iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100;
 	int iFoodCorpMod;
 	int iFamine;
 	int iDistress;
