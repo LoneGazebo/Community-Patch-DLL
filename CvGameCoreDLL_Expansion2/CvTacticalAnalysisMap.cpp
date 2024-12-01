@@ -407,8 +407,8 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 	eTacticalDominanceFlags eRangedDominance = IsWater() ? GetNavalRangedDominanceFlag(iDominancePercent) : GetRangedDominanceFlag(iDominancePercent);
 
 	//are our forces mostly ranged and the enemy has a lot of melee units?
-	bool bInDangerOfCounterattack = IsWater() ? GetEnemyNavalStrength() > 2 * GetFriendlyNavalStrength() && GetFriendlyNavalRangedStrength() > 2 * GetFriendlyNavalStrength() :
-		GetEnemyMeleeStrength() > 2 * GetFriendlyMeleeStrength() && GetFriendlyRangedStrength() > 2 * GetFriendlyMeleeStrength();
+	bool bInDangerOfCounterattack = IsWater() ? GetEnemyNavalStrength() > 3 * GetFriendlyNavalStrength() && GetFriendlyNavalRangedStrength() > 3 * GetFriendlyNavalStrength() :
+		GetEnemyMeleeStrength() > 3 * GetFriendlyMeleeStrength() && GetFriendlyRangedStrength() > 3 * GetFriendlyMeleeStrength();
 
 	//don't get into big fights over nothing
 	if (GetOwner() == NO_PLAYER)
