@@ -15747,21 +15747,21 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Subtract instead of setting if there's a liberation bonus above
 		if (bLiberatedCapital || bLiberatedHolyCity)
 		{
-			vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR] * 2;
-			vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE] * 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
-			vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED] * 2;
-			vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID] * 2;
-			vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
-		}
-		else
-		{
 			vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2;
 			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
 			vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 			vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 2;
 			vApproachScores[CIV_APPROACH_NEUTRAL] -= vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
+		}
+		else
+		{
+			vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR] * 2;
+			vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
+			vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED] * 2;
+			vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID] * 2;
+			vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
 		}
 	}
 
