@@ -2828,9 +2828,12 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			continue;
 		}
 
+		//can we attack somebody?
+		vector<pair<CvPlot*, bool>> targets = TacticalAIHelpers::GetTargetsInRange(pUnit);
 		//who can attack us?
 		vector<CvUnit*> vEnemyAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot(), m_pPlayer->getTeam());
-		if (vEnemyAttackers.empty())
+
+		if (targets.empty() && vEnemyAttackers.empty())
 		{
 			pUnit = pArmy->GetNextUnit(pUnit);
 			continue;
@@ -2899,11 +2902,10 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		LogTacticalMessage(strMsg);
 	}
 
-	//we probably didn't see all enemy units, so doublecheck ...
-	//but take care to pick the right zone in the right domain
-	CvCity* pClosestEnemyCity = GC.getGame().GetClosestCityByPlots(pClosestEnemyPlot, NO_PLAYER);
-	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pClosestEnemyCity,pArmy->GetType()!=ARMY_TYPE_LAND);
-	if (pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+	//we probably didn't see all enemy units, so doublecheck ... don't get drawn into the wrong fight
+	CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pClosestEnemyPlot, NO_PLAYER);
+	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pClosestCity,pArmy->GetType()!=ARMY_TYPE_LAND);
+	if (pZone && pZone->GetZoneCity() && pZone->GetTerritoryType()==TACTICAL_TERRITORY_ENEMY && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 		return false;
 
 	return TacticalAIHelpers::FindAndExecuteBestUnitAssignments(ourUnitsFinal,pClosestEnemyPlot,AL_MEDIUM);
@@ -7991,7 +7993,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 
 		//there is a tendency for fast units to move too far ahead without a chance to withdraw later
 		//so try to catch this case right here, cannot wait until the end of the sim when it's too late
-		if (iOverkillPercent > 300 && movePlot.iMovesLeft<3*GC.getMOVE_DENOMINATOR())
+		if (iOverkillPercent > 300 && movePlot.iMovesLeft<3*GC.getMOVE_DENOMINATOR() && unit.iMovesLeft>3*GC.getMOVE_DENOMINATOR())
 			return result; //don't do it
 
 		//give a bonus for occupying a citadel even if it's just intermediate for now
@@ -9014,7 +9016,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			if (newAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 			{
 				//important normalization step but need to ignore impossible ref assignments!
-				newAssignment.iScore -= max(0,refAssignment.iScore);
+				newAssignment.iScore -= max(-100,refAssignment.iScore);
 				gPossibleMoves.push_back(newAssignment);
 			}
 		}
