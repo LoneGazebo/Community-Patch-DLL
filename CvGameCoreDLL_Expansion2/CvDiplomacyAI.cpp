@@ -11722,6 +11722,9 @@ int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTyp
 	// Ethiopia UA
 	iModifier += GET_PLAYER(ePlayer).getNumCities() < GET_PLAYER(eAgainstPlayer).getNumCities() ? pTraits->GetCombatBonusVsLargerCiv() : 0;
 
+	// Bonus VS Higher Pop
+	iModifier += GET_PLAYER(ePlayer).getTotalPopulation() < GET_PLAYER(eAgainstPlayer).getTotalPopulation() ? pTraits->GetCombatBonusVsHigherPop() : 0;
+
 	// Sweden UA / BNW China UA ... count GG bonus if at least one of them is active
 	if (pTraits->GetGreatGeneralExtraBonus() > 0)
 	{
@@ -20641,12 +20644,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (!bStrategic)
 	{
-		int iRandomFactor = /*5*/ range(GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
+		int iRandomFactor = range(GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? /*10*/ GD_INT_GET(APPROACH_RANDOM_PERSONALITIES_PERCENT) : /*5*/ GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
 		if (iRandomFactor != 0)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-				iRandomFactor = min(iRandomFactor*2, 100);
-
 			int MyID = (int)eMyPlayer;
 			int TheirID = (int)ePlayer;
 
@@ -48834,18 +48834,29 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	if (IsAtWar(ePlayer))
 		return false;
 
+	// Handle extra logic for humans if this function is called by an automated worker/recommender
+	bool bHuman = GetPlayer()->isHuman();
+
 	// Handle minors here (only citadels and plots are applicable)
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		switch (eTheftType)
 		{
 		case THEFT_TYPE_CULTURE_BOMB:
-			if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
+			if ((!bHuman && GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY) || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
+			{
+				return true;
+			}
+			if (bHuman && GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetID()))
 			{
 				return true;
 			}
 			break;
 		case THEFT_TYPE_PLOT: // America UA
+			if (bHuman && GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetID()))
+			{
+				return true;
+			}
 			// Steal Natural Wonders and other teams' embassies, the City-State's feelings be damned!
 			if (pPlot->IsNaturalWonder())
 			{
@@ -48855,7 +48866,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 			{
 				return false;
 			}
-			if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
+			if ((!bHuman && GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY) || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
 			{
 				return true;
 			}
@@ -48891,14 +48902,17 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	CivApproachTypes eTrueApproach = GetCivApproach(ePlayer);
 	CivApproachTypes eSurfaceApproach = GetSurfaceApproach(ePlayer);
 
-	if (eOpinion == CIV_OPINION_ALLY)
-		return true;
+	if (!bHuman)
+	{
+		if (eOpinion == CIV_OPINION_ALLY)
+			return true;
 
-	if (eTrueApproach == CIV_APPROACH_AFRAID)
-		return true;
+		if (eTrueApproach == CIV_APPROACH_AFRAID)
+			return true;
 
-	if (eOpinion >= CIV_OPINION_FRIEND && eTrueApproach >= CIV_APPROACH_FRIENDLY)
-		return true;
+		if (eOpinion >= CIV_OPINION_FRIEND && eTrueApproach >= CIV_APPROACH_FRIENDLY)
+			return true;
+	}
 
 	// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
 	// We want to know whether they can still see the plot *after* we plunder the caravan, so check for > 1
@@ -48913,6 +48927,9 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	{
 	case THEFT_TYPE_CULTURE_BOMB:
 	{
+		if (bHuman)
+			return false;
+
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeExpansionPromise(GetID()))
 			return true;
 		
@@ -48935,7 +48952,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeNoConvertPromise(GetID()))
 			return true;
 
-		if (IsVassal(ePlayer))
+		if (!bHuman && IsVassal(ePlayer))
 			return true;
 
 		return false;
@@ -48948,7 +48965,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(GetTeam()))
 			return true;
 
-		if (IsVassal(ePlayer))
+		if (!bHuman && IsVassal(ePlayer))
 			return true;
 
 		return false;
@@ -48958,13 +48975,16 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeSpyPromise(GetID()))
 			return true;
 
-		if (IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
+		if (!bHuman && IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
 			return true;
 		
 		return false;
 	}
 	case THEFT_TYPE_TRADE_ROUTE: // Morocco UA
 	{
+		if (bHuman)
+			return false;
+
 		if (eTrueApproach == CIV_APPROACH_FRIENDLY)
 			return true;
 		
@@ -48993,10 +49013,15 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 			return true;
 
-		if (IsVassal(ePlayer))
+		if (!bHuman && IsVassal(ePlayer))
 			return true;
 
 		return false;
+	}
+	case THEFT_TYPE_EMBASSY: // America UA or Culture Bomb
+	{
+		if (!bHuman && IsVassal(ePlayer))
+			return true;
 	}
 	}
 

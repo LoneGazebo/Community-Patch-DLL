@@ -553,7 +553,7 @@ WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_DEFEATED_3';
 
 -- Human ends our friendship
 UPDATE Language_en_US
-SET Text = 'Your actions are unforgivable. There can never be reconciliation between our two nations.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)'
+SET Text = 'Your actions are unforgivable. There can never be reconciliation between our two nations.[NEWLINE][NEWLINE](If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)'
 WHERE Tag = 'TXT_KEY_NOW_UNFORGIVABLE_1';
 
 -- Break friendship with human (high warmonger threat)

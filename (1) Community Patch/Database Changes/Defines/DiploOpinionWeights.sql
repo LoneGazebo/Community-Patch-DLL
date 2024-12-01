@@ -34,7 +34,7 @@ VALUES
 	('OPINION_WEIGHT_LAND_WARMONGER', 10), -- penalty for Conqueror AIs
 	('OPINION_WEIGHT_LAND_NONE_WARMONGER', -5), -- bonus for Conqueror AIs (increases based on Neediness flavor)
 
--- You are (not) competing for World Wonders.
+-- You are [not] competing for World Wonders.
 -- NOTE: This modifier scales based on the AI's WonderCompetitiveness flavor and the player's difficulty level.
 	('OPINION_WEIGHT_WONDER_FIERCE', 50),
 	('OPINION_WEIGHT_WONDER_STRONG', 35),
@@ -43,7 +43,7 @@ VALUES
 	('OPINION_WEIGHT_WONDER_CULTURAL', 10), -- penalty for Cultural AIs
 	('OPINION_WEIGHT_WONDER_NONE_CULTURAL', -5), -- bonus for Cultural AIs (increases based on Neediness flavor)
 
--- You are (not) competing for the favor of the same City-States!
+-- You are [not] competing for the favor of the same City-States!
 -- NOTE: This modifier scales based on the AI's MinorCivCompetitiveness flavor and the player's difficulty level.
 	('OPINION_WEIGHT_MINOR_CIV_FIERCE', 30),
 	('OPINION_WEIGHT_MINOR_CIV_STRONG', 20),
@@ -52,14 +52,14 @@ VALUES
 	('OPINION_WEIGHT_MINOR_CIV_DIPLOMAT', 10), -- penalty for Diplomat AIs
 	('OPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT', -5), -- bonus for Diplomat AIs (increases based on Neediness flavor)
 
--- You are (not) competing for technological advancement. (only for Scientific AIs)
+-- You are [not] competing for technological advancement. (only for Scientific AIs)
 -- NOTE: This modifier scales based on the AI's DiploBalance flavor and the player's difficulty level.
 	('OPINION_WEIGHT_TECH_FIERCE', 30),
 	('OPINION_WEIGHT_TECH_STRONG', 20),
 	('OPINION_WEIGHT_TECH_WEAK', 10),
 	('OPINION_WEIGHT_TECH_NONE', -5), -- increases based on Neediness flavor
 
--- You are (not) competing for cultural advancement. (only for Cultural AIs)
+-- You are [not] competing for cultural advancement. (only for Cultural AIs)
 -- NOTE: This modifier scales based on the AI's DiploBalance flavor and the player's difficulty level.
 	('OPINION_WEIGHT_POLICY_FIERCE', 30),
 	('OPINION_WEIGHT_POLICY_STRONG', 20),
@@ -75,7 +75,7 @@ VALUES
 	('OPINION_WEIGHT_VICTORY_PER_ERA', 4), -- increase per era if > 0
 
 -- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
--- Your behavior worries/angers/infuriates them.
+-- Your success worries/angers/infuriates them.
 	('OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', 40),
 	('OPINION_WEIGHT_VICTORY_BLOCK_STRONG', 30),
 	('OPINION_WEIGHT_VICTORY_BLOCK_WEAK', 20),
@@ -83,7 +83,7 @@ VALUES
 	('OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', 4), -- increase per era if > 0
 
 -- Reckless Expander: Too many cities/land without enough military to back it up
--- AI only applies this if nearby, competing for victory, and you have more land/cities than they do
+-- AI only applies this if nearby, they're competing for victory, and you have more land/cities than they do
 -- NOTE: This penalty scales based on the AI's Boldness flavor and the player's difficulty level.
 
 	('RECKLESS_EXPANDER_CITIES_THRESHOLD', 200), -- must have at least this % city count compared to the median
@@ -119,8 +119,8 @@ VALUES
 	('OPINION_WEIGHT_CIVILIAN_KILLER_MAX', 50), -- maximum opinion penalty
 	('CIVILIAN_KILLER_VALUE_PER_OPINION_WEIGHT', 100), -- increase this to reach the maximum more quickly
 	('CIVILIAN_KILLER_VALUE_PER_TURN_DECAY', 100), -- how fast this penalty decays per turn
-	('OPINION_WEIGHT_CIVILIAN_KILLER_WORLD_THRESHOLD', 25), -- threshold for global penalty; penalty score must be at least this high with another civ that they don't hate
-	('OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', 20), -- global penalty if you're at max with any civ; higher of the two is used
+	('OPINION_WEIGHT_CIVILIAN_KILLER_WORLD_THRESHOLD', 25), -- threshold for global penalty; penalty score must be at least this high with another civ that AI doesn't hate
+	('OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', 20), -- opinion penalty if OPINION_WEIGHT_CIVILIAN_KILLER_WORLD_THRESHOLD conditions are met (see line above)
 
 -- You nuked them!
 	('OPINION_WEIGHT_NUKED_MAX', 100),
@@ -129,7 +129,7 @@ VALUES
 	('OPINION_WEIGHT_CAPTURED_CAPITAL', 160),
 	('OPINION_WEIGHT_CAPTURED_HOLY_CITY', 80),
 	('OPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR', 200), -- penalty reduction for returning the captured city to the AI
-	('OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR', 200), -- penalty reduction for capitulated vassals; x100 then divided by this; only applies if not treating them badly
+	('OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR', 200), -- penalty reduction for capitulated vassals; only applies if not treating them badly
 
 -- Your military deployment is (extremely) threatening.
 	('OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_LOW', 10),
@@ -329,7 +329,7 @@ VALUES
 	('POLICY_SCORE_NEEDY_BONUS', 5), -- extra bonus/penalty if Needy
 
 -- [RELIGION]
--- NOTE 1: Values below are multiplied by the current game era's Diplo Emphasis for Religion. Civs may get an increase or decrease to the era value based on their UA and flavors.
+-- NOTE 1: Values below are multiplied by the current game era's Diplo Emphasis for Religion. AI may increase or decrease their own multiplier (globally) based on their UA and flavors.
 -- NOTE 2: You don't get a bonus/penalty for being the founder of a religion if you have 0 cities following that religion.
 -- NOTE 3: AI sometimes chooses to ignore religious differences.
 
@@ -357,7 +357,7 @@ VALUES
 	('RELIGION_DIPLO_HIT_THRESHOLD', 4), -- point total is reduced to this (if higher) when player makes a promise to stop converting AI's cities.
 
 -- [IDEOLOGY]
--- NOTE 1: Values below are multiplied by the current game era's Diplo Emphasis for Ideology (Late Policies). Civs may get an increase or decrease to the era value based on their UA, flavors, and how close they are to a cultural victory.
+-- NOTE 1: Values below are multiplied by the current game era's Diplo Emphasis for Ideology (Late Policies). AI may increase or decrease their own multiplier (globally) based on their UA, flavors, and how close they are to a cultural victory.
 -- NOTE 2: AI sometimes chooses to ignore ideological differences.
 	('OPINION_WEIGHT_SAME_LATE_POLICIES', -10),
 	('OPINION_WEIGHT_DIFFERENT_LATE_POLICIES', 10),
@@ -700,6 +700,7 @@ VALUES
 -- When there are multiple "stacks" of a modifier, this instead is the time before the # of stacks is halved (rounded down).
 -- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
 -- The amount of turns is also increased or decreased based on leader flavors (and this increase/decrease also scales with game speed).
+-- Usually, positive modifiers scale directly with Loyalty, and negative modifiers scale inversely with Forgiveness. Exceptions are noted.
 -- Certain modifiers are not included here.
 
 	('PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN', 15),
@@ -710,22 +711,22 @@ VALUES
 	('SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN', 50),
 	('ROBBED_US_TURNS_UNTIL_FORGIVEN', 50),
 	('PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN', 14), -- 0-26 is added to this value based on perceived threat level of the plotter; does not scale with game speed
-	('BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN', 60), -- no direct penalty from this, but it affects WonderDisputeLevel
-	('LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN', 40), -- no direct penalty from this, but it affects MinorCivDisputeLevel
+	('BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN', 60), -- indirect penalty to WonderDisputeLevel
+	('LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN', 40), -- indirect penalty to MinorCivDisputeLevel
 	('PERFORMED_COUP_TURNS_UNTIL_FORGIVEN', 50),
 	('EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN', 50),
 	('MADE_DEMAND_TURNS_UNTIL_FORGIVEN', 50),
 	('RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN', 25),
-	('OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 50),
-	('OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 30),
+	('OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 50), -- scales with Protective approach bias towards City-States
+	('OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 30), -- scales with Protective approach bias towards City-States
 	('OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 30),
 	('OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 10),
-	('OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS', 50),
-	('OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS', 50),
-	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS', 50),
-	('OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS', 50),
-	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS', 50),
-	('SANCTIONED_US_TURNS_UNTIL_FORGIVEN', 50),
-	('UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', 50),
+	('OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with DoFWillingness
+	('OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with DenounceWillingness
+	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with DoFWillingness and sometimes Neediness
+	('OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with DenounceWillingness and sometimes Forgiveness
+	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS', 50), -- scales with DoFWillingness
+	('SANCTIONED_US_TURNS_UNTIL_FORGIVEN', 50), -- scales with Meanness if the attempt succeeded, DenounceWillingness otherwise
+	('UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', 50), -- scales with Loyalty if the attempt succeeded, DoFWillingness otherwise
 	('OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', 100), -- How many turns the "gave independence when asked" bonus remains for
 	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100); -- How many turns the "refused to give independence" when asked penalty remains for

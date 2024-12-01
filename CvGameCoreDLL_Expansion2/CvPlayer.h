@@ -2523,6 +2523,7 @@ public:
 	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
 	int CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible = false) const;
 	bool IsIgnoreDefensivePactLimit() const;
+	void ChangeIgnoreDefensivePactLimitCount(int iCount);
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);
@@ -3362,6 +3363,7 @@ protected:
 	int m_iConversionTimer;
 	int m_iCapitalCityID;
 	int m_iCitiesLost;
+	int m_iIgnoreDefensivePactLimitCount;
 	int m_iMilitaryRating;
 	int m_iMilitaryMight;
 	int m_iNuclearMight;
@@ -4184,6 +4186,7 @@ SYNC_ARCHIVE_VAR(int, m_iCultureBombTimer)
 SYNC_ARCHIVE_VAR(int, m_iConversionTimer)
 SYNC_ARCHIVE_VAR(int, m_iCapitalCityID)
 SYNC_ARCHIVE_VAR(int, m_iCitiesLost)
+SYNC_ARCHIVE_VAR(int, m_iIgnoreDefensivePactLimitCount)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryRating)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryMight)
 SYNC_ARCHIVE_VAR(int, m_iNuclearMight)

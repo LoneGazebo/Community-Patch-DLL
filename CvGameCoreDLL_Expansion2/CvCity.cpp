@@ -27339,16 +27339,23 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 		if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
 			return false;
 
+		if (pTargetPlot->IsStealBlockedByImprovement())
+			return false;
+
 		//can't buy the master's plots if you're a vassal
 		if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
 			return false;
 
 		// Bad idea for AI to steal?
-		if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
-			return false;
+		if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv())
+		{
+			CvDiplomacyAI* pDiplo = GET_PLAYER(getOwner()).GetDiplomacyAI();
+			if (pDiplo->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
+				return false;
 
-		if (pTargetPlot->IsStealBlockedByImprovement())
-			return false;
+			if (GET_PLAYER(pTargetPlot->getOwner()).isMinorCiv() && pTargetPlot->IsImprovementEmbassy() && pDiplo->IsBadTheftTarget(pTargetPlot->GetPlayerThatBuiltImprovement(), THEFT_TYPE_EMBASSY))
+				return false;
+		}
 	}
 
 	//VP: can't buy plot with enemy combat units (except Barbarians)
@@ -27978,7 +27985,6 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				{
 					if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(eEmbassyOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(eEmbassyOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 					{
-
 						DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 						const char* strText = GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
 						gDLL->GameplayDiplomacyAILeaderMessage(eEmbassyOwner, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
@@ -28052,7 +28058,6 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		{
 			if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(ePlotOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 			{
-
 				DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 				const char* strText = GET_PLAYER(ePlotOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
 				gDLL->GameplayDiplomacyAILeaderMessage(ePlotOwner, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);

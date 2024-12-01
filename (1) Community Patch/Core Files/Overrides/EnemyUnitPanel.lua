@@ -660,6 +660,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				iModifier = pMyPlayer:GetCombatBonusVsLargerCiv();
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TRAIT_SMALL_SIZE_BONUS", nBonus, iMiscModifier, true, true);
 			end
+
+			-- Trait bonus against enemy with higher population
+			if pTheirPlayer:GetTotalPopulation() > pMyPlayer:GetTotalPopulation() then
+				iModifier = pMyPlayer:GetCombatBonusVsHigherPop();
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TRAIT_SMALL_POP_BONUS", nBonus, iMiscModifier, true, true);
+			end
 		end
 
 		-- Monopoly attack bonus
@@ -1065,6 +1071,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					if pMyUnit:IsLargerCivThan(pTheirUnit) then
 						iModifier = pTheirPlayer:GetCombatBonusVsLargerCiv();
 						nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TRAIT_SMALL_SIZE_BONUS", nBonus, iMiscModifier, false, true);
+					end
+
+					-- Trait bonus against enemy with higher population
+					if pMyPlayer:GetTotalPopulation() > pTheirPlayer:GetTotalPopulation() then
+						iModifier = pTheirPlayer:GetCombatBonusVsHigherPop();
+						nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TRAIT_SMALL_POP_BONUS", nBonus, iMiscModifier, false, true);
 					end
 				end
 

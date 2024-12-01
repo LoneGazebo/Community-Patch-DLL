@@ -12451,19 +12451,22 @@ void CvPlot::SilentlyResetAllBuildProgress(BuildTypes eBuild)
 	}
 }
 
-// used for diplomacy stuff when stealing a tile using a citadel or America's UI (VP)
+// used for diplomacy stuff and war score when stealing a tile using a citadel or America's UA (VP)
 int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValueTile) const
 {
 	PlayerTypes ePlotOwner = getOwner();
-	if (ePlotOwner == NO_PLAYER || ePlotOwner == eStealingPlayer)
+	if (ePlotOwner == NO_PLAYER || GET_PLAYER(ePlotOwner).getTeam() == GET_PLAYER(eStealingPlayer).getTeam())
 		return 0;
+
+	bool bWorkable = isPlayerCityRadius(ePlotOwner);
+	bool bHighValueTile = false;
 
 	int iTileValue = /*80*/ GD_INT_GET(STOLEN_TILE_BASE_WAR_VALUE);
 	int iValueMultiplier = 0;
 	if (IsNaturalWonder())
 	{
 		iValueMultiplier += 200;
-		bStoleHighValueTile = true;
+		bHighValueTile = true;
 	}
 	else
 	{
@@ -12476,11 +12479,11 @@ int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValue
 				{
 				case RESOURCEUSAGE_STRATEGIC:
 					iValueMultiplier += 100;
-					bStoleHighValueTile = true;
+					bHighValueTile = true;
 					break;
 				case RESOURCEUSAGE_LUXURY:
 					iValueMultiplier += 50;
-					bStoleHighValueTile = true;
+					bHighValueTile = true;
 					break;
 				case RESOURCEUSAGE_BONUS:
 					iValueMultiplier += 20;
@@ -12493,7 +12496,7 @@ int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValue
 		if (bChokePoint)
 		{
 			iValueMultiplier += 50;
-			bStoleHighValueTile = true;
+			bHighValueTile = true;
 		}
 
 		ImprovementTypes eImprovement = getImprovementType();
@@ -12512,13 +12515,18 @@ int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValue
 			if (pkImprovementInfo->IsCreatedByGreatPerson())
 			{
 				iValueMultiplier += 100;
-				bStoleHighValueTile = true;
+				bHighValueTile = bHighValueTile || bWorkable || (MOD_BALANCE_VP && GetPlayerThatBuiltImprovement() == ePlotOwner);
 			}
 		}
 	}
 
 	iTileValue *= 100 + iValueMultiplier;
 	iTileValue /= 100;
+
+	if (bHighValueTile)
+		bStoleHighValueTile = true;
+	else if (!bWorkable)
+		iTileValue /= 2;
 
 	return iTileValue;
 }

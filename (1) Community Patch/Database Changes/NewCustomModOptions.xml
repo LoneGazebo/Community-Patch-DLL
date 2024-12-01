@@ -752,8 +752,8 @@
 		<Row Class="3" Name="EVENTS_WAR_AND_PEACE" Value="0"/>
 
 		<!-- Events sent about ideologies and tenets (v51) -->
-		<!--   GameEvents.PlayerCanAdopyIdeology.Add(function(iPlayer, iIdeology) return true end) -->
-		<!--   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iTenet) return true end) -->
+		<!--   GameEvents.PlayerCanAdoptIdeology.Add(function(iPlayer, iIdeology) return true end) -->
+		<!--   GameEvents.PlayerCanAdoptTenet.Add(function(iPlayer, iTenet) return true end) -->
 		<Row Class="3" Name="EVENTS_IDEOLOGIES" Value="0"/>
 
 		<!-- Events sent about resolutions (v51) -->

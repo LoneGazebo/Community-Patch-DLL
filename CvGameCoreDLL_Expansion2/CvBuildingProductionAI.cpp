@@ -816,15 +816,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	const std::vector<CvPlot*>& vClaimedPlots = m_pCity->GetPlotsClaimedByBuilding(eBuilding);
 	if (vClaimedPlots.size() > 0)
 	{
+		vector<PlayerTypes> vMajorsStolenFrom;
 		for (std::vector<CvPlot*>::const_iterator it = vClaimedPlots.begin(); it != vClaimedPlots.end(); ++it)
 		{
-
 			CvPlot* pClaimedPlot = *it;
 			if (pClaimedPlot->getOwner() == NO_PLAYER)
 			{
 				iBonus += 20;
 			}
-			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMajorCiv())
+			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMajorCiv() && pClaimedPlot->getOwner() != kPlayer.GetID())
 			{
 				CivApproachTypes eApproachToPlotOwner = kPlayer.GetDiplomacyAI()->GetCivApproach(pClaimedPlot->getOwner());
 				switch (eApproachToPlotOwner)
@@ -834,22 +834,41 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					// harming our enemies? good
 					iBonus += 50;
 					break;
-				case CIV_APPROACH_AFRAID:
-					// don't upset a neighbor we're afraid of
-					return SR_STRATEGY;
-				case CIV_APPROACH_GUARDED:
-					break;
 				case CIV_APPROACH_NEUTRAL:
+				case CIV_APPROACH_FRIENDLY:
+					// sparking a fight? bad
 					iBonus -= 50;
 					break;
-				case CIV_APPROACH_FRIENDLY:
+				case CIV_APPROACH_GUARDED:
 				case CIV_APPROACH_DECEPTIVE:
-					// don't take plots from our friends
-					return SR_STRATEGY;
-				default:
+					break;
+				case CIV_APPROACH_AFRAID:
+				{
+					// don't steal if afraid, unless at war
+					if (!kPlayer.IsAtWarWith(pClaimedPlot->getOwner()))
+						return SR_STRATEGY;
+
 					break;
 				}
+				}
+
+				// Secondary check for more nuanced diplomatic factors
+				if (std::find(vMajorsStolenFrom.begin(), vMajorsStolenFrom.end(), pClaimedPlot->getOwner()) == vMajorsStolenFrom.end())
+					vMajorsStolenFrom.push_back(pClaimedPlot->getOwner());
 			}
+			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMinorCiv() && pClaimedPlot->IsImprovementEmbassy())
+			{
+				// Don't steal our own embassy, or a friend's embassy, or the embassy of someone we don't want to piss off
+				PlayerTypes eEmbassyOwner = pClaimedPlot->GetPlayerThatBuiltImprovement();
+				if (GET_PLAYER(eEmbassyOwner).getTeam() == kPlayer.getTeam() || kPlayer.GetDiplomacyAI()->IsBadTheftTarget(eEmbassyOwner, THEFT_TYPE_EMBASSY))
+					return SR_STRATEGY;
+			}
+		}
+		for (vector<PlayerTypes>::iterator it = vMajorsStolenFrom.begin(); it != vMajorsStolenFrom.end(); ++it)
+		{
+			// Don't take plots from our friends, or anyone else we don't want to piss off
+			if (kPlayer.GetDiplomacyAI()->IsBadTheftTarget(*it, THEFT_TYPE_CULTURE_BOMB))
+				return SR_STRATEGY;
 		}
 	}
 

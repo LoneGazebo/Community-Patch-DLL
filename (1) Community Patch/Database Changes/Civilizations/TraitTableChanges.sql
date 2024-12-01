@@ -49,7 +49,7 @@ ALTER TABLE Traits ADD NoOpenTrade boolean DEFAULT 0;
 -- Earn a free building only in your capital as your trait. No tech requirement.
 ALTER TABLE Traits ADD FreeCapitalBuilding text REFERENCES Buildings (Type);
 
--- Combat Bonus vs Higher Pop Civilization. (non-functional)
+-- Combat Bonus vs Higher Pop Civilization.
 ALTER TABLE Traits ADD CombatBonusVsHigherPop integer DEFAULT 0;
 
 -- Earn a set number of free buildings. Uses standard 'FreeBuilding' trait (i.e. Carthage). No tech requirement.

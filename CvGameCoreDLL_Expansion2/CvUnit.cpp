@@ -16327,6 +16327,10 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		{
 			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
 		}
+		if (GET_PLAYER(pOtherUnit->getOwner()).getTotalPopulation() > GET_PLAYER(getOwner()).getTotalPopulation())
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
+		}
 	}
 
 	return iModifier;
@@ -17102,6 +17106,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (pOtherUnit->IsLargerCivThan(this))
 		{
 			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
+		}
+		if (GET_PLAYER(pOtherUnit->getOwner()).getTotalPopulation() > GET_PLAYER(getOwner()).getTotalPopulation())
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
 		}
 
 		// ATTACKING

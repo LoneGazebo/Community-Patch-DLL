@@ -296,6 +296,7 @@ CvPlayer::CvPlayer() :
 	, m_iConversionTimer()
 	, m_iCapitalCityID()
 	, m_iCitiesLost()
+	, m_iIgnoreDefensivePactLimitCount()
 	, m_iMilitaryRating()
 	, m_iMilitaryMight()
 	, m_iNuclearMight()
@@ -1606,6 +1607,7 @@ void CvPlayer::uninit()
 	m_iConversionTimer = 0;
 	m_iCapitalCityID = -1;
 	m_iCitiesLost = 0;
+	m_iIgnoreDefensivePactLimitCount = 0;
 	m_iMilitaryRating = 0;
 	m_iMilitaryMight = 0;
 	m_iNuclearMight = 0;
@@ -15496,6 +15498,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 	ChangeReformationFollowerReduction(pBuildingInfo->GetReformationFollowerReduction() * iChange);
 	ChangeNumMissionarySpreads(pBuildingInfo->GetExtraMissionarySpreadsGlobal() * iChange);
+
+	if (pBuildingInfo->IsIgnoreDefensivePactLimit())
+		ChangeIgnoreDefensivePactLimitCount(iChange);
 
 	if (pBuildingInfo->NullifyInfluenceModifier())
 	{
@@ -31538,37 +31543,19 @@ int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = 
 
 	int iLimit = iBaseLimit;
 	if (iLimitScaler > 0)
-		iLimit += (iTotalOtherMajors / iLimitScaler);
+		iLimit += iTotalOtherMajors / iLimitScaler;
 
 	return min(iLimit, iTotalOtherMajors);
 }
 
 bool CvPlayer::IsIgnoreDefensivePactLimit() const
 {
-	std::vector<BuildingTypes> ValidBuildings;
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	return m_iIgnoreDefensivePactLimitCount > 0;
+}
 
-		if (pkBuildingInfo && pkBuildingInfo->IsIgnoreDefensivePactLimit())
-			ValidBuildings.push_back(eBuilding);
-	}
-
-	if (ValidBuildings.empty())
-		return false;
-
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		for (std::vector<BuildingTypes>::iterator it = ValidBuildings.begin(); it != ValidBuildings.end(); it++)
-		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(*it) > 0)
-				return true;
-		}
-	}
-
-	return false;
+void CvPlayer::ChangeIgnoreDefensivePactLimitCount(int iCount)
+{
+	m_iIgnoreDefensivePactLimitCount += iCount;
 }
 
 int CvPlayer::GetMilitaryRating() const
@@ -42927,6 +42914,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iConversionTimer);
 	visitor(player.m_iCapitalCityID);
 	visitor(player.m_iCitiesLost);
+	visitor(player.m_iIgnoreDefensivePactLimitCount);
 	visitor(player.m_iMilitaryRating);
 	visitor(player.m_iMilitaryMight);
 	visitor(player.m_iNuclearMight);

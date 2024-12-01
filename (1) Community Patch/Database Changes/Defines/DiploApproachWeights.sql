@@ -1,4 +1,4 @@
--- Direct +/- and % weights to approach scores have been moved to DifficultyTables.xml (Community Patch) and DifficultyMod.xml (Vox Populi).
+-- Direct +/- and % weights to approach scores have been moved to CoreDifficultyChanges.xml (Community Patch) and DifficultyChanges.xml (Vox Populi).
 
 -- Target Value Multipliers to Approach Weights
 -- WAR and HOSTILE approach scores are multiplied by whichever of these values is appropriate, and then divided by 100.
@@ -77,8 +77,9 @@ VALUES
 -- Approach Randomness
 -- If set to a non-zero value, multiplies the weight for each *major civ* approach by (100 +/- n%), where n is a random number between 0 and APPROACH_RANDOM_PERCENT, then divides by 100.
 -- Default value is 5. Valid values are between 0 and 100. Higher values make the AI more erratic.
--- This value is doubled if the Random Personalities game option is active.
+-- The APPROACH_RANDOM_PERSONALITIES_PERCENT value is used instead if the Random Personalities game option is active.
 	('APPROACH_RANDOM_PERCENT', 5),
+	('APPROACH_RANDOM_PERSONALITIES_PERCENT', 10),
 
 -- C4DF Approach Values
 -- Approach multipliers for having 2+ vassals

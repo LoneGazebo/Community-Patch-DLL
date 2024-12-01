@@ -2854,21 +2854,26 @@ static Likelyhood GetPlotTheftLikelyhood(const CvPlayer* pPlayer, const CvPlot* 
 			if (!GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
 				continue;
 
-			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
+			CivApproachTypes eApproach = pDiplomacyAI->GetVisibleApproachTowardsUs(pAdjacentPlot->getOwner());
 
-			if (eApproach < eWorstApproach)
+			// Civs who are afraid of us are unlikely to steal, so treat them as friendly
+			if (eApproach != CIV_APPROACH_AFRAID && eApproach < eWorstApproach)
 				eWorstApproach = eApproach;
 		}
 	}
 
-	if (eWorstApproach <= CIV_APPROACH_HOSTILE)
+	switch (eWorstApproach)
+	{
+	case CIV_APPROACH_WAR:
+	case CIV_APPROACH_HOSTILE:
 		return LIKELYHOOD_CERTAIN;
-	else if (eWorstApproach <= CIV_APPROACH_AFRAID)
+	case CIV_APPROACH_GUARDED:
 		return LIKELYHOOD_LIKELY;
-	else if (eWorstApproach == CIV_APPROACH_NEUTRAL)
+	case CIV_APPROACH_NEUTRAL:
 		return LIKELYHOOD_POSSIBLE;
-	else
+	default:
 		return LIKELYHOOD_UNLIKELY;
+	}
 }
 
 pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
@@ -3763,6 +3768,13 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 							break;
 						}
 
+						// Or a bad target's!
+						if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pAdjacentPlot->GetPlayerThatBuiltImprovement(), THEFT_TYPE_EMBASSY))
+						{
+							iStealScore = -10000;
+							break;
+						}
+
 						iTempScore += 300;
 					}
 				}
@@ -3969,7 +3981,6 @@ void CvBuilderTaskingAI::UpdateAllCityWorstPlots()
 
 void CvBuilderTaskingAI::UpdateCityWorstPlots(const CvCity* pCity, const SBuilderState& sState)
 {
-
 	int iWorstValue = MAX_INT;
 
 	CvCityCitizens* pCityCitizens = pCity->GetCityCitizens();

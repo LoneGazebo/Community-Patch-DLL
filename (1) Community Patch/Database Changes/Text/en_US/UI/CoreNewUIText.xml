@@ -493,6 +493,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_CITY_BLOCKADED">
 			<Text>Blockaded</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_TRAIT_SMALL_POP_BONUS">
+			<Text>Bonus Against Higher Pop</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_FULLY_HEALED_UNITS">
 			<Text>Bonus VS Fully-Healed Units</Text>
 		</Row>
