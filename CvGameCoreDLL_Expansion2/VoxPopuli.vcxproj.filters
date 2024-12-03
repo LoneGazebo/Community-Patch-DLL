@@ -310,6 +310,7 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="CvAssertDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
