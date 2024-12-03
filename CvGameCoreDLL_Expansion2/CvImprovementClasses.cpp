@@ -1617,7 +1617,7 @@ int* CvImprovementEntry::GetAdjacentTerrainYieldChangesArray(int i)
 /// How much an improvement yields if built next to a feature
 int CvImprovementEntry::GetAdjacentFeatureYieldChanges(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");

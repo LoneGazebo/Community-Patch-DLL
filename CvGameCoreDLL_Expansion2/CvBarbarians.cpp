@@ -752,7 +752,7 @@ void CvBarbarians::DoCamps()
 			continue;
 
 		// Are Barbarian camps allowed to spawn on a tile with this terrain and this feature?
-		if (!pkCampInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) || !pkCampInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType()))
+		if (!pkCampInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) || (pLoopPlot->getFeatureType() != NO_FEATURE && !pkCampInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
 			continue;
 
 		// This plot is POTENTIALLY eligible, add it to the list
@@ -1082,9 +1082,10 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	{
 		// First check the current tile
 		ResourceTypes eResource = pPlot->getResourceType();
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource)
+		if (eResource != NO_RESOURCE)
+		{
 			vValidResources.push_back(eResource);
+		}
 
 		// Now look for any others within 3 tiles
 		for (int iI = 0; iI < RING_PLOTS[3]; iI++)
@@ -1096,11 +1097,10 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != BARBARIAN_PLAYER)
 				continue;
 
-			eResource = pLoopPlot->getResourceType();
-			pkResource = GC.getResourceInfo(eResource);
-			if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
+			ResourceTypes eLoopPlotResource = pLoopPlot->getResourceType();
+			if (eLoopPlotResource != NO_RESOURCE && std::find(vValidResources.begin(), vValidResources.end(), eLoopPlotResource) == vValidResources.end())
 			{
-				vValidResources.push_back(eResource);
+				vValidResources.push_back(eLoopPlotResource);
 			}
 		}
 	}
@@ -1112,8 +1112,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource)
+			if (eResource != NO_RESOURCE)
 			{
 				if (GET_PLAYER(eMajor).getNumResourceTotal(eResource) > 0)
 					vValidResources.push_back(eResource);
@@ -1125,8 +1124,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		// First check the current tile
 		PlayerTypes eMinor = pPlot->getOwner();
 		ResourceTypes eResource = pPlot->getResourceType();
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource)
+		if (eResource != NO_RESOURCE)
 			vValidResources.push_back(eResource);
 
 		// Now look for any others within 3 tiles
@@ -1136,9 +1134,8 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			if (!pLoopPlot || pLoopPlot->getOwner() != eMinor)
 				continue;
 
-			eResource = pLoopPlot->getResourceType();
-			pkResource = GC.getResourceInfo(eResource);
-			if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
+			ResourceTypes eLoopPlotResource = pLoopPlot->getResourceType();
+			if (eLoopPlotResource != NO_RESOLUTION && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
 			{
 				vValidResources.push_back(eResource);
 			}
@@ -1152,9 +1149,9 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	{
 		UnitAITypes ePreferredType = (eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_STATE_CAPTURE) ? UNITAI_RANGED : UNITAI_DEFENSE;
 		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, ePreferredType, eUniqueUnitPlayer, vValidResources, CvSeeder::fromRaw(0x20a3b92c).mix(pPlot->GetPseudoRandomSeed()));
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if (pkUnitInfo)
+		if (eUnit != NO_UNIT)
 		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), pkUnitInfo->GetDefaultUnitAIType());
 			if (pUnit)
 			{
@@ -1248,8 +1245,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 
 			// Pick a unit
 			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, CvSeeder::fromRaw(0xea7311de).mix(pSpawnPlot->GetPseudoRandomSeed()));
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-			if (pkUnitInfo)
+			if (eUnit != NO_UNIT)
 			{
 				// And spawn it!
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnitAI);

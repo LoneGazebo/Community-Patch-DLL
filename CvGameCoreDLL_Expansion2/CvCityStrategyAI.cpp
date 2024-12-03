@@ -3393,101 +3393,31 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 /// Do we need more Diplomatic Units? Check and see.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 {
+	if (!MOD_BALANCE_VP)
+		return false;
+
 	PlayerTypes ePlayer = pCity->getOwner();
-	EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
+	EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
+	if (!GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
+		return false;
 
-	bool bHasDiploBuilding = false;
-
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if(pkBuildingInfo)
-		{
-			// Has this Building
-			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Does it grant a diplomatic production bonus?
-				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_SCRIBE"))
-				{
-					bHasDiploBuilding = true;
-				}
-
-				if (bHasDiploBuilding)
-				{
-					//Let's make sure the city is robust before we start this.
-					if(pCity->getPopulation() >= 6)
-					{
-						//Need diplomats?
-						if(GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-	if (pCity->isCapital() && pCity->getPopulation() >= 6)
-	{
-		//Need diplomats?
-		if(GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
-		{
-			return true;
-		}
-	}
-	return false;
+	SpecialistTypes eDiplomat = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_CIVIL_SERVANT");
+	return (pCity->isCapital() || pCity->GetCityCitizens()->GetSpecialistSlots(eDiplomat) > 0) && pCity->getPopulation() >= 6;
 }
 
 /// Do we REALLY need more Diplomatic Units? Check and see.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity)
 {
+	if (!MOD_BALANCE_VP)
+		return false;
+
 	PlayerTypes ePlayer = pCity->getOwner();
 	EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 
-	bool bHasDiploBuilding = false;
+	if (!GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
+		return false;
 
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if(pkBuildingInfo)
-		{
-			// Has this Building
-			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				// Does it grant a diplomatic production bonus?
-				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURT_SCRIBE"))
-				{
-					bHasDiploBuilding = true;
-				}
-
-				if (bHasDiploBuilding)
-				{
-					//Let's make sure the city is robust before we start this.
-					if(pCity->getPopulation() >= 5)
-					{
-						//Need diplomats?
-						if(GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
-	if (pCity->isCapital() && pCity->getPopulation() >= 5)
-	{
-		//Need diplomats?
-		if(GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
-		{
-			return true;
-		}
-	}
-	return false;
+	return pCity->getPopulation() >= 5;
 }
 
 //Tests to help AI build buildings it needs.

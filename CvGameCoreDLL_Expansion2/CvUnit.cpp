@@ -2768,7 +2768,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			for (int i = 0; i < RING_PLOTS[GetBlockadeRange()]; i++)
 			{
 				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-				if (pNeighbor && pNeighbor->getLandmass()==pPlot->getLandmass() && pNeighbor->isBlockaded(pNeighbor->getOwner()))
+				if (pNeighbor && pNeighbor->getLandmass()==pPlot->getLandmass() && pNeighbor->getOwner() != NO_PLAYER && pNeighbor->isBlockaded(pNeighbor->getOwner()))
 					affectedCities.push_back( pPlot->getEffectiveOwningCity() );
 			}
 
@@ -5726,8 +5726,55 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(eAutomate == 2)
+	else if (eAutomate == AUTOMATE_BUILD)
+	{
+		if ((AI_getUnitAIType() != UNITAI_WORKER) && (AI_getUnitAIType() != UNITAI_WORKER_SEA))
+		{
+			return false;
+		}
+
+		if (!bTestVisibility)
+		{
+			if (/*0*/ GD_INT_GET(UNIT_WORKER_AUTOMATION_DISABLED) == 1)
+			{
+				return false;
+			}
+		}
+
+	}
+	else if (eAutomate == AUTOMATE_EXPLORE)
+	{
+		if ((GetBaseCombatStrength() == 0) || (getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
+		{
+			return false;
+		}
+
+		if (!bTestVisibility)
+		{
+			if (GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots(getDomainType()).empty())
+			{
+				return false;
+			}
+		}
+
+		if (/*0*/ GD_INT_GET(UNIT_AUTO_EXPLORE_FULL_DISABLED) == 1)
+		{
+			return false;
+		}
+
+		if (!bTestVisibility)
+		{
+			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXPLORE_DISABLED) == 1)
+			{
+				return false;
+			}
+		}
+	}
+	else if (eAutomate == 2)
+	{
+		return false;
+	}
+	else if(eAutomate == 3)
 	{
 		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
 		{
@@ -5763,7 +5810,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			}
 		}
 	}
-	if(eAutomate == 3)
+	else if(eAutomate == 4)
 	{
 		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
 		{
@@ -5798,8 +5845,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			}
 		}
 	}
-#endif
-	if(eAutomate == 4)
+	else if(eAutomate == 5)
 	{
 		if ((getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
 		{
@@ -5835,54 +5881,9 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			}
 		}
 	}
-	switch(eAutomate)
+	else
 	{
-	case AUTOMATE_BUILD:
-		if((AI_getUnitAIType() != UNITAI_WORKER) && (AI_getUnitAIType() != UNITAI_WORKER_SEA))
-		{
-			return false;
-		}
-
-		if(!bTestVisibility)
-		{
-			if (/*0*/ GD_INT_GET(UNIT_WORKER_AUTOMATION_DISABLED) == 1)
-			{
-				return false;
-			}
-		}
-
-		break;
-
-	case AUTOMATE_EXPLORE:
-		if((GetBaseCombatStrength() == 0) || (getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
-		{
-			return false;
-		}
-
-		if(!bTestVisibility)
-		{
-			if(GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots( getDomainType() ).empty())
-			{
-				return false;
-			}
-		}
-
-		if (/*0*/ GD_INT_GET(UNIT_AUTO_EXPLORE_FULL_DISABLED) == 1)
-		{
-			return false;
-		}
-
-		if(!bTestVisibility)
-		{
-			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXPLORE_DISABLED) == 1)
-			{
-				return false;
-			}
-		}
-		break;
-	default:
-		CvAssert(false);
-		break;
+		CvAssertMsg(false, "Invalid AutomateTypes index.");
 	}
 
 	return true;
@@ -14537,7 +14538,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 		else
 		{
 			ImprovementTypes eImprovement = pPlot->getImprovementType();
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
 			if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
 				return true;
 			else
@@ -27878,7 +27879,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iHomelandMoveSetTurn);
 
 	visitor(unit.m_eUnitType);
-	visitor.loadAssign(unit.m_pUnitInfo, (NO_UNIT != unit.m_eUnitType) ? GC.getUnitInfo(unit.m_eUnitType) : NULL);
+	if (bLoading)
+		visitor.loadAssign(unit.m_pUnitInfo, (unit.m_eUnitType != NO_UNIT) ? GC.getUnitInfo(unit.m_eUnitType) : NULL);
 
 	visitor(unit.m_Promotions);
 	visitor(unit.m_combatUnit.eOwner);
@@ -32740,23 +32742,26 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 		{
 			CvTeam& kTeam = GET_TEAM(getTeam());
 			RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
-			CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
-			if (pRouteInfo)
+			if (eBestRouteType != NO_ROUTE)
 			{
-				int iMoveCost = pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType);
-
-				if (iMoveCost>0)
+				CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
+				if (pRouteInfo)
 				{
-					//times 100 to reduce rounding errors
-					int iMultiplier = 100 * GD_INT_GET(MOVE_DENOMINATOR) / iMoveCost;
+					int iMoveCost = pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType);
 
-					if (plot()->getRouteType()!=NO_ROUTE)
-						//standing directly on a route
-						iRange = (iMoves * iTargetTurns * iMultiplier) / 100;
-					else
-						//need to move at least one plot in the first turn at full cost to get to the route
-						//speed optimization for railroad and low turn count
-						iRange = (100 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier) / 100;
+					if (iMoveCost > 0)
+					{
+						//times 100 to reduce rounding errors
+						int iMultiplier = 100 * GD_INT_GET(MOVE_DENOMINATOR) / iMoveCost;
+
+						if (plot()->getRouteType() != NO_ROUTE)
+							//standing directly on a route
+							iRange = (iMoves * iTargetTurns * iMultiplier) / 100;
+						else
+							//need to move at least one plot in the first turn at full cost to get to the route
+							//speed optimization for railroad and low turn count
+							iRange = (100 + (iMoves - 1) * iMultiplier + iMoves * (iTargetTurns - 1) * iMultiplier) / 100;
+					}
 				}
 			}
 		}

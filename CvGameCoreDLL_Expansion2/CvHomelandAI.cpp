@@ -2613,10 +2613,10 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 {
 	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
-	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-
-	if (!pkBuildInfo)
+	if (eDirective.m_eBuild == NO_BUILD)
 		return false;
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 
 	int iDirectiveScore = eDirective.GetPotentialScore();
 
@@ -2635,7 +2635,7 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 		if (pOtherPlot != pPlot)
 			continue;
 
-		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+		CvBuildInfo* pkOtherBuildInfo = eOtherDirective.m_eBuild != NO_BUILD ? GC.getBuildInfo(eOtherDirective.m_eBuild) : NULL;
 
 		RouteTypes eRoute = pkBuildInfo ? (RouteTypes)pkBuildInfo->getRoute() : NO_ROUTE;
 		RouteTypes eOtherRoute = pkOtherBuildInfo ? (RouteTypes)pkOtherBuildInfo->getRoute() : NO_ROUTE;
@@ -3018,14 +3018,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			if (eImprovement == NO_IMPROVEMENT && (pkBuildInfo->isRepair() || !pDirectivePlot->IsImprovementPillaged()))
 				eImprovement = pDirectivePlot->getImprovementType();
 
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+			CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
+			CvImprovementEntry* pkOldImprovementInfo = eOldImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOldImprovement) : NULL;
 
 			vector<BuilderDirective> aNewBuilderDirectives;
 
 			const CvCity* pOwningCity = pDirectivePlot->getEffectiveOwningCity();
 
-			if (!pOwningCity)
+			if (!pOwningCity && eImprovement == NO_IMPROVEMENT)
 			{
 				// If we are performing a culture bomb, find which city will be owning the plot
 				bool bIsCultureBomb = pkImprovementInfo ? pkImprovementInfo->GetCultureBombRadius() > 0 : false;
@@ -3108,8 +3108,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			// Feature considerations
 			bool bFeatureStateChanged = false;
 			FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
-			FeatureTypes eFeature = pkBuildInfo->isFeatureRemove(pDirectivePlot->getFeatureType()) ? NO_FEATURE : pDirectivePlot->getFeatureType();
-			eFeature = eFeatureFromImprovement != NO_FEATURE ? eFeatureFromImprovement : eFeature;
+			FeatureTypes eFeature = eFeatureFromImprovement;
+			if (eFeature == NO_FEATURE)
+			{
+				eFeature = pDirectivePlot->getFeatureType();
+				if (eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature))
+				{
+					eFeature = NO_FEATURE;
+				}
+			}
 
 			if (bCanBuild)
 			{
@@ -3138,7 +3145,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (bImprovementStateChanged)
 				{
 					ImprovementTypes eOldImprovement = pDirectivePlot->getImprovementType();
-					CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+					CvImprovementEntry* pkOldImprovementInfo = eOldImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOldImprovement) : NULL;
 
 					int iOldDefenseModifier = pkOldImprovementInfo ? pkOldImprovementInfo->GetDefenseModifier() : 0;
 					int iOldImprovementDamage = pkOldImprovementInfo ? pkOldImprovementInfo->GetNearbyEnemyDamage() : 0;
@@ -3188,14 +3195,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				bool bDirectiveUpdated = false;
 
 				CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
-				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+				CvBuildInfo* pkOtherBuildInfo = eOtherDirective.m_eBuild != NO_BUILD ? GC.getBuildInfo(eOtherDirective.m_eBuild) : NULL;
 				ImprovementTypes eOtherOldImprovement = !pOtherPlot->IsImprovementPillaged() ? pOtherPlot->getImprovementType() : NO_IMPROVEMENT;
 				ImprovementTypes eOtherImprovement = pkOtherBuildInfo ? (ImprovementTypes)pkOtherBuildInfo->getImprovement() : eOtherOldImprovement;
 
 				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo && pkOtherBuildInfo->isRepair() && pOtherPlot->IsImprovementPillaged())
 					eOtherImprovement = pOtherPlot->getImprovementType();
 
-				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
+				CvImprovementEntry* pkOtherImprovementInfo = eOtherImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOtherImprovement) : NULL;
 
 				// Pruning
 				if (eDirective.m_sX == eOtherDirective.m_sX && eDirective.m_sY == eOtherDirective.m_sY)

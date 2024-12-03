@@ -1993,7 +1993,7 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		{
 			//hack: treat a lake like plains - water has a higher influence cost
 			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->isLake() ? TERRAIN_PLAINS : pToPlot->getTerrainType());
-			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
+			CvFeatureInfo* pFeature = pToPlot->getFeatureType() != NO_FEATURE ? GC.getFeatureInfo(pToPlot->getFeatureType()) : NULL;
 			if (pFeature)
 				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());
 			else if (pTerrain)
@@ -3515,7 +3515,7 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 	if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES) && pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
 	{
 		PlayerTypes eClosestCityOwner = GC.getGame().GetClosestCityOwnerByPlots(pToPlot);
-		if (GET_PLAYER(finder->GetData().ePlayer).IsAtWarWith(eClosestCityOwner))
+		if (finder->GetData().ePlayer != NO_PLAYER && GET_PLAYER(finder->GetData().ePlayer).IsAtWarWith(eClosestCityOwner))
 			iScale *= 2;
 	}
 

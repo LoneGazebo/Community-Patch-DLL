@@ -3159,7 +3159,7 @@ void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, Y
 int CvCity::GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2)	const
 {
 	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forImprovement, eImprovement);
@@ -3168,7 +3168,7 @@ int CvCity::GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes e
 void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2, int iChange)
 {
 	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
@@ -3663,7 +3663,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
 	//Let's do our linker checks here.
-	for (int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
+	for (int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
 	{
 		CvCityEventLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if (pLinkerInfo)
@@ -4158,7 +4158,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	}
 
 	//Let's do our linker checks here.
-	for (int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
+	for (int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
 	{
 		CvCityEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if (pLinkerInfo)
@@ -5580,7 +5580,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	}
 
 	//Let's do our linker checks here.
-	for (int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
+	for (int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
 	{
 		CvCityEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if (pLinkerInfo)
@@ -9759,26 +9759,24 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 	bool bHasAnyOr = false;
 	bool bNeedAnyOr = false;
 	CvString tempTooltip;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
 	{
-		ResourceTypes eAndResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceAnd(iResourceLoop));
-		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(iResourceLoop));
+		ResourceTypes eAndResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceAnd(iPrereq));
+		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(iPrereq));
 
 		// Both lists have run out; terminate early
 		if (eAndResource == NO_RESOURCE && eOrResource == NO_RESOURCE)
 			break;
 
-		CvResourceInfo* pAndResource = GC.getResourceInfo(eAndResource);
-		CvResourceInfo* pOrResource = GC.getResourceInfo(eOrResource);
-
 		// City doesn't have resource locally
-		if (pAndResource && !IsHasResourceLocal(eAndResource, bTestVisible))
+		if (eAndResource != NO_RESOURCE && !IsHasResourceLocal(eAndResource, bTestVisible))
 		{
+			CvResourceInfo* pAndResource = GC.getResourceInfo(eAndResource);
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pAndResource->GetTextKey(), pAndResource->GetIconString());
 			bHasAllAnd = false;
 		}
 
-		if (pOrResource)
+		if (eOrResource != NO_RESOURCE)
 		{
 			bNeedAnyOr = true;
 
@@ -9790,6 +9788,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 			}
 
 			// Otherwise, prepare the temp tooltip
+			CvResourceInfo* pOrResource = GC.getResourceInfo(eOrResource);
 			GC.getGame().BuildCannotPerformActionHelpText(&tempTooltip, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pOrResource->GetTextKey(), pOrResource->GetIconString());
 		}
 	}
@@ -9816,7 +9815,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		return false;
 
 	// ANDs: City must have ALL of these nearby
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
 	{
 		ResourceTypes eResource = NO_RESOURCE;
 
@@ -9829,12 +9828,12 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 			if (pkCorporationInfo)
 			{
-				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(iResourceLoop);
+				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(iPrereq);
 			}
 		}
 		else
 		{
-			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(iResourceLoop);
+			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(iPrereq);
 		}
 
 		// Doesn't require a resource in this AND slot
@@ -9868,7 +9867,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 	int iOrResources = 0;
 
 	// ORs: City must have ONE of these nearby
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
 	{
 		ResourceTypes eResource = NO_RESOURCE;
 
@@ -9882,12 +9881,12 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 			if (pkCorporationInfo)
 			{
-				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(iResourceLoop);
+				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(iPrereq);
 			}
 		}
 		else
 		{
-			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(iResourceLoop);
+			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(iPrereq);
 		}
 
 		// Doesn't require a resource in this AND slot
@@ -10387,12 +10386,6 @@ void CvCity::DoPickResourceDemanded()
 				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 			}
 		}
-	}
-
-	// If we're on the debug map it's too small for us to care
-	if (GC.getMap().getWorldSize() != WORLDSIZE_DEBUG)
-	{
-		CvAssertMsg(false, "Gameplay: Didn't find a Luxury for City to demand.");
 	}
 }
 
@@ -11651,7 +11644,7 @@ int CvCity::getProductionTurnsLeft(ProjectTypes eProject, int iNum) const
 int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 {
 	VALIDATE_OBJECT
-	if (eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE")) 
+	if (eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
 		return GET_PLAYER(getOwner()).getMaxStockpile();
 	}
@@ -11663,7 +11656,7 @@ int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 int CvCity::getProductionTurnsLeft(ProcessTypes eProcess, int) const
 {
 	VALIDATE_OBJECT
-	if (eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE")) 
+	if (eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
 		int iProduction = getOverflowProduction();
 		int iProductionNeeded = GET_PLAYER(getOwner()).getMaxStockpile();
@@ -26603,7 +26596,8 @@ int CvCity::getProcessProductionTimes100(ProcessTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumProcessInfos(), "eIndex expected to be < GC.getNumProcessInfos()");
 
-	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE")) {
+	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE"
+		, true)) {
 		return getBasicYieldRateTimes100(YIELD_PRODUCTION);
 	}
 
@@ -27252,7 +27246,7 @@ int CvCity::GetDamagePermyriad(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	return m_aiDamagePermyriad[ePlayer];
 }
 
@@ -27261,7 +27255,7 @@ void CvCity::ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] += iChange;
 }
 
@@ -27270,7 +27264,7 @@ void CvCity::SetDamagePermyriad(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_CIV_PLAYERS");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] = iValue;
 }
 
@@ -27951,10 +27945,10 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		}
 	}
 
-	if ((bAutomaticPurchaseFromBuilding || iCost > 0) && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+	// Did we buy this plot from someone? They're gonna be mad!
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+	if (ePlotOwner != NO_PLAYER && (bAutomaticPurchaseFromBuilding || iCost > 0) && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(ePlotOwner).isBarbarian())
 	{
-		// Did we buy this plot from someone? They're gonna be mad!
-		PlayerTypes ePlotOwner = pPlot->getOwner();
 		bool bStoleHighValueTile = false;
 		int iTileValue = pPlot->GetStealPlotValue(getOwner(), bStoleHighValueTile);
 
@@ -31316,7 +31310,7 @@ void CvCity::doProcess()
 	if (eProcess == NO_PROCESS) return;
 
 #if defined(MOD_PROCESS_STOCKPILE)
-	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE"))
+	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
 		int iPile = getCurrentProductionDifferenceTimes100(false, false);
 		// Can't use changeOverflowProductionTimes100() here as it asserts above 250 production

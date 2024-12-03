@@ -916,7 +916,7 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 
 	// if we're working a process that converts production into eYield, always value eYield highly
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
-	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
+	bool bFoodProcess = eProcess != NO_PROCESS && GC.getProcessInfo(eProcess)->getProductionToYieldModifier(YIELD_FOOD) > 0;
 
 	switch (eYield)
 	{
@@ -924,7 +924,7 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		// in small cities, treat being under the growth threshold like starvation
 		if (bAssumeStarving || (bAssumeBelowGrowthThreshold && m_pCity->getPopulation() <= 3))
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
-		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0))
+		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
 			iYieldMod =  /*32*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
 		else
 			iYieldMod = /*8*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
@@ -932,8 +932,9 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 	case YIELD_PRODUCTION:
 		iYieldMod = /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 		// working a process?
-		if (pkProcessInfo)
+		if (eProcess != NO_PROCESS)
 		{
+			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 			iYieldMod *= 3;
 			// if the process converts production to some other yield, use the valuation of that yield instead
 			for (int i = 0; i < YIELD_TOURISM; i++)
@@ -2348,9 +2349,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				{
 					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
 				}
-				if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				if (pPlot->IsResourceImprovedForOwner())
 				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), 1);
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), pPlot->getNumResourceForPlayer(GetCity()->getOwner(), true) + pPlot->getNumResourceForPlayer(GetCity()->getOwner(), false));
 				}
 				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 				{
@@ -2384,9 +2385,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				{
 					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
 				}
-				if (pPlot->getResourceType(GetCity()->getTeam()) != NO_RESOURCE)
+				if (pPlot->IsResourceImprovedForOwner())
 				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1);
+					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1 * (pPlot->getNumResourceForPlayer(GetCity()->getOwner(), true) + pPlot->getNumResourceForPlayer(GetCity()->getOwner(), false)));
 				}
 				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 				{
