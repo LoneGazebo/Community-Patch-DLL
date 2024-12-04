@@ -49000,7 +49000,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	}
 	case THEFT_TYPE_EMBASSY: // America UA or Culture Bomb
 	{
-		if (!bHuman && IsVassal(ePlayer))
+		if (!bHuman && IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
 			return true;
 	}
 	}
