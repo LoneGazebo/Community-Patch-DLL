@@ -15653,7 +15653,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (!bEverCapturedKeyCity && !bUntrustworthy && !IsAtWar(ePlayer))
 	{
+		// Liberated the capital or Holy City?
+		bLiberatedCapital = IsPlayerLiberatedCapital(ePlayer);
+		bLiberatedHolyCity = IsPlayerLiberatedHolyCity(ePlayer);
+
 		int iLiberationMod = GetNumCitiesEverLiberatedBy(ePlayer) - max(iNumOurCitiesTheyOwn, GetNumCitiesCapturedBy(ePlayer));
+		if (bLiberatedCapital)
+			iLiberationMod--;
+		if (bLiberatedHolyCity)
+			iLiberationMod--;
+
 		if (iLiberationMod > 0)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2;
@@ -15664,10 +15673,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_AFRAID] = 0;
 			vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
 		}
-
-		// Liberated the capital or Holy City?
-		bLiberatedCapital = IsPlayerLiberatedCapital(ePlayer);
-		bLiberatedHolyCity = IsPlayerLiberatedHolyCity(ePlayer);
 
 		if (bLiberatedCapital || bLiberatedHolyCity)
 		{
