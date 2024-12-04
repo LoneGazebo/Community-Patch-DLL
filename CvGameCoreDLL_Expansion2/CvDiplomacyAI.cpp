@@ -37311,6 +37311,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_COOP_WAR", strOptionalKey1, strOptionalKey2);
 		break;
 
+		// AI warns human that another AI asked them to start a coop war against human
+	case DIPLO_MESSAGE_COOP_WAR_WARNING:
+		strText = GetDiploTextFromTag("RESPONSE_COOP_WAR_WARNING", strOptionalKey1);
+		break;
+
 		// Human catches enemy spy and does not forgive the thief
 	case DIPLO_MESSAGE_HUMAN_KILLED_MY_SPY_UNFORGIVEN:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_KILLED_MY_SPY_UNFORGIVEN");
@@ -41871,12 +41876,6 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 /// We rejected eAskingPlayer's request to go to war with eTargetPlayer, but should we warn the target?
 bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const
 {
-	// Don't warn humans - no dialogue for this
-	if (GET_PLAYER(eTargetPlayer).isHuman())
-	{
-		return false;
-	}
-
 	CivApproachTypes eApproachTowardsAsker = GetCivApproach(eAskingPlayer);
 	CivOpinionTypes  eOpinionOfAsker = GetCivOpinion(eAskingPlayer);
 	CivApproachTypes eApproachTowardsTarget = GetCivApproach(eTargetPlayer);
@@ -41989,6 +41988,29 @@ void CvDiplomacyAI::DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes e
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
+		// If human was target, send message
+		if (GET_PLAYER(eLoopPlayer).isHuman())
+		{
+			if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eLoopPlayer && !GC.getGame().IsAllDiploStatementsDisabled())
+			{
+				const char* szPlayerName = NULL;
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eAskingPlayer).isHuman())
+				{
+					szPlayerName = GET_PLAYER(eAskingPlayer).getNickName();
+				}
+				else
+				{
+					szPlayerName = GET_PLAYER(eAskingPlayer).getNameKey();
+				}
+
+				DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_WARNING, NO_PLAYER, szPlayerName);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+			}
+			continue;
+		}
+
+		// Process global reactions for AI players
 		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != eMyPlayer)
 		{
 			CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
