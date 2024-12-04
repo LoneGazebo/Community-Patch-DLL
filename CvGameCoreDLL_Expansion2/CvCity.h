@@ -620,8 +620,8 @@ public:
 	void changeBaseGreatPeopleRate(int iChange);
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
-	int getGPRateModPerMarriage() const;
-	void changeGPRateModPerMarriage(int iChange);
+	int getGPRateModifierPerMarriage() const;
+	void changeGPRateModifierPerMarriage(int iChange);
 	int getGPRateModifierPerLocalTheme() const;
 	void changeGPRateModifierPerLocalTheme(int iChange);
 
@@ -1837,7 +1837,7 @@ protected:
 
 	int m_iBaseGreatPeopleRate;
 	int m_iGreatPeopleRateModifier;
-	int m_iGPRateModPerMarriage;
+	int m_iGPRateModifierPerMarriage;
 	int m_iGPRateModifierPerLocalTheme;
 	int m_iGPPOnCitizenBirth;
 	int m_iJONSCultureStored;
@@ -2255,7 +2255,7 @@ SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
 SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGPRateModPerMarriage)
+SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerMarriage)
 SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerLocalTheme)
 SYNC_ARCHIVE_VAR(int, m_iGPPOnCitizenBirth)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)

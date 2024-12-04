@@ -909,9 +909,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-	if (pkBuildingInfo->GetGPRateModPerMarriage() > 0)
+	if (pkBuildingInfo->GetGPRateModifierPerMarriage() > 0)
 	{
-		iBonus += pkBuildingInfo->GetGPRateModPerMarriage() * GET_PLAYER(m_pCity->getOwner()).GetNumMarriedCityStatesNotAtWar();
+		iBonus += pkBuildingInfo->GetGPRateModifierPerMarriage() * GET_PLAYER(m_pCity->getOwner()).GetNumMarriedCityStatesNotAtWar();
 	}
 
 	if (pkBuildingInfo->GetGPRateModifierPerLocalTheme() > 0)

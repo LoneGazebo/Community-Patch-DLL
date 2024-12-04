@@ -91,7 +91,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGlobalCultureRateModifier(0),
 	m_iGreatPeopleRateModifier(0),
 	m_iGlobalGreatPeopleRateModifier(0),
-	m_iGPRateModPerMarriage(0),
+	m_iGPRateModifierPerMarriage(0),
 	m_iGPRateModifierPerLocalTheme(0),
 	m_iGPPOnCitizenBirth(0),
 	m_iGreatGeneralRateModifier(0),
@@ -690,7 +690,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalCultureRateModifier = kResults.GetInt("GlobalCultureRateModifier");
 	m_iGreatPeopleRateModifier = kResults.GetInt("GreatPeopleRateModifier");
 	m_iGlobalGreatPeopleRateModifier = kResults.GetInt("GlobalGreatPeopleRateModifier");
-	m_iGPRateModPerMarriage = kResults.GetInt("GPRateModPerMarriage");
+	m_iGPRateModifierPerMarriage = kResults.GetInt("GPRateModifierPerMarriage");
 	m_iGPRateModifierPerLocalTheme = kResults.GetInt("GPRateModifierPerLocalTheme");
 	m_iGPPOnCitizenBirth = kResults.GetInt("GPPOnCitizenBirth");
 	m_iGreatGeneralRateModifier = kResults.GetInt("GreatGeneralRateModifier");
@@ -2057,9 +2057,9 @@ int CvBuildingEntry::GetGlobalGreatPeopleRateModifier() const
 }
 
 /// Modifier to great people per active marriage with a CS
-int CvBuildingEntry::GetGPRateModPerMarriage() const
+int CvBuildingEntry::GetGPRateModifierPerMarriage() const
 {
-	return m_iGPRateModPerMarriage;
+	return m_iGPRateModifierPerMarriage;
 }
 
 /// Modifier to great people rate per active theming bonus in the city

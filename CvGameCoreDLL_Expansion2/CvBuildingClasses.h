@@ -183,7 +183,7 @@ public:
 	int GetGlobalCultureRateModifier() const;
 	int GetGreatPeopleRateModifier() const;
 	int GetGlobalGreatPeopleRateModifier() const;
-	int GetGPRateModPerMarriage() const;
+	int GetGPRateModifierPerMarriage() const;
 	int GetGPRateModifierPerLocalTheme() const;
 	int GetGPPOnCitizenBirth() const;
 	int GetGreatGeneralRateModifier() const;
@@ -751,7 +751,7 @@ private:
 	int m_iGlobalCultureRateModifier;
 	int m_iGreatPeopleRateModifier;
 	int m_iGlobalGreatPeopleRateModifier;
-	int m_iGPRateModPerMarriage;
+	int m_iGPRateModifierPerMarriage;
 	int m_iGPRateModifierPerLocalTheme;
 	int m_iGPPOnCitizenBirth;
 	int m_iGreatGeneralRateModifier;
