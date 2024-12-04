@@ -7646,7 +7646,7 @@ int TacticalAIHelpers::SentryScore(const CvPlot * pPlot, PlayerTypes ePlayer)
 
 STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
-	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
@@ -7900,7 +7900,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, 
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode) 
 {
-	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
@@ -8032,7 +8032,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, 
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
-	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
@@ -8146,7 +8146,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, 
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
-	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 	int iScore = 0;
 		
@@ -10692,7 +10692,7 @@ float CvTacticalPosition::getAggressionBias() const
 }
 
 //this is intended to filter out the no-chance-in-hell moves
-//it's not intended to to be final check, the situation can still change as the sim progresses
+//it's not intended to be the final check, the situation can still change as the sim progresses
 bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const
 {
 	int iEndPlotIndex = -1;
