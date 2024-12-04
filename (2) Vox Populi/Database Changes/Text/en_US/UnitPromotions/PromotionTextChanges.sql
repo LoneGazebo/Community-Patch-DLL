@@ -622,11 +622,6 @@ UPDATE Language_en_US
 SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP';
 
--- Combat Bonus in Forest/Jungle (33)
-UPDATE Language_en_US
-SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP';
-
 -- War Canoes
 UPDATE Language_en_US
 SET Text = 'Double [ICON_MOVES] Movement when moving along Rivers.'

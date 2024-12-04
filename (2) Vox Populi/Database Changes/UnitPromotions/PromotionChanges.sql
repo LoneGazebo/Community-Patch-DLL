@@ -843,9 +843,6 @@ UPDATE UnitPromotions SET HPHealedIfDestroyEnemy = 25 WHERE Type = 'PROMOTION_PA
 -- Hakkapeliitta: Hakkaa Päälle!
 UPDATE UnitPromotions SET AttackWoundedMod = 20, HPHealedIfDestroyEnemy = 30 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
 
--- Hakkapeliitta: Scout Cavalry
-UPDATE UnitPromotions SET CombatPercent = -20, FreePillageMoves = 1, VisibilityChange = 1 WHERE Type = 'PROMOTION_SCOUT_CAVALRY';
-
 -- Foreign Legion: Foreign Lands Bonus
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_FOREIGN_LANDS';
 

@@ -1212,13 +1212,6 @@
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_MOHAWK</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_JAGUAR</Type>
-			<Description>TXT_KEY_PROMOTION_JAGUAR</Description>
-			<Help>TXT_KEY_PROMOTION_JAGUAR_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_JAGUAR</PediaEntry>
-		</Replace>
-		<Replace>
 			<Type>PROMOTION_FOREIGN_LANDS</Type>
 			<Description>TXT_KEY_PROMOTION_FOREIGN_LANDS</Description>
 			<Help>TXT_KEY_PROMOTION_FOREIGN_LANDS_HELP</Help>

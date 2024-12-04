@@ -911,13 +911,6 @@
 			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 30 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY">
-			<Text>Scout Cavalry</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 [ICON_VISION] Sight.[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
 			<Text>Focus Fire</Text>
 		</Row>
