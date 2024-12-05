@@ -31,7 +31,7 @@
 		<Row Tag="TXT_KEY_IMPROVEMENT_EMBASSY">
 			<Text>Embassy</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT">
+		<Row Tag="TXT_KEY_IMPROVEMENT_EMBASSY_TEXT">
 			<Text>Embassies can only be built in City-State territory by Great Diplomats.[NEWLINE][NEWLINE]The first player (and only the first!) to construct an Embassy in a City-State's land [COLOR_POSITIVE_TEXT]earns an extra vote in the World Congress[ENDCOLOR]. No player will receive additional votes for Embassies beyond the first one placed in a City-State's territory.[NEWLINE][NEWLINE]An Embassy cannot be pillaged - once built, they can never be removed, and they will always grant their additional World Congress vote to the original builder. If, however, the original builder is conquered, the conqueror will take ownership of their Embassies, and their votes!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EMBASSY">
@@ -41,7 +41,7 @@
 			<Text>Unit will be consumed.[NEWLINE][NEWLINE]Grants [COLOR_POSITIVE_TEXT]1 World Congress Vote[ENDCOLOR] when constructed. Gain +1 [ICON_RES_PAPER] Paper.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU">
+		<Row Tag="TXT_KEY_IMPROVEMENT_MOUNTAIN_CITY">
 			<Text>Mountain City</Text>
 		</Row>
 	</Language_en_US>

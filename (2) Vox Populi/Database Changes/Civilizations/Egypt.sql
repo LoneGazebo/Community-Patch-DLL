@@ -39,27 +39,4 @@ DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_EGYPTIAN_WA
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_EGYPTIAN_WARCHARIOT', 'PROMOTION_ENSLAVEMENT');
-
-----------------------------------------------------------
--- Unique Building: Burial Tomb (Caravansary)
-----------------------------------------------------------
-UPDATE Civilization_BuildingClassOverrides
-SET BuildingClassType = 'BUILDINGCLASS_CARAVANSARY'
-WHERE BuildingType = 'BUILDING_BURIAL_TOMB';
-
-UPDATE Buildings
-SET
-	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
-	GreatWorkCount = 1,
-	FreeArtifacts = 1
-WHERE Type = 'BUILDING_BURIAL_TOMB';
-
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_BURIAL_TOMB', 'YIELD_FAITH', 1);
-
-UPDATE Building_YieldPerXTerrainTimes100
-SET Yield = 67
-WHERE BuildingType = 'BUILDING_BURIAL_TOMB';
+	('UNIT_EGYPTIAN_WARCHARIOT', 'PROMOTION_GIFT_OF_THE_PHARAOH');

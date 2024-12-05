@@ -40,18 +40,18 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_STRONGER_VS_DAMAGED'),
-	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_ESPRIT_DE_CORPS');
+	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_WITHERING_FIRE');
 
 ----------------------------------------------------------
 -- Unique Building: Ostrog (Bastion Fort)
 ----------------------------------------------------------
 UPDATE Civilization_BuildingClassOverrides
-SET BuildingClassType = 'BUILDINGCLASS_FORTRESS'
+SET BuildingClassType = 'BUILDINGCLASS_BASTION_FORT'
 WHERE BuildingType = 'BUILDING_KREPOST';
 
 UPDATE Buildings
 SET
-	Defense = (SELECT Defense FROM Buildings WHERE Type = 'BUILDING_FORTRESS') + 200,
+	Defense = (SELECT Defense FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT') + 200,
 	BorderObstacleCity = 1
 WHERE Type = 'BUILDING_KREPOST';
 

@@ -35,7 +35,7 @@ end
 -- GREAT ANDEAN ROAD
 ----------------------------------------------------------------------------------------------------------------------------
 -- JFD_CBP_Inca_MachuPicchu
-local improvementMachuID = GameInfoTypes["IMPROVEMENT_JFD_MACHU_PICCHU"]
+local improvementMachuID = GameInfoTypes["IMPROVEMENT_MOUNTAIN_CITY"]
 function JFD_CBP_Inca_MachuPicchu(playerID, plotX, plotY)
 	local player = Players[playerID]
 	if (player:IsAlive() and player:GetCivilizationType() == civilizationID) then

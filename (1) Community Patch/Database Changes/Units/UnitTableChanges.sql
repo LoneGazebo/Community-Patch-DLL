@@ -111,6 +111,12 @@ ALTER TABLE Units ADD NumInfPerEra integer DEFAULT 0;
 ALTER TABLE Units ADD RestingPointChange integer DEFAULT 0;
 ALTER TABLE Units ADD ProductionCostAddedPerEra integer DEFAULT 0;
 
+-- When unit is expended, the current yields from the tile (after factoring in the improvement that might be built by the unit) is added to the player's capital
+ALTER TABLE Units ADD CopyYieldsFromExpendTile boolean DEFAULT 0;
+
+-- When unit is expended, all owned units on the same tile gain XP
+ALTER TABLE UnitPromotions ADD TileXPOnExpend integer DEFAULT 0;
+
 -- EVENTS_CAN_MOVE_INTO
 ALTER TABLE Units ADD SendCanMoveIntoEvent boolean DEFAULT 0;
 

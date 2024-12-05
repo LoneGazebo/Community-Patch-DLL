@@ -2105,7 +2105,7 @@ CivilopediaCategory[CategoryCorporations].DisplayHomePage = function()
 	Controls.ArticleID:SetText( Locale.ConvertTextKey( "TXT_KEY_PEDIA_CORPORATIONS_PAGE_LABEL" ));
 
 	local portraitIndex = 6;
-	local portraitAtlas = "CORP_ATLAS";
+	local portraitAtlas = "CORPORATION_ATLAS_VP";
 
 	for row in DB.Query("SELECT PortraitIndex, IconAtlas from Corporations ORDER By Random() LIMIT 1") do
 		portraitIndex = row.PortraitIndex;

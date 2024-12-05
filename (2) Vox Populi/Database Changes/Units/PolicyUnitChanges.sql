@@ -5,7 +5,7 @@
 -- Order matters! Do NOT swap the following update statements
 UPDATE Units
 SET
-	Class = 'UNITCLASS_GUERILLA',
+	Class = 'UNITCLASS_MERCENARY',
 	PrereqTech = 'TECH_PENICILIN',
 	ObsoleteTech = NULL,
 	PolicyType = 'POLICY_HONOR_FINISHER',
@@ -13,12 +13,12 @@ SET
 	DefaultUnitAI = 'UNITAI_ATTACK',
 	PurchaseOnly = 1,
 	MoveAfterPurchase = 1
-WHERE Type = 'UNIT_GUERILLA';
+WHERE Type = 'UNIT_MERCENARY';
 
 UPDATE Units
 SET
 	Class = 'UNITCLASS_FOREIGNLEGION',
-	ObsoleteTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_GUERILLA'),
+	ObsoleteTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_MERCENARY'),
 	PolicyType = 'POLICY_HONOR_FINISHER',
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_RIFLEMAN') + 2,
 	DefaultUnitAI = 'UNITAI_ATTACK',
@@ -28,27 +28,27 @@ WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
 
 UPDATE Units
 SET
-	Class = 'UNITCLASS_FCOMPANY',
+	Class = 'UNITCLASS_FREE_COMPANY',
 	ObsoleteTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'),
 	PolicyType = 'POLICY_HONOR_FINISHER',
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 2,
 	DefaultUnitAI = 'UNITAI_ATTACK',
 	PurchaseOnly = 1,
 	MoveAfterPurchase = 1
-WHERE Type = 'UNIT_FCOMPANY';
+WHERE Type = 'UNIT_FREE_COMPANY';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_FCOMPANY', 'PROMOTION_DOUBLE_PLUNDER'),
-	('UNIT_FCOMPANY', 'PROMOTION_FREE_PILLAGE_MOVES'),
+	('UNIT_FREE_COMPANY', 'PROMOTION_DOUBLE_PLUNDER'),
+	('UNIT_FREE_COMPANY', 'PROMOTION_FREE_PILLAGE_MOVES'),
 	('UNIT_FRENCH_FOREIGNLEGION', 'PROMOTION_FOREIGN_LANDS'),
-	('UNIT_GUERILLA', 'PROMOTION_AMPHIBIOUS'),
-	('UNIT_GUERILLA', 'PROMOTION_DEFENSIVE_EMBARKATION'),
-	('UNIT_GUERILLA', 'PROMOTION_FLANK_ATTACK_BONUS');
+	('UNIT_MERCENARY', 'PROMOTION_AMPHIBIOUS'),
+	('UNIT_MERCENARY', 'PROMOTION_DEFENSIVE_EMBARKATION'),
+	('UNIT_MERCENARY', 'PROMOTION_FLANK_ATTACK_BONUS');
 
 -- Remove building requirement in city
-DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType IN ('UNIT_GUERILLA', 'UNIT_FRENCH_FOREIGNLEGION', 'UNIT_FCOMPANY');
+DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType IN ('UNIT_MERCENARY', 'UNIT_FRENCH_FOREIGNLEGION', 'UNIT_FREE_COMPANY');
 
 --------------------------------------
 -- Freedom
@@ -77,7 +77,7 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_GERMAN_PANZER
 
 UPDATE Units
 SET
-	Class = 'UNITCLASS_PANZER',
+	Class = 'UNITCLASS_T34',
 	ObsoleteTech = NULL,
 	PolicyType = 'POLICY_PATRIOTIC_WAR',
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_TANK') + 7,
