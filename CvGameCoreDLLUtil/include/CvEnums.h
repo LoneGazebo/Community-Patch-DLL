@@ -1820,6 +1820,19 @@ enum OPEN_ENUM UnitCombatTypes
 	NO_UNITCOMBAT = -1,
 };
 
+inline FDataStream& operator<<(FDataStream& saveTo, const UnitCombatTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, UnitCombatTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<UnitCombatTypes>(v);
+	return loadFrom;
+}
+
 enum CLOSED_ENUM UnitAITypes
 {
 	NO_UNITAI = -1,
