@@ -287,12 +287,6 @@ ALTER TABLE UnitPromotions ADD FortifyEffectiveness integer DEFAULT 100;
 -- This damage is not affected by any damage modifying effects on the target(s), and sets off all on-kill triggers
 ALTER TABLE UnitPromotions ADD TileDamageIfNotMoved integer DEFAULT 0;
 
--- When unit is expended, the current yields from the tile (after factoring in the improvement that might be built by the unit) is added to the player's capital
-ALTER TABLE UnitPromotions ADD CopyYieldsFromExpendTile boolean DEFAULT 0;
-
--- When unit is expended, all owned units on the same tile gain XP
-ALTER TABLE UnitPromotions ADD TileXPOnExpend integer DEFAULT 0;
-
 -- This promotion is only effective if the unit starts its turn affected by leadership aura (great general or great admiral depending on domain)
 ALTER TABLE UnitPromotions ADD RequiresLeadership boolean DEFAULT 0;
 

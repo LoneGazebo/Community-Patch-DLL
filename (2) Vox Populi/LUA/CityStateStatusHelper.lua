@@ -701,7 +701,7 @@ function GetActiveQuestText(iMajor, iMinor)
 	
 	--Denied Quest Influence
 	if pMinor:IsQuestInfluenceDisabled(iMajor) then
-		sIconText = sIconText .. "[ICON_VP_NOINFLUENCE]"
+		sIconText = sIconText .. "[ICON_NOINFLUENCE]"
 	end
 	-- END
 	

@@ -21,7 +21,7 @@ VALUES
 ----------------------------------------------------------
 -- Unique Unit: Horse Archer (Skirmisher)
 ----------------------------------------------------------
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_HORSE_ARCHER' WHERE UnitType = 'UNIT_HUN_HORSE_ARCHER';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_SKIRMISHER' WHERE UnitType = 'UNIT_HUN_HORSE_ARCHER';
 
 UPDATE Units
 SET

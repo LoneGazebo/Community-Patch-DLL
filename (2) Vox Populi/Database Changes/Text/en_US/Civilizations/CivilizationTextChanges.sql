@@ -33,11 +33,11 @@ SET Text = 'Unique Arabian replacement for the {TXT_KEY_BUILDING_MARKET}. In add
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Arabian {TXT_KEY_DESC_MOUNTED_BOWMAN} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} and can withdraw from melee combat once per turn. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR].'
+SET Text = 'Unique Arabian {TXT_KEY_UNIT_HEAVY_SKIRMISHER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} and can withdraw from melee combat once per turn. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CAMEL_ARCHER';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_DESC_MOUNTED_BOWMAN}. It can do chip damage to a group of enemies adjacent to itself, and can retreat from melee combat once per turn. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
+SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_UNIT_HEAVY_SKIRMISHER}. It can do chip damage to a group of enemies adjacent to itself, and can retreat from melee combat once per turn. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
 WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 
 --------------------
@@ -48,11 +48,11 @@ SET Text = 'When you conquer a City, gain a Technology already known by the owne
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_VP_GREATWRITING] Great Work of Writing and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_LIBRARY} in the City.[NEWLINE][NEWLINE]Every [ICON_VP_GREATWRITING] Great Work of Writing you control grants +5 XP to all created Units (maximum of 45 XP).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities. 1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Contains 3 slots for [ICON_VP_GREATWRITING] Great Works of Writing. +3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.'
+SET Text = '+20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GW_WRITING] Great Work of Writing and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_LIBRARY} in the City.[NEWLINE][NEWLINE]Every [ICON_GW_WRITING] Great Work of Writing you control grants +5 XP to all created Units (maximum of 45 XP).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities. 1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Contains 3 slots for [ICON_GW_WRITING] Great Works of Writing. +3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} generates more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture and boosts all Libraries. It contains more slots for [ICON_VP_GREATWRITING] Great Works of Writing, and comes with a free [ICON_VP_GREATWRITING] Great Work of Writing. Units trained in all cities gain extra XP based on the number of [ICON_VP_GREATWRITING] Great Works of Writing in your empire. Unlike the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], and comes with a free {TXT_KEY_BUILDING_LIBRARY} in the city instead of requiring one.'
+SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} generates more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture and boosts all Libraries. It contains more slots for [ICON_GW_WRITING] Great Works of Writing, and comes with a free [ICON_GW_WRITING] Great Work of Writing. Units trained in all cities gain extra XP based on the number of [ICON_GW_WRITING] Great Works of Writing in your empire. Unlike the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], and comes with a free {TXT_KEY_BUILDING_LIBRARY} in the city instead of requiring one.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
 
 UPDATE Language_en_US
@@ -83,11 +83,11 @@ SET Text = 'Unique Austrian replacement for the {TXT_KEY_BUILDING_GROCER}. In ad
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Austrian {TXT_KEY_DESC_CUIRASSIER} that excels at scouting and flanking. Can move faster and ignore Zone of Control.'
+SET Text = 'Unique Austrian {TXT_KEY_UNIT_CUIRASSIER} that excels at scouting and flanking. Can move faster and ignore Zone of Control.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_AUSTRIAN_HUSSAR';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_AUSTRIAN_HUSSAR} is the Austrian unique unit, replacing the {TXT_KEY_DESC_CUIRASSIER}. It is faster, can see further, and can ignore Zone of Control. It also has a slight attack bonus.'
+SET Text = 'The {TXT_KEY_UNIT_AUSTRIAN_HUSSAR} is the Austrian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. It is faster, can see further, and can ignore Zone of Control. It also has a slight attack bonus.'
 WHERE Tag = 'TXT_KEY_UNIT_AUSTRIAN_HUSSAR_STRATEGY';
 
 --------------------
@@ -182,7 +182,7 @@ SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
-SET Text = 'Unique Carthaginian {TXT_KEY_UNIT_TRIREME} that specializes in naval assaults and capturing coastal cities. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BOARDING_PARTY_4}[ENDCOLOR].'
+SET Text = 'Unique Carthaginian {TXT_KEY_UNIT_TRIREME} that specializes in naval assaults and capturing coastal cities. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_PINCER}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME';
 
 UPDATE Language_en_US
@@ -250,15 +250,15 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_VP_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
-SET Text = 'Receive a free Egyptian [ICON_VP_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE][ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold. Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 1.5 Desert or 1.5 Tundra tiles worked by the City.[NEWLINE][NEWLINE]Contains 1 slot for [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Receive a free Egyptian [ICON_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE][ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold. Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 1.5 Desert or 1.5 Tundra tiles worked by the City.[NEWLINE][NEWLINE]Contains 1 slot for [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Egyptian replacement for the {TXT_KEY_BUILDING_CARAVANSARY}. In addition to the {TXT_KEY_BUILDING_CARAVANSARY}''s bonuses, {TXT_KEY_BUILDING_BURIAL_TOMB_DESC} produces [ICON_PEACE] Faith, comes with a free [ICON_VP_ARTIFACT] Artifact, and generates even more [ICON_FOOD] Food and [ICON_GOLD] Gold from worked Desert and Tundra tiles.'
+SET Text = 'Unique Egyptian replacement for the {TXT_KEY_BUILDING_CARAVANSARY}. In addition to the {TXT_KEY_BUILDING_CARAVANSARY}''s bonuses, {TXT_KEY_BUILDING_BURIAL_TOMB_DESC} produces [ICON_PEACE] Faith, comes with a free [ICON_ARTIFACT] Artifact, and generates even more [ICON_FOOD] Food and [ICON_GOLD] Gold from worked Desert and Tundra tiles.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY';
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ SET Text = 'Perfidious Albion'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_SPY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
+SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_CITY_SECURITY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
@@ -479,18 +479,6 @@ SET Text = 'Units can cross Mountains and ignore terrain costs when entering any
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
-SET Text = 'Waraq''Ak'
-WHERE Tag = 'TXT_KEY_UNIT_INCAN_SLINGER';
-
-UPDATE Language_en_US
-SET Text = 'Unique Incan {TXT_KEY_UNIT_VP_SLINGER} that has increased [ICON_RANGE_STRENGTH] Attack Range, ignores enemy [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR], and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
-WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
-
-UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_INCAN_SLINGER} is the Incan unique unit, replacing the {TXT_KEY_UNIT_VP_SLINGER}. It has superior range and can daze enemy units which lowers their [ICON_STRENGTH] Combat Strength for a long time.[NEWLINE][NEWLINE]Use it to harass your foes and take down Barbarian camps quickly.'
-WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
-
-UPDATE Language_en_US
 SET Text = 'Pata-Pata'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
 
@@ -526,11 +514,11 @@ SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Unique Indian {TXT_KEY_DESC_CUIRASSIER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Trades 2 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE}[ENDCOLOR] for immense [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength. Lowers the [ICON_STRENGTH] Combat Strength of nearby enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ACCURACY_1}[ENDCOLOR].'
+SET Text = 'Unique Indian {TXT_KEY_UNIT_CUIRASSIER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Trades 2 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE}[ENDCOLOR] for immense [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength. Lowers the [ICON_STRENGTH] Combat Strength of nearby enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ACCURACY_1}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_INDIAN_WARELEPHANT} is the Indian unique unit, replacing the {TXT_KEY_DESC_CUIRASSIER}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has vastly superior [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength, but moves slower. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained, and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_DESC_CUIRASSIER}. Does not start with the {TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE} promotion.'
+SET Text = 'The {TXT_KEY_UNIT_INDIAN_WARELEPHANT} is the Indian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has vastly superior [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength, but moves slower. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained, and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_CUIRASSIER}. Does not start with the {TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE} promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY';
 
 --------------------
@@ -541,7 +529,7 @@ SET Text = 'Sumpah Palapa'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you gain a City, one of 3 unique Luxuries ([ICON_RES_CLOVES]/[ICON_RES_PEPPER]/[ICON_RES_NUTMEG]) will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from [ICON_VP_MONOPOLY] Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from [ICON_VP_MONOPOLY] Global Monopolies.'
+SET Text = 'When you gain a City, one of 3 unique Luxuries ([ICON_RES_CLOVES]/[ICON_RES_PEPPER]/[ICON_RES_NUTMEG]) will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from [ICON_MONOPOLY] Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from [ICON_MONOPOLY] Global Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE';
 
 UPDATE Language_en_US
@@ -640,11 +628,11 @@ SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% 
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
-SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR], and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
+SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR], and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_MONGOL_KHAN} is the Mongolian unique unit, replacing the {TXT_KEY_UNIT_GREAT_GENERAL}. It moves much faster, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies if they end their turn next to it. It can also be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO}[ENDCOLOR] and claim all adjacent tiles.'
+SET Text = 'The {TXT_KEY_UNIT_MONGOL_KHAN} is the Mongolian unique unit, replacing the {TXT_KEY_UNIT_GREAT_GENERAL}. It moves much faster, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies if they end their turn next to it. It can also be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_ORDO}[ENDCOLOR] and claim all adjacent tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_STRATEGY';
 
 --------------------
@@ -682,11 +670,11 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_VP_MONOPOLY] Monopolies.'
+SET Text = '+3 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_MONOPOLY] Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
-SET Text = 'Unique Dutch {TXT_KEY_UNIT_PRIVATEER} that specializes in attacking coastal cities and capturing enemy ships. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COASTAL_TERROR}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SUPPLY}[ENDCOLOR].'
+SET Text = 'Unique Dutch {TXT_KEY_UNIT_PRIVATEER} that specializes in attacking coastal cities and capturing enemy ships. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VANGUARD}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SUPPLY}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR';
 
 UPDATE Language_en_US
@@ -728,11 +716,11 @@ SET Text = '[ICON_GOLDEN_AGE] Golden Ages last 50% longer, and 15% of your gross
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_GOLDEN_AGES';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold from [ICON_VP_SCIENTIST] Scientist, [ICON_VP_ENGINEER] Engineer, and [ICON_VP_MERCHANT] Merchant Specialists in the City.[NEWLINE][NEWLINE]Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
+SET Text = '+1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold from [ICON_SCIENTIST] Scientist, [ICON_ENGINEER] Engineer, and [ICON_MERCHANT] Merchant Specialists in the City.[NEWLINE][NEWLINE]Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Persian replacement for the {TXT_KEY_BUILDING_COURTHOUSE}. In addition to the {TXT_KEY_BUILDING_COURTHOUSE}''s bonuses, the {TXT_KEY_BUILDING_SATRAPS_COURT_DESC} generates [ICON_GOLD] Gold from population and specialists, and has a [ICON_VP_MERCHANT] Merchant slot. It can be built in any city instead of only occupied ones, and does not cost [ICON_GOLD] Gold maintenance.'
+SET Text = 'Unique Persian replacement for the {TXT_KEY_BUILDING_COURTHOUSE}. In addition to the {TXT_KEY_BUILDING_COURTHOUSE}''s bonuses, the {TXT_KEY_BUILDING_SATRAPS_COURT_DESC} generates [ICON_GOLD] Gold from population and specialists, and has a [ICON_MERCHANT] Merchant slot. It can be built in any city instead of only occupied ones, and does not cost [ICON_GOLD] Gold maintenance.'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_STRATEGY';
 
 UPDATE Language_en_US
@@ -770,7 +758,7 @@ WHERE Tag = 'TXT_KEY_UNIT_POLISH_WINGED_HUSSAR_STRATEGY';
 -- Polynesia
 --------------------
 UPDATE Language_en_US
-SET Text = '+2 [ICON_VP_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
+SET Text = '+2 [ICON_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
@@ -859,7 +847,7 @@ SET Text = 'Damage from all sources against this City is reduced by 2. Allows Ci
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Russian replacement for the {TXT_KEY_BUILDING_FORTRESS}. In addition to the {TXT_KEY_BUILDING_FORTRESS}''s bonuses, {TXT_KEY_BUILDING_KREPOST_DESC} provides more [ICON_STRENGTH] City Strength and makes enemies expend all [ICON_MOVES] movement when entering land tiles owned by the city, like a localized [ICON_WONDER] Great Wall. It also boosts camps, mines, lumber mills, and strategic resources.'
+SET Text = 'Unique Russian replacement for the {TXT_KEY_BUILDING_BASTION_FORT}. In addition to the {TXT_KEY_BUILDING_BASTION_FORT}''s bonuses, {TXT_KEY_BUILDING_KREPOST_DESC} provides more [ICON_STRENGTH] City Strength and makes enemies expend all [ICON_MOVES] movement when entering land tiles owned by the city, like a localized [ICON_WONDER] Great Wall. It also boosts camps, mines, lumber mills, and strategic resources.'
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_STRATEGY';
 
 UPDATE Language_en_US
@@ -886,19 +874,23 @@ SET Text = '+10 [ICON_GOLD] Gold and +4 [ICON_PEACE] Faith from gaining tiles, s
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
-SET Text = 'Unique Spanish {TXT_KEY_UNIT_EXPLORER} that specializes in conquest and settling advanced Cities overseas. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SHOCK_4}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COASTAL_TERROR}[ENDCOLOR].[NEWLINE][NEWLINE]Can be expended to found a City in any foreign landmass. Cities established by this Unit start with the same buildings as Cities established by a {TXT_KEY_UNIT_PIONEER} plus {TXT_KEY_BUILDING_LIGHTHOUSE} and {TXT_KEY_BUILDING_ARMORY}.'
+SET Text = 'Unique Spanish {TXT_KEY_UNIT_EXPLORER} that specializes in conquest and settling advanced Cities overseas. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_OVERRUN}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VANGUARD}[ENDCOLOR].[NEWLINE][NEWLINE]Can be expended to found a City in any foreign landmass. Cities established by this Unit start with the same buildings as Cities established by a {TXT_KEY_UNIT_PIONEER} plus {TXT_KEY_BUILDING_LIGHTHOUSE} and {TXT_KEY_BUILDING_ARMORY}.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GROVE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LODGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
+SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COUNCIL}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SMOKEHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 --------------------
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'Claim adjacent unowned land tiles of the same type when your borders expand, and up to 4 tiles when you gain a City. Can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE}.'
+SET Text = 'Claim adjacent unowned land tiles of the same type when your borders expand, and up to 4 tiles when you gain a City. Can choose rewards from Ancient Ruins. Units gain +20% [ICON_STRENGTH] Combat Strength within 2 tiles of an owned {TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT}.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
+
+UPDATE Language_en_US
+SET Text = 'Comanche Rider'
+WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS';
 
 UPDATE Language_en_US
 SET Text = 'Unique Shoshone {TXT_KEY_UNIT_CAVALRY} that excels at hit-and-run attacks and pillaging. Generates [ICON_RESEARCH] Science and consumes no [ICON_MOVES] Moves when pillaging. Can move faster, and withdraw from melee combat once per turn.'
@@ -916,11 +908,11 @@ SET Text = 'Yields, Resources, [ICON_HAPPINESS_1] Happiness and Unit Gift freque
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_SPY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_CITY_SECURITY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Siamese replacement for the {TXT_KEY_BUILDING_CONSTABLE}. In addition to the {TXT_KEY_BUILDING_CONSTABLE}''s bonuses, {TXT_KEY_BUILDING_WAT_DESC} increases [ICON_SPY] City Security even more; generates [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith; and boosts Shrines, Temples, and diplomatic units. It also has a [ICON_VP_SCIENTIST] Scientist slot. It is available in the [COLOR_CYAN]Medieval Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_THEOLOGY_TITLE}[ENDCOLOR], much earlier than the {TXT_KEY_BUILDING_CONSTABLE}.'
+SET Text = 'Unique Siamese replacement for the {TXT_KEY_BUILDING_CONSTABLE}. In addition to the {TXT_KEY_BUILDING_CONSTABLE}''s bonuses, {TXT_KEY_BUILDING_WAT_DESC} increases [ICON_CITY_SECURITY] City Security even more; generates [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith; and boosts Shrines, Temples, and diplomatic units. It also has a [ICON_SCIENTIST] Scientist slot. It is available in the [COLOR_CYAN]Medieval Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_THEOLOGY_TITLE}[ENDCOLOR], much earlier than the {TXT_KEY_BUILDING_CONSTABLE}.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_STRATEGY';
 
 UPDATE Language_en_US

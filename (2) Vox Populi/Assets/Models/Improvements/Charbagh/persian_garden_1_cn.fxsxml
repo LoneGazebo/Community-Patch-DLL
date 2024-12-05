@@ -1,0 +1,10 @@
+<Asset>
+  <Mesh file="persian_garden_1_cn.gr2" source="Max" />
+  <Texture file="FX_Blk_Blk4x4.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="Chateau_DIFF.dds" source="Max" />
+  <Texture file="Chateau_Decal_Diff.dds" source="Max" />
+  <Texture file="Chateau_Decal_H.dds" source="Max" />
+  <Texture file="Chateau_SREF.dds" source="Max" />
+  <Texture file="Sunlight_Africa_Terrain.dds" source="Max" />
+</Asset>

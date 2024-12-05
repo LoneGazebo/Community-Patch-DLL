@@ -32,7 +32,7 @@
 			<Text>Nationalization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each [ICON_VP_OFFICE] Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct [ICON_VP_FRANCHISE] Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities (except Masters). +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each [ICON_OFFICE] Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct [ICON_FRANCHISE] Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities (except Masters). +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_TEXT">
 			<Text>Nationalization is the process of taking a private industry or private assets into public ownership by a national government or state. Nationalization usually refers to private assets, but may also mean assets owned by lower levels of government, such as municipalities, being transferred to be the state. The opposite of nationalization is usually privatization or de-nationalization, but may also be municipalization. Industries that are usually subject to nationalization include transport, communications, energy, banking and natural resources.</Text>
@@ -42,7 +42,7 @@
 			<Text>Transnationalism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a [ICON_VP_FRANCHISE] Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all [ICON_VP_OFFICE] Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a [ICON_FRANCHISE] Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all [ICON_OFFICE] Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_TEXT">
 			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>
@@ -52,7 +52,7 @@
 			<Text>Syndicalism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_INFILTRATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR]: [ICON_VP_FRANCHISE] Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with, and this extra Franchise does not count against your Global Franchise maximum. Can establish 5 additional [ICON_VP_FRANCHISE] Franchises in foreign Cities. +2 [ICON_PRODUCTION] Production from all [ICON_VP_OFFICE] Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR]: [ICON_FRANCHISE] Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with, and this extra Franchise does not count against your Global Franchise maximum. Can establish 5 additional [ICON_FRANCHISE] Franchises in foreign Cities. +2 [ICON_PRODUCTION] Production from all [ICON_OFFICE] Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_INFILTRATION_TEXT">
 			<Text>National syndicalism is an adaptation of syndicalism to suit the social agenda of integral nationalism. National syndicalism suggests that the people must defend themselves through the development of Syndicalist sections into massive economic worker movements. These should take immediate action to expropriate the capitalists. These should also take direct action to let the workers lead the production and to form peoples communes. National syndicalism seeks out principled reasons for direct economic action and denounces parliamentary action by representatives. The goal is not to make capitalism bearable, but the realisation of a free Nationalist and Socialist nation. National syndicalism aims to move the attention from the political terrain to the economic terrain. It wants the socialisation from the basis: a system of distribution from local units, in consultation with the National federation, on the fundament of a production and consumption statistic. As well as the organisation of the production by national industrial federations.</Text>

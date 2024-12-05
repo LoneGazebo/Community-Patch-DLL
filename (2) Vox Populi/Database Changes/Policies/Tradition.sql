@@ -75,7 +75,7 @@ VALUES
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
 VALUES
-	('POLICY_ARISTOCRACY', 'BUILDINGCLASS_CAPITAL_ENGINEER', 1);
+	('POLICY_ARISTOCRACY', 'BUILDINGCLASS_ROYAL_GUARDHOUSE', 1);
 
 -- Oligarchy (now Sovereignty)
 UPDATE Policies
@@ -89,7 +89,7 @@ WHERE Type = 'POLICY_OLIGARCHY';
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
 VALUES
-	('POLICY_OLIGARCHY', 'BUILDINGCLASS_PALACE_COURT_CHAPEL', 1);
+	('POLICY_OLIGARCHY', 'BUILDINGCLASS_COURT_CHAPEL', 1);
 
 -- Legalism (now Ceremony)
 UPDATE Policies
@@ -101,7 +101,7 @@ WHERE Type = 'POLICY_LEGALISM';
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
 VALUES
-	('POLICY_LEGALISM', 'BUILDINGCLASS_PALACE_ASTROLOGER', 1);
+	('POLICY_LEGALISM', 'BUILDINGCLASS_ROYAL_ASTROLOGER', 1);
 
 -- +1 happiness to National Wonders with building requirement
 INSERT INTO Policy_BuildingClassHappiness
@@ -169,7 +169,7 @@ VALUES
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
 VALUES
-	('POLICY_LANDED_ELITE', 'BUILDINGCLASS_PALACE_TREASURY', 1);
+	('POLICY_LANDED_ELITE', 'BUILDINGCLASS_STATE_TREASURY', 1);
 
 -- Finisher
 UPDATE Policies
@@ -200,7 +200,7 @@ DROP TABLE Helper;
 INSERT INTO Policy_FreeBuilding
 	(PolicyType, BuildingClassType, Count)
 VALUES
-	('POLICY_TRADITION_FINISHER', 'BUILDINGCLASS_PALACE_THRONE_ROOM', 1);
+	('POLICY_TRADITION_FINISHER', 'BUILDINGCLASS_THRONE_ROOM', 1);
 
 -- Scaler
 INSERT INTO Policy_CapitalYieldChanges

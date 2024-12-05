@@ -33,7 +33,7 @@ WHERE Type = 'UNIT_CHINESE_CHUKONU';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_CHINESE_CHUKONU', 'PROMOTION_REPEATER');
+	('UNIT_CHINESE_CHUKONU', 'PROMOTION_SIEGE_VOLLEY');
 
 ----------------------------------------------------------
 -- Unique Improvement: Siheyuan

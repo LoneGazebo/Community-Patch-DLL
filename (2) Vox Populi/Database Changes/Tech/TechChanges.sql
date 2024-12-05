@@ -57,8 +57,8 @@ WHERE Type = 'TECH_ECOLOGY';
 UPDATE Technologies
 SET
 	AllowsEmbarking = 1,
-	IconAtlas = 'COMMUNITY_ATLAS',
-	PortraitIndex = 26
+	IconAtlas = 'TECH_ATLAS_VP',
+	PortraitIndex = 0
 WHERE Type = 'TECH_SAILING'; -- Fishing
 
 UPDATE Technologies
@@ -112,9 +112,9 @@ UPDATE Technologies SET Happiness = 1 WHERE Type = 'TECH_FUTURE_TECH';
 INSERT INTO Technology_FreePromotions
 	(TechType, PromotionType)
 VALUES
-	('TECH_PENICILIN', 'PROMOTION_FALLOUT_REDUCTION'),
+	('TECH_PENICILIN', 'PROMOTION_FALLOUT_RESISTANCE'),
 	('TECH_NANOTECHNOLOGY', 'PROMOTION_FALLOUT_IMMUNITY'),
-	('TECH_BALLISTICS', 'PROMOTION_ICE_BREAKERS');
+	('TECH_BALLISTICS', 'PROMOTION_ENGINEERING_CORP');
 
 -- Add Land Trade Route extension to Machinery
 INSERT INTO Technology_TradeRouteDomainExtraRange

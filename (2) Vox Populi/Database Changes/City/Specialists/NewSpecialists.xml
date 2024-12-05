@@ -7,8 +7,8 @@
 			<Strategy>TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY</Strategy>
 			<GreatPeopleTitle>TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE</GreatPeopleTitle>
 			<Visible>true</Visible>
-			<IconAtlas>CSDSPECIALIST_ATLAS</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>SPECIALIST_ATLAS_VP</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_DIPLOMAT</GreatPeopleUnitClass>
 			<GreatPeopleRateChange>3</GreatPeopleRateChange>
 		</Row>

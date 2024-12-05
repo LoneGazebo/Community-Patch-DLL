@@ -1,0 +1,11 @@
+<Asset>
+  <Mesh file="Lalibela.gr2" source="Max" />
+  <Texture file="FX_Blk_Blk4x4.dds" source="Max" />
+  <Texture file="Holy_Site_GRND_H.dds" source="Max" />
+  <Texture file="Religious_Landmark_DIFF.dds" source="Max" />
+  <Texture file="Religious_Landmark_GRND_DIFF.dds" source="Max" />
+  <Texture file="Religious_Landmark_SREF.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>

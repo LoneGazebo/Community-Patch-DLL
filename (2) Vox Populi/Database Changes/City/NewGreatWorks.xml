@@ -9,6 +9,13 @@
 			<Image>GreatWriter_Background.dds</Image>
 		</Row>
 		<Row>
+			<Type>GREAT_WORK_BODHISATTVA</Type>
+			<GreatWorkClassType>GREAT_WORK_LITERATURE</GreatWorkClassType>
+			<Description>TXT_KEY_GREAT_WORK_BODHISATTVA</Description>
+			<Quote>TXT_KEY_GREAT_WORK_QUOTE_BODHISATTVA</Quote>
+			<Image>GreatWriter_Background.dds</Image>
+		</Row>
+		<Row>
 			<Type>GREAT_WORK_THE_CROWN_JEWELS</Type>
 			<GreatWorkClassType>GREAT_WORK_ART</GreatWorkClassType>
 			<Description>TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS</Description>
