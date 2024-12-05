@@ -3,7 +3,7 @@
 ----------------------------------
 
 -- 3 new columns: Personality, PrimaryVictoryPursuit, SecondaryVictoryPursuit
--- Default diplomacy flavors are now 5 (except Chattiness and unused columns)
+-- Default diplomacy flavors are now 5 (except Chattiness)
 CREATE TABLE Leaders_NEW (
 	ID integer PRIMARY KEY,
 	Type text NOT NULL UNIQUE,
@@ -22,13 +22,13 @@ CREATE TABLE Leaders_NEW (
 	WarmongerHate integer DEFAULT 5,
 	DoFWillingness integer DEFAULT 5,
 	DenounceWillingness integer DEFAULT 5,
+	WorkWithWillingness integer DEFAULT 5,
+	WorkAgainstWillingness integer DEFAULT 5,
 	Loyalty integer DEFAULT 5,
 	Forgiveness integer DEFAULT 5,
 	Neediness integer DEFAULT 5,
 	Meanness integer DEFAULT 5,
 	Chattiness integer DEFAULT 4,
-	WorkWithWillingness integer DEFAULT 0, -- unused
-	WorkAgainstWillingness integer DEFAULT 0, -- unused
 	PortraitIndex integer DEFAULT -1,
 	IconAtlas text REFERENCES IconTextureAtlases (Atlas),
 	PackageID text
