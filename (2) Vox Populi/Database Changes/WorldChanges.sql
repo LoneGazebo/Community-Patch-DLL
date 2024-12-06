@@ -5,6 +5,7 @@ SET
 	NumCitiesPolicyCostMod = 5,
 	NumCitiesTourismCostMod = 5,
 	NumCitiesTechCostMod = 5,
+	NumCitiesUnitSupplyMod = 5,
 	ResearchPercent = 100;
 
 UPDATE Worlds

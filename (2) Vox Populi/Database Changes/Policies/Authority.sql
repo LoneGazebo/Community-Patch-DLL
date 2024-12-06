@@ -107,7 +107,7 @@ VALUES
 -- Military Caste (Now Dominance)
 UPDATE Policies
 SET
-	ExtraSupplyPerPopulation = 10,
+	ExtraSupplyFlat = 5,
 	CulturePerGarrisonedUnit = 0,
 	HappinessPerGarrisonedUnit = 0,
 	PortraitIndex = 22

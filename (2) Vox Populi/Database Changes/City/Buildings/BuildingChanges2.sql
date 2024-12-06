@@ -516,7 +516,6 @@ UPDATE Buildings
 SET
 	GreatWorkCount = 2,
 	ThemingBonusHelp = 'TXT_KEY_PARTHENON_THEMING_BONUS_HELP',
-	CitySupplyModifier = 10,
 	BoredomFlatReduction = 1
 WHERE Type = 'BUILDING_PARTHENON';
 

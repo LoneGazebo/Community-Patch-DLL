@@ -28,10 +28,10 @@ UPDATE Defines SET Value = 10 WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_SCALER';
 -------------------------------------------------------------------------------------------------------------------
 
 -- Base city HP
-UPDATE Defines SET Value = 300 WHERE Name = 'MAX_CITY_HIT_POINTS';
+UPDATE Defines SET Value = 250 WHERE Name = 'MAX_CITY_HIT_POINTS';
 
 -- Extra city HP per population
-UPDATE Defines SET Value = 10 WHERE Name = 'CITY_STRENGTH_POPULATION_CHANGE';
+UPDATE Defines SET Value = 8 WHERE Name = 'CITY_STRENGTH_POPULATION_CHANGE';
 
 -- City's base healing amount. Can go higher if no enemy is nearby.
 UPDATE Defines SET Value = 8 WHERE Name = 'CITY_HIT_POINTS_HEALED_PER_TURN';
@@ -147,14 +147,14 @@ UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_BASE_TECH_REDUCTION_PER
 
 -- Supply from city
 -- City supply /= (1 + Tech progress * UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER / 100)
-UPDATE Defines SET Value = 83 WHERE Name = 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER';
+UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER';
 
 -- Supply from population
 -- % provided by puppet city population
 UPDATE Defines SET Value = 50 WHERE Name = 'UNIT_SUPPLY_POPULATION_PUPPET_PERCENT';
 
 -- Population supply /= (1 + Tech progress * UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER / 100)
-UPDATE Defines SET Value = 700 WHERE Name = 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER';
+UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER';
 
 -- Maximum XP from combat vs barbarian/CS
 UPDATE Defines SET Value = 45 WHERE Name = 'BARBARIAN_MAX_XP_VALUE';

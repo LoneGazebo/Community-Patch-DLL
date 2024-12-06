@@ -34,9 +34,8 @@
 			<ExtraHappinessPerLuxury>1</ExtraHappinessPerLuxury>
 			<PopulationUnhappinessMod>-30</PopulationUnhappinessMod>
 			<MaintenanceFreeUnits>3</MaintenanceFreeUnits>
-			<UnitSupplyBase>10</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>14</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<ImprovementCostPercent>60</ImprovementCostPercent>
 			<BuildingCostPercent>75</BuildingCostPercent>
@@ -49,9 +48,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
@@ -66,9 +64,8 @@
 			<AIResistanceCap>64</AIResistanceCap>
 
 			<!-- City-States -->
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 
 			<!-- Barbarians -->
@@ -113,9 +110,8 @@
 			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-15</PopulationUnhappinessMod>
 			<MaintenanceFreeUnits>1</MaintenanceFreeUnits>
-			<UnitSupplyBase>9</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>13</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<ImprovementCostPercent>80</ImprovementCostPercent>
 			<BuildingCostPercent>90</BuildingCostPercent>
@@ -128,9 +124,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
@@ -145,9 +140,8 @@
 			<AIResistanceCap>48</AIResistanceCap>
 
 			<!-- City-States -->
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 
 			<!-- Barbarians -->
@@ -192,9 +186,8 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>8</HappinessDefault>
 			<HappinessDefaultCapital>2</HappinessDefaultCapital>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>12</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -205,9 +198,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
@@ -222,9 +214,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 
 			<!-- Barbarians -->
@@ -268,9 +259,8 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>7</HappinessDefault>
 			<HappinessDefaultCapital>2</HappinessDefaultCapital>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>12</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -281,9 +271,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>25</AIWorkRateModifier>
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
 			<AIUnitCostPercent>90</AIUnitCostPercent>
@@ -304,9 +293,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateWorkRateModifier>25</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateTrainPercent>90</CityStateTrainPercent>
@@ -359,8 +347,7 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>7</HappinessDefault>
 			<HappinessDefaultCapital>2</HappinessDefaultCapital>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
+			<UnitSupplyBase>12</UnitSupplyBase>
 			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
@@ -372,9 +359,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>35</AIWorkRateModifier>
 			<AIBuildingCostPercent>85</AIBuildingCostPercent>
 			<AIUnitCostPercent>85</AIUnitCostPercent>
@@ -395,9 +381,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateWorkRateModifier>35</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateTrainPercent>85</CityStateTrainPercent>
@@ -450,8 +435,7 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>7</HappinessDefault>
 			<HappinessDefaultCapital>1</HappinessDefaultCapital>
-			<UnitSupplyBase>7</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
+			<UnitSupplyBase>11</UnitSupplyBase>
 			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
@@ -463,9 +447,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
 			<AIUnitCostPercent>80</AIUnitCostPercent>
@@ -486,9 +469,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateWorkRateModifier>50</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateTrainPercent>80</CityStateTrainPercent>
@@ -541,9 +523,8 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>6</HappinessDefault>
 			<HappinessDefaultCapital>1</HappinessDefaultCapital>
-			<UnitSupplyBase>7</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>11</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -554,9 +535,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIBuildingCostPercent>75</AIBuildingCostPercent>
 			<AIUnitCostPercent>75</AIUnitCostPercent>
@@ -578,9 +558,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateWorkRateModifier>60</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateTrainPercent>75</CityStateTrainPercent>
@@ -634,9 +613,8 @@
 			<!-- Player Bonuses -->
 			<HappinessDefault>5</HappinessDefault>
 			<HappinessDefaultCapital>1</HappinessDefaultCapital>
-			<UnitSupplyBase>6</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>10</UnitSupplyBase>
+			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -647,9 +625,8 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
 			<AIUnitCostPercent>70</AIUnitCostPercent>
@@ -671,9 +648,8 @@
 
 			<!-- City-States -->
 			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
-			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
-			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
-			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyBase>12</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPopulationPercent>20</CityStateUnitSupplyPopulationPercent>
 			<CityStateWorkRateModifier>70</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateTrainPercent>70</CityStateTrainPercent>
