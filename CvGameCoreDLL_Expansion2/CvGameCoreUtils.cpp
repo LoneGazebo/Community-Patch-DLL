@@ -29,7 +29,7 @@
 #include "LintFree.h"
 
 // CvAssertDlg implementation
-#ifdef VPDEBUG
+#if defined(VPDEBUG) && !defined(DISABLE_CVASSERT)
 #ifdef WIN32
 
 // MessageBox constants
@@ -204,7 +204,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 }
 
 #endif // WIN32
-#endif // VPDEBUG
+#endif // defined(VPDEBUG) && !defined(DISABLE_CVASSERT)
 
 int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
 
