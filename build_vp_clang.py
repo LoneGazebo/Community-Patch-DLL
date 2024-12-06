@@ -69,6 +69,7 @@ SHARED_PREDEFS = [
     'FINAL_RELEASE',
     '_CRT_SECURE_NO_WARNINGS',
     '_WINDLL',
+    'DISABLE_CVASSERT',
 ]
 RELEASE_PREDEFS = SHARED_PREDEFS + ['STRONG_ASSUMPTIONS', 'NDEBUG']
 DEBUG_PREDEFS = SHARED_PREDEFS + ['VPDEBUG']
@@ -319,7 +320,7 @@ def build_cl_config_args(config: Config) -> list[str]:
     return args
 
 def build_link_config_args(config: Config) -> list[str]:
-    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:EMBED', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
+    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:EMBED', '/FORCE:MULTIPLE', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
     if config == Config.Release:
         args += ['/OPT:REF', '/OPT:ICF']
     return args
