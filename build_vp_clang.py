@@ -111,7 +111,6 @@ CPP = [
     'CvGameCoreDLL_Expansion2\\CvAIOperation.cpp',
     'CvGameCoreDLL_Expansion2\\CvArea.cpp',
     'CvGameCoreDLL_Expansion2\\CvArmyAI.cpp',
-    'CvGameCoreDLL_Expansion2\\CvAssertDlg.cpp',
     'CvGameCoreDLL_Expansion2\\CvAStar.cpp',
     'CvGameCoreDLL_Expansion2\\CvAStarNode.cpp',
     'CvGameCoreDLL_Expansion2\\CvBarbarians.cpp',
