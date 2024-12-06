@@ -5672,27 +5672,27 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	{
 		if (eEventClass == EVENT_CLASS_GOOD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_BAD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_BAD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_NEUTRAL)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_TRADE)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 				return false;
 		}
 	}
@@ -10448,7 +10448,8 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if (MOD_BALANCE_CORE_EVENTS)
 	{
-		if (GC.getGame().isOption(GAMEOPTION_EVENTS))
+		if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS) || GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS) || GC.getGame().isOption(GAMEOPTION_BAD_EVENTS)
+			|| GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS) || GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 		{
 			DoEvents();
 		}
