@@ -1005,6 +1005,8 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	// Boats can only be spawned from encampments or captured cities on turn 30 or later.
 	// ----------------------------------- //
 
+	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+	CvImprovementEntry* pkCampInfo = GC.getImprovementInfo(eCamp);
 	int iMaxBarbarians = INT_MAX;
 	int iMaxBarbarianRange = 0;
 	int iMinSpawnRadius = 1;
@@ -1152,8 +1154,6 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	{
 		bool bAllowRanged = false; // Do not spawn ranged in empty encampments, except on 1-tile islands
 		bool bIsBarbCamp = false;
-		ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
-		CvImprovementEntry* pkCampInfo = GC.getImprovementInfo(eCamp);
 		if (eCamp != NO_IMPROVEMENT && pkCampInfo)
 		{
 			bIsBarbCamp = pPlot->getImprovementType() == eCamp;
@@ -1227,6 +1227,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		if (iNextRing > iMaxSpawnRadius)
 			break;
 
+		std::vector<CvPlot*> vPrioritySpawnPlots;
 		std::vector<CvPlot*> vBarbSpawnPlots;
 		for (int iI = iIteratorStart; iI < RING_PLOTS[iNextRing]; iI++)
 		{
@@ -1243,6 +1244,10 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			if (pLoopPlot->getNumUnits() > 0 || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 
+			// Prioritize spawning in an ungarrisoned city or encampment
+			if (pLoopPlot->isCity() || (eCamp != NO_IMPROVEMENT && pkCampInfo && pLoopPlot->getImprovementType() == eCamp))
+				vPrioritySpawnPlots.push_back(pLoopPlot);
+
 			vBarbSpawnPlots.push_back(pLoopPlot);
 		}
 
@@ -1251,13 +1256,30 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			if (vBarbSpawnPlots.empty())
 				break;
 
+			bool bPrioritySpawn = !vPrioritySpawnPlots.empty();
+
 			// Choose a random plot
-			uint uIndex = GC.getGame().urandLimitExclusive(vBarbSpawnPlots.size(), CvSeeder::fromRaw(0xe7e33cc1).mix(pPlot->GetPseudoRandomSeed()).mix(iNumUnitsSpawned));
-			CvPlot* pSpawnPlot = vBarbSpawnPlots[uIndex];
+			uint uIndex = bPrioritySpawn ? GC.getGame().urandLimitExclusive(vPrioritySpawnPlots.size(), CvSeeder::fromRaw(0x4775b31a).mix(pPlot->GetPseudoRandomSeed()).mix(iNumUnitsSpawned)) : GC.getGame().urandLimitExclusive(vBarbSpawnPlots.size(), CvSeeder::fromRaw(0xe7e33cc1).mix(pPlot->GetPseudoRandomSeed()).mix(iNumUnitsSpawned));
+			CvPlot* pSpawnPlot = bPrioritySpawn ? vPrioritySpawnPlots[uIndex] : vBarbSpawnPlots[uIndex];
 			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;
 
+			// If by chance this unit is spawning in an undefended city or encampment, pick an appropriate defensive unit
+			bool bAllowRanged = true;
+			if (bPrioritySpawn)
+			{
+				if (pSpawnPlot->isCity())
+					eUnitAI = UNITAI_RANGED;
+				else if (pSpawnPlot->getLandmass() != -1 && GC.getMap().getLandmassById(pSpawnPlot->getLandmass())->getNumTiles() == 1)
+					eUnitAI = UNITAI_RANGED;
+				else
+				{
+					eUnitAI = UNITAI_DEFENSE;
+					bAllowRanged = false;
+				}
+			}
+
 			// Pick a unit
-			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, true, CvSeeder::fromRaw(0xea7311de).mix(pSpawnPlot->GetPseudoRandomSeed()));
+			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, bAllowRanged, CvSeeder::fromRaw(0xea7311de).mix(pSpawnPlot->GetPseudoRandomSeed()));
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			if (pkUnitInfo)
 			{
@@ -1287,7 +1309,20 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			}
 
 			// Make sure to erase the plot we chose from the list!
-			vBarbSpawnPlots.erase(vBarbSpawnPlots.begin() + uIndex);
+			if (bPrioritySpawn)
+			{
+				vPrioritySpawnPlots.erase(vPrioritySpawnPlots.begin() + uIndex);
+				for (uIndex = 0; uIndex < vBarbSpawnPlots.size(); uIndex++)
+				{
+					if (vBarbSpawnPlots[uIndex] == pSpawnPlot)
+					{
+						vBarbSpawnPlots.erase(vBarbSpawnPlots.begin() + uIndex);
+						break;
+					}
+				}
+			}
+			else
+				vBarbSpawnPlots.erase(vBarbSpawnPlots.begin() + uIndex);
 		}
 
 		iRingsCompleted++;
