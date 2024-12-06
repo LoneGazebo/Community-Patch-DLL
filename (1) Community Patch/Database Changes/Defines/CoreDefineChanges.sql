@@ -1008,7 +1008,7 @@ VALUES
 -- Camp Spawning
 	('BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA', 0), -- VP Only: increase to target % of camps to spawn (for the initial spawning) per era. 10 = 1%.
 	('BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING', 50), -- Community Patch Only: % chance of a new encampment spawning each turn
-	('BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', 1), -- # of tiles required in a landmass for a camp to spawn.
+	('BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', 2), -- # of tiles required in a landmass for a camp to spawn.
 	('BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP', 4), -- Camps can't spawn within X tiles of another camp OR city.
 	('BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP', 2), -- Min. distance between new camps and a recently cleared camp OR city.
 	('BARBARIAN_CAMP_CLEARED_MIN_TURNS_TO_RESPAWN', 15), -- Number of turns before a camp OR city is no longer considered recently cleared. Does not scale with game speed.

@@ -422,6 +422,9 @@ UPDATE Defines SET Value = 10 WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF
 -- Unit: 0.1% of eligible tiles
 UPDATE Defines SET Value = 5 WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA';
 
+-- # of tiles required in a landmass for a camp to spawn.
+UPDATE Defines SET Value = 1 WHERE Name = 'BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE';
+
 -- Barbarian camps start spawning on this turn
 UPDATE Defines SET Value = 2 WHERE Name = 'BARBARIAN_INITIAL_SPAWN_TURN';
 
