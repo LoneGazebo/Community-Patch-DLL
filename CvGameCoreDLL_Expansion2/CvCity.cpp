@@ -26930,7 +26930,7 @@ void CvCity::updateStrengthValue()
 
 	// Population mod
 	if (GET_PLAYER(getOwner()).isMinorCiv() || !MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
-		iStrengthValue += getPopulation() * /*40 in CP, 10 in VP*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
+		iStrengthValue += getPopulation() * /*40*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
@@ -33433,7 +33433,7 @@ uint CvCity::GetCityBombardEffectTagHash() const
 //	---------------------------------------------------------------------------
 int CvCity::GetMaxHitPoints() const
 {
-	return /*200 in CP, 300 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS) + GetExtraHitPoints();
+	return /*200 in CP, 250 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS) + GetExtraHitPoints();
 }
 
 //	--------------------------------------------------------------------------------
@@ -33442,7 +33442,7 @@ int CvCity::GetExtraHitPoints() const
 	// Population mod
 	int iPopBonus = 0;
 	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
-		iPopBonus = getPopulation() * /*40 in CP, 10 in VP*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
+		iPopBonus = getPopulation() * /*8*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
 
 	return m_iExtraHitPoints + iPopBonus;
 }
