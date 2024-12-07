@@ -2408,11 +2408,6 @@ CvGlobals::~CvGlobals()
 	uninit();
 }
 
-#ifdef STACKWALKER
-MyStackWalker gStackWalker;
-lua_State* gLuaState = NULL;
-#endif
-
 //cannot use GC.getGame().getActivePlayer() in observer mode
 PlayerTypes GetCurrentPlayer()
 {
@@ -2437,27 +2432,6 @@ PlayerTypes GetCurrentPlayer()
 #pragma comment (lib, "dbghelp.lib")
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
-#ifdef STACKWALKER
-	{
-		/* Try to log the callstack */
-		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
-		if (pLog)
-		{
-			pLog->Msg("Gamecore Callstack\n");
-
-			gStackWalker.SetLog(pLog);	
-			gStackWalker.ShowCallstack(INT_MAX, GetCurrentThread(), pep ? pep->ContextRecord : NULL );
-			gStackWalker.SetLog(NULL);
-
-			pLog->Msg("\nLua Callstack\n");
-			if (gLuaState)
-				LuaSupport::DumpCallStack(gLuaState,pLog);
-
-			pLog->Close();
-		}
-	}
-#endif
-
 	/* Open a file to store the minidump. */
 	HANDLE hFile = CreateFile(_T("CvMiniDump.dmp"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {

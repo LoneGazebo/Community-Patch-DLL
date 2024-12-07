@@ -104,7 +104,6 @@
     <ClCompile Include="CvVotingClasses.cpp" />
     <ClCompile Include="CvWonderProductionAI.cpp" />
     <ClCompile Include="CvWorldBuilderMapLoader.cpp" />
-    <ClCompile Include="stackwalker\StackWalker.cpp" />
     <ClCompile Include="_precompile.cpp" />
     <ClCompile Include="CvDllBuildInfo.cpp">
       <Filter>interface</Filter>
@@ -430,7 +429,6 @@
     <ClInclude Include="CvWorldBuilderMapLoader.h" />
     <ClInclude Include="HHMods.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="stackwalker\StackWalker.h" />
     <ClInclude Include="TContainer.h" />
     <ClInclude Include="CvDllBuildInfo.h">
       <Filter>interface</Filter>

@@ -10955,19 +10955,25 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	static vector<CvTacticalPosition*> openPositionsHeap;
 	static vector<CvTacticalPosition*> completedPositions;
 
-#if defined(MOD_CORE_DEBUGGING)
-	if (false)
+#if defined(VPDEBUG)
+	if (GC.getLogging() && GC.getAILogging())
 	{
-		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units", pTarget->getX(), pTarget->getY(), vUnits.size());
+		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units",
+			pTarget->getX(), pTarget->getY(), vUnits.size());
 		for (size_t i = 0; i < vUnits.size(); i++)
 			strMsg += CvString::format("; %d", vUnits[i]->GetID());
+
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
-#if defined(STACKWALKER)
-		gStackWalker.SetLog(GET_PLAYER(ePlayer).GetTacticalAI()->GetLogFile());
-		gStackWalker.ShowCallstack(5);
-		gStackWalker.SetLog(NULL);
-#endif
+		// Additional debug info
+		char szDebugInfo[256];
+		sprintf_s(szDebugInfo, "TacticalAI Debug - Target: (%d,%d), Units: %d, AggLevel: %d\n",
+			pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl);
+		OutputDebugString(szDebugInfo);
+
+		// Assertions for critical conditions
+		ASSERT(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
+		ASSERT(iMaxChoicesPerUnit >= 2 && iMaxChoicesPerUnit <= 9 && "Invalid choices per unit");
 	}
 #endif
 
