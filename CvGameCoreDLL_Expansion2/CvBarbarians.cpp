@@ -1280,8 +1280,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			if (eUnit != NO_UNIT)
 			{
 				// And spawn it!
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), pkUnitInfo->GetDefaultUnitAIType());
+				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnitAI);
 				if (pUnit)
 				{
 					iNumUnitsSpawned++;
