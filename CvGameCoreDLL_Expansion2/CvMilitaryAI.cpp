@@ -2145,33 +2145,32 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 
 void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 {
+	// if we need to nuke the Barbarians, we've already lost this game 10x over
+	if (ePlayer == BARBARIAN_PLAYER)
+		return;
+
 	bool bLaunchNuke = false;
 	StrengthTypes eMilitaryStrength = m_pPlayer->GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(ePlayer);
 	WarStateTypes eCurrentWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
 
-	// only evaluate nukes when we have nukes and we've declared war on someone
+	// only evaluate nukes when we have nukes
 	if (m_pPlayer->getNumNukeUnits() > 0) 
 	{
-		// they nuked us, so we can nuke them.
-		if (m_pPlayer->GetDiplomacyAI()->GetNumTimesNuked(ePlayer) > 0)
-		{	
-			bLaunchNuke = true;
-		}
-		// if we already nuked them, uhhh, keep it up!
-		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(m_pPlayer->GetID()) > 0)
-		{
-			bLaunchNuke = true;
-		}
 		// if we will surely lose this war anyway, we might as well nuke them!
-		else if (eMilitaryStrength == STRENGTH_IMMENSE || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
+		if (eMilitaryStrength == STRENGTH_IMMENSE || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
 		{
 			bLaunchNuke = true;
 		}
-		else 
+		else if (GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			bool bRollForNuke = false;
-			if (GET_PLAYER(ePlayer).isMajorCiv())
+			// if one of us has already nuked the other...well, I'll keep the trend going!
+			if (m_pPlayer->GetDiplomacyAI()->GetNumTimesNuked(ePlayer) > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(m_pPlayer->GetID()) > 0)
 			{
+				bLaunchNuke = true;
+			}
+			else
+			{
+				bool bRollForNuke = false;
 				CivOpinionTypes eCivOpinion = m_pPlayer->GetDiplomacyAI()->GetCivOpinion(ePlayer);
 				if (eMilitaryStrength == STRENGTH_POWERFUL || eCurrentWarState <= WAR_STATE_TROUBLED)
 				{
@@ -2204,9 +2203,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 	}
 
 	if (bLaunchNuke)
-	{
 		RequestNukeAttack(ePlayer);
-	}
 }
 
 void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)

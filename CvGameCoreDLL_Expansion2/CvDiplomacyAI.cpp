@@ -3618,6 +3618,10 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 	// Planning war? Pick a surface approach to disguise our war plans.
 	if (eApproach == CIV_APPROACH_WAR)
 	{
+		// No surface approaches for City-States!
+		if (ePlayer >= MAX_MAJOR_CIVS)
+			return;
+
 		// If we're targeting them for a demand, cancel that
 		if (bResetAttackOperations && GetDemandTargetPlayer() == ePlayer)
 			SetDemandTargetPlayer(NO_PLAYER);
@@ -3709,7 +3713,8 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 		}
 	}
 
-	SetCachedSurfaceApproach(ePlayer, -1);
+	if (ePlayer < MAX_MAJOR_CIVS)
+		SetCachedSurfaceApproach(ePlayer, -1);
 }
 
 /// What is our Strategic Diplomatic Approach towards this Major Civ?
@@ -7205,6 +7210,9 @@ void CvDiplomacyAI::SetPlayerEverCapturedCapital(PlayerTypes ePlayer, bool bValu
 /// Returns if this player's original capital was captured by ePlayer
 bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer, bool bCurrently, bool bTeammates, bool bCheckEver) const
 {
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+		bCurrently = true;
+
 	if (!bCurrently && (IsPlayerCapturedCapital(ePlayer) || (bCheckEver && IsPlayerEverCapturedCapital(ePlayer))))
 		return true;
 
@@ -7266,6 +7274,9 @@ void CvDiplomacyAI::SetPlayerEverCapturedHolyCity(PlayerTypes ePlayer, bool bVal
 /// Returns if this player's Holy City was captured by ePlayer
 bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, bool bTeammates, bool bCheckEver) const
 {
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+		bCurrently = true;
+
 	if (!bCurrently && (IsPlayerCapturedHolyCity(ePlayer) || (bCheckEver && IsPlayerEverCapturedHolyCity(ePlayer))))
 		return true;
 
@@ -12475,12 +12486,15 @@ int CvDiplomacyAI::CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalve
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	TeamTypes eOurTeam = GetTeam();
 
-	// Don't be frightened of vassals, they can't declare war on their own.
-	if (kPlayer.IsVassalOfSomeone() && !IsAtWar(ePlayer))
-		return 0;
+	if (!IsAtWar(ePlayer))
+	{
+		// Don't be frightened of City-States or vassals, they can't declare war on their own.
+		if (kPlayer.isMinorCiv() || kPlayer.IsVassalOfSomeone())
+			return 0;
+	}
 
 	// Vassals count units for the purposes of determining deterrence against independence
-	if (!IsVassal(ePlayer))
+	if (kPlayer.isMajorCiv() && !IsVassal(ePlayer))
 	{
 		// We're allowing them Open Borders? We shouldn't care.
 		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(kPlayer.getTeam()))
@@ -12756,7 +12770,7 @@ void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 	vector<PlayerTypes> vPlayersToReevaluate;
 
 	// Loop through all (known) Players
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
@@ -13604,7 +13618,7 @@ void CvDiplomacyAI::DoUpdateSaneDiplomaticTargets()
 		}
 
 		// No new wars! Exception for endgame aggression and players who captured our key cities.
-		if (bNoNewWars && !IsEndgameAggressiveTo(ePlayer) && !IsCapitalCapturedBy(ePlayer, true, false) && !IsHolyCityCapturedBy(ePlayer, true, false))
+		if (bNoNewWars && !IsCapitalCapturedBy(ePlayer, true, false) && !IsHolyCityCapturedBy(ePlayer, true, false) && (!GET_PLAYER(ePlayer).isMajorCiv() || !IsEndgameAggressiveTo(ePlayer)))
 		{
 			SetSaneDiplomaticTarget(ePlayer, false);
 			continue;
@@ -51700,17 +51714,17 @@ void CvDiplomacyAI::LogStatus()
 				LogMilitaryStrength(strOutBuf, eLoopPlayer);
 				LogTargetValue(strOutBuf, eLoopPlayer);
 				LogMilitaryAggressivePosture(strOutBuf, eLoopPlayer);
-				LogWarmongerThreat(strOutBuf, eLoopPlayer);
-
-				LogPlotBuyingAggressivePosture(strOutBuf, eLoopPlayer);
 				LogLandDispute(strOutBuf, eLoopPlayer);
-				LogVictoryDispute(strOutBuf, eLoopPlayer);
-				LogWonderDispute(strOutBuf, eLoopPlayer);
-				LogMinorCivDispute(strOutBuf, eLoopPlayer);
 
-				// Other Player's Estimated Grand Strategy
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
+					LogWarmongerThreat(strOutBuf, eLoopPlayer);
+					LogPlotBuyingAggressivePosture(strOutBuf, eLoopPlayer);
+					LogVictoryDispute(strOutBuf, eLoopPlayer);
+					LogWonderDispute(strOutBuf, eLoopPlayer);
+					LogMinorCivDispute(strOutBuf, eLoopPlayer);
+
+					// Other Player's Estimated Grand Strategy
 					AIGrandStrategyTypes eGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer);
 
 					CvAIGrandStrategyXMLEntry* pEntry = eGrandStrategy != NO_AIGRANDSTRATEGY ? GC.getAIGrandStrategyInfo(eGrandStrategy) : NULL;
