@@ -3297,12 +3297,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		}
 
 		// Notify diplomacy AI that the damage was done
+		if (GET_PLAYER(eOldOwner).isMajorCiv())
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeNumCitiesCapturedBy(GetID(), 1);
+
 		if (isMajorCiv())
 		{
 			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
 				CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(eOldOwner).GetDiplomacyAI();
-				pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
 
 				// Zero out any liberation credit since we just captured a city from them
 				pOldOwnerDiploAI->SetResurrectedBy(GetID(), false);

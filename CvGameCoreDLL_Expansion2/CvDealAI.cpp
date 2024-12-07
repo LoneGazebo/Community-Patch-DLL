@@ -2856,7 +2856,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		
 		CivApproachTypes eAskingMajorCivApproach = pDiploAI->GetSurfaceApproach(eOtherPlayer);
 
-		// Modify for our feelings towards the asking player
+		// Modify for our feelings towards the player we'd be asking
 		switch (eAskingMajorCivApproach)
 		{
 		case CIV_APPROACH_WAR:

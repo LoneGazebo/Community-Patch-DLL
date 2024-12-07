@@ -1993,7 +1993,7 @@ private:
 	unsigned char m_aiNumWarsFought[MAX_CIV_PLAYERS];
 	unsigned char m_aiNumWarsDeclaredOnUs[MAX_MAJOR_CIVS];
 	unsigned short m_aiCivilianKillerValue[MAX_MAJOR_CIVS];
-	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
+	unsigned char m_aiNumCitiesCaptured[MAX_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
 	short m_aiWarProgressScore[MAX_CIV_PLAYERS];
 
