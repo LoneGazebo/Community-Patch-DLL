@@ -25157,7 +25157,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	LogMinorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach);
 
 	// Set if they're a potential war target
-	SetPotentialWarTarget(ePlayer, bPotentialWarTarget || IsAtWar(ePlayer));
+	if (IsAtWar(ePlayer))
+		SetPotentialWarTarget(ePlayer, true);
+	else if (bPotentialWarTarget)
+		SetPotentialWarTarget(ePlayer, (IsGoingForDiploVictory() || bCloseToDiploVictory) ? eApproach < CIV_APPROACH_NEUTRAL : eApproach < CIV_APPROACH_FRIENDLY);
+	else
+		SetPotentialWarTarget(ePlayer, false);
 }
 
 //	-----------------------------------------------------------------------------------------------
