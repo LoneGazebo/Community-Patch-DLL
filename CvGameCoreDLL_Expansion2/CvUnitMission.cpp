@@ -1756,8 +1756,10 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				{
 					if (GC.getGame().isNetworkMultiPlayer())
 					{
-						// This should fix TR/cargo unit related desyncs (different paths etc). I suspect there is still the potential for desyncs if the user opens the TR popup but something changes before they issue the command. Even just opening the popup could cause problems. I think a net message is in order for a real fix.
-						GC.getGame().GetGameTrade()->InvalidateTradePathCache(hUnit->getOwner()); // although we are only interested in one trade route, we invalidate all since the originating client has updated their whole cache when opening the popup
+						// This should fix TR/cargo unit related desyncs (different paths etc).
+						// I suspect there is still the potential for desyncs if the user opens the TR popup but something changes before they issue the command. 
+						// Even just opening the popup could cause problems. I think a net message is in order for a real fix.
+						GC.getGame().GetGameTrade()->InvalidateTradePathCache(hUnit->getOwner());
 					}
 
 					if(hUnit->makeTradeRoute(pPlot->getX(), pPlot->getY(), (TradeConnectionType)pkQueueData->iData2))

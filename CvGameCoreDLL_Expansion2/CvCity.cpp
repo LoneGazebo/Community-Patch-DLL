@@ -185,7 +185,7 @@ CvCity::CvCity() :
 	, m_iExtraHitPoints()
 	, m_iBaseGreatPeopleRate()
 	, m_iGreatPeopleRateModifier()
-	, m_iGPRateModPerMarriage()
+	, m_iGPRateModifierPerMarriage()
 	, m_iGPRateModifierPerLocalTheme()
 	, m_iGPPOnCitizenBirth()
 	, m_iJONSCultureStored()
@@ -452,6 +452,7 @@ CvCity::CvCity() :
 	, m_iResourceDiversityModifier()
 	, m_iNoUnhappfromXSpecialists()
 	, m_bNoWarmonger()
+	, m_iNoStarvationNonSpecialist()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_abIsBestForWonder()
@@ -1182,7 +1183,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iExtraHitPoints = 0;
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
-	m_iGPRateModPerMarriage = 0;
+	m_iGPRateModifierPerMarriage = 0;
 	m_iGPRateModifierPerLocalTheme = 0;
 	m_iGPPOnCitizenBirth = 0;
 	m_iJONSCultureStored = 0;
@@ -1390,6 +1391,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResourceDiversityModifier = 0;
 	m_iNoUnhappfromXSpecialists = 0;
 	m_bNoWarmonger = false;
+	m_iNoStarvationNonSpecialist = 0;
 #endif
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -2369,7 +2371,8 @@ void CvCity::doTurn()
 
 	if (MOD_BALANCE_CORE_EVENTS)
 	{
-		if (GC.getGame().isOption(GAMEOPTION_EVENTS))
+		if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS) || GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS) || GC.getGame().isOption(GAMEOPTION_BAD_EVENTS)
+			|| GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS) || GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 		{
 			DoEvents();
 		}
@@ -3635,27 +3638,27 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	{
 		if (eEventClass == EVENT_CLASS_GOOD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_BAD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_BAD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_NEUTRAL)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_TRADE)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 				return false;
 		}
 	}
@@ -14173,9 +14176,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			SetAllowPuppetPurchase(pBuildingInfo->IsAllowsPuppetPurchase() * iChange > 0);
 		}
+		if (pBuildingInfo->IsNoStarvationNonSpecialist())
+		{
+			ChangeNoStarvationNonSpecialist(iChange);
+		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
-		changeGPRateModPerMarriage(pBuildingInfo->GetGPRateModPerMarriage() * iChange);
+		changeGPRateModifierPerMarriage(pBuildingInfo->GetGPRateModifierPerMarriage() * iChange);
 		changeGPRateModifierPerLocalTheme(pBuildingInfo->GetGPRateModifierPerLocalTheme() * iChange);
 		ChangeGPPOnCitizenBirth(pBuildingInfo->GetGPPOnCitizenBirth() * iChange);
 
@@ -16206,14 +16213,19 @@ int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
 	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
+int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra, bool bAssumeNoReductionForNonSpecialists) const
 {
 	VALIDATE_OBJECT
 
 	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 	int iNonSpecialists = max(0, (getPopulation() - iSpecialists)) + iExtra;
 
-	return max(100, foodConsumptionNonSpecialistTimes100() * iNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
+	int iConsumptionNonSpecialists = foodConsumptionNonSpecialistTimes100() * iNonSpecialists;
+	if (IsNoStarvationNonSpecialist() && !bAssumeNoReductionForNonSpecialists)
+	{
+		iConsumptionNonSpecialists = min(getYieldRateTimes100(YIELD_FOOD, false), iConsumptionNonSpecialists);
+	}
+	return max(100, iConsumptionNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
 }
 
 
@@ -17267,7 +17279,7 @@ int CvCity::getGreatPeopleRateModifier() const
 	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
 	if (iNumMarried > 0)
 	{
-		iValue += (iNumMarried * getGPRateModPerMarriage());
+		iValue += (iNumMarried * getGPRateModifierPerMarriage());
 		if (isCapital())
 		{
 			iValue += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
@@ -17378,17 +17390,17 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getGPRateModPerMarriage() const
+int CvCity::getGPRateModifierPerMarriage() const
 {
 	VALIDATE_OBJECT
-	return m_iGPRateModPerMarriage;
+	return m_iGPRateModifierPerMarriage;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeGPRateModPerMarriage(int iChange)
+void CvCity::changeGPRateModifierPerMarriage(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iGPRateModPerMarriage = (m_iGPRateModPerMarriage + iChange);
+	m_iGPRateModifierPerMarriage = (m_iGPRateModifierPerMarriage + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -22679,6 +22691,17 @@ bool CvCity::IsNoWarmongerYet()
 	return m_bNoWarmonger;
 }
 
+void CvCity::ChangeNoStarvationNonSpecialist(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNoStarvationNonSpecialist += iValue;
+}
+bool CvCity::IsNoStarvationNonSpecialist() const
+{
+	VALIDATE_OBJECT
+	return m_iNoStarvationNonSpecialist > 0;
+}
+
 int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
@@ -26854,7 +26877,7 @@ void CvCity::updateStrengthValue()
 
 	// Population mod
 	if (GET_PLAYER(getOwner()).isMinorCiv() || !MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
-		iStrengthValue += getPopulation() * /*40 in CP, 10 in VP*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
+		iStrengthValue += getPopulation() * /*40*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
@@ -27964,7 +27987,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				if (bStoleHighValueTile)
 				{
 					iWarProgress *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
-					iWarProgress /= 200;
+					iWarProgress /= 200; // not a typo
 				}
 				else
 					iWarProgress /= 4;
@@ -27977,7 +28000,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				if (bStoleHighValueTile)
 				{
 					iWarProgress *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
-					iWarProgress /= 200;
+					iWarProgress /= 200; // not a typo
 				}
 				else
 					iWarProgress /= 4;
@@ -31441,7 +31464,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iExtraHitPoints);
 	visitor(city.m_iBaseGreatPeopleRate);
 	visitor(city.m_iGreatPeopleRateModifier);
-	visitor(city.m_iGPRateModPerMarriage);
+	visitor(city.m_iGPRateModifierPerMarriage);
 	visitor(city.m_iGPRateModifierPerLocalTheme);
 	visitor(city.m_iGPPOnCitizenBirth);
 	visitor(city.m_iJONSCultureStored);
@@ -31610,6 +31633,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iLocalUnhappinessMod);
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
+	visitor(city.m_iNoStarvationNonSpecialist);
 	visitor(city.m_iDistressFlatReduction);
 	visitor(city.m_iPovertyFlatReduction);
 	visitor(city.m_iIlliteracyFlatReduction);
@@ -33356,7 +33380,7 @@ uint CvCity::GetCityBombardEffectTagHash() const
 //	---------------------------------------------------------------------------
 int CvCity::GetMaxHitPoints() const
 {
-	return /*200 in CP, 300 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS) + GetExtraHitPoints();
+	return /*200 in CP, 250 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS) + GetExtraHitPoints();
 }
 
 //	--------------------------------------------------------------------------------
@@ -33365,7 +33389,7 @@ int CvCity::GetExtraHitPoints() const
 	// Population mod
 	int iPopBonus = 0;
 	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
-		iPopBonus = getPopulation() * /*40 in CP, 10 in VP*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
+		iPopBonus = getPopulation() * /*8*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);
 
 	return m_iExtraHitPoints + iPopBonus;
 }
@@ -34188,8 +34212,11 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-int CvCity::addDamageReceivedThisTurn(int iDamage)
+int CvCity::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
+	if (pAttacker && !isHuman())
+		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
+
 	m_iDamageTakenThisTurn += iDamage;
 	return m_iDamageTakenThisTurn;
 }

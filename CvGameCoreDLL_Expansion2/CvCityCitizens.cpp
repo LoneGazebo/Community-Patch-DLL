@@ -921,8 +921,8 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 	switch (eYield)
 	{
 	case YIELD_FOOD:
-		// in small cities, treat being under the growth threshold like starvation
-		if (bAssumeStarving || (bAssumeBelowGrowthThreshold && m_pCity->getPopulation() <= 3))
+		// in small cities, treat being under the growth threshold like starvation, unless we focus on a yield other than food
+		if (bAssumeStarving || (bAssumeBelowGrowthThreshold && m_pCity->getPopulation() <= 3 && (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)))
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
 		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
 			iYieldMod =  /*32*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
@@ -1086,6 +1086,20 @@ int CvCityCitizens::ScoreYieldChangeQuick(YieldAndGPPList yieldChanges, SPrecomp
 		YieldTypes eYield = (YieldTypes)iI;
 		int iYield100 = yieldChanges.yield[iI];
 
+		// Inca exception: if we're already under the non-specialist food consumption threshold, we can safely remove even more food ...
+		if (m_pCity->IsNoStarvationNonSpecialist() && eYield == YIELD_FOOD && iYield100 < 0 && cache.iFoodConsumptionTimes100 <= cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100)
+		{
+			// ... unless we're adding a specialist
+			int iNumSpecialistAdded = 0;
+			for (int iI = 0; iI < (int)yieldChanges.iNumSpecialists.size(); iI++)
+			{
+				iNumSpecialistAdded += yieldChanges.iNumSpecialists[iI];
+			}
+			if (iNumSpecialistAdded <= 0)
+				continue;
+
+		}
+
 		if (iYield100 != 0)
 		{
 			int iYieldMod = GetBaseValuePerYield(eYield, cache, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt);
@@ -1244,6 +1258,13 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 			int iNetFoodNow = cache.iFoodRateTimes100 - cache.iFoodConsumptionTimes100;
 			// food consumption also depends on how many specialists are worked
 			int iNetFoodThen = iNetFoodNow + iYield100 - iNumSpecialistsAdded * (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
+			if (m_pCity->IsNoStarvationNonSpecialist())
+			{
+				// if non-specialists can't cause starvation, the calculation is more complicated. we have to recalculate current and future food consumption by non-specialists manually
+				// iNetFoodThen = iNetFoodNow + (Change in Food Rate) - (Change in Food Consumption)
+				// with (Change in Food Consumption) = (Future Food Consumption Non-Specialists) - (Current Food Consumption Non-Specialists) + (Change in Food Consumption Specialists)
+				iNetFoodThen = iNetFoodNow + iYield100 - (min(cache.iFoodRateTimes100 + iYield100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 - iNumSpecialistsAdded * m_pCity->foodConsumptionNonSpecialistTimes100()) - min(cache.iFoodRateTimes100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100) + iNumSpecialistsAdded * m_pCity->foodConsumptionSpecialistTimes100());
+			}
 
 			// special case of building a settler: all excess food is converted into production
 			if (m_pCity->isFoodProduction())
@@ -2028,7 +2049,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	const int iNumOptionsSpecialists = 5;
 
 	//failsafe against switching back and forth, don't try this too often
-	while (iCount < max(1, m_pCity->getPopulation() / 2))
+	while (iCount < max(5, m_pCity->getPopulation() / 2))
 	{
 		//now the real check. unassigning a tile might cause the valuation of the other tiles to change, so we have to consider combinations
 		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
@@ -3681,6 +3702,7 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	iOtherUnhappiness(0),
 	iFoodRateTimes100(0),
 	iFoodConsumptionTimes100(0),
+	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100(0),
 	iFoodCorpMod(0),
 	bWantArt(false),
 	bWantScience(false),
@@ -3696,6 +3718,7 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 	iGrowthMod = pCity->getGrowthMods();
 	iFoodRateTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false);
 	iFoodConsumptionTimes100 = pCity->foodConsumptionTimes100();
+	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 = pCity->foodConsumptionTimes100(false, 0, true);
 
 	if (MOD_BALANCE_VP)
 	{

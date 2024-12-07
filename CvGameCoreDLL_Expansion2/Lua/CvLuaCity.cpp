@@ -578,6 +578,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetYieldPerTurnFromMinors);
 	Method(SetYieldPerTurnFromMinors);
 #endif
+	Method(GetBaseYieldRateFromNonSpecialists);
 	Method(GetBaseYieldRateFromCSAlliance);
 	Method(GetBuildingYieldChangeFromCorporationFranchises);
 	Method(GetYieldChangeFromCorporationFranchises);
@@ -5504,6 +5505,17 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 	return 1;
 }
 #endif
+
+int CvLuaCity::lGetBaseYieldRateFromNonSpecialists(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+
+	int iNonSpecialist = GET_PLAYER(pkCity->getOwner()).getYieldFromNonSpecialistCitizens(eIndex);
+	int iBonusTimes100 = (iNonSpecialist * (pkCity->getPopulation() - pkCity->GetCityCitizens()->GetTotalSpecialistCount()));
+	lua_pushinteger(L, iBonusTimes100 / 100);
+	return 1;
+}
 
 int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 {

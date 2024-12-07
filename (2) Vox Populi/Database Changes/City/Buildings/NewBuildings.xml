@@ -709,7 +709,8 @@
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<CityIndirectFire>true</CityIndirectFire>
-			<CitySupplyModifier>10</CitySupplyModifier>
+			<CitySupplyFlat>1</CitySupplyFlat>
+			<CitySupplyModifier>5</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -1518,7 +1519,7 @@
 			<Description>TXT_KEY_BUILDING_CAPITAL_ENGINEER</Description>
 			<Help>TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP</Help>
 			<Civilopedia>TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA</Civilopedia>
-			<CitySupplyModifier>20</CitySupplyModifier>
+			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>

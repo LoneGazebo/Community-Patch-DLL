@@ -659,7 +659,7 @@ int CvDllGameContext::GetMOVE_DENOMINATOR() const
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMAX_CITY_HIT_POINTS() const
 {
-	return /*200 in CP, 300 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS);
+	return /*200 in CP, 250 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_OFFSET() const

@@ -2336,6 +2336,8 @@ public:
 	int GetWarmongerHate() const;
 	int GetDoFWillingness() const;
 	int GetDenounceWillingness() const;
+	int GetWorkWithWillingness() const;
+	int GetWorkAgainstWillingness() const;
 	int GetLoyalty() const;
 	int GetForgiveness() const;
 	int GetNeediness() const;
@@ -2373,13 +2375,15 @@ protected:
 	int m_iBoldness;
 	int m_iDiploBalance;
 	int m_iWarmongerHate;
-	int m_iDenounceWillingness;
 	int m_iDoFWillingness;
+	int m_iDenounceWillingness;
+	int m_iWorkWithWillingness;
+	int m_iWorkAgainstWillingness;
 	int m_iLoyalty;
-	int m_iNeediness;
 	int m_iForgiveness;
-	int m_iChattiness;
+	int m_iNeediness;
 	int m_iMeanness;
+	int m_iChattiness;
 
 	int* m_piMajorCivApproachBiases;
 	int* m_piMinorCivApproachBiases;

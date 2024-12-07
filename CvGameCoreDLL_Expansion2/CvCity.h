@@ -533,7 +533,7 @@ public:
 	int foodConsumptionNonSpecialistTimes100() const;
 	int foodConsumptionSpecialistTimes100() const;
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
+	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0, bool bAssumeNoReductionForNonSpecialists = false) const;
 	int foodDifference(bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
@@ -620,8 +620,8 @@ public:
 	void changeBaseGreatPeopleRate(int iChange);
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
-	int getGPRateModPerMarriage() const;
-	void changeGPRateModPerMarriage(int iChange);
+	int getGPRateModifierPerMarriage() const;
+	void changeGPRateModifierPerMarriage(int iChange);
 	int getGPRateModifierPerLocalTheme() const;
 	void changeGPRateModifierPerLocalTheme(int iChange);
 
@@ -1011,6 +1011,9 @@ public:
 
 	void SetNoWarmonger(bool bValue);
 	bool IsNoWarmongerYet();
+
+	void ChangeNoStarvationNonSpecialist(int iValue);
+	bool IsNoStarvationNonSpecialist() const;
 
 	int GetNumTimesOwned(PlayerTypes ePlayer) const;
 	void SetNumTimesOwned(PlayerTypes ePlayer, int iValue);
@@ -1709,7 +1712,7 @@ public:
 	int GetConnectionGoldTimes100() const;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-	int addDamageReceivedThisTurn(int iDamage);
+	int addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker = NULL);
 	void flipDamageReceivedPerTurn();
 	bool isInDangerOfFalling(bool bExtraCareful=false) const;
 	bool isUnderSiege() const;
@@ -1834,7 +1837,7 @@ protected:
 
 	int m_iBaseGreatPeopleRate;
 	int m_iGreatPeopleRateModifier;
-	int m_iGPRateModPerMarriage;
+	int m_iGPRateModifierPerMarriage;
 	int m_iGPRateModifierPerLocalTheme;
 	int m_iGPPOnCitizenBirth;
 	int m_iJONSCultureStored;
@@ -2021,6 +2024,7 @@ protected:
 	int m_iNumNearbyMountains;
 	int m_iLocalUnhappinessMod;
 	bool m_bNoWarmonger;
+	int m_iNoStarvationNonSpecialist;
 	int m_iEmpireSizeModifierReduction;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
@@ -2251,7 +2255,7 @@ SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraHitPoints)
 SYNC_ARCHIVE_VAR(int, m_iBaseGreatPeopleRate)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGPRateModPerMarriage)
+SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerMarriage)
 SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerLocalTheme)
 SYNC_ARCHIVE_VAR(int, m_iGPPOnCitizenBirth)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
@@ -2421,6 +2425,7 @@ SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
 SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
 SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
+SYNC_ARCHIVE_VAR(int, m_iNoStarvationNonSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
 SYNC_ARCHIVE_VAR(int, m_iDistressFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReduction)

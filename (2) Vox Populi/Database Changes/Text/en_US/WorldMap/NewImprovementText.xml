@@ -21,7 +21,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_MANUFACTORY">
-			<Text>Unit will be consumed.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network. Manufactories will improve a Great Engineer's Hurry Production ability by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR].</Text>
+			<Text>Unit will be consumed.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network. Manufactories will improve a Great Engineer's Hurry Production ability by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR], and count as every type of Improvement for [COLOR_POSITIVE_TEXT]Adjacency Bonuses[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_ACADEMY">

@@ -10980,7 +10980,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	if (bUntrustworthy)
 	{
 		iAlignment -= 4;
-
 	}
 	// Liberator?
 	if (pDiplo->IsPlayerLiberatedCapital(ePlayer) || pDiplo->IsPlayerLiberatedHolyCity(ePlayer) || pDiplo->WasResurrectedBy(ePlayer))
@@ -10989,15 +10988,14 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		{
 			iAlignment += 4;
 		}
-
 		else
 		{
 			iAlignment += 2;
 		}
 	}
-	if (!GetPlayer()->IsAtWarWith(ePlayer) && pDiplo->GetNumCitiesLiberatedBy(ePlayer) > 0)
+	if (!GetPlayer()->IsAtWarWith(ePlayer) && pDiplo->GetNumCitiesEverLiberatedBy(ePlayer) > 0)
 	{
-		iAlignment += pDiplo->GetNumCitiesLiberatedBy(ePlayer);
+		iAlignment += pDiplo->GetNumCitiesEverLiberatedBy(ePlayer);
 		if (pDiplo->IsPlayerReturnedCapital(ePlayer) || pDiplo->IsPlayerReturnedHolyCity(ePlayer))
 		{
 			iAlignment += 1;
@@ -11005,10 +11003,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Captured some of our cities before?
-	if (pDiplo->GetNumCitiesCapturedBy(ePlayer) > 0)
-	{
-		iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
-	}
+	iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
 
 	int iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(ePlayer), (int)pDiplo->GetVictoryBlockLevel(ePlayer));
 	if (iDisputeLevel > 0)
@@ -11029,6 +11024,10 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		eAlignment = ALIGNMENT_RIVAL;
 	}
+	else if (pDiplo->WasResurrectedBy(ePlayer))
+	{
+		eAlignment = !GetPlayer()->IsAITeammateOfHuman() ? ALIGNMENT_LIBERATOR : ALIGNMENT_ALLY;
+	}
 	else if (iAlignment <= 2)
 	{
 		eAlignment = ALIGNMENT_NEUTRAL;
@@ -11040,10 +11039,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	else if (iAlignment <= 8)
 	{
 		eAlignment = ALIGNMENT_CONFIDANT;
-	}
-	else if (pDiplo->WasResurrectedBy(ePlayer))
-	{
-		eAlignment = ALIGNMENT_LIBERATOR;
 	}
 	else
 	{
@@ -13544,69 +13539,73 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
 		if (pLeague)
 		{
-			int iDiploScore = 0;
 			int iTotalDiploScore = 0;
-			int iDisputeLevel = 0;
 			int iNumCivs = 1;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 				{
-					iDiploScore = (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) - CIV_OPINION_NEUTRAL) * 8;
+					CivOpinionTypes eOpinion = pDiplo->GetCivOpinion(eLoopPlayer);
+					int iBadDiploScore = eOpinion < CIV_OPINION_NEUTRAL ? (eOpinion - CIV_OPINION_NEUTRAL) * 800 : 0;
+					int iGoodDiploScore = eOpinion > CIV_OPINION_NEUTRAL ? (eOpinion - CIV_OPINION_NEUTRAL) * 800 : 0;
 
-					if (GetPlayer()->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer || GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer)
+					if (pDiplo->GetMostValuableFriend() == eLoopPlayer || pDiplo->GetMostValuableAlly() == eLoopPlayer)
 					{
-						iDiploScore += 8;
+						iGoodDiploScore += 800;
 					}
-					if (GetPlayer()->GetDiplomacyAI()->GetPrimeLeagueAlly() == eLoopPlayer)
+					if (pDiplo->GetPrimeLeagueAlly() == eLoopPlayer)
 					{
-						iDiploScore += 8;
+						iGoodDiploScore += 800;
 					}
-					if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == eLoopPlayer)
+					if (pDiplo->GetBiggestCompetitor() == eLoopPlayer)
 					{
-						iDiploScore -= 6;
+						iBadDiploScore -= 600;
 					}
 					if (GetPlayer()->GetDiplomacyAI()->GetPrimeLeagueCompetitor() == eLoopPlayer)
 					{
-						iDiploScore -= 6;
+						iBadDiploScore -= 600;
 					}
-					iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(eLoopPlayer), (int)pDiplo->GetVictoryBlockLevel(eLoopPlayer));
+					int iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(eLoopPlayer), (int)pDiplo->GetVictoryBlockLevel(eLoopPlayer));
 					if (iDisputeLevel > 0)
 					{
-						iDiploScore -= iDisputeLevel * 6;
+						iBadDiploScore -= iDisputeLevel * 200;
 					}
+
+					bool bMaxCooperation = false;
 					AlignmentLevels eAlignment = EvaluateAlignment(eLoopPlayer, false);
 					switch (eAlignment)
 					{
 					case ALIGNMENT_TEAMMATE:
 					case ALIGNMENT_LIBERATOR:
 					case ALIGNMENT_LEADER:
-						iDiploScore = 100;
+						iGoodDiploScore = 10000;
+						bMaxCooperation = true;
 						break;
 					case ALIGNMENT_ALLY:
-						iDiploScore += 24;
+						iGoodDiploScore += 2400;
 						break;
 					case ALIGNMENT_CONFIDANT:
-						iDiploScore += 16;
+						iGoodDiploScore += 1600;
 						break;
 					case ALIGNMENT_FRIEND:
-						iDiploScore += 8;
+						iGoodDiploScore += 800;
 						break;
 					case ALIGNMENT_RIVAL:
-						iDiploScore += -8;
+						iBadDiploScore += -800;
 						break;
 					case ALIGNMENT_HATRED:
-						iDiploScore += -16;
+						iBadDiploScore += -1600;
 						break;
 					case ALIGNMENT_ENEMY:
 					case ALIGNMENT_WAR:
-						iDiploScore += -24;
+						iBadDiploScore += -2400;
 						break;
 					default:
 						break;
 					}
 
+					int iDiploScore = bMaxCooperation ? iGoodDiploScore / 200 : (iGoodDiploScore * pDiplo->GetWorkWithWillingness() / 2000) + (iBadDiploScore * pDiplo->GetWorkAgainstWillingness() / 2000);
 					iDiploScore *= GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false, /*bForSelf*/ false);
 					iDiploScore /= 100;
 					iTotalDiploScore += iDiploScore;
@@ -13614,7 +13613,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			iTotalDiploScore *= 16;
-			iTotalDiploScore /= max(1,10 + iNumCivs);
+			iTotalDiploScore /= 10 + iNumCivs;
 			iScore += iTotalDiploScore;
 		}
 	}

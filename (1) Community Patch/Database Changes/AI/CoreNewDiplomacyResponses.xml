@@ -88,6 +88,12 @@
 			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_COOP_WAR%</Response>
 		</Row>
 
+		<!-- AI warns human that another AI asked them to start a coop war against human -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_COOP_WAR_WARNING</ResponseType>
+			<Response>TXT_KEY_GENERIC_RESPONSE_COOP_WAR_WARNING%</Response>
+		</Row>
+
 		<!-- AI requests help -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>

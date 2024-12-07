@@ -73,6 +73,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_iWarmongerHate = 5;
 	m_iDoFWillingness = 5;
 	m_iDenounceWillingness = 5;
+	m_iWorkWithWillingness = 5;
+	m_iWorkAgainstWillingness = 5;
 	m_iLoyalty = 5;
 	m_iForgiveness = 5;
 	m_iNeediness = 5;
@@ -425,6 +427,8 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_iWarmongerHate);
 	visitor(diplomacyAI.m_iDoFWillingness);
 	visitor(diplomacyAI.m_iDenounceWillingness);
+	visitor(diplomacyAI.m_iWorkWithWillingness);
+	visitor(diplomacyAI.m_iWorkAgainstWillingness);
 	visitor(diplomacyAI.m_iLoyalty);
 	visitor(diplomacyAI.m_iForgiveness);
 	visitor(diplomacyAI.m_iNeediness);
@@ -978,6 +982,8 @@ void CvDiplomacyAI::SlotStateChange()
 		m_iWarmongerHate = 5;
 		m_iDoFWillingness = 5;
 		m_iDenounceWillingness = 5;
+		m_iWorkWithWillingness = 5;
+		m_iWorkAgainstWillingness = 5;
 		m_iLoyalty = 5;
 		m_iForgiveness = 5;
 		m_iNeediness = 5;
@@ -1851,7 +1857,7 @@ bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 // ************************************
 
 /// Returns a personality weight with a small random element
-int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, const CvSeeder& seed)
+int CvDiplomacyAI::RandomizePersonalityFlavor(int iOriginalValue, const CvSeeder& seed)
 {
 	int iPlusMinus = range(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0, (INT_MAX - 1) / 2);
 
@@ -1879,35 +1885,37 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 			CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 			if (pkLeaderHeadInfo)
 			{
-				// Some flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
+				// Four flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
 				// These should be treated as a 10 for all other purposes.
-				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetBoldness(), CvSeeder::fromRaw(0x0ba129a6).mix(ID));
-				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), CvSeeder::fromRaw(0x4f28f23d).mix(ID));
-				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), CvSeeder::fromRaw(0x69d26397).mix(ID));
-				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarmongerHate(), CvSeeder::fromRaw(0x8e1f1b1f).mix(ID));
+				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetBoldness(), CvSeeder::fromRaw(0x0ba129a6).mix(ID));
+				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), CvSeeder::fromRaw(0x4f28f23d).mix(ID));
+				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWonderCompetitiveness(), CvSeeder::fromRaw(0x69d26397).mix(ID));
+				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWarmongerHate(), CvSeeder::fromRaw(0x8e1f1b1f).mix(ID));
 
-				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), CvSeeder::fromRaw(0x5bea8e77).mix(ID));
-				m_iDiploBalance = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), CvSeeder::fromRaw(0x2f543039).mix(ID));
-				m_iDoFWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), CvSeeder::fromRaw(0x2a36ee5b).mix(ID));
-				m_iDenounceWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDenounceWillingness(), CvSeeder::fromRaw(0x84da8912).mix(ID));
-				m_iLoyalty = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetLoyalty(), CvSeeder::fromRaw(0x52c2cdd2).mix(ID));
-				m_iForgiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetForgiveness(), CvSeeder::fromRaw(0x81d9b8ec).mix(ID));
-				m_iNeediness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeediness(), CvSeeder::fromRaw(0xc0dd3363).mix(ID));
-				m_iMeanness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMeanness(), CvSeeder::fromRaw(0x24ca13c9).mix(ID));
-				m_iChattiness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetChattiness(), CvSeeder::fromRaw(0x5227bf3a).mix(ID));
+				m_iVictoryCompetitiveness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetVictoryCompetitiveness(), CvSeeder::fromRaw(0x5bea8e77).mix(ID));
+				m_iDiploBalance = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetDiploBalance(), CvSeeder::fromRaw(0x2f543039).mix(ID));
+				m_iDoFWillingness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetDoFWillingness(), CvSeeder::fromRaw(0x2a36ee5b).mix(ID));
+				m_iDenounceWillingness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetDenounceWillingness(), CvSeeder::fromRaw(0x84da8912).mix(ID));
+				m_iWorkWithWillingness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWorkWithWillingness(), CvSeeder::fromRaw(0x5f5224db).mix(ID));
+				m_iWorkAgainstWillingness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWorkAgainstWillingness(), CvSeeder::fromRaw(0xbe85dbdb).mix(ID));
+				m_iLoyalty = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetLoyalty(), CvSeeder::fromRaw(0x52c2cdd2).mix(ID));
+				m_iForgiveness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetForgiveness(), CvSeeder::fromRaw(0x81d9b8ec).mix(ID));
+				m_iNeediness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetNeediness(), CvSeeder::fromRaw(0xc0dd3363).mix(ID));
+				m_iMeanness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetMeanness(), CvSeeder::fromRaw(0x24ca13c9).mix(ID));
+				m_iChattiness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetChattiness(), CvSeeder::fromRaw(0x5227bf3a).mix(ID));
 
-				m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(false), CvSeeder::fromRaw(0xe48d2e04).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(false), CvSeeder::fromRaw(0x49b046ba).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDeceptiveBias(), CvSeeder::fromRaw(0xa9bc4713).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetGuardedBias(), CvSeeder::fromRaw(0xab8795d6).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetAfraidBias(), CvSeeder::fromRaw(0x9a90c196).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(false), CvSeeder::fromRaw(0xf7729147).mix(ID));
-				m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(false), CvSeeder::fromRaw(0x7fecee06).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWarBias(false), CvSeeder::fromRaw(0xe48d2e04).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetHostileBias(false), CvSeeder::fromRaw(0x49b046ba).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetDeceptiveBias(), CvSeeder::fromRaw(0xa9bc4713).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetGuardedBias(), CvSeeder::fromRaw(0xab8795d6).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetAfraidBias(), CvSeeder::fromRaw(0x9a90c196).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetNeutralBias(false), CvSeeder::fromRaw(0xf7729147).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetFriendlyBias(false), CvSeeder::fromRaw(0x7fecee06).mix(ID));
 
-				m_iMinorCivWarBias = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(true), CvSeeder::fromRaw(0x0be73829).mix(ID));
-				m_iMinorCivHostileBias = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(true), CvSeeder::fromRaw(0xc44465ee).mix(ID));
-				m_iMinorCivNeutralBias = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(true), CvSeeder::fromRaw(0x4087c177).mix(ID));
-				m_iMinorCivFriendlyBias = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(true), CvSeeder::fromRaw(0x4565d312).mix(ID));
+				m_iMinorCivWarBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWarBias(true), CvSeeder::fromRaw(0x0be73829).mix(ID));
+				m_iMinorCivHostileBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetHostileBias(true), CvSeeder::fromRaw(0xc44465ee).mix(ID));
+				m_iMinorCivNeutralBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetNeutralBias(true), CvSeeder::fromRaw(0x4087c177).mix(ID));
+				m_iMinorCivFriendlyBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetFriendlyBias(true), CvSeeder::fromRaw(0x4565d312).mix(ID));
 
 				// Minimal loyalty? We're willing to backstab.
 				if (GetLoyalty() <= 2)
@@ -2722,10 +2730,22 @@ int CvDiplomacyAI::GetDoFWillingness() const
 	return m_iDoFWillingness;
 }
 
-/// How much is this AI leader willing to work with someone AGAINST another player?
+/// How much is this AI leader willing to badmouth other players?
 int CvDiplomacyAI::GetDenounceWillingness() const
 {
 	return m_iDenounceWillingness;
+}
+
+/// How much is this AI leader willing to form strategic alliances WITH others?
+int CvDiplomacyAI::GetWorkWithWillingness() const
+{
+	return m_iWorkWithWillingness;
+}
+
+/// How much is this AI leader willing to form strategic alliances AGAINST others?
+int CvDiplomacyAI::GetWorkAgainstWillingness() const
+{
+	return m_iWorkAgainstWillingness;
 }
 
 /// How likely is this AI leader to refrain from backstabbing their friends?
@@ -15656,7 +15676,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (!bEverCapturedKeyCity && !bUntrustworthy && !IsAtWar(ePlayer))
 	{
+		// Liberated the capital or Holy City?
+		bLiberatedCapital = IsPlayerLiberatedCapital(ePlayer);
+		bLiberatedHolyCity = IsPlayerLiberatedHolyCity(ePlayer);
+
 		int iLiberationMod = GetNumCitiesEverLiberatedBy(ePlayer) - max(iNumOurCitiesTheyOwn, GetNumCitiesCapturedBy(ePlayer));
+		if (bLiberatedCapital)
+			iLiberationMod--;
+		if (bLiberatedHolyCity)
+			iLiberationMod--;
+
 		if (iLiberationMod > 0)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2;
@@ -15667,10 +15696,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_AFRAID] = 0;
 			vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
 		}
-
-		// Liberated the capital or Holy City?
-		bLiberatedCapital = IsPlayerLiberatedCapital(ePlayer);
-		bLiberatedHolyCity = IsPlayerLiberatedHolyCity(ePlayer);
 
 		if (bLiberatedCapital || bLiberatedHolyCity)
 		{
@@ -16585,14 +16610,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL)
 	{
-		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? 3 : 1;
-
-		if (GetDiploBalance() >= 8)
-			iDiploMultiplier += 1;
-		else if (GetDiploBalance() <= 3)
-			iDiploMultiplier -= 1;
-
-		iDiploMultiplier = max(iDiploMultiplier, 1);
+		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? AdjustConditionalModifier(300, GetDiploBalance()) : AdjustConditionalModifier(100, GetDiploBalance());
 
 		CvLeagueAI::AlignmentLevels eAlignment = (GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer, /*bIgnoreWar*/ true));
 		// Our prime league competitor isn't considered aligned with our interests...
@@ -16603,11 +16621,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				if (IsGoingForDiploVictory())
 					iDiploMultiplier = 0;
 				else
-					iDiploMultiplier--;
+					iDiploMultiplier -= AdjustConditionalModifier(100, GetWorkAgainstWillingness());
 			}
 			if (bTheyAreCloseToDiploVictory)
 			{
-				iDiploMultiplier--;
+				iDiploMultiplier -= AdjustConditionalModifier(100, GetWorkAgainstWillingness());
 			}
 
 			iDiploMultiplier = max(iDiploMultiplier, 0);
@@ -16618,42 +16636,42 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		case CvLeagueAI::ALIGNMENT_SELF:
 		case CvLeagueAI::ALIGNMENT_TEAMMATE:
 		case CvLeagueAI::ALIGNMENT_LEADER:
+		case CvLeagueAI::ALIGNMENT_WAR:
 			UNREACHABLE();
 		case CvLeagueAI::ALIGNMENT_ENEMY:
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetDiploBalance() * iDiploMultiplier;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += bApplyDeception ? vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier : 0;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkAgainstWillingness() * iDiploMultiplier / 100;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetWorkAgainstWillingness() * iDiploMultiplier / 100;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += bApplyDeception ? vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkAgainstWillingness() * iDiploMultiplier / 100 : 0;
 			break;
-		case CvLeagueAI::ALIGNMENT_WAR:
 		case CvLeagueAI::ALIGNMENT_HATRED:
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier / 2;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetDiploBalance() * iDiploMultiplier / 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier / 2;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkAgainstWillingness() * iDiploMultiplier / 200;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetWorkAgainstWillingness() * iDiploMultiplier / 200;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkAgainstWillingness() * iDiploMultiplier / 200;
 			break;
 		case CvLeagueAI::ALIGNMENT_RIVAL:
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier / 3;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier / 3;
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * GetDiploBalance() * iDiploMultiplier / 3;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkAgainstWillingness() * iDiploMultiplier / 300;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkAgainstWillingness() * iDiploMultiplier / 300;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * GetWorkAgainstWillingness() * iDiploMultiplier / 300;
 			break;
 		case CvLeagueAI::ALIGNMENT_NEUTRAL:
-			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * GetDiploBalance() * iDiploMultiplier / 2;
+			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * GetDiploBalance() * iDiploMultiplier / 200;
 			break;
 		case CvLeagueAI::ALIGNMENT_FRIEND:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier / 3;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier / 3;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkWithWillingness() * iDiploMultiplier / 300;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() * iDiploMultiplier / 300;
 			break;
 		case CvLeagueAI::ALIGNMENT_CONFIDANT:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier / 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier / 2;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkWithWillingness() * iDiploMultiplier / 200;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() * iDiploMultiplier / 200;
 			break;
 		case CvLeagueAI::ALIGNMENT_ALLY:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkWithWillingness() * iDiploMultiplier / 100;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() * iDiploMultiplier / 100;
 			break;
 		case CvLeagueAI::ALIGNMENT_LIBERATOR:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier * 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier * 2;
-			break;	
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkWithWillingness() * iDiploMultiplier / 50;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() * iDiploMultiplier / 50;
+			break;
 		}
 	}
 
@@ -17844,11 +17862,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 
-		vApproachScores[CIV_APPROACH_NEUTRAL] += AdjustConditionalModifier(iSameEnemyNeutralBonus, GetDenounceWillingness());
-		vApproachScores[CIV_APPROACH_FRIENDLY] += AdjustConditionalModifier(iSameEnemyFriendlyBonus, GetDenounceWillingness()) + AdjustConditionalModifier(iSameFriendFriendlyBonus, GetDoFWillingness()) + AdjustConditionalModifier(iSameDPFriendlyBonus, GetWarmongerHate());
-		vApproachScores[CIV_APPROACH_WAR] -= AdjustConditionalModifier(iSameFriendWarReduction, GetDoFWillingness()) + AdjustConditionalModifier(iSameDPWarReduction, GetWarmongerHate());
-		vApproachScores[CIV_APPROACH_HOSTILE] -= AdjustConditionalModifier(iSameFriendHostileReduction, GetDoFWillingness()) + AdjustConditionalModifier(iSameDPHostileReduction, GetWarmongerHate());
-		vApproachScores[CIV_APPROACH_GUARDED] -= AdjustConditionalModifier(iSameFriendGuardedReduction, GetDoFWillingness()) + AdjustConditionalModifier(iSameDPGuardedReduction, GetWarmongerHate());
+		vApproachScores[CIV_APPROACH_NEUTRAL] += AdjustConditionalModifier(iSameEnemyNeutralBonus, GetWorkAgainstWillingness());
+		vApproachScores[CIV_APPROACH_FRIENDLY] += AdjustConditionalModifier(iSameEnemyFriendlyBonus, GetWorkAgainstWillingness()) + AdjustConditionalModifier(iSameFriendFriendlyBonus, GetWorkWithWillingness()) + AdjustConditionalModifier(iSameDPFriendlyBonus, GetWarmongerHate());
+		vApproachScores[CIV_APPROACH_WAR] -= AdjustConditionalModifier(iSameFriendWarReduction, GetWorkWithWillingness()) + AdjustConditionalModifier(iSameDPWarReduction, GetWarmongerHate());
+		vApproachScores[CIV_APPROACH_HOSTILE] -= AdjustConditionalModifier(iSameFriendHostileReduction, GetWorkWithWillingness()) + AdjustConditionalModifier(iSameDPHostileReduction, GetWarmongerHate());
+		vApproachScores[CIV_APPROACH_GUARDED] -= AdjustConditionalModifier(iSameFriendGuardedReduction, GetWorkWithWillingness()) + AdjustConditionalModifier(iSameDPGuardedReduction, GetWarmongerHate());
 	}
 
 	// Reduce global penalties for religion/ideology, if appropriate.
@@ -18053,10 +18071,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 								iDenouncedByFriendGuardedReduction += vApproachBias[CIV_APPROACH_GUARDED];
 							}
 
-							// Need to add these ones now as they depend on the OTHER player's DenounceWillingness flavor
-							int iLoopDenounceWillingness = GetEstimatePlayerDenounceWillingness(eLoopPlayer);
-							vApproachScores[CIV_APPROACH_GUARDED] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendGuardedReduction * 2, iLoopDenounceWillingness) : AdjustConditionalModifier(iDenouncedByFriendGuardedReduction, iLoopDenounceWillingness);
-							vApproachScores[CIV_APPROACH_AFRAID] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendAfraidReduction * 2, iLoopDenounceWillingness) : AdjustConditionalModifier(iDenouncedByFriendAfraidReduction, iLoopDenounceWillingness);
+							// Need to add these ones now as they depend on the OTHER player's WorkAgainstWillingness flavor
+							int iLoopWorkAgainstWillingness = EstimateWorkAgainstWillingness(eLoopPlayer);
+							vApproachScores[CIV_APPROACH_GUARDED] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendGuardedReduction * 2, iLoopWorkAgainstWillingness) : AdjustConditionalModifier(iDenouncedByFriendGuardedReduction, iLoopWorkAgainstWillingness);
+							vApproachScores[CIV_APPROACH_AFRAID] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendAfraidReduction * 2, iLoopWorkAgainstWillingness) : AdjustConditionalModifier(iDenouncedByFriendAfraidReduction, iLoopWorkAgainstWillingness);
 						}
 
 						if (!pTheirDiplo->IsDenouncedPlayer(eLoopPlayer)) // Do not stack with above modifier to avoid excessive religious/ideological fervor.
@@ -18085,11 +18103,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 
-		vApproachScores[CIV_APPROACH_WAR] += AdjustConditionalModifier(iFriendsWithEnemyWarPenalty, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendWarPenalty, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendWarPenalty, GetDiploBalance(), true);
-		vApproachScores[CIV_APPROACH_HOSTILE] += AdjustConditionalModifier(iFriendsWithEnemyHostilePenalty, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendHostilePenalty, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendHostilePenalty, GetDiploBalance(), true);
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += AdjustConditionalModifier(iFriendsWithEnemyDeceptivePenalty, GetNeediness()) - AdjustConditionalModifier(iEnemiesWithFriendDeceptiveReduction, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendDeceptivePenalty, GetDiploBalance(), true);
+		vApproachScores[CIV_APPROACH_WAR] += AdjustConditionalModifier(iFriendsWithEnemyWarPenalty, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendWarPenalty, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendWarPenalty, GetWorkAgainstWillingness());
+		vApproachScores[CIV_APPROACH_HOSTILE] += AdjustConditionalModifier(iFriendsWithEnemyHostilePenalty, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendHostilePenalty, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendHostilePenalty, GetWorkAgainstWillingness());
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += AdjustConditionalModifier(iFriendsWithEnemyDeceptivePenalty, GetNeediness()) - AdjustConditionalModifier(iEnemiesWithFriendDeceptiveReduction, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendDeceptivePenalty, GetWorkAgainstWillingness());
 		vApproachScores[CIV_APPROACH_GUARDED] += AdjustConditionalModifier(iFriendsWithEnemyGuardedPenalty, GetNeediness());
-		vApproachScores[CIV_APPROACH_FRIENDLY] -= AdjustConditionalModifier(iFriendsWithEnemyFriendlyReduction, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendFriendlyReduction, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendFriendlyReduction, GetDiploBalance(), true);
+		vApproachScores[CIV_APPROACH_FRIENDLY] -= AdjustConditionalModifier(iFriendsWithEnemyFriendlyReduction, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendFriendlyReduction, GetLoyalty()) + AdjustConditionalModifier(iDenouncedByFriendFriendlyReduction, GetWorkAgainstWillingness());
 		vApproachScores[CIV_APPROACH_NEUTRAL] -= AdjustConditionalModifier(iFriendsWithEnemyNeutralReduction, GetNeediness()) + AdjustConditionalModifier(iEnemiesWithFriendNeutralReduction, GetLoyalty());
 	}
 
@@ -18119,7 +18137,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Scale based on personality - how much do we care about trade loyalty? 
 	// Netherlands always has maximum trade loyalty!
-	iTradeDealValue *= pTraits->IsImportsCountTowardsMonopolies() ? 20 : GetLoyalty() + GetDiploBalance();
+	iTradeDealValue *= pTraits->IsImportsCountTowardsMonopolies() ? 20 : GetLoyalty() + GetWorkWithWillingness();
 	iTradeDealValue /= 20;
 
 	// Trade deal value is more important in earlier eras
@@ -18591,7 +18609,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 
 					// If we can't take them, we don't want them attacking us after finishing with this guy
-					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer) && GetCoopWarState(eLoopPlayer, ePlayer) < COOP_WAR_STATE_PREPARING)
+					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer))
 					{
 						bAllowDogpiling = false;
 						break;
@@ -18599,7 +18617,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 					if (bThinkingAboutDogpiling)
 					{
-						int iBonusMod = (int)GetVictoryBlockLevel(ePlayer) + (int)GetVictoryDisputeLevel(ePlayer) + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer);
+						int iBonusMod = max((int)GetVictoryBlockLevel(ePlayer), (int)GetVictoryDisputeLevel(ePlayer)) + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer);
 
 						if (IsAtWar(ePlayer))
 							iBonusMod += (int)GetWarState(ePlayer) - 4;
@@ -18641,8 +18659,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (bAllowDogpiling && iBonus > 0)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iBonus / 2;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iBonus / 2;
+			vApproachScores[CIV_APPROACH_WAR] += AdjustConditionalModifier(vApproachBias[CIV_APPROACH_WAR] * iBonus, GetWorkAgainstWillingness()) / 2;
+			vApproachScores[CIV_APPROACH_HOSTILE] += AdjustConditionalModifier(vApproachBias[CIV_APPROACH_HOSTILE] * iBonus, GetWorkAgainstWillingness()) / 2;
 		}
 	}
 
@@ -18740,7 +18758,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 			{
 				// Add some weight for leader flavors
-				vApproachScores[CIV_APPROACH_WAR] += (GetBoldness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) * 50;
+				vApproachScores[CIV_APPROACH_WAR] += (GetBoldness() + GetWorkAgainstWillingness()) * 50;
 				vApproachScores[CIV_APPROACH_HOSTILE] += (GetMeanness() + GetDenounceWillingness()) * 50;
 
 				// More likely to declare war for each original capital we own
@@ -18874,7 +18892,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// Increase friendship willingness with all civs (that aren't close to winning)
 				if (!IsEndgameAggressiveTo(ePlayer))
 				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] + (GetDoFWillingness() * 100) + (m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) * 100);
+					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] + GetWorkWithWillingness() * 100 + GetDoFWillingness() * 100;
 
 					// Larger increase if we're close to winning
 					if (bCloseToDiploVictory)
@@ -18885,7 +18903,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 				if (bMetValidMinor)
 				{
-					int iLoweredInfluenceCount = (GetNumTimesTheyLoweredOurInfluence(ePlayer)/2) + GetNumTimesPerformedCoupAgainstUs(ePlayer);
+					int iLoweredInfluenceCount = GetNumTimesTheyLoweredOurInfluence(ePlayer)/2 + GetNumTimesPerformedCoupAgainstUs(ePlayer);
 
 					if (iLoweredInfluenceCount > 0)
 					{
@@ -37314,6 +37332,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_COOP_WAR", strOptionalKey1, strOptionalKey2);
 		break;
 
+		// AI warns human that another AI asked them to start a coop war against human
+	case DIPLO_MESSAGE_COOP_WAR_WARNING:
+		strText = GetDiploTextFromTag("RESPONSE_COOP_WAR_WARNING", strOptionalKey1);
+		break;
+
 		// Human catches enemy spy and does not forgive the thief
 	case DIPLO_MESSAGE_HUMAN_KILLED_MY_SPY_UNFORGIVEN:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_KILLED_MY_SPY_UNFORGIVEN");
@@ -41865,9 +41888,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	{
 		// Update approach to WAR
 		SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
-
-		if (!GET_PLAYER(eAskingPlayer).isHuman())
-			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
+		GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetCivApproach(eTargetPlayer, CIV_APPROACH_WAR);
 	}
 
 	return eResponse;
@@ -41876,12 +41897,6 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 /// We rejected eAskingPlayer's request to go to war with eTargetPlayer, but should we warn the target?
 bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const
 {
-	// Don't warn humans - no dialogue for this
-	if (GET_PLAYER(eTargetPlayer).isHuman())
-	{
-		return false;
-	}
-
 	CivApproachTypes eApproachTowardsAsker = GetCivApproach(eAskingPlayer);
 	CivOpinionTypes  eOpinionOfAsker = GetCivOpinion(eAskingPlayer);
 	CivApproachTypes eApproachTowardsTarget = GetCivApproach(eTargetPlayer);
@@ -41994,6 +42009,29 @@ void CvDiplomacyAI::DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes e
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
+		// If human was target, send message
+		if (GET_PLAYER(eLoopPlayer).isHuman())
+		{
+			if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eLoopPlayer && !GC.getGame().IsAllDiploStatementsDisabled())
+			{
+				const char* szPlayerName = NULL;
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eAskingPlayer).isHuman())
+				{
+					szPlayerName = GET_PLAYER(eAskingPlayer).getNickName();
+				}
+				else
+				{
+					szPlayerName = GET_PLAYER(eAskingPlayer).getNameKey();
+				}
+
+				DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_WARNING, NO_PLAYER, szPlayerName);
+				gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+			}
+			continue;
+		}
+
+		// Process global reactions for AI players
 		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != eMyPlayer)
 		{
 			CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
@@ -42992,9 +43030,9 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 				// What is their backstabbing tolerance?
 				if (!kPlayer.GetDiplomacyAI()->WasResurrectedBy(GetID()))
 				{
-					int iFriendDenounceTolerance = GetEstimatePlayerLoyalty(eLoopPlayer) < 5 ? 2 : 1;
+					int iFriendDenounceTolerance = EstimateLoyalty(eLoopPlayer) < 5 ? 2 : 1;
 
-					if (GetEstimatePlayerForgiveness(eLoopPlayer) > 8)
+					if (EstimateForgiveness(eLoopPlayer) > 8)
 						iFriendDenounceTolerance++;
 
 					int iNumCivsEver = GC.getGame().countMajorCivsEverAlive();
@@ -43898,7 +43936,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Are there any quests that should influence our decision? Ignore if we're already close to a non-domination victory, we shouldn't be making additional enemies over City-States.
 	if (!IsCloseToSpaceshipVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
 	{
@@ -43924,7 +43962,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 			}
 		}
 	}
-#endif
 
 	// Used when friends are asking us to denounce someone
 	if (bBias)
@@ -45044,7 +45081,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::SetWeLikedTheirProposalTurn,
 			&CvDiplomacyAI::GetWeLikedTheirProposalTurn,
 			/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS),
-			GetDoFWillingness());
+			GetWorkWithWillingness());
 
 		// Disliked their WC proposal?
 		checkAndUpdateNonStackingOpinionModifier(this, ePlayer, iTurn,
@@ -45052,7 +45089,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::SetWeDislikedTheirProposalTurn,
 			&CvDiplomacyAI::GetWeDislikedTheirProposalTurn,
 			/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS),
-			GetDenounceWillingness());
+			GetWorkAgainstWillingness());
 
 		int iSupportValue = GetSupportedOurProposalValue(ePlayer);
 
@@ -45060,7 +45097,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 		if (iSupportValue > 0)
 		{
 			int iProposalTurn = 0;
-			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetWorkAgainstWillingness());
 			if (IsFoiledOurProposalAndThenSupportedUs(ePlayer))
 			{
 				// The more recent action should carry higher value if Forgiveness is higher
@@ -45090,7 +45127,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 		else if (iSupportValue < 0)
 		{
 			int iProposalTurn = 0;
-			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetWorkWithWillingness());
 			if (IsSupportedOurProposalAndThenFoiledUs(ePlayer))
 			{
 				// The more recent action should carry higher value if Neediness is higher
@@ -45123,7 +45160,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::SetTheySupportedOurHostingTurn,
 			&CvDiplomacyAI::GetTheySupportedOurHostingTurn,
 			/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS),
-			GetDoFWillingness());
+			GetWorkWithWillingness());
 
 		// Sanctioned us?
 		checkAndUpdateNonStackingOpinionModifier(this, ePlayer, iTurn,
@@ -45131,7 +45168,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::SetTheySanctionedUsTurn,
 			&CvDiplomacyAI::GetTheySanctionedUsTurn,
 			/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN),
-			HasEverSanctionedUs(ePlayer) ? GetMeanness() : GetDenounceWillingness());
+			HasEverSanctionedUs(ePlayer) ? GetMeanness() : GetWorkAgainstWillingness());
 
 		// Un-sanctioned us?
 		checkAndUpdateNonStackingOpinionModifier(this, ePlayer, iTurn,
@@ -45139,7 +45176,7 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			&CvDiplomacyAI::SetTheyUnsanctionedUsTurn,
 			&CvDiplomacyAI::GetTheyUnsanctionedUsTurn,
 			/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN),
-			HasEverUnsanctionedUs(ePlayer) ? GetLoyalty() : GetDoFWillingness());
+			HasEverUnsanctionedUs(ePlayer) ? GetLoyalty() : GetWorkWithWillingness());
     }
 }
 
@@ -46416,8 +46453,8 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer) const
 			iOpinionWeight += /*-20*/ GD_INT_GET(OPINION_WEIGHT_DENOUNCED_BIGGEST_LEAGUE_RIVAL);
 	}
 
-	// Scale with DenounceWillingness
-	return AdjustConditionalModifier(iOpinionWeight, GetDenounceWillingness());
+	// Scale with WorkAgainstWillingness
+	return AdjustConditionalModifier(iOpinionWeight, GetWorkAgainstWillingness());
 }
 
 int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer) const
@@ -46473,8 +46510,8 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer) const
 		}
 	}
 
-	// Scale inversely with DiploBalance - the more the AI is focused on their own sphere of influence, the less they get involved in others' fights
-	return AdjustConditionalModifier(iOpinionWeight, GetDiploBalance(), true);
+	// Scale with WorkAgainstWillingness
+	return AdjustConditionalModifier(iOpinionWeight, GetWorkAgainstWillingness());
 }
 
 //////////////////////////////////////
@@ -47250,7 +47287,7 @@ int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer) const
 		}
 	}
 
-	// Scale inversely with DoFWillingness - AIs more willing to be friends place less value on individual friends & more on forming blocs; vice versa for AIs who want fewer but closer friends
+	// Scale inversely with DoFWillingness - AIs more willing to be friends place less value on individual friends; vice versa for AIs who want fewer but closer friends
 	return AdjustConditionalModifier(iOpinionWeight, GetDoFWillingness(), true);
 }
 
@@ -47308,8 +47345,8 @@ int CvDiplomacyAI::GetDOFWithAnyFriendScore(PlayerTypes ePlayer) const
 		}
 	}
 
-	// Scale with DoFWillingness
-	return AdjustConditionalModifier(iOpinionWeight, GetDoFWillingness());
+	// Scale with WorkWithWillingness
+	return AdjustConditionalModifier(iOpinionWeight, GetWorkWithWillingness());
 }
 
 int CvDiplomacyAI::GetDOFWithAnyEnemyScore(PlayerTypes ePlayer) const
@@ -47555,8 +47592,8 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 		}
 	}
 
-	// Scale with DenounceWillingness
-	return AdjustConditionalModifier(iTraitorOpinion, GetDenounceWillingness());
+	// Scale with WorkAgainstWillingness
+	return AdjustConditionalModifier(iTraitorOpinion, GetWorkAgainstWillingness());
 }
 
 int CvDiplomacyAI::GetPlayerDenouncedFriendScore(PlayerTypes ePlayer)
@@ -47807,7 +47844,7 @@ int CvDiplomacyAI::GetLikedTheirProposalScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetWorkWithWillingness());
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetWeLikedTheirProposalTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
@@ -47831,7 +47868,7 @@ int CvDiplomacyAI::GetDislikedTheirProposalScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetWorkAgainstWillingness());
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetWeDislikedTheirProposalTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
@@ -47850,7 +47887,7 @@ int CvDiplomacyAI::GetSupportedOurProposalScore(PlayerTypes ePlayer)
 	if (iSupportValue > 0)
 	{
 		int iTurn = 0;
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetWorkAgainstWillingness());
 
 		if (IsFoiledOurProposalAndThenSupportedUs(ePlayer))
 		{
@@ -47890,7 +47927,7 @@ int CvDiplomacyAI::GetSupportedOurProposalScore(PlayerTypes ePlayer)
 	else if (iSupportValue < 0)
 	{
 		int iTurn = 0;
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetWorkWithWillingness());
 
 		if (IsSupportedOurProposalAndThenFoiledUs(ePlayer))
 		{
@@ -47953,7 +47990,7 @@ int CvDiplomacyAI::GetSupportedMyHostingScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetWorkWithWillingness());
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetTheySupportedOurHostingTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
@@ -47983,7 +48020,7 @@ int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
 			iOpinionWeight /= /*200*/ max(GD_INT_GET(OPINION_WEIGHT_THEY_SANCTIONED_US_FAILURE_DIVISOR), 1);
 		}
 
-		int iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetDenounceWillingness());
+		int iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetWorkAgainstWillingness());
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetTheySanctionedUsTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 	else if (HasTriedToUnsanctionUs(ePlayer))
@@ -48002,7 +48039,7 @@ int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
 			iOpinionWeight /= /*200*/ max(GD_INT_GET(OPINION_WEIGHT_THEY_UNSANCTIONED_US_FAILURE_DIVISOR), 1);
 		}
 
-		int iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetLoyalty()) : AdjustModifierDuration(GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetDoFWillingness());
+		int iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetLoyalty()) : AdjustModifierDuration(GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetWorkWithWillingness());
 		return AdjustTimedModifier(iOpinionWeight, iDuration, GetTheyUnsanctionedUsTurn(ePlayer), TIMED_MODIFIER_STANDARD);
 	}
 
@@ -48983,7 +49020,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	}
 	case THEFT_TYPE_EMBASSY: // America UA or Culture Bomb
 	{
-		if (!bHuman && IsVassal(ePlayer))
+		if (!bHuman && IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
 			return true;
 	}
 	}
@@ -49619,7 +49656,7 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 // ... humans can learn this by studying opinion modifiers whenever the AI's approach isn't FRIENDLY (or with Transparent Diplomacy enabled)
 
 /// How much do we estimate this other leader gets angry when another player is competing for Victory?
-int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateVictoryCompetitiveness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49640,7 +49677,7 @@ int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) 
 }
 
 /// How much do we estimate this other leader gets angry when they're beaten to a World Wonder?
-int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateWonderCompetitiveness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49666,7 +49703,7 @@ int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) c
 }
 
 /// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
-int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateMinorCivCompetitiveness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49692,7 +49729,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer)
 }
 
 /// What is this other leader's estimated likelihood to take risks / go for World Conquest?
-int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateBoldness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49718,7 +49755,7 @@ int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
 }
 
 /// How much do we estimate this other leader wants to maintain a balance of power in the world?
-int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateDiploBalance(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49739,7 +49776,7 @@ int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
 }
 
 /// How much does this other leader gets angry when someone's being a warmonger?
-int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateWarmongerHate(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49818,7 +49855,7 @@ int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
 }
 
 /// What is this other leader's estimated likelihood to befriend other players?
-int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateDoFWillingness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49838,8 +49875,8 @@ int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
 	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness(), 1, 10);
 }
 
-/// What is this other leader's estimated likelihood to work with someone AGAINST another player?
-int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const
+/// What is this other leader's estimated likelihood to badmouth other players?
+int CvDiplomacyAI::EstimateDenounceWillingness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49859,8 +49896,50 @@ int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) con
 	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetDenounceWillingness(), 1, 10);
 }
 
+/// What is this other leader's estimated likelihood to form strategic alliances WITH others?
+int CvDiplomacyAI::EstimateWorkWithWillingness(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWorkWithWillingness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return 5;
+	}
+
+	// AI? Use the other player's base XML value.
+	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetWorkWithWillingness(), 1, 10);
+}
+
+/// What is this other leader's estimated likelihood to form strategic alliances AGAINST others?
+int CvDiplomacyAI::EstimateWorkAgainstWillingness(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWorkAgainstWillingness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return 5;
+	}
+
+	// AI? Use the other player's base XML value.
+	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetWorkAgainstWillingness(), 1, 10);
+}
+
 /// What is this other leader's estimated likelihood to refrain from backstabbing their friends?
-int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateLoyalty(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49881,7 +49960,7 @@ int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
 }
 
 /// How much do we estimate this other leader is willing to forgive transgressions against them?
-int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateForgiveness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49902,7 +49981,7 @@ int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
 }
 
 /// How much do we estimate this other leader wants the support of its friends in rough times?
-int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateNeediness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49923,7 +50002,7 @@ int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
 }
 
 /// How much do we estimate this other leader likes to talk smack / bully others?
-int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateMeanness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49944,7 +50023,7 @@ int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
 }
 
 /// How much do we estimate this other leader likes to pop up and talk?
-int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
+int CvDiplomacyAI::EstimateChattiness(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -49965,7 +50044,7 @@ int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
 }
 
 /// What is our estimate of another leader's bias for a particular Major Civ Approach?
-int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
+int CvDiplomacyAI::EstimateMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 	if (eApproach < 0 || eApproach >= NUM_CIV_APPROACHES) return 0;
@@ -50017,7 +50096,7 @@ int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, Ci
 }
 
 /// What is our estimate of another leader's bias for a particular Minor Civ Approach?
-int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
+int CvDiplomacyAI::EstimateMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -50063,7 +50142,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, Ci
 }
 
 /// What is our estimate of another leader's value for a personality flavor?
-int CvDiplomacyAI::GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const
+int CvDiplomacyAI::EstimateFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 	if (eFlavor < 0 || eFlavor >= GC.getNumFlavorTypes()) return 0;

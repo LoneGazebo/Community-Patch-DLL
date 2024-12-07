@@ -246,9 +246,6 @@ const CvCityConnections::SingleCityConnectionStore& CvCityConnections::GetDirect
 
 void CvCityConnections::UpdateRouteInfo(void)
 {
-	if(m_pPlayer->getNumCities() <= 1)
-		return;
-
 	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direct connection makes no sense
 	bool bCallDirectEvents = false;
 	bool bCallIndirectEvents = false;
@@ -266,6 +263,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 	m_connectionState.clear();
 
+	//remember this so we can recognize if nothing changed
+	map<int, bool> prevState;
+
 	for (PlotIndexStore::iterator it = m_plotIdsToConnect.begin(); it != m_plotIdsToConnect.end(); ++it)
 	{
 		CvCity* pStartCity = GC.getMap().plotByIndexUnchecked( *it )->getPlotCity();
@@ -277,6 +277,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 		//we assume no city is connected to the capital
 		if (pStartCity->getOwner()==m_pPlayer->GetID())
 		{
+			prevState[pStartCity->GetID()] = pStartCity->IsRouteToCapitalConnected();
+
 			pStartCity->SetRouteToCapitalConnected(false, true);
 			pStartCity->SetIndustrialRouteToCapitalConnected(false);
 		}
@@ -515,7 +517,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			CvCity* pCity = pPlot->getPlotCity();
 			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
 			{
-				pCity->SetRouteToCapitalConnected(true);
+				pCity->SetRouteToCapitalConnected(true, prevState[pCity->GetID()]==true);
 				vConnectedCities.push_back(pCity);
 			}
 		}
@@ -612,7 +614,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		{
 			for (size_t i = 0; i < vDisconnectedCities.size(); i++)
 			{
-				vDisconnectedCities[i]->SetRouteToCapitalConnected(false);
+				vDisconnectedCities[i]->SetRouteToCapitalConnected(false, prevState[vDisconnectedCities[i]->GetID()] == false);
 			}
 		}
 		if (vIndustrialDisconnectedCities.size() > 0)

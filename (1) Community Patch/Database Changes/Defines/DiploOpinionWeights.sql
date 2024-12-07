@@ -259,14 +259,14 @@ VALUES
 	('OPINION_WEIGHT_DENOUNCED_MOST_VALUED_ALLY', 10), -- denounced the AI's most valued DP (if they have a DoF with them)
 
 -- We have Denounced the same leaders!
--- NOTE: This bonus scales based on the AI's DenounceWillingness flavor.
+-- NOTE: This bonus scales based on the AI's WorkAgainstWillingness flavor.
 	('OPINION_WEIGHT_DENOUNCED_ENEMY', -20),
 	('OPINION_WEIGHT_DENOUNCED_ENEMY_SUBSEQUENT', -8), -- any after the first
 	('OPINION_WEIGHT_DENOUNCED_BIGGEST_COMPETITOR', -20), -- mutual denouncement against AI's biggest competitor
 	('OPINION_WEIGHT_DENOUNCED_BIGGEST_LEAGUE_RIVAL', -20), -- mutual denouncement against AI's biggest World Congress rival
 
 -- Other civs that they like more than you have denounced you!
--- NOTE: This penalty scales inversely (negatively) based on the AI's DiploBalance flavor.
+-- NOTE: This penalty scales based on the AI's WorkAgainstWillingness flavor.
 	('OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND', 15),
 	('OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT', 5), -- any after the first
 	('OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND', 15), -- additional penalty if the denouncement comes from a teammate or their most valued friend/ally
@@ -402,7 +402,7 @@ VALUES
 	('OPINION_WEIGHT_DOF_TYPE_BATTLE_BROTHERS', -30), -- bonus for 3+ consecutive DoFs ""
 
 -- We have made Declarations of Friendship with the same leaders!
--- NOTE: This bonus scales based on the AI's DoFWillingness flavor.
+-- NOTE: This bonus scales based on the AI's WorkWithWillingness flavor.
 	('OPINION_WEIGHT_DOF_WITH_FRIEND', -20),
 	('OPINION_WEIGHT_DOF_WITH_FRIEND_SUBSEQUENT', -8), -- any after the first
 	('OPINION_WEIGHT_DOF_WITH_MOST_VALUED_FRIEND', -20), -- made a DoF with AI's most valued friend
@@ -462,7 +462,7 @@ VALUES
 	('OPINION_WEIGHT_BETRAYED_OUR_FRIEND_MULTIPLIER', 200), -- multiplier to all traitor opinion penalties wherein the player betrayed or was betrayed by AI's friends or allies
 
 -- Your friends found reason to denounce you!
--- NOTE: This penalty scales based on the AI's DenounceWillingness flavor.
+-- NOTE: This penalty scales based on the AI's WorkAgainstWillingness flavor.
 	('OPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH', 20), -- if they like the denouncer more than you
 	('OPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE', 10), -- if they like you more than the denouncer
 
@@ -721,12 +721,12 @@ VALUES
 	('OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 30), -- scales with Protective approach bias towards City-States
 	('OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 30),
 	('OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN', 10),
-	('OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with DoFWillingness
-	('OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with DenounceWillingness
-	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with DoFWillingness and sometimes Neediness
-	('OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with DenounceWillingness and sometimes Forgiveness
-	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS', 50), -- scales with DoFWillingness
-	('SANCTIONED_US_TURNS_UNTIL_FORGIVEN', 50), -- scales with Meanness if the attempt succeeded, DenounceWillingness otherwise
-	('UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', 50), -- scales with Loyalty if the attempt succeeded, DoFWillingness otherwise
+	('OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with WorkWithWillingness
+	('OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS', 50), -- scales with WorkAgainstWillingness
+	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with WorkWithWillingness and sometimes Neediness
+	('OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS', 50), -- scales with WorkAgainstWillingness and sometimes Forgiveness
+	('OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS', 50), -- scales with WorkWithWillingness
+	('SANCTIONED_US_TURNS_UNTIL_FORGIVEN', 50), -- scales with Meanness if the attempt succeeded, WorkAgainstWillingness otherwise
+	('UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', 50), -- scales with Loyalty if the attempt succeeded, WorkWithWillingness otherwise
 	('OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', 100), -- How many turns the "gave independence when asked" bonus remains for
 	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100); -- How many turns the "refused to give independence" when asked penalty remains for

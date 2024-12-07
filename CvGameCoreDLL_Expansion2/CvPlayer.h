@@ -197,7 +197,7 @@ public:
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
 	int GetNumUnitPromotions(PromotionTypes ePromotion);
-	void UpdateDangerPlots(bool bKeepKnownUnits);
+	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
 
 	bool isHuman() const;
@@ -2506,8 +2506,7 @@ public:
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
-	int GetDangerPlotAge() const;
-	std::vector<CvUnit*> GetPrevTurnKnownEnemyUnits() const;
+	bool IsVanishedUnit(const IDInfo& id) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);

@@ -129,7 +129,7 @@ SET Text = 'The {TXT_KEY_UNIT_BABYLON_BOWMAN} is the Babylonian unique unit, rep
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_SILVER_FIST] Military Supply from Population. +1 [ICON_RANGE_STRENGTH] City Strike Range. Great Scientists provide 5% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = '+5% [ICON_SILVER_FIST] Military Supply from Population. +1 [ICON_RANGE_STRENGTH] City Strike Range. Great Scientists provide 5% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_INFO';
 
 UPDATE Language_en_US
@@ -319,7 +319,7 @@ SET Text = 'La Grande Armée'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Military Supply. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism in every City for every 10 Military Units. +25% [ICON_SILVER_FIST] Military Supply from Population.'
+SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Military Supply. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism in every City for every 10 Military Units. +15% [ICON_SILVER_FIST] Military Supply from Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
@@ -751,7 +751,7 @@ SET Text = 'Gain 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy in the Clas
 WHERE Tag = 'TXT_KEY_TRAIT_SOLIDARITY';
 
 UPDATE Language_en_US
-SET Text = 'Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse. +50% [ICON_PRODUCTION] Production and +15 XP when building Mounted Melee Units. +10% [ICON_SILVER_FIST] Military Supply from Population. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
+SET Text = 'Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse. +50% [ICON_PRODUCTION] Production and +15 XP when building Mounted Melee Units. +1 [ICON_WAR] Military Supply. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP';
 
 UPDATE Language_en_US
@@ -855,7 +855,7 @@ SET Text = 'Ostrog'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_DESC';
 
 UPDATE Language_en_US
-SET Text = 'Damage from all sources against this City is reduced by 2. Allows City to [ICON_RANGE_STRENGTH] Strike over obstacles. +10% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE]Enemy Land Units expend all [ICON_MOVES] Movement when entering land territory owned by this City.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumber Mills, and Strategic Resources worked by this City.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = 'Damage from all sources against this City is reduced by 2. Allows City to [ICON_RANGE_STRENGTH] Strike over obstacles. +5% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE]Enemy Land Units expend all [ICON_MOVES] Movement when entering land territory owned by this City.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumber Mills, and Strategic Resources worked by this City.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US

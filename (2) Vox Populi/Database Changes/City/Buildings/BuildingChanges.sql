@@ -791,14 +791,14 @@ WHERE Type = 'BUILDING_WALLS';
 UPDATE Buildings
 SET
 	CityRangedStrikeRange = 1,
-	CitySupplyModifier = 10,
+	CitySupplyModifier = 5,
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_WALLS';
 
 -- Castle
 UPDATE Buildings
 SET
-	CitySupplyModifier = 10,
+	CitySupplyModifier = 5,
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
 	GreatWorkCount = 1,
 	EmpireSizeModifierReduction = -5
@@ -818,7 +818,7 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_COMBUSTION',
 	CityRangedStrikeRange = 1,
-	CitySupplyModifier = 10,
+	CitySupplyModifier = 5,
 	HealRateChange = 5,
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_ARSENAL';
@@ -828,7 +828,7 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_RADAR',
 	RangedStrikeModifier = 10,
-	CitySupplyModifier = 20,
+	CitySupplyModifier = 5,
 	HealRateChange = 20,
 	DistressFlatReduction = 1,
 	EmpireSizeModifierReduction = -5,
@@ -957,9 +957,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SPACESHIP_FACTORY';
 
 -- Lighthouse
 UPDATE Buildings
-SET
-	CitySupplyFlat = 1,
-	AllowsWaterRoutes = 1
+SET AllowsWaterRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_LIGHTHOUSE';
 
 -- Already has +1 food from vanilla
@@ -976,7 +974,7 @@ SET
 	AllowsWaterRoutes = 0,
 	FinishSeaTRTourism = 10,
 	TradeRouteSeaGoldBonus = 200,
-	CitySupplyFlat = 2
+	CitySupplyFlat = 1
 WHERE BuildingClass = 'BUILDINGCLASS_HARBOR';
 
 INSERT INTO Building_YieldChanges
@@ -1011,7 +1009,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_HARBOR';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_STEAM_POWER',
-	CitySupplyModifier = 20,
+	CitySupplyModifier = 10,
 	AllowsIndustrialWaterRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
@@ -1655,7 +1653,7 @@ DELETE FROM Helper;
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_CHIVALRY',
-	CitySupplyModifier = 10
+	CitySupplyFlat = 1
 WHERE BuildingClass = 'BUILDINGCLASS_STABLE';
 
 INSERT INTO Building_YieldChanges
@@ -2333,7 +2331,7 @@ CREATE TEMP TABLE BuildingsTemp (
 
 INSERT INTO BuildingsTemp
 VALUES
-	('BUILDINGCLASS_WALLS', 600, 125, 0),
+	('BUILDINGCLASS_WALLS', 600, 100, 0),
 	('BUILDINGCLASS_CASTLE', 800, 0, 2),
 	('BUILDINGCLASS_FORTRESS', 1000, 0, 2),
 	('BUILDINGCLASS_ARSENAL', 1200, 300, 0),

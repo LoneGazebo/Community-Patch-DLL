@@ -4587,7 +4587,7 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 int CvLuaPlayer::lGetEmpireSizeSupplyReduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iReductionPercent = max(pkPlayer->GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0);
+	int iReductionPercent = pkPlayer->getNumCities() > 0 ? max(pkPlayer->GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
 	if (iReductionPercent == 0)
 	{
 		lua_pushinteger(L, 0);

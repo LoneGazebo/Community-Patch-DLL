@@ -142,6 +142,7 @@ public:
 	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
+	bool IsNoStarvationNonSpecialist() const;
 	int GetCooldown() const;
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
@@ -182,7 +183,7 @@ public:
 	int GetGlobalCultureRateModifier() const;
 	int GetGreatPeopleRateModifier() const;
 	int GetGlobalGreatPeopleRateModifier() const;
-	int GetGPRateModPerMarriage() const;
+	int GetGPRateModifierPerMarriage() const;
 	int GetGPRateModifierPerLocalTheme() const;
 	int GetGPPOnCitizenBirth() const;
 	int GetGreatGeneralRateModifier() const;
@@ -715,6 +716,7 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
+	bool m_bNoStarvationNonSpecialist;
 	int m_iGetCooldown;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
@@ -753,7 +755,7 @@ private:
 	int m_iGlobalCultureRateModifier;
 	int m_iGreatPeopleRateModifier;
 	int m_iGlobalGreatPeopleRateModifier;
-	int m_iGPRateModPerMarriage;
+	int m_iGPRateModifierPerMarriage;
 	int m_iGPRateModifierPerLocalTheme;
 	int m_iGPPOnCitizenBirth;
 	int m_iGreatGeneralRateModifier;

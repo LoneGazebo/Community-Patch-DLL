@@ -2311,6 +2311,15 @@
 			<Text>Our spies have uncovered that {1_PlayerName} and {2_PlayerName} are preparing to go to war with you. We hope that you will share any intrigue your agents discover with us.</Text>
 		</Row>
 
+		<!-- AI warns human that another AI asked them to start a coop war against human -->
+		<!-- Technically intrigue, but not shared in the same way -->
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_COOP_WAR_WARNING_1">
+			<Text>{1_PlayerName} attempted to persuade us to start a cooperative war against you. I hope my rejection of their offer pleases you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_COOP_WAR_WARNING_2">
+			<Text>While {1_PlayerName} is my friend, I just told them their plan for a joint war against you was unacceptable. Beware their intentions!</Text>
+		</Row>
+
 		<!--// STATEMENTS //-->
 
 		<!-- Human is influential over us (Ancient/Classical) -->

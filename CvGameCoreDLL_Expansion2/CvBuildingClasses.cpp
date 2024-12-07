@@ -52,6 +52,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
+	m_bNoStarvationNonSpecialist(false),
 	m_iGetCooldown(0),
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
@@ -90,7 +91,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGlobalCultureRateModifier(0),
 	m_iGreatPeopleRateModifier(0),
 	m_iGlobalGreatPeopleRateModifier(0),
-	m_iGPRateModPerMarriage(0),
+	m_iGPRateModifierPerMarriage(0),
 	m_iGPRateModifierPerLocalTheme(0),
 	m_iGPPOnCitizenBirth(0),
 	m_iGreatGeneralRateModifier(0),
@@ -685,7 +686,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalCultureRateModifier = kResults.GetInt("GlobalCultureRateModifier");
 	m_iGreatPeopleRateModifier = kResults.GetInt("GreatPeopleRateModifier");
 	m_iGlobalGreatPeopleRateModifier = kResults.GetInt("GlobalGreatPeopleRateModifier");
-	m_iGPRateModPerMarriage = kResults.GetInt("GPRateModPerMarriage");
+	m_iGPRateModifierPerMarriage = kResults.GetInt("GPRateModifierPerMarriage");
 	m_iGPRateModifierPerLocalTheme = kResults.GetInt("GPRateModifierPerLocalTheme");
 	m_iGPPOnCitizenBirth = kResults.GetInt("GPPOnCitizenBirth");
 	m_iGreatGeneralRateModifier = kResults.GetInt("GreatGeneralRateModifier");
@@ -922,6 +923,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
+	m_bNoStarvationNonSpecialist = kResults.GetBool("NoStarvationNonSpecialist");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iNumPoliciesNeeded = kResults.GetInt("NumPoliciesNeeded");
 #endif
@@ -1828,10 +1830,15 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 {
 	return m_bPuppetPurchaseOverride;
 }
-/// Dpes this building unlock purchasing in any city?
+/// Does this building unlock purchasing in any city?
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
+}
+/// Does this building prevent non-specialists to consume more food than the city's food production?
+bool CvBuildingEntry::IsNoStarvationNonSpecialist() const
+{
+	return m_bNoStarvationNonSpecialist;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -2046,9 +2053,9 @@ int CvBuildingEntry::GetGlobalGreatPeopleRateModifier() const
 }
 
 /// Modifier to great people per active marriage with a CS
-int CvBuildingEntry::GetGPRateModPerMarriage() const
+int CvBuildingEntry::GetGPRateModifierPerMarriage() const
 {
-	return m_iGPRateModPerMarriage;
+	return m_iGPRateModifierPerMarriage;
 }
 
 /// Modifier to great people rate per active theming bonus in the city

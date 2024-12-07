@@ -1,3 +1,8 @@
+-- Sets default WorkWithWillingness and WorkAgainstWillingness values for all base game leaders
+-- These are unused base game columns that are being repurposed
+UPDATE Leaders SET WorkWithWillingness = DoFWillingness;
+UPDATE Leaders SET WorkAgainstWillingness = DenounceWillingness;
+
 -- Sets default victory pursuits for all base game leaders
 CREATE TEMP TABLE Leader_VictoryPursuits (
 	TempLeaderType text,

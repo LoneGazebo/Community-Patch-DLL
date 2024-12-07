@@ -7797,13 +7797,15 @@ CvLeaderHeadInfo::CvLeaderHeadInfo() :
 	m_iBoldness(0),
 	m_iDiploBalance(0),
 	m_iWarmongerHate(0),
-	m_iDenounceWillingness(0),
 	m_iDoFWillingness(0),
+	m_iDenounceWillingness(0),
+	m_iWorkWithWillingness(0),
+	m_iWorkAgainstWillingness(0),
 	m_iLoyalty(0),
-	m_iNeediness(0),
 	m_iForgiveness(0),
-	m_iChattiness(0),
+	m_iNeediness(0),
 	m_iMeanness(0),
+	m_iChattiness(0),
 	m_ePrimaryVictoryPursuit(NO_VICTORY_PURSUIT),
 	m_eSecondaryVictoryPursuit(NO_VICTORY_PURSUIT),
 	m_piMajorCivApproachBiases(NULL),
@@ -7859,6 +7861,16 @@ int CvLeaderHeadInfo::GetDoFWillingness() const
 int CvLeaderHeadInfo::GetDenounceWillingness() const
 {
 	return m_iDenounceWillingness;
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetWorkWithWillingness() const
+{
+	return m_iWorkWithWillingness;
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetWorkAgainstWillingness() const
+{
+	return m_iWorkAgainstWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetLoyalty() const
@@ -8038,13 +8050,15 @@ bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iBoldness									= kResults.GetInt("Boldness");
 	m_iDiploBalance								= kResults.GetInt("DiploBalance");
 	m_iWarmongerHate							= kResults.GetInt("WarmongerHate");
-	m_iDenounceWillingness						= kResults.GetInt("DenounceWillingness");
 	m_iDoFWillingness							= kResults.GetInt("DoFWillingness");
+	m_iDenounceWillingness						= kResults.GetInt("DenounceWillingness");
+	m_iWorkWithWillingness						= kResults.GetInt("WorkWithWillingness");
+	m_iWorkAgainstWillingness					= kResults.GetInt("WorkAgainstWillingness");
 	m_iLoyalty									= kResults.GetInt("Loyalty");
-	m_iNeediness								= kResults.GetInt("Neediness");
 	m_iForgiveness								= kResults.GetInt("Forgiveness");
-	m_iChattiness								= kResults.GetInt("Chattiness");
+	m_iNeediness								= kResults.GetInt("Neediness");
 	m_iMeanness									= kResults.GetInt("Meanness");
+	m_iChattiness								= kResults.GetInt("Chattiness");
 
 	//Arrays
 	const char* szType = GetType();

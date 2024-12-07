@@ -2156,7 +2156,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_pDiplomacyRequests->Init(eID);
 		}
-		m_pDangerPlots->Init(eID, false /*bAllocate*/);
+		m_pDangerPlots->Init(eID);
 		m_pTreasury->Init(this);
 		m_pTraits->Init(GC.GetGameTraits(), this);
 		m_pEspionage->Init(this);
@@ -2337,18 +2337,18 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_iPreviousBestSettlePlot = -1;
 }
 
-/// This is called after the map and other game constructs have been setup and just before the game starts.
+/// This is called after the map and other game constructs have been setup and just before the game starts (also after reload!)
 void CvPlayer::gameStartInit()
 {
-	//make sure the non-serialized infos are up to date
-	m_pDangerPlots->Init(GetID(), true);
-
 	verifyAlive();
 	if (!isAlive())
 		return;
 
 	if (!GC.GetEngineUserInterface()->IsLoadedGame())
 		UpdatePlots();
+
+	//force the first update to restore the non-serialized state
+	m_pDangerPlots->UpdateDanger();
 
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
@@ -5674,27 +5674,27 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	{
 		if (eEventClass == EVENT_CLASS_GOOD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_BAD)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_BAD_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_NEUTRAL)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_TRADE)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
 				return false;
 		}
 		else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS_OFF))
+			if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 				return false;
 		}
 	}
@@ -9713,9 +9713,9 @@ int CvPlayer::GetNumUnitPromotions(PromotionTypes ePromotion)
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
+void CvPlayer::UpdateDangerPlots()
 {
-	m_pDangerPlots->UpdateDanger(bKeepKnownUnits);
+	m_pDangerPlots->UpdateDanger();
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -10202,7 +10202,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		UpdatePlots();
 		UpdateAreaEffectUnits();
 		UpdateAreaEffectPlots();
-		UpdateDangerPlots(true);
+		UpdateDangerPlots();
 		GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 		UpdateMilitaryStats();
 		GET_TEAM(getTeam()).ClearWarDeclarationCache();
@@ -10450,7 +10450,8 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if (MOD_BALANCE_CORE_EVENTS)
 	{
-		if (GC.getGame().isOption(GAMEOPTION_EVENTS))
+		if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS) || GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS) || GC.getGame().isOption(GAMEOPTION_BAD_EVENTS)
+			|| GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS) || GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
 		{
 			DoEvents();
 		}
@@ -16336,7 +16337,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		iUnitSupply += GetNumUnitsSuppliedByPopulation();
 		iUnitSupply += GetUnitSupplyFromExpendedGreatPeople();
 
-		int iEmpireSizeReduction = max(GetNumEffectiveCities() * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0);
+		int iEmpireSizeReduction = getNumCities() > 0 ? max(GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
 		iUnitSupply *= 100;
 		iUnitSupply /= (100 + iEmpireSizeReduction);
 
@@ -32836,10 +32837,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 					GetHomelandAI()->Invalidate();
 				}
 
-				// update danger plots before the turn
-				// causes MP desyncs otherwise (see #10147), affects SP just a little
-				UpdateDangerPlots(false);
-
 				if(kGame.isFinalInitialized())
 				{
 					if(isAlive())
@@ -44382,24 +44379,10 @@ void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
 }
 
-int CvPlayer::GetDangerPlotAge() const
+bool CvPlayer::IsVanishedUnit(const IDInfo& id) const
 {
-	return m_pDangerPlots->GetTurnSliceBuilt();
-}
-
-std::vector<CvUnit*> CvPlayer::GetPrevTurnKnownEnemyUnits() const
-{
-	std::vector<CvUnit*> result;
-
-	const UnitSet& units = m_pDangerPlots->GetPrevTurnKnownEnemyUnits();
-	for (UnitSet::const_iterator it = units.begin(); it != units.end(); ++it)
-	{
-		result.push_back(GET_PLAYER(it->first).getUnit(it->second));
-		if (result.back() == NULL)
-			result.pop_back();
-	}
-
-	return result;
+	const UnitSet& units = m_pDangerPlots->GetVanishedUnits();
+	return units.find(make_pair(id.eOwner,id.iID)) != units.end();
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck)

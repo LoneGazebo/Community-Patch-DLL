@@ -110,10 +110,10 @@ public:
 	bool IsNuclearGandhi(bool bPotentially = false) const;
 
 	// ************************************
-	// Personality Values
+	// Personality Flavors
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue, const CvSeeder& seed);
+	int RandomizePersonalityFlavor(int iOriginalValue, const CvSeeder& seed);
 	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryPursuits();
 
@@ -125,6 +125,8 @@ public:
 	int GetWarmongerHate() const;
 	int GetDoFWillingness() const;
 	int GetDenounceWillingness() const;
+	int GetWorkWithWillingness() const;
+	int GetWorkAgainstWillingness() const;
 	int GetLoyalty() const;
 	int GetForgiveness() const;
 	int GetNeediness() const;
@@ -1812,22 +1814,24 @@ private:
 	inline bool NotTeam(PlayerTypes eOtherPlayer) const { return eOtherPlayer == NO_PLAYER || GET_PLAYER(eOtherPlayer).getTeam() != (TeamTypes)m_eTeam; }
 
 	// Estimations of other players' tendencies
-	int GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerBoldness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerNeediness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerMeanness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerChattiness(PlayerTypes ePlayer) const;
-	int GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
-	int GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
-	int GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const;
+	int EstimateVictoryCompetitiveness(PlayerTypes ePlayer) const;
+	int EstimateWonderCompetitiveness(PlayerTypes ePlayer) const;
+	int EstimateMinorCivCompetitiveness(PlayerTypes ePlayer) const;
+	int EstimateBoldness(PlayerTypes ePlayer) const;
+	int EstimateDiploBalance(PlayerTypes ePlayer) const;
+	int EstimateWarmongerHate(PlayerTypes ePlayer) const;
+	int EstimateDoFWillingness(PlayerTypes ePlayer) const;
+	int EstimateDenounceWillingness(PlayerTypes ePlayer) const;
+	int EstimateWorkWithWillingness(PlayerTypes ePlayer) const;
+	int EstimateWorkAgainstWillingness(PlayerTypes ePlayer) const;
+	int EstimateLoyalty(PlayerTypes ePlayer) const;
+	int EstimateForgiveness(PlayerTypes ePlayer) const;
+	int EstimateNeediness(PlayerTypes ePlayer) const;
+	int EstimateMeanness(PlayerTypes ePlayer) const;
+	int EstimateChattiness(PlayerTypes ePlayer) const;
+	int EstimateMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
+	int EstimateMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
+	int EstimateFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const;
 
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
@@ -1896,6 +1900,8 @@ private:
 	unsigned char m_iWarmongerHate;
 	unsigned char m_iDoFWillingness;
 	unsigned char m_iDenounceWillingness;
+	unsigned char m_iWorkWithWillingness;
+	unsigned char m_iWorkAgainstWillingness;
 	unsigned char m_iLoyalty;
 	unsigned char m_iForgiveness;
 	unsigned char m_iNeediness;
@@ -1924,7 +1930,7 @@ private:
 	bool m_bWasHumanLastUpdate;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
-	unsigned int m_iNumReevaluations; // Used for RNG
+	int m_iNumReevaluations; // Used for RNG
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
@@ -1945,8 +1951,8 @@ private:
 	char m_aeCivApproach[MAX_CIV_PLAYERS];
 	char m_aeCivStrategicApproach[MAX_MAJOR_CIVS];
 	char m_aeCachedSurfaceApproach[MAX_MAJOR_CIVS];
-	unsigned int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
-	unsigned int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
+	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
+	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 
 	// Minor Civs
 	bool m_abWantToRouteToMinor[MAX_MINOR_CIVS];

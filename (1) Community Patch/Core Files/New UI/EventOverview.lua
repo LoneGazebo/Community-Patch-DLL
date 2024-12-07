@@ -168,7 +168,7 @@ Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 -----------------------------------------------------------------
 -- Add Event Overview to Dropdown
 -----------------------------------------------------------------
-if Game.IsOption("GAMEOPTION_EVENTS") then
+if (Game.IsOption("GAMEOPTION_GOOD_EVENTS") or Game.IsOption("GAMEOPTION_NEUTRAL_EVENTS") or Game.IsOption("GAMEOPTION_BAD_EVENTS") or Game.IsOption("GAMEOPTION_TRADE_EVENTS") or Game.IsOption("GAMEOPTION_CIV_SPECIFIC_EVENTS")) then
 	LuaEvents.AdditionalInformationDropdownGatherEntries.Add(function(entries)
 		table.insert(entries, {
 			text = Locale.Lookup("TXT_KEY_EVENT_OVERVIEW"),
