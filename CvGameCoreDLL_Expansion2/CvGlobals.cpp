@@ -44,8 +44,11 @@
 #include "CvDllUnit.h"
 
 #if defined(MOD_DEBUG_MINIDUMP)
+#ifdef WIN32
+#include "../commit_id.inc"
 #include <dbghelp.h>
-#endif
+#endif // WIN32
+#endif // defined(MOD_DEBUG_MINIDUMP)
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2421,6 +2424,7 @@ PlayerTypes GetCurrentPlayer()
 }
 
 #if defined(MOD_DEBUG_MINIDUMP)
+#ifdef WIN32
 /************************************************************************************************/
 /* MINIDUMP_MOD                           04/10/11                                terkhen       */
 /* See http://www.debuginfo.com/articles/effminidumps.html                                      */
@@ -2429,30 +2433,131 @@ PlayerTypes GetCurrentPlayer()
 /* See http://forums.civfanatics.com/showthread.php?t=498919                                    */
 /************************************************************************************************/
 
-#pragma comment (lib, "dbghelp.lib")
-void CreateMiniDump(EXCEPTION_POINTERS *pep)
+#pragma comment(lib, "dbghelp.lib")
+void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
-	/* Open a file to store the minidump. */
-	HANDLE hFile = CreateFile(_T("CvMiniDump.dmp"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
-		_tprintf(_T("CreateFile failed. Error: %lu \n"), GetLastError());
+	// Initialize debug symbols
+	HANDLE hProcess = GetCurrentProcess();
+	SymInitialize(hProcess, NULL, TRUE);
+
+	// Get timestamp
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	TCHAR szTimestamp[64];
+	_stprintf_s(szTimestamp, sizeof(szTimestamp) / sizeof(TCHAR),
+		_T("%04d%02d%02d_%02d%02d%02d"),
+		st.wYear, st.wMonth, st.wDay,
+		st.wHour, st.wMinute, st.wSecond);
+
+	// Extract just version number and commit hash from CURRENT_GAMECORE_VERSION
+	char shortVersion[64];
+	const char* fullVersion = CURRENT_GAMECORE_VERSION;
+	const char* versionStart = strchr(fullVersion, '-');
+	if (versionStart) {
+		versionStart++; // Skip the '-'
+		const char* spaceAfterVersion = strchr(versionStart, ' ');
+		if (spaceAfterVersion) {
+			// Copy just the version number (e.g. "4.16")
+			size_t versionLen = spaceAfterVersion - versionStart;
+			strncpy_s(shortVersion, sizeof(shortVersion), versionStart, versionLen);
+			shortVersion[versionLen] = '\0';
+
+			// Add the commit hash if present
+			const char* commitHash = spaceAfterVersion + 1;
+			const char* nextSpace = strchr(commitHash, ' ');
+			if (nextSpace) {
+				strcat_s(shortVersion, sizeof(shortVersion), "_");
+				strncat_s(shortVersion, sizeof(shortVersion), commitHash, nextSpace - commitHash);
+			}
+		}
+	}
+	else {
+		strcpy_s(shortVersion, sizeof(shortVersion), "unknown");
+	}
+
+	// Generate dump filename with version, commit hash and build type
+	TCHAR szDumpPath[MAX_PATH];
+	_stprintf_s(szDumpPath, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
+		szTimestamp,
+		shortVersion,
+#ifdef VPDEBUG
+		_T("Debug")
+#else
+		_T("Release")
+#endif
+	);
+
+	HANDLE hFile = CreateFile(szDumpPath, GENERIC_READ | GENERIC_WRITE,
+		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
 		return;
 	}
 
-	/* Create the minidump. */
 	MINIDUMP_EXCEPTION_INFORMATION mdei;
-	mdei.ThreadId           = GetCurrentThreadId();
-	mdei.ExceptionPointers  = pep;
-	mdei.ClientPointers     = FALSE;
+	mdei.ThreadId = GetCurrentThreadId();
+	mdei.ExceptionPointers = pep;
+	mdei.ClientPointers = FALSE;
 
-	MINIDUMP_TYPE mdt       = MiniDumpNormal;
+	// Configure dump type based on build
+	MINIDUMP_TYPE mdt;
+#ifdef VPDEBUG
+	OutputDebugString(_T("Creating Debug minidump\n"));
+	mdt = (MINIDUMP_TYPE)(
+		MiniDumpWithFullMemory |             // Complete memory snapshot
+		MiniDumpWithFullMemoryInfo |         // Memory state information
+		MiniDumpWithHandleData |             // Handle usage
+		MiniDumpWithUnloadedModules |        // Track unloaded DLLs
+		MiniDumpWithThreadInfo |             // Extended thread information
+		MiniDumpWithProcessThreadData |      // Process thread data
+		MiniDumpWithCodeSegs |               // Code segments
+		MiniDumpWithDataSegs |               // Data segments
+		MiniDumpWithPrivateReadWriteMemory | // Private memory
+		MiniDumpWithFullAuxiliaryState |     // Auxiliary state (handles, GDI objects)
+		MINIDUMP_TYPE(0x00000040) |          // MiniDumpWithTokenInformation
+		MINIDUMP_TYPE(0x00000400) |          // MiniDumpWithPrivateWriteCopyMemory
+		MINIDUMP_TYPE(0x00020000) |          // MiniDumpIgnoreInaccessibleMemory
+		MiniDumpWithIndirectlyReferencedMemory | // Memory referenced by locals
+		MINIDUMP_TYPE(0x00000800)            // MiniDumpWithModuleHeaders
+		);
+#else
+	OutputDebugString(_T("Creating Release minidump\n"));
+	mdt = (MINIDUMP_TYPE)(
+		MiniDumpNormal |                    // Basic info
+		MiniDumpWithThreadInfo |            // Thread information
+		MINIDUMP_TYPE(0x00020000)           // MiniDumpIgnoreInaccessibleMemory
+		);
+#endif
 
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, mdt, (pep != NULL) ? &mdei : NULL, NULL, NULL);
+	// Add version info
+	MINIDUMP_USER_STREAM_INFORMATION additional_streams;
+	MINIDUMP_USER_STREAM user_streams[1];
+	char version_info[256];
+
+	sprintf_s(version_info, sizeof(version_info),
+		"Version: %s", CURRENT_GAMECORE_VERSION);
+
+	user_streams[0].Type = 0x00000003;  // MinidumpCommentStreamA
+	user_streams[0].Buffer = version_info;
+	user_streams[0].BufferSize = static_cast<ULONG>(strlen(version_info) + 1);
+
+	additional_streams.UserStreamCount = 1;
+	additional_streams.UserStreamArray = user_streams;
+
+	// Write the dump
+	MiniDumpWriteDump(
+		GetCurrentProcess(),
+		GetCurrentProcessId(),
+		hFile,
+		mdt,
+		(pep != NULL) ? &mdei : NULL,
+		&additional_streams,
+		NULL);
 
 	CloseHandle(hFile);
 }
 
-LONG WINAPI CustomFilter(EXCEPTION_POINTERS *ExceptionInfo)
+LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
 	CreateMiniDump(ExceptionInfo);
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -2465,10 +2570,14 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS *ExceptionInfo)
 void CvGlobals::init()
 {
 #if defined(MOD_DEBUG_MINIDUMP)
-	/* Enable our custom exception that will write the minidump for us. */
 	SetUnhandledExceptionFilter(CustomFilter);
-	CUSTOMLOG("MiniDump exception handler installed");
+#ifdef VPDEBUG
+	OutputDebugString(_T("Debug MiniDump handler installed\n"));
+#else
+	OutputDebugString(_T("Release MiniDump handler installed\n"));
 #endif
+#endif // WIN32
+#endif // defined(MOD_DEBUG_MINIDUMP)
 
 	//
 	// These vars are used to initialize the globals.
