@@ -594,17 +594,17 @@ public:
 	int GetProductionTraits(int i) const;
 	int GetPrereqNumOfBuildingClass(int i) const;
 	int GetFlavorValue(int i) const;
-	int GetLocalResourceAndSize() const;
-	int GetLocalResourceAnd(int i) const;
-	int GetLocalResourceOrSize() const;
-	int GetLocalResourceOr(int i) const;
+	uint GetLocalResourceAndSize() const;
+	int GetLocalResourceAnd(uint ui) const;
+	uint GetLocalResourceOrSize() const;
+	int GetLocalResourceOr(uint ui) const;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetFeatureOr(int i) const;
 	int GetFeatureAnd(int i) const;
-	int GetResourceMonopolyAndSize() const;
-	int GetResourceMonopolyAnd(int i) const;
-	int GetResourceMonopolyOrSize() const;
-	int GetResourceMonopolyOr(int i) const;
+	uint GetResourceMonopolyAndSize() const;
+	int GetResourceMonopolyAnd(uint ui) const;
+	uint GetResourceMonopolyOrSize() const;
+	int GetResourceMonopolyOr(uint ui) const;
 	int GetGPRateModifierPerXFranchises() const;
 	int GetResourceQuantityPerXFranchises(int i) const;
 	int GetYieldPerFranchise(int i) const;

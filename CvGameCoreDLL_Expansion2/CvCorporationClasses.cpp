@@ -119,27 +119,25 @@ bool CvCorporationEntry::IsTradeRoutesInvulnerable() const
 }
 
 /// Prerequisite resources with AND
-int CvCorporationEntry::GetResourceMonopolyAndSize() const
+uint CvCorporationEntry::GetResourceMonopolyAndSize() const
 {
 	return m_viResourceMonopolyAnds.size();
 }
-int CvCorporationEntry::GetResourceMonopolyAnd(int i) const
+int CvCorporationEntry::GetResourceMonopolyAnd(uint ui) const
 {
-	CvAssertMsg(i < m_viResourceMonopolyAnds.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viResourceMonopolyAnds[i];
+	CvAssertMsg(ui < m_viResourceMonopolyAnds.size(), "Index out of bounds");
+	return m_viResourceMonopolyAnds[ui];
 }
 
 /// Prerequisite resources with OR
-int CvCorporationEntry::GetResourceMonopolyOrSize() const
+uint CvCorporationEntry::GetResourceMonopolyOrSize() const
 {
 	return m_viResourceMonopolyOrs.size();
 }
-int CvCorporationEntry::GetResourceMonopolyOr(int i) const
+int CvCorporationEntry::GetResourceMonopolyOr(uint ui) const
 {
-	CvAssertMsg(i < m_viResourceMonopolyOrs.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viResourceMonopolyOrs[i];
+	CvAssertMsg(ui < m_viResourceMonopolyOrs.size(), "Index out of bounds");
+	return m_viResourceMonopolyOrs[ui];
 }
 
 int CvCorporationEntry::GetNumFreeResource(int i) const
