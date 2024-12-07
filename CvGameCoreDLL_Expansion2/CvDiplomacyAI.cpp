@@ -12756,7 +12756,7 @@ void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 	vector<PlayerTypes> vPlayersToReevaluate;
 
 	// Loop through all (known) Players
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
