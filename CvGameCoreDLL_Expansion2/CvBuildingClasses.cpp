@@ -4033,27 +4033,25 @@ int CvBuildingEntry::GetFlavorValue(int i) const
 }
 
 /// Prerequisite resources with AND
-int CvBuildingEntry::GetLocalResourceAndSize() const
+uint CvBuildingEntry::GetLocalResourceAndSize() const
 {
 	return m_viLocalResourceAnds.size();
 }
-int CvBuildingEntry::GetLocalResourceAnd(int i) const
+int CvBuildingEntry::GetLocalResourceAnd(uint ui) const
 {
-	CvAssertMsg(i < m_viLocalResourceAnds.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viLocalResourceAnds[i];
+	CvAssertMsg(ui < m_viLocalResourceAnds.size(), "Index out of bounds");
+	return m_viLocalResourceAnds[ui];
 }
 
 /// Prerequisite resources with OR
-int CvBuildingEntry::GetLocalResourceOrSize() const
+uint CvBuildingEntry::GetLocalResourceOrSize() const
 {
 	return m_viLocalResourceOrs.size();
 }
-int CvBuildingEntry::GetLocalResourceOr(int i) const
+int CvBuildingEntry::GetLocalResourceOr(uint ui) const
 {
-	CvAssertMsg(i < m_viLocalResourceOrs.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viLocalResourceOrs[i];
+	CvAssertMsg(ui < m_viLocalResourceOrs.size(), "Index out of bounds");
+	return m_viLocalResourceOrs[ui];
 }
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -4072,27 +4070,25 @@ int CvBuildingEntry::GetFeatureOr(int i) const
 	return m_piLocalFeatureOrs ? m_piLocalFeatureOrs[i] : -1;
 }
 /// Prerequisite resources with AND
-int CvBuildingEntry::GetResourceMonopolyAndSize() const
+uint CvBuildingEntry::GetResourceMonopolyAndSize() const
 {
 	return m_viResourceMonopolyAnds.size();
 }
-int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
+int CvBuildingEntry::GetResourceMonopolyAnd(uint ui) const
 {
-	CvAssertMsg(i < m_viResourceMonopolyAnds.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viResourceMonopolyAnds[i];
+	CvAssertMsg(ui < m_viResourceMonopolyAnds.size(), "Index out of bounds");
+	return m_viResourceMonopolyAnds[ui];
 }
 
 /// Prerequisite resources with OR
-int CvBuildingEntry::GetResourceMonopolyOrSize() const
+uint CvBuildingEntry::GetResourceMonopolyOrSize() const
 {
 	return m_viResourceMonopolyOrs.size();
 }
-int CvBuildingEntry::GetResourceMonopolyOr(int i) const
+int CvBuildingEntry::GetResourceMonopolyOr(uint ui) const
 {
-	CvAssertMsg(i < m_viResourceMonopolyOrs.size(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_viResourceMonopolyOrs[i];
+	CvAssertMsg(ui < m_viResourceMonopolyOrs.size(), "Index out of bounds");
+	return m_viResourceMonopolyOrs[ui];
 }
 //Coroporation Stuff
 int CvBuildingEntry::GetGPRateModifierPerXFranchises() const

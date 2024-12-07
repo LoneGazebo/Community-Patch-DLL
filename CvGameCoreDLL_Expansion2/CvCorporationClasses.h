@@ -30,10 +30,10 @@ public:
 	int GetRandomSpreadChance() const;
 	int GetTourismMod() const;
 
-	int GetResourceMonopolyAndSize() const;
-	int GetResourceMonopolyAnd(int i) const;
-	int GetResourceMonopolyOrSize() const;
-	int GetResourceMonopolyOr(int i) const;
+	uint GetResourceMonopolyAndSize() const;
+	int GetResourceMonopolyAnd(uint ui) const;
+	uint GetResourceMonopolyOrSize() const;
+	int GetResourceMonopolyOr(uint ui) const;
 	int GetNumFreeResource(int i) const;
 	int GetUnitResourceProductionModifier(int i) const;
 

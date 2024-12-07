@@ -9762,9 +9762,9 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 	bool bHasAnyOr = false;
 	bool bNeedAnyOr = false;
 	CvString tempTooltip;
-	for (int iPrereq = 0; iPrereq < pBuildingInfo->GetLocalResourceAndSize(); iPrereq++)
+	for (uint uiPrereq = 0; uiPrereq < pBuildingInfo->GetLocalResourceAndSize(); uiPrereq++)
 	{
-		ResourceTypes eAndResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceAnd(iPrereq));
+		ResourceTypes eAndResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceAnd(uiPrereq));
 		
 		if (!IsHasResourceLocal(eAndResource, bTestVisible))
 		{
@@ -9774,9 +9774,9 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 		}
 	}
 
-	for (int iPrereq = 0; iPrereq < pBuildingInfo->GetLocalResourceOrSize(); iPrereq++)
+	for (uint uiPrereq = 0; uiPrereq < pBuildingInfo->GetLocalResourceOrSize(); uiPrereq++)
 	{
-		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(iPrereq));
+		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(uiPrereq));
 		bNeedAnyOr = true;
 
 		// City has resource locally
@@ -9818,10 +9818,10 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 	CorporationTypes eCorporation = kBuildingClass.getCorporationType();
 	CvCorporationEntry* pkCorporationInfo = (kBuildingClass.IsHeadquarters() && eCorporation != NO_CORPORATION) ? GC.getCorporationInfo(eCorporation) : NULL;
 
-	int iNumAndPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyAndSize() : pkBuildingInfo->GetResourceMonopolyAndSize();
-	for (int iPrereq = 0; iPrereq < iNumAndPrereq; iPrereq++)
+	uint uiNumAndPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyAndSize() : pkBuildingInfo->GetResourceMonopolyAndSize();
+	for (uint uiPrereq = 0; uiPrereq < uiNumAndPrereq; uiPrereq++)
 	{
-		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(iPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(iPrereq);
+		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(uiPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(uiPrereq);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 
 		if (!GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
@@ -9847,10 +9847,10 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 	int iOrResources = 0;
 
 	// ORs: City must have ONE of these nearby
-	int iNumOrPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyOrSize() : pkBuildingInfo->GetResourceMonopolyOrSize();
-	for (int iPrereq = 0; iPrereq < iNumOrPrereq; iPrereq++)
+	uint uiNumOrPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyOrSize() : pkBuildingInfo->GetResourceMonopolyOrSize();
+	for (uint uiPrereq = 0; uiPrereq < uiNumOrPrereq; uiPrereq++)
 	{
-		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(iPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(iPrereq);
+		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(uiPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(uiPrereq);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
