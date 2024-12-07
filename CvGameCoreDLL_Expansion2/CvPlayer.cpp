@@ -32441,7 +32441,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false);
+				GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false, false);
 			}
 		}
 	}
@@ -32542,7 +32542,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
-				GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoChangeProtectionFromMajor(GetID(), false, false);
+				GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoChangeProtectionFromMajor(GetID(), false, false, false);
 				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(GetID()))
 				{
 					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();

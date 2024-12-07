@@ -128,12 +128,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aDiploLogStatementTurnCountScratchPad[iI] = NO_DIPLO_STATEMENT_TYPE;
 	}
 
-	for (int iI = 0; iI < MAX_DIPLO_LOG_STATEMENTS; iI++)
-	{
-		m_aDeclarationsLog[iI].m_eDeclaration = NO_PUBLIC_DECLARATION_TYPE;
-		m_aDeclarationsLog[iI].m_iTurn = -1;
-	}
-
 	// Minors
 	for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
 	{
@@ -470,7 +464,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 
 	// Diplomatic Interactions
 	visitor(diplomacyAI.m_aaDiploStatementsLog);
-	visitor(diplomacyAI.m_aDeclarationsLog);
 
 	visitor(diplomacyAI.m_aDiploLogStatementTurnCountScratchPad);
 	visitor(diplomacyAI.m_aabSentAttackMessageToMinorCivProtector);
@@ -2971,112 +2964,6 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 // ------------------------------------
 // Diplomatic Interactions
 // ------------------------------------
-
-/// We made a public declaration, so keep a record of it
-void CvDiplomacyAI::DoAddNewDeclarationToLog(PublicDeclarationTypes eDeclaration, int iData1, int iData2, PlayerTypes eMustHaveMetPlayer, bool bActive)
-{
-	ASSERT(eDeclaration >= 0 && eDeclaration < NUM_PUBLIC_DECLARATION_TYPES);
-
-	// Bump current entries back so we can put the new one at index 0
-	for (int iI = MAX_DIPLO_LOG_STATEMENTS - 1; iI > 0; iI--)
-	{
-		// Nothing in this entry to move?
-		if (m_aDeclarationsLog[iI-1].m_eDeclaration != NO_PUBLIC_DECLARATION_TYPE)
-		{
-			m_aDeclarationsLog[iI].m_eDeclaration = m_aDeclarationsLog[iI-1].m_eDeclaration;
-			m_aDeclarationsLog[iI].m_iData1 = m_aDeclarationsLog[iI-1].m_iData1;
-			m_aDeclarationsLog[iI].m_iData2 = m_aDeclarationsLog[iI-1].m_iData2;
-			m_aDeclarationsLog[iI].m_eMustHaveMetPlayer = m_aDeclarationsLog[iI-1].m_eMustHaveMetPlayer;
-			m_aDeclarationsLog[iI].m_bActive = m_aDeclarationsLog[iI-1].m_bActive;
-			m_aDeclarationsLog[iI].m_iTurn = m_aDeclarationsLog[iI-1].m_iTurn;
-		}
-	}
-
-	m_aDeclarationsLog[0].m_eDeclaration = eDeclaration;
-	m_aDeclarationsLog[0].m_iData1 = iData1;
-	m_aDeclarationsLog[0].m_iData2 = iData2;
-	m_aDeclarationsLog[0].m_eMustHaveMetPlayer = eMustHaveMetPlayer;
-	m_aDeclarationsLog[0].m_bActive = bActive;
-	m_aDeclarationsLog[0].m_iTurn = 0;
-}
-
-/// Returns the DeclarationLogType associated with the index passed in
-PublicDeclarationTypes CvDiplomacyAI::GetDeclarationLogTypeForIndex(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_eDeclaration;
-}
-
-/// Returns the DeclarationLog iData1 number associated with the index passed in
-int CvDiplomacyAI::GetDeclarationLogData1ForIndex(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_iData1;
-}
-
-/// Returns the DeclarationLog iData2 number associated with the index passed in
-int CvDiplomacyAI::GetDeclarationLogData2ForIndex(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_iData2;
-}
-
-/// Does whoever is listening to our declaration have to have met someone?
-PlayerTypes CvDiplomacyAI::GetDeclarationLogMustHaveMetPlayerForIndex(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_eMustHaveMetPlayer;
-}
-
-/// Returns the DeclarationLog iData2 number associated with the index passed in
-bool CvDiplomacyAI::IsDeclarationLogForIndexActive(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_bActive;
-}
-
-/// Make Declaration invalid (so that it doesn't appear for new players we meet, for example)
-void CvDiplomacyAI::DoMakeDeclarationInactive(PublicDeclarationTypes eDeclaration, int iData1, int iData2)
-{
-	ASSERT(eDeclaration >= 0 && eDeclaration < NUM_PUBLIC_DECLARATION_TYPES);
-
-	for (int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
-	{
-		// DeclarationType match?
-		if (m_aDeclarationsLog[iLoop].m_eDeclaration == eDeclaration)
-		{
-			// iData1 match?
-			if (m_aDeclarationsLog[iLoop].m_iData1 == iData1)
-			{
-				// iData2 match?
-				if (m_aDeclarationsLog[iLoop].m_iData2 == iData2)
-				{
-					m_aDeclarationsLog[iLoop].m_bActive = false;
-				}
-			}
-		}
-	}
-}
-
-/// Returns the DeclarationLog turn number associated with the index passed in
-int CvDiplomacyAI::GetDeclarationLogTurnForIndex(int iIndex)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aDeclarationsLog[iIndex].m_iTurn;
-}
-
-/// Sets the DeclarationLog turn number associated with the index passed in
-void CvDiplomacyAI::SetDeclarationLogTurnForIndex(int iIndex, int iNewValue)
-{
-	ASSERT(iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS && iNewValue >= 0);
-	m_aDeclarationsLog[iIndex].m_iTurn = iNewValue;
-}
-
-/// Changes the DeclarationLog turn number associated with the index passed in
-void CvDiplomacyAI::ChangeDeclarationLogTurnForIndex(int iIndex, int iChange)
-{
-	SetDeclarationLogTurnForIndex(iIndex, GetDeclarationLogTurnForIndex(iIndex) + iChange);
-}
 
 /// We talked to someone, so keep a record of it
 void CvDiplomacyAI::DoAddNewStatementToDiploLog(PlayerTypes ePlayer, DiploStatementTypes eNewDiploLogStatement)
@@ -27746,20 +27633,6 @@ void CvDiplomacyAI::DoCounters()
 		}
 	}
 
-	///////////////////////////////
-	// Declaration Log Counter
-	///////////////////////////////
-
-	for (int iItem = 0; iItem < MAX_DIPLO_LOG_STATEMENTS; iItem++)
-	{
-		PublicDeclarationTypes eDeclaration = GetDeclarationLogTypeForIndex(iItem);
-
-		if (eDeclaration != NO_PUBLIC_DECLARATION_TYPE)
-			ChangeDeclarationLogTurnForIndex(iItem, 1);
-		else
-			SetDeclarationLogTurnForIndex(iItem, 0);
-	}
-
 	DoReevaluatePlayers(v);
 }
 
@@ -29242,44 +29115,6 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 	}
 }
 
-/// Someone met a new player
-void CvDiplomacyAI::DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
-{
-	// Have to have met both players (since this function is called upon EVERY contact)
-	if (IsPlayerValid(ePlayer) && IsPlayerValid(eOtherPlayer) && GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		// Catch up on Public Declarations
-		PublicDeclarationTypes eDeclaration;
-		int iData1 = 0;
-		int iData2 = 0;
-		bool bActive = false;
-
-		for (int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
-		{
-			// Did ePlayer just meet the person this declaration is about?
-			if (GetDeclarationLogMustHaveMetPlayerForIndex(iLoop) == eOtherPlayer)
-			{
-				eDeclaration = GetDeclarationLogTypeForIndex(iLoop);
-
-				// Does this entry in the log exist?
-				if (eDeclaration != NO_PUBLIC_DECLARATION_TYPE)
-				{
-					bActive = IsDeclarationLogForIndexActive(iLoop);
-
-					// Is this still an active declaration?
-					if (bActive)
-					{
-						iData1 = GetDeclarationLogData1ForIndex(iLoop);
-						iData2 = GetDeclarationLogData2ForIndex(iLoop);
-
-						DoMakePublicDeclaration(eDeclaration, iData1, iData2, eOtherPlayer, ePlayer);
-					}
-				}
-			}
-		}
-	}
-}
-
 /// Return the value of the warmonger amount adjusted by how much this player hates warmongers
 int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const
 {
@@ -29360,58 +29195,6 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 								}
 							}
 						}
-					}
-				}
-			}
-		}
-
-		// Catch up on public declarations this player has made
-		if(!GET_PLAYER(ePlayer).isMinorCiv())
-		{
-			PublicDeclarationTypes eDeclaration;
-			int iData1 = 0;
-			int iData2 = 0;
-			PlayerTypes eMustHaveMetPlayer;
-			bool bActive = false;
-
-			for(int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
-			{
-				eDeclaration = GetDeclarationLogTypeForIndex(iLoop);
-
-				// Does this entry in the log exist?
-				if(eDeclaration != NO_PUBLIC_DECLARATION_TYPE)
-				{
-					bActive = IsDeclarationLogForIndexActive(iLoop);
-
-					iData1 = GetDeclarationLogData1ForIndex(iLoop);
-					iData2 = GetDeclarationLogData2ForIndex(iLoop);
-
-					// Validate active status - minors must be alive
-					if(eDeclaration == PUBLIC_DECLARATION_PROTECT_MINOR)
-					{
-						CvAssert(((PlayerTypes) iData1) != NO_PLAYER);
-						if(((PlayerTypes) iData1) != NO_PLAYER)
-						{
-							if(!GET_PLAYER((PlayerTypes) iData1).isAlive())
-								bActive = false;
-						}
-					}
-					else if(eDeclaration == PUBLIC_DECLARATION_ABANDON_MINOR)
-					{
-						CvAssert(((PlayerTypes) iData1) != NO_PLAYER);
-						if(((PlayerTypes) iData1) != NO_PLAYER)
-						{
-							if(!GET_PLAYER((PlayerTypes) iData1).isAlive())
-								bActive = false;
-						}
-					}
-
-					// Is this still an active declaration?
-					if(bActive)
-					{
-						eMustHaveMetPlayer = GetDeclarationLogMustHaveMetPlayerForIndex(iLoop);
-
-						DoMakePublicDeclaration(eDeclaration, iData1, iData2, eMustHaveMetPlayer, ePlayer);
 					}
 				}
 			}
@@ -31516,105 +31299,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 }
-//	-------------------------------------------------------------------------------------------------------------------
-/// Does this AI have something to say to the world this turn?
-void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, int iData2, PlayerTypes eMustHaveMetPlayer, PlayerTypes eForSpecificPlayer)
-{
-	// Don't give Public Declarations if we're a human
-	if(GetPlayer()->isHuman())
-	{
-		// TODO: jdh, check if we do want public declarations from humans
-		return;
-	}
-
-	CvAssertMsg(eDeclaration >= 0, "DIPLOMACY_AI: Invalid PublicDeclarationType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eDeclaration < NUM_PUBLIC_DECLARATION_TYPES, "DIPLOMACY_AI: Invalid PublicDeclarationType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eForSpecificPlayer >= NO_PLAYER, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");	// We can be sending to no specific player
-	CvAssertMsg(eForSpecificPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	const char* strText = "";
-	//LeaderheadAnimationTypes eAnimation;
-	//DiploUIStateTypes eDiploState = DIPLO_UI_STATE_DEFAULT_ROOT;
-
-	bool bActive = true;
-
-	// We're protecting a Minor Civ, so watch out!
-	if(eDeclaration == PUBLIC_DECLARATION_PROTECT_MINOR)
-	{
-		PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-		const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
-
-		strText = GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey);
-		//eAnimation = LEADERHEAD_ANIM_POSITIVE;
-		//eDiploState = DIPLO_UI_STATE_DISCUSS_PROTECT_MINOR_CIV;
-
-		DoMakeDeclarationInactive(PUBLIC_DECLARATION_PROTECT_MINOR, iData1, iData2);
-	}
-
-	// We're no longer protecting a Minor Civ, sorry...
-	if(eDeclaration == PUBLIC_DECLARATION_ABANDON_MINOR)
-	{
-		// Make previous declarations to protect this Minor inactive
-		DoMakeDeclarationInactive(PUBLIC_DECLARATION_PROTECT_MINOR, iData1, iData2);
-
-		// No point in telling new people we JUST meet we're not protecting someone any more...
-		bActive = false;
-
-		PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-		const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
-
-		strText = GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_ABANDON_CITY_STATE, NO_PLAYER, strMinorCivKey);
-		//eAnimation = LEADERHEAD_ANIM_POSITIVE;
-	}
-
-
-
-	// Should also send to the other AIs here somehow
-
-
-
-	// If our declaration is only for a specific player (e.g. we just met them) take that into account
-	if(eForSpecificPlayer != NO_PLAYER)
-	{
-	}
-
-	// Only add this declaration to the log if it's for everyone, as announcements to specific people are only for catching them up after meeting them later
-	if(eForSpecificPlayer == NO_PLAYER)
-	{
-		DoAddNewDeclarationToLog(eDeclaration, iData1, iData2, eMustHaveMetPlayer, bActive);
-
-		//Send notification to everyone that can get it.
-		for(int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer){
-			PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
-			CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
-			if(IsPlayerValid(eCurPlayer) 
-				&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kCurPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){
-				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
-				if(pNotifications){
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
-					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
-				}
-			}
-		}
-	}
-	else
-	{
-		//send notification to the specific player.
-		CvPlayerAI& kSpecificPlayer = GET_PLAYER(eForSpecificPlayer);
-		if(IsPlayerValid(eForSpecificPlayer) 
-			&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kSpecificPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){	
-			CvNotifications* pNotifications = kSpecificPlayer.GetNotifications();
-			if(pNotifications){
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
-				strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
-			}
-		}
-	}
-
-	LogPublicDeclaration(eDeclaration, iData1, eForSpecificPlayer);
-}
 
 /// Any Major Civs we want to chat with?
 void CvDiplomacyAI::DoContactMajorCivs()
@@ -33080,18 +32764,16 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor)
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetID()))
 		{
 			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, true);
-			DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
 		}
 	}
 	// Don't cancel a pledge in VP unless the City-State has no capital (we won't get the Influence boost from quests) or they've taken damage (so we'll lose Influence faster)
-	// Pledges will be automatically cancelled if AI decides to bully or war the City-State, and the consequences for doing so aren't any more severe
+	// Pledges will be automatically cancelled if AI decides to bully or war the City-State, so there's no benefit to cancelling now - we might change our mind
 	else if (GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) <= 0 || GET_PLAYER(eMinor).getCapitalCity() == NULL || (GET_PLAYER(eMinor).getCapitalCity()->getDamage() > 0 && GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER) > 100))
 	{
 		// We are not protective, so revoke PtP if we can
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))
 		{
 			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
-			DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
 		}
 	}
 }
@@ -50378,98 +50060,6 @@ int CvDiplomacyAI::EstimateFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor)
 
 //	-----------------------------------------------------------------------------------------------
 
-/// Log public declaration made by this AI
-void CvDiplomacyAI::LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer)
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		// JON: Disabling some logspam
-		if(eForSpecificPlayer != NO_PLAYER)
-			return;
-
-		CvString strLogName;
-
-		CvString strOutBuf;
-		CvString strBaseString;
-
-		CvString playerName;
-		CvString otherPlayerName;
-
-		CvString strTemp;
-
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-			strLogName = "DiplomacyAI_Messages_Log_" + playerName + ".csv";
-		}
-		else
-		{
-			strLogName = "DiplomacyAI_Messages_Log.csv";
-		}
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Turn number
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-
-		// Our Name
-		strBaseString += playerName;
-
-		strOutBuf = strBaseString;
-
-		// Is this declaration for a specific player (one we met after we made the declaration?)
-		if(eForSpecificPlayer != NO_PLAYER)
-		{
-			otherPlayerName = GET_PLAYER(eForSpecificPlayer).getCivilizationShortDescription();
-			strTemp = "To " + otherPlayerName;
-			strOutBuf += ", " + strTemp;
-		}
-
-		PlayerTypes eMinorCiv;
-
-		bool bMinorMessage = false;
-
-		switch(eDeclaration)
-		{
-		case PUBLIC_DECLARATION_PROTECT_MINOR:
-			eMinorCiv = (PlayerTypes) iData1;
-			otherPlayerName = GET_PLAYER(eMinorCiv).getCivilizationShortDescription();
-			strTemp = "We're now protecting " + otherPlayerName + "!";
-			bMinorMessage = true;
-			break;
-		case PUBLIC_DECLARATION_ABANDON_MINOR:
-			eMinorCiv = (PlayerTypes) iData1;
-			otherPlayerName = GET_PLAYER(eMinorCiv).getCivilizationShortDescription();
-			strTemp = "We've abandoned " + otherPlayerName + "!";
-			bMinorMessage = true;
-			break;
-		default:
-			strTemp.Format("Unknown Declaration!!!");
-			break;
-		}
-
-		strOutBuf += ", " + strTemp;
-
-		pLog->Msg(strOutBuf);
-
-		// Also send message to Minor Civ log if applicable
-		if(bMinorMessage)
-		{
-			// Open the log file
-			if(GC.getPlayerAndCityAILogSplit())
-				strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
-			else
-				strLogName = "DiplomacyAI_MinorCiv_Log.csv";
-
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-			pLog->Msg(strOutBuf);
-		}
-	}
-}
-
 /// Log war declaration
 void CvDiplomacyAI::LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight)
 {
@@ -53450,31 +53040,6 @@ FDataStream& operator>>(FDataStream& loadFrom, DiploLogData& writeTo)
 {
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	DiploLogData::Serialize(writeTo, serialVisitor);
-	return loadFrom;
-}
-
-template<typename DeclarationLogDataT, typename Visitor>
-void DeclarationLogData::Serialize(DeclarationLogDataT& declarationLogData, Visitor& visitor)
-{
-	visitor(declarationLogData.m_eDeclaration);
-	visitor(declarationLogData.m_iData1);
-	visitor(declarationLogData.m_iData2);
-	visitor(declarationLogData.m_eMustHaveMetPlayer);
-	visitor(declarationLogData.m_bActive);
-	visitor(declarationLogData.m_iTurn);
-}
-
-FDataStream& operator<<(FDataStream& saveTo, const DeclarationLogData& readFrom)
-{
-	CvStreamSaveVisitor serialVisitor(saveTo);
-	DeclarationLogData::Serialize(readFrom, serialVisitor);
-	return saveTo;
-}
-
-FDataStream& operator>>(FDataStream& loadFrom, DeclarationLogData& writeTo)
-{
-	CvStreamLoadVisitor serialVisitor(loadFrom);
-	DeclarationLogData::Serialize(writeTo, serialVisitor);
 	return loadFrom;
 }
 

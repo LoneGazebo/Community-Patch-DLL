@@ -27,21 +27,6 @@ struct DiploLogData
 FDataStream& operator<<(FDataStream&, const DiploLogData&);
 FDataStream& operator>>(FDataStream&, DiploLogData&);
 
-struct DeclarationLogData
-{
-	template<typename DeclarationLogDataT, typename Visitor>
-	static void Serialize(DeclarationLogDataT& declarationLogData, Visitor& visitor);
-
-	PublicDeclarationTypes m_eDeclaration;
-	int m_iData1;
-	int m_iData2;
-	PlayerTypes m_eMustHaveMetPlayer;
-	bool m_bActive;
-	int m_iTurn;
-};
-FDataStream& operator<<(FDataStream&, const DeclarationLogData&);
-FDataStream& operator>>(FDataStream&, DeclarationLogData&);
-
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
 #define WARSCORE_THRESHOLD_POSITIVE (+25)
@@ -162,18 +147,6 @@ public:
 	// ------------------------------------
 	// Diplomatic Interactions
 	// ------------------------------------
-
-	// Declaration Log
-	void DoAddNewDeclarationToLog(PublicDeclarationTypes eDeclaration, int iData1, int iData2, PlayerTypes eMustHaveMetPlayer, bool bActive);
-	PublicDeclarationTypes GetDeclarationLogTypeForIndex(int iIndex);
-	int GetDeclarationLogData1ForIndex(int iIndex);
-	int GetDeclarationLogData2ForIndex(int iIndex);
-	PlayerTypes GetDeclarationLogMustHaveMetPlayerForIndex(int iIndex);
-	bool IsDeclarationLogForIndexActive(int iIndex);
-	void DoMakeDeclarationInactive(PublicDeclarationTypes eDeclaration, int iData1, int iData2);
-	int GetDeclarationLogTurnForIndex(int iIndex);
-	void SetDeclarationLogTurnForIndex(int iIndex, int iNewValue);
-	void ChangeDeclarationLogTurnForIndex(int iIndex, int iChange);
 
 	// Diplo Statement Log
 	void DoAddNewStatementToDiploLog(PlayerTypes ePlayer, DiploStatementTypes eNewDiploLogStatement);
@@ -1342,7 +1315,6 @@ public:
 	void DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam);
 	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact);
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
-	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const;
 
@@ -1356,8 +1328,6 @@ public:
 	void DoKilledByPlayer(PlayerTypes ePlayer);
 
 	void DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eStatement, int iData1, CvDeal* pDeal);
-
-	void DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1 = -1, int iData2 = -1, PlayerTypes eMustHaveMetPlayer = NO_PLAYER, PlayerTypes eForSpecificPlayer = NO_PLAYER);
 
 	void DoContactMajorCivs();
 	void DoContactPlayer(PlayerTypes ePlayer);
@@ -1835,7 +1805,6 @@ private:
 
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
-	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);
 	void LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight = -1);
 	void LogPeaceMade(PlayerTypes ePlayer);
 	void LogDoF(PlayerTypes ePlayer);
@@ -1941,7 +1910,6 @@ private:
 
 	// Diplomatic Interactions
 	DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS][MAX_DIPLO_LOG_STATEMENTS];
-	DeclarationLogData m_aDeclarationsLog[MAX_DIPLO_LOG_STATEMENTS];
 	short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
 	bool m_aabSentAttackMessageToMinorCivProtector[MAX_MAJOR_CIVS][MAX_MINOR_CIVS];
 

@@ -4848,7 +4848,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			PlayerTypes e = (PlayerTypes)i;
 
 			// Cancel quests and PtPs
-			DoChangeProtectionFromMajor(e, false);
+			DoChangeProtectionFromMajor(e, false, false, false);
 			ResetNumConsecutiveSuccessfulRiggings(e);
 
 			// Return all incoming unit gifts.
@@ -13401,7 +13401,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
 	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
 	{
-		DoChangeProtectionFromMajor(eMajor, false, false);
+		DoChangeProtectionFromMajor(eMajor, false, false, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL");
@@ -13418,7 +13418,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	// If they've fallen below 0 Influence, end protection immediately.
 	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT))
 	{
-		DoChangeProtectionFromMajor(eMajor, false, true);
+		DoChangeProtectionFromMajor(eMajor, false, true, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
@@ -13472,7 +13472,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
 	{
-		DoChangeProtectionFromMajor(eMajor, false, true);
+		DoChangeProtectionFromMajor(eMajor, false, true, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
 		if (bBadMilitary)
@@ -13682,7 +13682,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	return sFactors;
 }
 
-void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken)
+void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken, bool bSendNotification)
 {
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
@@ -13729,6 +13729,43 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 		pCity->updateStrengthValue();
 
 	RecalculateRewards(eMajor);
+
+	// Notify the world, if there's something to be said!
+	const char* strMinorCivKey = GetPlayer()->getNameKey();
+	const char* strText = bProtect ? GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey) : GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_ABANDON_CITY_STATE, NO_PLAYER, strMinorCivKey);
+	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
+	strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer == eMajor)
+			continue;
+
+		// Protection is established
+		if (bProtect)
+		{
+			// Send a notification to all civs who have met both this City-State and the major who established protection
+			if (IsHasMetPlayer(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasMet(eMajor))
+			{
+				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (GET_PLAYER(eLoopPlayer).isAlive() && pNotifications)
+					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
+			}
+		}
+		// Protection is revoked
+		else
+		{
+			// Send a notification to all civs who have met both this City-State and the major who revoked protection
+			// The notification might not be sent under some circumstances, such as if the major withdrew the protection by declaring war
+			if (bSendNotification && IsHasMetPlayer(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasMet(eMajor) && GET_PLAYER(eLoopPlayer).isAlive())
+			{
+				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (pNotifications)
+					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
+			}
+		}
+	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -13891,10 +13928,6 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
-	if (!GET_PLAYER(eMajor).isAlive())
-		return false;
-
 	return m_abPledgeToProtect[eMajor];
 }
 
@@ -17006,7 +17039,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 		// VP: Revoke Pledge of Protection
 		if (/*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING) > 0)
-			DoChangeProtectionFromMajor(eBully, false, false);
+			DoChangeProtectionFromMajor(eBully, false, false, false);
 	}
 
 	// Inform alive majors who have met the bully
@@ -17861,7 +17894,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			// Revoke PtP is there was one
 			if (IsProtectedByMajor(ePlayer))
 			{
-				DoChangeProtectionFromMajor(ePlayer, false, true);
+				DoChangeProtectionFromMajor(ePlayer, false, true, false);
 			}
 
 			// Revoke quests if there were any
@@ -17984,7 +18017,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		
 		SetFriendshipWithMajor(eEnemyMajorLoop, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR), false, true);
 		SetRestingPointChange(eEnemyMajorLoop, 0); // Remove any liberation / Great Diplomat bonuses to resting Influence
-		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
+		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true, false);
 		if (GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
 		{
 			EndAllActiveQuestsForPlayer(eEnemyMajorLoop, true);
@@ -18511,7 +18544,6 @@ void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
 // ******************************
 // ***** Misc Helper Functions *****
 // ******************************
-
 
 /// Has met another Player?
 bool CvMinorCivAI::IsHasMetPlayer(PlayerTypes ePlayer)

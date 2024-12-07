@@ -4142,6 +4142,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 	}
 
 	// First Contact in Diplo AI (Civ 5)
+	bool bMinorTeam = GET_TEAM(eIndex).isMinorCiv();
 	for (size_t i=0; i<vMyTeam.size(); i++)
 	{
 		PlayerTypes eMyPlayer = vMyTeam[i];
@@ -4156,15 +4157,51 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 			GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
 
-			// THIRD party loop - let everyone else know that someone met someone!
-			for (int iThirdPlayersLoop = 0; iThirdPlayersLoop < MAX_MAJOR_CIVS; iThirdPlayersLoop++)
+			// If we met a City-State, check major civs for protectors and notify
+			if (bMinorTeam)
 			{
-				PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayersLoop;
-
-				// Don't notify diplo AI if we're the one meeting or the one being met
-				if (GET_PLAYER(eThirdPlayer).isAlive() && eThirdPlayer != eMyPlayer && eThirdPlayer != eTheirPlayer)
+				for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 				{
-					GET_PLAYER(eThirdPlayer).GetDiplomacyAI()->DoPlayerMetSomeone(eMyPlayer, eTheirPlayer);
+					PlayerTypes eThirdPlayer = (PlayerTypes)iThirdPartyLoop;
+					TeamTypes eThirdTeam = GET_PLAYER(eThirdPlayer).getTeam();
+					if (!GET_PLAYER(eThirdPlayer).isAlive() || eThirdTeam == GetID() || eThirdTeam == eIndex)
+						continue;
+
+					if (GET_PLAYER(eTheirPlayer).GetMinorCivAI()->IsProtectedByMajor(eThirdPlayer) && isHasMet(eThirdTeam))
+					{
+						CvNotifications* pNotifications = GET_PLAYER(eMyPlayer).GetNotifications();
+						if (pNotifications)
+						{
+							const char* strMinorCivKey = GET_PLAYER(eTheirPlayer).getNameKey();
+							const char* strText = GET_PLAYER(eThirdPlayer).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey);
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
+							strSummary << GET_PLAYER(eThirdPlayer).getCivilizationShortDescriptionKey();
+							pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
+						}
+					}
+				}
+			}
+			// If we met a major civ, check City-States they may be protecting and notify
+			else
+			{
+				for (int iThirdPartyLoop = MAX_MAJOR_CIVS; iThirdPartyLoop < MAX_CIV_PLAYERS; iThirdPartyLoop++)
+				{
+					PlayerTypes eThirdPlayer = (PlayerTypes)iThirdPartyLoop;
+					if (!GET_PLAYER(eThirdPlayer).isAlive())
+						continue;
+
+					if (GET_PLAYER(eThirdPlayer).GetMinorCivAI()->IsProtectedByMajor(eTheirPlayer) && isHasMet(GET_PLAYER(eThirdPlayer).getTeam()))
+					{
+						CvNotifications* pNotifications = GET_PLAYER(eMyPlayer).GetNotifications();
+						if (pNotifications)
+						{
+							const char* strMinorCivKey = GET_PLAYER(eThirdPlayer).getNameKey();
+							const char* strText = GET_PLAYER(eTheirPlayer).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey);
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
+							strSummary << GET_PLAYER(eTheirPlayer).getCivilizationShortDescriptionKey();
+							pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
+						}
+					}
 				}
 			}
 		}

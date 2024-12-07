@@ -629,7 +629,7 @@ public:
 	CvString GetPledgeProtectionInvalidReason(PlayerTypes eMajor);
 #endif
 	// Protection
-	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken = false);
+	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken, bool bSendNotification);
 	bool CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement);
 	bool CanMajorStartProtection(PlayerTypes eMajor);
 	bool CanMajorWithdrawProtection(PlayerTypes eMajor);
