@@ -13331,20 +13331,21 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	}
 
 	// Influence for liberator
-	int iNewInfluence = max(iHighestOtherMajorInfluence + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP), GetBaseFriendshipWithMajor(eLiberator) + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP));
-
+	int iInfluenceForLiberator = /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP);
 	if (MOD_BALANCE_VP)
 	{
 		int iEra = GET_PLAYER(eLiberator).GetCurrentEra();
 		if (iEra <= 0)
 			iEra = 1;
 
-		iNewInfluence *= iEra;
+		iInfluenceForLiberator *= iEra;
 
 		// Were we liberated from Barbarians? Less influence for you!
 		if (eConquerorTeam == BARBARIAN_TEAM)
-			iNewInfluence /= 2;
+			iInfluenceForLiberator /= 2;
 	}
+
+	int iNewInfluence = max(iHighestOtherMajorInfluence + iInfluenceForLiberator, GetBaseFriendshipWithMajor(eLiberator) + iInfluenceForLiberator);
 
 	iNewInfluence = max(GetAlliesThreshold(eLiberator) + 10, iNewInfluence); // Must be at least enough to make us allies
 
