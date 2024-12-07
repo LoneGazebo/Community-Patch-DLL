@@ -214,6 +214,42 @@ bool CvDatabaseUtility::PopulateArrayByExistence(int*& pArray, const char* szTyp
 
 	return true;
 }
+
+//------------------------------------------------------------------------------
+bool CvDatabaseUtility::PopulateVector(std::vector<int>& pVector, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue)
+{
+	pVector.clear();
+
+	std::string strKey = "_PV_";
+	strKey.append(szTypeTableName);
+	strKey.append(szDataTableName);
+	strKey.append(szFilterColumn);
+
+	Database::Results* pResults = GetResults(strKey);
+	if (pResults == NULL)
+	{
+		char szSQL[512];
+		sprintf_s(szSQL, "select %s.ID from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
+		pResults = PrepareResults(strKey, szSQL);
+		if (pResults == NULL)
+			return false;
+	}
+
+	if (!pResults->Bind(1, szFilterValue, false))
+	{
+		CvAssertMsg(false, GetErrorMessage());
+		return false;
+	}
+
+	while (pResults->Step())
+	{
+		pVector.push_back(pResults->GetInt(0));
+	}
+
+	pResults->Reset();
+
+	return true;
+}
 //------------------------------------------------------------------------------
 bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iDefaultValue /* = 0 */, int iMinArraySize /* = 0 */, const char* szAdditionalCondition /* = "" */)
 {

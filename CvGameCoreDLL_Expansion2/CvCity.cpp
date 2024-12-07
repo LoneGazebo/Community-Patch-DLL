@@ -9759,38 +9759,33 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 	bool bHasAnyOr = false;
 	bool bNeedAnyOr = false;
 	CvString tempTooltip;
-	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
+	for (int iPrereq = 0; iPrereq < pBuildingInfo->GetLocalResourceAndSize(); iPrereq++)
 	{
 		ResourceTypes eAndResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceAnd(iPrereq));
-		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(iPrereq));
-
-		// Both lists have run out; terminate early
-		if (eAndResource == NO_RESOURCE && eOrResource == NO_RESOURCE)
-			break;
-
-		// City doesn't have resource locally
-		if (eAndResource != NO_RESOURCE && !IsHasResourceLocal(eAndResource, bTestVisible))
+		
+		if (!IsHasResourceLocal(eAndResource, bTestVisible))
 		{
 			CvResourceInfo* pAndResource = GC.getResourceInfo(eAndResource);
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pAndResource->GetTextKey(), pAndResource->GetIconString());
 			bHasAllAnd = false;
 		}
+	}
 
-		if (eOrResource != NO_RESOURCE)
+	for (int iPrereq = 0; iPrereq < pBuildingInfo->GetLocalResourceOrSize(); iPrereq++)
+	{
+		ResourceTypes eOrResource = static_cast<ResourceTypes>(pBuildingInfo->GetLocalResourceOr(iPrereq));
+		bNeedAnyOr = true;
+
+		// City has resource locally
+		if (IsHasResourceLocal(eOrResource, bTestVisible))
 		{
-			bNeedAnyOr = true;
-
-			// City has resource locally
-			if (IsHasResourceLocal(eOrResource, bTestVisible))
-			{
-				bHasAnyOr = true;
-				continue;
-			}
-
-			// Otherwise, prepare the temp tooltip
-			CvResourceInfo* pOrResource = GC.getResourceInfo(eOrResource);
-			GC.getGame().BuildCannotPerformActionHelpText(&tempTooltip, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pOrResource->GetTextKey(), pOrResource->GetIconString());
+			bHasAnyOr = true;
+			continue;
 		}
+
+		// Otherwise, prepare the temp tooltip
+		CvResourceInfo* pOrResource = GC.getResourceInfo(eOrResource);
+		GC.getGame().BuildCannotPerformActionHelpText(&tempTooltip, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pOrResource->GetTextKey(), pOrResource->GetIconString());
 	}
 
 	if (!bHasAllAnd || (bNeedAnyOr && !bHasAnyOr))
@@ -9815,34 +9810,16 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		return false;
 
 	// ANDs: City must have ALL of these nearby
-	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
+	// If this is a corporation HQ, consider it's corporation resource ANDs instead!
+	const CvBuildingClassInfo& kBuildingClass = pkBuildingInfo->GetBuildingClassInfo();
+	CorporationTypes eCorporation = kBuildingClass.getCorporationType();
+	CvCorporationEntry* pkCorporationInfo = (kBuildingClass.IsHeadquarters() && eCorporation != NO_CORPORATION) ? GC.getCorporationInfo(eCorporation) : NULL;
+
+	int iNumAndPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyAndSize() : pkBuildingInfo->GetResourceMonopolyAndSize();
+	for (int iPrereq = 0; iPrereq < iNumAndPrereq; iPrereq++)
 	{
-		ResourceTypes eResource = NO_RESOURCE;
-
-		// If this is a corporation HQ, consider it's corporation resource ANDs instead!
-		// Still want to support Buildings
-		const CvBuildingClassInfo& kBuildingClass = pkBuildingInfo->GetBuildingClassInfo();
-		CorporationTypes eCorporation = kBuildingClass.getCorporationType();
-		if (kBuildingClass.IsHeadquarters() && eCorporation != NO_CORPORATION)
-		{
-			CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-			if (pkCorporationInfo)
-			{
-				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(iPrereq);
-			}
-		}
-		else
-		{
-			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(iPrereq);
-		}
-
-		// Doesn't require a resource in this AND slot
-		if (eResource == NO_RESOURCE)
-			continue;
-
+		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyAnd(iPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyAnd(iPrereq);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource == NULL)
-			continue;
 
 		if (!GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
 		{
@@ -9867,35 +9844,11 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 	int iOrResources = 0;
 
 	// ORs: City must have ONE of these nearby
-	for (int iPrereq = 0; iPrereq < GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS); iPrereq++)
+	int iNumOrPrereq = pkCorporationInfo ? pkCorporationInfo->GetResourceMonopolyOrSize() : pkBuildingInfo->GetResourceMonopolyOrSize();
+	for (int iPrereq = 0; iPrereq < iNumOrPrereq; iPrereq++)
 	{
-		ResourceTypes eResource = NO_RESOURCE;
-
-		// If this is a corporation HQ, consider it's corporation resource ORs instead!
-		// Still want to support Buildings
-		const CvBuildingClassInfo& kBuildingClass = pkBuildingInfo->GetBuildingClassInfo();
-		CorporationTypes eCorporation = kBuildingClass.getCorporationType();
-		if (kBuildingClass.IsHeadquarters() && eCorporation != NO_CORPORATION)
-		{
-
-			CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-			if (pkCorporationInfo)
-			{
-				eResource = (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(iPrereq);
-			}
-		}
-		else
-		{
-			eResource = (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(iPrereq);
-		}
-
-		// Doesn't require a resource in this AND slot
-		if (eResource == NO_RESOURCE)
-			continue;
-
+		ResourceTypes eResource = pkCorporationInfo ? (ResourceTypes)pkCorporationInfo->GetResourceMonopolyOr(iPrereq) : (ResourceTypes)pkBuildingInfo->GetResourceMonopolyOr(iPrereq);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource == NULL)
-			continue;
 
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
 			continue;

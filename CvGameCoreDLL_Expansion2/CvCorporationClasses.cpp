@@ -25,8 +25,6 @@ CvCorporationEntry::CvCorporationEntry(void):
 	m_iBaseSpreadChance(0),
 	m_iTourismMod(0),
 	m_bTradeRoutesInvulnerable(false),
-	m_piResourceMonopolyAnd(NULL),
-	m_piResourceMonopolyOrs(NULL),
 	m_piNumFreeResource(NULL),
 	m_piTradeRouteMod(NULL),
 	m_piTradeRouteCityMod(NULL),
@@ -40,8 +38,8 @@ CvCorporationEntry::CvCorporationEntry(void):
 
 CvCorporationEntry::~CvCorporationEntry(void)
 {
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnd);
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
+	m_viResourceMonopolyAnds.clear();
+	m_viResourceMonopolyOrs.clear();
 	SAFE_DELETE_ARRAY(m_piNumFreeResource);
 	SAFE_DELETE_ARRAY(m_piTradeRouteMod);
 	SAFE_DELETE_ARRAY(m_piTradeRouteCityMod);
@@ -120,31 +118,40 @@ bool CvCorporationEntry::IsTradeRoutesInvulnerable() const
 	return m_bTradeRoutesInvulnerable;
 }
 
+/// Prerequisite resources with AND
+int CvCorporationEntry::GetResourceMonopolyAndSize() const
+{
+	return m_viResourceMonopolyAnds.size();
+}
 int CvCorporationEntry::GetResourceMonopolyAnd(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyAnds.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyAnd ? m_piResourceMonopolyAnd[i] : -1;
+	return m_viResourceMonopolyAnds[i];
 }
 
 /// Prerequisite resources with OR
+int CvCorporationEntry::GetResourceMonopolyOrSize() const
+{
+	return m_viResourceMonopolyOrs.size();
+}
 int CvCorporationEntry::GetResourceMonopolyOr(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyOrs.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
+	return m_viResourceMonopolyOrs[i];
 }
 
 int CvCorporationEntry::GetNumFreeResource(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumFreeResource ? m_piNumFreeResource[i] : -1;
 }
 
 int CvCorporationEntry::GetUnitResourceProductionModifier(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piUnitResourceProductionModifier ? m_piUnitResourceProductionModifier[i] : -1;
 }
@@ -277,8 +284,8 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const char* szCorporationType = GetType();
 
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnd, "Resources", "Corporation_ResourceMonopolyAnds", "ResourceType", "CorporationType", szCorporationType);
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Corporation_ResourceMonopolyOrs", "ResourceType", "CorporationType", szCorporationType);
+	kUtility.PopulateVector(m_viResourceMonopolyAnds, "Resources", "Corporation_ResourceMonopolyAnds", "ResourceType", "CorporationType", szCorporationType);
+	kUtility.PopulateVector(m_viResourceMonopolyOrs, "Resources", "Corporation_ResourceMonopolyOrs", "ResourceType", "CorporationType", szCorporationType);
 	kUtility.PopulateArrayByValue(m_piNumFreeResource, "Resources", "Corporation_NumFreeResource", "ResourceType", "CorporationType", szCorporationType, "NumResource");
 	kUtility.PopulateArrayByValue(m_piUnitResourceProductionModifier, "Resources", "Corporation_UnitResourceProductionModifier", "ResourceType", "CorporationType", szCorporationType, "Modifier");
 	kUtility.SetYields(m_piTradeRouteCityMod, "Corporation_TradeRouteCityYield", "CorporationType", szCorporationType);

@@ -30,7 +30,9 @@ public:
 	int GetRandomSpreadChance() const;
 	int GetTourismMod() const;
 
+	int GetResourceMonopolyAndSize() const;
 	int GetResourceMonopolyAnd(int i) const;
+	int GetResourceMonopolyOrSize() const;
 	int GetResourceMonopolyOr(int i) const;
 	int GetNumFreeResource(int i) const;
 	int GetUnitResourceProductionModifier(int i) const;
@@ -66,8 +68,8 @@ protected:
 	int m_iBaseSpreadChance;
 	int m_iTourismMod;
 
-	int* m_piResourceMonopolyAnd;
-	int* m_piResourceMonopolyOrs;
+	std::vector<int> m_viResourceMonopolyAnds;
+	std::vector<int> m_viResourceMonopolyOrs;
 	int* m_piNumFreeResource;
 	int* m_piUnitResourceProductionModifier;
 

@@ -380,13 +380,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piDomainProductionModifier(NULL),
 	m_piPrereqNumOfBuildingClass(NULL),
 	m_piFlavorValue(NULL),
-	m_piLocalResourceAnds(NULL),
-	m_piLocalResourceOrs(NULL),
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_piLocalFeatureOrs(NULL),
 	m_piLocalFeatureAnds(NULL),
-	m_piResourceMonopolyAnds(NULL),
-	m_piResourceMonopolyOrs(NULL),
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),
 	m_piYieldPerFranchise(NULL),
@@ -529,13 +525,13 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piPrereqNumOfBuildingClass);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_piLocalResourceAnds);
-	SAFE_DELETE_ARRAY(m_piLocalResourceOrs);
+	m_viLocalResourceAnds.clear();
+	m_viLocalResourceOrs.clear();
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	SAFE_DELETE_ARRAY(m_piLocalFeatureOrs);
 	SAFE_DELETE_ARRAY(m_piLocalFeatureAnds);
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
+	m_viResourceMonopolyAnds.clear();
+	m_viResourceMonopolyOrs.clear();
 	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
@@ -1063,15 +1059,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByExistence(m_piLockedBuildingClasses, "BuildingClasses", "Building_LockedBuildingClasses", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piPrereqAndTechs, "Technologies", "Building_TechAndPrereqs", "TechType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piLocalResourceAnds, "Resources", "Building_LocalResourceAnds", "ResourceType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viLocalResourceAnds, "Resources", "Building_LocalResourceAnds", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kUtility.PopulateArrayByExistence(m_piLocalFeatureOrs, "Features", "Building_LocalFeatureOrs", "FeatureType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piLocalFeatureAnds, "Features", "Building_LocalFeatureAnds", "FeatureType", "BuildingType", szBuildingType);
 
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
@@ -4030,20 +4026,29 @@ int CvBuildingEntry::GetFlavorValue(int i) const
 }
 
 /// Prerequisite resources with AND
+int CvBuildingEntry::GetLocalResourceAndSize() const
+{
+	return m_viLocalResourceAnds.size();
+}
 int CvBuildingEntry::GetLocalResourceAnd(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viLocalResourceAnds.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piLocalResourceAnds ? m_piLocalResourceAnds[i] : -1;
+	return m_viLocalResourceAnds[i];
 }
 
 /// Prerequisite resources with OR
+int CvBuildingEntry::GetLocalResourceOrSize() const
+{
+	return m_viLocalResourceOrs.size();
+}
 int CvBuildingEntry::GetLocalResourceOr(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viLocalResourceOrs.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piLocalResourceOrs ? m_piLocalResourceOrs[i] : -1;
+	return m_viLocalResourceOrs[i];
 }
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetFeatureAnd(int i) const
@@ -4060,19 +4065,27 @@ int CvBuildingEntry::GetFeatureOr(int i) const
 	return m_piLocalFeatureOrs ? m_piLocalFeatureOrs[i] : -1;
 }
 /// Prerequisite resources with AND
+int CvBuildingEntry::GetResourceMonopolyAndSize() const
+{
+	return m_viResourceMonopolyAnds.size();
+}
 int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyAnds.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyAnds ? m_piResourceMonopolyAnds[i] : -1;
+	return m_viResourceMonopolyAnds[i];
 }
 
 /// Prerequisite resources with OR
+int CvBuildingEntry::GetResourceMonopolyOrSize() const
+{
+	return m_viResourceMonopolyOrs.size();
+}
 int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyOrs.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
+	return m_viResourceMonopolyOrs[i];
 }
 //Coroporation Stuff
 int CvBuildingEntry::GetGPRateModifierPerXFranchises() const

@@ -8612,7 +8612,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 					{
 						iAvailabilityModifier = 0;
 					}
-					else if (pkBuildingInfo->GetLocalResourceOr(0) != NO_RESOURCE)
+					else if (pkBuildingInfo->GetLocalResourceOrSize() > 0)
 					{
 						// we need a local resource to build this? assume the building will be very rare
 						iAvailabilityModifier = 1;
