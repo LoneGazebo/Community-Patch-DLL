@@ -773,7 +773,7 @@ void CvPlayerTechs::Reset()
 	m_bWillHaveUUTechSoon = false;
 
 	// Tweak tech priorities to recognize unique properties of this civ
-	if(!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->getCivilizationType() != NO_CIVILIZATION)
+	if(m_pPlayer->GetID() != NO_PLAYER && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->getCivilizationType() != NO_CIVILIZATION)
 	{
 		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
 		if(pkInfo)

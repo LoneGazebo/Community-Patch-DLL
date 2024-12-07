@@ -3877,6 +3877,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
+		if (eUnit == NO_UNIT)
+			continue;
+
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 		if (!pUnitEntry)
 			continue;

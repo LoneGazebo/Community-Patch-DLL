@@ -381,13 +381,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piDomainProductionModifier(NULL),
 	m_piPrereqNumOfBuildingClass(NULL),
 	m_piFlavorValue(NULL),
-	m_piLocalResourceAnds(NULL),
-	m_piLocalResourceOrs(NULL),
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_piLocalFeatureOrs(NULL),
 	m_piLocalFeatureAnds(NULL),
-	m_piResourceMonopolyAnds(NULL),
-	m_piResourceMonopolyOrs(NULL),
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),
 	m_piYieldPerFranchise(NULL),
@@ -530,13 +526,13 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piPrereqNumOfBuildingClass);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_piLocalResourceAnds);
-	SAFE_DELETE_ARRAY(m_piLocalResourceOrs);
+	m_viLocalResourceAnds.clear();
+	m_viLocalResourceOrs.clear();
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	SAFE_DELETE_ARRAY(m_piLocalFeatureOrs);
 	SAFE_DELETE_ARRAY(m_piLocalFeatureAnds);
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
-	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
+	m_viResourceMonopolyAnds.clear();
+	m_viResourceMonopolyOrs.clear();
 	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
@@ -987,7 +983,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromPillageGlobalPlayer, "Building_YieldFromPillageGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGoldenAgeStart, "Building_YieldFromGoldenAgeStart", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerGoldenAge, "Building_YieldChangesPerGoldenAge", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap", INT_MAX);
+	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap", 0);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -1065,15 +1061,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByExistence(m_piLockedBuildingClasses, "BuildingClasses", "Building_LockedBuildingClasses", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piPrereqAndTechs, "Technologies", "Building_TechAndPrereqs", "TechType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piLocalResourceAnds, "Resources", "Building_LocalResourceAnds", "ResourceType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viLocalResourceAnds, "Resources", "Building_LocalResourceAnds", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kUtility.PopulateArrayByExistence(m_piLocalFeatureOrs, "Features", "Building_LocalFeatureOrs", "FeatureType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piLocalFeatureAnds, "Features", "Building_LocalFeatureAnds", "FeatureType", "BuildingType", szBuildingType);
 
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
-	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateVector(m_viResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
@@ -4037,20 +4033,29 @@ int CvBuildingEntry::GetFlavorValue(int i) const
 }
 
 /// Prerequisite resources with AND
+int CvBuildingEntry::GetLocalResourceAndSize() const
+{
+	return m_viLocalResourceAnds.size();
+}
 int CvBuildingEntry::GetLocalResourceAnd(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viLocalResourceAnds.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piLocalResourceAnds ? m_piLocalResourceAnds[i] : -1;
+	return m_viLocalResourceAnds[i];
 }
 
 /// Prerequisite resources with OR
+int CvBuildingEntry::GetLocalResourceOrSize() const
+{
+	return m_viLocalResourceOrs.size();
+}
 int CvBuildingEntry::GetLocalResourceOr(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viLocalResourceOrs.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piLocalResourceOrs ? m_piLocalResourceOrs[i] : -1;
+	return m_viLocalResourceOrs[i];
 }
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetFeatureAnd(int i) const
@@ -4067,19 +4072,27 @@ int CvBuildingEntry::GetFeatureOr(int i) const
 	return m_piLocalFeatureOrs ? m_piLocalFeatureOrs[i] : -1;
 }
 /// Prerequisite resources with AND
+int CvBuildingEntry::GetResourceMonopolyAndSize() const
+{
+	return m_viResourceMonopolyAnds.size();
+}
 int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyAnds.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyAnds ? m_piResourceMonopolyAnds[i] : -1;
+	return m_viResourceMonopolyAnds[i];
 }
 
 /// Prerequisite resources with OR
+int CvBuildingEntry::GetResourceMonopolyOrSize() const
+{
+	return m_viResourceMonopolyOrs.size();
+}
 int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 {
-	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
+	CvAssertMsg(i < m_viResourceMonopolyOrs.size(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
+	return m_viResourceMonopolyOrs[i];
 }
 //Coroporation Stuff
 int CvBuildingEntry::GetGPRateModifierPerXFranchises() const
@@ -4940,7 +4953,7 @@ void CvCityBuildings::Serialize(CityBuildings& cityBuildings, Visitor& visitor)
 /// Serialization read
 void CvCityBuildings::Read(FDataStream& kStream)
 {
-	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
+	CvAssertMsg(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
@@ -4955,7 +4968,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 /// Serialization write
 void CvCityBuildings::Write(FDataStream& kStream) const
 {
-	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
+	CvAssertMsg(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
@@ -5200,7 +5213,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
 	if(!pkBuildingEntry)
@@ -5226,7 +5239,7 @@ void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 int CvCityBuildings::GetSellBuildingRefund(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	int iRefund = GET_PLAYER(m_pCity->getOwner()).getProductionNeeded(eIndex);
 	iRefund /= /*4*/ GD_INT_GET(BUILDING_SALE_DIVISOR);
@@ -5282,7 +5295,7 @@ int CvCityBuildings::GetTotalBaseBuildingMaintenance() const
 int CvCityBuildings::GetBuildingProduction(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProduction[eIndex] / 100;
 }
 
@@ -5290,7 +5303,7 @@ int CvCityBuildings::GetBuildingProduction(BuildingTypes eIndex)	const
 int CvCityBuildings::GetBuildingProductionTimes100(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProduction[eIndex];
 }
 
@@ -5304,7 +5317,7 @@ void CvCityBuildings::SetBuildingProduction(BuildingTypes eIndex, int iNewValue)
 void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings())");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos())");
 
 	if(GetBuildingProductionTimes100(eIndex) != iNewValue)
 	{
@@ -5343,7 +5356,7 @@ void CvCityBuildings::ChangeBuildingProductionTimes100(BuildingTypes eIndex, int
 int CvCityBuildings::GetBuildingProductionTime(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProductionTime[eIndex];
 }
 
@@ -5351,7 +5364,7 @@ int CvCityBuildings::GetBuildingProductionTime(BuildingTypes eIndex)	const
 void CvCityBuildings::SetBuildingProductionTime(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingProductionTime[eIndex] = iNewValue;
 	CvAssert(GetBuildingProductionTime(eIndex) >= 0);
 }
@@ -5366,7 +5379,7 @@ void CvCityBuildings::ChangeBuildingProductionTime(BuildingTypes eIndex, int iCh
 int CvCityBuildings::GetBuildingOriginalOwner(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingOriginalOwner[eIndex];
 }
 
@@ -5374,7 +5387,7 @@ int CvCityBuildings::GetBuildingOriginalOwner(BuildingTypes eIndex) const
 void CvCityBuildings::SetBuildingOriginalOwner(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingOriginalOwner[eIndex] = iNewValue;
 }
 
@@ -5382,7 +5395,7 @@ void CvCityBuildings::SetBuildingOriginalOwner(BuildingTypes eIndex, int iNewVal
 int CvCityBuildings::GetBuildingOriginalTime(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingOriginalTime[eIndex];
 }
 
@@ -5390,7 +5403,7 @@ int CvCityBuildings::GetBuildingOriginalTime(BuildingTypes eIndex) const
 void CvCityBuildings::SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingOriginalTime[eIndex] = iNewValue;
 }
 
@@ -5398,7 +5411,7 @@ void CvCityBuildings::SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValu
 int CvCityBuildings::GetNumRealBuilding(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiNumRealBuilding[eIndex];
 }
 
@@ -5414,7 +5427,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	int iChangeNumRealBuilding = iNewValue - GetNumRealBuilding(eIndex);
 	if (iChangeNumRealBuilding == 0)
@@ -5670,7 +5683,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 int CvCityBuildings::GetNumFreeBuilding(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiNumFreeBuilding[eIndex];
 }
 
@@ -5678,7 +5691,7 @@ int CvCityBuildings::GetNumFreeBuilding(BuildingTypes eIndex) const
 void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	if(GetNumFreeBuilding(eIndex) != iNewValue)
 	{
@@ -5725,13 +5738,13 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 int CvCityBuildings::IsFirstTimeBuilding(BuildingTypes eBuilding)
 {
 	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuilding < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiFirstTimeBuilding[eBuilding];
 }
 void CvCityBuildings::SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue)
 {
 	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuilding < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	if(IsFirstTimeBuilding(eBuilding) != iValue)
 	{
 		m_paiFirstTimeBuilding[eBuilding] = iValue;
@@ -6252,7 +6265,7 @@ int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 void CvCityBuildings::SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex)
 {
 	CvAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
-	CvAssertMsg(eBuilding < GetNumBuildings(), "eBuilding expected to be < GetNumBuildings()");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	m_paiThemingBonusIndex[eBuilding] = iIndex;
 }
 

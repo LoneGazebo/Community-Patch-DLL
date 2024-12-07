@@ -482,7 +482,7 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 {
 	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
 	const TeamTypes ePlotTeam = pPlot->getTeam();
-	const PlayerTypes eMinorCivAlly = GET_TEAM(ePlotTeam).isMinorCiv() ? GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetAlly() : NO_PLAYER;
+	const PlayerTypes eMinorCivAlly = ePlotTeam != NO_TEAM ? (GET_TEAM(ePlotTeam).isMinorCiv() ? GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetAlly() : NO_PLAYER) : NO_PLAYER;
 	TeamTypes eMinorCivAllyTeam = eMinorCivAlly != NO_PLAYER ? GET_PLAYER(eMinorCivAlly).getTeam() : NO_TEAM;
 
 	if (eMinorCivAllyTeam == ePlayerTeam)

@@ -5346,6 +5346,7 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 			}
 			GET_PLAYER(eNewAIPlayer).AI_chooseResearch();
 			GET_PLAYER(eNewAIPlayer).GetPlayerPolicies()->DoPolicyAI();
+			GET_PLAYER(eNewAIPlayer).SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);
 
 			if (getObserverUIOverridePlayer() == NO_PLAYER)
 			{

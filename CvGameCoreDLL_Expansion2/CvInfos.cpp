@@ -9664,7 +9664,7 @@ bool CvModEventInfo::isTradeCapped() const
 }
 CvEventLinkingInfo *CvModEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumEventLinkingInfos(), "Index out of bounds");
+	CvAssertMsg(i < GetNumLinkers(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -10404,7 +10404,7 @@ const char* CvModEventChoiceInfo::getDisabledTooltip() const
 }
 CvEventChoiceLinkingInfo *CvModEventChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumEventChoiceLinkingInfos(), "Index out of bounds");
+	CvAssertMsg(i < GetNumLinkers(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -11173,7 +11173,7 @@ bool CvModCityEventInfo::IsCounterSpy() const
 }
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumCityEventLinkingInfos(), "Index out of bounds");
+	CvAssertMsg(i < GetNumLinkers(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -11841,7 +11841,7 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 
 CvCityEventChoiceLinkingInfo *CvModEventCityChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumCityEventChoiceLinkingInfos(), "Index out of bounds");
+	CvAssertMsg(i < GetNumLinkers(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)

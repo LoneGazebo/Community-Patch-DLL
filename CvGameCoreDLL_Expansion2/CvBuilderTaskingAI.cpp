@@ -465,9 +465,11 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 					continue;
 
 				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				if (eImprovement == NO_IMPROVEMENT)
+					continue;
 
-				if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementInfo->IsCreatedByGreatPerson())
 					continue;
 
 				if (pkImprovementInfo->IsNoTwoAdjacent())
@@ -1150,7 +1152,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 		eImprovement = m_uniqueImprovements[i];
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 
-		if ((pkImprovementInfo->GetFeatureMakesValid(eFeature)) ||
+		if (((eFeature != NO_FEATURE && pkImprovementInfo->GetFeatureMakesValid(eFeature))) ||
 			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
@@ -1258,6 +1260,9 @@ void CvBuilderTaskingAI::SetAssignedDirective(CvUnit* pUnit, BuilderDirective eD
 
 bool CvBuilderTaskingAI::CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective, bool bTestEra)
 {
+	if (eDirective.m_eBuild == NO_BUILD)
+		return false;
+
 	CvPlot* pTargetPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
 	if (!ShouldBuilderConsiderPlot(pUnit, pTargetPlot))
@@ -1801,22 +1806,24 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 	for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuildTypes eBuild = it->option.m_eBuild;
+		if (eBuild == NO_BUILD)
+		{
+			aNewDirectives.push_back(*it);
+			continue;
+		}
+
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-
-		if (!pkBuild)
-		{
-			aNewDirectives.push_back(*it);
-			continue;
-		}
-
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
-		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-
-		if (!pkImprovementInfo || !pkImprovementInfo->IsNoTwoAdjacent())
+		if (eImprovement != NO_IMPROVEMENT)
 		{
-			aNewDirectives.push_back(*it);
-			continue;
-		}
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if(!pkImprovementInfo->IsNoTwoAdjacent())
+			{
+				aNewDirectives.push_back(*it);
+				continue;
+			}
+		} 
+
 
 		int iPotentialScore = it->option.GetPotentialScore();
 
@@ -1835,14 +1842,16 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 				continue;
 
 			BuildTypes eOtherBuild = it2->option.m_eBuild;
-			CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
+			if (eOtherBuild == NO_BUILD)
+				continue;
 
-			ImprovementTypes eOtherImprovement = pkOtherBuild ? (ImprovementTypes)pkOtherBuild->getImprovement() : NO_IMPROVEMENT;
+			CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
+			ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuild->getImprovement();
 			if (eOtherImprovement == NO_IMPROVEMENT)
 				continue;
 
 			CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
-			if (!pkOtherImprovementInfo || pkOtherImprovementInfo->IsCreatedByGreatPerson() || (bIgnoreNoTwoAdjacent && pkOtherImprovementInfo->IsNoTwoAdjacent()))
+			if (pkOtherImprovementInfo->IsCreatedByGreatPerson() || (bIgnoreNoTwoAdjacent && pkOtherImprovementInfo->IsNoTwoAdjacent()))
 				continue;
 
 			bInclude = false;
@@ -1863,14 +1872,13 @@ static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(v
 	for (vector<OptionWithScore<BuilderDirective>>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuildTypes eBuild = it->option.m_eBuild;
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-
-		if (!pkBuild)
+		if (eBuild == NO_BUILD)
 		{
 			aNewDirectives.push_back(*it);
 			continue;
 		}
 
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 		if (eImprovement == NO_IMPROVEMENT)
 		{
@@ -1946,12 +1954,16 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 	for (vector<OptionWithScore<BuilderDirective>>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuildTypes eBuild = it->option.m_eBuild;
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (eBuild == NO_BUILD)
+			continue;
 
-		ImprovementTypes eImprovement = pkBuild ? (ImprovementTypes)pkBuild->getImprovement() : NO_IMPROVEMENT;
+		CvBuildInfo* pkBuild =  GC.getBuildInfo(eBuild);
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (!pkImprovementInfo || !pkImprovementInfo->IsCreatedByGreatPerson())
+		if (!pkImprovementInfo->IsCreatedByGreatPerson())
 			continue;
 
 		int iBestScoreInPlot = 0;
@@ -1966,13 +1978,18 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 				continue;
 
 			BuildTypes eOtherBuild = it2->option.m_eBuild;
-			CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
+			if (eOtherBuild != NO_BUILD)
+			{
+				CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
+				ImprovementTypes eOtherImprovement = pkOtherBuild ? (ImprovementTypes)pkOtherBuild->getImprovement() : NO_IMPROVEMENT;
+				if (eOtherImprovement != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
+					if (pkOtherImprovementInfo && pkOtherImprovementInfo->IsCreatedByGreatPerson())
+						continue;
 
-			ImprovementTypes eOtherImprovement = pkOtherBuild ? (ImprovementTypes)pkOtherBuild->getImprovement() : NO_IMPROVEMENT;
-
-			CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
-			if (pkOtherImprovementInfo && pkOtherImprovementInfo->IsCreatedByGreatPerson())
-				continue;
+				}
+			}
 
 			int iPotentialScore = it2->option.GetPotentialScore();
 			int iOtherScore = it2->option.m_iScore + it2->option.m_iPotentialBonusScore / 3;
@@ -2878,12 +2895,12 @@ static Likelyhood GetPlotTheftLikelyhood(const CvPlayer* pPlayer, const CvPlot* 
 
 pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
 {
-	const CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	const CvBuildInfo* pkBuildInfo = eBuild != NO_BUILD ? GC.getBuildInfo(eBuild) : NULL;
 
 	if (eImprovement == NO_IMPROVEMENT && pPlot->IsImprovementPillaged() && pkBuildInfo && pkBuildInfo->isRepair())
 		eImprovement = pPlot->getImprovementType();
 
-	const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	const CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
 
 	const ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 	const FeatureTypes eFeature = pPlot->getFeatureType();
@@ -3022,7 +3039,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	}
 
 	int iExtraResource = 0;
-	if ((pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE)
+	if ((eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE)
 	{
 		map<ResourceTypes, int>::const_iterator it;
 		if (eResourceFromImprovement != NO_RESOURCE)
@@ -3093,10 +3110,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair() && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->IsImprovementPillaged())
 					eOtherImprovement = pAdjacentPlot->getImprovementType();
 
-				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
-				if (!pkOtherImprovementInfo)
+				if (eOtherImprovement == NO_IMPROVEMENT)
 					continue;
 
+				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
 				if (pkOtherImprovementInfo->IsCreatedByGreatPerson() && !pkOtherBuildInfo->isRepair())
 					continue;
 
@@ -3251,8 +3268,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 							fNewAdjacencyYield += pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eNewAdjacentImprovement);
 						}
 
-						CvImprovementEntry* pkOldAdjacentImprovementInfo = GC.getImprovementInfo(eOldAdjacentImprovement);
-						CvImprovementEntry* pkNewAdjacentImprovementInfo = GC.getImprovementInfo(eNewAdjacentImprovement);
+						CvImprovementEntry* pkOldAdjacentImprovementInfo = eOldAdjacentImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOldAdjacentImprovement) : NULL;
+						CvImprovementEntry* pkNewAdjacentImprovementInfo = eNewAdjacentImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eNewAdjacentImprovement) : NULL;
 
 						ResourceTypes eResourceFromOldAdjacentImprovement = pkOldAdjacentImprovementInfo ? (ResourceTypes)pkOldAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
 						ResourceTypes eResourceFromNewAdjacentImprovement = pkNewAdjacentImprovementInfo ? (ResourceTypes)pkNewAdjacentImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
@@ -3505,9 +3522,13 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 			// If the old improvement granted the same resource, subtract the resource from this improvement
 			ImprovementTypes eOldImprovement = !pPlot->IsImprovementPillaged() ? pPlot->getImprovementType() : NO_IMPROVEMENT;
-			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-			if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResourceFromImprovement))
-				iExtraResource -= iResourceAmount;
+			if (eOldImprovement != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResourceFromImprovement))
+					iExtraResource -= iResourceAmount;
+			
+			}
 
 			int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
 

@@ -1811,7 +1811,7 @@ private:
 	inline PlayerTypes GetID() const { return (PlayerTypes)m_eID; }
 	inline TeamTypes GetTeam() const { return (TeamTypes)m_eTeam; }
 	inline bool NotMe(PlayerTypes eOtherPlayer) const { return eOtherPlayer != (PlayerTypes)m_eID; }
-	inline bool NotTeam(PlayerTypes eOtherPlayer) const { return GET_PLAYER(eOtherPlayer).getTeam() != (TeamTypes)m_eTeam; }
+	inline bool NotTeam(PlayerTypes eOtherPlayer) const { return eOtherPlayer == NO_PLAYER || GET_PLAYER(eOtherPlayer).getTeam() != (TeamTypes)m_eTeam; }
 
 	// Estimations of other players' tendencies
 	int EstimateVictoryCompetitiveness(PlayerTypes ePlayer) const;

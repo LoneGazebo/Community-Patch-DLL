@@ -4387,7 +4387,7 @@ void CvMinorCivAI::Reset()
 
 	ResetQuestList();
 
-	if(GetPlayer()->isMinorCiv())
+	if(GetPlayer()->GetID() != NO_PLAYER && GetPlayer()->isMinorCiv())
 	{
 		CvPlot* pLoopPlot = NULL;
 		TeamTypes eTeam = GetPlayer()->getTeam();

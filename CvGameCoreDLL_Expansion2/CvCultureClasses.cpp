@@ -144,6 +144,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	CvString szTooltip = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
+	CvAssertMsg(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
 
 	CvString strYearString;
 	CvGameTextMgr::setDateStr(strYearString,
@@ -213,8 +214,8 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
 		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 		GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
-		GreatWorkClass eFilmClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_FILM");
-		GreatWorkClass eRelicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_RELIC");
+		GreatWorkClass eFilmClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_FILM", true);
+		GreatWorkClass eRelicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_RELIC", true);
 		if(pWork->m_eClassType == eWritingClass)
 		{
 			iAddedValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
