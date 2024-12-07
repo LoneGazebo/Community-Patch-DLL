@@ -4085,7 +4085,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		pNewCity->SetTraded(eLoopPlayer, vbTraded[iPlayerLoop]);
 		pNewCity->setEverLiberated(eLoopPlayer, vbEverLiberated[iPlayerLoop]);
-		pNewCity->setEconomicValue(eLoopPlayer, viEconValue[iPlayerLoop]);
+		if (iPlayerLoop < MAX_CIV_PLAYERS)
+			pNewCity->setEconomicValue(eLoopPlayer, viEconValue[iPlayerLoop]);
+
 		if (!bOriginally)
 			pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
 

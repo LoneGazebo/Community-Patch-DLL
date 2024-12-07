@@ -1152,7 +1152,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 		eImprovement = m_uniqueImprovements[i];
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 
-		if ((pkImprovementInfo->GetFeatureMakesValid(eFeature)) ||
+		if (((eFeature != NO_FEATURE && pkImprovementInfo->GetFeatureMakesValid(eFeature))) ||
 			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
@@ -1842,14 +1842,16 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 				continue;
 
 			BuildTypes eOtherBuild = it2->option.m_eBuild;
-			CvBuildInfo* pkOtherBuild = eOtherBuild != NO_BUILD ? GC.getBuildInfo(eOtherBuild) : NULL;
+			if (eOtherBuild == NO_BUILD)
+				continue;
 
-			ImprovementTypes eOtherImprovement = pkOtherBuild ? (ImprovementTypes)pkOtherBuild->getImprovement() : NO_IMPROVEMENT;
+			CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
+			ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuild->getImprovement();
 			if (eOtherImprovement == NO_IMPROVEMENT)
 				continue;
 
 			CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
-			if (!pkOtherImprovementInfo || pkOtherImprovementInfo->IsCreatedByGreatPerson() || (bIgnoreNoTwoAdjacent && pkOtherImprovementInfo->IsNoTwoAdjacent()))
+			if (pkOtherImprovementInfo->IsCreatedByGreatPerson() || (bIgnoreNoTwoAdjacent && pkOtherImprovementInfo->IsNoTwoAdjacent()))
 				continue;
 
 			bInclude = false;
@@ -1952,12 +1954,16 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 	for (vector<OptionWithScore<BuilderDirective>>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuildTypes eBuild = it->option.m_eBuild;
-		CvBuildInfo* pkBuild = eBuild != NO_BUILD ? GC.getBuildInfo(eBuild) : NULL;
+		if (eBuild == NO_BUILD)
+			continue;
 
-		ImprovementTypes eImprovement = pkBuild ? (ImprovementTypes)pkBuild->getImprovement() : NO_IMPROVEMENT;
+		CvBuildInfo* pkBuild =  GC.getBuildInfo(eBuild);
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
 
-		CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
-		if (!pkImprovementInfo || !pkImprovementInfo->IsCreatedByGreatPerson())
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo->IsCreatedByGreatPerson())
 			continue;
 
 		int iBestScoreInPlot = 0;

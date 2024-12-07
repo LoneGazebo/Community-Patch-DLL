@@ -2858,15 +2858,20 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 				if (bHasNoTwoAdjacencyRequirement)
 				{
 					ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
-					if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eImprovement)
+					if (eAdjacentImprovement != NO_IMPROVEMENT)
 					{
-						return false;
+						if (eAdjacentImprovement == eImprovement)
+						{
+							return false;
+						}
+
+						CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+						if (pkImprovement2->GetImprovementMakesValid(eImprovement))
+						{
+							return false;
+						}
 					}
-					CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
-					if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eImprovement))
-					{
-						return false;
-					}
+
 					int iBuildProgress = pAdjacentPlot->getBuildProgress(GetBuildTypeFromImprovement(eImprovement));
 					if (iBuildProgress > 0)
 					{

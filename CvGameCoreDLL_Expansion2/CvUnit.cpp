@@ -10135,9 +10135,9 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 				return false;
 
 		//some improvements cannot be pillaged
-		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
-		if (pImprovementInfo)
+		if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pImprovementInfo->IsPermanent())
 			{
 				return MOD_PILLAGE_PERMANENT_IMPROVEMENTS;
