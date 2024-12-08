@@ -24,6 +24,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
   <Blocks />
   <Files>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">AdvancedSetup.lua</File>
-    <File md5="5BDD661A44AD4F2DE260FE8AB06C1B26" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="C29F40BC0B095ACAB1EB6F84CE29004B" import="1">CvGameCore_Expansion2.dll</File>
   </Files>
 </Mod>

@@ -31,12 +31,12 @@
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
     <File md5="8338C80D226B371AC67ADF6072052753" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="611263EA9A6139BF3C0A25E5418ACE58" import="0">EUI/NeededText.xml</File>
-    <File md5="CE79DAC19F59C9BC2A221EB947CC4B9E" import="1">LUA/CityBannerManager.lua</File>
-    <File md5="ADBA6340D1EB08FDDB285979E58B56F2" import="1">LUA/CityBannerManager.xml</File>
+    <File md5="D1A691B68154A5B4ECDF40E91A3B18B6" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="BEA91A7E0993E453ED6531C0B1DF1B90" import="1">LUA/CityBannerManager.xml</File>
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
-    <File md5="4FF2C3858ADD42E1185E68D7C38B55D3" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="2002A9F042A0F8DE22A9EA97271E5E78" import="1">LUA/CityView.lua</File>
+    <File md5="813A02721303F20B22A8B64485982EB0" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="5E5F710959F13035BF3A616F7F8BC924" import="1">LUA/CityView.lua</File>
     <File md5="F5FCDE73448EC1391CE1C06B10630AAD" import="1">LUA/CityView.xml</File>
     <File md5="D25BC7DE8ED5F24CD827D75E5B498069" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
@@ -52,7 +52,7 @@
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">LUA/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
     <File md5="A87ADB40348735E120B60ECF9CE8BB2D" import="1">LUA/NotificationPanel.lua</File>
-    <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
+    <File md5="55E88523B0E22CF8E425321957273D6D" import="1">LUA/NotificationPanel.xml</File>
     <File md5="8EFE3F6C491EEC284F1C28610F85377C" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="A96E1CBCE39C50FB82E40C64BFD03270" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
@@ -64,11 +64,8 @@
     <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>
     <File md5="BAEAE4CE4E8B8BEAA2267E1E89EB6D2E" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="C5086E6289D8DC365D343C7BE312D802" import="1">LUA/YieldIconManager.lua</File>
-    <File md5="645B31579AD0E8018CAA2CA895C9B299" import="0">ImprovedTopPanel/FontIconsITP.xml</File>
-    <File md5="CBF5CA4731D74890572CF98197BD1301" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>
-    <File md5="1CD7B823DB2D56628A876DA93FA1AEF2" import="1">ImprovedTopPanel/FontIconsITP.dds</File>
     <File md5="4422D10FF5171FD8FD620535E7A62AE0" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="2948D8C6BD24824E84E747A6A5E45B9B" import="1">ImprovedTopPanel/TopPanel.lua</File>
+    <File md5="456F6DF669F35D8E7F306421B1AB093B" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="A832E556B1146BB64409DD813B700ECF" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="4BE1E2639D5F76C8CAF9994C12C89E58" import="0">ImprovedTechTree/IconChanges.sql</File>
     <File md5="34713F10091ED79C3EC1B1E438A1FB4B" import="1">ImprovedTechTree/TechTree.lua</File>
@@ -80,7 +77,6 @@
       <UpdateDatabase>EUI/EUI_text_en_us.xml</UpdateDatabase>
       <UpdateDatabase>ImprovedTechTree/IconChanges.sql</UpdateDatabase>
       <UpdateDatabase>ImprovedTopPanel/Text.xml</UpdateDatabase>
-      <UpdateDatabase>ImprovedTopPanel/FontIconsITP.xml</UpdateDatabase>
     </OnModActivated>
   </Actions>
 </Mod>
