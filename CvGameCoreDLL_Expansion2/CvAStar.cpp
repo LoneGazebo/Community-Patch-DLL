@@ -415,14 +415,14 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 
 	CvUnit* pUnit = m_sData.iUnitID > 0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
 #if defined(VPDEBUG)
-	if ( timer.GetDeltaInSeconds()>0.2 && m_sData.ePath==PT_UNIT_MOVEMENT )
+	if (timer.GetDeltaInSeconds() > 0.2 && m_sData.ePath == PT_UNIT_MOVEMENT)
 	{
-		//debug hook
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
-		if (iStartIndex==giLastStartIndex && iStartIndex>0)
+		if (iStartIndex == giLastStartIndex && iStartIndex > 0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
-			gStackWalker.ShowCallstack(5);
+			// Add debug break point here for investigation during development
+			ASSERT(false && "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
 
@@ -435,13 +435,6 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 			(100 * m_iProcessedNodes) / iNumPlots, timer.GetDeltaInSeconds() * 1000);
 		OutputDebugString( msg.c_str() );
 
-#ifdef STACKWALKER
-		//FILogFile* pLog = LOGFILEMGR.GetLog("PathfinderLongRun.txt", FILogFile::kDontTimeStamp);
-		//pLog->Msg(msg.c_str());
-		//gStackWalker.SetLog(pLog);
-		//gStackWalker.ShowCallstack(5);
-		//gStackWalker.SetLog(NULL);
-#endif
 	}
 #endif
 
@@ -461,12 +454,6 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 				pLog->Msg(CvString::format("# %s from %d,%d to %d,%d for player %d, type %d, flags %d\n",
 					GetName(), m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_sData.ePlayer, m_sData.ePath, m_sData.iFlags).c_str());
 			}
-
-#ifdef STACKWALKER
-			gStackWalker.SetLog(pLog);
-			gStackWalker.ShowCallstack(5);
-			gStackWalker.SetLog(NULL);
-#endif
 
 			for (size_t i = 0; i < g_svPathLog.size(); i++)
 				pLog->Msg(CvString::format("%d,%d,%d,%d,%d,%d,%d,%d\n", g_svPathLog[i].round, g_svPathLog[i].type, g_svPathLog[i].x, g_svPathLog[i].y,

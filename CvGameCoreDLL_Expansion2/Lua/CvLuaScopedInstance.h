@@ -125,32 +125,60 @@ void CvLuaScopedInstance<Derived, InstanceType>::Push(lua_State* L, InstanceType
 template<class Derived, class InstanceType>
 InstanceType* CvLuaScopedInstance<Derived, InstanceType>::GetInstance(lua_State* L, int idx, bool bErrorOnFail)
 {
-#ifdef STACKWALKER
-	gLuaState = L;
+#if defined(VPDEBUG)
+	// Track Lua state for debugging
+	if (GC.getLogging())
+	{
+		char szDebugInfo[256];
+		sprintf_s(szDebugInfo, "Lua GetInstance - Stack size: %d, Index: %d, Type: %s\n",
+			lua_gettop(L), idx, lua_typename(L, lua_type(L, idx)));
+		OutputDebugString(szDebugInfo);
+	}
 #endif
 
 	const int stack_size = lua_gettop(L);
 	bool bFail = true;
 
 	InstanceType* pkInstance = NULL;
-	if(lua_type(L, idx) == LUA_TTABLE)
+	if (lua_type(L, idx) == LUA_TTABLE)
 	{
 		lua_getfield(L, idx, "__instance");
-		if(lua_type(L, -1) == LUA_TLIGHTUSERDATA)
+		if (lua_type(L, -1) == LUA_TLIGHTUSERDATA)
 		{
 			pkInstance = static_cast<InstanceType*>(lua_touserdata(L, -1));
-			if(pkInstance)
+			if (pkInstance)
 			{
 				bFail = false;
 			}
+#if defined(VPDEBUG)
+			else
+			{
+				OutputDebugString("Warning: NULL instance in valid userdata\n");
+			}
+#endif
 		}
+#if defined(VPDEBUG)
+		else
+		{
+			OutputDebugString("Warning: __instance is not lightuserdata\n");
+		}
+#endif
 	}
+#if defined(VPDEBUG)
+	else
+	{
+		char szWarning[256];
+		sprintf_s(szWarning, "Warning: Expected table at index %d, got %s\n",
+			idx, lua_typename(L, lua_type(L, idx)));
+		OutputDebugString(szWarning);
+	}
+#endif
 
 	lua_settop(L, stack_size);
 
-	if(bFail && bErrorOnFail)
+	if (bFail && bErrorOnFail)
 	{
-		if(idx == 1)
+		if (idx == 1)
 			luaL_error(L, "Not a valid instance.  Either the instance is NULL or you used '.' instead of ':'.");
 		Derived::HandleMissingInstance(L);
 	}

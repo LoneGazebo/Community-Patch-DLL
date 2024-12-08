@@ -3223,33 +3223,4 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 //cannot use GC.getGame().getActivePlayer() in observer mode
 PlayerTypes GetCurrentPlayer();
 
-#ifdef STACKWALKER
-#include "stackwalker/StackWalker.h"
-
-class MyStackWalker : public StackWalker
-{
-public:
-	MyStackWalker() : StackWalker(), m_pLog(NULL) {}
-	void SetLog(FILogFile* pLog) { m_pLog=pLog; }
-protected:
-	virtual void OnSymInit(LPCSTR, DWORD, LPCSTR) { /*dummy*/ }
-	virtual void OnLoadModule(LPCSTR, LPCSTR, DWORD64, DWORD, DWORD, LPCSTR, LPCSTR, ULONGLONG) { /*dummy*/ }
-	virtual void OnOutput(LPCSTR szText) 
-	{ 
-		if (strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL) 
-		{
-			if (m_pLog)
-				m_pLog->Msg(szText);
-			else
-				OutputDebugString(szText);
-		}
-	}
-	FILogFile* m_pLog;
-};
-
-extern MyStackWalker gStackWalker;
-extern lua_State* gLuaState;
-#endif
-
-
 #endif //CIV5_GLOBALS_H

@@ -616,19 +616,14 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
-	if (value == 0xDEADBEEF)
-		return; //everything ok
+    if (value == 0xDEADBEEF)
+        return; //everything ok
 
-	CUSTOMLOG("Deserialization Error, check DeserializationCallstack.log\n");
+    CUSTOMLOG("Deserialization Error\n");
 
-#if defined(STACKWALKER)
-	FILogFile* pLog=LOGFILEMGR.GetLog( "DeserializationCallstack.log", FILogFile::kDontTimeStamp );
-	if (pLog)
-	{
-		gStackWalker.SetLog(pLog);
-		gStackWalker.ShowCallstack(5);
-		gStackWalker.SetLog(NULL);
-		pLog->Msg("\r\n");
-	}
+#if defined(VPDEBUG)
+    char debugMsg[256];
+    sprintf(debugMsg, "Sentinel value mismatch: Expected 0xDEADBEEF, Got 0x%08X\n", value);
+    OutputDebugString(debugMsg);
 #endif
 }
