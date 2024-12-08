@@ -484,6 +484,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
 			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_GARRISON_RANGED_MODIFIER">
+			<Text>Garrison Ranged Bonus</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UNIT_IGNORE_ZOC">
 			<Text>[COLOR_CYAN]Ignores ZoC Effects[ENDCOLOR]</Text>
 		</Row>
