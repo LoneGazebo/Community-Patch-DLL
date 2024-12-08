@@ -680,9 +680,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	}
 	// Apply a diplomacy bonus for recent trade in both directions
-	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL && GET_PLAYER(eDestPlayer).isMajorCiv() && GET_PLAYER(eOriginPlayer).isMajorCiv())
 	{
-		if (!GET_PLAYER(eDestPlayer).isHuman() && GET_PLAYER(eDestPlayer).isMajorCiv())
+		if (!GET_PLAYER(eDestPlayer).isHuman())
 		{
 			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -697,7 +697,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
 			}
 		}
-		if (!GET_PLAYER(eOriginPlayer).isHuman() && GET_PLAYER(eOriginPlayer).isMajorCiv())
+		if (!GET_PLAYER(eOriginPlayer).isHuman())
 		{
 			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
