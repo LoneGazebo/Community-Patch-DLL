@@ -21229,11 +21229,18 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	bool bGoingForDiploVictory = IsCompetingForVictory() && IsGoingForDiploVictory();
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
+
+	// The variables below only matter for Step 1, the ones just above are used later in the function
+	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	bool bPrimeIsCloseToWinning = false;
 	PlayerTypes ePrimeLeagueCompetitor = NO_PLAYER;
 	int iMyVotes = pLeague != NULL ? pLeague->CalculateStartingVotesForMember(GetID()) : 0;
-	int iHighestVotes = 0;
-	int iBadVotingHistoryThreshold = /*-200*/ (GD_INT_GET(VOTING_HISTORY_SCORE_MAX) * -1) / max(1, GD_INT_GET(VOTING_HISTORY_SCORE_PRIME_COMPETITOR_THRESHOLD));
+	int iPrimeVotes = 0;
+	int iMinimumScore = /*-2400*/ range(-GD_INT_GET(VOTING_HISTORY_SCORE_MAX), SHRT_MIN, 0);
+	int iBadVotingHistoryThreshold = /*-200*/ iMinimumScore / max(1, GD_INT_GET(VOTING_HISTORY_SCORE_PRIME_COMPETITOR_THRESHOLD));
+	vector<PlayerTypes> vPlayersGivingAChanceTo;
+	CvWeightedVector<PlayerTypes> veVoteCounts;
+	CvWeightedVector<PlayerTypes> veVotingHistoryScores;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -21242,11 +21249,12 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		if (!IsPlayerValid(eLoopPlayer))
 			continue;
 
-		if (!GET_PLAYER(eLoopPlayer).isMajorCiv())
-			continue;
-
 		// Add them to the evaluation list for later
 		vValidPlayers.push_back(eLoopPlayer);
+
+		// Don't proceed further unless the World Congress is active
+		if (!pLeague)
+			continue;
 
 		if (WasResurrectedBy(eLoopPlayer))
 			continue;
@@ -21254,187 +21262,126 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		if (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)
 			continue;
 
-		if (pLeague != NULL)
+		bool bTheyAreCloseToWinning = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory();
+
+		if (IsMaster(eLoopPlayer) && !bTheyAreCloseToWinning)
+			continue;
+
+		if (bDiploVictoryEnabled && IsCompetingForVictory())
 		{
-			bool bTheyAreCloseToWinning = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory();
+			if (bTheyAreCloseToWinning)
+			{
+				if (!bPrimeIsCloseToWinning)
+				{
+					ePrimeLeagueCompetitor = eLoopPlayer;
+					bPrimeIsCloseToWinning = true;
+					iPrimeVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				}
+				else
+				{
+					int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+					int iPrimeVotes = pLeague->CalculateStartingVotesForMember(ePrimeLeagueCompetitor);
 
-			if (IsMaster(eLoopPlayer) && !bTheyAreCloseToWinning)
+					if (iVotes > iPrimeVotes)
+					{
+						ePrimeLeagueCompetitor = eLoopPlayer;
+						iPrimeVotes = iVotes;
+					}
+					// Resolve any ties here using voting history score
+					// Use an aggressive evaluation here because both players are close to Diplomatic Victory - no leniency threshold
+					else if (iVotes == iPrimeVotes)
+					{
+						if (GetVotingHistoryScore(eLoopPlayer) < GetVotingHistoryScore(ePrimeLeagueCompetitor))
+						{
+							ePrimeLeagueCompetitor = eLoopPlayer;
+						}
+						// If there's still a tie, resolve it using opinion weight
+						else if (GetVotingHistoryScore(eLoopPlayer) == GetVotingHistoryScore(ePrimeLeagueCompetitor))
+						{
+							if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
+							{
+								ePrimeLeagueCompetitor = eLoopPlayer;
+							}
+						}
+					}
+				}
 				continue;
-
-			if (IsCompetingForVictory())
-			{
-				if (bTheyAreCloseToWinning)
-				{
-					if (!bPrimeIsCloseToWinning)
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						bPrimeIsCloseToWinning = true;
-						iHighestVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
-					}
-					else
-					{
-						int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
-						int iPrimeVotes = pLeague->CalculateStartingVotesForMember(ePrimeLeagueCompetitor);
-
-						if (iVotes > iPrimeVotes)
-						{
-							ePrimeLeagueCompetitor = eLoopPlayer;
-							iHighestVotes = iVotes;
-						}
-						// Resolve any ties here using voting history score
-						else if (iVotes == iPrimeVotes)
-						{
-							if (GetVotingHistoryScore(eLoopPlayer) < GetVotingHistoryScore(ePrimeLeagueCompetitor))
-							{
-								ePrimeLeagueCompetitor = eLoopPlayer;
-								iHighestVotes = iVotes;
-							}
-							// And then opinion weight
-							else if (GetVotingHistoryScore(eLoopPlayer) < GetVotingHistoryScore(ePrimeLeagueCompetitor))
-							{
-								if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
-								{
-									ePrimeLeagueCompetitor = eLoopPlayer;
-									iHighestVotes = iVotes;
-								}
-							}
-						}
-					}
-					continue;
-				}
-				// Don't evaluate alignment or vote count if someone else is close to winning, and we're competing with them
-				else if (bPrimeIsCloseToWinning)
-				{
-					continue;
-				}
 			}
+			// Don't evaluate alignment or vote count if someone else is close to winning, and we're competing with them
+			else if (bPrimeIsCloseToWinning)
+			{
+				continue;
+			}
+		}
 
+		if (bGoingForDiploVictory || bCloseToDiploVictory)
+		{
 			int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+			veVoteCounts.push_back(eLoopPlayer, iVotes);
 
-			// If we're aiming for a diplomatic victory, we evaluate by highest vote total first, then by worst voting history score
-			if (bGoingForDiploVictory || bCloseToDiploVictory)
+			// If they have less than 2/3rds of our votes, we don't hate them and their league alignment or opinion is high enough, let's give them a chance.
+			bool bGiveAChance = iVotes < ((iMyVotes * 2) / 3) && !IsAtWar(eLoopPlayer) && GetWorkWithWillingness() >= (GetWorkAgainstWillingness() - 1);
+			if (bGiveAChance)
+				bGiveAChance = GetCivOpinion(eLoopPlayer) > CIV_OPINION_ENEMY && !HasEverSanctionedUs(eLoopPlayer) && !HasTriedToSanctionUs(eLoopPlayer) && !IsEndgameAggressiveTo(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer);
+			if (bGiveAChance)
+				bGiveAChance = GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND || HasEverUnsanctionedUs(eLoopPlayer) || HasTriedToUnsanctionUs(eLoopPlayer) || IsLiberator(eLoopPlayer, false, true) || GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true) >= CvLeagueAI::ALIGNMENT_CONFIDANT;
+			if (bGiveAChance)
+				vPlayersGivingAChanceTo.push_back(eLoopPlayer);
+		}
+		else
+			veVotingHistoryScores.push_back(eLoopPlayer, GetVotingHistoryScore(eLoopPlayer) - iMinimumScore);
+	}
+
+	// If we've already picked a prime league competitor who's close to winning via Diplomatic Victory, skip the following checks. Otherwise, proceed.
+	if (ePrimeLeagueCompetitor == NO_PLAYER && (!veVoteCounts.empty() || !veVotingHistoryScores.empty()))
+	{
+		// If we're aiming for a diplomatic victory, we evaluate by highest vote total first, then by worst voting history score
+		if (bGoingForDiploVictory || bCloseToDiploVictory)
+		{
+			iPrimeVotes = 0;
+			veVoteCounts.StableSortItems();
+
+			for (int iVoteCountIndex = 0; iVoteCountIndex < veVoteCounts.size(); iVoteCountIndex++)
 			{
-				bool bGiveAChance = false;
+				PlayerTypes eLoopPlayer = (PlayerTypes) veVoteCounts.GetElement(iVoteCountIndex);
+				int iVotes = veVoteCounts.GetWeight(iVoteCountIndex);
 
-				if (iVotes > iHighestVotes)
+				// No one yet? This is our guy.
+				if (ePrimeLeagueCompetitor == NO_PLAYER)
 				{
-					// If they have less than 2/3rds of our votes, we don't hate them and their league alignment or opinion is high enough, let's give them a chance.
-					bGiveAChance = iVotes < ((iMyVotes * 2) / 3);
-					if (bGiveAChance)
-						bGiveAChance = GetCivOpinion(eLoopPlayer) > CIV_OPINION_ENEMY && !HasEverSanctionedUs(eLoopPlayer) && !HasTriedToSanctionUs(eLoopPlayer) && !IsEndgameAggressiveTo(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer);
-					if (bGiveAChance)
-						bGiveAChance = GetCivOpinion(eLoopPlayer) >= CIV_OPINION_FRIEND || HasEverUnsanctionedUs(eLoopPlayer) || HasTriedToUnsanctionUs(eLoopPlayer) || IsLiberator(eLoopPlayer, false, true) || GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer) >= CvLeagueAI::ALIGNMENT_CONFIDANT;
-
-					if (!bGiveAChance)
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
-						continue;
-					}
+					ePrimeLeagueCompetitor = eLoopPlayer;
+					iPrimeVotes = iVotes;
+					continue;
 				}
 
-				// Equal votes or higher votes but giving them a chance, resolve using voting history score and league alignment
-				if (iVotes == iHighestVotes || (iVotes > iHighestVotes && bGiveAChance))
-				{
-					if (GetVotingHistoryScore(eLoopPlayer) < GetVotingHistoryScore(ePrimeLeagueCompetitor))
-					{
-						// Within a certain threshold (less than 200 by default), voting history scores are considered equal-ish...if below that, we have a new prime competitor!
-						if (GetVotingHistoryScore(eLoopPlayer) <= (GetVotingHistoryScore(ePrimeLeagueCompetitor) + iBadVotingHistoryThreshold))
-						{
-							ePrimeLeagueCompetitor = eLoopPlayer;
-							iHighestVotes = iVotes;
-						}
-						else
-						{
-							CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
-							CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
+				// We've got somebody already. If we're not giving them a chance and the next player's vote count is lower, we're done.
+				if (std::find(vPlayersGivingAChanceTo.begin(), vPlayersGivingAChanceTo.end(), ePrimeLeagueCompetitor) == vPlayersGivingAChanceTo.end() && iVotes < iPrimeVotes)
+					break;
 
-							if (eAlignment < ePrimeAlignment)
-							{
-								ePrimeLeagueCompetitor = eLoopPlayer;
-								iHighestVotes = iVotes;
-							}
-							// Another tie? Resolve it using opinion weight.
-							else if (eAlignment == ePrimeAlignment)
-							{
-								if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
-								{
-									ePrimeLeagueCompetitor = eLoopPlayer;
-									iHighestVotes = iVotes;
-								}
-							}
-						}
+				// Okay, looks like we need to compare the two.
+				// Let's check voting history scores first.
+				int iLoopVotingHistoryScore = GetVotingHistoryScore(eLoopPlayer);
+				int iPrimeVotingHistoryScore = GetVotingHistoryScore(ePrimeLeagueCompetitor);
+
+				// This player's score is worse than the prime competitor's score
+				if (iLoopVotingHistoryScore < iPrimeVotingHistoryScore)
+				{
+					// Within a certain threshold (less than 200 by default), voting history scores are considered equal-ish...if below that, we have a new prime competitor!
+					if (iLoopVotingHistoryScore <= (iPrimeVotingHistoryScore + iBadVotingHistoryThreshold))
+					{
+						ePrimeLeagueCompetitor = eLoopPlayer;
+						iPrimeVotes = iVotes;
 					}
+					// Resolve ties using league alignment
 					else
 					{
-						// Within a certain threshold (less than 200 by default), voting history scores are considered equal-ish...if above that, prime competitor remains in the lead.
-						// So tiebreak using worst alignment.
-						if (GetVotingHistoryScore(eLoopPlayer) <= (GetVotingHistoryScore(ePrimeLeagueCompetitor) - iBadVotingHistoryThreshold))
-						{
-							CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
-							CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
-
-							if (eAlignment < ePrimeAlignment)
-							{
-								ePrimeLeagueCompetitor = eLoopPlayer;
-								iHighestVotes = iVotes;
-							}
-							// Another tie? Resolve it using opinion weight.
-							else if (eAlignment == ePrimeAlignment)
-							{
-								if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
-								{
-									ePrimeLeagueCompetitor = eLoopPlayer;
-									iHighestVotes = iVotes;
-								}
-							}							
-						}
-					}
-				}
-			}
-			// Not going for diplo victory - we should primarily use voting history score
-			else
-			{
-				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
-
-				// First check to see if they're at or below the threshold...
-				if (GetVotingHistoryScore(eLoopPlayer) <= iBadVotingHistoryThreshold)
-				{
-					// No existing prime competitor? We've got our guy!
-					if (ePrimeLeagueCompetitor == NO_PLAYER)
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
-						continue;
-					}
-					// Existing prime competitor has a higher score that is 200 or more away? We've got our guy!
-					else if (GetVotingHistoryScore(eLoopPlayer) < GetVotingHistoryScore(ePrimeLeagueCompetitor) && GetVotingHistoryScore(eLoopPlayer) <= (GetVotingHistoryScore(ePrimeLeagueCompetitor) + iBadVotingHistoryThreshold))
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
-						continue;
-					}
-					// Existing prime competitor has a higher score that is 200 or more BELOW - skip!
-					else if (GetVotingHistoryScore(ePrimeLeagueCompetitor) < GetVotingHistoryScore(eLoopPlayer) && GetVotingHistoryScore(ePrimeLeagueCompetitor) <= (GetVotingHistoryScore(eLoopPlayer) + iBadVotingHistoryThreshold))
-					{
-						continue;
-					}
-
-					// Okay so our two dudes are mostly evenly matched voting history wise. Let's go by vote count.
-					if (iVotes > iHighestVotes)
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
-					}
-					// A tie? Let's break it using league alignment.
-					else if (iVotes == iHighestVotes)
-					{
+						CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
 						CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
 
 						if (eAlignment < ePrimeAlignment)
 						{
 							ePrimeLeagueCompetitor = eLoopPlayer;
-							iHighestVotes = iVotes;
+							iPrimeVotes = iVotes;
 						}
 						// Another tie? Resolve it using opinion weight.
 						else if (eAlignment == ePrimeAlignment)
@@ -21442,49 +21389,145 @@ void CvDiplomacyAI::DoRelationshipPairing()
 							if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
 							{
 								ePrimeLeagueCompetitor = eLoopPlayer;
-								iHighestVotes = iVotes;
+								iPrimeVotes = iVotes;
 							}
 						}
 					}
 				}
-				// Above the threshold? In this case, we sort by alignment - but only if negative.
-				else if (eAlignment < CvLeagueAI::ALIGNMENT_NEUTRAL)
+				// Prime competitor's score is worse than or equal to this player's score
+				// Within a certain threshold (less than 200 by default), voting history scores are considered equal-ish...if above that, prime competitor remains in the lead.
+				else if (iPrimeVotingHistoryScore <= (iLoopVotingHistoryScore + iBadVotingHistoryThreshold))
 				{
-					// No existing prime competitor? We've got our guy!
-					if (ePrimeLeagueCompetitor == NO_PLAYER)
-					{
-						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
-						continue;
-					}
-					// If existing prime competitor is below the threshold, this is NOT our guy.
-					else if (GetVotingHistoryScore(ePrimeLeagueCompetitor) <= iBadVotingHistoryThreshold)
-					{
-						continue;
-					}
-
-					// This guy has not been sabotaging us with his votes enough to be at or below the threshold, so let's sort by league alignment first.
+					// Resolve ties using league alignment
+					CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
 					CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
+
 					if (eAlignment < ePrimeAlignment)
 					{
 						ePrimeLeagueCompetitor = eLoopPlayer;
-						iHighestVotes = iVotes;
+						iPrimeVotes = iVotes;
 					}
-					// If there is a tie, however, then we'll use vote count.
+					// Another tie? Resolve it using opinion weight.
 					else if (eAlignment == ePrimeAlignment)
 					{
-						if (iVotes > iHighestVotes)
+						if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
 						{
 							ePrimeLeagueCompetitor = eLoopPlayer;
-							iHighestVotes = iVotes;
+							iPrimeVotes = iVotes;
 						}
-						// Another tie? Resolve it using opinion weight.
-						else if (iVotes == iHighestVotes)
+					}
+				}
+			}
+		}
+		// Not going for diplo victory - we should primarily use voting history score
+		else
+		{
+			int iPrimeScore = 0;
+			veVotingHistoryScores.StableSortItems();
+
+			for (int iVotingScoreIndex = veVotingHistoryScores.size() - 1; iVotingScoreIndex >= 0; iVotingScoreIndex--)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) veVoteCounts.GetElement(iVotingScoreIndex);
+				int iScore = GetVotingHistoryScore(eLoopPlayer);
+
+				// Is this guy's score at or below the bad voting history threshold?
+				if (iScore <= iBadVotingHistoryThreshold)
+				{
+					// No one yet? This is our guy.
+					if (ePrimeLeagueCompetitor == NO_PLAYER)
+					{
+						ePrimeLeagueCompetitor = eLoopPlayer;
+						iPrimeScore = iScore;
+						continue;
+					}
+					// If the existing prime competitor isn't at the bad voting history threshold, they're not our prime competitor anymore.
+					else if (iPrimeScore > iBadVotingHistoryThreshold)
+					{
+						ePrimeLeagueCompetitor = eLoopPlayer;
+						iPrimeScore = iScore;
+						continue;
+					}
+
+					// Within a certain threshold (less than 200 by default), voting history scores are considered equal-ish...if above that, prime competitor remains in the lead.
+					if (iPrimeScore <= (iScore + iBadVotingHistoryThreshold))
+					{
+						// Resolve ties using highest vote count
+						int iPrimeVotes = pLeague->CalculateStartingVotesForMember(ePrimeLeagueCompetitor);
+						int iLoopVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+
+						if (iLoopVotes > iPrimeVotes)
 						{
-							if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
+							ePrimeLeagueCompetitor = eLoopPlayer;
+							iPrimeScore = iScore;
+						}
+						// Resolve ties using league alignment
+						else if (iLoopVotes == iPrimeVotes)
+						{
+							CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
+							CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
+
+							if (eAlignment < ePrimeAlignment)
 							{
 								ePrimeLeagueCompetitor = eLoopPlayer;
-								iHighestVotes = iVotes;
+								iPrimeScore = iScore;
+							}
+							// Another tie? Resolve it using opinion weight.
+							else if (eAlignment == ePrimeAlignment)
+							{
+								if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
+								{
+									ePrimeLeagueCompetitor = eLoopPlayer;
+									iPrimeScore = iScore;
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					// Not above the bad voting history threshold - but do they have a bad alignment?
+					CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eLoopPlayer, true);
+					if (eAlignment < CvLeagueAI::ALIGNMENT_NEUTRAL)
+					{
+						// No one yet? This is our guy.
+						if (ePrimeLeagueCompetitor == NO_PLAYER)
+						{
+							ePrimeLeagueCompetitor = eLoopPlayer;
+							iPrimeScore = iScore;
+							continue;
+						}
+						// Existing competitor is below the threshold - skip this guy.
+						else if (iPrimeScore <= iBadVotingHistoryThreshold)
+						{
+							continue;
+						}
+
+						// This guy has not been sabotaging us with his votes enough to be at or below the threshold, so let's sort by league alignment first.
+						CvLeagueAI::AlignmentLevels ePrimeAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePrimeLeagueCompetitor, true);
+						if (eAlignment < ePrimeAlignment)
+						{
+							ePrimeLeagueCompetitor = eLoopPlayer;
+							iPrimeScore = iScore;
+						}
+						// If there is a tie, however, then we'll use vote count.
+						else if (eAlignment == ePrimeAlignment)
+						{
+							int iPrimeVotes = pLeague->CalculateStartingVotesForMember(ePrimeLeagueCompetitor);
+							int iLoopVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+
+							if (iLoopVotes > iPrimeVotes)
+							{
+								ePrimeLeagueCompetitor = eLoopPlayer;
+								iPrimeScore = iScore;
+							}
+							// Another tie? Resolve it using opinion weight.
+							else if (iLoopVotes == iPrimeVotes)
+							{
+								if (GetCachedOpinionWeight(eLoopPlayer) > GetCachedOpinionWeight(ePrimeLeagueCompetitor))
+								{
+									ePrimeLeagueCompetitor = eLoopPlayer;
+									iPrimeScore = iScore;
+								}
 							}
 						}
 					}
@@ -53119,13 +53162,13 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	bool bHisLossIsOurOwn = false;
 
 	// Vassalage?
-	if (pDiplo->IsVassal(eCityOwner) || pDiplo->IsMaster(eCityOwner))
+	if (GET_PLAYER(eCityOwner).isMajorCiv() && (pDiplo->IsVassal(eCityOwner) || pDiplo->IsMaster(eCityOwner)))
 	{
 		iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
 		bHisLossIsOurOwn = true;
 	}
 	// Alliances?
-	else
+	else if (GET_PLAYER(eCityOwner).isMajorCiv())
 	{
 		// The observing player is in a co-op war with the attacker against the defender - this trumps everything!
 		if (pDiplo->GetCoopWarState(eConqueror, eCityOwner) == COOP_WAR_STATE_ONGOING)
@@ -53143,6 +53186,10 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		{
 			iWarmongerStatusModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 		}
+	}
+	else if (pDiplo->IsAtWar(eCityOwner))
+	{
+		iWarmongerStatusModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 	}
 
 	iWarmongerValue *= max(0, iWarmongerStatusModifier);
@@ -53415,7 +53462,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	{
 		iWarmongerValue /= 2;
 	}
-	if (pDiplo->WasResurrectedBy(eCityOwner) || GET_PLAYER(eCityOwner).GetDiplomacyAI()->WasResurrectedBy(eObserver))
+	if (GET_PLAYER(eCityOwner).isMajorCiv() && (pDiplo->WasResurrectedBy(eCityOwner) || GET_PLAYER(eCityOwner).GetDiplomacyAI()->WasResurrectedBy(eObserver)))
 	{
 		iWarmongerValue *= 2;
 	}
@@ -53530,17 +53577,17 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	int iWarmongerStatusModifier = 100;
 	bool bHisGainIsOurOwn = false;
 
-	// Vassalage?
-	if (pDiplo->IsVassal(eNewOwner) || pDiplo->IsMaster(eNewOwner))
+	if (GET_PLAYER(eNewOwner).isMajorCiv())
 	{
-		iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
-		bHisGainIsOurOwn = true;
-	}
-	// Alliances?
-	else
-	{
+		// Vassalage?
+		if (pDiplo->IsVassal(eNewOwner) || pDiplo->IsMaster(eNewOwner))
+		{
+			iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
+			bHisGainIsOurOwn = true;
+		}
+		// Alliances?
 		// The observing player has a Defensive Pact/is a teammate - his gain is our own!
-		if (pDiplo->IsHasDefensivePact(eNewOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
+		else if (pDiplo->IsHasDefensivePact(eNewOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
 		{
 			iWarmongerStatusModifier = max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT));
 			bHisGainIsOurOwn = true;
@@ -53822,7 +53869,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	{
 		iLiberationValue *= 2;
 	}
-	if (pDiplo->WasResurrectedBy(eNewOwner) || GET_PLAYER(eNewOwner).GetDiplomacyAI()->WasResurrectedBy(eObserver))
+	if (GET_PLAYER(eNewOwner).isMajorCiv() && (pDiplo->WasResurrectedBy(eNewOwner) || GET_PLAYER(eNewOwner).GetDiplomacyAI()->WasResurrectedBy(eObserver)))
 	{
 		iLiberationValue *= 2;
 	}
