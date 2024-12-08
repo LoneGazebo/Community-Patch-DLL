@@ -637,7 +637,7 @@ public:
 
 	int GetInstantReligionPressure() const;
 #endif
-
+	int GetDefensePerXWonder() const;
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
@@ -992,6 +992,7 @@ private:
 
 	int m_iInstantReligionPressure;
 	int m_iBasePressureModGlobal;
+	int m_iDefensePerXWonder;
 
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
