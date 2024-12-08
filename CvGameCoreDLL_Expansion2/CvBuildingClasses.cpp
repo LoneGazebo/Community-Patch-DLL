@@ -214,6 +214,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iReligiousUnrestFlatReductionGlobal(0),
 	m_iInstantReligionPressure(0),
 	m_iBasePressureModGlobal(0),
+	m_iDefensePerXWonder(0),
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
 	m_bTeamShare(false),
@@ -958,6 +959,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	m_iInstantReligionPressure = kResults.GetInt("InstantReligiousPressure");
 	m_iBasePressureModGlobal = kResults.GetInt("BasePressureModifierGlobal");
+	m_iDefensePerXWonder = kResults.GetInt("DefensePerXWonder");
 
 	//Arrays
 	const char* szBuildingType = GetType();
@@ -3177,6 +3179,11 @@ int CvBuildingEntry::GetReligiousUnrestFlatReductionGlobal() const
 int CvBuildingEntry::GetInstantReligionPressure() const
 {
 	return m_iInstantReligionPressure;
+}
+
+int CvBuildingEntry::GetDefensePerXWonder() const
+{
+	return m_iDefensePerXWonder;
 }
 
 int CvBuildingEntry::GetBasePressureModGlobal() const
