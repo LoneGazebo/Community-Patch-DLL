@@ -17233,6 +17233,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
+		if (pMyPlot->isCity())
+		{
+			CvCity* pMyCity = pMyPlot->getPlotCity();
+			iModifier += pMyCity->getGarrisonRangedAttackModifier();
+		}
 	}
 	else
 	{

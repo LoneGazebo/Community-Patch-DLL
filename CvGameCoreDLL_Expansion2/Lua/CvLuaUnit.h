@@ -351,6 +351,7 @@ protected:
 	static int lGetDefenseModifier(lua_State* L);
 	static int lGetRangedDefenseModifier(lua_State* L);
 	static int lGetRangedAttackModifier(lua_State* L);
+	static int lGetGarrisonRangedAttackModifier(lua_State* L);
 	static int lCityAttackModifier(lua_State* L);
 	static int lCityDefenseModifier(lua_State* L);
 	static int lHillsAttackModifier(lua_State* L);
