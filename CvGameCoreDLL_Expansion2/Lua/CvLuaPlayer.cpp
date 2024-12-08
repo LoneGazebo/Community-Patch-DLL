@@ -11305,7 +11305,7 @@ int CvLuaPlayer::lGetOtherPlayerNumProtectedMinorsAttacked(lua_State* L)
 }
 //------------------------------------------------------------------------------
 // int GetTurnsSincePlayerBulliedProtectedMinor(int iOtherPlayer);
-// Returns MAX_TURNS_SAFE_ESTIMATE if OtherPlayer has never bullied a protected minor
+// Returns -1 if OtherPlayer has never bullied a protected minor
 int CvLuaPlayer::lGetTurnsSincePlayerBulliedProtectedMinor(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);

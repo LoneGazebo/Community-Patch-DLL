@@ -116,16 +116,10 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	// Diplomatic Interactions
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		for (int iJ = 0; iJ < MAX_DIPLO_LOG_STATEMENTS; iJ++)
+		for (int iJ = 0; iJ < NUM_DIPLO_STATEMENT_TYPES; iJ++)
 		{
-			m_aaDiploStatementsLog[iI][iJ].m_eDiploLogStatement = NO_DIPLO_STATEMENT_TYPE;
-			m_aaDiploStatementsLog[iI][iJ].m_iTurn = -1;
+			m_aaiTurnStatementLastSent[iI][iJ] = -1;
 		}
-	}
-
-	for (int iI = 0; iI < NUM_DIPLO_LOG_STATEMENT_TYPES; iI++)
-	{
-		m_aDiploLogStatementTurnCountScratchPad[iI] = NO_DIPLO_STATEMENT_TYPE;
 	}
 
 	// Minors
@@ -463,9 +457,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_eStateAllWars);
 
 	// Diplomatic Interactions
-	visitor(diplomacyAI.m_aaDiploStatementsLog);
-
-	visitor(diplomacyAI.m_aDiploLogStatementTurnCountScratchPad);
+	visitor(diplomacyAI.m_aaiTurnStatementLastSent);
 	visitor(diplomacyAI.m_aabSentAttackMessageToMinorCivProtector);
 
 	// Opinion & Approach
@@ -2965,113 +2957,48 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 // Diplomatic Interactions
 // ------------------------------------
 
-/// We talked to someone, so keep a record of it
-void CvDiplomacyAI::DoAddNewStatementToDiploLog(PlayerTypes ePlayer, DiploStatementTypes eNewDiploLogStatement)
+/// When did we last send eDiploLogStatement?
+int CvDiplomacyAI::GetTurnStatementLastSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement) const
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eNewDiploLogStatement >= 0 && eNewDiploLogStatement < NUM_DIPLO_LOG_STATEMENT_TYPES);
-
-	// Bump current entries back so we can put the new one at index 0
-	for (int iI = MAX_DIPLO_LOG_STATEMENTS - 1; iI > 0; iI--)
-	{
-		// Nothing in this entry to move?
-		if (m_aaDiploStatementsLog[ePlayer][iI-1].m_eDiploLogStatement != NO_DIPLO_STATEMENT_TYPE)
-		{
-			m_aaDiploStatementsLog[ePlayer][iI].m_eDiploLogStatement = m_aaDiploStatementsLog[ePlayer][iI-1].m_eDiploLogStatement;
-			m_aaDiploStatementsLog[ePlayer][iI].m_iTurn = m_aaDiploStatementsLog[ePlayer][iI-1].m_iTurn;
-		}
-	}
-
-	m_aaDiploStatementsLog[ePlayer][0].m_eDiploLogStatement = eNewDiploLogStatement;
-	m_aaDiploStatementsLog[ePlayer][0].m_iTurn = 0;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eDiploStatement >= 0 && eDiploStatement < NUM_DIPLO_STATEMENT_TYPES);
+	return m_aaiTurnStatementLastSent[ePlayer][eDiploStatement];
 }
 
-/// Returns the DiploLogStatementType associated with the index passed in
-DiploStatementTypes CvDiplomacyAI::GetDiploLogStatementTypeForIndex(PlayerTypes ePlayer, int iIndex)
+void CvDiplomacyAI::SetTurnStatementLastSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement, int iValue)
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aaDiploStatementsLog[ePlayer][iIndex].m_eDiploLogStatement;
-}
-
-/// Returns the DiploLogStatement turn number associated with the index passed in
-int CvDiplomacyAI::GetDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex)
-{
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	return m_aaDiploStatementsLog[ePlayer][iIndex].m_iTurn;
-}
-
-/// Sets the DiploLogStatement turn number associated with the index passed in
-void CvDiplomacyAI::SetDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iNewValue)
-{
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iIndex >= 0 && iIndex < MAX_DIPLO_LOG_STATEMENTS);
-	m_aaDiploStatementsLog[ePlayer][iIndex].m_iTurn = max(iNewValue, 0);
-}
-
-/// Changes the DiploLogStatement turn number associated with the index passed in
-void CvDiplomacyAI::ChangeDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iChange)
-{
-	SetDiploLogStatementTurnForIndex(ePlayer, iIndex, GetDiploLogStatementTurnForIndex(ePlayer, iIndex) + iChange);
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eDiploStatement >= 0 && eDiploStatement < NUM_DIPLO_STATEMENT_TYPES && iValue >= -1);
+	m_aaiTurnStatementLastSent[ePlayer][eDiploStatement] = iValue;
 }
 
 /// How long has it been since we sent eDiploLogStatement?
-int CvDiplomacyAI::GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploLogStatement)
+int CvDiplomacyAI::GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement) const
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eDiploLogStatement >= 0 && eDiploLogStatement < MAX_DIPLO_LOG_STATEMENTS);
+	int iTurn = GetTurnStatementLastSent(ePlayer, eDiploStatement);
+	if (iTurn == -1)
+		return INT_MAX;
 
-	int iMostRecentTurn = MAX_TURNS_SAFE_ESTIMATE;
-
-	for (int iI = 0; iI < MAX_DIPLO_LOG_STATEMENTS; iI++)
-	{
-		DiploStatementTypes eLoopStatement = GetDiploLogStatementTypeForIndex(ePlayer, iI);
-
-		if (eLoopStatement != NO_DIPLO_STATEMENT_TYPE && eLoopStatement == eDiploLogStatement)
-		{
-			int iLoopTurnNum = GetDiploLogStatementTurnForIndex(ePlayer, iI);
-
-			if (iMostRecentTurn == MAX_TURNS_SAFE_ESTIMATE || iLoopTurnNum > iMostRecentTurn)
-			{
-				iMostRecentTurn = iLoopTurnNum;
-
-				// Now break out, otherwise we'll find later entries and think it's been longer since we sent something than it really has been!
-				break;
-			}
-		}
-	}
-
-	return iMostRecentTurn;
+	return GC.getGame().getGameTurn() - iTurn;
 }
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
-/// How long has it been since we sent something?
-int CvDiplomacyAI::GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer)
+/// How long has it been since we sent something to ePlayer?
+int CvDiplomacyAI::GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer) const
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS);
-
-	int iMostRecentTurn = MAX_TURNS_SAFE_ESTIMATE;
-
-	for (int iI = 0; iI < MAX_DIPLO_LOG_STATEMENTS; iI++)
+	int iMostRecentTurn = -1;
+	for (int iI = 0; iI < NUM_DIPLO_STATEMENT_TYPES; iI++)
 	{
-		DiploStatementTypes eLoopStatement = GetDiploLogStatementTypeForIndex(ePlayer, iI);
-
-		if (eLoopStatement != NO_DIPLO_STATEMENT_TYPE)
-		{
-			int iLoopTurnNum = GetDiploLogStatementTurnForIndex(ePlayer, iI);
-
-			if (iMostRecentTurn == MAX_TURNS_SAFE_ESTIMATE || iLoopTurnNum > iMostRecentTurn)
-			{
-				iMostRecentTurn = iLoopTurnNum;
-
-				// Now break out, otherwise we'll find later entries and think it's been longer since we sent something than it really has been!
-				break;
-			}
-		}
+		int iTurn = GetTurnStatementLastSent(ePlayer, (DiploStatementTypes)iI);
+		if (iTurn > iMostRecentTurn)
+			iMostRecentTurn = iTurn;
 	}
 
-	return iMostRecentTurn;
+	if (iMostRecentTurn == -1)
+		return 0;
+
+	return GC.getGame().getGameTurn() - iMostRecentTurn;
 }
-#endif
 
 /// Have we approached another civ about attacking their protected minor?
-bool CvDiplomacyAI::HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor)
+bool CvDiplomacyAI::HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor) const
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eMinor >= MAX_MAJOR_CIVS && eMinor < MAX_CIV_PLAYERS);
 	return m_aabSentAttackMessageToMinorCivProtector[ePlayer][eMinor - MAX_MAJOR_CIVS];
@@ -9109,7 +9036,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	// Logging
 	LogStatus();
 	LogWarStatus();
-	LogStatements();
 
 	//reset to default
 	m_eDiploMode = DIPLO_ALL_PLAYERS;
@@ -27574,17 +27500,6 @@ void CvDiplomacyAI::DoCounters()
 
 		if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsHasMet(eLoopPlayer, true))
 		{
-			// Diplo Statement Log Counter
-			for (int iItem = 0; iItem < MAX_DIPLO_LOG_STATEMENTS; iItem++)
-			{
-				DiploStatementTypes eStatement = GetDiploLogStatementTypeForIndex(eLoopPlayer, iItem);
-
-				if (eStatement != NO_DIPLO_STATEMENT_TYPE)
-					ChangeDiploLogStatementTurnForIndex(eLoopPlayer, iItem, 1);
-				else
-					SetDiploLogStatementTurnForIndex(eLoopPlayer, iItem, 0);
-			}
-
 			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 
 			// Are we ready to forget our denunciation?
@@ -29262,7 +29177,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eStatement < NUM_DIPLO_LOG_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eStatement < NUM_DIPLO_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	const char* szText = NULL;
 	bool bHuman = GET_PLAYER(ePlayer).isHuman();
@@ -31432,8 +31347,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsAllDiploStatementsDisabled())
 		return;
 
-	int iDiploLogStatement = 0;
-	DiploStatementTypes eStatement;
+	DiploStatementTypes eStatement = NO_DIPLO_STATEMENT_TYPE;
 
 	// We can use this deal pointer to form a trade offer
 	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
@@ -31446,12 +31360,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
 		return;
 
-	// Clear out the scratch pad
-	for (int iLoop = 0; iLoop < NUM_DIPLO_LOG_STATEMENT_TYPES; iLoop++)
-	{
-		m_aDiploLogStatementTurnCountScratchPad[iLoop] = MAX_TURNS_SAFE_ESTIMATE;
-	}
-
 	//End the gift exchange at the start of each round.
 	GetPlayer()->GetDiplomacyAI()->SetOfferingGift(ePlayer, false);
 	GetPlayer()->GetDiplomacyAI()->SetOfferedGift(ePlayer, false);
@@ -31460,21 +31368,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 
 	//Clear this data out before any deals are offered.
 	SetCantMatchDeal(ePlayer, false);
-
-	// Make a scratch pad keeping track of the last time we sent each message.  This way we can know what we've said in the past already - this member array will be used in the function calls below
-	for (iDiploLogStatement = 0; iDiploLogStatement < MAX_DIPLO_LOG_STATEMENTS; iDiploLogStatement++)
-	{
-		eStatement = GetDiploLogStatementTypeForIndex(ePlayer, iDiploLogStatement);
-
-		if (eStatement != NO_DIPLO_STATEMENT_TYPE)
-		{
-			CvAssert(eStatement < NUM_DIPLO_LOG_STATEMENT_TYPES);
-
-			m_aDiploLogStatementTurnCountScratchPad[eStatement] = GetDiploLogStatementTurnForIndex(ePlayer, iDiploLogStatement);
-		}
-	}
-
-	eStatement = NO_DIPLO_STATEMENT_TYPE;
 
 	iData1 = -1;
 	iData2 = -1;
@@ -31641,24 +31534,12 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	}
 #endif
 
-	// Now see if it's a valid time to send this message (we may have already sent it)
-	if(eStatement != NO_DIPLO_STATEMENT_TYPE)
+	// Now send the message
+	if (eStatement != NO_DIPLO_STATEMENT_TYPE)
 	{
-		//if (bSendStatement)
-		{
-			LogStatementToPlayer(ePlayer, eStatement);
-
-			if (pRenewDeal != NULL)
-			{
-				DoSendStatementToPlayer(ePlayer, eStatement, iData1, pRenewDeal);
-				DoAddNewStatementToDiploLog(ePlayer, eStatement);
-			}
-			else
-			{
-				DoSendStatementToPlayer(ePlayer, eStatement, iData1, pDeal);
-				DoAddNewStatementToDiploLog(ePlayer, eStatement);
-			}
-		}
+		LogStatementToPlayer(ePlayer, eStatement);
+		SetTurnStatementLastSent(ePlayer, eStatement, GC.getGame().getGameTurn());
+		DoSendStatementToPlayer(ePlayer, eStatement, iData1, pRenewDeal ? pRenewDeal : pDeal);
 	}
 }
 
@@ -32930,7 +32811,7 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 			DiploStatementTypes eStatement = DIPLO_STATEMENT_DEMAND;
 			DoSendStatementToPlayer(ePlayer, eStatement, -1, pDeal);
 			LogStatementToPlayer(ePlayer, eStatement);
-			DoAddNewStatementToDiploLog(ePlayer, eStatement);
+			SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_DEMAND, GC.getGame().getGameTurn());
 		}
 	}
 
@@ -33014,7 +32895,7 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 		if(MadeAttackCityStatePromise(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE;
-			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+			int iTurnsBetweenStatements = 9999;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
@@ -33200,7 +33081,7 @@ void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, Dipl
 		if(BrokeBorderPromise(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_PLOT_BUYING_BROKEN_PROMISE;
-			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+			int iTurnsBetweenStatements = 9999;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				eStatement = eTempStatement;
@@ -33419,7 +33300,7 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 					{
 						DiploStatementTypes eTempStatement = DIPLO_STATEMENT_SHARE_INTRIGUE;
 						int iTurnsBetweenStatements = 1;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) > iTurnsBetweenStatements)
+						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 						{
 							eStatement = eTempStatement;
 						}
@@ -33594,7 +33475,7 @@ void CvDiplomacyAI::DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes
 
 				// Add this statement to the log so we don't evaluate it again until time has passed
 				else
-					DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED);
+					SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED, GC.getGame().getGameTurn());
 			}
 		}
 	}
@@ -33626,7 +33507,7 @@ void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploS
 				// Add this statement to the log so we don't evaluate it again until time has passed
 				else
 				{
-					DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED);
+					SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED, GC.getGame().getGameTurn());
 				}
 			}
 		}
@@ -33723,7 +33604,7 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 					
 					if(!bSendStatement)
 					{
-						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
+						SetTurnStatementLastSent(ePlayer, eTempStatement, GC.getGame().getGameTurn());
 						pDeal->ClearItems();
 					}
 				}
@@ -33814,7 +33695,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					// Add this statement to the log so we don't evaluate it again until 20 turns has come back around
 					else
 					{
-						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
+						SetTurnStatementLastSent(ePlayer, eTempStatement, GC.getGame().getGameTurn());
 						pDeal->ClearItems();
 					}
 				}
@@ -34220,7 +34101,7 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 			// Add this statement to the log so we don't evaluate it again until 15 turns has come back around
 			if(!bRandPassed)
 			{
-				DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_REQUEST_RANDFAILED);
+				SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_REQUEST_RANDFAILED, GC.getGame().getGameTurn());
 				pDeal->ClearItems();
 			}
 		}
@@ -34264,7 +34145,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 			// Add this statement to the log so we don't evaluate it again until 15 turns has come back around
 			if(!bRandPassed)
 			{
-				DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_GIFT_RANDFAILED);
+				SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_GIFT_RANDFAILED, GC.getGame().getGameTurn());
 				pDeal->ClearItems();
 			}
 		}
@@ -34297,7 +34178,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //		if (bSendStatement)
 //		{
 //			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_NOW_UNFORGIVABLE;
-//			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+//			int iTurnsBetweenStatements = 9999;
 //
 //			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 //			{
@@ -34321,7 +34202,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //		bool bSendStatement = false;
 //
 //		// Don't show this message if we've already given a more severe one
-//		if (m_aDiploLogStatementTurnCountScratchPad[DIPLO_STATEMENT_NOW_UNFORGIVABLE] == MAX_TURNS_SAFE_ESTIMATE)
+//		if (GetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_NOW_UNFORGIVABLE) > -1)
 //		{
 //			// An enemy
 //			if (GetCivOpinion(ePlayer) == CIV_OPINION_ENEMY)
@@ -34336,7 +34217,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //			if (bSendStatement)
 //			{
 //				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_NOW_ENEMY;
-//				int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+//				int iTurnsBetweenStatements = 9999;
 //
 //				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 //				{
@@ -34455,9 +34336,9 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+		if (GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
 		{
 			bool bSendStatement = true;
 
@@ -34470,16 +34351,15 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 				bSendStatement = false;
 
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_WARMONGER;
-			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
 
-			if(bSendStatement)
+			if (bSendStatement)
 			{
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				if (GetTurnStatementLastSent(ePlayer, eTempStatement) == -1)
 					eStatement = eTempStatement;
 			}
 			// Add this statement to the log so we don't evaluate it again next turn
 			else
-				DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
+				SetTurnStatementLastSent(ePlayer, eTempStatement, GC.getGame().getGameTurn());
 		}
 	}
 }
@@ -34509,7 +34389,7 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 		if (GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_MINOR_CIV_COMPETITION;
-			int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+			int iTurnsBetweenStatements = 9999;
 
 			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements || bIgnoreTurnsBetweenLimit)
 			{
@@ -35322,9 +35202,9 @@ void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTyp
 
 				if(eTempStatement != NO_DIPLO_STATEMENT_TYPE)
 				{
-					int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
+					int iTurnsBetweenStatements = 9999;
 
-					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 					{
 						// Also check the statement for joining the ideology.  Don't want to send messages like this on back-to-back turns
 						if(GetNumTurnsSinceStatementSent(ePlayer, eOtherStatementToCheck) >= iTurnsBetweenStatements)
@@ -35346,7 +35226,6 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 
 	PolicyBranchTypes eFreedom = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
 	PolicyBranchTypes eOrder = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
-	int iTurnsBetweenStatements = MAX_TURNS_SAFE_ESTIMATE;
 
 	CvPlayer &kTheirPlayer = GET_PLAYER(ePlayer);
 
@@ -35358,7 +35237,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 		{
 			eTempStatement = DIPLO_STATEMENT_OUR_CULTURE_INFLUENTIAL;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 9999)
 			{
 				eStatement = eTempStatement;
 				return;
@@ -35369,7 +35248,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 		{
 			eTempStatement = DIPLO_STATEMENT_YOUR_CULTURE_INFLUENTIAL;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 9999)
 			{
 				eStatement = eTempStatement;
 				return;
@@ -35419,7 +35298,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 
 					if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
 					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eSwitchStatement) < iTurnsBetweenStatements)
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eSwitchStatement) < 9999)
 							bNotRecentlySent = false;
 					}
 				}
@@ -35447,7 +35326,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 				}
 				if (eTempStatement != NO_DIPLO_STATEMENT_TYPE)
 				{
-					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 9999)
 					{
 						eStatement = eTempStatement;
 						return;
@@ -35470,7 +35349,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 				}
 				if (eTempStatement != NO_DIPLO_STATEMENT_TYPE)
 				{
-					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 9999)
 					{
 						eStatement = eTempStatement;
 						return;
@@ -51512,80 +51391,6 @@ void CvDiplomacyAI::LogWarStatus()
 	}
 }
 
-
-/// Log Statements, to make sure our record is solid
-void CvDiplomacyAI::LogStatements()
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString playerName;
-		CvString otherPlayerName;
-		CvString strMinorString;
-		CvString strDesc;
-		CvString strLogName;
-		CvString strTemp;
-
-		// Find the name of this civ and city
-		playerName = GetPlayer()->getCivilizationShortDescription();
-
-		// Open the log file
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-			strLogName = "DiplomacyAI_Statement_Log_" + playerName + ".csv";
-		}
-		else
-		{
-			strLogName = "DiplomacyAI_Statement_Log.csv";
-		}
-
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName;
-
-		CvString strStatementLine;
-
-		int iItem = 0;
-		DiploStatementTypes eStatement;
-		int iTurn = 0;
-
-		// Loop through all (known) Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(IsPlayerValid(eLoopPlayer))
-			{
-				otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
-
-				// Diplo Statement Log Counter
-				for(iItem = 0; iItem < MAX_DIPLO_LOG_STATEMENTS; iItem++)
-				{
-					eStatement = GetDiploLogStatementTypeForIndex(eLoopPlayer, iItem);
-
-					if(eStatement != NO_DIPLO_STATEMENT_TYPE)
-					{
-						iTurn = GetDiploLogStatementTurnForIndex(eLoopPlayer, iItem);
-
-						strStatementLine.Format(", Statement: %d, Index: %d, Turn %d", eStatement, iItem, iTurn);
-
-						strOutBuf = strBaseString;
-
-						strOutBuf += ", " + otherPlayerName;
-						strOutBuf += strStatementLine;
-
-						pLog->Msg(strOutBuf);
-					}
-				}
-			}
-		}
-	}
-}
-
 /// Log Grand Strategy
 void CvDiplomacyAI::LogGrandStrategy(CvString& strString)
 {
@@ -53020,27 +52825,6 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 	}
 
 	return false;
-}
-
-template<typename DiploLogDataT, typename Visitor>
-void DiploLogData::Serialize(DiploLogDataT& diploLogData, Visitor& visitor)
-{
-	visitor(diploLogData.m_eDiploLogStatement);
-	visitor(diploLogData.m_iTurn);
-}
-
-FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)
-{
-	CvStreamSaveVisitor serialVisitor(saveTo);
-	DiploLogData::Serialize(readFrom, serialVisitor);
-	return saveTo;
-}
-
-FDataStream& operator>>(FDataStream& loadFrom, DiploLogData& writeTo)
-{
-	CvStreamLoadVisitor serialVisitor(loadFrom);
-	DiploLogData::Serialize(writeTo, serialVisitor);
-	return loadFrom;
 }
 
 // AI HELPER ROUTINES
@@ -56417,8 +56201,8 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 			}
 			
 			// Add this statement to the log so we don't evaluate it again until 15 turns has come back around
-			if(!bRandPassed)
-				DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED);
+			if (!bRandPassed)
+				SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED, GC.getGame().getGameTurn());
 		}
 	}
 }

@@ -16,19 +16,6 @@ struct Opinion
 	int m_iValue;
 };
 
-struct DiploLogData
-{
-	template<typename DiploLogDataT, typename Visitor>
-	static void Serialize(DiploLogDataT& diploLogData, Visitor& visitor);
-
-	DiploStatementTypes m_eDiploLogStatement;
-	int m_iTurn;
-};
-FDataStream& operator<<(FDataStream&, const DiploLogData&);
-FDataStream& operator>>(FDataStream&, DiploLogData&);
-
-#define MAX_DIPLO_LOG_STATEMENTS 60
-#define MAX_TURNS_SAFE_ESTIMATE 9999
 #define WARSCORE_THRESHOLD_POSITIVE (+25)
 #define WARSCORE_THRESHOLD_NEGATIVE (-25)
 
@@ -149,18 +136,13 @@ public:
 	// ------------------------------------
 
 	// Diplo Statement Log
-	void DoAddNewStatementToDiploLog(PlayerTypes ePlayer, DiploStatementTypes eNewDiploLogStatement);
-	DiploStatementTypes GetDiploLogStatementTypeForIndex(PlayerTypes ePlayer, int iIndex);
-	int GetDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex);
-	void SetDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iNewValue);
-	void ChangeDiploLogStatementTurnForIndex(PlayerTypes ePlayer, int iIndex, int iChange);
-	int GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploLogStatement);
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer);
-#endif
+	int GetTurnStatementLastSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement) const;
+	void SetTurnStatementLastSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement, int iTurn);
+	int GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploStatementTypes eDiploStatement) const;
+	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer) const;
 
 	// Messages sent to other players about protected Minor Civs
-	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);
+	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor) const;
 	void SetSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
 	void ResetSentAttackProtectedMinorTaunts(PlayerTypes eMinor);
 
@@ -1823,7 +1805,6 @@ private:
 	void LogPersonality();
 	void LogStatus();
 	void LogWarStatus();
-	void LogStatements();
 
 	void LogGrandStrategy(CvString& strString);
 
@@ -1909,8 +1890,7 @@ private:
 	StateAllWars m_eStateAllWars;
 
 	// Diplomatic Interactions
-	DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS][MAX_DIPLO_LOG_STATEMENTS];
-	short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
+	int m_aaiTurnStatementLastSent[MAX_MAJOR_CIVS][NUM_DIPLO_STATEMENT_TYPES];
 	bool m_aabSentAttackMessageToMinorCivProtector[MAX_MAJOR_CIVS][MAX_MINOR_CIVS];
 
 	// Opinion & Approach
