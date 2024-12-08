@@ -46,6 +46,7 @@
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
 int giLastStartIndex = 0;
+int giLastDestIndex = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -418,13 +419,15 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if (timer.GetDeltaInSeconds() > 0.2 && m_sData.ePath == PT_UNIT_MOVEMENT)
 	{
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
-		if (iStartIndex == giLastStartIndex && iStartIndex > 0)
+		int iDestIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		if (iStartIndex == giLastStartIndex && iDestIndex == giLastDestIndex && iStartIndex > 0 && iDestIndex > 0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
 			// Add debug break point here for investigation during development
 			ASSERT(false && "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
+		giLastDestIndex = iDestIndex;
 
 		int iNumPlots = GC.getMap().numPlots();
 
