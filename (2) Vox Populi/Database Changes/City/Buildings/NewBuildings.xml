@@ -1687,7 +1687,7 @@
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<BoredomFlatReduction>1</BoredomFlatReduction>
 			<ThemingBonusHelp>TXT_KEY_NALANDA_THEMING_BONUS_HELP</ThemingBonusHelp>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_WRITING</GreatWorkSlotType>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>2</GreatWorkCount>
 			<FreeGreatWorK>GREAT_WORK_BODHISATTVA</FreeGreatWorK>
 			<WonderSplashImage>WonderNalandaSplash.dds</WonderSplashImage>
