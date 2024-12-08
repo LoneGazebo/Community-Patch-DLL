@@ -21227,11 +21227,11 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 	// STEP 1: Identify our prime league competitor
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	bool bGoingForDiploVictory = IsCompetingForVictory() && IsGoingForDiploVictory();
-	bool bCloseToDiploVictory = IsCloseToDiploVictory();
+	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
+	bool bGoingForDiploVictory = bDiploVictoryEnabled && IsCompetingForVictory() && IsGoingForDiploVictory();
+	bool bCloseToDiploVictory = bDiploVictoryEnabled && IsCloseToDiploVictory();
 
 	// The variables below only matter for Step 1, the ones just above are used later in the function
-	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	bool bPrimeIsCloseToWinning = false;
 	PlayerTypes ePrimeLeagueCompetitor = NO_PLAYER;
 	int iMyVotes = pLeague != NULL ? pLeague->CalculateStartingVotesForMember(GetID()) : 0;
