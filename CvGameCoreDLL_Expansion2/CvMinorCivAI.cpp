@@ -13401,7 +13401,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
 	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
 	{
-		DoChangeProtectionFromMajor(eMajor, false, false, true);
+		DoChangeProtectionFromMajor(eMajor, false, false, false);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL");
