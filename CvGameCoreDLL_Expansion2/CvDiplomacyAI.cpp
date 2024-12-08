@@ -36662,7 +36662,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI accepts a reasonable trade offer
 	case DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE:
 	{
-		if (IsOfferedGift(eForPlayer))
+		if (eForPlayer != NO_PLAYER && IsOfferedGift(eForPlayer))
 		{
 			SetOfferedGift(eForPlayer, false);
 			SetOfferingGift(eForPlayer, false);
