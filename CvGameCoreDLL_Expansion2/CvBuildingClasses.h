@@ -267,7 +267,6 @@ public:
 	int GetCitySupplyFlatGlobal() const;
 	int CityRangedStrikeRange() const;
 	int CityIndirectFire() const;
-	int GetGarrisonRangedAttackModifier() const;
 	int CityRangedStrikeModifier() const;
 #endif
 	int GetHappinessPerCity() const;
@@ -815,7 +814,6 @@ private:
 	int m_iCityRangedStrikeRange;
 	int m_iCityIndirectFire;
 	int m_iRangedStrikeModifier;
-	int m_iGarrisonRangedAttackModifier;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;

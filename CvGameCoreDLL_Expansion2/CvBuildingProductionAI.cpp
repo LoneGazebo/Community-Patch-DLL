@@ -712,10 +712,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += pkBuildingInfo->CityRangedStrikeModifier();
 	}
-	if (pkBuildingInfo->GetGarrisonRangedAttackModifier() > 0)
-	{
-		iDefense += pkBuildingInfo->GetGarrisonRangedAttackModifier();
-	}
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{
 		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 25;

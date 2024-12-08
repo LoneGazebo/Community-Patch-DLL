@@ -130,7 +130,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCityRangedStrikeRange(0),
 	m_iCityIndirectFire(0),
 	m_iRangedStrikeModifier(0),
-	m_iGarrisonRangedAttackModifier(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -720,7 +719,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityRangedStrikeRange = kResults.GetInt("CityRangedStrikeRange");
 	m_iCityIndirectFire = kResults.GetInt("CityIndirectFire");
 	m_iRangedStrikeModifier = kResults.GetInt("RangedStrikeModifier");
-	m_iGarrisonRangedAttackModifier = kResults.GetInt("GarrisonRangedAttackModifier");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -2418,11 +2416,6 @@ int CvBuildingEntry::CityRangedStrikeRange() const
 int CvBuildingEntry::CityIndirectFire() const
 {
 	return m_iCityIndirectFire;
-}
-/// Modifier to the ranged attack strength of garrison in cities with this building.
-int CvBuildingEntry::GetGarrisonRangedAttackModifier() const
-{
-	return m_iGarrisonRangedAttackModifier;
 }
 /// Does this Building allow us to Range Strike?
 int CvBuildingEntry::CityRangedStrikeModifier() const
