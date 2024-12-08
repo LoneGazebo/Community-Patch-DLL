@@ -786,6 +786,14 @@ void CvDiplomacyAI::SlotStateChange()
 
 			CvDiplomacyAI* pOther = GET_PLAYER(eMajor).GetDiplomacyAI();
 
+			// Reset "attacked your protected minor" taunts in both directions
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+				SetSentAttackProtectedMinorTaunt(eMajor, eMinor, false);
+				pOther->SetSentAttackProtectedMinorTaunt(eID, eMinor, false);
+			}
+
 			// Cancel coop wars against this player
 			pOther->CancelCoopWarsAgainstPlayer(eID, false);
 
@@ -802,12 +810,10 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetVassalProtectValue(eID, 0);
 
 			// Reset diplomatic interactions
-			ResetSentAttackProtectedMinorTaunts(eMajor);
 			SetShareOpinionResponse(eMajor, NO_SHARE_OPINION_RESPONSE);
 			SetCantMatchDeal(eMajor, false);
 			SetOfferingGift(eMajor, false);
 			SetOfferedGift(eMajor, false);
-			pOther->ResetSentAttackProtectedMinorTaunts(eID);
 			pOther->SetCantMatchDeal(eID, false);
 			pOther->SetShareOpinionResponse(eID, NO_SHARE_OPINION_RESPONSE);
 			pOther->SetOfferingGift(eID, false);
@@ -1003,6 +1009,11 @@ void CvDiplomacyAI::SlotStateChange()
 		SetCSBullyTargetPlayer(NO_PLAYER);
 		SetBackstabber(false);
 		SetCompetingForVictory(true);
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+			ResetSentAttackProtectedMinorTaunts(eMinor);
+		}
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
@@ -1080,7 +1091,6 @@ void CvDiplomacyAI::SlotStateChange()
 					SetCantMatchDeal(eLoopPlayer, false);
 					SetOfferingGift(eLoopPlayer, false);
 					SetOfferedGift(eLoopPlayer, false);
-					ResetSentAttackProtectedMinorTaunts(eLoopPlayer);
 				}
 			}
 			else
