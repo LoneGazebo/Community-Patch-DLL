@@ -2965,6 +2965,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			break;
 		case LIKELYHOOD_UNLIKELY:
 			iSecondaryScore += 40;
+			break;
+		case LIKELYHOOD_IMPOSSIBLE:
+			// No bonus for blocking tile steal if theft is impossible
+			break;
 		}
 	}
 	else if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() && !bIsCultureBomb)
@@ -2982,6 +2986,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			break;
 		case LIKELYHOOD_UNLIKELY:
 			iSecondaryScore -= 40;
+			break;
+		case LIKELYHOOD_IMPOSSIBLE:
+			// No penalty for great person improvements if theft is impossible
+			break;
 		}
 	}
 
@@ -4195,7 +4203,7 @@ void CvBuilderTaskingAI::SetupExtraXAdjacentPlotsForBuild(BuildTypes eBuild, Imp
 			if (!pPlot->canBuild(eBuild, m_pPlayer->GetID(), false, false, true))
 				continue;
 
-			if (pPlot->canBuild(eBuild, m_pPlayer->GetID()), false, false)
+			if (pPlot->canBuild(eBuild, m_pPlayer->GetID(), false, false))
 			{
 				m_extraPlotsForXAdjacentImprovements[eImprovement].insert(pPlot);
 

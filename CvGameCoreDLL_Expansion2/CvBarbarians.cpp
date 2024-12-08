@@ -1137,7 +1137,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 				continue;
 
 			ResourceTypes eLoopPlotResource = pLoopPlot->getResourceType();
-			if (eLoopPlotResource != NO_RESOLUTION && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
+			if (eLoopPlotResource != NO_RESOURCE && std::find(vValidResources.begin(), vValidResources.end(), eLoopPlotResource) == vValidResources.end())
 			{
 				vValidResources.push_back(eResource);
 			}
