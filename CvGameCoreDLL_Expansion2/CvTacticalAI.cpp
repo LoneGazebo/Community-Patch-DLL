@@ -4954,7 +4954,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				switch (pLoopUnit->AI_getUnitAIType())
 				{
 				case UNITAI_RANGED:
-					iExtraScore += 30;
+					iExtraScore += 30 + pTarget->getPlotCity()->getGarrisonRangedAttackModifier();
 					break;
 				case UNITAI_DEFENSE_AIR:
 				case UNITAI_DEFENSE:

@@ -898,6 +898,9 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 		if bRanged then
 			iModifier = pMyUnit:GetRangedAttackModifier();
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_RANGED_ATTACK_MODIFIER", nBonus, iMiscModifier, true, true);
+			
+			iModifier = pMyUnit:GetGarrisonRangedAttackModifier();
+			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_GARRISON_RANGED_MODIFIER", nBonus, iMiscModifier, true, true);
 		end
 
 		-- Generic promotion attack modifier

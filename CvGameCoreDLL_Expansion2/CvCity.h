@@ -1498,6 +1498,9 @@ public:
 	int getCityBuildingRangeStrikeModifier() const;
 	void changeCityBuildingRangeStrikeModifier(int iValue);
 
+	int getGarrisonRangedAttackModifier() const;
+	void changeGarrisonRangedAttackModifier(int iValue);
+
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
 
@@ -1854,6 +1857,7 @@ protected:
 	int m_iCityBuildingBombardRange;
 	int m_iCityIndirectFire;
 	int m_iCityBuildingRangeStrikeModifier;
+	int m_iGarrisonRangedAttackModifier;
 #endif
 	int m_iCultureRateModifier;
 	int m_iNumWorldWonders;
@@ -2272,6 +2276,7 @@ SYNC_ARCHIVE_VAR(int, m_iAdditionalFood)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
 SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingRangeStrikeModifier)
+SYNC_ARCHIVE_VAR(int, m_iGarrisonRangedAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iCultureRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumWorldWonders)
 SYNC_ARCHIVE_VAR(int, m_iNumTeamWonders)
