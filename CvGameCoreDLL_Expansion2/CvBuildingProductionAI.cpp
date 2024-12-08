@@ -866,6 +866,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 			else if (GET_PLAYER(pClaimedPlot->getOwner()).isMajorCiv() && pClaimedPlot->getOwner() != kPlayer.GetID())
 			{
+				// City-States shouldn't steal plots from majors using buildings, that's annoying and will get them killed
+				if (kPlayer.isMinorCiv())
+					return SR_IMPOSSIBLE;
+
 				CivApproachTypes eApproachToPlotOwner = kPlayer.GetDiplomacyAI()->GetCivApproach(pClaimedPlot->getOwner());
 				switch (eApproachToPlotOwner)
 				{

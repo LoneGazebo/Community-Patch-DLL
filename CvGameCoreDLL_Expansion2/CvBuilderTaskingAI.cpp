@@ -3745,10 +3745,24 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			if (pAdjacentPlot->IsStealBlockedByImprovement())
 				continue;
 
-			if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
+			if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 			{
 				iStealScore = -10000;
 				break;
+			}
+			else if (m_pPlayer->isMinorCiv())
+			{
+				if (m_pPlayer->GetMinorCivAI()->IsFriends(eOwner) || m_pPlayer->GetMinorCivAI()->IsProtectedByMajor(eOwner))
+				{
+					iStealScore = -10000;
+					break;
+				}
+				PlayerTypes eAlly = m_pPlayer->GetMinorCivAI()->GetAlly();
+				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
+				{
+					iStealScore = -10000;
+					break;
+				}
 			}
 
 			if (pAdjacentPlot->isImpassable(m_pPlayer->getTeam()))

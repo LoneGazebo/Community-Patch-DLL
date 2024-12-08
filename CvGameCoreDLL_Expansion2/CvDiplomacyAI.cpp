@@ -28370,7 +28370,7 @@ bool CvDiplomacyAI::IsFriendOrAlly(PlayerTypes ePlayer) const
 	if (IsTeammate(ePlayer))
 		return true;
 
-	if (!GET_PLAYER(ePlayer).isAlive())
+	if (!GET_PLAYER(ePlayer).isAlive() || ePlayer == BARBARIAN_PLAYER)
 		return false;
 
 	if (IsDoFAccepted(ePlayer))
@@ -48637,6 +48637,7 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		case THEFT_TYPE_ARTIFACT:
 		case THEFT_TYPE_SPY:
 		case THEFT_TYPE_TRADE_ROUTE:
+		case THEFT_TYPE_EMBASSY:
 			break;
 		}
 
@@ -48674,6 +48675,9 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 
 		if (eOpinion >= CIV_OPINION_FRIEND && eTrueApproach >= CIV_APPROACH_FRIENDLY)
 			return true;
+
+		if (eOpinion >= CIV_OPINION_COMPETITOR && eTrueApproach >= CIV_APPROACH_NEUTRAL && GetDoFType(ePlayer) >= DOF_TYPE_ALLIES)
+			return true;
 	}
 
 	// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
@@ -48689,6 +48693,9 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 	{
 	case THEFT_TYPE_CULTURE_BOMB:
 	{
+		if (IsVassal(ePlayer))
+			return true;
+
 		if (bHuman)
 			return false;
 
@@ -48698,14 +48705,9 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 			return true;
 
-		if (IsVassal(ePlayer))
-			return true;
-
 		// Only steal if we're hostile or covet their lands
 		if (eSurfaceApproach <= CIV_APPROACH_GUARDED || GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
-		{
 			return false;
-		}
 		
 		return true;
 	}
@@ -48775,15 +48777,23 @@ bool CvDiplomacyAI::IsBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType,
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 			return true;
 
-		if (!bHuman && IsVassal(ePlayer))
+		if (IsVassal(ePlayer))
 			return true;
 
 		return false;
 	}
 	case THEFT_TYPE_EMBASSY: // America UA or Culture Bomb
 	{
-		if (!bHuman && IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)
-			return true;
+		if (!bHuman && IsVassal(ePlayer))
+		{
+			// Stealing an embassy from your master is purely spiteful, so require significant mistreatment to allow it
+			VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
+			if (eVassalTreatment <= VASSAL_TREATMENT_DISAGREE)
+				return true;
+
+			if (eVassalTreatment == VASSAL_TREATMENT_MISTREATED && (IsLiberator(ePlayer, false, false) || IsVoluntaryVassalage(ePlayer)))
+				return true;
+		}
 	}
 	}
 

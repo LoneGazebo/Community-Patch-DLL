@@ -2321,6 +2321,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
+		// Handle diplomacy and war damage repercussions
+		// This is a bit complicated because we need to account for a lot of possibilities
 		if (!GET_PLAYER(ePlayer).isBarbarian() && ePlayer != eUnitOwner)
 		{
 			int iUnitValue = (getUnitInfo().GetPower() * 100);
@@ -2396,31 +2398,34 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iCivValue /= 100;
 
-					// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
-					if (pPlot && !pPlot->isCity() && GET_PLAYER(eUnitOwner).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
-						GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
+					if (!isBarbarian())
+					{
+						// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
+						if (pPlot && !pPlot->isCity() && GET_PLAYER(eUnitOwner).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
 
-					if (GET_PLAYER(eUnitOwner).isMajorCiv())
-					{
-						if (isFound() || IsFoundAbroad())
-							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_SETTLER));
-						else
-							GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_WORKER));
-					}
-					if (GET_PLAYER(ePlayer).isMajorCiv())
-					{
-						if (isFound() || IsFoundAbroad())
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_SETTLER));
-						else
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*10*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_WORKER));
+						if (GET_PLAYER(eUnitOwner).isMajorCiv())
+						{
+							if (isFound() || IsFoundAbroad())
+								GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_SETTLER));
+							else
+								GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_WORKER));
+						}
+						if (GET_PLAYER(ePlayer).isMajorCiv())
+						{
+							if (isFound() || IsFoundAbroad())
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_SETTLER));
+							else
+								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*10*/ GD_INT_GET(WAR_PROGRESS_CAPTURED_WORKER));
+						}
 					}
 				}
-				else
+				else if (!isBarbarian())
 				{
 					if (GET_PLAYER(ePlayer).isMajorCiv())
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
 
-					if (GET_PLAYER(getOwner()).isMajorCiv())
+					if (GET_PLAYER(eUnitOwner).isMajorCiv())
 						GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
 				}
 			}
@@ -2547,7 +2552,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				}
 			}
 
-			if (iCivValue == 0)
+			if (iCivValue == 0 && !isBarbarian())
 			{
 				GET_PLAYER(ePlayer).ApplyWarDamage(eUnitOwner, iUnitValue);
 
