@@ -32490,7 +32490,9 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		}
 
 		// Wipe out everything involving this player
-		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
+		if (isMajorCiv())
+			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
+
 		clearResearchQueue();
 		killUnits();
 		killCities();
