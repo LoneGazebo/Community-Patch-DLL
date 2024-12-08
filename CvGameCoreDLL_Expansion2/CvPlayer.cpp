@@ -3277,7 +3277,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			}
 			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
-				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
+				if(!isBarbarian())
+					GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
 				if (GET_PLAYER(eOldOwner).IsVassalOfSomeone())
