@@ -21427,7 +21427,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 			for (int iVotingScoreIndex = veVotingHistoryScores.size() - 1; iVotingScoreIndex >= 0; iVotingScoreIndex--)
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) veVoteCounts.GetElement(iVotingScoreIndex);
+				PlayerTypes eLoopPlayer = (PlayerTypes) veVotingHistoryScores.GetElement(iVotingScoreIndex);
 				int iScore = GetVotingHistoryScore(eLoopPlayer);
 
 				// Is this guy's score at or below the bad voting history threshold?
