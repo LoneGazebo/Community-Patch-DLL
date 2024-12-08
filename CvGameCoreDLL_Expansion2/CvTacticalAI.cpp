@@ -6559,15 +6559,15 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iScore += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
-		if (!pPlot->IsKnownVisibleToEnemy(pUnit->getOwner()))
-			iScore -= iScore / 4;
+		if (pPlot->IsKnownVisibleToEnemy(pUnit->getOwner()))
+			iScore += iScore / 4;
 
-		//try to go avoid borders
+		//avoid enemy territory
 		if (pPlot->IsAdjacentOwnedByEnemy(pUnit->getTeam()))
 			iScore += iScore / 20;
 
-		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
-		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(), NULL))
+		//avoid enemy units (for civilians danger may be infinite in a lot lof places)
+		if (pPlot->IsEnemyUnitAdjacent(pUnit->getTeam()) || pPlot->IsEnemyCityAdjacent(pUnit->getTeam(), NULL))
 			iScore += iScore / 10;
 
 		//naval units should avoid enemy coast, never know what's hiding there
