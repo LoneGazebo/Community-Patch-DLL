@@ -176,6 +176,7 @@ CvCity::CvCity() :
 	, m_iCityBuildingBombardRange()
 	, m_iCityIndirectFire()
 	, m_iCityBuildingRangeStrikeModifier()
+	, m_iGarrisonRangedAttackModifier()
 #endif
 	, m_iPopulation()
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
@@ -1179,6 +1180,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCityBuildingBombardRange = 0;
 	m_iCityIndirectFire = 0;
 	m_iCityBuildingRangeStrikeModifier = 0;
+	m_iGarrisonRangedAttackModifier = 0;
 #endif
 	m_iHighestPopulation = 0;
 	m_iExtraHitPoints = 0;
@@ -14165,6 +14167,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeCityBuildingBombardRange(pBuildingInfo->CityRangedStrikeRange() * iChange);
 		changeCityIndirectFire(pBuildingInfo->CityIndirectFire() * iChange);
 		changeCityBuildingRangeStrikeModifier(pBuildingInfo->CityRangedStrikeModifier() * iChange);
+		changeGarrisonRangedAttackModifier(pBuildingInfo->GetGarrisonRangedAttackModifier() * iChange);
 		if (pBuildingInfo->GetDefensePerXWonder() > 0)
 		{
 			ChangeDefensePerWonder(fraction(1, pBuildingInfo->GetDefensePerXWonder()) * iChange);
@@ -31508,6 +31511,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCityBuildingBombardRange);
 	visitor(city.m_iCityIndirectFire);
 	visitor(city.m_iCityBuildingRangeStrikeModifier);
+	visitor(city.m_iGarrisonRangedAttackModifier);
 	visitor(city.m_iCultureRateModifier);
 	visitor(city.m_iNumWorldWonders);
 	visitor(city.m_iNumTeamWonders);
@@ -32205,6 +32209,19 @@ void CvCity::changeCityBuildingRangeStrikeModifier(int iValue)
 	if (iValue != 0)
 	{
 		m_iCityBuildingRangeStrikeModifier += iValue;
+	}
+}
+
+int CvCity::getGarrisonRangedAttackModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iGarrisonRangedAttackModifier;
+}
+void CvCity::changeGarrisonRangedAttackModifier(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iGarrisonRangedAttackModifier += iValue;
 	}
 }
 
