@@ -362,6 +362,7 @@ CvCity::CvCity() :
 	, m_iCityAutomatonWorkersChange()
 #endif
 	, m_iNumPreviousSpyMissions()
+	, m_fDefensePerWonder()
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier()
 #endif
@@ -1220,6 +1221,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iSpySecurityModifier = 0;
 	m_iSpySecurityModifierPerXPop = 0;
 	m_iNumPreviousSpyMissions = 0;
+	m_fDefensePerWonder = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
 #endif
@@ -14047,6 +14049,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeCityBuildingBombardRange(pBuildingInfo->CityRangedStrikeRange() * iChange);
 		changeCityIndirectFire(pBuildingInfo->CityIndirectFire() * iChange);
 		changeCityBuildingRangeStrikeModifier(pBuildingInfo->CityRangedStrikeModifier() * iChange);
+		if (pBuildingInfo->GetDefensePerXWonder() > 0)
+		{
+			ChangeDefensePerWonder(fraction(1, pBuildingInfo->GetDefensePerXWonder()) * iChange);
+		}
 
 		if (pBuildingInfo->AllowsProductionTradeRoutes())
 		{
@@ -18813,6 +18819,10 @@ void CvCity::changeNumWorldWonders(int iChange)
 
 		// Extra culture for Wonders (Policies, etc.)
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetCulturePerWonder() * iChange);
+		if (GetDefensePerWonder() > 0)
+		{
+			updateStrengthValue();
+		}
 	}
 }
 
@@ -19218,6 +19228,22 @@ void CvCity::ChangeSpySecurityModifierPerXPop(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iSpySecurityModifierPerXPop = (m_iSpySecurityModifierPerXPop + iChange);
+}
+
+
+fraction CvCity::GetDefensePerWonder() const
+{
+	VALIDATE_OBJECT
+	return m_fDefensePerWonder;
+}
+void CvCity::ChangeDefensePerWonder(fraction fChange)
+{
+	VALIDATE_OBJECT
+	if (fChange != 0)
+	{
+		m_fDefensePerWonder = m_fDefensePerWonder + fChange;
+		updateStrengthValue();
+	}
 }
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -26784,6 +26810,11 @@ void CvCity::updateStrengthValue()
 		iStrengthValue += plot()->countNumAirUnits(getTeam(), true) * GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() * 100;
 	}
 
+	if (GetDefensePerWonder() > 0)
+	{
+		iStrengthValue += (GetDefensePerWonder() * getNumWorldWonders() * 100).Truncate();
+	}
+
 	// Player-wide strength mod (Policies, etc.)
 	int iStrengthMod = GET_PLAYER(getOwner()).GetCityStrengthMod();
 
@@ -31343,6 +31374,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iSpySecurityModifier);
 	visitor(city.m_iSpySecurityModifierPerXPop);
 	visitor(city.m_iNumPreviousSpyMissions);
+	visitor(city.m_fDefensePerWonder);
 	visitor(city.m_iConversionModifier);
 	visitor(city.m_bNeverLost);
 	visitor(city.m_bDrafted);

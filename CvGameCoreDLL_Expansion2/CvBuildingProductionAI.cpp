@@ -258,6 +258,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding && !bIgnoreSituational)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+			iValue += (m_pCity->GetDefensePerWonder() * 10).Truncate();
 
 			// Adjust weight for this wonder down based on number of other players currently working on it
 			int iNumOthersConstructing = 0;
@@ -699,6 +700,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetDefenseModifier() > 0)
 	{
 		iDefense += (pkBuildingInfo->GetDefenseModifier() / 25);
+	}
+	if (pkBuildingInfo->GetDefensePerXWonder() > 0)
+	{
+		iDefense += (100 * m_pCity->getNumWorldWonders() / pkBuildingInfo->GetDefensePerXWonder() / 25);
 	}
 	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
 	{

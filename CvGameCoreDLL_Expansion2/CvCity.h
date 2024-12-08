@@ -743,6 +743,9 @@ public:
 	int GetSpySecurityModifierPerXPop() const;
 	void ChangeSpySecurityModifierPerXPop(int iChange);
 
+	fraction GetDefensePerWonder() const;
+	void ChangeDefensePerWonder(fraction fChange);
+
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
 	void ChangeConversionModifier(int iChange);
@@ -1922,6 +1925,7 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iSpySecurityModifierPerXPop;
 	int m_iNumPreviousSpyMissions;
+	fraction m_fDefensePerWonder;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
@@ -2331,6 +2335,7 @@ SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifierPerXPop)
 SYNC_ARCHIVE_VAR(int, m_iNumPreviousSpyMissions)
+SYNC_ARCHIVE_VAR(fraction, m_fDefensePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
 SYNC_ARCHIVE_VAR(bool, m_bDrafted)
