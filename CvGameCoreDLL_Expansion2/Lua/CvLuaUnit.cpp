@@ -239,6 +239,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsSpecificContractUnit);
 	Method(GetContractUnit);
 #endif
+	Method(IsNoMaintenance);
+	Method(SetNoMaintenance);
+
 	Method(IsGreatPerson);
 
 	Method(IsFighting);
@@ -2947,6 +2950,25 @@ int CvLuaUnit::lGetContractUnit(lua_State* L)
 	return 1;
 }
 #endif
+// bool IsNoMaintenance()
+int CvLuaUnit::lIsNoMaintenance(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->IsNoMaintenance();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+// SetNoMaintenance(bool bValue)
+int CvLuaUnit::lSetNoMaintenance(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bNewValue = lua_toboolean(L, 2);
+
+	pkUnit->SetNoMaintenance(bNewValue);
+	return 0;
+}
 //------------------------------------------------------------------------------
 //bool IsGreatPerson();
 int CvLuaUnit::lIsGreatPerson(lua_State* L)
