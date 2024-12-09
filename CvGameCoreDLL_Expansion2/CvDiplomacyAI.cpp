@@ -771,7 +771,7 @@ void CvDiplomacyAI::SlotStateChange()
 		SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 
 		// Reset values for minors
-		for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
+		for (int iI = MAX_MAJOR_CIVS; iI < MAX_MINOR_CIVS; iI++)
 		{
 			PlayerTypes eMinor = (PlayerTypes)iI;
 			SetWantToRouteConnectToMinor(eMinor, false);
