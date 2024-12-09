@@ -41946,6 +41946,8 @@ void CvDiplomacyAI::CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotif
 	for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+		if (eThirdParty == GetID() || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(ePlayer).getTeam())
+			continue;
 
 		if (!GET_PLAYER(ePlayer).isAlive() || GetCoopWarState(eThirdParty, ePlayer) >= COOP_WAR_STATE_PREPARING)
 		{
@@ -41984,6 +41986,8 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 	for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+		if (GET_PLAYER(eThirdParty).getTeam() == GetTeam())
+			continue;
 
 		if (IsPlayerValid(eThirdParty) && GetCoopWarState(ePlayer, eThirdParty) >= COOP_WAR_STATE_PREPARING)
 		{
@@ -42028,7 +42032,7 @@ void CvDiplomacyAI::CancelAllCoopWars()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if (!GET_PLAYER(eLoopPlayer).isAlive())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || eLoopPlayer == GetID())
 			continue;
 
 		CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -42037,6 +42041,8 @@ void CvDiplomacyAI::CancelAllCoopWars()
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 		{
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+			if (GET_PLAYER(eThirdParty).getTeam() == GetTeam())
+				continue;
 
 			if (pNotify && !bNotified && GetCoopWarState(eLoopPlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
 			{
