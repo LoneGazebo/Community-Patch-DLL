@@ -127,13 +127,13 @@ InstanceType* CvLuaScopedInstance<Derived, InstanceType>::GetInstance(lua_State*
 {
 #if defined(VPDEBUG)
 	// Track Lua state for debugging
-	if (GC.getLogging())
-	{
-		char szDebugInfo[256];
-		sprintf_s(szDebugInfo, "Lua GetInstance - Stack size: %d, Index: %d, Type: %s\n",
-			lua_gettop(L), idx, lua_typename(L, lua_type(L, idx)));
-		OutputDebugString(szDebugInfo);
-	}
+	// if (GC.getLogging())
+	// {
+	// 	char szDebugInfo[256];
+	// 	sprintf_s(szDebugInfo, "Lua GetInstance - Stack size: %d, Index: %d, Type: %s\n",
+	// 		lua_gettop(L), idx, lua_typename(L, lua_type(L, idx)));
+	// 	OutputDebugString(szDebugInfo);
+	// }
 #endif
 
 	const int stack_size = lua_gettop(L);
