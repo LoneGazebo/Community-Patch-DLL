@@ -235,6 +235,8 @@ protected:
 	static int lIsSpecificContractUnit(lua_State* L);
 	static int lGetContractUnit(lua_State* L);
 #endif
+	static int lIsNoMaintenance(lua_State* L);
+	static int lSetNoMaintenance(lua_State* L);
 
 	static int lIsGreatPerson(lua_State* L);
 
