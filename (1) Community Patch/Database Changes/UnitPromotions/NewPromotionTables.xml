@@ -87,12 +87,23 @@
 		<Column name="Defense" type="integer" default="0"/>
 	</Table>
 
+	<!-- Unit gains the specified combat modifiers when fighting in the specified terrain -->
+	<!-- Unlike UnitPromotions_Terrains, this counts the source plot instead of the target plot when ranged attacking, and works when the plot has a feature or is a city -->
+	<!-- All VP promotions should use this table for combat modifiers instead of UnitPromotions_Terrains, UNLESS the modifier should be on featureless plots only -->
+	<Table name="UnitPromotions_TerrainModifiers">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="Attack" type="integer" default="0"/>
+		<Column name="Defense" type="integer" default="0"/>
+	</Table>
+
 	<!-- Unit inflicts PlaguePromotionType on enemy units of DomainType (all domains if NULL) with ApplyChance% chance on attack or defense depending on ApplyOnAttack and ApplyOnDefense -->
+	<!-- ApplyOnDefense only works when defending against melee -->
 	<!-- Both PlaguePriority of the plague promotion and the UnitPromotions_BlockedPromotions table may block plagues from being inflicted -->
 	<Table name="UnitPromotions_Plagues">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
 		<Column name="PlaguePromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
-		<Column name="DomainType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="ApplyOnAttack" type="boolean" default="false"/>
 		<Column name="ApplyOnDefense" type="boolean" default="false"/>
 		<Column name="ApplyChance" type="integer" default="100"/>
