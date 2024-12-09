@@ -41,6 +41,32 @@ VALUES
 	('UNIT_AMERICAN_MINUTEMAN', 'UNITAI_EXPLORE');
 
 ----------------------------------------------------------
+-- Unique Unit: Monitor (Ironclad)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_AMERICA', 'UNITCLASS_IRONCLAD', 'UNIT_MONITOR');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_IRONCLAD'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_IRONCLAD') + 6
+WHERE Type = 'UNIT_MONITOR';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_MONITOR', 'PROMOTION_HARDENED'),
+	('UNIT_MONITOR', 'PROMOTION_HARBOR_DEFENSE');
+
+----------------------------------------------------------
 -- Unique Building: Independence Hall (Royal Collection)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
@@ -135,3 +161,45 @@ INSERT INTO Building_GreatWorkYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_SMITHSONIAN_INSTITUTION', 'YIELD_SCIENCE', 1);
+
+----------------------------------------------------------
+-- Unique Building: Homestead (Stable)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_AMERICA', 'BUILDINGCLASS_STABLE', 'BUILDING_HOMESTEAD');
+
+DELETE FROM Building_LocalResourceOrs WHERE BuildingType = 'BUILDING_HOMESTEAD';
+
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+VALUES
+	('BUILDING_HOMESTEAD', 'RESOURCE_BISON', 'YIELD_FOOD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_BISON', 'YIELD_PRODUCTION', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_BISON', 'YIELD_GOLD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_COW', 'YIELD_FOOD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_COW', 'YIELD_GOLD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_HORSE', 'YIELD_FOOD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_HORSE', 'YIELD_GOLD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_SHEEP', 'YIELD_FOOD', 2),
+	('BUILDING_HOMESTEAD', 'RESOURCE_SHEEP', 'YIELD_GOLD', 2);
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+VALUES
+	('BUILDING_HOMESTEAD', 'UNITCOMBAT_WORKER', 25),
+	('BUILDING_HOMESTEAD', 'UNITCOMBAT_SETTLER', 25);
+
+INSERT INTO Building_UnitClassTrainingAllowed
+	(BuildingType, UnitClassType)
+VALUES
+	('BUILDING_HOMESTEAD', 'UNITCLASS_PIONEER');
+
+INSERT INTO Building_ResourceClaim
+	(BuildingType, ResourceType, IncludeOwnedByOtherPlayer)
+VALUES
+	('BUILDING_HOMESTEAD', 'RESOURCE_BISON', 1),
+	('BUILDING_HOMESTEAD', 'RESOURCE_COW', 1),
+	('BUILDING_HOMESTEAD', 'RESOURCE_HORSE', 1),
+	('BUILDING_HOMESTEAD', 'RESOURCE_SHEEP', 1);
