@@ -237,6 +237,7 @@
 			<Type>UNITCLASS_ASAMU</Type>
 			<Description>TXT_KEY_UNIT_ASAMU</Description>
 			<DefaultUnit>NONE</DefaultUnit>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!-- Great Bombard -->
 		<Row>

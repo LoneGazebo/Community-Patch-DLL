@@ -799,13 +799,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ALLWATER_EMBARKATION</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_OCEAN_MOVEMENT</Type>
-			<Description>TXT_KEY_PROMOTION_OCEAN_MOVEMENT</Description>
-			<Help>TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP</Help>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_OCEAN_MOVEMENT</PediaEntry>
-		</Replace>
-		<Replace>
 			<Type>PROMOTION_WAR_CANOES</Type>
 			<Description>TXT_KEY_PROMOTION_WAR_CANOES</Description>
 			<Help>TXT_KEY_PROMOTION_WAR_CANOES_HELP</Help>
@@ -1104,6 +1097,13 @@
 			<Help>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_OCEAN_MOVEMENT</Type>
+			<Description>TXT_KEY_PROMOTION_OCEAN_MOVEMENT</Description>
+			<Help>TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP</Help>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_OCEAN_MOVEMENT</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_RIVAL_TERRITORY</Type>
