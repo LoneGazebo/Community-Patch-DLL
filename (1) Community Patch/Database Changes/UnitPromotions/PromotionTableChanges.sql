@@ -1,5 +1,7 @@
 -- TODO: Documentation
 
+ALTER TABLE UnitPromotions ADD CombatChange integer DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD IgnoreTerrainDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IgnoreFeatureDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD ExtraTerrainDamage boolean DEFAULT 0;
@@ -323,6 +325,10 @@ ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag boolean DEFAULT 1;
 -- Attack and defense modifiers against units of this domain
 ALTER TABLE UnitPromotions_Domains ADD Attack integer DEFAULT 0;
 ALTER TABLE UnitPromotions_Domains ADD Defense integer DEFAULT 0;
+
+-- Attack and defense modifiers against units of this combat
+ALTER TABLE UnitPromotions_UnitCombatMods ADD Attack integer DEFAULT 0;
+ALTER TABLE UnitPromotions_UnitCombatMods ADD Defense integer DEFAULT 0;
 
 -- Heal rate is doubled for units with this promotion on tiles of the specified terrain/feature
 ALTER TABLE UnitPromotions_Terrains ADD DoubleHeal boolean DEFAULT 0;
