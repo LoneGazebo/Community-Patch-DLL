@@ -636,11 +636,25 @@
 			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
 		<Row>
+			<Type>PROMOTION_SCHUTZENKONIG</Type>
+			<Description>TXT_KEY_PROMOTION_SCHUTZENKONIG</Description>
+			<Help>TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCHUTZENKONIG</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_VENETIAN_CRAFTSMANSHIP</Type>
 			<Description>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP</Description>
 			<Help>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_AGE_OF_DISCOVERY</Type>
+			<Description>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY</Description>
+			<Help>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_TREASURE_FLEET</Type>
@@ -1009,13 +1023,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FRONTIERSMAN</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SCHUTZENKONIG</Type>
-			<Description>TXT_KEY_PROMOTION_SCHUTZENKONIG</Description>
-			<Help>TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP</Help>
-			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCHUTZENKONIG</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_BRUTE_STRENGTH</Type>
 			<Description>TXT_KEY_PROMOTION_BRUTE_STRENGTH</Description>
 			<Help>TXT_KEY_PROMOTION_BRUTE_STRENGTH_HELP</Help>
@@ -1231,13 +1238,6 @@
 			<Help>TXT_KEY_PROMOTION_SAFAVI_AGITATOR_HELP</Help>
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SAFAVI_AGITATOR</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_AGE_OF_DISCOVERY</Type>
-			<Description>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY</Description>
-			<Help>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY_HELP</Help>
-			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AGE_OF_DISCOVERY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FIGHTING_COCK</Type>

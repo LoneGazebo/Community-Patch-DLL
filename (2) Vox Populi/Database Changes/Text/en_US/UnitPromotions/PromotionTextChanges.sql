@@ -438,9 +438,12 @@ UPDATE Language_en_US
 SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR] and enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]+2 [ICON_VISION] Embarked Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
--- Naval Movement
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.'
+SET Text = 'Colonization'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_MOVEMENT';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_MOVES] Embarked Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP';
 
 -- Exploration
@@ -455,7 +458,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]featureless Hill[ENDCOLOR].'
+SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
 -- Morale 
@@ -652,7 +655,7 @@ SET Text = 'Highlander'
 WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY';
 
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR] without features.'
+SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP';
 
 -- Haka War Dance
