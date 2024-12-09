@@ -562,9 +562,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		bGoodforHappiness = true;
 	}
 
-	if (pkBuildingInfo->GetHappinessPerXPolicies() > 0)
+	if (pkBuildingInfo->GetHappinessPerXPolicies() > 0 && kPlayer.GetExtraHappinessPerXPolicies() == 0)
 	{
-		iBonus += iHappinessValue * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPolicies();
+		iBonus += iHappinessValue * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / pkBuildingInfo->GetHappinessPerXPolicies();
 		bGoodforHappiness = true;
 	}
 
