@@ -5014,7 +5014,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarProgressScore(m_pPlayer->GetID(), /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_TRADE_ROUTE));
 
 			// Diplo penalty with destination civ if not at war
-			if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam) && !GET_TEAM(eDestTeam).IsVassal(m_pPlayer->getTeam()) && eDestTeam != m_pPlayer->getTeam())
+			if (eOwningPlayer != eDestPlayer && GET_PLAYER(eDestPlayer).isMajorCiv() && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam) && !GET_TEAM(eDestTeam).IsVassal(m_pPlayer->getTeam()) && eDestTeam != m_pPlayer->getTeam())
 			{
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
 			}
@@ -5027,7 +5027,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 3);
 			}
 			// Diplo penalty with destination civ if not at war
-			if (eOwningPlayer != eDestPlayer && pPlunderPlot->isVisible(eDestTeam) && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
+			if (eOwningPlayer != eDestPlayer && GET_PLAYER(eDestPlayer).isMajorCiv() && pPlunderPlot->isVisible(eDestTeam) && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
 			{
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
 			}
