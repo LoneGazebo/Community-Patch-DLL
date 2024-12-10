@@ -9075,7 +9075,7 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	}
 
 	// Exploit fix - if we attacked a major we resurrected, we can't resurrect them again
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
+	if (isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
 	{
 		return false;
 	}
@@ -9093,12 +9093,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 		return false;
 
-	if (!GET_PLAYER(ePlayer).isAlive())
-	{
-		return CanLiberatePlayer(ePlayer);
-	}
-
-	return IsAtPeaceWith(ePlayer);
+	return GET_PLAYER(ePlayer).isAlive() ? IsAtPeaceWith(ePlayer) : CanLiberatePlayer(ePlayer);
 }
 
 PlayerTypes CvPlayer::GetPlayerToLiberate(CvCity* pCity)

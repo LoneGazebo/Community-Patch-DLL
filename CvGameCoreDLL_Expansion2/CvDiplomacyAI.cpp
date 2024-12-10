@@ -48525,7 +48525,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 
 	if (!bLiberate)
 	{
-		bool bBadWarDecision = eOldOwner != NO_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_TROUBLED || GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
+		bool bBadWarDecision = eOldOwner != NO_PLAYER && eOldOwner != BARBARIAN_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_TROUBLED || GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
 
 		// Player we'd be liberating is alive
 		if (GET_PLAYER(ePlayerToLiberate).isAlive())
@@ -48536,7 +48536,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 				bLiberate = true;
 			}
 			// Coop war against the old owner?
-			else if (GetCoopWarState(ePlayerToLiberate, eOldOwner) >= COOP_WAR_STATE_PREPARING)
+			else if (GET_PLAYER(eOldOwner).isMajorCiv() && GetCoopWarState(ePlayerToLiberate, eOldOwner) >= COOP_WAR_STATE_PREPARING)
 			{
 				bLiberate = true;
 			}
