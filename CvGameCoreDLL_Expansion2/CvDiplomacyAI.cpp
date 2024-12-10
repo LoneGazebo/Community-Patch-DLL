@@ -42032,6 +42032,7 @@ void CvDiplomacyAI::CancelAllCoopWars()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || eLoopPlayer == GetID())
 			continue;
 
@@ -42041,7 +42042,8 @@ void CvDiplomacyAI::CancelAllCoopWars()
 		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 		{
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-			if (GET_PLAYER(eThirdParty).getTeam() == GetTeam())
+			TeamTypes eThirdPartyTeam = GET_PLAYER(eThirdParty).getTeam();
+			if (eThirdPartyTeam == GetTeam() || eThirdPartyTeam == eLoopTeam)
 				continue;
 
 			if (pNotify && !bNotified && GetCoopWarState(eLoopPlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
