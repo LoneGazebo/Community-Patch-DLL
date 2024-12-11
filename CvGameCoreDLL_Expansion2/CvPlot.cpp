@@ -3121,8 +3121,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							// If this is an embassy, check for existing embassies
 							if (GC.getImprovementInfo(eImprovement)->IsEmbassy())
 							{
-								if (GET_PLAYER(getOwner()).getImprovementCount(eImprovement, false) > 0)
-									return false;
+								for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+								{
+									ImprovementTypes eOtherEmbassyImprovement = (ImprovementTypes)iI;
+									if (!GC.getImprovementInfo(eOtherEmbassyImprovement)->IsEmbassy())
+										continue;
+
+									if (GET_PLAYER(getOwner()).getImprovementCount(eOtherEmbassyImprovement, false) > 0)
+										return false;
+								}
 							}
 						}
 						else
