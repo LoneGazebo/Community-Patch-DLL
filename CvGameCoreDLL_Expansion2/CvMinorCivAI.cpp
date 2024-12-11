@@ -12093,7 +12093,7 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	// Diplomatic Marriage? (VP)
 	if (!GetPlayer()->IsAtWarWith(pMajor->GetID()) && pMajor->GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(eMajor))
 	{
-		iAnchor += /*75*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE) * iEra;
+		iAnchor += /*200*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE);
 	}
 	// United Front? (VP)
 	if (IsAllies(eMajor) && pMajor->IsAtWar())
