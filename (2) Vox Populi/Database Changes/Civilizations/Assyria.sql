@@ -28,6 +28,43 @@ VALUES
 	('UNIT_ASSYRIAN_SIEGE_TOWER', 'PROMOTION_MEDIC'),
 	('UNIT_ASSYRIAN_SIEGE_TOWER', 'PROMOTION_MEDIC_II');
 
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_ASSYRIAN_SIEGE_TOWER', 'UNITAI_CITY_SPECIAL');
+
+----------------------------------------------------------
+-- Unique Unit: Iron Chariot
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_ASSYRIA', 'UNITCLASS_IRON_CHARIOT', 'UNIT_IRON_CHARIOT');
+
+UPDATE Units SET Combat = 17 WHERE Type = 'UNIT_IRON_CHARIOT';
+
+INSERT INTO Unit_ResourceQuantityRequirements
+	(UnitType, ResourceType, Cost)
+VALUES
+	('UNIT_IRON_CHARIOT', 'RESOURCE_IRON', 1);
+
+INSERT INTO Unit_ClassUpgrades
+	(UnitType, UnitClassType)
+VALUES
+	('UNIT_IRON_CHARIOT', 'UNITCLASS_KNIGHT');
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_IRON_CHARIOT', 'PROMOTION_BEAM_AXLE'),
+	('UNIT_IRON_CHARIOT', 'PROMOTION_SHOCK_CAVALRY');
+
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_IRON_CHARIOT', 'UNITAI_DEFENSE'),
+	('UNIT_IRON_CHARIOT', 'UNITAI_FAST_ATTACK');
+
 ----------------------------------------------------------
 -- Unique Building: Royal Library (School of Philosophy)
 ----------------------------------------------------------
@@ -72,3 +109,27 @@ INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, RequiresAnyButOwner)
 VALUES
 	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 1);
+
+----------------------------------------------------------
+-- Unique Building: Lamassu Gate (Walls)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_ASSYRIA', 'BUILDINGCLASS_WALLS', 'BUILDING_LAMASSU_GATE');
+
+UPDATE Buildings
+SET
+	RangedStrikeModifier = 10,
+	CitySupplyModifier = (SELECT CitySupplyModifier FROM Buildings WHERE Type = 'BUILDING_WALLS') + 5
+WHERE Type = 'BUILDING_LAMASSU_GATE';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_LAMASSU_GATE', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_YieldFromUnitProduction
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_LAMASSU_GATE', 'YIELD_FAITH', 15);
