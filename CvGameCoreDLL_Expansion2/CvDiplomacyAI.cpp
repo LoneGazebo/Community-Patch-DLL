@@ -1119,13 +1119,14 @@ void CvDiplomacyAI::SlotStateChange()
 				SetOfferingGift(ePlayer, false);
 				SetOfferedGift(ePlayer, false);
 			}
-			else if (!bTeammates)
+
+			if (!bTeammates)
 			{
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				if (!bAlwaysAtWar)
 				{
-					SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
 					SetArmyInPlaceForAttack(ePlayer, false);
+					SelectHumanApproach(ePlayer);
 				}
 			}
 		}
@@ -14558,9 +14559,6 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 /// Updates our Diplomatic Approach towards a Civ that we're at permanent war with
 void CvDiplomacyAI::SelectAlwaysWarApproach(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		// Permanent war means ONLY WAR!
@@ -14598,9 +14596,6 @@ void CvDiplomacyAI::SelectAlwaysWarApproach(PlayerTypes ePlayer)
 /// Updates the human shadow AI's Diplomatic Approach towards a Civ
 void CvDiplomacyAI::SelectHumanApproach(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		CivApproachTypes eApproach = CIV_APPROACH_NEUTRAL;
@@ -14675,9 +14670,6 @@ void CvDiplomacyAI::SelectHumanApproach(PlayerTypes ePlayer)
 /// Updates our Diplomatic Approach towards a Civ if we have no cities
 void CvDiplomacyAI::SelectApproachIfWeHaveNoCities(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		CivApproachTypes eApproach = CIV_APPROACH_NEUTRAL;
@@ -14745,9 +14737,6 @@ void CvDiplomacyAI::SelectApproachIfWeHaveNoCities(PlayerTypes ePlayer)
 /// Updates our Diplomatic Approach towards a Civ that has no cities
 void CvDiplomacyAI::SelectApproachIfTheyHaveNoCities(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		CivApproachTypes eApproach = CIV_APPROACH_NEUTRAL;
@@ -14818,12 +14807,6 @@ void CvDiplomacyAI::SelectApproachIfTheyHaveNoCities(PlayerTypes ePlayer)
 /// Updates our Diplomatic Approach towards a Master of ours
 void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
-	if (!IsVassal(ePlayer))
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		CivApproachTypes eApproach = CIV_APPROACH_NEUTRAL;
@@ -14997,12 +14980,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 /// Updates our Diplomatic Approach towards a Vassal
 void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || GetTeam() == GET_PLAYER(ePlayer).getTeam())
-		return;
-
-	if (!GET_PLAYER(ePlayer).IsVassalOfSomeone())
-		return;
-
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		CivApproachTypes eApproach = CIV_APPROACH_NEUTRAL;
