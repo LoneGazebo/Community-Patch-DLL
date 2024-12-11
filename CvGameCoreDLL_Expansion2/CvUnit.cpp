@@ -12640,7 +12640,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 
 				// If the players are at war, this counts for war value!
-				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
+				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner) && !GET_PLAYER(ePlotOwner).isBarbarian())
 				{
 					GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
 
