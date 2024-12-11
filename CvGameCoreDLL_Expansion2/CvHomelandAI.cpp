@@ -6404,13 +6404,16 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 	if (!pCity->plot()->isAdjacentRevealed(kPlayer.getTeam()))
 		return NULL;
 
-	ImprovementTypes eEmbassyImprovement = static_cast<ImprovementTypes>(GD_INT_GET(EMBASSY_IMPROVEMENT));
-	if (eEmbassyImprovement == NO_IMPROVEMENT)
-		return NULL;
-
 	// Does somebody already have an embassy here?
-	if (kCityPlayer.getImprovementCount(eEmbassyImprovement, false) > 0)
-		return NULL;
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+	{
+		ImprovementTypes eEmbassyImprovement = (ImprovementTypes)iI;
+		if (!GC.getImprovementInfo(eEmbassyImprovement)->IsEmbassy())
+			continue;
+
+		if (kCityPlayer.getImprovementCount(eEmbassyImprovement, false) > 0)
+			return NULL;
+	}
 
 	//Are we planning on conquering them?
 	if (kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR || kPlayer.GetNumOurCitiesOwnedBy(kCityPlayer.GetID()) > 0)
