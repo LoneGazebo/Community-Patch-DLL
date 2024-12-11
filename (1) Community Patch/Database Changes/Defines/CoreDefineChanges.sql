@@ -44,6 +44,7 @@ VALUES
 	('TOURISM_MODIFIER_SHARED_RELIGION', 25), -- percentage
 	('TOURISM_MODIFIER_SHARED_RELIGION_MAX', 0), -- maximum base percentage allowed (0 is no max)
 	('TOURISM_MODIFIER_SHARED_RELIGION_TYPE', 0), -- 0 = no scaling, 1 = scaling per city, 2 = scaling per population
+	('MINIMUM_TOURISM_MODIFIER', -100), -- minimum total % modifier allowed (must be >= -100)
 -- Golden age
 	('GOLDEN_AGE_BASE_THRESHOLD_INITIAL', 500),
 	('GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER', 1),

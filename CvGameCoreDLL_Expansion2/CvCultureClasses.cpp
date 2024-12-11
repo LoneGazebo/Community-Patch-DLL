@@ -6241,7 +6241,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes eTargetPlayer, bool bIgnoreR
 	}
 	// LATER add top science city and research agreement with this player???
 
-	return max(-100, iMultiplier);
+	return max(/*-100*/ max(GD_INT_GET(MINIMUM_TOURISM_MODIFIER), -100), iMultiplier);
 }
 
 /// What is the tooltip describing the tourism output?
