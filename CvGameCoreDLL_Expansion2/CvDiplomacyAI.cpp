@@ -770,186 +770,194 @@ void CvDiplomacyAI::SlotStateChange()
 		SetCurrentVictoryPursuit(GetPrimaryVictoryPursuit());
 		SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 
-		// Reset values for minors
-		for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
-		{
-			PlayerTypes eMinor = (PlayerTypes)iI;
-			SetWantToRouteConnectToMinor(eMinor, false);
-		}
-
-		// Reset values for majors
-		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-		{
-			PlayerTypes eMajor = (PlayerTypes)iI;
-			if (eMajor == GetID() || !GET_PLAYER(eMajor).isAlive())
-				continue;
-
-			CvDiplomacyAI* pOther = GET_PLAYER(eMajor).GetDiplomacyAI();
-
-			// Reset "attacked your protected minor" taunts in both directions
-			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
-				SetSentAttackProtectedMinorTaunt(eMajor, eMinor, false);
-				pOther->SetSentAttackProtectedMinorTaunt(eID, eMinor, false);
-			}
-
-			// Cancel coop wars against this player
-			pOther->CancelCoopWarsAgainstPlayer(eID, false);
-
-			// Reset exchange type values
-			SetRecentTradeValue(eMajor, 0);
-			SetRecentAssistValue(eMajor, 0);
-			SetCommonFoeValue(eMajor, 0);
-			SetCivilianKillerValue(eMajor, 0);
-			SetVassalProtectValue(eMajor, 0);
-			pOther->SetRecentTradeValue(eID, 0);
-			pOther->SetRecentAssistValue(eID, 0);
-			pOther->SetCommonFoeValue(eID, 0);
-			pOther->SetCivilianKillerValue(eID, 0);
-			pOther->SetVassalProtectValue(eID, 0);
-
-			// Reset diplomatic interactions
-			SetShareOpinionResponse(eMajor, NO_SHARE_OPINION_RESPONSE);
-			SetCantMatchDeal(eMajor, false);
-			SetOfferingGift(eMajor, false);
-			SetOfferedGift(eMajor, false);
-			pOther->SetCantMatchDeal(eID, false);
-			pOther->SetShareOpinionResponse(eID, NO_SHARE_OPINION_RESPONSE);
-			pOther->SetOfferingGift(eID, false);
-			pOther->SetOfferedGift(eID, false);
-
-			// Reset approach to NEUTRAL
-			SetCivStrategicApproach(eMajor, CIV_APPROACH_NEUTRAL);
-			SetCachedSurfaceApproach(eMajor, -1);
-			pOther->SetCivStrategicApproach(eID, CIV_APPROACH_NEUTRAL);
-			pOther->SetCachedSurfaceApproach(eID, -1);
-			for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
-			{
-				CivApproachTypes eApproach = (CivApproachTypes)iJ;
-				SetPlayerApproachValue(eMajor, eApproach, 0);
-				SetPlayerStrategicApproachValue(eMajor, eApproach, 0);
-				pOther->SetPlayerApproachValue(eID, eApproach, 0);
-				pOther->SetPlayerStrategicApproachValue(eID, eApproach, 0);
-			}
-
-			// Clear war status
-			SetSaneDiplomaticTarget(eMajor, true);
-			SetPotentialWarTarget(eMajor, false);
-			SetTreatyWillingToOffer(eMajor, NO_PEACE_TREATY_TYPE);
-			SetTreatyWillingToAccept(eMajor, NO_PEACE_TREATY_TYPE);
-			pOther->SetSaneDiplomaticTarget(eMajor, true);
-			pOther->SetPotentialWarTarget(eMajor, false);
-			pOther->SetTreatyWillingToOffer(eID, NO_PEACE_TREATY_TYPE);
-			pOther->SetTreatyWillingToAccept(eID, NO_PEACE_TREATY_TYPE);
-
-			// Reset planning exchanges
-			SetWantsDoFWithPlayer(eMajor, false);
-			SetWantsToEndDoFWithPlayer(eMajor, false);
-			SetWantsDefensivePactWithPlayer(eMajor, false);
-			SetWantsToEndDefensivePactWithPlayer(eMajor, false);
-			SetWantsResearchAgreementWithPlayer(eMajor, false);
-			SetStrategicTradePartner(eMajor, false);
-			pOther->SetWantsDoFWithPlayer(eID, false);
-			pOther->SetWantsToEndDoFWithPlayer(eID, false);
-			pOther->SetWantsDefensivePactWithPlayer(eID, false);
-			pOther->SetWantsToEndDefensivePactWithPlayer(eID, false);
-			pOther->SetWantsResearchAgreementWithPlayer(eID, false);
-			pOther->SetStrategicTradePartner(eID, false);
-
-			// Terminate promises
-			SetMilitaryPromiseState(eMajor, NO_PROMISE_STATE);
-			SetExpansionPromiseState(eMajor, NO_PROMISE_STATE);
-			SetBorderPromiseState(eMajor, NO_PROMISE_STATE);
-			SetBullyCityStatePromiseState(eMajor, NO_PROMISE_STATE);
-			SetAttackCityStatePromiseState(eMajor, NO_PROMISE_STATE);
-			SetSpyPromiseState(eMajor, NO_PROMISE_STATE);
-			SetNoConvertPromiseState(eMajor, NO_PROMISE_STATE);
-			SetNoDiggingPromiseState(eMajor, NO_PROMISE_STATE);
-			SetBrokeCoopWarPromise(eMajor, false);
-			SetPlayerAskedNotToConvert(eMajor, false);
-			SetPlayerAskedNotToDig(eMajor, false);
-			pOther->SetMilitaryPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetExpansionPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetBorderPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetBullyCityStatePromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetAttackCityStatePromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetSpyPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetNoConvertPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetNoDiggingPromiseState(eID, NO_PROMISE_STATE);
-			pOther->SetBrokeCoopWarPromise(eID, false);
-			pOther->SetPlayerAskedNotToConvert(eID, false);
-			pOther->SetPlayerAskedNotToDig(eID, false);
-
-			// Reset warmonger values
-			pOther->SetOtherPlayerWarmongerAmountTimes100(eID, 0); // only for killed player
-			SetWarmongerThreat(eMajor, THREAT_NONE);
-			pOther->SetWarmongerThreat(eID, THREAT_NONE);
-
-			// Reset aggressive postures
-			SetMilitaryAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
-			SetPlotBuyingAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
-			pOther->SetMilitaryAggressivePosture(eID, AGGRESSIVE_POSTURE_NONE);
-			pOther->SetPlotBuyingAggressivePosture(eID, AGGRESSIVE_POSTURE_NONE);
-
-			// Reset strength evaluations
-			SetEconomicStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
-			SetMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
-			SetRawMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
-			SetTargetValue(eMajor, TARGET_VALUE_IMPOSSIBLE);
-			SetRawTargetValue(eMajor, TARGET_VALUE_IMPOSSIBLE);
-			pOther->SetEconomicStrengthComparedToUs(eID, STRENGTH_PATHETIC);
-			pOther->SetMilitaryStrengthComparedToUs(eID, STRENGTH_PATHETIC);
-			pOther->SetRawMilitaryStrengthComparedToUs(eID, STRENGTH_PATHETIC);
-			pOther->SetTargetValue(eID, TARGET_VALUE_CAKEWALK);
-			pOther->SetRawTargetValue(eID, TARGET_VALUE_CAKEWALK);
-
-			// Reset dispute values
-			SetMajorCompetitor(eMajor, false);
-			SetRecklessExpander(eMajor, false);
-			SetWonderSpammer(eMajor, false);
-			SetEndgameAggressiveTo(eMajor, false);
-			SetWonderDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
-			SetMinorCivDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
-			SetVictoryDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
-			SetVictoryBlockLevel(eMajor, BLOCK_LEVEL_NONE);
-			SetTechBlockLevel(eMajor, BLOCK_LEVEL_NONE);
-			SetPolicyBlockLevel(eMajor, BLOCK_LEVEL_NONE);
-			pOther->SetMajorCompetitor(eID, false);
-			pOther->SetRecklessExpander(eID, false);
-			pOther->SetWonderSpammer(eID, false);
-			pOther->SetEndgameAggressiveTo(eID, false);
-			pOther->SetWonderDisputeLevel(eID, DISPUTE_LEVEL_NONE);
-			pOther->SetNumWondersBeatenTo(eID, 0); // only for killed player
-			pOther->SetMinorCivDisputeLevel(eID, DISPUTE_LEVEL_NONE);
-			pOther->SetNumTimesTheyLoweredOurInfluence(eID, 0); // only for killed player
-			pOther->SetVictoryDisputeLevel(eID, DISPUTE_LEVEL_NONE);
-			pOther->SetVictoryBlockLevel(eID, BLOCK_LEVEL_NONE);
-			pOther->SetTechBlockLevel(eID, BLOCK_LEVEL_NONE);
-			pOther->SetPolicyBlockLevel(eID, BLOCK_LEVEL_NONE);
-
-			// Reset voting history score
-			SetVotingHistoryScore(eMajor, 0);
-			pOther->SetVotingHistoryScore(eID, 0);
-		}
-
-		// Reset values for all civs
 		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)iI;
 			if (ePlayer == GetID() || !GET_PLAYER(ePlayer).isAlive())
 				continue;
 
-			SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-			SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
-			SetArmyInPlaceForAttack(ePlayer, false);
+			bool bTeammates = IsTeammate(ePlayer);
+			bool bAlwaysAtWar = IsAlwaysAtWar(ePlayer);
 
+			// Reset values for majors
 			if (iI < MAX_MAJOR_CIVS)
 			{
 				CvDiplomacyAI* pOther = GET_PLAYER(ePlayer).GetDiplomacyAI();
-				pOther->SetLandDisputeLevel(eID, DISPUTE_LEVEL_NONE);
-				pOther->SetCivApproach(eID, CIV_APPROACH_NEUTRAL);
-				pOther->SetArmyInPlaceForAttack(eID, false);
+
+				for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+					SetWantToRouteConnectToMinor(eMinor, false);
+
+					// Reset "attacked your protected minor" taunts in both directions
+					if (!bTeammates && !bAlwaysAtWar)
+					{
+						SetSentAttackProtectedMinorTaunt(ePlayer, eMinor, false);
+						pOther->SetSentAttackProtectedMinorTaunt(eID, eMinor, false);
+					}
+				}
+
+				if (!bAlwaysAtWar)
+				{
+					// Reset exchange type values
+					SetRecentTradeValue(ePlayer, 0);
+					SetRecentAssistValue(ePlayer, 0);
+					SetCommonFoeValue(ePlayer, 0);
+					SetCantMatchDeal(ePlayer, false);
+					SetOfferingGift(ePlayer, false);
+					SetOfferedGift(ePlayer, false);
+					pOther->SetRecentTradeValue(eID, 0);
+					pOther->SetRecentAssistValue(eID, 0);
+					pOther->SetCommonFoeValue(eID, 0);
+					pOther->SetCantMatchDeal(eID, false);
+					pOther->SetOfferingGift(eID, false);
+					pOther->SetOfferedGift(eID, false);
+				}
+
+				if (!bTeammates)
+				{
+					// Reset warmonger values
+					SetWarmongerThreat(ePlayer, THREAT_NONE);
+					SetCivilianKillerValue(ePlayer, 0);
+					pOther->SetOtherPlayerWarmongerAmountTimes100(eID, 0); // only reset the killed player's warmongering
+					pOther->SetWarmongerThreat(eID, THREAT_NONE);
+					pOther->SetCivilianKillerValue(eID, 0);
+
+					// Reset aggressive postures
+					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					SetPlotBuyingAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					pOther->SetMilitaryAggressivePosture(eID, AGGRESSIVE_POSTURE_NONE);
+					pOther->SetPlotBuyingAggressivePosture(eID, AGGRESSIVE_POSTURE_NONE);
+
+					// Reset dispute values
+					SetMajorCompetitor(ePlayer, false);
+					SetRecklessExpander(ePlayer, false);
+					SetWonderSpammer(ePlayer, false);
+					SetEndgameAggressiveTo(ePlayer, false);
+					SetWonderDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetMinorCivDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+					SetTechBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+					SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+					pOther->SetMajorCompetitor(eID, false);
+					pOther->SetRecklessExpander(eID, false);
+					pOther->SetWonderSpammer(eID, false);
+					pOther->SetEndgameAggressiveTo(eID, false);
+					pOther->SetLandDisputeLevel(eID, DISPUTE_LEVEL_NONE); // only set this for other majors, since it's a value towards all civs
+					pOther->SetWonderDisputeLevel(eID, DISPUTE_LEVEL_NONE);
+					pOther->SetNumWondersBeatenTo(eID, 0); // only reset the killed player's wonder completions
+					pOther->SetMinorCivDisputeLevel(eID, DISPUTE_LEVEL_NONE);
+					pOther->SetNumTimesTheyLoweredOurInfluence(eID, 0); // only reset the killed player's influence lowering
+					pOther->SetVictoryDisputeLevel(eID, DISPUTE_LEVEL_NONE);
+					pOther->SetVictoryBlockLevel(eID, BLOCK_LEVEL_NONE);
+					pOther->SetTechBlockLevel(eID, BLOCK_LEVEL_NONE);
+					pOther->SetPolicyBlockLevel(eID, BLOCK_LEVEL_NONE);
+
+					if (!bAlwaysAtWar)
+					{
+						SetVassalProtectValue(ePlayer, 0);
+						pOther->SetVassalProtectValue(eID, 0);
+
+						// Cancel coop wars against this player
+						pOther->CancelCoopWarsAgainstPlayer(eID, false);
+
+						// Reset approach to NEUTRAL
+						SetCivStrategicApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+						SetCachedSurfaceApproach(ePlayer, -1);
+						pOther->SetCivStrategicApproach(eID, CIV_APPROACH_NEUTRAL);
+						pOther->SetCachedSurfaceApproach(eID, -1);
+						for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
+						{
+							CivApproachTypes eApproach = (CivApproachTypes)iJ;
+							SetPlayerApproachValue(ePlayer, eApproach, 0);
+							SetPlayerStrategicApproachValue(ePlayer, eApproach, 0);
+							pOther->SetPlayerApproachValue(eID, eApproach, 0);
+							pOther->SetPlayerStrategicApproachValue(eID, eApproach, 0);
+						}
+						pOther->SetCivApproach(eID, CIV_APPROACH_NEUTRAL); // only set this for other majors, since it's a value towards all civs
+
+						// Clear war status
+						SetSaneDiplomaticTarget(ePlayer, true);
+						SetPotentialWarTarget(ePlayer, false);
+						SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
+						SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
+						pOther->SetSaneDiplomaticTarget(ePlayer, true);
+						pOther->SetPotentialWarTarget(ePlayer, false);
+						pOther->SetTreatyWillingToOffer(eID, NO_PEACE_TREATY_TYPE);
+						pOther->SetTreatyWillingToAccept(eID, NO_PEACE_TREATY_TYPE);
+						pOther->SetArmyInPlaceForAttack(eID, false); // only set this for other majors, since it's a value towards all civs
+
+						// Reset planning exchanges
+						SetWantsDoFWithPlayer(ePlayer, false);
+						SetWantsToEndDoFWithPlayer(ePlayer, false);
+						SetWantsDefensivePactWithPlayer(ePlayer, false);
+						SetWantsToEndDefensivePactWithPlayer(ePlayer, false);
+						SetWantsResearchAgreementWithPlayer(ePlayer, false);
+						SetStrategicTradePartner(ePlayer, false);
+						pOther->SetWantsDoFWithPlayer(eID, false);
+						pOther->SetWantsToEndDoFWithPlayer(eID, false);
+						pOther->SetWantsDefensivePactWithPlayer(eID, false);
+						pOther->SetWantsToEndDefensivePactWithPlayer(eID, false);
+						pOther->SetWantsResearchAgreementWithPlayer(eID, false);
+						pOther->SetStrategicTradePartner(eID, false);
+
+						// Terminate promises in both directions
+						SetMilitaryPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetExpansionPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBorderPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBullyCityStatePromiseState(ePlayer, NO_PROMISE_STATE);
+						SetAttackCityStatePromiseState(ePlayer, NO_PROMISE_STATE);
+						SetSpyPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetNoConvertPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetNoDiggingPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBrokeCoopWarPromise(ePlayer, false);
+						SetPlayerAskedNotToConvert(ePlayer, false);
+						SetPlayerAskedNotToDig(ePlayer, false);
+						pOther->SetMilitaryPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetExpansionPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetBorderPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetBullyCityStatePromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetAttackCityStatePromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetSpyPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetNoConvertPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetNoDiggingPromiseState(eID, NO_PROMISE_STATE);
+						pOther->SetBrokeCoopWarPromise(eID, false);
+						pOther->SetPlayerAskedNotToConvert(eID, false);
+						pOther->SetPlayerAskedNotToDig(eID, false);
+					}
+				}
+
+				// Reset strength evaluations
+				SetEconomicStrengthComparedToUs(ePlayer, STRENGTH_IMMENSE);
+				SetMilitaryStrengthComparedToUs(ePlayer, STRENGTH_IMMENSE);
+				SetRawMilitaryStrengthComparedToUs(ePlayer, STRENGTH_IMMENSE);
+				SetTargetValue(ePlayer, TARGET_VALUE_IMPOSSIBLE);
+				SetRawTargetValue(ePlayer, TARGET_VALUE_IMPOSSIBLE);
+				pOther->SetEconomicStrengthComparedToUs(eID, STRENGTH_PATHETIC);
+				pOther->SetMilitaryStrengthComparedToUs(eID, STRENGTH_PATHETIC);
+				pOther->SetRawMilitaryStrengthComparedToUs(eID, STRENGTH_PATHETIC);
+				pOther->SetTargetValue(eID, TARGET_VALUE_CAKEWALK);
+				pOther->SetRawTargetValue(eID, TARGET_VALUE_CAKEWALK);
+
+				// Reset voting history score
+				SetVotingHistoryScore(ePlayer, 0);
+				pOther->SetVotingHistoryScore(eID, 0);
+
+				// Reset share opinion response
+				SetShareOpinionResponse(ePlayer, NO_SHARE_OPINION_RESPONSE);
+				pOther->SetShareOpinionResponse(eID, NO_SHARE_OPINION_RESPONSE);
+			}
+
+			// Reset values for all civs
+			if (!bTeammates)
+			{
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				if (!bAlwaysAtWar)
+				{
+					SetArmyInPlaceForAttack(ePlayer, false);
+					SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+				}
 			}
 		}
 
@@ -1013,37 +1021,41 @@ void CvDiplomacyAI::SlotStateChange()
 		{
 			PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
 			ResetSentAttackProtectedMinorTaunts(eMinor);
+			SetWantToRouteConnectToMinor(eMinor, false);
 		}
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (!GET_PLAYER(eLoopPlayer).isAlive())
+			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+			if (ePlayer == GetID() || !GET_PLAYER(ePlayer).isAlive())
 				continue;
+
+			bool bTeammates = IsTeammate(ePlayer);
+			bool bAlwaysAtWar = IsAlwaysAtWar(ePlayer);
 
 			if (iPlayerLoop < MAX_MAJOR_CIVS)
 			{
-				if (GET_PLAYER(eID).getTeam() != GET_PLAYER(eLoopPlayer).getTeam())
+				if (GET_PLAYER(ePlayer).isHuman())
 				{
-					if (GET_PLAYER(eLoopPlayer).isHuman())
+					CvDiplomacyAI* pOther = GET_PLAYER(ePlayer).GetDiplomacyAI();
+
+					// Terminate any coop war agreements with other humans
+					CancelCoopWarsWithPlayer(ePlayer, false);
+
+					// Terminate promises made with other humans
+					if (!bTeammates && !bAlwaysAtWar)
 					{
-						CvDiplomacyAI* pOther = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
-
-						// Terminate any coop war agreements with other humans
-						CancelCoopWarsWithPlayer(eLoopPlayer, false);
-
-						// Terminate promises made with other humans
-						SetMilitaryPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetExpansionPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetBorderPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetBullyCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetAttackCityStatePromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetSpyPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetNoConvertPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetNoDiggingPromiseState(eLoopPlayer, NO_PROMISE_STATE);
-						SetBrokeCoopWarPromise(eLoopPlayer, false);
-						SetPlayerAskedNotToConvert(eLoopPlayer, false);
-						SetPlayerAskedNotToDig(eLoopPlayer, false);
+						SetMilitaryPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetExpansionPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBorderPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBullyCityStatePromiseState(ePlayer, NO_PROMISE_STATE);
+						SetAttackCityStatePromiseState(ePlayer, NO_PROMISE_STATE);
+						SetSpyPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetNoConvertPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetNoDiggingPromiseState(ePlayer, NO_PROMISE_STATE);
+						SetBrokeCoopWarPromise(ePlayer, false);
+						SetPlayerAskedNotToConvert(ePlayer, false);
+						SetPlayerAskedNotToDig(ePlayer, false);
 						pOther->SetMilitaryPromiseState(eID, NO_PROMISE_STATE);
 						pOther->SetExpansionPromiseState(eID, NO_PROMISE_STATE);
 						pOther->SetBorderPromiseState(eID, NO_PROMISE_STATE);
@@ -1056,48 +1068,65 @@ void CvDiplomacyAI::SlotStateChange()
 						pOther->SetPlayerAskedNotToConvert(eID, false);
 						pOther->SetPlayerAskedNotToDig(eID, false);
 					}
-
-					// Reset opinion/approach to neutral
-					SetCivOpinion(eLoopPlayer, CIV_OPINION_NEUTRAL);
-					SetCachedOpinionWeight(eLoopPlayer, 0);
-					SetCivStrategicApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
-					SetCachedSurfaceApproach(eLoopPlayer, -1);
-
-					// Reset AI-only values
-					SetRecentAssistValue(eLoopPlayer, 0);
-					SetWantsDoFWithPlayer(eLoopPlayer, false);
-					SetWantsToEndDoFWithPlayer(eLoopPlayer, false);
-					SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
-					SetWantsToEndDefensivePactWithPlayer(eLoopPlayer, false);
-					SetWantsResearchAgreementWithPlayer(eLoopPlayer, false);
-					SetSaneDiplomaticTarget(eLoopPlayer, true);
-					SetPotentialWarTarget(eLoopPlayer, true);
-					SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
-					SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
-					SetRecklessExpander(eLoopPlayer, false);
-					SetWonderSpammer(eLoopPlayer, false);
-					SetEndgameAggressiveTo(eLoopPlayer, false);
-					SetStrategicTradePartner(eLoopPlayer, false);
-					SetMajorCompetitor(eLoopPlayer, false);
-					SetPlotBuyingAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
-					SetWonderDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
-					SetMinorCivDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
-					SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
-					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-					SetTechBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-					SetPolicyBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-					SetVotingHistoryScore(eLoopPlayer, 0);
-					SetShareOpinionResponse(eLoopPlayer, NO_SHARE_OPINION_RESPONSE);
-					SetCantMatchDeal(eLoopPlayer, false);
-					SetOfferingGift(eLoopPlayer, false);
-					SetOfferedGift(eLoopPlayer, false);
 				}
+
+				if (!bTeammates)
+				{
+					// Reset exchange type values
+					SetWantsDoFWithPlayer(ePlayer, false);
+					SetWantsToEndDoFWithPlayer(ePlayer, false);
+					SetWantsDefensivePactWithPlayer(ePlayer, false);
+					SetWantsToEndDefensivePactWithPlayer(ePlayer, false);
+					SetWantsResearchAgreementWithPlayer(ePlayer, false);
+					SetSaneDiplomaticTarget(ePlayer, true);
+					SetPotentialWarTarget(ePlayer, true);
+
+					// Reset dispute values
+					SetRecklessExpander(ePlayer, false);
+					SetWonderSpammer(ePlayer, false);
+					SetEndgameAggressiveTo(ePlayer, false);
+					SetMajorCompetitor(ePlayer, false);
+					SetPlotBuyingAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					SetWonderDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetMinorCivDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+					SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+					SetTechBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+					SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+
+					if (!bAlwaysAtWar)
+					{
+						// Reset opinion/approach to neutral
+						SetCivOpinion(ePlayer, CIV_OPINION_NEUTRAL);
+						SetCachedOpinionWeight(ePlayer, 0);
+						SetCivStrategicApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+						SetCachedSurfaceApproach(ePlayer, -1);
+
+						// Reset peace willingness
+						SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
+						SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
+
+						// Reset exchange type values
+						SetStrategicTradePartner(ePlayer, false);
+					}
+				}
+
+				// Reset other AI-only values
+				SetRecentAssistValue(ePlayer, 0);
+				SetVotingHistoryScore(ePlayer, 0);
+				SetShareOpinionResponse(ePlayer, NO_SHARE_OPINION_RESPONSE);
+				SetCantMatchDeal(ePlayer, false);
+				SetOfferingGift(ePlayer, false);
+				SetOfferedGift(ePlayer, false);
 			}
-			else
+			else if (!bTeammates)
 			{
-				SetLandDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
-				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
-				SetArmyInPlaceForAttack(eLoopPlayer, false);
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				if (!bAlwaysAtWar)
+				{
+					SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+					SetArmyInPlaceForAttack(ePlayer, false);
+				}
 			}
 		}
 	}
@@ -3016,7 +3045,7 @@ bool CvDiplomacyAI::HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, Player
 
 void CvDiplomacyAI::SetSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eMinor >= MAX_MAJOR_CIVS && eMinor < MAX_CIV_PLAYERS);
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && eMinor >= MAX_MAJOR_CIVS && eMinor < MAX_CIV_PLAYERS && NotTeam(ePlayer));
 	m_aabSentAttackMessageToMinorCivProtector[ePlayer][eMinor - MAX_MAJOR_CIVS] = bValue;
 }
 
@@ -3024,7 +3053,11 @@ void CvDiplomacyAI::SetSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, Player
 void CvDiplomacyAI::ResetSentAttackProtectedMinorTaunts(PlayerTypes eMinor)
 {
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-		SetSentAttackProtectedMinorTaunt((PlayerTypes)iI, eMinor, false);
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(ePlayer).getTeam() != GetTeam())
+			SetSentAttackProtectedMinorTaunt(ePlayer, eMinor, false);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -4609,8 +4642,8 @@ void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay)
 {
-	// Humans can handle their own diplomacy.
-	if (GetPlayer()->isHuman())
+	// Humans can handle their own diplomacy, and don't update this if always at war.
+	if (GetPlayer()->isHuman() || IsAlwaysAtWar(ePlayer))
 		return;
 
 	if (!bDecay)

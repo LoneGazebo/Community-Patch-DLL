@@ -32495,41 +32495,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		// Update Player Proximity
 		DoUpdateProximityToPlayers();
 
-		// Entire team is dead
-		if (!GET_TEAM(getTeam()).isAlive())
-		{
-			for (int i = 0; i < MAX_CIV_TEAMS; i++)
-			{
-				TeamTypes eTheirTeam = (TeamTypes)i;
-				if (getTeam() != eTheirTeam)
-				{
-					// close both embassies (also cancels Defensive Pacts)
-					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
-					GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
-
-					// cancel open borders
-					GET_TEAM(getTeam()).SetAllowsOpenBordersToTeam(eTheirTeam, false);
-					GET_TEAM(eTheirTeam).SetAllowsOpenBordersToTeam(getTeam(), false);
-
-					// cancel any research agreements
-					GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
-					GET_TEAM(eTheirTeam).CancelResearchAgreement(getTeam());
-
-					// end vassalage
-					GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
-					GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
-
-					// put both teams at peace
-					GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
-					GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
-
-					// set locked war turns to 0
-					GET_TEAM(getTeam()).SetNumTurnsLockedIntoWar(eTheirTeam, 0);
-					GET_TEAM(eTheirTeam).SetNumTurnsLockedIntoWar(getTeam(), 0);
-				}
-			}
-		}
-
 		if (isMajorCiv())
 		{
 			// Military rating drops to 0
@@ -32563,6 +32528,41 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 
 			// Update Diplomacy AI
 			GetDiplomacyAI()->SlotStateChange();
+		}
+
+		// Entire team is dead
+		if (!GET_TEAM(getTeam()).isAlive())
+		{
+			for (int i = 0; i < MAX_CIV_TEAMS; i++)
+			{
+				TeamTypes eTheirTeam = (TeamTypes)i;
+				if (getTeam() != eTheirTeam)
+				{
+					// close both embassies (also cancels Defensive Pacts)
+					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
+					GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
+
+					// cancel open borders
+					GET_TEAM(getTeam()).SetAllowsOpenBordersToTeam(eTheirTeam, false);
+					GET_TEAM(eTheirTeam).SetAllowsOpenBordersToTeam(getTeam(), false);
+
+					// cancel any research agreements
+					GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
+					GET_TEAM(eTheirTeam).CancelResearchAgreement(getTeam());
+
+					// end vassalage
+					GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
+					GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
+
+					// put both teams at peace
+					GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
+					GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
+
+					// set locked war turns to 0
+					GET_TEAM(getTeam()).SetNumTurnsLockedIntoWar(eTheirTeam, 0);
+					GET_TEAM(eTheirTeam).SetNumTurnsLockedIntoWar(getTeam(), 0);
+				}
+			}
 		}
 
 		if (bNotify)
