@@ -176,6 +176,7 @@ UPDATE Units SET Cost = 2500 WHERE Class = 'UNITCLASS_MODERN_ARMOR';
 
 -- Unique Units
 UPDATE Units SET Cost = 70, FaithCost = 150 WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR'; -- earlier but same cost
+UPDATE Units SET Cost = 100, FaithCost = 200 WHERE Type = 'UNIT_IRON_CHARIOT'; -- unique class
 UPDATE Units SET Cost = 100 WHERE Type = 'UNIT_MAYAN_ATLATLIST'; -- cheaper and earlier
 UPDATE Units SET Cost = 135, FaithCost = 300 WHERE Type = 'UNIT_DANISH_BERSERKER'; -- earlier but same cost
 UPDATE Units SET Cost = 275, FaithCost = 350 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT'; -- cheaper
