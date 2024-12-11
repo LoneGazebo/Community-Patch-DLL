@@ -3013,7 +3013,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			if (pUnit)
 				pUnit->kill(true);
 
-			if (pPlot->getOwner() != NO_PLAYER)
+			if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != m_pPlayer->GetID())
 			{
 				CvPlayer &kOwner = GET_PLAYER(pPlot->getOwner());
 
