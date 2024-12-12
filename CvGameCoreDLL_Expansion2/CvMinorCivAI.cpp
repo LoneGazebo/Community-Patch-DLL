@@ -13731,39 +13731,23 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	RecalculateRewards(eMajor);
 
 	// Notify the world, if there's something to be said!
-	const char* strMinorCivKey = GetPlayer()->getNameKey();
-	const char* strText = bProtect ? GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey) : GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_ABANDON_CITY_STATE, NO_PLAYER, strMinorCivKey);
-	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
-	strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	// Revocation notification might not be sent under some circumstances, such as if the major withdrew the protection by declaring war
+	if (bProtect || bSendNotification)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (eLoopPlayer == eMajor)
-			continue;
+		const char* strMinorCivKey = GetPlayer()->getNameKey();
+		const char* strText = bProtect ? GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE, NO_PLAYER, strMinorCivKey) : GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DECLARATION_ABANDON_CITY_STATE, NO_PLAYER, strMinorCivKey);
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
+		strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
 
-		// Protection is established
-		if (bProtect)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			// Send a notification to all civs who have met both this City-State and the major who established protection
-			if (IsHasMetPlayer(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasMet(eMajor))
-			{
-				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-				if (GET_PLAYER(eLoopPlayer).isAlive() && pNotifications)
-					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
-			}
-		}
-		// Protection is revoked
-		else
-		{
-			// Send a notification to all civs who have met both this City-State and the major who revoked protection
-			// The notification might not be sent under some circumstances, such as if the major withdrew the protection by declaring war
-			if (bSendNotification && IsHasMetPlayer(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasMet(eMajor) && GET_PLAYER(eLoopPlayer).isAlive())
-			{
-				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-				if (pNotifications)
-					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
-			}
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer == eMajor || !GET_PLAYER(eLoopPlayer).isAlive() || !IsHasMetPlayer(eLoopPlayer) || !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasMet(eMajor))
+				continue;
+
+			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+			if (pNotifications)
+				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
 		}
 	}
 
