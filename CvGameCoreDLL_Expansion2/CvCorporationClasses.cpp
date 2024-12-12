@@ -25,6 +25,8 @@ CvCorporationEntry::CvCorporationEntry(void):
 	m_iBaseSpreadChance(0),
 	m_iTourismMod(0),
 	m_bTradeRoutesInvulnerable(false),
+	m_viResourceMonopolyAnds(),
+	m_viResourceMonopolyOrs(),
 	m_piNumFreeResource(NULL),
 	m_piTradeRouteMod(NULL),
 	m_piTradeRouteCityMod(NULL),
