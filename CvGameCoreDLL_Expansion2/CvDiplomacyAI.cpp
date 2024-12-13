@@ -7746,7 +7746,7 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 		// Previously opposed us
 		if (iCurrentValue > 0)
 		{
-			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetWorkAgainstWillingness());
 
 			iTurn = IsFoiledOurProposalAndThenSupportedUs(ePlayer) ? GetTheySupportedOurProposalTurn(ePlayer) : GetTheyFoiledOurProposalTurn(ePlayer);
 			if (iTurn < 0)
@@ -7755,7 +7755,7 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 		// Previously supported us
 		else
 		{
-			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetWorkWithWillingness());
 
 			iTurn = IsSupportedOurProposalAndThenFoiledUs(ePlayer) ? GetTheyFoiledOurProposalTurn(ePlayer) : GetTheySupportedOurProposalTurn(ePlayer);
 			if (iTurn < 0)
@@ -43012,7 +43012,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		iChance += 5;
 	}
 
-	iChance += GetNumCitiesLiberatedBy(ePlayer) * 3;
+	iChance += GetNumCitiesEverLiberatedBy(ePlayer) * 3;
 
 	return iChance <= 0;
 }

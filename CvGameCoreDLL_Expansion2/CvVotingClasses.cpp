@@ -7583,6 +7583,7 @@ void CvLeague::FinishSession()
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(*playerIt, -1);
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(*playerIt, true);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(*playerIt, false);
 						}
 						// Normal proposal
 						else
@@ -7754,6 +7755,7 @@ void CvLeague::FinishSession()
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(*playerIt, -1);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(*playerIt, true);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(*playerIt, false);
 
 								// If the proposer didn't vote, let's also extend their turn counter
 								if (std::find(vHelpedOutcome.begin(), vHelpedOutcome.end(), eProposer) == vHelpedOutcome.end() && std::find(vHarmedOutcome.begin(), vHarmedOutcome.end(), eProposer) == vHarmedOutcome.end())
@@ -7761,6 +7763,7 @@ void CvLeague::FinishSession()
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, (GC.getGame().getGameTurn()+1));
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, -1);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverSanctionedUs(eProposer, true);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetEverUnsanctionedUs(eProposer, false);
 								}
 							}
 							// Normal proposal
@@ -7843,8 +7846,8 @@ void CvLeague::FinishSession()
 							{
 								iDesireMultiplier = /*-400*/ -GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 
-								// Do not apply this extra bonus if the player previously sanctioned us successfully
-								if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->HasEverSanctionedUs(*playerIt))
+								// Do not apply this extra bonus if the player previously sanctioned us successfully, or if this is the proposer
+								if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->HasEverSanctionedUs(*playerIt) && eLoopPlayer != eProposer)
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(*playerIt, -1);
@@ -10848,8 +10851,8 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	// This is intentionally powerful compared to other factors for three reasons: it grants the player more control over their diplomacy (fun/strategy), it takes a long time/major support to get to +10 (dedication), and it often requires sacrificing the player's preferred vote choices (tradeoff)
 	iAlignment += /*-10 to 10*/ pDiplo->GetVotingHistoryScore(ePlayer) / /*240*/ max((GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / GD_INT_GET(VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER)), 1);
 
-	// DoF or Denounce
-	if (pDiplo->IsDenouncedPlayer(ePlayer) || pDiplo->IsDenouncedByPlayer(ePlayer))
+	// Denounced us or DoF
+	if (pDiplo->IsDenouncedByPlayer(ePlayer))
 	{
 		iAlignment -= 2;
 	}
@@ -10890,13 +10893,12 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
-				iAlignment += 4;
+				iAlignment += 5;
 				break;
 			case VASSAL_TREATMENT_DISAGREE:
 				iAlignment += 2;
 				break;
 			case VASSAL_TREATMENT_MISTREATED:
-				iAlignment -= 0;
 				break;
 			case VASSAL_TREATMENT_UNHAPPY:
 				iAlignment -=  2;
@@ -10913,10 +10915,10 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
-				iAlignment += 2;
+				iAlignment += 3;
 				break;
 			case VASSAL_TREATMENT_DISAGREE:
-				iAlignment -= 1;
+				iAlignment += 1;
 				break;
 			case VASSAL_TREATMENT_MISTREATED:
 				iAlignment -=  2;
@@ -10950,26 +10952,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	// Competing for City-States?
 	iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);
 
-
-	switch (pDiplo->GetCivApproach(ePlayer))
-	{
-	case CIV_APPROACH_WAR:
-	case CIV_APPROACH_HOSTILE:
-		iAlignment -= 2;
-		break;
-	case CIV_APPROACH_DECEPTIVE:
-	case CIV_APPROACH_GUARDED:
-		iAlignment -= 1;
-		break;
-	case CIV_APPROACH_AFRAID:
-	case CIV_APPROACH_NEUTRAL:
-		iAlignment += 0;
-		break;
-	case CIV_APPROACH_FRIENDLY:
-		iAlignment += 1;
-		break;
-	}
-
 	if (pDiplo->GetWarmongerThreat(ePlayer) > 0)
 	{
 		iAlignment -= pDiplo->GetWarmongerThreat(ePlayer);
@@ -10996,10 +10978,13 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			iAlignment += 2;
 		}
 	}
-	if (!GetPlayer()->IsAtWarWith(ePlayer) && pDiplo->GetNumCitiesEverLiberatedBy(ePlayer) > 0)
+	if (!GetPlayer()->IsAtWarWith(ePlayer))
 	{
-		iAlignment += pDiplo->GetNumCitiesEverLiberatedBy(ePlayer);
-		if (pDiplo->IsPlayerReturnedCapital(ePlayer) || pDiplo->IsPlayerReturnedHolyCity(ePlayer))
+		if (pDiplo->GetNumCitiesEverLiberatedBy(ePlayer) > 0)
+		{
+			iAlignment += pDiplo->GetNumCitiesEverLiberatedBy(ePlayer);
+		}
+		else if (pDiplo->IsPlayerReturnedCapital(ePlayer) || pDiplo->IsPlayerReturnedHolyCity(ePlayer))
 		{
 			iAlignment += 1;
 		}
@@ -11008,10 +10993,9 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	// Captured some of our cities before?
 	iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
 
-	int iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(ePlayer), (int)pDiplo->GetVictoryBlockLevel(ePlayer));
-	if (iDisputeLevel > 0)
+	if (pDiplo->GetBiggestCompetitor() == ePlayer)
 	{
-		iAlignment -= iDisputeLevel;
+		iAlignment -= 2;
 	}
 
 	AlignmentLevels eAlignment = ALIGNMENT_NEUTRAL;
@@ -13489,6 +13473,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		iScore *= -1; // Flip the score when the proposal is to repeal these effects
 	}
 
+	CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
 	if (bConsiderGlobal)
 	{
 		// == Alignment with Proposer ==
@@ -13504,23 +13489,23 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore += 150;
 				break;
 			case ALIGNMENT_ALLY:
-				iScore += 120;
+				iScore += pDiplo->AdjustConditionalModifier(90, pDiplo->GetWorkWithWillingness());
 				break;
 			case ALIGNMENT_CONFIDANT:
-				iScore += 80;
+				iScore += pDiplo->AdjustConditionalModifier(65, pDiplo->GetWorkWithWillingness());
 				break;
 			case ALIGNMENT_FRIEND:
-				iScore += 40;
+				iScore += pDiplo->AdjustConditionalModifier(40, pDiplo->GetWorkWithWillingness());
 				break;
 			case ALIGNMENT_RIVAL:
-				iScore += -40;
+				iScore += pDiplo->AdjustConditionalModifier(-40, pDiplo->GetWorkAgainstWillingness());
 				break;
 			case ALIGNMENT_HATRED:
-				iScore += -80;
+				iScore += pDiplo->AdjustConditionalModifier(-65, pDiplo->GetWorkAgainstWillingness());
 				break;
 			case ALIGNMENT_ENEMY:
 			case ALIGNMENT_WAR:
-				iScore += -120;
+				iScore += pDiplo->AdjustConditionalModifier(-90, pDiplo->GetWorkAgainstWillingness());
 				break;
 			default:
 				break;
@@ -13539,7 +13524,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	if (bConsiderGlobal)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
 		if (pLeague)
 		{
 			int iTotalDiploScore = 0;
