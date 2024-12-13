@@ -288,6 +288,10 @@ ALTER TABLE Buildings ADD GlobalCityWorkingChange integer DEFAULT 0;
 -- Modifier for GP rate per active marriage with city state (not at war)
 ALTER TABLE Buildings ADD GPRateModifierPerMarriage integer DEFAULT 0;
 
+-- Extra experience for units trained in this city every time the empire enters a golden age after this building is built
+ALTER TABLE Buildings ADD ExperiencePerGoldenAge integer DEFAULT 0;
+ALTER TABLE Buildings ADD ExperiencePerGoldenAgeCap integer DEFAULT 0;
+
 -- Modifier for GP rate per completed great work theme
 ALTER TABLE Buildings ADD GPRateModifierPerLocalTheme integer DEFAULT 0;
 
