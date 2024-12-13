@@ -16634,7 +16634,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL)
 	{
-		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? AdjustConditionalModifier(300, GetDiploBalance()) : AdjustConditionalModifier(100, GetDiploBalance());
+		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? AdjustConditionalModifier(600, GetDiploBalance()) : AdjustConditionalModifier(200, GetDiploBalance());
 
 		CvLeagueAI::AlignmentLevels eAlignment = (GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer, /*bIgnoreWar*/ true));
 		// Our prime league competitor isn't considered aligned with our interests...
