@@ -882,8 +882,8 @@ void CvDiplomacyAI::SlotStateChange()
 						SetPotentialWarTarget(ePlayer, false);
 						SetTreatyWillingToOffer(ePlayer, NO_PEACE_TREATY_TYPE);
 						SetTreatyWillingToAccept(ePlayer, NO_PEACE_TREATY_TYPE);
-						pOther->SetSaneDiplomaticTarget(ePlayer, true);
-						pOther->SetPotentialWarTarget(ePlayer, false);
+						pOther->SetSaneDiplomaticTarget(eID, true);
+						pOther->SetPotentialWarTarget(eID, false);
 						pOther->SetTreatyWillingToOffer(eID, NO_PEACE_TREATY_TYPE);
 						pOther->SetTreatyWillingToAccept(eID, NO_PEACE_TREATY_TYPE);
 						pOther->SetArmyInPlaceForAttack(eID, false); // only set this for other majors, since it's a value towards all civs
