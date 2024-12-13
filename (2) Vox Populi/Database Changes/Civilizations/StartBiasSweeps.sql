@@ -32,8 +32,6 @@ VALUES
 
 	('CIVILIZATION_IROQUOIS', 'REGION_FOREST'), -- UA + Classical UU wants forest/jungle (historical)
 	('CIVILIZATION_IROQUOIS', 'REGION_JUNGLE'),
-	('CIVILIZATION_AZTEC', 'REGION_JUNGLE'),    -- Ancient UU wants jungle/forest (historical)
-	('CIVILIZATION_AZTEC', 'REGION_FOREST'),
 	('CIVILIZATION_BRAZIL', 'REGION_JUNGLE'),   -- UI needs jungle/forest (historical)
 	('CIVILIZATION_BRAZIL', 'REGION_FOREST'),
 	('CIVILIZATION_MAYA', 'REGION_JUNGLE'),     -- UI needs jungle/forest (historical)
