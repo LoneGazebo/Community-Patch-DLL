@@ -358,16 +358,19 @@ void CvHomelandAI::FindHomelandTargets()
 				m_TargetedCities.push_back(newTarget);
 			}
 			// ... antiquity site?
-			bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
-			bool bHiddenArtifact = pLoopPlot->getResourceType(eTeam) == eHiddenArtifactResourceType;
-			if ((bArtifact || bHiddenArtifact) &&
-				(pLoopPlot->getOwner() != m_pPlayer->GetID() || ((!bArtifact || !pCivImproveArtifact) && (!bHiddenArtifact || !pCivImproveHiddenArtifact))) &&
-				!m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot))
+			if (m_pPlayer->isMajorCiv())
 			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
-				newTarget.SetTargetX(pLoopPlot->getX());
-				newTarget.SetTargetY(pLoopPlot->getY());
-				m_TargetedAntiquitySites.push_back(newTarget);
+				bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
+				bool bHiddenArtifact = pLoopPlot->getResourceType(eTeam) == eHiddenArtifactResourceType;
+				if ((bArtifact || bHiddenArtifact) &&
+					(pLoopPlot->getOwner() != m_pPlayer->GetID() || ((!bArtifact || !pCivImproveArtifact) && (!bHiddenArtifact || !pCivImproveHiddenArtifact))) &&
+					!m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot))
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					m_TargetedAntiquitySites.push_back(newTarget);
+				}
 			}
 			// ... border fortification?
 			if (!pLoopPlot->isWater() &&
