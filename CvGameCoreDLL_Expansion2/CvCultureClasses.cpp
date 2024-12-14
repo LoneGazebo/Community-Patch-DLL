@@ -3374,7 +3374,7 @@ void CvPlayerCulture::DoTurn()
 		GC.getGame().GetGameCulture()->SetReportedSomeoneInfluential(true);
 	}
 
-	if (!m_bReportedTwoCivsAway && iThisTurnInfluentialCivs > 0 && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 2 && GC.getGame().countMajorCivsEverAlive() >= 4)
+	if (!m_bReportedTwoCivsAway && iThisTurnInfluentialCivs > 0 && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 2 && GC.getGame().GetNumMajorCivsEver() >= 4)
 	{
 		if(bCultureVictoryValid)
 		{//This civilization is the first civ to be two civilizations away from getting a cultural victory.  Notify the masses!
@@ -3414,13 +3414,13 @@ void CvPlayerCulture::DoTurn()
 		m_bReportedTwoCivsAway = true;
 	}
 
-	if (!m_bReportedOneCivAway && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 1 && GC.getGame().countMajorCivsEverAlive() >= 3)
+	if (!m_bReportedOneCivAway && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 1 && GC.getGame().GetNumMajorCivsEver() >= 3)
 	{
 		if(bCultureVictoryValid)
 		{//This civilization is the first civ to be one civilizations away from getting a cultural victory.  Notify the masses!
 
 		  // but don't notify if there are only two players left in the game!
-		  if (GC.getGame().countMajorCivsAlive() > 2) 
+		  if (GC.getGame().GetNumMajorCivsAlive() > 2) 
 		  {
 			CvString							targCloseOneSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER");
 			Localization::String	targCloseOneInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER_TT");

@@ -339,7 +339,7 @@ void CvFlavorManager::ResetToBasePersonality()
 void CvFlavorManager::AdjustWeightsForMap()
 {
 	int iTotalLandTiles = GC.getMap().getLandPlots();
-	int iNumPlayers = GC.getGame().countMajorCivsAlive();
+	int iNumPlayers = GC.getGame().GetNumMajorCivsAlive();
 
 	if(iNumPlayers > 0)
 	{

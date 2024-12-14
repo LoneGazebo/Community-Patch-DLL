@@ -205,7 +205,7 @@ VALUES
 	('RELIGION_MISSIONARY_RANGE_IN_TURNS', 20),
 	('RELIGION_BELIEF_SCORE_CITY_MULTIPLIER', 6),
 -- Deal AI
-	('EACH_GOLD_PER_TURN_VALUE_PERCENT', 5), -- Gold Per Turn Interest Rate for Trade Valuation
+	('EACH_GOLD_PER_TURN_VALUE_PERCENT', 75), -- % multiplier to Gold Per Turn Value for Trade Valuation
 	('DEMAND_LIMIT_MAX_VALUE', 200), -- maximum amount of gold that can be asked from the AI / that the AI can ask for when making demands
 	('DEMAND_LIMIT_GAMEPROGRESS_SCALING', 20), -- scaling factor of DEMAND_LIMIT_MAX_VALUE over the course of the game (the max demand value is DEMAND_LIMIT_MAX_VALUE * (1 + GameProgress * DEMAND_LIMIT_GAMEPROGRESS_SCALING), with GameProgress the percentage of researched techs)
 -- City specialization AI

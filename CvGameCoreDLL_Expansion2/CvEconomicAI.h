@@ -252,6 +252,7 @@ private:
 	void DisbandExtraWorkers();
 	void DisbandExtraWorkboats();
 	void DisbandUselessSettlers();
+	void DisbandUselessDiplomats();
 	void DisbandMiscUnits();
 	void DisbandUnitsToFreeSpaceshipResources();
 

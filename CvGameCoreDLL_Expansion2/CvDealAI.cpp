@@ -925,12 +925,10 @@ int CvDealAI::GetDealValue(CvDeal* pDeal)
 int CvDealAI::GetOneGPTValue(bool bPeaceDeal) const
 {
 	int iGPTValue = bPeaceDeal ? GC.getGame().getGameSpeedInfo().getPeaceDealDuration() : GC.getGame().getGameSpeedInfo().GetDealDuration();
-	//let's assume an interest rate of 0.5% per turn, no compounding
-	int iInterestPercent = 5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT);
-	//subtract interest. 100 gold now is better than 100 gold in the future
-	iGPTValue *= 100;
-	iGPTValue /= max(1, 100 + iInterestPercent);
-	return(max(1, iGPTValue));
+	// subtract interest. 100 gold now is better than 100 gold in the future
+	iGPTValue *= /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT);
+	iGPTValue /= 100;
+	return max(1, iGPTValue);
 }
 
 /// What is a particular item worth?
@@ -1256,10 +1254,8 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// We passed in Value, we want to know how much GPT we get for it
 	if (bNumGPTFromValue)
 	{
-		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
-
 		//add interest. 100 gold now is better than 100 gold in the future
+		int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
 
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
@@ -1297,12 +1293,9 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		}
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
-		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
-
 		//subtract interest. 100 gold now is better than 100 gold in the future
-		iValueTimes100 *= 100;
-		iValueTimes100 /= max(1,100 + iInterestPercent);
+		int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
+		iValueTimes100 -= (iGPTorValue*iInterestPercent) / 100;
 	}
 
 	int iReturnValue = iValueTimes100;

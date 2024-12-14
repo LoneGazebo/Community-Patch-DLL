@@ -777,6 +777,7 @@ void CvEconomicAI::DoTurn()
 		DisbandExtraArchaeologists();
 		DisbandLongObsoleteUnits();
 		DisbandUselessSettlers();
+		DisbandUselessDiplomats();
 		DisbandExtraWorkboats();
 		DisbandMiscUnits();
 		DisbandUnitsToFreeSpaceshipResources();
@@ -2555,20 +2556,14 @@ void CvEconomicAI::DisbandUselessSettlers()
 
 CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 {
-	CvUnit* pLoopUnit = NULL;
-	int iUnitLoop = 0;
-
 	// Look at map for loose workers
-	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	int iUnitLoop = 0;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
 		if (!pLoopUnit->canScrap())
 			continue;
 
-		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
 		{
 			if (bMayBeInOperation || pLoopUnit->getArmyID()!=-1)
 				return pLoopUnit;
@@ -2576,6 +2571,28 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 	}
 
 	return NULL;
+}
+
+void CvEconomicAI::DisbandUselessDiplomats()
+{
+	bool bIsMinor = m_pPlayer->isMinorCiv();
+	bool bAnyCityStatesEver = GC.getGame().GetNumMinorCivsEver(false) > 0;
+	bool bAnyCityStatesAlive = GC.getGame().GetNumMinorCivsAlive() > 0;
+	if (!bIsMinor && bAnyCityStatesAlive)
+		return;
+
+	// Look at map for loose diplomats
+	int iUnitLoop = 0;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if (!pLoopUnit->canScrap())
+			continue;
+
+		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MESSENGER && (!bAnyCityStatesAlive || bIsMinor))
+			pLoopUnit->scrap();
+		else if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DIPLOMAT && (!bAnyCityStatesEver || bIsMinor))
+			pLoopUnit->scrap();
+	}
 }
 
 void CvEconomicAI::DisbandExtraWorkboats()

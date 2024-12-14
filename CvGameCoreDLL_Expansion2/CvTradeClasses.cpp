@@ -649,24 +649,12 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CreateTradeUnitForRoute(iNewTradeRouteIndex);
 	MoveUnit(iNewTradeRouteIndex);
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(MOD_BALANCE_CORE_POLICIES && (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade()) && ((eConnectionType == TRADE_CONNECTION_FOOD) || (eConnectionType == TRADE_CONNECTION_PRODUCTION)))
+	if (MOD_BALANCE_CORE_POLICIES && GET_PLAYER(eOriginPlayer).IsGoldInternalTrade())
 	{
-		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
+		if (eConnectionType == TRADE_CONNECTION_FOOD || eConnectionType == TRADE_CONNECTION_PRODUCTION || (MOD_TRADE_WONDER_RESOURCE_ROUTES && eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE) || (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL))
+			GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
 	}
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	if(MOD_BALANCE_CORE_POLICIES && MOD_TRADE_WONDER_RESOURCE_ROUTES && (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade()) && (eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE))
-	{
-		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
-	if (MOD_BALANCE_CORE_POLICIES && MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade()) && (eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL))
-	{
-		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
-	}
-#endif
-#endif
+
 	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
 		if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
@@ -677,39 +665,36 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				pOriginCity->ChangeGrowthFromTourism(iGrowthTourism);
 			}
 		}
-
-	}
-	// Apply a diplomacy bonus for recent trade in both directions
-	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL && GET_PLAYER(eDestPlayer).isMajorCiv() && GET_PLAYER(eOriginPlayer).isMajorCiv())
-	{
-		if (!GET_PLAYER(eDestPlayer).isHuman())
+		// Apply a diplomacy bonus for recent trade in both directions
+		if (GET_PLAYER(eOriginPlayer).isMajorCiv() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
-			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-			int iGoldDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD] / 10);
-			int iScienceDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] / 10);
-			int iCultureDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_CULTURE] / 10);
-			int iTradeValueDest = ((iScienceDest + iCultureDest + iGoldDest + iFlavorCultureDest + iFlavorGoldDest + iFlavorScienceDest + iFlavorDiplomacyDest) / 4);
-			if (iTradeValueDest > 0)
+			if (!GET_PLAYER(eOriginPlayer).isHuman())
 			{
-				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
+				int iGoldYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD];
+				int iScienceYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] * max(4 - GET_PLAYER(eOriginPlayer).GetCurrentEra(), 1);
+				int iCultureYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_CULTURE] * max(4 - GET_PLAYER(eOriginPlayer).GetCurrentEra(), 1);
+				int iTotalValue = (iGoldYield + iScienceYield + iCultureYield) * iTurns / 100;
+				if (iTotalValue > 0)
+				{
+					//subtract interest. 100 gold now is better than 100 gold in the future
+					int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
+					iTotalValue -= iTotalValue * iInterestPercent / 100;
+					GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, max(iTotalValue / 5, 1));
+				}
 			}
-		}
-		if (!GET_PLAYER(eOriginPlayer).isHuman())
-		{
-			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-			int iFlavorCultureOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-			int iGoldOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD] / 10);
-			int iScienceOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] / 10);
-			int iCultureOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_CULTURE] / 10);
-			int iTradeValueOrigin = ((iScienceOrigin + iCultureOrigin + iFlavorCultureOrigin + iGoldOrigin + iFlavorGoldOrigin + iFlavorScienceOrigin + iFlavorDiplomacyOrigin) / 4);
-			if (iTradeValueOrigin > 0)
+			if (!GET_PLAYER(eDestPlayer).isHuman())
 			{
-				GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTradeValueOrigin);
+				int iGoldYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD];
+				int iScienceYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] * max(4 - GET_PLAYER(eDestPlayer).GetCurrentEra(), 1);
+				int iCultureYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_CULTURE] * max(4 - GET_PLAYER(eDestPlayer).GetCurrentEra(), 1);
+				int iTotalValue = (iGoldYield + iScienceYield + iCultureYield) * iTurns / 100;
+				if (iTotalValue > 0)
+				{
+					//subtract interest. 100 gold now is better than 100 gold in the future
+					int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
+					iTotalValue -= iTotalValue * iInterestPercent / 100;
+					GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, max(iTotalValue / 5, 1));
+				}
 			}
 		}
 	}

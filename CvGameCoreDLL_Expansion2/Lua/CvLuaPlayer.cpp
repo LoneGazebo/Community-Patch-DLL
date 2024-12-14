@@ -10908,8 +10908,9 @@ int CvLuaPlayer::lIsFriendDeclaredWarOnUs(lua_State* L)
 int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iValue = pkPlayer->GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount();
+	PlayerTypes eObserver = (PlayerTypes)luaL_optint(L, 2, -1);
+	const bool bExcludeOtherBackstabbers = luaL_optbool(L, 3, false);
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount(eObserver, bExcludeOtherBackstabbers);
 
 	lua_pushinteger(L, iValue);
 	return 1;

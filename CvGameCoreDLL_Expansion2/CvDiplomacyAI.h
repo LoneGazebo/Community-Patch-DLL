@@ -471,7 +471,7 @@ public:
 	void SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue);
 	int GetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer) const;
 	void SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iTurn);
-	int GetWeDeclaredWarOnFriendCount();
+	int GetWeDeclaredWarOnFriendCount(PlayerTypes eObserver, bool bExcludeOtherBackstabbers = true);
 
 	// ------------------------------------
 	// Warmongering Penalties

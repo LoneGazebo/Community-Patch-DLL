@@ -153,7 +153,7 @@ EraTypes LeagueHelpers::GetGameEraForTrigger()
 			}
 		}
 	}
-	if (iInMostAdvancedEra >= (GC.getGame().countMajorCivsAlive() / 2))
+	if (iInMostAdvancedEra >= (GC.getGame().GetNumMajorCivsAlive() / 2))
 	{
 		eGameEra = eMostAdvancedEra;
 	}
@@ -4830,7 +4830,7 @@ int CvLeague::GetProjectCost(LeagueProjectTypes eLeagueProject) const
 	int iCost = 0;
 	if (pProjectInfo)
 	{
-		iCost += GetProjectCostPerPlayer(eLeagueProject) * GC.getGame().countMajorCivsEverAlive();
+		iCost += GetProjectCostPerPlayer(eLeagueProject) * GC.getGame().GetNumMajorCivsEver();
 	}
 	return iCost;
 }
@@ -9240,7 +9240,7 @@ void CvGameLeagues::DoTurn()
 							}
 						}
 
-						if (bMetEveryone && GC.getGame().countMajorCivsAlive() > 1)
+						if (bMetEveryone && GC.getGame().GetNumMajorCivsAlive() > 1)
 						{
 							FoundLeague(eCiv);
 							break;
@@ -10661,6 +10661,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 {
 	int iAlignment = 0;
 	CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
+	bool bWeAreVassal = pDiplo->IsVassal(ePlayer);
 
 	if (ePlayer == NO_PLAYER||!GET_PLAYER(ePlayer).isAlive()||GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -10700,9 +10701,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		}
 	}
 
-
-	bool bUntrustworthy = pDiplo->IsUntrustworthy(ePlayer);
-
 	// Ideology
 	PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -10729,12 +10727,13 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			}
 		}
 
-		// Are either of us a vassal?
-		if (GetPlayer()->IsVassalOfSomeone())
+		// Don't care at all if we're a vassal, we get our master's Ideology whether we like it or not.
+		if (bWeAreVassal)
 		{
-			iIdeologyMod /= 2;
+			iIdeologyMod = 0;
 		}
-		if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
+		// Care less if they're a vassal.
+		else if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		{
 			iIdeologyMod /= 2;
 		}
@@ -10762,6 +10761,12 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		if ((GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirReligion) > 0) || (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(GetPlayer()->GetID(), eOurReligion) > 0))
 		{
 			iReligionMod *= 2;
+		}
+
+		// Don't care at all if we're a vassal, this is covered in CvDiplomacyAI::GetVassalTreatedScore().
+		if (bWeAreVassal)
+		{
+			iReligionMod = 0;
 		}
 
 		iAlignment += iReligionMod;
@@ -10851,32 +10856,44 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	// This is intentionally powerful compared to other factors for three reasons: it grants the player more control over their diplomacy (fun/strategy), it takes a long time/major support to get to +10 (dedication), and it often requires sacrificing the player's preferred vote choices (tradeoff)
 	iAlignment += /*-10 to 10*/ pDiplo->GetVotingHistoryScore(ePlayer) / /*240*/ max((GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / GD_INT_GET(VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER)), 1);
 
+	bool bUntrustworthy = pDiplo->IsUntrustworthy(ePlayer);
+
 	// Denounced us or DoF
 	if (pDiplo->IsDenouncedByPlayer(ePlayer))
 	{
 		iAlignment -= 2;
 	}
-	else if ((pDiplo->IsDoFAccepted(ePlayer) || pDiplo->IsWantsDoFWithPlayer(ePlayer)) && !pDiplo->IsWantsToEndDoFWithPlayer(ePlayer))
+	else if (!bUntrustworthy && !pDiplo->IsWantsToEndDoFWithPlayer(ePlayer))
 	{
-		switch (pDiplo->GetDoFType(ePlayer))
+		bool bCapitulatedVassal = bWeAreVassal && !pDiplo->IsVoluntaryVassalage(ePlayer);
+		if (!bCapitulatedVassal)
 		{
-		case DOF_TYPE_UNTRUSTWORTHY:
-		case DOF_TYPE_NEW:
-			break;
-		case DOF_TYPE_FRIENDS:
-			iAlignment += 1;
-			break;
-		case DOF_TYPE_ALLIES:
-			iAlignment += 2;
-			break;
-		case DOF_TYPE_BATTLE_BROTHERS:
-			iAlignment += 3;
-			break;
+			if (pDiplo->IsDoFAccepted(ePlayer) || pDiplo->IsWantsDoFWithPlayer(ePlayer))
+			{
+				// Modifier based on DoF Level
+				switch (pDiplo->GetDoFType(ePlayer))
+				{
+				case DOF_TYPE_UNTRUSTWORTHY:
+				case DOF_TYPE_NEW:
+					break;
+				case DOF_TYPE_FRIENDS:
+					iAlignment += 1;
+					break;
+				case DOF_TYPE_ALLIES:
+					iAlignment += 2;
+					break;
+				case DOF_TYPE_BATTLE_BROTHERS:
+					iAlignment += 3;
+					break;
+				}
+			}
 		}
+		else if (pDiplo->IsDoFAccepted(ePlayer))
+			iAlignment += 1;
 	}
 
 	// Defensive Pact?
-	if (pDiplo->IsHasDefensivePact(ePlayer) && !pDiplo->IsWantsToEndDefensivePactWithPlayer(ePlayer))
+	if (!bUntrustworthy && pDiplo->IsHasDefensivePact(ePlayer) && !pDiplo->IsWantsToEndDefensivePactWithPlayer(ePlayer))
 	{
 		iAlignment += 2;
 	}
@@ -10885,26 +10902,44 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	if (pDiplo->IsVassal(ePlayer))
 	{
 		VassalTreatmentTypes eTreatmentLevel = pDiplo->GetVassalTreatmentLevel(ePlayer);
+		bool bReallyBadTreatment = pDiplo->GetVassalTheftScore(ePlayer) > 0 || pDiplo->GetVassalDenouncementScore(ePlayer) > 0 || pDiplo->BrokeVassalAgreement(ePlayer);
 
-		if (pDiplo->IsVoluntaryVassalage(ePlayer))
+		// Protection of our lands? The point of vassalage is protection, after all!
+		int iVassalProtectValue = pDiplo->GetVassalProtectValue(ePlayer);
+		int iMaxPositiveValue = pDiplo->GetMaxVassalProtectValue();
+		int iMaxNegativeValue = pDiplo->GetMaxVassalFailedProtectValue();
+		if (iVassalProtectValue < iMaxNegativeValue / 2)
+		{
+			iAlignment -= 2;
+			bReallyBadTreatment = true;
+		}
+		else if (iVassalProtectValue <= iMaxNegativeValue / 5)
+			iAlignment -= 1;
+		else if (iVassalProtectValue > iMaxPositiveValue / 2)
+			iAlignment += 2;
+		else if (iVassalProtectValue >= iMaxPositiveValue / 5)
+			iAlignment += 1;
+
+		if (pDiplo->IsVoluntaryVassalage(ePlayer) && !bReallyBadTreatment && !bUntrustworthy)
 		{
 			switch (eTreatmentLevel)
 			{
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
-				iAlignment += 5;
+				iAlignment += pDiplo->GetVassalTreatedScore(ePlayer) < 0 ? 6 : 5;
 				break;
 			case VASSAL_TREATMENT_DISAGREE:
 				iAlignment += 2;
 				break;
 			case VASSAL_TREATMENT_MISTREATED:
+				iAlignment += -2;
 				break;
 			case VASSAL_TREATMENT_UNHAPPY:
-				iAlignment -=  2;
+				iAlignment += -4;
 				break;
 			case VASSAL_TREATMENT_ENSLAVED:
-				iAlignment -=  4;
+				iAlignment += -6;
 				break;
 			}
 		}
@@ -10915,19 +10950,19 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
-				iAlignment += 3;
+				iAlignment += bReallyBadTreatment ? 1 : pDiplo->GetVassalTreatedScore(ePlayer) < 0 ? 4 : 3;
 				break;
 			case VASSAL_TREATMENT_DISAGREE:
-				iAlignment += 1;
+				iAlignment += bReallyBadTreatment ? -1 : 1;
 				break;
 			case VASSAL_TREATMENT_MISTREATED:
-				iAlignment -=  2;
+				iAlignment += bReallyBadTreatment ? -5 : -3;
 				break;
 			case VASSAL_TREATMENT_UNHAPPY:
-				iAlignment -=  3;
+				iAlignment += bReallyBadTreatment ? -7 : -5;
 				break;
 			case VASSAL_TREATMENT_ENSLAVED:
-				iAlignment -=  5;
+				iAlignment += bReallyBadTreatment ? -9 : -7;
 				break;
 			}
 		}
@@ -10948,6 +10983,15 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			iAlignment -= 1;
 		}
 	}
+
+	// Encourage bloc formation
+	int iMaxBonus = pDiplo->GetWorkWithWillingness() > 8 ? 4 : pDiplo->GetWorkWithWillingness() < 4 ? 2 : 3;
+	int iBlocBonus = min(pDiplo->GetNumMutualFriends(ePlayer) + pDiplo->GetNumMutualDefensePacts(ePlayer) + pDiplo->GetNumEnemiesDenounced(ePlayer), iMaxBonus);
+	iAlignment += iBlocBonus;
+
+	int iMaxPenalty = pDiplo->GetWorkAgainstWillingness() > 8 ? 4 : pDiplo->GetWorkAgainstWillingness() < 4 ? 2 : 3;
+	int iBlocPenalty = min(pDiplo->GetNumEnemyFriends(ePlayer) + pDiplo->GetNumEnemyDefensePacts(ePlayer) + pDiplo->GetNumFriendsDenounced(ePlayer), iMaxPenalty);
+	iAlignment -= iBlocPenalty;
 
 	// Competing for City-States?
 	iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);

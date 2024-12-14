@@ -973,6 +973,10 @@ void CvDiplomacyAI::SlotStateChange()
 	{
 		// Pick flavors and a victory focus
 		DoInitializePersonality(false);
+
+		// Turn on the backstabber flag, if appropriate
+		if (GetWeDeclaredWarOnFriendCount(GetID()) > 0)
+			SetBackstabber(true);
 	}
 	// Are we now a human player?
 	else if (bIsHuman && !bWasHuman)
@@ -2499,7 +2503,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 
 	// Not many City-States? City-States aren't 100% essential but without them a Diplomatic Victory becomes much harder.
 	int iNumMinorsEver = GC.getGame().GetNumMinorCivsEver();
-	int iNumMajorsEver = GC.getGame().countMajorCivsEverAlive();
+	int iNumMajorsEver = GC.getGame().GetNumMajorCivsEver();
 	if (iNumMinorsEver < iNumMajorsEver)
 	{
 		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= 5;
@@ -5389,7 +5393,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 		SetFriendDeclaredWarOnUsTurn(ePlayer, -1);
 
 		// If all backstabbing penalties for this player have expired and Loyalty > 2 and not Nuclear Gandhi, reset the backstabber flag.
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsBackstabber() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetLoyalty() > 2 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsNuclearGandhi())
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsBackstabber() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetLoyalty() > 2 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount(ePlayer) <= 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsNuclearGandhi())
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBackstabber(false);
 	}
 }
@@ -5408,15 +5412,28 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iTurn)
 }
 
 /// How many friends have WE Declared War on?
-int CvDiplomacyAI::GetWeDeclaredWarOnFriendCount()
+int CvDiplomacyAI::GetWeDeclaredWarOnFriendCount(PlayerTypes eObserver, bool bExcludeOtherBackstabbers)
 {
 	int iNum = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+		if (eLoopTeam == GetTeam())
+			continue;
+
 		if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(GetID()))
-			iNum++;
+		{
+			// If we're observing ourselves (to set the backstabber flag), we know whether we backstabbed because we considered the other player untrustworthy
+			// However, other players may not know this, so use their own estimation instead - and also ignore anyone they haven't met because that's cheating
+			if (!bExcludeOtherBackstabbers)
+				iNum++;
+			else if (eObserver == NO_PLAYER || eObserver == GetID() || GET_PLAYER(eObserver).getTeam() == eLoopTeam)
+				iNum += (!WasEverBackstabbedBy(eLoopPlayer) && !IsUntrustworthy(eLoopPlayer)) ? 1 : 0;
+			else if (GET_PLAYER(eObserver).GetDiplomacyAI()->IsHasMet(eLoopPlayer))
+				iNum += (!WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eObserver).GetDiplomacyAI()->IsUntrustworthy(eLoopPlayer)) ? 1 : 0;
+		}
 	}
 
 	return iNum;
@@ -8957,8 +8974,8 @@ int CvDiplomacyAI::GetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes e
 
 void CvDiplomacyAI::SetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iValue >= 0 && NotTeam(ePlayer));
-	m_aiVassalGoldPerTurnCollectedSinceVassalStarted[ePlayer] = iValue;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && NotTeam(ePlayer));
+	m_aiVassalGoldPerTurnCollectedSinceVassalStarted[ePlayer] = max(iValue, 0);
 }
 
 void CvDiplomacyAI::ChangeVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer, int iChange)
@@ -9102,7 +9119,7 @@ void CvDiplomacyAI::TestBackstabberFlag()
 		{
 			SetBackstabber(false);
 		}
-		else if (GetLoyalty() > 2 && !IsNuclearGandhi() && GetWeDeclaredWarOnFriendCount() == 0)
+		else if (GetLoyalty() > 2 && !IsNuclearGandhi() && GetWeDeclaredWarOnFriendCount(GetID()) == 0)
 		{
 			SetBackstabber(false);
 		}
@@ -9625,7 +9642,7 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 		return;
 
 	// We're not competing for victory, so we don't care.
-	if (!IsCompetingForVictory() || GC.getGame().countMajorCivsAlive() < 2)
+	if (!IsCompetingForVictory() || GC.getGame().GetNumMajorCivsAlive() < 2)
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -9739,7 +9756,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 		return;
 
 	// We're not competing for victory, so we don't care.
-	if (!IsCompetingForVictory() || GC.getGame().countMajorCivsAlive() < 2)
+	if (!IsCompetingForVictory() || GC.getGame().GetNumMajorCivsAlive() < 2)
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -10224,7 +10241,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
             if (eConquestGrandStrategy == eTheirGrandStrategy)
 			{
-				if (GetWarmongerThreat(eLoopPlayer) < THREAT_SEVERE && GetPlayerNumMajorsConquered(eLoopPlayer) >= GC.getGame().countMajorCivsEverAlive() / 3)
+				if (GetWarmongerThreat(eLoopPlayer) < THREAT_SEVERE && GetPlayerNumMajorsConquered(eLoopPlayer) >= GC.getGame().GetNumMajorCivsEver() / 3)
 				{
 					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 					continue;
@@ -11925,7 +11942,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				eThreatType = THREAT_MINOR;
 
 			// Also test % of players killed
-			int iNumPlayersEver = GC.getGame().countMajorCivsEverAlive();
+			int iNumPlayersEver = GC.getGame().GetNumMajorCivsEver();
 			int iNumPlayersKilled = GetPlayerNumMajorsConquered(eLoopPlayer) + (GetPlayerNumMinorsConquered(eLoopPlayer)/2);
 
 			if (eThreatType != THREAT_CRITICAL)
@@ -13269,10 +13286,10 @@ bool CvDiplomacyAI::TestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 	int iNumBrokenAgreements = 0;
 	int iNumFriendsDenounced = 0;
 	int iNumFriendsAttacked = 0;
-	int iNumCivsEver = GC.getGame().countMajorCivsEverAlive();
+	int iNumCivsEver = GC.getGame().GetNumMajorCivsEver();
 
 	// Don't tolerate backstabbing if it could get us killed!
-	bool bDangerous = (GC.getGame().countMajorCivsAlive() <= iNumCivsEver / 2) || (GetPlayerNumMajorsConquered(ePlayer) >= iNumCivsEver / 3);
+	bool bDangerous = (GC.getGame().GetNumMajorCivsAlive() <= iNumCivsEver / 2) || (GetPlayerNumMajorsConquered(ePlayer) >= iNumCivsEver / 3);
 
 	// If true, ignore backstabbing against anyone who isn't too important.
 	bool bBackstabber = IsBackstabber() && !bDangerous;
@@ -13944,7 +13961,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 		bGoodReason |= bEndgameAggressive;
 		bGoodReason |= bUntrustworthy;
 		bGoodReason |= IsCloseToWorldConquest() && GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER;
-		bGoodReason |= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() > 0; // they also backstabbed people
+		bGoodReason |= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount(GetID()) > 0; // they also backstabbed people
 		bGoodReason |= GetBiggestCompetitor() == ePlayer;
 		bGoodReason |= GetWarmongerThreat(ePlayer) >= THREAT_SEVERE;
 
@@ -18777,7 +18794,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (IsCompetingForVictory())
 	{
 		// Must be at least in the Medieval Era (or with few players / close to winning / already conquered a capital) to add weight for Domination Victory
-		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().countMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
+		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().GetNumMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 		{
 			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 			{
@@ -18841,7 +18858,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						{
 							iStrengthFactor++;
 						}
-						if (IsBackstabber() && pTheirDiplo->GetWeDeclaredWarOnFriendCount() > 0 && !bUntrustworthy) // Backstabbing conquerors like other backstabbers
+						if (IsBackstabber() && pTheirDiplo->GetWeDeclaredWarOnFriendCount(GetID()) > 0 && !bUntrustworthy) // Backstabbing conquerors like other backstabbers
 						{
 							iStrengthFactor += 2;
 						}
@@ -19501,7 +19518,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// DUEL - There's only 2 players in this game
 	////////////////////////////////////
 
-	if (GC.getGame().countMajorCivsAlive() == 2)
+	if (GC.getGame().GetNumMajorCivsAlive() == 2)
 	{
 		if (IsCompetingForVictory())
 		{
@@ -20973,8 +20990,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 /// Who are our major competitors?
 void CvDiplomacyAI::DoUpdateMajorCompetitors()
 {
-	int iNumMajorsAlive = GC.getGame().countMajorCivsAlive();
-	int iDangerThreshold = GC.getGame().countMajorCivsEverAlive() * 33 / 100;
+	int iNumMajorsAlive = GC.getGame().GetNumMajorCivsAlive();
+	int iDangerThreshold = GC.getGame().GetNumMajorCivsEver() * 33 / 100;
 	bool bCloseToDominationVictory = IsCloseToWorldConquest();
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 	bool bCloseToCultureVictory = IsCloseToCultureVictory();
@@ -22893,7 +22910,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 		return false;
 
 	//No DPs if last two!
-	if (GC.getGame().countMajorCivsAlive() <= 2)
+	if (GC.getGame().GetNumMajorCivsAlive() <= 2)
 		return false;
 
 	// Untrustworthy?
@@ -27253,6 +27270,39 @@ bool CvDiplomacyAI::IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueSc
 	if (GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0)
 		return false;
 
+	// If they're a vassal, estimate if their master will protect them
+	// This estimate can be inaccurate, and that's intended (to avoid AI cheating, to trigger the diplo bonus, and to make things interesting)
+	TeamTypes eTheirMaster = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster();
+	if (eTheirMaster != NO_TEAM && eTheirMaster != GetTeam() && GET_TEAM(GetTeam()).isHasMet(eTheirMaster))
+	{
+		vector<PlayerTypes> vMasterTeam = GET_TEAM(eTheirMaster).getPlayers();
+		for (size_t i=0; i < vMasterTeam.size(); i++)
+		{
+			CvPlayer* pMaster = &GET_PLAYER(vMasterTeam[i]);
+			if (!pMaster->isAlive() || pMaster->getNumCities() == 0)
+				continue;
+
+			// We are afraid of the master - abort!
+			// OK to check this because SelectBestApproachTowardsMajorCiv() is not called for vassals
+			if (GetCivApproach(vMasterTeam[i]) == CIV_APPROACH_AFRAID)
+				return false;
+
+			// This master is not strong enough to protect them.
+			// Note: Vassal will check raw military strength (w/o Boldness) while demander will check target value with a Boldness reduction
+			// These values will not always match, allowing for deliberate inaccuracy
+			if (GetTargetValue(vMasterTeam[i]) < TARGET_VALUE_AVERAGE)
+				continue;
+
+			// Is their master neighbors with us?
+			if (pMaster->GetProximityToPlayer(GetID()) == PLAYER_PROXIMITY_NEIGHBORS)
+				return false;
+
+			// Master is at least as close to them as we are?
+			if (pMaster->GetProximityToPlayer(ePlayer) >= GetPlayer()->GetProximityToPlayer(ePlayer))
+				return false;
+		}
+	}
+
 	// Do they even have anything worthwhile to give us?
 	iDemandValueScore = GetPlayerDemandValueScore(ePlayer);
 	if (iDemandValueScore <= 0)
@@ -28224,7 +28274,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	if (IsAlwaysAtWar(ePlayer))
 		return true;
 	
-	if (GC.getGame().countMajorCivsAlive() == 2)
+	if (GC.getGame().GetNumMajorCivsAlive() == 2)
 		return true;
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -36530,6 +36580,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_TOO_SOON");
 		break;
 
+		// Human makes demand of us, and we say our master will protect us from them
+	case DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER:
+		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER", strOptionalKey1);
+		break;
+
 		//////////////////////////////////////////////////////////////
 		// AI popped up to tell the human something, human responded and now we're responding back
 		//////////////////////////////////////////////////////////////
@@ -39050,24 +39105,57 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Demand agreed to
 			if (eResponse == DEMAND_RESPONSE_ACCEPT)
 			{
-				strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_YES);
+				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_YES);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_YES);
 			}
 			// Demand rebuffed
 			else
 			{
-				// Todo: Separate response text for when a vassal is protected by their master.
-				if (eResponse == DEMAND_RESPONSE_REFUSE_WEAK || eResponse == DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER)
-					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_WEAK);
+				switch (eResponse)
+				{
+				case DEMAND_RESPONSE_REFUSE_WEAK:
+					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_WEAK);
+					break;
+				case DEMAND_RESPONSE_REFUSE_HOSTILE:
+					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_HOSTILE);
+					break;
+				case DEMAND_RESPONSE_REFUSE_TOO_MUCH:
+					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_MUCH);
+					break;
+				case DEMAND_RESPONSE_REFUSE_TOO_SOON:
+				case DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE:
+					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON);
+					break;
+				case DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER:
+				{
+					PlayerTypes eProtector = NO_PLAYER;
+					TeamTypes eOurMaster = GET_TEAM(GetTeam()).GetMaster();
+					vector<PlayerTypes> vMasterTeam = GET_TEAM(eOurMaster).getPlayers();
+					for (size_t i=0; i < vMasterTeam.size(); i++)
+					{
+						// Find the first player on the master's team who triggered this response, see CvDealAI::GetDemandResponse()
+						CvPlayer* pMaster = &GET_PLAYER(vMasterTeam[i]);
+						if (!pMaster->isAlive() || pMaster->getNumCities() == 0)
+							continue;
 
-				else if (eResponse == DEMAND_RESPONSE_REFUSE_HOSTILE)
-					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_HOSTILE);
+						if (pMaster->GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(eFromPlayer) > STRENGTH_AVERAGE)
+							continue;
 
-				else if (eResponse == DEMAND_RESPONSE_REFUSE_TOO_MUCH)
-					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_MUCH);
+						if (GetVassalProtectValue(vMasterTeam[i]) < 0)
+							continue;
 
-				else if (eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON || eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE)
-					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON);
+						// Is our master neighbors with them?
+						if (pMaster->GetProximityToPlayer(eFromPlayer) == PLAYER_PROXIMITY_NEIGHBORS || pMaster->GetProximityToPlayer(eMyPlayer) >= GET_PLAYER(eFromPlayer).GetProximityToPlayer(eMyPlayer))
+							eProtector = vMasterTeam[i];
+					}
+					ASSERT(eProtector != NO_PLAYER);
+					const char* strProtectorCivKey = GET_PLAYER(eProtector).getCivilizationShortDescriptionKey();
+					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER, NO_PLAYER, strProtectorCivKey);
+					break;
+				}
+				default:
+					UNREACHABLE();
+				}
 
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_NO);
 			}
@@ -42104,15 +42192,77 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 	// We refused the demand
 	else
 	{
-		if (eResponse != DEMAND_RESPONSE_REFUSE_TOO_SOON) // Purely for human UI, since AI won't make demands often enough to trigger a DEMAND_RESPONSE_REFUSE_TOO_SOON response
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumConsecutiveDemandsTheyAccepted(GetID(), 0);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumConsecutiveDemandsTheyAccepted(GetID(), 0);
+
+		// Reset the turn counter for the penalty
+		SetDemandMadeTurn(ePlayer, GC.getGame().getGameTurn());
 
 		// Prevent exploit wherein the human spams the demand button to reduce AI Opinion - only allow for one penalty unless the demand is accepted
 		if (GetNumDemandsMade(ePlayer) <= 0)
+		{
 			SetNumDemandsMade(ePlayer, 1);
 
-		// Do, however, reset the turn counter for the penalty
-		SetDemandMadeTurn(ePlayer, GC.getGame().getGameTurn());
+			// Did our master protect us from this demand? This counts for protection value!
+			if (eResponse == DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER)
+			{
+				StrengthTypes eDemanderStrength = GetMilitaryStrengthComparedToUs(ePlayer);
+				TeamTypes eOurMaster = GET_TEAM(GetTeam()).GetMaster();
+				vector<PlayerTypes> vMasterTeam = GET_TEAM(eOurMaster).getPlayers();
+				for (size_t i=0; i < vMasterTeam.size(); i++)
+				{
+					// Find all players on the master's team who would have triggered this response, see CvDealAI::GetDemandResponse()
+					CvPlayer* pMaster = &GET_PLAYER(vMasterTeam[i]);
+					if (!pMaster->isAlive() || pMaster->getNumCities() == 0)
+						continue;
+
+					if (pMaster->GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+						continue;
+
+					// No bonus if they have a penalty for failing to protect us.
+					if (GetVassalProtectValue(vMasterTeam[i]) < 0)
+						continue;
+
+					if (pMaster->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS || pMaster->GetProximityToPlayer(GetID()) >= GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
+					{
+						// Note that the master's strength will be factored into the vassal's strength evaluation of the demander already, so it's OK to be a little generous here
+						int iPercentageOfMaxProtectValue = 0;
+						switch (eDemanderStrength)
+						{
+						case STRENGTH_WEAK:
+							iPercentageOfMaxProtectValue = 5;
+							break;
+						case STRENGTH_POOR:
+							iPercentageOfMaxProtectValue = 10;
+							break;
+						case STRENGTH_AVERAGE:
+							iPercentageOfMaxProtectValue = 15;
+							break;
+						case STRENGTH_STRONG:
+							iPercentageOfMaxProtectValue = 20;
+							break;
+						case STRENGTH_POWERFUL:
+							iPercentageOfMaxProtectValue = 25;
+							break;
+						case STRENGTH_IMMENSE:
+							iPercentageOfMaxProtectValue = 30;
+							break;
+						default:
+							iPercentageOfMaxProtectValue = 3;
+							break;
+						}
+
+						// Protection from demands can't exceed 50% of max protect value
+						int iMaxValue = GetVassalProtectValue(vMasterTeam[i]);
+						int iBonus = iMaxValue * iPercentageOfMaxProtectValue / 100;
+						int iMaxBonus = iMaxValue * 50 / 100;
+						if (GetVassalProtectValue(vMasterTeam[i]) + iBonus >= iMaxBonus)
+							SetVassalProtectValue(vMasterTeam[i], iMaxBonus);
+						else
+							ChangeVassalProtectValue(vMasterTeam[i], iBonus);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -42868,8 +43018,8 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 					if (EstimateForgiveness(eLoopPlayer) > 8)
 						iFriendDenounceTolerance++;
 
-					int iNumCivsEver = GC.getGame().countMajorCivsEverAlive();
-					bool bDangerous = (GC.getGame().countMajorCivsAlive() <= iNumCivsEver / 2) || (GetPlayerNumMajorsConquered(GetID()) >= iNumCivsEver / 3);
+					int iNumCivsEver = GC.getGame().GetNumMajorCivsEver();
+					bool bDangerous = (GC.getGame().GetNumMajorCivsAlive() <= iNumCivsEver / 2) || (GetPlayerNumMajorsConquered(GetID()) >= iNumCivsEver / 3);
 
 					if (bDangerous)
 						iFriendDenounceTolerance = 1;
@@ -55146,7 +55296,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 {
 	// No voluntary capitulation if there's less than 50% of the players ever alive
-	if (GC.getGame().countMajorCivsAlive() < (GC.getGame().countMajorCivsEverAlive() / 2))
+	if (GC.getGame().GetNumMajorCivsAlive() < (GC.getGame().GetNumMajorCivsEver() / 2))
 		return false;
 
 	// Never acceptable if they've refused to give us independence!

@@ -809,7 +809,7 @@ int CvStartPositioner::StartingPlotRange() const
 	iRange /= 100;
 
 	// Now compute how many cities we expect on the map (we'll say just 1 for each minor civ)
-	iNumMajors = GC.getGame().countMajorCivsAlive();
+	iNumMajors = GC.getGame().GetNumMajorCivsAlive();
 	iNumMinors = GC.getGame().countCivPlayersAlive() - iNumMajors;
 	iExpectedCities = GC.getMap().getWorldInfo().getTargetNumCities() * iNumMajors;
 	iExpectedCities += iNumMinors;

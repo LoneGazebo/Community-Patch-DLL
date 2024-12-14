@@ -94,6 +94,12 @@
 			<Response>TXT_KEY_GENERIC_RESPONSE_COOP_WAR_WARNING%</Response>
 		</Row>
 
+		<!-- Human makes a demand -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER</ResponseType>
+			<Response>TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER%</Response>
+		</Row>
+
 		<!-- AI requests help -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>

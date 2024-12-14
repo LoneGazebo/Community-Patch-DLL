@@ -106,6 +106,10 @@ public:
 	int getAdjustedPopulationPercent(VictoryTypes eVictory) const;
 	int getAdjustedLandPercent(VictoryTypes eVictory) const;
 
+	int GetNumMajorCivsEver(bool bOnlyStart = false) const;
+	int GetNumMajorCivsAlive() const;
+	int GetNumMinorCivsEver(bool bOnlyStart = false) const;
+	int GetNumMinorCivsAlive() const;
 	int countCivPlayersAlive() const;
 	int countCivPlayersEverAlive() const;
 	int countCivTeamsAlive() const;
@@ -114,8 +118,6 @@ public:
 	int countHumanPlayersEverAlive() const;
 	int countSeqHumanTurnsUntilPlayerTurn(PlayerTypes playerID) const;
 
-	int countMajorCivsAlive() const;
-	int countMajorCivsEverAlive() const;
 	int countTotalCivPower();
 	int countTotalNukeUnits();
 	int countKnownTechNumTeams(TechTypes eTech);
@@ -141,9 +143,6 @@ public:
 	void ReviveActivePlayer();
 
 	int getNumHumanPlayers();
-	int GetNumMajorCivsEver(bool bOnlyStart = false) const;
-	int GetNumMinorCivsEver(bool bOnlyStart = false) const;
-	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 

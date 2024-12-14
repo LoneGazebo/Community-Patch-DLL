@@ -1096,6 +1096,16 @@
 		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_WEAK_8">
 			<Text>Not a chance. Perhaps you should try such tactics on someone less capable than I.</Text>
 		</Row>
+		<!-- Reject demand (AI is protected by master) -->
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER_1">
+			<Text>Ha! You'll need to defeat {1_CivName} before extracting such concessions from me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER_2">
+			<Text>We are protected by {1_CivName}. Take your avaricious pleas to them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_PROTECTED_BY_MASTER_3">
+			<Text>Your greed knows no bounds. Thankfully, {1_CivName} will protect us from you.</Text>
+		</Row>
 		<!-- Reject demand (human untrustworthy, we're planning war with them, or our boldness is 10) -->
 		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_6">
 			<Text>You will get nothing from me, tyrant.</Text>

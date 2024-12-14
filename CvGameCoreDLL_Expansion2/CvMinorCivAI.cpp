@@ -7290,7 +7290,7 @@ int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
 		iPlayersNeeded = 3;
 	}
 
-	int iMajorsEverAlive = GC.getGame().countMajorCivsEverAlive();
+	int iMajorsEverAlive = GC.getGame().GetNumMajorCivsEver();
 	iPlayersNeeded = min(iPlayersNeeded, iMajorsEverAlive);
 
 	return iPlayersNeeded;
@@ -9949,7 +9949,7 @@ bool CvMinorCivAI::IsValidRebellion()
 	}
 	if (iActiveRebellions > 0)
 	{
-		int iActivePlayers = GC.getGame().countMajorCivsAlive();
+		int iActivePlayers = GC.getGame().GetNumMajorCivsAlive();
 		//Let's make this more granular.
 		iActiveRebellions  *= 100;
 		iActivePlayers *= 10;

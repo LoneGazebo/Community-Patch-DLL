@@ -1971,7 +1971,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 
 	//Autocracy is usually a sure bet for conquest strategy.
 	//More than half of all Capitals?
-	if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
+	if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().GetNumMajorCivsEver() / 2)))
 	{
 		iConquestPriority *= GET_PLAYER(ePlayer).GetNumCapitalCities() * 20;
 	}
@@ -2033,7 +2033,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	}
 
 	//Influential on a lot of civs?
-	if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() >= (GC.getGame().countMajorCivsEverAlive() / 2))
+	if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() >= (GC.getGame().GetNumMajorCivsEver() / 2))
 	{
 		iCulturePriority *= (GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() * 5);
 	}

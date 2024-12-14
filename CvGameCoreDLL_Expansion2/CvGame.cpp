@@ -1458,7 +1458,7 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 //	--------------------------------------------------------------------------------
 void CvGame::assignStartingPlots()
 {
-	 GetStartPositioner()->Run(countMajorCivsAlive());
+	GetStartPositioner()->Run(GetNumMajorCivsAlive());
 }
 
 #if defined(EXTERNAL_PAUSING)
@@ -4036,6 +4036,64 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvGame::GetNumMajorCivsEver(bool bOnlyStart) const
+{
+	if (bOnlyStart)
+		return m_iNumMajorCivsAliveAtGameStart;
+
+	int iCount = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMajorLoop).isEverAlive())
+			iCount++;
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::GetNumMajorCivsAlive() const
+{
+	int iCount = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMajorLoop).isAlive())
+			iCount++;
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::GetNumMinorCivsEver(bool bOnlyStart) const
+{
+	if (bOnlyStart)
+		return m_iNumMinorCivsAliveAtGameStart;
+
+	int iCount = 0;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMinorLoop).isEverAlive())
+			iCount++;
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::GetNumMinorCivsAlive() const
+{
+	int iCount = 0;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMinorLoop).isAlive())
+			iCount++;
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
 int CvGame::countCivPlayersAlive() const
 {
 	int iCount = 0;
@@ -4231,47 +4289,6 @@ int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
 	}
 
 	return humanTurnsUntilMe;
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::countMajorCivsAlive() const
-{
-	int iCount = 0;
-
-	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		if(GET_PLAYER((PlayerTypes)iI).isAlive())
-		{
-			if(!GET_PLAYER((PlayerTypes)iI).isMinorCiv())
-			{
-				iCount++;
-			}
-		}
-	}
-
-	return iCount;
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::countMajorCivsEverAlive() const
-{
-	int iCount = 0;
-	int iI = 0;
-
-	iCount = 0;
-
-	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		if(GET_PLAYER((PlayerTypes)iI).isEverAlive())
-		{
-			if(!GET_PLAYER((PlayerTypes)iI).isMinorCiv())
-			{
-				iCount++;
-			}
-		}
-	}
-
-	return iCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4571,58 +4588,6 @@ void CvGame::ReviveActivePlayer()
 int CvGame::getNumHumanPlayers()
 {
 	return CvPreGame::numHumans();
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::GetNumMajorCivsEver(bool bOnlyStart) const
-{
-	if (bOnlyStart)
-		return m_iNumMajorCivsAliveAtGameStart;
-
-	int iNumCivs = 0;
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		if (GET_PLAYER((PlayerTypes)iMajorLoop).isEverAlive())
-		{
-			iNumCivs++;
-		}
-	}
-
-	return iNumCivs;
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::GetNumMinorCivsEver(bool bOnlyStart) const
-{
-	if (bOnlyStart)
-		return m_iNumMinorCivsAliveAtGameStart;
-
-	int iNumCivs = 0;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		if(GET_PLAYER((PlayerTypes) iMinorLoop).isEverAlive())
-		{
-			iNumCivs++;
-		}
-	}
-
-	return iNumCivs;
-}
-
-//	--------------------------------------------------------------------------------
-int CvGame::GetNumMinorCivsAlive()
-{
-	int iNumCivs = 0;
-
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		if(GET_PLAYER((PlayerTypes) iMinorLoop).isAlive())
-		{
-			iNumCivs++;
-		}
-	}
-
-	return iNumCivs;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10809,7 +10774,7 @@ int CvGame::GetSpyThreshold() const
 	// failsafe: if initSpyThreshold has not been called yet for some reason, calculate the threshold based on the number of players ever alive
 	if (m_iSpyThreshold == 0)
 	{
-		int iTempThreshold = 100 * /*20*/ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(false) + /*2*/ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(false));
+		int iTempThreshold = 100 * /*20*/ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(false) + /*2*/ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver());
 		iTempThreshold = range(iTempThreshold, /*33*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /*100*/ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
 		return iTempThreshold;
 	}
@@ -13217,7 +13182,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	};
 
 	// find how many dig sites we need to create
-	const int iNumMajorCivs = countMajorCivsEverAlive();
+	const int iNumMajorCivs = GetNumMajorCivsEver();
 	const int iMinDigSites = iNumMajorCivs * /*5*/ GD_INT_GET(MIN_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
 	const int iMaxDigSites = iNumMajorCivs * /*8*/ GD_INT_GET(MAX_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
 	const int iIdealNumDigSites = iMinDigSites + getJonRandNum(iMaxDigSites - iMinDigSites, "dig sites");
