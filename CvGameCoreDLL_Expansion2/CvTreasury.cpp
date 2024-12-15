@@ -1047,14 +1047,21 @@ int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam, bool bIncludePopulatio
 void CvTreasury::CalculateExpensePerTurnFromVassalTaxes()
 {
 	TeamTypes eMaster = GET_TEAM(m_pPlayer->getTeam()).GetMaster();
-	if(eMaster == NO_TEAM) {
-		if(GetExpensePerTurnFromVassalTaxes() != 0)
-			SetExpensePerTurnFromVassalTaxesTimes100(0);
+	if (eMaster == NO_TEAM)
+	{
+		SetExpensePerTurnFromVassalTaxesTimes100(0);
 		return;
 	}
-	int iNet = CalculateGrossGoldTimes100();
-	int iTax = iNet * GET_TEAM(eMaster).GetVassalTax(m_pPlayer->GetID()) / 100;
 
+	int iNet = CalculateGrossGoldTimes100();
+	if (iNet <= 0)
+	{
+		// Can't tax us if we're broke or in the red!
+		SetExpensePerTurnFromVassalTaxesTimes100(0);
+		return;
+	}
+
+	int iTax = iNet * GET_TEAM(eMaster).GetVassalTax(m_pPlayer->GetID()) / 100;
 	SetExpensePerTurnFromVassalTaxesTimes100(iTax);
 }
 
@@ -1066,6 +1073,12 @@ int CvTreasury::CalculateProjectedExpensePerTurnFromVassalTaxes(int iProjectedTa
 		return 0;
 
 	int iNet = CalculateGrossGoldTimes100();
+	if (iNet <= 0)
+	{
+		// Can't tax us if we're broke or in the red!
+		return 0;
+	}
+
 	int iTax = iNet * iProjectedTaxRate / 100;
 	return iTax;
 }

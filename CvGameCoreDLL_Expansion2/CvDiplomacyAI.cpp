@@ -397,7 +397,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bAvoidDeals = false;
 	m_bIgnoreWarmonger = false;
 	m_eVassalPlayerToLiberate = NO_PLAYER;
-	
+
 	m_aGreetPlayers.clear();
 
 	m_eDiploMode = DIPLO_ALL_PLAYERS;
