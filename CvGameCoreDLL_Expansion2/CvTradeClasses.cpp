@@ -677,9 +677,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				if (iTotalValue > 0)
 				{
 					//subtract interest. 100 gold now is better than 100 gold in the future
-					int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
-					iTotalValue -= iTotalValue * iInterestPercent / 100;
-					GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, max(iTotalValue / 5, 1));
+					int iInterestPercent = /*25*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iTurns / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+					iTotalValue *= 100;
+					iTotalValue /= 100 + max(iInterestPercent, 0);
+					GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTotalValue / 5);
 				}
 			}
 			if (!GET_PLAYER(eDestPlayer).isHuman())
@@ -691,9 +692,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				if (iTotalValue > 0)
 				{
 					//subtract interest. 100 gold now is better than 100 gold in the future
-					int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
-					iTotalValue -= iTotalValue * iInterestPercent / 100;
-					GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, max(iTotalValue / 5, 1));
+					int iInterestPercent = /*25*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iTurns / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+					iTotalValue *= 100;
+					iTotalValue /= 100 + max(iInterestPercent, 0);
+					GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTotalValue / 5);
 				}
 			}
 		}

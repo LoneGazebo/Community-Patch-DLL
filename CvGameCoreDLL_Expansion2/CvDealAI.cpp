@@ -926,8 +926,8 @@ int CvDealAI::GetOneGPTValue(bool bPeaceDeal) const
 {
 	int iGPTValue = bPeaceDeal ? GC.getGame().getGameSpeedInfo().getPeaceDealDuration() : GC.getGame().getGameSpeedInfo().GetDealDuration();
 	// subtract interest. 100 gold now is better than 100 gold in the future
-	iGPTValue *= /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT);
-	iGPTValue /= 100;
+	iGPTValue *= 100;
+	iGPTValue /= 100 + /*25*/ max(GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT), 0);
 	return max(1, iGPTValue);
 }
 
@@ -1255,8 +1255,9 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	if (bNumGPTFromValue)
 	{
 		//add interest. 100 gold now is better than 100 gold in the future
-		int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
-		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
+		int iInterestPercent = /*25*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+		iGPTorValue *= 100 + max(iInterestPercent, 0);
+		iGPTorValue /= 100;
 
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 		int iRound = 0;
@@ -1294,8 +1295,9 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
-		int iInterestPercent = ((100 - /*75*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT)) * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
-		iValueTimes100 -= (iGPTorValue*iInterestPercent) / 100;
+		int iInterestPercent = /*25*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+		iValueTimes100 *= 100;
+		iValueTimes100 /= 100 + max(iInterestPercent, 0);
 	}
 
 	int iReturnValue = iValueTimes100;
