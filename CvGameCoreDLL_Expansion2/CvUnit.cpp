@@ -15602,40 +15602,36 @@ bool CvUnit::IsWorking() const
 int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 {
 	VALIDATE_OBJECT
-	if(!bMax)
-	{
-		if(!canMove())
-		{
-			return 0;
-		}
-	}
+	if (!bMax && !canMove())
+		return 0;
 
 	int iRate = m_pUnitInfo->GetWorkRate();
-
-#if defined(MOD_BALANCE_CORE)
-	if(iRate <= 0)
+	if (iRate <= 0)
 	{
-		for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+		for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 		{
 			const BuildTypes eBuild = static_cast<BuildTypes>(iI);
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-			if(pkBuildInfo)
+			if (pkBuildInfo && GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()))
 			{
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()))
-				{
-					iRate = 100;
-					break;
-				}
+				iRate = 100;
+				break;
 			}
 		}
 	}
+
+	// Work Rate of 1 is used for instant builds
+	if (iRate <= 1)
+		return iRate;
+
+	if (MOD_CIV6_WORKER)
+		return 1;
 
 	int Modifiers = 0;
 	if (MOD_BALANCE_CORE_BARBARIAN_THEFT && GetWorkRateMod() != 0)
 	{
 		Modifiers += GetWorkRateMod();
 	}
-#endif
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -15653,11 +15649,6 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	iRate *= Modifiers + 100;
 	iRate /= 100;
-
-	if (MOD_CIV6_WORKER)
-	{
-		iRate = 1;
-	}
 
 	return iRate;
 }
@@ -26881,6 +26872,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			{
 				// Is this a plague that we're immune to? Abort!
 				if (ImmuneToPlague(iPlagueID))
+					return;
+
+				// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
+				if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
 					return;
 
 				// If we just got a plague, remove any weaker version of the plague
