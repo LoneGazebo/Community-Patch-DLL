@@ -10985,6 +10985,20 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		{
 			iAlignment -= 1;
 		}
+
+		// Vassals of same master?
+		TeamTypes eMyTeam = GetPlayer()->getTeam();
+		TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
+		TeamTypes eMaster = GET_TEAM(eMyTeam).GetMaster();
+		if (eMaster != NO_TEAM && GET_TEAM(eTheirTeam).GetMaster() == eMaster)
+		{
+			bool bWeAreVoluntary = GET_TEAM(eMyTeam).IsVoluntaryVassal(eMaster);
+			bool bTheyAreVoluntary = GET_TEAM(eTheirTeam).IsVoluntaryVassal(eMaster);
+			if ((bWeAreVoluntary && bTheyAreVoluntary) || (!bWeAreVoluntary && !bTheyAreVoluntary))
+				iAlignment += 4;
+			else
+				iAlignment += 2;
+		}
 	}
 
 	// Encourage bloc formation
