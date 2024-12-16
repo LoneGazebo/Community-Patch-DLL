@@ -7896,7 +7896,7 @@ int CvDiplomacyAI::GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::SetNegativeArchaeologyPoints(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iValue >= 0 && NotMe(ePlayer));
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && iValue >= 0 && NotTeam(ePlayer));
 	m_aiNegativeArchaeologyPoints[ePlayer] = min(iValue, UCHAR_MAX);
 
 	if (iValue > 0)

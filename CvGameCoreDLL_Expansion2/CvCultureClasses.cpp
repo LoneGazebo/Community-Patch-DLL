@@ -3060,7 +3060,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
+			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
 				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
 			}
@@ -3118,7 +3118,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
+			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
 				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
 			}
@@ -3177,7 +3177,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
+			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
 				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
 			}
@@ -3236,7 +3236,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
-			if (pUnit && pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
+			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{
 				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
 			}

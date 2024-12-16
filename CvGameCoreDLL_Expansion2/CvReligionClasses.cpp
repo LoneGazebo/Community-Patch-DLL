@@ -5655,7 +5655,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		}
 
 		// Diplo implications (there must have been religion switch and a responsible party)
-		if (eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)
+		if (eMajority != eOldMajority && eResponsibleParty != NO_PLAYER && GET_PLAYER(eResponsibleParty).getTeam() != m_pCity->getTeam())
 		{
 			// Is the city owner not the founder of this religion?
 			if (pNewReligion->m_eFounder != m_pCity->getOwner())
