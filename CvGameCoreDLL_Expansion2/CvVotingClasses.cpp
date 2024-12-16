@@ -10763,10 +10763,13 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			iReligionMod *= 2;
 		}
 
-		// Don't care at all if we're a vassal, this is covered in CvDiplomacyAI::GetVassalTreatedScore().
+		// Don't care at all under most circumstances if we're a vassal, this is covered in CvDiplomacyAI::GetVassalTreatedScore().
+		// There is one circumstance where we should still care: if the master has adopted our religion - then they get the bonus.
 		if (bWeAreVassal)
 		{
-			iReligionMod = 0;
+			ReligionTypes eOwnedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
+			if (eOwnedReligion == NO_RELIGION || eOwnedReligion != eTheirReligion)
+				iReligionMod = 0;
 		}
 
 		iAlignment += iReligionMod;

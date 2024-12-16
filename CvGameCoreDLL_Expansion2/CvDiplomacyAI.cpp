@@ -48131,12 +48131,8 @@ int CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 
-	int iGoldCollectedSinceVassalStarted = GetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer); 
-	if (iGoldCollectedSinceVassalStarted == 0)
-		return 0;
-
 	int iGoldTaxedSinceVassalStarted = GetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer);
-	int iPercentTaxed = iGoldTaxedSinceVassalStarted * 100 / iGoldCollectedSinceVassalStarted;
+	int iPercentTaxed = iGoldTaxedSinceVassalStarted * 100 / max(iGoldCollectedSinceVassalStarted, 1);
 
 	// Opinion weight from how much % we've taxed them
 	iOpinionWeight = ((int) pow((float)iPercentTaxed, /*1.5f*/ GD_FLOAT_GET(OPINION_WEIGHT_VASSAL_TAX_EXPONENT))) / max(/*4*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_TAX_DIVISOR), 1);
