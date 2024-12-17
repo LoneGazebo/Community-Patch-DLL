@@ -448,8 +448,6 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 
 	cvStopWatch kPerfTest("Validating Game Database", "xml-perf.log");
 	bool bError = false;
-	
-	ASSERT(false, "test");
 
 	LogMsg("**** Validating Game Database *****");
 
