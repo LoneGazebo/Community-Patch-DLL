@@ -5,8 +5,7 @@
 //!		This file includes assertion macros used by Civilization.
 //!
 //!  Key Macros:
-//!  - CvAssert(expr)				- assertions w/ no message
-//!	 - CvAssertMsg(expr, msg, ...)  - assertions w/ printf style messages
+//!  - CvAssert(expr, ...)			- assertions w/ printf style messages
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifndef _CVASSERT_H
 #define _CVASSERT_H
@@ -32,29 +31,25 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 #ifdef CVASSERT_ENABLE 
 
-// CvAssertMsg shows a message dialog if expr is false and CVASSERT_ENABLE is defined.
-// Unlike PRECONDITION_MSG, a failed assertion does not cause the game to crash
-#define CvAssertMsg(expr, msg, ...)															\
+// shows a message dialog if expr is false and CVASSERT_ENABLE is defined.
+// Unlike PRECONDITION, a failed assertion does not cause the game to crash
+#define ASSERT(expr, ...)																\
 {																							\
 	static bool bIgnoreAlways = false;														\
 	if( !bIgnoreAlways && !(expr) )								                			\
 	{																						\
 		CvString str;																		\
-		CvString::format(str, msg, __VA_ARGS__);											\
+		CvString::format(str, __VA_ARGS__);													\
 		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, str.c_str()))				\
 			{ CVASSERT_BREAKPOINT; }														\
 	}																						\
 }
 
-#define CvAssert( expr ) CvAssertMsg(expr, "")
-
 // An assert that only happens in the when CVASSERT_ENABLE is true AND it is a debug build
 #ifdef _DEBUG
-#define CvAssert_Debug( expr ) CvAssertMsg(expr, "")
-#define CvAssertMsg_Debug(expr, msg) CvAssertMsg(expr, msg)
+#define CvAssert_Debug( expr, ...) CvAssertMsg( expr, __VA_ARGS__)
 #else
-#define CvAssert_Debug(expr)
-#define CvAssertMsg_Debug(expr, msg)
+#define CvAssert_Debug(expr, ...)
 #endif
 
 #if 0 // disabling Object Validation
@@ -96,10 +91,8 @@ struct ObjectValidator
 
 #else	//CVASSERT_ENABLE == FALSE
 
-#define CvAssertMsg(expr, msg, ...)
 #define CvAssert(expr)
 #define CvAssert_Debug(expr)
-#define CvAssertMsg_Debug(expr, msg)
 
 #define OBJECT_VALIDATE_DEFINITION(ObjectType)
 #define OBJECT_ALLOCATED
