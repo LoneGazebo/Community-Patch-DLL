@@ -5899,7 +5899,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 	}
 
 	char szMessage[256];
-	sprintf_s(szMessage, "Please send Jon this with your last 5 autosaves and what changelist # you're playing. Could not find diplomacy response. Leader - %s, Response - %s", szLeader, szResponse);
+	sprintf_s(szMessage, "Could not find diplomacy response. Leader - %s, Response - %s", szLeader, szResponse);
 	CvAssertMsg(false, szMessage);
 
 	// Shouldn't be here
@@ -8858,7 +8858,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 			if(pkUnitClassInfo == NULL)
 			{
-				CvAssertMsg(false, "UnitClassInfo is NULL. Please send Anton your save file and version.");
+				CvAssertMsg(false, "UnitClassInfo is NULL.");
 				continue;
 			}
 			
@@ -8909,7 +8909,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (ePrereqTech != NO_TECH)
 			{
 				CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
-				CvAssertMsg(pkTechInfo, "Tech info not found when picking unique unit for minor civ. Please send Anton your save file and version!");
+				CvAssertMsg(pkTechInfo, "Tech info not found when picking unique unit for minor civ.");
 				if (pkTechInfo)
 				{
 					ePrereqEra = (EraTypes) pkTechInfo->GetEra();
@@ -9125,7 +9125,7 @@ void CvGame::updateMoves()
 										CvString strTemp = entry->GetDescription();
 										CvString szAssertMessage;
 										szAssertMessage.Format(
-										    "GAME HANG - Please show Ed and send save. Stuck units will have their turn ended so game can advance. [DETAILS: Player %i %s. First stuck unit is %s at (%d, %d)]",
+										    "GAME HANG - Stuck units will have their turn ended so game can advance. [DETAILS: Player %i %s. First stuck unit is %s at (%d, %d)]",
 										    player.GetID(), player.getName(), strTemp.GetCString(), pReadyUnit->getX(), pReadyUnit->getY());
 										CvAssertMsg(false, szAssertMessage);
 										NET_MESSAGE_DEBUG_OSTR_ALWAYS(szAssertMessage);
@@ -11807,7 +11807,7 @@ void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, boo
 
 	if (bProtect)
 	{
-		CvAssertMsg(GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorProtect(eMajor, false), "eMajor is not allowed to protect this minor! Please send Anton your save file and version.");
+		CvAssertMsg(GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorProtect(eMajor, false), "eMajor is not allowed to protect this minor!");
 	}
 
 	gDLL->sendMinorPledgeProtection(eMajor, eMinor, bProtect, bPledgeNowBroken);
@@ -11968,10 +11968,10 @@ void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTyp
 //	--------------------------------------------------------------------------------
 int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const
 {
-	CvAssertMsg(ePlayer1 > NO_PLAYER, "Invalid player. Please show Jon this.");
-	CvAssertMsg(ePlayer1 <= MAX_MAJOR_CIVS, "Invalid player. Please show Jon this.");
-	CvAssertMsg(ePlayer2 > NO_PLAYER, "Invalid player. Please show Jon this.");
-	CvAssertMsg(ePlayer2 <= MAX_MAJOR_CIVS, "Invalid player. Please show Jon this.");
+	CvAssertMsg(ePlayer1 > NO_PLAYER, "Invalid player.");
+	CvAssertMsg(ePlayer1 <= MAX_MAJOR_CIVS, "Invalid player.");
+	CvAssertMsg(ePlayer2 > NO_PLAYER, "Invalid player.");
+	CvAssertMsg(ePlayer2 <= MAX_MAJOR_CIVS, "Invalid player.");
 
 	EraTypes ePlayer1Era = GET_TEAM(GET_PLAYER(ePlayer1).getTeam()).GetCurrentEra();
 	EraTypes ePlayer2Era = GET_TEAM(GET_PLAYER(ePlayer2).getTeam()).GetCurrentEra();

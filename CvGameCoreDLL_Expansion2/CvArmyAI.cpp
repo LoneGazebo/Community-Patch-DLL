@@ -550,7 +550,7 @@ CvPlot* CvArmyAI::GetGoalPlot() const
 /// Set target plot for army movement
 void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 {
-	CvAssertMsg(pGoalPlot, "Setting army goal to a NULL plot - please show Ed and send save.");
+	CvAssertMsg(pGoalPlot, "Setting army goal to a NULL plot.");
 
 	if(pGoalPlot)
 	{

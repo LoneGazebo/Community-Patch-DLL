@@ -5180,7 +5180,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 bool CvPolicyAI::IsBranchEffectiveInGame(PolicyBranchTypes eBranch)
 {
 	CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
-	CvAssertMsg(pBranchInfo, "Branch info not found! Please send Anton your save file and version.");
+	CvAssertMsg(pBranchInfo, "Branch info not found!");
 	if (!pBranchInfo) return false;
 	
 	if (pBranchInfo->IsDelayWhenNoReligion())

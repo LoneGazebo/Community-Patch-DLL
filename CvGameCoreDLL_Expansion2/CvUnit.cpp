@@ -1268,7 +1268,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL.");
 		if (pPlayer)
 		{
 			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
@@ -11512,10 +11512,10 @@ bool CvUnit::greatperson()
 	VALIDATE_OBJECT
 	CvPlot* pPlot = plot();
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL.");
 	if (!pPlayer) return false;
 	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
-	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL.");
 	if (!pTeam) return false;
 
 	if(pPlot->isActiveVisible())
@@ -11590,7 +11590,7 @@ int CvUnit::getDiscoverAmount()
 {
 	int iScience = 0;
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL.");
 	if (pPlayer)
 	{
 		// Beakers boost based on previous turns (no base value)
@@ -11625,10 +11625,10 @@ bool CvUnit::discover()
 	}
 
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL.");
 	if (!pPlayer) return false;
 	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
-	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL.");
 	if (!pTeam) return false;
 
 	// Beakers boost based on previous turns
@@ -12809,7 +12809,7 @@ int CvUnit::getGAPBlast()
 {
 	int iValue = 0;
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL.");
 	if (pPlayer)
 	{
 		// boost based on previous turns
@@ -15942,10 +15942,10 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 				int iUsed = kPlayer.getNumResourceUsed(eResource);
 				int iMissing = iUsed - kPlayer.getNumResourceTotal(eResource);
 
-				CvAssertMsg(iUsed > 0, "Number of used resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
+				CvAssertMsg(iUsed > 0, "Number of used resources is zero or negative, this is unexpected.");
 				if (iUsed <= 0)
 					continue;
-				CvAssertMsg(iMissing > 0, "Number of missing resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
+				CvAssertMsg(iMissing > 0, "Number of missing resources is zero or negative, this is unexpected.");
 				if (iMissing <= 0)
 					continue;
 

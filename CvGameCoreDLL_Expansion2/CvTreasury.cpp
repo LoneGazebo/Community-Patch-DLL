@@ -154,7 +154,7 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 	{
 		if(iNewValue < 0)
 		{
-			CvAssertMsg(false, "GAMEPLAY: Player is being set to a negative Gold value. Please send Jon this with your last 5 autosaves.");
+			CvAssertMsg(false, "GAMEPLAY: Player is being set to a negative Gold value.");
 		}
 
 		m_iGold = max(0,iNewValue);

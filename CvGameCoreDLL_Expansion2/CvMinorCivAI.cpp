@@ -4688,7 +4688,7 @@ void CvMinorCivAI::SetUniqueUnit(UnitTypes eUnit)
 {
 	CvAssertMsg(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC, "Setting a unique unit for a non-Militaristic City-State.  It will never be spawned without additional scripting.");
 	CvUnitEntry* pInfo = GC.getUnitInfo(eUnit);
-	CvAssertMsg(pInfo, "Setting a unique unit for a City-State that the game core could not identify. Please send Anton your save file and version.");
+	CvAssertMsg(pInfo, "Setting a unique unit for a City-State that the game core could not identify.");
 	if (pInfo)
 	{
 		m_eUniqueUnit = eUnit;
@@ -5570,7 +5570,7 @@ MinorCivStatusTypes CvMinorCivAI::GetStatus() const
 /// We have a new city! Add any special starting resources we get.
 void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 {
-	CvAssertMsg(pCityPlot != NULL, "City's plot should not be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pCityPlot != NULL, "City's plot should not be NULL.");
 	if (pCityPlot == NULL) return;
 
 	MinorCivTraitTypes eTrait = GetTrait();
@@ -12062,7 +12062,7 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 
 	PlayerTypes eMinor = GetPlayer()->GetID();
 	CvPlayer* pMajor = &GET_PLAYER(eMajor);
-	CvAssertMsg(pMajor, "MINOR CIV AI: pMajor not expected to be NULL.  Please send Anton your save file and version.");
+	CvAssertMsg(pMajor, "MINOR CIV AI: pMajor not expected to be NULL. ");
 	if (!pMajor) return 0;
 
 	int iEra = pMajor->GetCurrentEra();
@@ -12137,12 +12137,12 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 
 	// Religion
 	CvPlayerReligions* pMajorReligions = pMajor->GetReligions();
-	CvAssertMsg(pMajorReligions, "MINOR CIV AI: pMajorReligions not expected to be NULL.  Please send Anton your save file and version.");
+	CvAssertMsg(pMajorReligions, "MINOR CIV AI: pMajorReligions not expected to be NULL. ");
 	if (!pMajorReligions) return iAnchor;
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (!pMinorCapital) return iAnchor; // Happens when city was just captured, after buyout, etc., so just return the anchor value we have
 	CvCityReligions* pMinorCapitalReligions = pMinorCapital->GetCityReligions();
-	CvAssertMsg(pMinorCapitalReligions, "MINOR CIV AI: pMinorCapitalReligions not expected to be NULL.  Please send Anton your save file and version.");
+	CvAssertMsg(pMinorCapitalReligions, "MINOR CIV AI: pMinorCapitalReligions not expected to be NULL. ");
 	if (!pMinorCapitalReligions) return iAnchor;
 	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority(), eMajor);
 
@@ -15924,7 +15924,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
-	CvAssertMsg(fGameProgressFactor >= 0.0f, "fGameProgressFactor is not expected to be negative! Please send Anton your save file and version.");
+	CvAssertMsg(fGameProgressFactor >= 0.0f, "fGameProgressFactor is not expected to be negative!");
 	if(fGameProgressFactor > 1.0f)
 		fGameProgressFactor = 1.0f;
 
@@ -16566,13 +16566,13 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (pMinorCapital == NULL)
 	{
-		CvAssertMsg(false, "Trying to take tribute but the minor has no capital. Please send Anton your save file and version.");
+		CvAssertMsg(false, "Trying to take tribute but the minor has no capital.");
 		return;
 	}
 	CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 	if (pBullyCapital == NULL)
 	{
-		CvAssertMsg(false, "Trying to take tribute without having a capital. Please send Anton your save file and version.");
+		CvAssertMsg(false, "Trying to take tribute without having a capital.");
 		return;
 	}
 
@@ -16581,7 +16581,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
 	if (bSuccess)
 	{
-		CvAssertMsg(iGold >= 0, "iGold is expected to be non-negative. Please send Anton your save file and version.");
+		CvAssertMsg(iGold >= 0, "iGold is expected to be non-negative.");
 
 		if (GC.getGame().getActivePlayer() == eBully)
 		{
@@ -16887,7 +16887,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 			if(pMinorCapital == NULL)
 			{
-				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
+				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital.");
 				return;
 			}
 			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
@@ -16961,14 +16961,14 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		{
 			if(eUnitType == NO_UNIT)
 			{
-				CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
+				CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT.");
 				return;
 			}
 			// Minor must have Capital
 			CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 			if(pMinorCapital == NULL)
 			{
-				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
+				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital.");
 				return;
 			}
 			int iX = pMinorCapital->getX();
@@ -17010,7 +17010,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	CvPlayer* pBully = &GET_PLAYER(eBully);
-	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pBully, "pBully not expected to be NULL.");
 	if (!pBully) return;
 
 	if (!GET_PLAYER(eBully).IsCanBullyFriendlyCS())
@@ -17606,7 +17606,7 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
 	if(pPlayer == NULL)
 	{
-		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
+		CvAssertMsg(false, "pPlayer not expected to be NULL.");
 		return false;
 	}
 
@@ -17655,7 +17655,7 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
 	if (pPlayer == NULL)
 	{
-		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
+		CvAssertMsg(false, "pPlayer not expected to be NULL.");
 		return NULL;
 	}
 
@@ -17722,7 +17722,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if(pPlot == NULL)
 	{
-		CvAssertMsg(false, "pPlot not expected to be NULL, invalid coordinates. Please send Anton your save file and version.");
+		CvAssertMsg(false, "pPlot not expected to be NULL, invalid coordinates.");
 		return false;
 	}
 
@@ -17785,13 +17785,13 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if(pPlot == NULL)
 	{
-		CvAssertMsg(false, "pPlot not expected to be NULL, invalid coordinates. Please send Anton your save file and version.");
+		CvAssertMsg(false, "pPlot not expected to be NULL, invalid coordinates.");
 		return;
 	}
 	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
 	if(pPlayer == NULL)
 	{
-		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
+		CvAssertMsg(false, "pPlayer not expected to be NULL.");
 		return;
 	}
 
@@ -18831,7 +18831,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 	Localization::String strSummary = "";
 
 	CvTeam* pTeam = &GET_TEAM(GET_PLAYER(ePlayer).getTeam());
-	CvAssertMsg(pTeam, "pTeam not expected to be NULL. Please send Anton your save file and version.");
+	CvAssertMsg(pTeam, "pTeam not expected to be NULL.");
 
 	const char* strMinorsNameKey = GetPlayer()->getNameKey();
 
@@ -18851,7 +18851,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 			// We're passing someone
 			else
 			{
-				CvAssertMsg(eOldAlly != NO_PLAYER, "eOldAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
+				CvAssertMsg(eOldAlly != NO_PLAYER, "eOldAlly not expected to be NO_PLAYER here.");
 				const char* strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
 				TeamTypes eOldAllyTeam = GET_PLAYER(eOldAlly).getTeam();
 				if (pTeam->isHasMet(eOldAllyTeam))
@@ -18933,8 +18933,8 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 			// Someone passed us up
 			else
 			{
-				CvAssertMsg(eNewAlly != NO_PLAYER, "eNewAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
-				CvAssertMsg(eNewAlly != ePlayer, "eNewAlly not expected to be same as ePlayer here. Please send Anton your save file and version.");
+				CvAssertMsg(eNewAlly != NO_PLAYER, "eNewAlly not expected to be NO_PLAYER here.");
+				CvAssertMsg(eNewAlly != ePlayer, "eNewAlly not expected to be same as ePlayer here.");
 				const char* strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
 				TeamTypes eNewAllyTeam = GET_PLAYER(eNewAlly).getTeam();
 				if (pTeam->isHasMet(eNewAllyTeam))

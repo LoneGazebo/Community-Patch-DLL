@@ -528,7 +528,7 @@ void CvDllNetMessageHandler::ResponseLeagueVoteEnact(LeagueTypes eLeague, int iR
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote. Please send Anton your save file and version.");
+	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteEnact(iResolutionID, eVoter, iNumVotes, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ void CvDllNetMessageHandler::ResponseLeagueVoteRepeal(LeagueTypes eLeague, int i
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote. Please send Anton your save file and version.");
+	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteRepeal(iResolutionID, eVoter, iNumVotes, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -556,7 +556,7 @@ void CvDllNetMessageHandler::ResponseLeagueVoteAbstain(LeagueTypes eLeague, Play
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote. Please send Anton your save file and version.");
+	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteAbstain(eVoter, iNumVotes);
 }
 //------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 	CvAssertMsg(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution. Please send Anton your save file and version.");
+	CvAssertMsg(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution.");
 	pLeague->DoProposeEnact(eResolution, eProposer, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -585,7 +585,7 @@ void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, in
 	CvAssertMsg(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution. Please send Anton your save file and version.");
+	CvAssertMsg(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution.");
 	pLeague->DoProposeRepeal(iResolutionID, eProposer);
 }
 //------------------------------------------------------------------------------

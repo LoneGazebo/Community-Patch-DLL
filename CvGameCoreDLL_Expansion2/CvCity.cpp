@@ -19004,7 +19004,7 @@ int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvStrin
 	VALIDATE_OBJECT
 	int iMultiplier = 0;
 
-	CvAssertMsg(eBuilding > -1 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index. Please show Jon.");
+	CvAssertMsg(eBuilding > -1 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index.");
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo)
 	{
@@ -19514,8 +19514,8 @@ void CvCity::setOverflowProduction(int iNewValue)
 void CvCity::changeOverflowProduction(int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(iChange >= 0, "Production overflow is too low.  Please send a save to Ed.");
-	CvAssertMsg(iChange < 250, "Production overflow is too high.  Please send a save to Ed.");
+	CvAssertMsg(iChange >= 0, "Production overflow is too low.");
+	CvAssertMsg(iChange < 250, "Production overflow is too high.");
 	changeOverflowProductionTimes100(iChange * 100);
 }
 
@@ -19541,8 +19541,8 @@ void CvCity::setOverflowProductionTimes100(int iNewValue)
 void CvCity::changeOverflowProductionTimes100(int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(iChange >= 0, "Production overflow is too low.  Please send a save to Ed.");
-	CvAssertMsg(iChange < 25000, "Production overflow is too high.  Please send a save to Ed.");
+	CvAssertMsg(iChange >= 0, "Production overflow is too low.");
+	CvAssertMsg(iChange < 25000, "Production overflow is too high.");
 	setOverflowProductionTimes100(getOverflowProductionTimes100() + iChange);
 }
 
@@ -31282,7 +31282,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 void CvCity::doProcess()
 {
 	ProcessTypes eProcess = getProductionProcess();
-	CvAssertMsg(eProcess != NO_PROCESS, "Invalid Process for city production. Please send Anton your save file and version.");
+	CvAssertMsg(eProcess != NO_PROCESS, "Invalid Process for city production.");
 	if (eProcess == NO_PROCESS) return;
 
 #if defined(MOD_PROCESS_STOCKPILE)
