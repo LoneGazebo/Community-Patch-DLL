@@ -192,7 +192,9 @@ private:
 	inline void checkValidAccess() const
 	{
 		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
+#ifdef VPDEBUG
 		CvAssertMsg(m_values == NULL || m_initSize == size(), "Attempting to access dynamic CvEnumMap<> whose size has changed since CvEnumMap<>::init() was called");
+#endif
 	}
 
 	typedef typename CvAlignedStorage<T>::Type StorageType;

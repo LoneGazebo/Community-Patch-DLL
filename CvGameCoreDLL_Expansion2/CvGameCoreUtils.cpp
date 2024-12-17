@@ -249,10 +249,14 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 #endif // VPRELEASE_ERRORMSG
 }
 
+#endif WIN32
+#endif CVASSERT_ENABLE
+
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
 {
 	if (!expr) return;
-
+#ifdef CVASSERT_ENABLE
+#ifdef WIN32
 #if defined(VPRELEASE_ERRORMSG)
 	bool bMsg = msg && msg[0] != '\0';
 	char szBuffer[4096];
@@ -276,10 +280,10 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	bool bIgnoreAlways = false;
 	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
 #endif
+#endif WIN32
+#endif CVASSERT_ENABLE
 }
 
-#endif // WIN32
-#endif // CVASSERT_ENABLED
 
 int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
 
