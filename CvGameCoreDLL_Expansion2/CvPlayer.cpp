@@ -9132,7 +9132,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 		return NULL;
 
 	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	CvAssertFmt(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
+	CvAssertMsg(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
 
 	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason!=REASON_UPGRADE && eReason!=REASON_GIFT)
 	{
@@ -9159,7 +9159,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 		return NULL;
 
 	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	CvAssertFmt(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
+	CvAssertMsg(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
 
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit, "Unit is not assigned a valid value");
@@ -9182,7 +9182,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 		return NULL;
 
 	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	CvAssertFmt(pkUnitDef != NULL, "Trying to create unit of type %d, which does not exist", eUnit);
+	CvAssertMsg(pkUnitDef != NULL, "Trying to create unit of type %d, which does not exist", eUnit);
 	if (pkUnitDef == NULL)
 		return NULL;
 
@@ -32923,7 +32923,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
 			}
 
-			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
+			CvAssertMsg(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
 			//important: healing and restoration of movement points

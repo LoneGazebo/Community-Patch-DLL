@@ -15,6 +15,8 @@
 
 #undef min
 
+void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg);
+
 inline int sqrti(int input)
 {
 	return int(sqrt((float)abs(input)));

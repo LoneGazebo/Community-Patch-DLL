@@ -2608,7 +2608,9 @@ void CvMap::CreateRiverFrom(CvPlot* pPlot, DirectionTypes eDirection, CvRiver* p
 	if (pPlot->GetRiverID(eDirection) != -1)
 	{
 		if (pPlot->GetRiverID(eDirection) != iRiverID)
+		{
 			UNREACHABLE();
+		}
 		else
 			return;
 	}

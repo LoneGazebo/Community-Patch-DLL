@@ -15126,7 +15126,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 {
 	VALIDATE_OBJECT
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
-	CvAssertFmt(pkProcessInfo != NULL, "Process type %d is invalid", eProcess);
+	CvAssertMsg(pkProcessInfo != NULL, "Process type %d is invalid", eProcess);
 	if (pkProcessInfo != NULL)
 	{
 		// Convert to another yield

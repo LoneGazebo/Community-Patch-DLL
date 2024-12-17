@@ -7317,7 +7317,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, int& iValue, bool bReportEr
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "Integer Define Value not found for %s", szName);
+		CvAssertMsg(bSuccess, "Integer Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7339,7 +7339,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, float& fValue, bool bReport
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "Float Define Value not found for %s", szName);
+		CvAssertMsg(bSuccess, "Float Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7361,7 +7361,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, CvString& strValue, bool bR
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "String Define Value not found for %s", szName);
+		CvAssertMsg(bSuccess, "String Define Value not found for %s", szName);
 	}
 
 	return bSuccess;

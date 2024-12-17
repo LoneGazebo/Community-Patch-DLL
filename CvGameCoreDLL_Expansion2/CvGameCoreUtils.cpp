@@ -28,17 +28,24 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-// CvAssertDlg implementation
-#if defined(VPDEBUG) && !defined(DISABLE_CVASSERT)
+// CvAssertDlg and CvPreconditionDlg implementation
+#ifdef CVASSERT_ENABLE
 #ifdef WIN32
 
 // MessageBox constants
-#define MB_OK                0x00000000L
+#define MB_OK               0x00000000L
 #define MB_OKCANCEL         0x00000001L
-#define MB_ABORTRETRYIGNORE 0x00000002L
+#define MB_ABORTRETRYIGNORE 0x00000002L	
 #define MB_YESNOCANCEL      0x00000003L
 #define MB_ICONERROR        0x00000010L
+#define MB_SYSTEMMODAL      0x00001000L
 #define MB_TASKMODAL        0x00002000L
+#define MB_SETFOREGROUND    0x00010000L
+
+// MessageBox default buttons
+#define MB_DEFBUTTON1		0x00000000L
+#define MB_DEFBUTTON2		0x00000100L
+#define MB_DEFBUTTON3		0x00000200L
 
 // MessageBox return values
 #define IDOK     1
@@ -126,6 +133,7 @@ static struct AssertTracker {
 bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool& bIgnoreAlways, const char* msg)
 {
 	if (!expr) return false;
+	bool bMsg = msg && msg[0] != '\0';
 
 	// Get unique key for this assert
 	std::string assertKey = g_AssertTracker.GetAssertKey(szFile, uiLine, expr);
@@ -145,6 +153,43 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 	// Update statistics
 	g_AssertTracker.UpdateStats(assertKey);
+
+#if defined(VPRELEASE_ERRORMSG)
+	char szBuffer[4096];
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"An error in the code has occured. Please report the issue on https://github.com/LoneGazebo/Community-Patch-DLL so it can be fixed.\n\n"
+		"You may continue playing, but unexpected behavior might occur. It is recommended to wait until a hotfix has been released that resolves the issue.\n\n"
+		"==================\n"
+		"Detailed information:\n"
+		"%s%s%s"
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n\n"
+
+		"==================\n"
+		"Cancel - Exit the game \n"
+		"OK - Continue playing. This warning will not be shown again in the current session.",
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+		expr, szFile, uiLine
+	);
+
+	// Show dialog
+	int nResult = MessageBoxA(NULL, szBuffer, "Assertion Failed",
+		MB_OKCANCEL | MB_ICONERROR | MB_SYSTEMMODAL | MB_SETFOREGROUND | MB_DEFBUTTON2);
+
+	// Handle result
+	switch (nResult)
+	{
+	case IDOK:      // Continue execution and ignore this error
+		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		bIgnoreAlways = true;
+		return false;
+
+	default:
+		BUILTIN_TRAP();
+	}
+
+#else // VPRELEASE_ERRORMSG
 
 	// Get assert info
 	const AssertInfo& info = g_AssertTracker.asserts[assertKey];
@@ -176,7 +221,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
 		expr, szFile, uiLine,
-		msg ? "\nMessage: " : "", msg ? msg : "", msg ? "\n" : "",
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		info.count,
 		timeSinceFirst / 1000.0f,
 		timeSinceLast / 1000.0f,
@@ -201,10 +246,40 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		bIgnoreAlways = true;
 		return false;
 	}
+#endif // VPRELEASE_ERRORMSG
+}
+
+void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
+{
+	if (!expr) return;
+
+#if defined(VPRELEASE_ERRORMSG)
+	bool bMsg = msg && msg[0] != '\0';
+	char szBuffer[4096];
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"An error in the code has occured, forcing the game to crash. Please report the issue on https://github.com/LoneGazebo/Community-Patch-DLL so it can be fixed.\n\n"
+		"==================\n"
+		"Detailed information:\n"
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n"
+		"%s%s%s\n",
+		expr, szFile, uiLine,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : ""
+	);
+
+	// Show dialog
+	MessageBoxA(NULL, szBuffer, "Error",
+		MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_SETFOREGROUND);
+
+#else // VPRELEASE_ERRORMSG
+	bool bIgnoreAlways = false;
+	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
+#endif
 }
 
 #endif // WIN32
-#endif // defined(VPDEBUG) && !defined(DISABLE_CVASSERT)
+#endif // CVASSERT_ENABLED
 
 int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
 

@@ -85,6 +85,12 @@
 #define ASSUME(expr) ASSERT(expr)
 #endif // STRONG_ASSUMPTIONS
 
+
+/// Similar to `ASSERT`, calling PRECONDITION with an expression that is `false` will cause the game to crash.
+// Depending on the project settings (see `CVASSERT_ENABLE` in CvAssert.h) a message dialog may be shown in both debug and release configurations.
+#define PRECONDITION_MSG(expr, msg, ...) if (!(expr)) {CvString str; CvString::format(str, msg, __VA_ARGS__); CvPreconditionDlg(#expr, __FILE__, __LINE__, str.c_str()); BUILTIN_TRAP();}
+#define PRECONDITION(expr) PRECONDITION_MSG(expr, "");
+
 /// Indicates that some location is unreachable.
 ///
 /// Reaching this location during execution will result in the program trapping.
@@ -93,7 +99,8 @@
 /// that a conditional expression be provided and can more clearly represent what was meant when a code author
 /// placed it at a location. This makes it primarily useful as a statement within a `switch` `case` or `else` branch
 /// when it can be assumed that the location is unreachable.
-#define UNREACHABLE() do { ASSERT_DIALOGUE("UNREACHABLE()"); BUILTIN_TRAP(); } while(0)
+/// 
+#define UNREACHABLE() PRECONDITION_MSG(false, "UNREACHABLE")
 
 /// Similar to `UNREACHABLE` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
 ///
