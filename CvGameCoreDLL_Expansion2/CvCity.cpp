@@ -1669,7 +1669,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	if (!bConstructorCall)
 	{
 		int iNumResources = GC.getNumResourceInfos();
-		CvAssertMsg((0 < iNumResources), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		ASSERT((0 < iNumResources), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiNoResource.clear();
 		m_paiNoResource.resize(iNumResources);
 		m_paiFreeResource.clear();
@@ -1713,7 +1713,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_pCityBuildings->Init(GC.GetGameBuildings(), this);
 
 		int iNumUnitInfos = GC.getNumUnitInfos();
-		CvAssertMsg((0 < iNumUnitInfos), "GC.getNumUnitInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		ASSERT((0 < iNumUnitInfos), "GC.getNumUnitInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiUnitProduction.clear();
 		m_paiUnitProduction.resize(iNumUnitInfos);
 		m_paiUnitProductionTime.clear();
@@ -1725,7 +1725,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		}
 
 		int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
-		CvAssertMsg((0 < iNumUnitCombatClassInfos), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		ASSERT((0 < iNumUnitCombatClassInfos), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiUnitCombatFreeExperience.clear();
 		m_paiUnitCombatFreeExperience.resize(iNumUnitCombatClassInfos);
 		m_paiUnitCombatProductionModifier.clear();
@@ -1740,7 +1740,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		CvAssertMsg((0 < iNumBuildingClassInfos), "GC.getNumBuildingClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		ASSERT((0 < iNumBuildingClassInfos), "GC.getNumBuildingClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiBuildingClassCulture.clear();
 		m_paiBuildingClassCulture.resize(iNumBuildingClassInfos);
 		for (iI = 0; iI < iNumBuildingClassInfos; iI++)
@@ -1749,7 +1749,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		}
 
 		int iNumHurryInfos = GC.getNumHurryInfos();
-		CvAssertMsg((0 < iNumHurryInfos), "GC.getNumHurryInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		ASSERT((0 < iNumHurryInfos), "GC.getNumHurryInfos() is not greater than zero but an array is being allocated in CvCity::reset");
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(iNumHurryInfos);
 		for (iI = 0; iI < iNumHurryInfos; iI++)
@@ -2069,7 +2069,7 @@ void CvCity::PreKill()
 
 	// Killing a city while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a city.
-	CvAssertMsg_Debug(!isFighting(), "isFighting did not return false as expected");
+	CvAssert_Debug(!isFighting(), "isFighting did not return false as expected");
 
 	clearCombat();
 
@@ -2120,7 +2120,7 @@ void CvCity::PreKill()
 
 	GC.getGame().changeNumCities(-1);
 
-	CvAssertMsg(!isProduction(), "isProduction is expected to be false");
+	ASSERT(!isProduction(), "isProduction is expected to be false");
 
 	eOwner = getOwner();
 
@@ -2616,7 +2616,7 @@ void CvCity::doTurn()
 			if (pNotifications)
 			{
 				CvCity* pPlayerCapital = GET_PLAYER(m_eOwner).getCapitalCity();
-				CvAssertMsg(pPlayerCapital, "No capital city?");
+				ASSERT(pPlayerCapital, "No capital city?");
 
 				if (m_bRouteToCapitalConnectedLastTurn != m_bRouteToCapitalConnectedThisTurn && pPlayerCapital)
 				{
@@ -2661,8 +2661,8 @@ void CvCity::doTurn()
 		{
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				CvAssert(getBaseYieldRate((YieldTypes)iI) >= 0);
-				CvAssert(getYieldRate((YieldTypes)iI, false) >= 0);
+				ASSERT(getBaseYieldRate((YieldTypes)iI) >= 0);
+				ASSERT(getYieldRate((YieldTypes)iI, false) >= 0);
 
 				int iCount = 0;
 				for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
@@ -2698,7 +2698,7 @@ void CvCity::doTurn()
 					iCount += getPopulation() * /*1 in CP, 0 in VP*/ GD_INT_GET(SCIENCE_PER_POPULATION);
 				}
 
-				CvAssert(iCount == getBaseYieldRate((YieldTypes)iI));
+				ASSERT(iCount == getBaseYieldRate((YieldTypes)iI));
 			}
 		}
 #endif
@@ -2791,8 +2791,8 @@ void CvCity::UpdateCityYields(YieldTypes eYield)
 
 void CvCity::SetStaticYield(YieldTypes eYield, int iValue)
 {
-	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eYield >= 0, "eIndex expected to be >= 0");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	m_aiStaticCityYield[eYield] = iValue;
 }
 
@@ -2858,8 +2858,8 @@ int CvCity::GetLongestPotentialTradeRoute(DomainTypes eDomain) const
 void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	GC.getGame().GetGameTrade()->SetLongestPotentialTradeRoute(iValue, GetID(), eDomain);
 }
 
@@ -3025,15 +3025,15 @@ int CvCity::GetUnhappinessFromEmpire() const
 int CvCity::GetEventChoiceDuration(CityEventChoiceTypes eEventChoice) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventChoiceDuration[eEventChoice];
 }
 void CvCity::ChangeEventChoiceDuration(CityEventChoiceTypes eEventChoice, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
 		m_aiEventChoiceDuration[eEventChoice] = m_aiEventChoiceDuration[eEventChoice] + iValue;
@@ -3042,22 +3042,22 @@ void CvCity::ChangeEventChoiceDuration(CityEventChoiceTypes eEventChoice, int iV
 void CvCity::SetEventChoiceDuration(CityEventChoiceTypes eEventChoice, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventChoiceDuration[eEventChoice] = iValue;
 }
 int CvCity::GetEventIncrement(CityEventTypes eEvent) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventIncrement[eEvent];
 }
 void CvCity::IncrementEvent(CityEventTypes eEvent, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
 		m_aiEventIncrement[eEvent] = m_aiEventIncrement[eEvent] + iValue;
@@ -3079,8 +3079,8 @@ void CvCity::ChangeCityEventCooldown(int iValue)
 void CvCity::ChangeEventCityYield(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
 		m_aiEventCityYield[eYield] = m_aiEventCityYield[eYield] + iValue;
@@ -3090,16 +3090,16 @@ void CvCity::ChangeEventCityYield(YieldTypes eYield, int iValue)
 int CvCity::GetEventCityYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCityYield[eYield];
 }
 
 void CvCity::ChangeEventCityYieldModifier(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+		ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
 		m_aiEventCityYieldModifier[eYield] = m_aiEventCityYieldModifier[eYield] + iValue;
@@ -3109,8 +3109,8 @@ void CvCity::ChangeEventCityYieldModifier(YieldTypes eYield, int iValue)
 int CvCity::GetEventCityYieldModifier(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+		ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCityYieldModifier[eYield];
 }
 
@@ -3118,19 +3118,19 @@ int CvCity::GetEventCityYieldModifier(YieldTypes eYield) const
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventBuildingClassCityYield(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forBuilding, eIndex1);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forBuilding, eIndex1, iChange, true))
@@ -3139,19 +3139,19 @@ void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldType
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventBuildingClassCityYieldModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forBuildingModifier, eIndex1);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forBuildingModifier, eIndex1, iChange, true))
@@ -3161,19 +3161,19 @@ void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, Y
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forImprovement, eImprovement);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forImprovement, eImprovement, iChange, true))
@@ -3182,19 +3182,19 @@ void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTyp
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventResourceYield(ResourceTypes eResource, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forResource, eResource);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forResource, eResource, iChange, true))
@@ -3204,19 +3204,19 @@ void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forSpecialist, eSpecialist);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forSpecialist, eSpecialist, iChange, true))
@@ -3226,19 +3226,19 @@ void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes 
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eTerrain >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forTerrain, eTerrain);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forTerrain, eTerrain, iChange, true))
@@ -3247,19 +3247,19 @@ void CvCity::ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2, 
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return ModifierLookup(m_eventYields[eIndex2].forFeature, eFeature);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forFeature, eFeature, iChange, true))
@@ -7383,32 +7383,32 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 void CvCity::SetEventActive(CityEventTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventActive[eEvent] = bValue;
 }
 bool CvCity::IsEventActive(CityEventTypes eEvent) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventActive[eEvent];
 }
 void CvCity::SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEventChoice is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
+	ASSERT(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEventChoice is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventChoiceActive[eEventChoice] = bValue;
 }
 bool CvCity::IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
+	ASSERT(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventChoiceActive[eEventChoice];
 }
@@ -7416,47 +7416,47 @@ bool CvCity::IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const
 void CvCity::SetEventChoiceFired(CityEventChoiceTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventChoiceFired[eEvent] = bValue;
 }
 bool CvCity::IsEventChoiceFired(CityEventChoiceTypes eEvent) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventChoiceFired[eEvent];
 }
 void CvCity::SetEventFired(CityEventTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventFired[eEvent] = bValue;
 }
 bool CvCity::IsEventFired(CityEventTypes eEvent) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventFired[eEvent];
 }
 int CvCity::GetEventCooldown(CityEventTypes eEvent) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCooldown[eEvent];
 }
 void CvCity::ChangeEventCooldown(CityEventTypes eEvent, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
 		m_aiEventCooldown[eEvent] = m_aiEventCooldown[eEvent] + iValue;
@@ -7465,8 +7465,8 @@ void CvCity::ChangeEventCooldown(CityEventTypes eEvent, int iValue)
 void CvCity::SetEventCooldown(CityEventTypes eEvent, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	ASSERT(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventCooldown[eEvent] = iValue;
 }
 int CvCity::GetEventHappiness() const
@@ -7498,7 +7498,7 @@ void CvCity::CheckActivePlayerEvents()
 // Apply the non-instant effects of ongoing eEventChoice to this city
 void CvCity::ApplyPlayerEventChoice(const EventChoiceTypes eEventChoice)
 {
-	CvAssert(eEventChoice != NO_EVENT_CHOICE);
+	ASSERT(eEventChoice != NO_EVENT_CHOICE);
 
 	CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 	if (!pkEventChoiceInfo)
@@ -7791,7 +7791,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 
 	default:
-		CvAssertMsg(false, "eTask failed to match a valid option");
+		ASSERT(false, "eTask failed to match a valid option");
 		break;
 	}
 
@@ -7973,8 +7973,8 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePossibleOwner >= 0, "ePossibleOwner expected to be >= 0");
-	CvAssertMsg(ePossibleOwner < MAX_CIV_PLAYERS, "ePossibleOwner expected to be < MAX_CIV_PLAYERS");
+	ASSERT(ePossibleOwner >= 0, "ePossibleOwner expected to be >= 0");
+	ASSERT(ePossibleOwner < MAX_CIV_PLAYERS, "ePossibleOwner expected to be < MAX_CIV_PLAYERS");
 	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
 
@@ -8409,7 +8409,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	bool bUpgradeAvailable = false;
 	bool bUpgradeUnavailable = false;
 
-	CvAssertMsg(eUnit != NO_UNIT, "eUnit is expected to be assigned (not NO_UNIT)");
+	ASSERT(eUnit != NO_UNIT, "eUnit is expected to be assigned (not NO_UNIT)");
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if (pkUnitInfo == NULL)
@@ -8478,7 +8478,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	{
 		if (bUpgradeFound && bUpgradeAvailable)
 		{
-			CvAssertMsg(eUpgradeUnit != NO_UNIT, "eUpgradeUnit is expected to be assigned (not NO_UNIT)");
+			ASSERT(eUpgradeUnit != NO_UNIT, "eUpgradeUnit is expected to be assigned (not NO_UNIT)");
 			return eUpgradeUnit;
 		}
 
@@ -9364,8 +9364,8 @@ void CvCity::UpdateTerrainImprovementNeed()
 int CvCity::GetResourceExtraYield(ResourceTypes eResource, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forResource, eResource);
 }
@@ -9374,8 +9374,8 @@ int CvCity::GetResourceExtraYield(ResourceTypes eResource, YieldTypes eYield) co
 void CvCity::ChangeResourceExtraYield(ResourceTypes eResource, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forResource, eResource, iChange, true))
@@ -9387,8 +9387,8 @@ void CvCity::ChangeResourceExtraYield(ResourceTypes eResource, YieldTypes eYield
 int CvCity::GetFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forFeature, eFeature);
 }
@@ -9397,8 +9397,8 @@ int CvCity::GetFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield) const
 void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeature, eFeature, iChange, true))
@@ -9411,8 +9411,8 @@ void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, i
 int CvCity::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 	return ModifierLookup(m_yieldChanges[eYield].forImprovement, eImprovement);
 }
 
@@ -9420,8 +9420,8 @@ int CvCity::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes e
 void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forImprovement, eImprovement, iChange, true))
@@ -9447,8 +9447,8 @@ void CvCity::SetExtraBuildingMaintenance(int iChange)
 int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forTerrain, eTerrain);
 }
@@ -9457,8 +9457,8 @@ int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
 void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forTerrain, eTerrain, iChange, true))
@@ -9485,7 +9485,7 @@ void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChang
 bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid resource index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid resource index.");
 
 	// See if we have the resource linked to this city, but not connected yet
 	bool bFoundFeature = false;
@@ -9522,7 +9522,7 @@ bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	ASSERT(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 
 	// Actually check to see if we have this Resource to use right now
 	if (!bTestVisible)
@@ -9539,7 +9539,7 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
+	ASSERT(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 	return bImproved ? m_paiNumResourcesLocal[eResource] : m_paiNumUnimprovedResourcesLocal[eResource];
 }
 #endif
@@ -9554,8 +9554,8 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 {
 	VALIDATE_OBJECT
 
-	CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+	ASSERT(eResource >= 0, "eIndex expected to be >= 0");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 
 	if (iChange != 0)
 	{
@@ -10551,7 +10551,7 @@ bool CvCity::isProductionLimited() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10641,7 +10641,7 @@ bool CvCity::canContinueProduction(OrderData order)
 		break;
 
 	default:
-		CvAssertMsg(false, "order.eOrderType failed to match a valid option");
+		ASSERT(false, "order.eOrderType failed to match a valid option");
 		break;
 	}
 
@@ -10772,7 +10772,7 @@ UnitTypes CvCity::getProductionUnit() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10802,7 +10802,7 @@ UnitAITypes CvCity::getProductionUnitAI() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10833,7 +10833,7 @@ BuildingTypes CvCity::getProductionBuilding() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10864,7 +10864,7 @@ ProjectTypes CvCity::getProductionProject() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10892,7 +10892,7 @@ ProcessTypes CvCity::getProductionProcess() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10952,7 +10952,7 @@ const char* CvCity::getProductionName() const
 		break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -10988,7 +10988,7 @@ int CvCity::getGeneralProductionTurnsLeft() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11048,7 +11048,7 @@ const char* CvCity::getProductionNameKey() const
 		break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11116,7 +11116,7 @@ bool CvCity::isFoodProduction() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11274,7 +11274,7 @@ int CvCity::getProduction() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11312,7 +11312,7 @@ int CvCity::getProductionTimes100() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11350,7 +11350,7 @@ int CvCity::getProductionNeeded() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -11516,7 +11516,7 @@ int CvCity::getProductionTurnsLeft() const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -12807,7 +12807,7 @@ int CvCity::getProductionModifier(CvString* toolTipSink) const
 			break;
 
 		default:
-			CvAssertMsg(false, "pOrderNode->eOrderType failed to match a valid option");
+			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -14479,7 +14479,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
 							ResourceTypes eResource = pPlotClaimed->getResourceType(getTeam());
 							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-							CvAssert(pResourceInfo);
+							ASSERT(pResourceInfo);
 							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 
 							CvString strBuffer;
@@ -14569,7 +14569,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											CvString strBuffer;
 											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-											CvAssert(pResourceInfo);
+											ASSERT(pResourceInfo);
 											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
@@ -15126,7 +15126,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 {
 	VALIDATE_OBJECT
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
-	CvAssertMsg(pkProcessInfo != NULL, "Process type %d is invalid", eProcess);
+	ASSERT(pkProcessInfo != NULL, "Process type %d is invalid", eProcess);
 	if (pkProcessInfo != NULL)
 	{
 		// Convert to another yield
@@ -15469,30 +15469,30 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 bool CvCity::HasPaidAdoptionBonus(ReligionTypes eReligion) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
-	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	ASSERT(eReligion >= 0, "eReligion expected to be >= 0");
+	ASSERT(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
 	return m_abPaidAdoptionBonus[eReligion];
 }
 void CvCity::SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
-	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	ASSERT(eReligion >= 0, "eReligion expected to be >= 0");
+	ASSERT(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
 	m_abPaidAdoptionBonus[eReligion] = bNewValue;
 }
 
 int CvCity::GetReligiousPressureModifier(ReligionTypes eReligion) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
-	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	ASSERT(eReligion >= 0, "eReligion expected to be >= 0");
+	ASSERT(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
 	return m_aiReligiousPressureModifier[eReligion];
 }
 void CvCity::SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
-	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	ASSERT(eReligion >= 0, "eReligion expected to be >= 0");
+	ASSERT(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
 	m_aiReligiousPressureModifier[eReligion] = iNewValue;
 }
 void CvCity::ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue)
@@ -15851,15 +15851,15 @@ void CvCity::DoSellBuilding()
 void CvCity::SetTraded(PlayerTypes ePlayer, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	m_abTraded[ePlayer] = bValue;
 }
 bool CvCity::IsTraded(PlayerTypes ePlayer)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	return m_abTraded[ePlayer];
 }
 
@@ -16888,7 +16888,7 @@ void CvCity::setGameTurnFounded(int iNewValue)
 	if (m_iGameTurnFounded != iNewValue)
 	{
 		m_iGameTurnFounded = iNewValue;
-		CvAssert(getGameTurnFounded() >= 0);
+		ASSERT(getGameTurnFounded() >= 0);
 	}
 }
 
@@ -16906,7 +16906,7 @@ void CvCity::setGameTurnAcquired(int iNewValue)
 {
 	VALIDATE_OBJECT
 	m_iGameTurnAcquired = iNewValue;
-	CvAssert(getGameTurnAcquired() >= 0);
+	ASSERT(getGameTurnAcquired() >= 0);
 }
 
 
@@ -16925,7 +16925,7 @@ void CvCity::setGameTurnLastExpanded(int iNewValue)
 	if (m_iGameTurnLastExpanded != iNewValue)
 	{
 		m_iGameTurnLastExpanded = iNewValue;
-		CvAssert(m_iGameTurnLastExpanded >= 0);
+		ASSERT(m_iGameTurnLastExpanded >= 0);
 	}
 }
 
@@ -16979,7 +16979,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 
 				// Fixup the unassigned workers
 				int iUnassignedWorkers = GetCityCitizens()->GetNumUnassignedCitizens();
-				CvAssert(iUnassignedWorkers >= -iPopChange);
+				ASSERT(iUnassignedWorkers >= -iPopChange);
 				GetCityCitizens()->ChangeNumUnassignedCitizens(std::max(iPopChange, -iUnassignedWorkers));
 			}
 		}
@@ -17174,11 +17174,11 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
 			}
 			// Fixup the unassigned workers
 			int iUnassignedWorkers = GetCityCitizens()->GetNumUnassignedCitizens();
-			CvAssert(iUnassignedWorkers >= -iChange);
+			ASSERT(iUnassignedWorkers >= -iChange);
 			GetCityCitizens()->ChangeNumUnassignedCitizens(std::max(iChange, -iUnassignedWorkers));
 		}
 		m_iAutomatons = iNewValue;
-		CvAssert(getAutomatons() >= 0);
+		ASSERT(getAutomatons() >= 0);
 		if (bReassignPop && iChange > 0) {
 			// Give new automatons something to do in the City
 			GetCityCitizens()->ChangeNumUnassignedCitizens(iChange);
@@ -17226,7 +17226,7 @@ void CvCity::setHighestPopulation(int iNewValue)
 {
 	VALIDATE_OBJECT
 	m_iHighestPopulation = iNewValue;
-	CvAssert(getHighestPopulation() >= 0);
+	ASSERT(getHighestPopulation() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -17265,7 +17265,7 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iBaseGreatPeopleRate = (m_iBaseGreatPeopleRate + iChange);
-	CvAssert(getBaseGreatPeopleRate() >= 0);
+	ASSERT(getBaseGreatPeopleRate() >= 0);
 }
 
 
@@ -17928,8 +17928,8 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -18368,17 +18368,17 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumTerrainWorked(TerrainTypes eTerrain)
 {
-	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumTerrainWorked[eTerrain];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 {
-	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	m_paiNumTerrainWorked[eTerrain] = m_paiNumTerrainWorked[eTerrain] + iChange;
-	CvAssert(GetNumTerrainWorked(eTerrain) >= 0);
+	ASSERT(GetNumTerrainWorked(eTerrain) >= 0);
 
 	//Update yields
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -18394,17 +18394,17 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 
 int CvCity::GetNumFeaturelessTerrainWorked(TerrainTypes eTerrain)
 {
-	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumFeaturelessTerrainWorked[eTerrain];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChange)
 {
-	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	m_paiNumFeaturelessTerrainWorked[eTerrain] = m_paiNumFeaturelessTerrainWorked[eTerrain] + iChange;
-	CvAssert(GetNumFeaturelessTerrainWorked(eTerrain) >= 0);
+	ASSERT(GetNumFeaturelessTerrainWorked(eTerrain) >= 0);
 
 	//Update yields
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -18420,17 +18420,17 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumFeatureWorked(FeatureTypes eFeature)
 {
-	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumFeatureWorked[eFeature];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 {
-	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	m_paiNumFeatureWorked[eFeature] = m_paiNumFeatureWorked[eFeature] + iChange;
-	CvAssert(GetNumFeatureWorked(eFeature) >= 0);
+	ASSERT(GetNumFeatureWorked(eFeature) >= 0);
 
 	//Update yields
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -18445,40 +18445,40 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumResourceWorked(ResourceTypes eResource)
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceWorked[eResource];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumResourceWorked(ResourceTypes eResource, int iChange)
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResourceWorked[eResource] = m_paiNumResourceWorked[eResource] + iChange;
-	CvAssert(GetNumResourceWorked(eResource) >= 0);
+	ASSERT(GetNumResourceWorked(eResource) >= 0);
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumImprovementWorked(ImprovementTypes eImprovement)
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumImprovementWorked[eImprovement];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange)
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	m_paiNumImprovementWorked[eImprovement] = m_paiNumImprovementWorked[eImprovement] + iChange;
-	CvAssert(GetNumImprovementWorked(eImprovement) >= 0);
+	ASSERT(GetNumImprovementWorked(eImprovement) >= 0);
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forXTerrain, eTerrain, iValue, false))
@@ -18488,8 +18488,8 @@ void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int i
 void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forTerrainFromReligion, eTerrain, iValue, false))
@@ -18500,8 +18500,8 @@ void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes e
 int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forXTerrain, eTerrain);
 }
@@ -18510,8 +18510,8 @@ int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
 int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forTerrainFromReligion, eTerrain);
 }
@@ -18520,8 +18520,8 @@ int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eY
 int CvCity::GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forTerrainFromBuildings, eTerrain);
 }
@@ -18530,8 +18530,8 @@ int CvCity::GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, Yiel
 void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forTerrainFromBuildings, eTerrain, iChange, true))
@@ -18543,8 +18543,8 @@ void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, 
 int CvCity::GetYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forFeatureFromBuildings, eFeature);
 }
@@ -18553,8 +18553,8 @@ int CvCity::GetYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, Yiel
 void CvCity::ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureFromBuildings, eFeature, iChange, true))
@@ -18569,8 +18569,8 @@ void CvCity::ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, 
 int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forXFeature, eFeature);
 }
@@ -18578,8 +18578,8 @@ int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
 int CvCity::GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forFeatureFromReligion, eFeature);
 }
@@ -18589,8 +18589,8 @@ int CvCity::GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eY
 int CvCity::GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].forFeatureUnimproved, eFeature);
 }
@@ -18598,8 +18598,8 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTy
 void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forXFeature, eFeature, iValue, false))
@@ -18610,8 +18610,8 @@ void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int i
 void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureFromReligion, eFeature, iValue, false))
@@ -18621,8 +18621,8 @@ void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes e
 void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	ASSERT(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	ASSERT(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureUnimproved, eFeature, iValue, false))
@@ -18801,8 +18801,8 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 //	--------------------------------------------------------------------------------
 int CvCity::getHurryModifier(HurryTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiHurryModifier[eIndex];
 }
 
@@ -18811,8 +18811,8 @@ void CvCity::changeHurryModifier(HurryTypes eIndex, int iChange)
 {
 	if (iChange != 0)
 	{
-		CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-		CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+		ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+		ASSERT(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 		m_paiHurryModifier[eIndex] = m_paiHurryModifier[eIndex] + iChange;
 	}
 }
@@ -18820,10 +18820,10 @@ void CvCity::changeHurryModifier(HurryTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvCity::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	ASSERT(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	ASSERT(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 	return ModifierLookup(m_yieldChanges[eIndex2].forSpecialist, eIndex1);
 }
 
@@ -18831,10 +18831,10 @@ int CvCity::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2)
 //	--------------------------------------------------------------------------------
 void CvCity::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	ASSERT(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	ASSERT(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
 	SCityExtraYields& y = m_yieldChanges[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forSpecialist, eIndex1, iChange, true))
@@ -18868,17 +18868,17 @@ void CvCity::changeCultureRateModifier(int iChange)
 //	--------------------------------------------------------------------------------
 int CvCity::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingClassCulture[eIndex];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiBuildingClassCulture[eIndex] += iChange;
-	CvAssert(m_paiBuildingClassCulture[eIndex] >= 0);
+	ASSERT(m_paiBuildingClassCulture[eIndex] >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -18940,7 +18940,7 @@ void CvCity::changeNumWorldWonders(int iChange)
 	if (iChange != 0)
 	{
 		m_iNumWorldWonders = (m_iNumWorldWonders + iChange);
-		CvAssert(getNumWorldWonders() >= 0);
+		ASSERT(getNumWorldWonders() >= 0);
 
 		// Extra culture for Wonders (Policies, etc.)
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetCulturePerWonder() * iChange);
@@ -18961,7 +18961,7 @@ void CvCity::changeNumTeamWonders(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iNumTeamWonders = (m_iNumTeamWonders + iChange);
-	CvAssert(getNumTeamWonders() >= 0);
+	ASSERT(getNumTeamWonders() >= 0);
 }
 
 
@@ -18978,7 +18978,7 @@ void CvCity::changeNumNationalWonders(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iNumNationalWonders = (m_iNumNationalWonders + iChange);
-	CvAssert(getNumNationalWonders() >= 0);
+	ASSERT(getNumNationalWonders() >= 0);
 }
 
 
@@ -18995,7 +18995,7 @@ void CvCity::ChangeWonderProductionModifier(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iWonderProductionModifier = (m_iWonderProductionModifier + iChange);
-	CvAssert(GetWonderProductionModifier() >= 0);
+	ASSERT(GetWonderProductionModifier() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19004,7 +19004,7 @@ int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvStrin
 	VALIDATE_OBJECT
 	int iMultiplier = 0;
 
-	CvAssertMsg(eBuilding > -1 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index.");
+	ASSERT(eBuilding > -1 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index.");
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo)
 	{
@@ -19128,7 +19128,7 @@ void CvCity::changeCapturePlunderModifier(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iCapturePlunderModifier = (m_iCapturePlunderModifier + iChange);
-	CvAssert(m_iCapturePlunderModifier >= 0);
+	ASSERT(m_iCapturePlunderModifier >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19306,7 +19306,7 @@ void CvCity::changeHealRate(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iHealRate = (m_iHealRate + iChange);
-	CvAssert(getHealRate() >= 0);
+	ASSERT(getHealRate() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19490,7 +19490,7 @@ void CvCity::changeMaxFoodKeptPercent(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iMaxFoodKeptPercent = (m_iMaxFoodKeptPercent + iChange);
-	CvAssert(getMaxFoodKeptPercent() >= 0);
+	ASSERT(getMaxFoodKeptPercent() >= 0);
 }
 
 
@@ -19514,8 +19514,8 @@ void CvCity::setOverflowProduction(int iNewValue)
 void CvCity::changeOverflowProduction(int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(iChange >= 0, "Production overflow is too low.");
-	CvAssertMsg(iChange < 250, "Production overflow is too high.");
+	ASSERT(iChange >= 0, "Production overflow is too low.");
+	ASSERT(iChange < 250, "Production overflow is too high.");
 	changeOverflowProductionTimes100(iChange * 100);
 }
 
@@ -19533,7 +19533,7 @@ void CvCity::setOverflowProductionTimes100(int iNewValue)
 {
 	VALIDATE_OBJECT
 	m_iOverflowProduction = iNewValue;
-	CvAssert(getOverflowProductionTimes100() >= 0);
+	ASSERT(getOverflowProductionTimes100() >= 0);
 }
 
 
@@ -19541,8 +19541,8 @@ void CvCity::setOverflowProductionTimes100(int iNewValue)
 void CvCity::changeOverflowProductionTimes100(int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(iChange >= 0, "Production overflow is too low.");
-	CvAssertMsg(iChange < 25000, "Production overflow is too high.");
+	ASSERT(iChange >= 0, "Production overflow is too low.");
+	ASSERT(iChange < 25000, "Production overflow is too high.");
 	setOverflowProductionTimes100(getOverflowProductionTimes100() + iChange);
 }
 
@@ -19560,7 +19560,7 @@ void CvCity::setFeatureProduction(int iNewValue)
 {
 	VALIDATE_OBJECT
 	m_iFeatureProduction = iNewValue;
-	CvAssert(getFeatureProduction() >= 0);
+	ASSERT(getFeatureProduction() >= 0);
 }
 
 
@@ -19617,7 +19617,7 @@ void CvCity::changeFreeExperience(int iChange)
 {
 	VALIDATE_OBJECT
 		m_iFreeExperience = (m_iFreeExperience + iChange);
-	CvAssert(getFreeExperience() >= 0);
+	ASSERT(getFreeExperience() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -22709,14 +22709,14 @@ int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
 }
 void CvCity::SetNumTimesOwned(PlayerTypes ePlayer, int iValue)
 {
-	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	m_aiNumTimesOwned[ePlayer] = iValue;
 }
 void CvCity::ChangeNumTimesOwned(PlayerTypes ePlayer, int iValue)
 {
-	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	SetNumTimesOwned(ePlayer, (GetNumTimesOwned(ePlayer) + iValue));
 }
 bool CvCity::isEverOwned(PlayerTypes ePlayer) const
@@ -22736,8 +22736,8 @@ TeamTypes CvCity::getTeam() const
 int CvCity::getSeaPlotYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiSeaPlotYield[eIndex];
 }
 
@@ -22746,13 +22746,13 @@ int CvCity::getSeaPlotYield(YieldTypes eIndex) const
 void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiSeaPlotYield[eIndex] = m_aiSeaPlotYield[eIndex] + iChange;
-		CvAssert(getSeaPlotYield(eIndex) >= 0);
+		ASSERT(getSeaPlotYield(eIndex) >= 0);
 
 		updateYield();
 	}
@@ -22762,8 +22762,8 @@ void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 int CvCity::getRiverPlotYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiRiverPlotYield[eIndex];
 }
 
@@ -22771,13 +22771,13 @@ int CvCity::getRiverPlotYield(YieldTypes eIndex) const
 void CvCity::changeRiverPlotYield(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiRiverPlotYield[eIndex] = m_aiRiverPlotYield[eIndex] + iChange;
-		CvAssert(getRiverPlotYield(eIndex) >= 0);
+		ASSERT(getRiverPlotYield(eIndex) >= 0);
 
 		updateYield();
 	}
@@ -22787,8 +22787,8 @@ void CvCity::changeRiverPlotYield(YieldTypes eIndex, int iChange)
 int CvCity::getLakePlotYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiLakePlotYield[eIndex];
 }
 
@@ -22797,13 +22797,13 @@ int CvCity::getLakePlotYield(YieldTypes eIndex) const
 void CvCity::changeLakePlotYield(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiLakePlotYield[eIndex] = m_aiLakePlotYield[eIndex] + iChange;
-		CvAssert(getLakePlotYield(eIndex) >= 0);
+		ASSERT(getLakePlotYield(eIndex) >= 0);
 
 		updateYield();
 	}
@@ -22813,8 +22813,8 @@ void CvCity::changeLakePlotYield(YieldTypes eIndex, int iChange)
 int CvCity::getSeaResourceYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiSeaResourceYield[eIndex];
 }
 
@@ -22823,13 +22823,13 @@ int CvCity::getSeaResourceYield(YieldTypes eIndex) const
 void CvCity::changeSeaResourceYield(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiSeaResourceYield[eIndex] = m_aiSeaResourceYield[eIndex] + iChange;
-		CvAssert(getSeaResourceYield(eIndex) >= 0);
+		ASSERT(getSeaResourceYield(eIndex) >= 0);
 
 		updateYield();
 	}
@@ -23017,8 +23017,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 int CvCity::GetSpecialReligionYields(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromKnownPantheons[eIndex];
 }
 
@@ -23027,13 +23027,13 @@ int CvCity::GetSpecialReligionYields(YieldTypes eIndex) const
 void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != m_aiYieldFromKnownPantheons[eIndex])
 	{
 		m_aiYieldFromKnownPantheons[eIndex] = iChange;
-		CvAssert(GetSpecialReligionYields(eIndex) >= 0);
+		ASSERT(GetSpecialReligionYields(eIndex) >= 0);
 	}
 }
 
@@ -23625,8 +23625,8 @@ void CvCity::UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, in
 int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = 0;
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
@@ -23720,8 +23720,8 @@ int CvCity::GetBaseScienceFromArt() const
 int CvCity::GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (m_GwYieldCache[eIndex] == -1)
 		m_GwYieldCache[eIndex] = GetCityBuildings()->GetYieldFromGreatWorks(eIndex);
@@ -23734,8 +23734,8 @@ int CvCity::GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const
 int CvCity::GetBaseYieldRateFromTerrain(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiBaseYieldRateFromTerrain[eIndex];
 }
@@ -23745,8 +23745,8 @@ int CvCity::GetBaseYieldRateFromTerrain(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -23769,8 +23769,8 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 void CvCity::SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iValue != m_aiBaseYieldRateFromTerrain[eIndex])
 	{
@@ -23791,8 +23791,8 @@ void CvCity::SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue)
 int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiBaseYieldRateFromBuildings[eIndex];
 }
 
@@ -23801,8 +23801,8 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -23823,8 +23823,8 @@ void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 int CvCity::GetBaseYieldRateFromSpecialists(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiBaseYieldRateFromSpecialists[eIndex];
 }
@@ -23834,8 +23834,8 @@ int CvCity::GetBaseYieldRateFromSpecialists(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -23856,8 +23856,8 @@ void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 int CvCity::GetBaseYieldRateFromMisc(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiBaseYieldRateFromMisc[eIndex];
 }
@@ -23867,8 +23867,8 @@ int CvCity::GetBaseYieldRateFromMisc(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -23888,8 +23888,8 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
 	int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
@@ -23900,8 +23900,8 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 int CvCity::GetBaseYieldRateFromLeague(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiBaseYieldRateFromLeague[eIndex];
 }
@@ -23911,8 +23911,8 @@ int CvCity::GetBaseYieldRateFromLeague(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -23967,8 +23967,8 @@ void CvCity::SetTotalArtsyAid(int iValue)
 int CvCity::GetGrowthExtraYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiChangeGrowthExtraYield[eIndex];
 }
 
@@ -23977,13 +23977,13 @@ int CvCity::GetGrowthExtraYield(YieldTypes eIndex) const
 void CvCity::ChangeGrowthExtraYield(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiChangeGrowthExtraYield[eIndex] = m_aiChangeGrowthExtraYield[eIndex] + iChange;
-		CvAssert(GetGrowthExtraYield(eIndex) >= 0);
+		ASSERT(GetGrowthExtraYield(eIndex) >= 0);
 	}
 }
 #endif
@@ -23993,8 +23993,8 @@ void CvCity::ChangeGrowthExtraYield(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictory[eIndex];
 }
 
@@ -24003,13 +24003,13 @@ int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromVictory[eIndex] = m_aiYieldFromVictory[eIndex] + iChange;
-		CvAssert(GetYieldFromVictory(eIndex) >= 0);
+		ASSERT(GetYieldFromVictory(eIndex) >= 0);
 	}
 }
 
@@ -24018,21 +24018,21 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictoryGlobal[eIndex];
 }
 
 void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromVictoryGlobal[eIndex] = m_aiYieldFromVictoryGlobal[eIndex] + iChange;
-		CvAssert(GetYieldFromVictoryGlobal(eIndex) >= 0);
+		ASSERT(GetYieldFromVictoryGlobal(eIndex) >= 0);
 	}
 }
 
@@ -24041,21 +24041,21 @@ void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromVictoryGlobalEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictoryGlobalEraScaling[eIndex];
 }
 
 void CvCity::ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromVictoryGlobalEraScaling[eIndex] = m_aiYieldFromVictoryGlobalEraScaling[eIndex] + iChange;
-		CvAssert(GetYieldFromVictoryGlobalEraScaling(eIndex) >= 0);
+		ASSERT(GetYieldFromVictoryGlobalEraScaling(eIndex) >= 0);
 	}
 }
 
@@ -24064,21 +24064,21 @@ void CvCity::ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChan
 int CvCity::GetYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictoryGlobalInGoldenAge[eIndex];
 }
 
 void CvCity::ChangeYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromVictoryGlobalInGoldenAge[eIndex] = m_aiYieldFromVictoryGlobalInGoldenAge[eIndex] + iChange;
-		CvAssert(GetYieldFromVictoryGlobalInGoldenAge(eIndex) >= 0);
+		ASSERT(GetYieldFromVictoryGlobalInGoldenAge(eIndex) >= 0);
 	}
 }
 
@@ -24087,21 +24087,21 @@ void CvCity::ChangeYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex, int iCha
 int CvCity::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling[eIndex];
 }
 
 void CvCity::ChangeYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling[eIndex] = m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling[eIndex] + iChange;
-		CvAssert(GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eIndex) >= 0);
+		ASSERT(GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eIndex) >= 0);
 	}
 }
 
@@ -24110,8 +24110,8 @@ void CvCity::ChangeYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex
 int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPillage[eIndex];
 }
 
@@ -24120,21 +24120,21 @@ int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPillage[eIndex] = m_aiYieldFromPillage[eIndex] + iChange;
-		CvAssert(GetYieldFromPillage(eIndex) >= 0);
+		ASSERT(GetYieldFromPillage(eIndex) >= 0);
 	}
 }
 
 int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPillageGlobal[eIndex];
 }
 
@@ -24143,13 +24143,13 @@ int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPillageGlobal[eIndex] = m_aiYieldFromPillageGlobal[eIndex] + iChange;
-		CvAssert(GetYieldFromPillageGlobal(eIndex) >= 0);
+		ASSERT(GetYieldFromPillageGlobal(eIndex) >= 0);
 	}
 }
 
@@ -24158,8 +24158,8 @@ void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromGoldenAgeStart(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromGoldenAgeStart[eIndex];
 }
 
@@ -24168,13 +24168,13 @@ int CvCity::GetYieldFromGoldenAgeStart(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromGoldenAgeStart[eIndex] = m_aiYieldFromGoldenAgeStart[eIndex] + iChange;
-		CvAssert(GetYieldFromGoldenAgeStart(eIndex) >= 0);
+		ASSERT(GetYieldFromGoldenAgeStart(eIndex) >= 0);
 	}
 }
 
@@ -24183,8 +24183,8 @@ void CvCity::ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldChangePerGoldenAge(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldChangePerGoldenAge[eIndex];
 }
 
@@ -24193,13 +24193,13 @@ int CvCity::GetYieldChangePerGoldenAge(YieldTypes eIndex) const
 void CvCity::ChangeYieldChangePerGoldenAge(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldChangePerGoldenAge[eIndex] = m_aiYieldChangePerGoldenAge[eIndex] + iChange;
-		CvAssert(GetYieldChangePerGoldenAge(eIndex) >= 0);
+		ASSERT(GetYieldChangePerGoldenAge(eIndex) >= 0);
 	}
 }
 
@@ -24208,8 +24208,8 @@ void CvCity::ChangeYieldChangePerGoldenAge(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldChangePerGoldenAgeCap(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldChangePerGoldenAgeCap[eIndex];
 }
 
@@ -24218,13 +24218,13 @@ int CvCity::GetYieldChangePerGoldenAgeCap(YieldTypes eIndex) const
 void CvCity::ChangeYieldChangePerGoldenAgeCap(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldChangePerGoldenAgeCap[eIndex] = m_aiYieldChangePerGoldenAgeCap[eIndex] + iChange;
-		CvAssert(GetYieldChangePerGoldenAgeCap(eIndex) >= 0);
+		ASSERT(GetYieldChangePerGoldenAgeCap(eIndex) >= 0);
 	}
 }
 
@@ -24233,8 +24233,8 @@ void CvCity::ChangeYieldChangePerGoldenAgeCap(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromPreviousGoldenAges(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPreviousGoldenAges[eIndex];
 }
 
@@ -24243,13 +24243,13 @@ int CvCity::GetYieldFromPreviousGoldenAges(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPreviousGoldenAges[eIndex] = m_aiYieldFromPreviousGoldenAges[eIndex] + iChange;
-		CvAssert(GetYieldFromPreviousGoldenAges(eIndex) >= 0);
+		ASSERT(GetYieldFromPreviousGoldenAges(eIndex) >= 0);
 
 		ChangeBaseYieldRateFromMisc(eIndex, iChange);
 		UpdateAllNonPlotYields(false);
@@ -24261,8 +24261,8 @@ void CvCity::ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange)
 int CvCity::GetGoldenAgeYieldMod(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiGoldenAgeYieldMod[eIndex];
 }
 
@@ -24271,13 +24271,13 @@ int CvCity::GetGoldenAgeYieldMod(YieldTypes eIndex) const
 void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiGoldenAgeYieldMod[eIndex] = m_aiGoldenAgeYieldMod[eIndex] + iChange;
-		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
+		ASSERT(GetGoldenAgeYieldMod(eIndex) >= 0);
 	}
 }
 
@@ -24287,8 +24287,8 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromWLTKD(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromWLTKD[eIndex];
 }
 
@@ -24297,13 +24297,13 @@ int CvCity::GetYieldFromWLTKD(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromWLTKD[eIndex] = m_aiYieldFromWLTKD[eIndex] + iChange;
-		CvAssert(GetYieldFromWLTKD(eIndex) >= 0);
+		ASSERT(GetYieldFromWLTKD(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24311,8 +24311,8 @@ void CvCity::ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromConstruction(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromConstruction[eIndex];
 }
 
@@ -24321,13 +24321,13 @@ int CvCity::GetYieldFromConstruction(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromConstruction(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromConstruction[eIndex] = m_aiYieldFromConstruction[eIndex] + iChange;
-		CvAssert(GetYieldFromConstruction(eIndex) >= 0);
+		ASSERT(GetYieldFromConstruction(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24335,8 +24335,8 @@ void CvCity::ChangeYieldFromConstruction(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromTech(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromTech[eIndex];
 }
 
@@ -24345,13 +24345,13 @@ int CvCity::GetYieldFromTech(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromTech(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromTech[eIndex] = m_aiYieldFromTech[eIndex] + iChange;
-		CvAssert(GetYieldFromTech(eIndex) >= 0);
+		ASSERT(GetYieldFromTech(eIndex) >= 0);
 	}
 }
 
@@ -24360,8 +24360,8 @@ void CvCity::ChangeYieldFromTech(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromBirth(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromBirth[eIndex];
 }
 
@@ -24370,13 +24370,13 @@ int CvCity::GetYieldFromBirth(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromBirth(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromBirth[eIndex] += iChange;
-		CvAssert(GetYieldFromBirth(eIndex) >= 0);
+		ASSERT(GetYieldFromBirth(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24384,8 +24384,8 @@ void CvCity::ChangeYieldFromBirth(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromBirthEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromBirthEraScaling[eIndex];
 }
 
@@ -24394,13 +24394,13 @@ int CvCity::GetYieldFromBirthEraScaling(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromBirthEraScaling(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromBirthEraScaling[eIndex] += iChange;
-		CvAssert(GetYieldFromBirthEraScaling(eIndex) >= 0);
+		ASSERT(GetYieldFromBirthEraScaling(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24408,8 +24408,8 @@ void CvCity::ChangeYieldFromBirthEraScaling(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromUnitProduction(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromUnitProduction[eIndex];
 }
 
@@ -24418,13 +24418,13 @@ int CvCity::GetYieldFromUnitProduction(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromUnitProduction[eIndex] = m_aiYieldFromUnitProduction[eIndex] + iChange;
-		CvAssert(GetYieldFromUnitProduction(eIndex) >= 0);
+		ASSERT(GetYieldFromUnitProduction(eIndex) >= 0);
 	}
 }
 
@@ -24433,8 +24433,8 @@ void CvCity::ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromBorderGrowth(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromBorderGrowth[eIndex];
 }
 
@@ -24443,13 +24443,13 @@ int CvCity::GetYieldFromBorderGrowth(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromBorderGrowth(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromBorderGrowth[eIndex] = m_aiYieldFromBorderGrowth[eIndex] + iChange;
-		CvAssert(GetYieldFromBorderGrowth(eIndex) >= 0);
+		ASSERT(GetYieldFromBorderGrowth(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24457,8 +24457,8 @@ void CvCity::ChangeYieldFromBorderGrowth(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromPolicyUnlock(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPolicyUnlock[eIndex];
 }
 
@@ -24467,13 +24467,13 @@ int CvCity::GetYieldFromPolicyUnlock(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPolicyUnlock[eIndex] = m_aiYieldFromPolicyUnlock[eIndex] + iChange;
-		CvAssert(GetYieldFromPolicyUnlock(eIndex) >= 0);
+		ASSERT(GetYieldFromPolicyUnlock(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24481,8 +24481,8 @@ void CvCity::ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromPurchase(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPurchase[eIndex];
 }
 
@@ -24491,13 +24491,13 @@ int CvCity::GetYieldFromPurchase(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPurchase[eIndex] = m_aiYieldFromPurchase[eIndex] + iChange;
-		CvAssert(GetYieldFromPurchase(eIndex) >= 0);
+		ASSERT(GetYieldFromPurchase(eIndex) >= 0);
 	}
 }
 
@@ -24507,8 +24507,8 @@ void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromPurchaseGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPurchaseGlobal[eIndex];
 }
 
@@ -24517,13 +24517,13 @@ int CvCity::GetYieldFromPurchaseGlobal(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPurchaseGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromPurchaseGlobal[eIndex] = m_aiYieldFromPurchaseGlobal[eIndex] + iChange;
-		CvAssert(GetYieldFromPurchaseGlobal(eIndex) >= 0);
+		ASSERT(GetYieldFromPurchaseGlobal(eIndex) >= 0);
 	}
 }
 
@@ -24532,8 +24532,8 @@ void CvCity::ChangeYieldFromPurchaseGlobal(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromFaithPurchase(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromFaithPurchase[eIndex];
 }
 
@@ -24542,13 +24542,13 @@ int CvCity::GetYieldFromFaithPurchase(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromFaithPurchase[eIndex] = m_aiYieldFromFaithPurchase[eIndex] + iChange;
-		CvAssert(GetYieldFromFaithPurchase(eIndex) >= 0);
+		ASSERT(GetYieldFromFaithPurchase(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24556,8 +24556,8 @@ void CvCity::ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromUnitLevelUp(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromUnitLevelUp[eIndex];
 }
 
@@ -24566,13 +24566,13 @@ int CvCity::GetYieldFromUnitLevelUp(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromUnitLevelUp[eIndex] = m_aiYieldFromUnitLevelUp[eIndex] + iChange;
-		CvAssert(GetYieldFromUnitLevelUp(eIndex) >= 0);
+		ASSERT(GetYieldFromUnitLevelUp(eIndex) >= 0);
 	}
 }
 
@@ -24581,8 +24581,8 @@ void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromCombatExperienceTimes100[eIndex];
 }
 
@@ -24591,13 +24591,13 @@ int CvCity::GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromCombatExperienceTimes100[eIndex] = m_aiYieldFromCombatExperienceTimes100[eIndex] + iChange;
-		CvAssert(GetYieldFromCombatExperienceTimes100(eIndex) >= 0);
+		ASSERT(GetYieldFromCombatExperienceTimes100(eIndex) >= 0);
 	}
 }
 
@@ -24606,8 +24606,8 @@ void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iCha
 int CvCity::GetYieldPerAlly(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldPerAlly[eIndex];
 }
 
@@ -24616,13 +24616,13 @@ int CvCity::GetYieldPerAlly(YieldTypes eIndex) const
 void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldPerAlly[eIndex] = m_aiYieldPerAlly[eIndex] + iChange;
-		CvAssert(GetYieldPerAlly(eIndex) >= 0);
+		ASSERT(GetYieldPerAlly(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24630,8 +24630,8 @@ void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldPerFriend(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldPerFriend[eIndex];
 }
 
@@ -24640,13 +24640,13 @@ int CvCity::GetYieldPerFriend(YieldTypes eIndex) const
 void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldPerFriend[eIndex] = m_aiYieldPerFriend[eIndex] + iChange;
-		CvAssert(GetYieldPerFriend(eIndex) >= 0);
+		ASSERT(GetYieldPerFriend(eIndex) >= 0);
 	}
 }
 
@@ -24655,10 +24655,10 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 int CvCity::GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
 	return ModifierLookup(m_yieldChanges[eIndex2].forActualYield, eIndex1);
 }
@@ -24668,10 +24668,10 @@ int CvCity::GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
 void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
 	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forActualYield, eIndex1, iValue, false);
 }
@@ -24680,10 +24680,10 @@ void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int i
 int CvCity::GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	return ModifierLookup(m_yieldChanges[eIndex2].forYield, eIndex1);
 }
@@ -24693,10 +24693,10 @@ int CvCity::GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) co
 void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, true);
 }
@@ -24706,8 +24706,8 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 int CvCity::GetYieldFromInternalTREnd(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromInternalTREnd[eIndex1];
 }
@@ -24717,12 +24717,12 @@ int CvCity::GetYieldFromInternalTREnd(YieldTypes eIndex1) const
 void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromInternalTREnd[eIndex1] = m_aiYieldFromInternalTREnd[eIndex1] + iChange;
-		CvAssert(GetYieldFromInternalTREnd(eIndex1) >= 0);
+		ASSERT(GetYieldFromInternalTREnd(eIndex1) >= 0);
 	}
 }
 
@@ -24731,8 +24731,8 @@ void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
 int CvCity::GetYieldFromInternalTR(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromInternalTR[eIndex1];
 }
@@ -24742,12 +24742,12 @@ int CvCity::GetYieldFromInternalTR(YieldTypes eIndex1) const
 void CvCity::ChangeYieldFromInternalTR(YieldTypes eIndex1, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromInternalTR[eIndex1] = m_aiYieldFromInternalTR[eIndex1] + iChange;
-		CvAssert(GetYieldFromInternalTR(eIndex1) >= 0);
+		ASSERT(GetYieldFromInternalTR(eIndex1) >= 0);
 	}
 }
 
@@ -24757,8 +24757,8 @@ void CvCity::ChangeYieldFromInternalTR(YieldTypes eIndex1, int iChange)
 int CvCity::GetYieldFromProcessModifier(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromProcessModifier[eIndex1];
 }
@@ -24768,12 +24768,12 @@ int CvCity::GetYieldFromProcessModifier(YieldTypes eIndex1) const
 void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex1 >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromProcessModifier[eIndex1] = m_aiYieldFromProcessModifier[eIndex1] + iChange;
-		CvAssert(GetYieldFromProcessModifier(eIndex1) >= 0);
+		ASSERT(GetYieldFromProcessModifier(eIndex1) >= 0);
 	}
 }
 
@@ -24781,8 +24781,8 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eSpecialist >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eSpecialist >= 0, "eIndex expected to be >= 0");
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos(), "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiSpecialistRateModifierFromBuildings[eSpecialist];
 }
 
@@ -24791,13 +24791,13 @@ int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) 
 void CvCity::ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eSpecialist >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eSpecialist >= 0, "eIndex expected to be >= 0");
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos(), "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiSpecialistRateModifierFromBuildings[eSpecialist] = m_aiSpecialistRateModifierFromBuildings[eSpecialist] + iChange;
-		CvAssert(GetSpecialistRateModifierFromBuildings(eSpecialist) >= 0);
+		ASSERT(GetSpecialistRateModifierFromBuildings(eSpecialist) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24805,8 +24805,8 @@ void CvCity::ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpeciali
 int CvCity::GetThemingYieldBonus(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiThemingYieldBonus[eIndex];
 }
 
@@ -24815,13 +24815,13 @@ int CvCity::GetThemingYieldBonus(YieldTypes eIndex) const
 void CvCity::ChangeThemingYieldBonus(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiThemingYieldBonus[eIndex] = m_aiThemingYieldBonus[eIndex] + iChange;
-		CvAssert(GetThemingYieldBonus(eIndex) >= 0);
+		ASSERT(GetThemingYieldBonus(eIndex) >= 0);
 	}
 }
 
@@ -24830,8 +24830,8 @@ void CvCity::ChangeThemingYieldBonus(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromSpyAttack(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromSpyAttack[eIndex];
 }
 
@@ -24840,13 +24840,13 @@ int CvCity::GetYieldFromSpyAttack(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromSpyAttack[eIndex] = m_aiYieldFromSpyAttack[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyAttack(eIndex) >= 0);
+		ASSERT(GetYieldFromSpyAttack(eIndex) >= 0);
 	}
 }
 
@@ -24855,8 +24855,8 @@ void CvCity::ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromSpyDefense(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromSpyDefense[eIndex];
 }
 
@@ -24865,13 +24865,13 @@ int CvCity::GetYieldFromSpyDefense(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromSpyDefense[eIndex] = m_aiYieldFromSpyDefense[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyDefense(eIndex) >= 0);
+		ASSERT(GetYieldFromSpyDefense(eIndex) >= 0);
 	}
 }
 
@@ -24880,8 +24880,8 @@ void CvCity::ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromSpyIdentify(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromSpyIdentify[eIndex];
 }
 
@@ -24890,13 +24890,13 @@ int CvCity::GetYieldFromSpyIdentify(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromSpyIdentify(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromSpyIdentify[eIndex] = m_aiYieldFromSpyIdentify[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyIdentify(eIndex) >= 0);
+		ASSERT(GetYieldFromSpyIdentify(eIndex) >= 0);
 	}
 }
 
@@ -24905,8 +24905,8 @@ void CvCity::ChangeYieldFromSpyIdentify(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromSpyDefenseOrID(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromSpyDefenseOrID[eIndex];
 }
 
@@ -24915,13 +24915,13 @@ int CvCity::GetYieldFromSpyDefenseOrID(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromSpyDefenseOrID(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromSpyDefenseOrID[eIndex] = m_aiYieldFromSpyDefenseOrID[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyDefenseOrID(eIndex) >= 0);
+		ASSERT(GetYieldFromSpyDefenseOrID(eIndex) >= 0);
 	}
 }
 
@@ -24930,8 +24930,8 @@ void CvCity::ChangeYieldFromSpyDefenseOrID(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldFromSpyRigElection(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromSpyRigElection[eIndex];
 }
 
@@ -24940,13 +24940,13 @@ int CvCity::GetYieldFromSpyRigElection(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromSpyRigElection[eIndex] = m_aiYieldFromSpyRigElection[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyRigElection(eIndex) >= 0);
+		ASSERT(GetYieldFromSpyRigElection(eIndex) >= 0);
 	}
 }
 #endif
@@ -24957,11 +24957,11 @@ int CvCity::GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson
 {
 	VALIDATE_OBJECT
 
-	CvAssertMsg(eGreatPerson >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
+	ASSERT(eGreatPerson >= 0, "eIndex expected to be >= 0");
+	ASSERT(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
 
-	CvAssertMsg(eEra >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
+	ASSERT(eEra >= 0, "eIndex expected to be >= 0");
+	ASSERT(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
 
 	if (eGreatPerson != NO_GREATPERSON && eEra != NO_ERA)
 	{
@@ -24981,11 +24981,11 @@ void CvCity::ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPe
 {
 	VALIDATE_OBJECT
 
-	CvAssertMsg(eGreatPerson >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
+	ASSERT(eGreatPerson >= 0, "eIndex expected to be >= 0");
+	ASSERT(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
 
-	CvAssertMsg(eEra >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
+	ASSERT(eEra >= 0, "eIndex expected to be >= 0");
+	ASSERT(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
 
 	if (eGreatPerson != NO_GREATPERSON && eEra != NO_ERA && iChange != 0)
 	{
@@ -25132,8 +25132,8 @@ void CvCity::ChangeReligiousUnrestModifier(int iChange)
 int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
 
@@ -25169,8 +25169,8 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -25191,8 +25191,8 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = m_aiBaseYieldRateFromCSAlliance[eIndex];
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -25218,13 +25218,13 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromCSAlliance[eIndex] += iChange;
-		CvAssert(GetBaseYieldRateFromCSAlliance(eIndex) >= 0);
+		ASSERT(GetBaseYieldRateFromCSAlliance(eIndex) >= 0);
 	}
 }
 void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
@@ -25239,8 +25239,8 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = m_aiBaseYieldRateFromCSFriendship[eIndex];
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -25265,13 +25265,13 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromCSFriendship[eIndex] += iChange;
-		CvAssert(GetBaseYieldRateFromCSFriendship(eIndex) >= 0);
+		ASSERT(GetBaseYieldRateFromCSFriendship(eIndex) >= 0);
 	}
 }
 void CvCity::SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue)
@@ -25296,8 +25296,8 @@ int CvCity::GetYieldFromMinors(YieldTypes eYield) const
 int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	CorporationTypes eCorporation = GET_PLAYER(getOwner()).GetCorporations()->GetFoundedCorporation();
 	if (eCorporation == NO_CORPORATION)
@@ -25440,11 +25440,11 @@ int CvCity::GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes e
 {
 	VALIDATE_OBJECT
 
-	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be greater or equal to 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
+	ASSERT(eBuildingClass >= 0, "eBuildingClass expected to be greater or equal to 0");
+	ASSERT(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
@@ -25472,8 +25472,8 @@ void CvCity::SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTot
 int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldChangeFromCorporationFranchises[eIndex];
 }
@@ -25495,21 +25495,21 @@ void CvCity::UpdateYieldFromCorporationFranchises(YieldTypes eIndex)
 int CvCity::GetResourceQuantityPerXFranchises(ResourceTypes eResource) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+	ASSERT(eResource >= 0, "eIndex expected to be >= 0");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 	return m_aiResourceQuantityPerXFranchises[eResource];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+	ASSERT(eResource >= 0, "eIndex expected to be >= 0");
+	ASSERT(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 
 	if (iChange != 0)
 	{
 		m_aiResourceQuantityPerXFranchises[eResource] = m_aiResourceQuantityPerXFranchises[eResource] + iChange;
-		//		CvAssert(GetCorporationResourceQuantity(eResource) >= 0); 
+		//		ASSERT(GetCorporationResourceQuantity(eResource) >= 0); 
 	}
 }
 void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue)
@@ -25819,8 +25819,8 @@ int CvCity::getNukeInterceptionChance() const
 void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(eBuildingClass >= 0, "eIndex expected to be >= 0");
+	ASSERT(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
 	if (m_abIsPurchased[eBuildingClass] != bValue)
 	{
 		m_abIsPurchased[eBuildingClass] = bValue;
@@ -25829,15 +25829,15 @@ void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
+	ASSERT(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	ASSERT(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	return m_abIsPurchased[eBuildingClass];
 }
 void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
+	ASSERT(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	ASSERT(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	if (m_abIsBestForWonder[eBuildingClass] != bValue)
 	{
 		m_abIsBestForWonder[eBuildingClass] = bValue;
@@ -25846,8 +25846,8 @@ void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
+	ASSERT(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	ASSERT(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	return m_abIsBestForWonder[eBuildingClass];
 }
 
@@ -25857,8 +25857,8 @@ bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 int CvCity::GetYieldPerPopTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldPerPop[eIndex];
 }
@@ -25868,8 +25868,8 @@ int CvCity::GetYieldPerPopTimes100(YieldTypes eIndex) const
 void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 		m_aiYieldPerPop[eIndex] = m_aiYieldPerPop[eIndex] + iChange;
@@ -25881,8 +25881,8 @@ void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	std::map<int, int>::const_iterator it = m_aiYieldPerPopInEmpire.find((int)eIndex);
 	if (it != m_aiYieldPerPopInEmpire.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -25898,8 +25898,8 @@ int CvCity::GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const
 void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 		m_aiYieldPerPopInEmpire[(int)eIndex] += iChange;
@@ -25911,8 +25911,8 @@ void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
 int CvCity::GetYieldPerReligionTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldPerReligion[eIndex];
 }
@@ -25922,8 +25922,8 @@ int CvCity::GetYieldPerReligionTimes100(YieldTypes eIndex) const
 void CvCity::ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -25935,8 +25935,8 @@ void CvCity::ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange)
 int CvCity::getYieldRateModifier(YieldTypes eIndex)	const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldRateModifier[eIndex];
 }
 
@@ -25945,8 +25945,8 @@ int CvCity::getYieldRateModifier(YieldTypes eIndex)	const
 void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldRateModifier[eIndex] += iChange;
@@ -25986,8 +25986,8 @@ void CvCity::changeLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTy
 int CvCity::GetGreatWorkYieldChange(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiGreatWorkYieldChange[eIndex];
 }
 
@@ -25996,8 +25996,8 @@ int CvCity::GetGreatWorkYieldChange(YieldTypes eIndex) const
 void CvCity::ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -26010,8 +26010,8 @@ void CvCity::ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange)
 int CvCity::getResourceYieldRateModifier(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiResourceYieldRateModifier[eIndex];
 }
 
@@ -26020,13 +26020,13 @@ int CvCity::getResourceYieldRateModifier(YieldTypes eIndex) const
 void CvCity::changeResourceYieldRateModifier(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiResourceYieldRateModifier[eIndex] = m_aiResourceYieldRateModifier[eIndex] + iChange;
-		CvAssert(getYieldRate(eIndex, false) >= 0);
+		ASSERT(getYieldRate(eIndex, false) >= 0);
 
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
 	}
@@ -26037,8 +26037,8 @@ void CvCity::changeResourceYieldRateModifier(YieldTypes eIndex, int iChange)
 int CvCity::getExtraSpecialistYield(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiExtraSpecialistYield[eIndex];
 }
 
@@ -26047,10 +26047,10 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex) const
 int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
-	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eSpecialist >= 0, "eSpecialist expected to be >= 0");
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
 
 	int iYieldMultiplier = 0;
 
@@ -26114,8 +26114,8 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	ASSERT(eYield >= 0, "eYield expected to be >= 0");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	int iOldYield = getExtraSpecialistYield(eYield);
 	int iNewYield = 0;
@@ -26129,7 +26129,7 @@ void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 	if (iOldYield != iNewYield)
 	{
 		m_aiExtraSpecialistYield[eYield] = iNewYield;
-		CvAssert(getExtraSpecialistYield(eYield) >= 0);
+		ASSERT(getExtraSpecialistYield(eYield) >= 0);
 
 		ChangeBaseYieldRateFromSpecialists(eYield, (iNewYield - iOldYield));
 	}
@@ -26151,8 +26151,8 @@ void CvCity::updateExtraSpecialistYield()
 int CvCity::getProductionToYieldModifier(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiProductionToYieldModifier[eIndex];
 }
 
@@ -26161,8 +26161,8 @@ int CvCity::getProductionToYieldModifier(YieldTypes eIndex) const
 void CvCity::changeProductionToYieldModifier(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -26224,8 +26224,8 @@ int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) cons
 int CvCity::getDomainFreeExperience(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiDomainFreeExperience[eIndex];
 }
 
@@ -26234,10 +26234,10 @@ int CvCity::getDomainFreeExperience(DomainTypes eIndex) const
 void CvCity::changeDomainFreeExperience(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	m_aiDomainFreeExperience[eIndex] = m_aiDomainFreeExperience[eIndex] + iChange;
-	CvAssert(getDomainFreeExperience(eIndex) >= 0);
+	ASSERT(getDomainFreeExperience(eIndex) >= 0);
 }
 
 
@@ -26245,8 +26245,8 @@ void CvCity::changeDomainFreeExperience(DomainTypes eIndex, int iChange)
 int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
 	int iXP = 0;
 
@@ -26271,8 +26271,8 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
 	int iMod = GET_PLAYER(getOwner()).GetDomainFreeExperiencePerGreatWorkGlobal(eIndex);
 	if (iMod <= 0)
@@ -26305,8 +26305,8 @@ int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) cons
 int CvCity::getDomainProductionModifier(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiDomainProductionModifier[eIndex];
 }
 
@@ -26315,8 +26315,8 @@ int CvCity::getDomainProductionModifier(DomainTypes eIndex) const
 void CvCity::changeDomainProductionModifier(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	m_aiDomainProductionModifier[eIndex] = m_aiDomainProductionModifier[eIndex] + iChange;
 }
 
@@ -26325,8 +26325,8 @@ void CvCity::changeDomainProductionModifier(DomainTypes eIndex, int iChange)
 bool CvCity::isEverLiberated(PlayerTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	return m_abEverLiberated[eIndex];
 }
 
@@ -26335,8 +26335,8 @@ bool CvCity::isEverLiberated(PlayerTypes eIndex) const
 void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	m_abEverLiberated[eIndex] = bNewValue;
 }
 
@@ -26495,8 +26495,8 @@ void CvCity::ChangeExtraLuxuryResources(int iChange)
 int CvCity::getProjectProduction(ProjectTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
 	return m_paiProjectProduction[eIndex] / 100;
 }
 
@@ -26520,8 +26520,8 @@ void CvCity::changeProjectProduction(ProjectTypes eIndex, int iChange)
 int CvCity::getProjectProductionTimes100(ProjectTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
 	return m_paiProjectProduction[eIndex];
 }
 
@@ -26530,13 +26530,13 @@ int CvCity::getProjectProductionTimes100(ProjectTypes eIndex) const
 void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
 
 	if (getProjectProductionTimes100(eIndex) != iNewValue)
 	{
 		m_paiProjectProduction[eIndex] = max(0, iNewValue);
-		CvAssert(getProjectProductionTimes100(eIndex) >= 0);
+		ASSERT(getProjectProductionTimes100(eIndex) >= 0);
 
 		if ((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
 		{
@@ -26553,8 +26553,8 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 void CvCity::changeProjectProductionTimes100(ProjectTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex expected to be < GC.getNumProjectInfos()");
 	setProjectProductionTimes100(eIndex, (getProjectProductionTimes100(eIndex) + iChange));
 }
 
@@ -26569,8 +26569,8 @@ int CvCity::getProcessProduction(ProcessTypes eIndex) const
 int CvCity::getProcessProductionTimes100(ProcessTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumProcessInfos(), "eIndex expected to be < GC.getNumProcessInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumProcessInfos(), "eIndex expected to be < GC.getNumProcessInfos()");
 
 	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE"
 		, true)) {
@@ -26592,8 +26592,8 @@ CvCityBuildings* CvCity::GetCityBuildings() const
 int CvCity::getUnitProduction(UnitTypes eIndex)	const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
 	return m_paiUnitProduction[eIndex] / 100;
 }
 
@@ -26618,8 +26618,8 @@ void CvCity::changeUnitProduction(UnitTypes eIndex, int iChange)
 int CvCity::getUnitProductionTimes100(UnitTypes eIndex)	const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
 	return m_paiUnitProduction[eIndex];
 }
 
@@ -26628,13 +26628,13 @@ int CvCity::getUnitProductionTimes100(UnitTypes eIndex)	const
 void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
 
 	if (getUnitProductionTimes100(eIndex) != iNewValue)
 	{
 		m_paiUnitProduction[eIndex] = max(0, iNewValue);
-		CvAssert(getUnitProductionTimes100(eIndex) >= 0);
+		ASSERT(getUnitProductionTimes100(eIndex) >= 0);
 
 		if ((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
 		{
@@ -26659,8 +26659,8 @@ void CvCity::changeUnitProductionTimes100(UnitTypes eIndex, int iChange)
 int CvCity::getUnitProductionTime(UnitTypes eIndex)	const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
 	return m_paiUnitProductionTime[eIndex];
 }
 
@@ -26669,10 +26669,10 @@ int CvCity::getUnitProductionTime(UnitTypes eIndex)	const
 void CvCity::setUnitProductionTime(UnitTypes eIndex, int iNewValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex expected to be < GC.getNumUnitInfos()");
 	m_paiUnitProductionTime[eIndex] = iNewValue;
-	CvAssert(getUnitProductionTime(eIndex) >= 0);
+	ASSERT(getUnitProductionTime(eIndex) >= 0);
 }
 
 
@@ -26688,8 +26688,8 @@ void CvCity::changeUnitProductionTime(UnitTypes eIndex, int iChange)
 int CvCity::getUnitCombatFreeExperience(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	return m_paiUnitCombatFreeExperience[eIndex];
 }
 
@@ -26698,10 +26698,10 @@ int CvCity::getUnitCombatFreeExperience(UnitCombatTypes eIndex) const
 void CvCity::changeUnitCombatFreeExperience(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	m_paiUnitCombatFreeExperience[eIndex] = m_paiUnitCombatFreeExperience[eIndex] + iChange;
-	CvAssert(getUnitCombatFreeExperience(eIndex) >= 0);
+	ASSERT(getUnitCombatFreeExperience(eIndex) >= 0);
 }
 
 
@@ -26709,8 +26709,8 @@ void CvCity::changeUnitCombatFreeExperience(UnitCombatTypes eIndex, int iChange)
 int CvCity::getUnitCombatProductionModifier(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	return m_paiUnitCombatProductionModifier[eIndex];
 }
 
@@ -26719,10 +26719,10 @@ int CvCity::getUnitCombatProductionModifier(UnitCombatTypes eIndex) const
 void CvCity::changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	m_paiUnitCombatProductionModifier[eIndex] = m_paiUnitCombatProductionModifier[eIndex] + iChange;
-	CvAssert(getUnitCombatProductionModifier(eIndex) >= 0);
+	ASSERT(getUnitCombatProductionModifier(eIndex) >= 0);
 }
 
 
@@ -26730,8 +26730,8 @@ void CvCity::changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iCha
 int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
 	if (m_paiFreePromotionCount.find(eIndex) != m_paiFreePromotionCount.end())
 		return m_paiFreePromotionCount.find(eIndex)->second;
 
@@ -26770,8 +26770,8 @@ vector<PromotionTypes> CvCity::getFreePromotions() const
 void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
 	m_paiFreePromotionCount[eIndex] += iChange;
 
 	if (m_paiFreePromotionCount[eIndex] == 0)
@@ -26781,8 +26781,8 @@ void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 void CvCity::SetRetroactivePromotion(PromotionTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
 
 	if (eIndex != NO_PROMOTION)
 	{
@@ -26827,7 +26827,7 @@ void CvCity::changeSpecialistFreeExperience(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iSpecialistFreeExperience += iChange;
-	CvAssert(m_iSpecialistFreeExperience >= 0);
+	ASSERT(m_iSpecialistFreeExperience >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27221,8 +27221,8 @@ void CvCity::changeDamage(int iChange)
 int CvCity::GetDamagePermyriad(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "ePlayer expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	return m_aiDamagePermyriad[ePlayer];
 }
 
@@ -27230,8 +27230,8 @@ int CvCity::GetDamagePermyriad(PlayerTypes ePlayer) const
 void CvCity::ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "ePlayer expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] += iChange;
 }
 
@@ -27239,8 +27239,8 @@ void CvCity::ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange)
 void CvCity::SetDamagePermyriad(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT(ePlayer >= 0, "ePlayer expected to be >= 0");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] = iValue;
 }
 
@@ -28432,7 +28432,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	}
 
 	// Protect against div by 0.
-	CvAssertMsg(iCost != 0, "Plot cost is 0");
+	ASSERT(iCost != 0, "Plot cost is 0");
 	if (iCost != 0)
 		iRtnValue /= iCost;
 	else
@@ -28455,7 +28455,7 @@ void CvCity::SetCheapestPlotInfluenceDistance(int iValue)
 	if (m_iCheapestPlotInfluenceDistance != iValue)
 		m_iCheapestPlotInfluenceDistance = iValue;
 
-	CvAssertMsg(m_iCheapestPlotInfluenceDistance > 0, "Cheapest plot influence should never be 0 or less.");
+	ASSERT(m_iCheapestPlotInfluenceDistance > 0, "Cheapest plot influence should never be 0 or less.");
 }
 
 //	--------------------------------------------------------------------------------
@@ -28618,7 +28618,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 		break;
 
 	default:
-		CvAssertMsg(false, "iOrder did not match a valid option");
+		ASSERT(false, "iOrder did not match a valid option");
 		break;
 	}
 
@@ -28746,8 +28746,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	case ORDER_TRAIN:
 		eTrainUnit = ((UnitTypes)(pOrderNode->iData1));
 		eTrainAIUnit = ((UnitAITypes)(pOrderNode->iData2));
-		CvAssertMsg(eTrainUnit != NO_UNIT, "eTrainUnit is expected to be assigned a valid unit type");
-		CvAssertMsg(eTrainAIUnit != NO_UNITAI, "eTrainAIUnit is expected to be assigned a valid unit AI type");
+		ASSERT(eTrainUnit != NO_UNIT, "eTrainUnit is expected to be assigned a valid unit type");
+		ASSERT(eTrainAIUnit != NO_UNITAI, "eTrainAIUnit is expected to be assigned a valid unit AI type");
 
 		kOwner.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo(eTrainUnit)->GetUnitClassType())), -1);
 
@@ -28801,7 +28801,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		break;
 
 	default:
-		CvAssertMsg(false, "pOrderNode->eOrderType is not a valid option");
+		ASSERT(false, "pOrderNode->eOrderType is not a valid option");
 		break;
 	}
 
@@ -29249,7 +29249,7 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 	int iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
 	bool bResult = CreateBuilding(eConstructBuilding);
 	DEBUG_VARIABLE(bResult);
-	CvAssertMsg(bResult, "CreateBuilding failed");
+	ASSERT(bResult, "CreateBuilding failed");
 
 #if defined(MOD_EVENTS_CITY)
 	if (MOD_EVENTS_CITY) {
@@ -29328,7 +29328,7 @@ void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 
 	bool bResult = CreateProject(eCreateProject);
 	DEBUG_VARIABLE(bResult);
-	CvAssertMsg(bResult, "Failed to create project");
+	ASSERT(bResult, "Failed to create project");
 
 #if defined(MOD_EVENTS_CITY)
 	if (MOD_EVENTS_CITY) {
@@ -29668,16 +29668,16 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 void CvCity::changeProjectCount(ProjectTypes eProject, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eProject >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eProject >= 0, "ePlayer expected to be >= 0");
+	ASSERT(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	m_aiNumProjects[eProject] = m_aiNumProjects[eProject] + iValue;
 }
 
 int CvCity::getProjectCount(ProjectTypes eProject) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eProject >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(eProject >= 0, "ePlayer expected to be >= 0");
+	ASSERT(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	return m_aiNumProjects[eProject];
 }
 
@@ -29821,8 +29821,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
 {
-	CvAssertMsg(eUnitType >= 0 || eBuildingType >= 0 || eProjectType >= 0, "No valid passed in");
-	CvAssertMsg(!(eUnitType >= 0 && eBuildingType >= 0) && !(eUnitType >= 0 && eProjectType >= 0) && !(eBuildingType >= 0 && eProjectType >= 0), "Only one being passed");
+	ASSERT(eUnitType >= 0 || eBuildingType >= 0 || eProjectType >= 0, "No valid passed in");
+	ASSERT(!(eUnitType >= 0 && eBuildingType >= 0) && !(eUnitType >= 0 && eProjectType >= 0) && !(eBuildingType >= 0 && eProjectType >= 0), "Only one being passed");
 
 	// Can't purchase anything in a puppeted city
 	// slewis - The Venetian Exception
@@ -30273,7 +30273,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 	default:
 		// This function is accessible from Lua scripts so it's incorrect to assume this is unreachable unless we make the Lua function
 		// throw errors for non-gold/faith inputs.
-		CvAssertMsg(false, "CvCity::IsCanPurchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		ASSERT(false, "CvCity::IsCanPurchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
 		return false;
 	}
 
@@ -30517,7 +30517,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 	}
 	default:
 		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
-		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		ASSERT(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
 		return NULL;
 	}
 
@@ -30710,7 +30710,7 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 	}
 	default:
 		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
-		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		ASSERT(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
 		return false;
 	}
 
@@ -30764,7 +30764,7 @@ bool CvCity::PurchaseProject(ProjectTypes eProjectType, YieldTypes ePurchaseYiel
 	}
 	default:
 		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
-		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		ASSERT(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
 		return false;
 	}
 
@@ -31071,7 +31071,7 @@ bool CvCity::doCheckProduction()
 
 			if (eUpgradeUnit != NO_UNIT)
 			{
-				CvAssertMsg(eUpgradeUnit != iI, "Trying to upgrade a Unit to itself");
+				ASSERT(eUpgradeUnit != iI, "Trying to upgrade a Unit to itself");
 				iUpgradeProduction = getUnitProduction((UnitTypes)iI);
 				setUnitProduction(((UnitTypes)iI), 0);
 				setUnitProduction(eUpgradeUnit, iUpgradeProduction);
@@ -31113,7 +31113,7 @@ bool CvCity::doCheckProduction()
 
 					if (canConstruct(eUpgradeBuilding))
 					{
-						CvAssertMsg(eUpgradeBuilding != iI, "Trying to upgrade a Building to itself");
+						ASSERT(eUpgradeBuilding != iI, "Trying to upgrade a Building to itself");
 						iUpgradeProduction = m_pCityBuildings->GetBuildingProduction(eBuilding);
 						m_pCityBuildings->SetBuildingProduction((eBuilding), 0);
 						m_pCityBuildings->SetBuildingProduction(eUpgradeBuilding, iUpgradeProduction);
@@ -31282,7 +31282,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 void CvCity::doProcess()
 {
 	ProcessTypes eProcess = getProductionProcess();
-	CvAssertMsg(eProcess != NO_PROCESS, "Invalid Process for city production.");
+	ASSERT(eProcess != NO_PROCESS, "Invalid Process for city production.");
 	if (eProcess == NO_PROCESS) return;
 
 #if defined(MOD_PROCESS_STOCKPILE)
@@ -31809,7 +31809,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 				break;
 
 			default:
-				CvAssertMsg(false, "order.eOrderType failed to match a valid option");
+				ASSERT(false, "order.eOrderType failed to match a valid option");
 				visitor(order.iData1);
 				visitor(order.iData2);
 				break;
@@ -31843,7 +31843,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 					break;
 				}
 
-				CvAssertMsg(bIsValid, "Unit in build queue is invalid");
+				ASSERT(bIsValid, "Unit in build queue is invalid");
 				if (bIsValid)
 					city.m_orderQueue.insertAtEnd(&order);
 			}
@@ -32092,7 +32092,7 @@ void CvCity::invalidatePopulationRankCache()
 void CvCity::invalidateYieldRankCache(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= NO_YIELD && eYield < NUM_YIELD_TYPES, "invalidateYieldRankCache passed bogus yield index");
+	ASSERT(eYield >= NO_YIELD && eYield < NUM_YIELD_TYPES, "invalidateYieldRankCache passed bogus yield index");
 
 	if (eYield == NO_YIELD)
 	{
@@ -32126,15 +32126,15 @@ void CvCity::setMadeAttack(bool bNewValue)
 void CvCity::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
-	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(ePlayer >= 0, "ePlayer expected to be >= 0");
+	ASSERT(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	m_aiNumTimesAttackedThisTurn[ePlayer] = m_aiNumTimesAttackedThisTurn[ePlayer] + iValue;
 }
 int CvCity::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiNumTimesAttackedThisTurn[ePlayer];
 }
 
@@ -33400,7 +33400,7 @@ void CvCity::ChangeExtraHitPoints(int iValue)
 	if (iValue != 0)
 	{
 		m_iExtraHitPoints += iValue;
-		FAssertMsg(m_iExtraHitPoints >= 0, "Trying to set ExtraHitPoints to a negative value");
+		ASSERT(m_iExtraHitPoints >= 0, "Trying to set ExtraHitPoints to a negative value");
 		if (m_iExtraHitPoints < 0)
 			m_iExtraHitPoints = 0;
 
@@ -33471,8 +33471,8 @@ void CvCity::setCombatUnit(CvUnit* pCombatUnit, bool /*bAttacking*/)
 {
 	if (pCombatUnit != NULL)
 	{
-		CvAssertMsg(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
-		CvAssertMsg(!(plot()->isCityFighting()), "(plot()->isCityFighting()) did not return false as expected");
+		ASSERT(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
+		ASSERT(!(plot()->isCityFighting()), "(plot()->isCityFighting()) did not return false as expected");
 		m_combatUnit = pCombatUnit->GetIDInfo();
 	}
 	else
@@ -33486,7 +33486,7 @@ void CvCity::clearCombat()
 {
 	if (getCombatUnit() != NULL)
 	{
-		CvAssertMsg(plot()->isCityFighting(), "plot()->isCityFighting is expected to be true");
+		ASSERT(plot()->isCityFighting(), "plot()->isCityFighting is expected to be true");
 		m_combatUnit.reset();
 	}
 }
@@ -34801,8 +34801,8 @@ void CvCity::SetYieldModifierFromHappiness(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromHappiness(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+		ASSERT(eYield >= 0, "eYield expected to be >= 0");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldModifierFromHappiness[eYield];
 }
@@ -34887,8 +34887,8 @@ void CvCity::SetYieldFromCrime(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromCrime(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	ASSERT(eYield >= 0, "eYield expected to be >= 0");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromCrime[eYield];
 }
@@ -34904,8 +34904,8 @@ void CvCity::SetYieldFromDevelopment(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromDevelopment(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	ASSERT(eYield >= 0, "eYield expected to be >= 0");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromDevelopment[eYield];
 }
@@ -35090,7 +35090,7 @@ int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber,
 		CvUnit* pUnit = kPlayer.initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY());
 		if (!pUnit->jumpToNearestValidPlotWithinRange(3))
 		{
-			CvAssertMsg(false, "This really shouldn't happen after all those checks");
+			ASSERT(false, "This really shouldn't happen after all those checks");
 			pUnit->kill(false);
 		}
 		else
@@ -35109,7 +35109,7 @@ int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber,
 // If existing number of free buildings > iValue, simply remove free buildings
 bool CvCity::SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue, const bool bRefund, const bool bValidate)
 {
-	CvAssert(eBuilding != NO_BUILDING);
+	ASSERT(eBuilding != NO_BUILDING);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (!pkBuildingInfo)

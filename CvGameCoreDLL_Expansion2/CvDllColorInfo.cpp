@@ -13,7 +13,7 @@ CvDllColorInfo::CvDllColorInfo(CvColorInfo* pColorInfo)
 	: m_pColorInfo(pColorInfo)
 	, m_uiRefCount(1)
 {
-	FAssertMsg(pColorInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pColorInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllColorInfo::~CvDllColorInfo()

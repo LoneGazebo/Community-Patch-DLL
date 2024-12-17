@@ -352,7 +352,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				for (uint i = 0; i < veRewards.size(); i++)
 				{
 					CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(veRewards[i]);
-					CvAssert(pRewardInfo);
+					ASSERT(pRewardInfo);
 					if (!pRewardInfo) continue;
 
 					// Free Building in Capital
@@ -516,7 +516,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		CvString strDesc;
 		CvString strLogName;
 
-		CvAssert(m_pCity);
+		ASSERT(m_pCity);
 		if(!m_pCity) return;
 
 		// Find the name of this civ and city
@@ -526,7 +526,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		// Open the log file
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
-		CvAssert(pLog);
+		ASSERT(pLog);
 		if(!pLog) return;
 
 		// Get the leading info for this line

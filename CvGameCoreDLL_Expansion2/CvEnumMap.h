@@ -25,8 +25,8 @@ public:
 	inline CvEnumMap()
 		: m_values(NULL)
 	{
-		CvAssert(sizeof(StorageType) == sizeof(T));
-		CvAssert(__alignof(StorageType) == __alignof(T));
+		ASSERT(sizeof(StorageType) == sizeof(T));
+		ASSERT(__alignof(StorageType) == __alignof(T));
 	}
 	inline ~CvEnumMap()
 	{
@@ -44,7 +44,7 @@ public:
 
 	void init()
 	{
-		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
+		ASSERT(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
 		m_values = FNEW(StorageType[size()], c_eCiv5GameplayDLL, 0);
 #ifdef VPDEBUG
 		m_initSize = size();
@@ -56,7 +56,7 @@ public:
 	}
 	void init(const T& fill)
 	{
-		CvAssertMsg(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
+		ASSERT(m_values == NULL, "Dynamic CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Memory will leak");
 		m_values = FNEW(StorageType[size()], c_eCiv5GameplayDLL, 0);
 #ifdef VPDEBUG
 		m_initSize = size();
@@ -102,7 +102,7 @@ public:
 	inline const T& operator[](std::size_t idx) const
 	{
 		checkValidAccess();
-		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
+		ASSERT(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return data()[idx];
 	}
 	inline T& operator[](std::size_t idx)
@@ -191,9 +191,9 @@ private:
 
 	inline void checkValidAccess() const
 	{
-		CvAssertMsg(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
+		ASSERT(m_values != NULL, "Attempting to access dynamic CvEnumMap<> without first calling CvEnumMap<>::init()");
 #ifdef VPDEBUG
-		CvAssertMsg(m_values == NULL || m_initSize == size(), "Attempting to access dynamic CvEnumMap<> whose size has changed since CvEnumMap<>::init() was called");
+		ASSERT(m_values == NULL || m_initSize == size(), "Attempting to access dynamic CvEnumMap<> whose size has changed since CvEnumMap<>::init() was called");
 #endif
 	}
 
@@ -222,8 +222,8 @@ public:
 	inline CvEnumMap()
 		: m_initialized(false)
 	{
-		CvAssert(sizeof(StorageType) == sizeof(T));
-		CvAssert(__alignof(StorageType) == __alignof(T));
+		ASSERT(sizeof(StorageType) == sizeof(T));
+		ASSERT(__alignof(StorageType) == __alignof(T));
 	}
 
 	inline ~CvEnumMap()
@@ -233,7 +233,7 @@ public:
 
 	void init()
 	{
-		CvAssertMsg(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
+		ASSERT(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
 		m_initialized = true;
 		for (Iterator it = begin(); it != end(); ++it)
 		{
@@ -242,7 +242,7 @@ public:
 	}
 	void init(const T& fill)
 	{
-		CvAssertMsg(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
+		ASSERT(m_initialized == false, "Fixed CvEnumMap<>::init() called without first calling CvEnumMap<>::uninit() - Elements will not be destroyed");
 		m_initialized = true;
 		for (Iterator it = begin(); it != end(); ++it)
 		{
@@ -285,7 +285,7 @@ public:
 	inline const T& operator[](std::size_t idx) const
 	{
 		checkValidAccess();
-		CvAssertMsg(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
+		ASSERT(idx < size(), "Attempting to access out of range index in CvEnumMap<>");
 		return data()[idx];
 	}
 	inline T& operator[](std::size_t idx)
@@ -374,7 +374,7 @@ private:
 
 	inline void checkValidAccess() const
 	{
-		CvAssertMsg(m_initialized == true, "Attempting to access fixed CvEnumMap<> without first calling CvEnumMap<>::init()");
+		ASSERT(m_initialized == true, "Attempting to access fixed CvEnumMap<> without first calling CvEnumMap<>::init()");
 	}
 
 	typedef typename CvAlignedStorage<T>::Type StorageType;

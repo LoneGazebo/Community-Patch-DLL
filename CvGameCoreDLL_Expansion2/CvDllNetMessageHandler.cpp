@@ -468,12 +468,12 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 		}
 		else
 		{
-			CvAssertMsg(iTargetPlayer != -1, "iTargetPlayer is -1");
+			ASSERT(iTargetPlayer != -1, "iTargetPlayer is -1");
 			if(iTargetPlayer != -1)
 			{
 				PlayerTypes eTargetPlayer = (PlayerTypes)iTargetPlayer;
 				CvCity* pCity = GET_PLAYER(eTargetPlayer).getCity(iTargetCity);
-				CvAssertMsg(pCity, "pCity is null");
+				ASSERT(pCity, "pCity is null");
 				if(pCity)
 				{
 					pPlayerEspionage->MoveSpyTo(pCity, iSpyIndex, bAsDiplomat);
@@ -490,13 +490,13 @@ void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyI
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eSpyPlayer))
 		return;
 
-	CvAssertMsg(eSpyPlayer != NO_PLAYER, "eSpyPlayer invalid");
-	CvAssertMsg(iSpyIndex >= 0, "iSpyIndex invalid");
+	ASSERT(eSpyPlayer != NO_PLAYER, "eSpyPlayer invalid");
+	ASSERT(iSpyIndex >= 0, "iSpyIndex invalid");
 
 	CvPlayerAI& kPlayer = GET_PLAYER(eSpyPlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
-	CvAssertMsg(pPlayerEspionage, "pPlayerEspionage is null");
+	ASSERT(pPlayerEspionage, "pPlayerEspionage is null");
 	if(pPlayerEspionage)
 	{
 		bool bCoupSuccess = pPlayerEspionage->AttemptCoup(iSpyIndex);
@@ -509,9 +509,9 @@ void CvDllNetMessageHandler::ResponseFaithPurchase(PlayerTypes ePlayer, FaithPur
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
-	CvAssertMsg(ePlayer != NO_PLAYER, "ePlayer invalid");
-	CvAssertMsg(eFaithPurchaseType > -1, "Faith Purchase Type invalid");
-	CvAssertMsg(iFaithPurchaseIndex > -1, "Faith Purchase Index invalid");
+	ASSERT(ePlayer != NO_PLAYER, "ePlayer invalid");
+	ASSERT(eFaithPurchaseType > -1, "Faith Purchase Type invalid");
+	ASSERT(iFaithPurchaseIndex > -1, "Faith Purchase Index invalid");
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	kPlayer.SetFaithPurchaseType(eFaithPurchaseType);
@@ -524,11 +524,11 @@ void CvDllNetMessageHandler::ResponseLeagueVoteEnact(LeagueTypes eLeague, int iR
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
-	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
+	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
+	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
+	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteEnact(iResolutionID, eVoter, iNumVotes, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -538,11 +538,11 @@ void CvDllNetMessageHandler::ResponseLeagueVoteRepeal(LeagueTypes eLeague, int i
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
-	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
+	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
+	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
+	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteRepeal(iResolutionID, eVoter, iNumVotes, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -552,11 +552,11 @@ void CvDllNetMessageHandler::ResponseLeagueVoteAbstain(LeagueTypes eLeague, Play
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
-	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
+	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
+	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
+	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
 	pLeague->DoVoteAbstain(eVoter, iNumVotes);
 }
 //------------------------------------------------------------------------------
@@ -566,12 +566,12 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
 		return;
 
-	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
-	CvAssertMsg(eResolution != NO_RESOLUTION, "eResolution invalid");
-	CvAssertMsg(eProposer != NO_PLAYER, "eProposer invalid");
+	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
+	ASSERT(eResolution != NO_RESOLUTION, "eResolution invalid");
+	ASSERT(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution.");
+	ASSERT(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution.");
 	pLeague->DoProposeEnact(eResolution, eProposer, iChoice);
 }
 //------------------------------------------------------------------------------
@@ -581,11 +581,11 @@ void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, in
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
 		return;
 
-	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
-	CvAssertMsg(eProposer != NO_PLAYER, "eProposer invalid");
+	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
+	ASSERT(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	CvAssertMsg(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution.");
+	ASSERT(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution.");
 	pLeague->DoProposeRepeal(iResolutionID, eProposer);
 }
 //------------------------------------------------------------------------------
@@ -688,7 +688,7 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
-	CvAssertMsg(ePlayer != NO_PLAYER, "ePlayer invalid");
+	ASSERT(ePlayer != NO_PLAYER, "ePlayer invalid");
 
 	// is this player alive
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
@@ -1060,10 +1060,10 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	else if(ePlayerToStealFrom != NO_PLAYER)
 	{
 		// make sure we can still take a tech
-		CvAssertMsg(kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0, "No techs to steal from player");
-		CvAssertMsg(kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].size() > 0, "No techs to be stolen from this player");
-		CvAssertMsg(kPlayer.GetPlayerTechs()->CanResearch(eTech), "Player can't research this technology");
-		CvAssertMsg(GET_TEAM(GET_PLAYER(ePlayerToStealFrom).getTeam()).GetTeamTechs()->HasTech(eTech), "ePlayerToStealFrom does not have the requested tech");
+		ASSERT(kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0, "No techs to steal from player");
+		ASSERT(kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].size() > 0, "No techs to be stolen from this player");
+		ASSERT(kPlayer.GetPlayerTechs()->CanResearch(eTech), "Player can't research this technology");
+		ASSERT(GET_TEAM(GET_PLAYER(ePlayerToStealFrom).getTeam()).GetTeamTechs()->HasTech(eTech), "ePlayerToStealFrom does not have the requested tech");
 		if (kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)
 		{
 			kTeam.setHasTech(eTech, true, ePlayer, true, true);

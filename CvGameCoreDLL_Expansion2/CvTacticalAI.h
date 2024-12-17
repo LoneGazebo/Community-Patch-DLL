@@ -56,7 +56,7 @@ public:
 
 	void SetHealthPercent(int curHitPoints, int maxHitPoints)
 	{
-		CvAssert(maxHitPoints != 0);
+		ASSERT(maxHitPoints != 0);
 		m_iHealthPercent = curHitPoints * 100 / maxHitPoints;
 	}
 	int GetHealthPercent() const

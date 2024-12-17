@@ -13,7 +13,7 @@ CvDllGameOptionInfo::CvDllGameOptionInfo(CvGameOptionInfo* pGameOptionInfo)
 	: m_pGameOptionInfo(pGameOptionInfo)
 	, m_uiRefCount(1)
 {
-	FAssertMsg(pGameOptionInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pGameOptionInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllGameOptionInfo::~CvDllGameOptionInfo()

@@ -35,7 +35,7 @@ CvBuildingProductionAI::~CvBuildingProductionAI(void)
 /// Clear out AI local variables
 void CvBuildingProductionAI::Reset()
 {
-	CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
+	ASSERT(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
 
 	m_BuildingAIWeights.clear();
 
@@ -65,7 +65,7 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 /// Serialization write
 void CvBuildingProductionAI::Write(FDataStream& kStream) const
 {
-	CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
+	ASSERT(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);

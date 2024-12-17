@@ -234,8 +234,8 @@ int CvDeal::GetNumItems()
 /// Who is player 1 in this deal (called from Lua because the interface has a static Deal that is initialized with both players as -1)
 void CvDeal::SetFromPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DEAL: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eFromPlayer = ePlayer;
 }
@@ -243,8 +243,8 @@ void CvDeal::SetFromPlayer(PlayerTypes ePlayer)
 /// Who is player 2 in this deal (called from Lua because the interface has a static Deal that is initialized with both players as -1)
 void CvDeal::SetToPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DEAL: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eToPlayer = ePlayer;
 }
@@ -295,8 +295,8 @@ void CvDeal::SetDuration(int iValue)
 /// Helper function to figure out who the TO player is for a TradeableItem
 PlayerTypes CvDeal::GetOtherPlayer(PlayerTypes eFromPlayer) const
 {
-	CvAssertMsg(eFromPlayer >= 0, "DEAL: Invalid Player Index.");
-	CvAssertMsg(eFromPlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(eFromPlayer >= 0, "DEAL: Invalid Player Index.");
+	ASSERT(eFromPlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	if(m_eFromPlayer != eFromPlayer)
 	{
@@ -3153,8 +3153,8 @@ PeaceTreatyTypes CvDeal::GetPeaceTreatyType() const
 /// Sets what kind of Peace Treaty (if any) is this Deal
 void CvDeal::SetPeaceTreatyType(PeaceTreatyTypes eTreaty)
 {
-	CvAssertMsg(eTreaty >= NO_PEACE_TREATY_TYPE, "DEAL: Invalid PeaceTreatyType index.");	// NO_PEACE_TREATY_TYPE is valid because we could be clearing the deal out for other uses
-	CvAssertMsg(eTreaty < NUM_PEACE_TREATY_TYPES, "DEAL: Invalid PeaceTreatyType index.");
+	ASSERT(eTreaty >= NO_PEACE_TREATY_TYPE, "DEAL: Invalid PeaceTreatyType index.");	// NO_PEACE_TREATY_TYPE is valid because we could be clearing the deal out for other uses
+	ASSERT(eTreaty < NUM_PEACE_TREATY_TYPES, "DEAL: Invalid PeaceTreatyType index.");
 
 	m_ePeaceTreatyType = eTreaty;
 }
@@ -3168,8 +3168,8 @@ PlayerTypes CvDeal::GetSurrenderingPlayer() const
 /// Sets Who (if anyone) is surrendering in this Deal
 void CvDeal::SetSurrenderingPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eSurrenderingPlayer = ePlayer;
 }
@@ -3183,8 +3183,8 @@ PlayerTypes CvDeal::GetDemandingPlayer() const
 /// Sets Who (if anyone) is making a demand in this Deal
 void CvDeal::SetDemandingPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eDemandingPlayer = ePlayer;
 }
@@ -3198,8 +3198,8 @@ PlayerTypes CvDeal::GetRequestingPlayer() const
 /// Sets Who (if anyone) is making a request in this Deal
 void CvDeal::SetRequestingPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
+	ASSERT(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eRequestingPlayer = ePlayer;
 }
@@ -3210,8 +3210,8 @@ void CvDeal::SetRequestingPlayer(PlayerTypes ePlayer)
 /// Insert an immediate gold trade
 void CvDeal::AddGoldTrade(PlayerTypes eFrom, int iAmount, bool bDoNotRemove)
 {
-	CvAssertMsg(iAmount >= 0, "DEAL: Trying to add a negative amount of Gold to a deal.");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iAmount >= 0, "DEAL: Trying to add a negative amount of Gold to a deal.");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_GOLD, iAmount))
 	{
@@ -3229,10 +3229,10 @@ void CvDeal::AddGoldTrade(PlayerTypes eFrom, int iAmount, bool bDoNotRemove)
 /// Insert a gold per turn trade
 void CvDeal::AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(iAmount >= 0, "DEAL: Trying to add a negative amount of GPT to a deal.");
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iAmount >= 0, "DEAL: Trying to add a negative amount of GPT to a deal.");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_GOLD_PER_TURN, iAmount, iDuration))
 	{
@@ -3248,14 +3248,14 @@ void CvDeal::AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration, 
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid GPT amount to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid GPT amount to a deal");
 	}
 }
 
 /// Insert a map trade
 void CvDeal::AddMapTrade(PlayerTypes eFrom, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_MAPS))
 	{
@@ -3269,17 +3269,17 @@ void CvDeal::AddMapTrade(PlayerTypes eFrom, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Map item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Map item to a deal");
 	}
 }
 
 /// Insert a resource trade
 void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(iAmount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.");
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iAmount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RESOURCES, eResource, iAmount))
 	{
@@ -3296,14 +3296,14 @@ void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iA
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Resource to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Resource to a deal");
 	}
 }
 
 /// Insert a city trade
 void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
 	if (!pCity)
@@ -3328,14 +3328,14 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid City to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid City to a deal");
 	}
 }
 
 /// Insert adding an embassy to the deal
 void CvDeal::AddAllowEmbassy(PlayerTypes eFrom, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_ALLOW_EMBASSY))
 	{
@@ -3347,16 +3347,16 @@ void CvDeal::AddAllowEmbassy(PlayerTypes eFrom, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Allow Embassy item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Allow Embassy item to a deal");
 	}
 }
 
 /// Insert an open borders pact
 void CvDeal::AddOpenBorders(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_OPEN_BORDERS, iDuration))
 	{
@@ -3371,16 +3371,16 @@ void CvDeal::AddOpenBorders(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Open Borders item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Open Borders item to a deal");
 	}
 }
 
 /// Insert a defensive pact
 void CvDeal::AddDefensivePact(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_DEFENSIVE_PACT, iDuration))
 	{
@@ -3395,16 +3395,16 @@ void CvDeal::AddDefensivePact(PlayerTypes eFrom, int iDuration, bool bDoNotRemov
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Defensive Pact item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Defensive Pact item to a deal");
 	}
 }
 
 /// Insert a Research Agreement
 void CvDeal::AddResearchAgreement(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RESEARCH_AGREEMENT, iDuration))
 	{
@@ -3419,14 +3419,14 @@ void CvDeal::AddResearchAgreement(PlayerTypes eFrom, int iDuration, bool bDoNotR
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Research Agreement item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Research Agreement item to a deal");
 	}
 }
 
 /// Insert ending a war
 void CvDeal::AddPeaceTreaty(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_PEACE_TREATY))
 	{
@@ -3440,14 +3440,14 @@ void CvDeal::AddPeaceTreaty(PlayerTypes eFrom, int iDuration, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Peace Treaty item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Peace Treaty item to a deal");
 	}
 }
 
 /// Insert going to peace with a third party
 void CvDeal::AddThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iDuration, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_THIRD_PARTY_PEACE, eThirdPartyTeam))
 	{
@@ -3462,14 +3462,14 @@ void CvDeal::AddThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, in
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Third Party Peace item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Third Party Peace item to a deal");
 	}
 }
 
 /// Insert going to war with a third party
 void CvDeal::AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_THIRD_PARTY_WAR, eThirdPartyTeam))
 	{
@@ -3484,14 +3484,14 @@ void CvDeal::AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, bool
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Third Party War item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Third Party War item to a deal");
 	}
 }
 
 /// Insert adding a declaration of peace to the deal
 void CvDeal::AddDeclarationOfFriendship(PlayerTypes eFrom, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_DECLARATION_OF_FRIENDSHIP))
 	{
@@ -3506,14 +3506,14 @@ void CvDeal::AddDeclarationOfFriendship(PlayerTypes eFrom, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Declaration of Friendship item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Declaration of Friendship item to a deal");
 	}
 }
 
 /// Insert a vote commitment to the deal
 void CvDeal::AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_VOTE_COMMITMENT, iResolutionID, iVoteChoice, iNumVotes, bRepeal))
 	{
@@ -3529,13 +3529,13 @@ void CvDeal::AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteCh
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Vote Commitment item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Vote Commitment item to a deal");
 	}
 }
 
 bool CvDeal::ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
 
 	int iOldValue = 0;
 
@@ -3565,9 +3565,9 @@ bool CvDeal::ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount)
 
 bool CvDeal::ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDuration)
 {
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
 
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -3664,9 +3664,9 @@ int CvDeal::GetNumStrategicsOnTheirSide(PlayerTypes eFrom)
 
 bool CvDeal::ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration)
 {
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
+	ASSERT(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!");
 
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -3841,7 +3841,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 		return DEAL_SUPPLEMENTAL;
 	}
 
-	CvAssertMsg(false, "unknown eTradeItem passed in");
+	ASSERT(false, "unknown eTradeItem passed in");
 	return DEAL_NONRENEWABLE;
 }
 
@@ -4005,8 +4005,8 @@ void CvDeal::ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPart
 
 void CvDeal::ChangeThirdPartyPeaceDuration(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iNewDuration)
 {
-	CvAssertMsg(iNewDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
-	CvAssertMsg(iNewDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+	ASSERT(iNewDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.");
+	ASSERT(iNewDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
 
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -4060,7 +4060,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 /// Insert a tech trade
 void CvDeal::AddTechTrade(PlayerTypes eFrom, TechTypes eTech, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_TECHS, eTech))
 	{
@@ -4075,14 +4075,14 @@ void CvDeal::AddTechTrade(PlayerTypes eFrom, TechTypes eTech, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Tech item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Tech item to a deal");
 	}
 }
 
 /// Insert Vassalage Trade
 void CvDeal::AddVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_VASSALAGE))
 	{
@@ -4094,14 +4094,14 @@ void CvDeal::AddVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Vassalage item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Vassalage item to a deal");
 	}
 }
 
 /// Insert Vassalage Trade
 void CvDeal::AddRevokeVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove)
 {
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	ASSERT(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
 
 	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_VASSALAGE_REVOKE))
 	{
@@ -4113,7 +4113,7 @@ void CvDeal::AddRevokeVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove)
 	}
 	else
 	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Vassalage item to a deal");
+		ASSERT(false, "DEAL: Trying to add an invalid Vassalage item to a deal");
 	}
 }
 
@@ -5180,10 +5180,10 @@ void CvGameDeals::DoTurn()
 			for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 			{
 				int iFinalTurn = itemIter->m_iFinalTurn;
-				CvAssertMsg(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.");
-				CvAssertMsg(iFinalTurn < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a final turn way beyond the end of the game.");
-				CvAssertMsg(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-				CvAssertMsg(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!");
+				ASSERT(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.");
+				ASSERT(iFinalTurn < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a final turn way beyond the end of the game.");
+				ASSERT(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+				ASSERT(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!");
 
 				if (iFinalTurn > -1 && iFinalTurn == iGameTurn)
 				{
@@ -5208,10 +5208,10 @@ void CvGameDeals::DoTurn()
 			for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 			{
 				int iFinalTurn = itemIter->m_iFinalTurn;
-				CvAssertMsg(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.");
-				CvAssertMsg(iFinalTurn < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a final turn way beyond the end of the game.");
-				CvAssertMsg(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
-				CvAssertMsg(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!");
+				ASSERT(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.");
+				ASSERT(iFinalTurn < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a final turn way beyond the end of the game.");
+				ASSERT(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
+				ASSERT(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!");
 
 				if(iFinalTurn > -1 && iFinalTurn == iGameTurn)
 				{

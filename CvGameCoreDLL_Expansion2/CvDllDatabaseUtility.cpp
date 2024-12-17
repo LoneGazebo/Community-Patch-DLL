@@ -178,7 +178,7 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	//Log Database Memory statistics
 	LogMsg(DB.CalculateMemoryStats());
 
-	CvAssertMsg(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
+	ASSERT(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
 
 	GC.GameDataPostCache();
 
@@ -416,7 +416,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 			while(kResults.Step())
 			{
 				const int iFlavor = kResults.GetInt("ID");
-				CvAssert(iFlavor >= 0 && iFlavor < iNumFlavors);
+				ASSERT(iFlavor >= 0 && iFlavor < iNumFlavors);
 				if(iFlavor >= 0 && iFlavor < iNumFlavors)
 				{
 					paFlavors[iFlavor] = kResults.GetText("Type");
@@ -426,7 +426,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 		}
 		else
 		{
-			CvAssertMsg(false, DB.ErrorMessage());
+			ASSERT(false, DB.ErrorMessage());
 		}
 	}
 
@@ -448,6 +448,8 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 
 	cvStopWatch kPerfTest("Validating Game Database", "xml-perf.log");
 	bool bError = false;
+	
+	ASSERT(false, "test");
 
 	LogMsg("**** Validating Game Database *****");
 
@@ -951,7 +953,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i = 0; i < iTotalActionInfoCount; i++)
 	{
 		CvActionInfo* pActionInfo = FNEW(CvActionInfo, c_eCiv5GameplayDLL, 0);
-		CvAssert(piIndexList[piOrderedIndex[i]] != -1);
+		ASSERT(piIndexList[piOrderedIndex[i]] != -1);
 
 		pActionInfo->setOriginalIndex(piIndexList[piOrderedIndex[i]]);
 		pActionInfo->setSubType((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]]);

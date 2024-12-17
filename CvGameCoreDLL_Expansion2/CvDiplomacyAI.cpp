@@ -24484,7 +24484,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	switch (GET_PLAYER(ePlayer).GetMinorCivAI()->GetPersonality())
 	{
 	case NO_MINOR_CIV_PERSONALITY_TYPE:
-		CvAssertMsg(!GET_PLAYER(ePlayer).isMinorCiv(), "Minor missing personality");
+		ASSERT(!GET_PLAYER(ePlayer).isMinorCiv(), "Minor missing personality");
 		break; // Not a minor civ.
 	case MINOR_CIV_PERSONALITY_FRIENDLY:
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
@@ -27865,8 +27865,8 @@ bool CvDiplomacyAI::IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 /// Are we willing to swap embassies with ePlayer?
 bool CvDiplomacyAI::IsEmbassyExchangeAcceptable(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
 
@@ -29163,8 +29163,8 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const
 /// First contact between this player and another
 void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (ePlayer != GetID())
 	{
@@ -29287,10 +29287,10 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 /// Send a statement to another player
 void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eStatement, int iData1, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.");
-	CvAssertMsg(eStatement < NUM_DIPLO_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.");
+	ASSERT(eStatement < NUM_DIPLO_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.");
 
 	const char* szText = NULL;
 	bool bHuman = GET_PLAYER(ePlayer).isHuman();
@@ -29345,7 +29345,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
 				const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -29362,7 +29362,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if (eMinorCiv != NO_PLAYER)
 			{
 				const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -29374,7 +29374,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if (eMinorCiv != NO_PLAYER)
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_WAR)
@@ -29396,7 +29396,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if (bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if (eMinorCiv != NO_PLAYER)
 			{
 				const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -29408,7 +29408,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if (eMinorCiv != NO_PLAYER)
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_HOSTILE)
@@ -29518,7 +29518,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if(bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
 				const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -29536,7 +29536,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
@@ -29575,7 +29575,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		if(bHuman)
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if (eMinorCiv != NO_PLAYER)
 			{
 				const char* strMinorCivKey = GET_PLAYER(eMinorCiv).getNameKey();
@@ -29590,7 +29590,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			PlayerTypes eMinorCiv = (PlayerTypes) iData1;
-			CvAssert(eMinorCiv != NO_PLAYER);
+			ASSERT(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
@@ -29947,7 +29947,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_REQUEST_FRIEND_DENOUNCE)
 	{
 		PlayerTypes eTarget = (PlayerTypes) iData1;
-		CvAssert(eTarget != NO_PLAYER);
+		ASSERT(eTarget != NO_PLAYER);
 		if(eTarget != NO_PLAYER)
 		{
 			const char* strTargetCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
@@ -30005,7 +30005,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if (eStatement == DIPLO_STATEMENT_COOP_WAR_REQUEST)
 	{
 		PlayerTypes eAgainstPlayer = (PlayerTypes) iData1;
-		CvAssert(!IsPlayerValid(eAgainstPlayer));
+		ASSERT(!IsPlayerValid(eAgainstPlayer));
 		if (IsPlayerValid(eAgainstPlayer))
 		{
 			// Send message to human
@@ -30036,7 +30036,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_COOP_WAR_TIME)
 	{
 		PlayerTypes eAgainstPlayer = (PlayerTypes) iData1;
-		CvAssert(eAgainstPlayer != NO_PLAYER);
+		ASSERT(eAgainstPlayer != NO_PLAYER);
 		if(eAgainstPlayer != NO_PLAYER)
 		{
 			// Send message to human
@@ -30474,10 +30474,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_SHARE_INTRIGUE)
 	{
 		IntrigueNotificationMessage* pNotificationMessage = GetPlayer()->GetEspionage()->GetRecentIntrigueInfo(ePlayer);
-		CvAssertMsg(pNotificationMessage, "pNotificationMessage is null. Whut?");
+		ASSERT(pNotificationMessage, "pNotificationMessage is null. Whut?");
 		if (pNotificationMessage)
 		{
-			CvAssertMsg(pNotificationMessage->m_eSourcePlayer != NO_PLAYER, "There is no plotter! What's going on");
+			ASSERT(pNotificationMessage->m_eSourcePlayer != NO_PLAYER, "There is no plotter! What's going on");
 			PlayerTypes ePlotterPlayer = pNotificationMessage->m_eSourcePlayer;
 			CvIntrigueType eIntrigueType = (CvIntrigueType)pNotificationMessage->m_iIntrigueType;
 			// don't share intrigue about two parties if they are already at war, except for the information that someone has been bribed to go to war
@@ -30559,7 +30559,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE_COOP_WAR, NO_PLAYER, szPlayerName, szBribedPlayerName);
 						break;
 					default:
-						CvAssertMsg(false, "Unknown intrigue type");
+						ASSERT(false, "Unknown intrigue type");
 						break;
 					}
 
@@ -31179,7 +31179,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	{
 		if(bHuman)
 		{
-			CvAssertMsg(false, "Don't send vassalage statement to human!");
+			ASSERT(false, "Don't send vassalage statement to human!");
 		}
 		else
 		{
@@ -31243,7 +31243,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't send this message to AI!");
+			ASSERT(false, "Don't send this message to AI!");
 		}
 	}
 	// AI is happy that their taxes were lowered
@@ -31256,7 +31256,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't send this message to AI!");
+			ASSERT(false, "Don't send this message to AI!");
 		}
 	}
 	// AI notifies human that their taxes were RAISED
@@ -31269,7 +31269,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't send this message to AI!");
+			ASSERT(false, "Don't send this message to AI!");
 		}
 	}
 	// AI notifies human that their taxes were LOWERED
@@ -31282,7 +31282,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't send this message to AI!");
+			ASSERT(false, "Don't send this message to AI!");
 		}
 	}
 
@@ -31374,8 +31374,8 @@ void CvDiplomacyAI::DoContactMajorCivs()
 				{
 					PlayerTypes eLoopPlayer = *humanIter;
 
-					CvAssert(CvPreGame::isHuman(eLoopPlayer));
-					CvAssert(GET_PLAYER(eLoopPlayer).isTurnActive());
+					ASSERT(CvPreGame::isHuman(eLoopPlayer));
+					ASSERT(GET_PLAYER(eLoopPlayer).isTurnActive());
 
 					if (!IsPlayerValid(eLoopPlayer))
 						continue;
@@ -31915,7 +31915,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					}
 					else
 					{
-						CvAssertMsg(false, "Could not lookup minor civ's area!");
+						ASSERT(false, "Could not lookup minor civ's area!");
 					}
 
 					// How many units does the city-state have?
@@ -32074,7 +32074,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					}
 					else
 					{
-						CvAssertMsg(false, "Could not lookup minor civ's area!");
+						ASSERT(false, "Could not lookup minor civ's area!");
 					}
 
 					// How many units does the city-state have?
@@ -32583,7 +32583,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				}
 				else
 				{
-					CvAssertMsg(false, "Chose a minor to buyout that cannot actually be bought!");
+					ASSERT(false, "Chose a minor to buyout that cannot actually be bought!");
 				}
 			}
 			else
@@ -32606,7 +32606,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				}
 				else
 				{
-					CvAssertMsg(false, "Chose a minor to buyout that cannot actually be bought!");
+					ASSERT(false, "Chose a minor to buyout that cannot actually be bought!");
 				}
 			}
 			else
@@ -32628,7 +32628,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		for (int i = 0; i < veMinorsToBullyAnnex.size(); i++)
 		{
 			eLoopMinor = veMinorsToBullyAnnex.GetElement(i);
-			CvAssertMsg(eLoopMinor != NO_PLAYER, "Trying to bully-annex NO_PLAYER!");
+			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully-annex NO_PLAYER!");
 			if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
 			{
 				GC.getGame().DoMinorBullyAnnex(eID, eLoopMinor);
@@ -32636,7 +32636,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 			else
 			{
-				CvAssertMsg(false, "Chose a minor to bully-annex that cannot actually be bullied!");
+				ASSERT(false, "Chose a minor to bully-annex that cannot actually be bullied!");
 			}
 		}
 	}
@@ -32716,7 +32716,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		for(int i = 0; i < veMinorsToBullyUnit.size(); i++)
 		{
 			eLoopMinor = veMinorsToBullyUnit.GetElement(i);
-			CvAssertMsg(eLoopMinor != NO_PLAYER, "Trying to bully a unit from NO_PLAYER!");
+			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully a unit from NO_PLAYER!");
 			if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
 			{
 				GC.getGame().DoMinorBullyUnit(eID, eLoopMinor);
@@ -32724,7 +32724,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 			else
 			{
-				CvAssertMsg(false, "Chose a minor to bully unit from that cannot actually be bullied!");
+				ASSERT(false, "Chose a minor to bully unit from that cannot actually be bullied!");
 			}
 		}
 	}
@@ -32737,14 +32737,14 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		for(int i = 0; i < veMinorsToBullyGold.size(); i++)
 		{
 			eLoopMinor = veMinorsToBullyGold.GetElement(i);
-			CvAssertMsg(eLoopMinor != NO_PLAYER, "Trying to bully gold from NO_PLAYER!");
+			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully gold from NO_PLAYER!");
 			if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyGold(eID))
 			{
 				GC.getGame().DoMinorBullyGold(eID, eLoopMinor);
 			}
 			else
 			{
-				CvAssertMsg(false, "Chose a minor to bully gold from that cannot actually be bullied!");
+				ASSERT(false, "Chose a minor to bully gold from that cannot actually be bullied!");
 			}
 		}
 	}
@@ -32776,8 +32776,8 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor)
 /// Possible Contact Statement - Notify human it's time for a coop war they agreed to
 void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -32858,8 +32858,8 @@ void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - Coop War Request
 void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GC.getGame().IsCoopWarRequestsDisabled())
 		return;
@@ -32897,8 +32897,8 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 /// Possible Contact Statement - Demand
 void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	//End the gift exchange at the start of each round.
 	GetPlayer()->GetDiplomacyAI()->SetOfferingGift(ePlayer, false);
@@ -32996,8 +32996,8 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 /// Possible Contact Statement - Killed a City-State we're protective towards
 void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33015,8 +33015,8 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 				PlayerTypes eMinorCiv = GetOtherPlayerProtectedMinorKilled(ePlayer);
 				if(eMinorCiv != NO_PLAYER)
 				{
-					CvAssert(eMinorCiv >= MAX_MAJOR_CIVS);
-					CvAssert(eMinorCiv < MAX_CIV_PLAYERS);
+					ASSERT(eMinorCiv >= MAX_MAJOR_CIVS);
+					ASSERT(eMinorCiv < MAX_CIV_PLAYERS);
 
 					eStatement = eTempStatement;
 
@@ -33030,8 +33030,8 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 /// Possible Contact Statement - Attacked a City-State we're protective towards
 void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33053,8 +33053,8 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 				PlayerTypes eMinorCiv = GetOtherPlayerProtectedMinorAttacked(ePlayer);
 				if(eMinorCiv != NO_PLAYER)
 				{
-					CvAssert(eMinorCiv >= MAX_MAJOR_CIVS);
-					CvAssert(eMinorCiv < MAX_CIV_PLAYERS);
+					ASSERT(eMinorCiv >= MAX_MAJOR_CIVS);
+					ASSERT(eMinorCiv < MAX_CIV_PLAYERS);
 					// Minor civ must still be alive!
 					if(GET_PLAYER(eMinorCiv).isAlive())
 					{	
@@ -33070,8 +33070,8 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 /// Possible Contact Statement - Bullied a City-State we're protective towards
 void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. ");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. ");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33114,8 +33114,8 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 					PlayerTypes eMinorCiv = GetOtherPlayerProtectedMinorBullied(ePlayer);
 					if(eMinorCiv != NO_PLAYER)
 					{
-						CvAssert(eMinorCiv >= MAX_MAJOR_CIVS);
-						CvAssert(eMinorCiv < MAX_CIV_PLAYERS);
+						ASSERT(eMinorCiv >= MAX_MAJOR_CIVS);
+						ASSERT(eMinorCiv < MAX_CIV_PLAYERS);
 						// Minor civ must still be alive!
 						if(GET_PLAYER(eMinorCiv).isAlive())
 						{
@@ -33186,8 +33186,8 @@ void CvDiplomacyAI::DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploState
 /// Possible Contact Statement - Tell the player he broke his Plot Buying promise
 void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33205,8 +33205,8 @@ void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, Dipl
 /// Possible Contact Statement - We attacked a minor that is protected by someone
 void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33236,8 +33236,8 @@ void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploSta
 						int iTurnsBetweenStatements = 1;
 						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 						{
-							CvAssert(eMinor >= MAX_MAJOR_CIVS);
-							CvAssert(eMinor < MAX_CIV_PLAYERS);
+							ASSERT(eMinor >= MAX_MAJOR_CIVS);
+							ASSERT(eMinor < MAX_CIV_PLAYERS);
 
 							eStatement = eTempStatement;
 							iData1 = eMinor;
@@ -33252,8 +33252,8 @@ void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploSta
 /// Possible Contact Statement - We bullied a minor that is protected by someone
 void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. ");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. ");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33283,8 +33283,8 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 
 						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 						{
-							CvAssert(eMinor >= MAX_MAJOR_CIVS);
-							CvAssert(eMinor < MAX_CIV_PLAYERS);
+							ASSERT(eMinor >= MAX_MAJOR_CIVS);
+							ASSERT(eMinor < MAX_CIV_PLAYERS);
 
 							eStatement = eTempStatement;
 							iData1 = eMinor;
@@ -33299,8 +33299,8 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 /// Possible Contact Statement - We caught this player spying on us
 void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33324,8 +33324,8 @@ void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - We killed this player's spy
 void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33374,8 +33374,8 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - Share intrigue with this player
 void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33432,8 +33432,8 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - They converted one of our cities, and we want them to stop that
 void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33453,8 +33453,8 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 /// Possible Contact Statement - They dug up one of our artifacts, and we want them to stop that
 void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33478,8 +33478,8 @@ void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - We want to make a Declaration of Friendship with them
 void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsFriendshipRequestsDisabled())
 		return;
@@ -33523,8 +33523,8 @@ void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eSt
 /// Possible Contact Statement - We're denouncing one of our friends (backstabbing)
 void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33543,8 +33543,8 @@ void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatemen
 /// Possible Contact Statement - We're ending our Declaration of Friendship with them
 void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33563,8 +33563,8 @@ void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& 
 /// Possible Contact Statement - We're denouncing a player
 void CvDiplomacyAI::DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33597,8 +33597,8 @@ void CvDiplomacyAI::DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes
 /// Possible Contact Statement - We're requesting that a player denounce someone
 void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -33630,8 +33630,8 @@ void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploS
 /// Possible Contact Statement - Luxury Trade
 void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33660,8 +33660,8 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 /// Possibile Contact Statement - Embassy Exchange
 void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33729,8 +33729,8 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 /// Possible Contact Statement - Embassy
 void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33767,8 +33767,8 @@ void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eSt
 /// Possible Contact Statement - Open Borders Exchange
 void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33820,8 +33820,8 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 /// Possible Contact Statement - Open Borders
 void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33858,8 +33858,8 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 /// Possible Contact Statement - Research Agreement Offer
 void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33895,8 +33895,8 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - Strategic Resource Offer
 void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33925,8 +33925,8 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 /// Possible Contact Statement - Defensive Pact Offer
 void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -33961,8 +33961,8 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 /// Possible Contact Statement - City Exchange
 void CvDiplomacyAI::DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -33988,8 +33988,8 @@ void CvDiplomacyAI::DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eSt
 /// Possible Contact Statement - Third Party War Trade
 void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -34017,8 +34017,8 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 /// Possible Contact Statement - Peace Trade
 void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -34046,8 +34046,8 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - Vote Trade
 void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -34076,8 +34076,8 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 /// Possible Contact Statement - Renew Recently Expired Deal
 CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
@@ -34178,8 +34178,8 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 /// Possible Contact Statement - Request Help
 void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsHelpRequestsDisabled())
 		return;
@@ -34224,8 +34224,8 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 /// Possible Contact Statement - Gift
 void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -34268,8 +34268,8 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 /// Possible Contact Statement
 //void CvDiplomacyAI::DoNowUnforgivableStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement)
 //{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
 //	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 //		return;
@@ -34304,8 +34304,8 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 /// Possible Contact Statement
 //void CvDiplomacyAI::DoNowEnemyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement)
 //{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
 //	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 //		return;
@@ -34344,8 +34344,8 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 /// Possible Contact Statement - Approach towards player is now HOSTILE
 void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34386,8 +34386,8 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 /// Possible Contact Statement
 //void CvDiplomacyAI::DoFriendlyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement)
 //{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+//	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
 //	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 //		return;
@@ -34412,8 +34412,8 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 /// Possible Contact Statement - Approach towards player is now AFRAID
 void CvDiplomacyAI::DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -34436,8 +34436,8 @@ void CvDiplomacyAI::DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& 
 /// Possible Contact Statement - Warning the player about their warmongering
 void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34480,8 +34480,8 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 /// Possible Contact Statement - Warning the player that we don't like their interactions with "our" City-States
 void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1, bool bIgnoreTurnsBetweenLimit)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34552,8 +34552,8 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 /// Possible Contact Statement - We're angry that they befriended a player we denounced
 void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34629,8 +34629,8 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - We're angry that they denounced one of our friends
 void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34706,8 +34706,8 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - We're happy that they denounced a player we denounced
 void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -34776,8 +34776,8 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 /// Possible Contact Statement - We're happy they befriended one of our friends
 void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -34846,8 +34846,8 @@ void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementT
 /// Possible Contact Statement - Peace
 void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsPeaceOffersDisabled())
 		return;
@@ -34898,8 +34898,8 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 /// Possible Contact Statement - We befriended one of the human's enemies and we're letting them know
 void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -34988,8 +34988,8 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 /// Possible Contact Statement - We denounced one of the human's friends and we're letting them know
 void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (WasResurrectedBy(ePlayer))
 		return;
@@ -35078,8 +35078,8 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 /// Possible Contact Statement - We denounced someone the human has denounced and we're letting them know
 void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -35168,8 +35168,8 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - We befriended one of the human's friends, and we're letting them know
 void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -35269,8 +35269,8 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 /// Possible Contact Statement - We're happy we're following the same ideology as the human
 void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -35334,8 +35334,8 @@ void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTyp
 /// Possible Contact Statement - Either AI or human has switched ideologies due to the other's pressure
 void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	PolicyBranchTypes eFreedom = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
 	PolicyBranchTypes eOrder = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
@@ -35476,8 +35476,8 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - Message to human if the AI thinks they are getting close to the victory they're also going for.
 void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (!IsCompetingForVictory())
 		return;
@@ -35635,8 +35635,8 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 /// Possible Contact Statement - Message to human if the AI thinks they are getting close to a victory that they're not going for.
 void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (!IsCompetingForVictory())
 		return;
@@ -35716,8 +35716,8 @@ void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementT
 /// Possible Contact Statement - We liked the human's proposal to the World Congress
 void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -35765,8 +35765,8 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 /// Possible Contact Statement - We disliked the human's proposal to the World Congress
 void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
@@ -35818,8 +35818,8 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 /// Possible Contact Statement - The human helped our proposal pass in the World Congress
 void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -35868,8 +35868,8 @@ void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStateme
 /// Possible Contact Statement - The human helped our proposal fail in the World Congress
 void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
@@ -35922,8 +35922,8 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 /// Possible Contact Statement - The human helped relocate the World Congress to our lands
 void CvDiplomacyAI::DoTheySupportedOurHosting(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsComplimentMessagesDisabled())
 		return;
@@ -36025,10 +36025,10 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 
 const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer, const Localization::String& strOptionalKey1, const Localization::String& strOptionalKey2)
 {
-	CvAssertMsg(eDiploMessage >= 0, "DIPLOMACY_AI: Invalid DiploMessageType.");
-	CvAssertMsg(eDiploMessage < NUM_DIPLO_MESSAGE_TYPES, "DIPLOMACY_AI: Invalid DiploMessageType.");
-	CvAssertMsg(eForPlayer >= NO_PLAYER, "DIPLOMACY_AI: Invalid Player Index.");	// NO_PLAYER is valid because eForPlayer is used when we need specific data (e.g. for declaring war)
-	CvAssertMsg(eForPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(eDiploMessage >= 0, "DIPLOMACY_AI: Invalid DiploMessageType.");
+	ASSERT(eDiploMessage < NUM_DIPLO_MESSAGE_TYPES, "DIPLOMACY_AI: Invalid DiploMessageType.");
+	ASSERT(eForPlayer >= NO_PLAYER, "DIPLOMACY_AI: Invalid Player Index.");	// NO_PLAYER is valid because eForPlayer is used when we need specific data (e.g. for declaring war)
+	ASSERT(eForPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 	int iMessage = 0;
@@ -37638,7 +37638,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// Should always have a state we're handling
 	default:
 		strText = "NO MESSAGE. Trying to get Diplo string.  Something has gone wrong, somehow.";
-		CvAssert(false);
+		ASSERT(false);
 		break;
 	}
 
@@ -37649,8 +37649,8 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 /// Message from UI to gameplay about something that should happen with regards to diplomacy
 void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2)
 {
-	CvAssertMsg(eEvent >= 0, "DIPLOMACY_AI: Invalid FromUIDiploEventType.");
-	CvAssertMsg(eEvent < NUM_FROM_UI_DIPLO_EVENTS, "DIPLOMACY_AI: Invalid FromUIDiploEventType.");
+	ASSERT(eEvent >= 0, "DIPLOMACY_AI: Invalid FromUIDiploEventType.");
+	ASSERT(eEvent < NUM_FROM_UI_DIPLO_EVENTS, "DIPLOMACY_AI: Invalid FromUIDiploEventType.");
 
 	const char* strText = "";
 
@@ -38121,8 +38121,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID,  iArg2 is MINOR ID from DiscussionDialog.lua
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
-		CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
-		CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
 		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue
@@ -38132,7 +38132,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		}
 
 		CvPlayer* pMinor = &GET_PLAYER(eMinor);
-		CvAssertMsg(pMinor, "Error triggering gameplay effects for diplomacy event involving a Protected city-state.");
+		ASSERT(pMinor, "Error triggering gameplay effects for diplomacy event involving a Protected city-state.");
 		if (!pMinor)
 		{
 			// Fail gracefully, allow UI to continue
@@ -38141,7 +38141,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			break;
 		}
 		
-		CvAssertMsg(pMinor->GetMinorCivAI()->IsProtectedByMajor(eFromPlayer), "Diplomacy event involving a Protected city-state when there was no Pledge active.");
+		ASSERT(pMinor->GetMinorCivAI()->IsProtectedByMajor(eFromPlayer), "Diplomacy event involving a Protected city-state when there was no Pledge active.");
 
 		// Human says he forgives the AI
 		if (iArg1 == 1)
@@ -38293,8 +38293,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID,  iArg2 is MINOR ID from DiscussionDialog.lua
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
-		CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
-		CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
 		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue
@@ -38304,7 +38304,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		}
 		
 		CvPlayer* pMinor = &GET_PLAYER(eMinor);
-		CvAssertMsg(pMinor, "Error triggering gameplay effects for breaking a Pledge to Protect a city-state.");
+		ASSERT(pMinor, "Error triggering gameplay effects for breaking a Pledge to Protect a city-state.");
 		if (!pMinor)
 		{
 			// Fail gracefully, allow UI to continue
@@ -38313,7 +38313,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			break;
 		}
 		
-		CvAssertMsg(pMinor->GetMinorCivAI()->IsProtectedByMajor(eFromPlayer), "Diplomacy event involving a Protected city-state when there was no Pledge active.");
+		ASSERT(pMinor->GetMinorCivAI()->IsProtectedByMajor(eFromPlayer), "Diplomacy event involving a Protected city-state when there was no Pledge active.");
 
 		// Human says he forgives the AI
 		if(iArg1 == 1)
@@ -39306,7 +39306,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		PlayerTypes ePlottingPlayer = (PlayerTypes)iArg1;
 		CvIntrigueType eIntrigueType = (CvIntrigueType)iArg2;
-		CvAssert(CvPlayerAI::IsValid(ePlottingPlayer));
+		ASSERT(CvPlayerAI::IsValid(ePlottingPlayer));
 		if (CvPlayerAI::IsValid(ePlottingPlayer))
 		{
 			ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
@@ -39815,7 +39815,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Something happened! (will generate an error message)
 			else
 			{
-				CvAssert(false);
+				ASSERT(false);
 
 				if (bActivePlayer)
 				{
@@ -39828,7 +39828,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 	// Should always have a state we're handling
 	default:
-		CvAssert(false);
+		ASSERT(false);
 		break;
 	}
 }
@@ -40230,8 +40230,8 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 /// The AI is denouncing the human
 int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	int iMessage = 0;
 	if(GetPlayer()->isHuman())
@@ -40785,8 +40785,8 @@ const char* CvDiplomacyAI::GetAttackedByHumanMessage()
 /// The AI is declaring war on a human, what does he say?
 const char* CvDiplomacyAI::GetWarMessage(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	const char* strText = "OMG I HAVE NO DATA (DECLARING WAR)";
 
@@ -40862,8 +40862,8 @@ const char* CvDiplomacyAI::GetWarMessage(PlayerTypes ePlayer)
 /// The AI is breaking up with the human
 const char* CvDiplomacyAI::GetEndDoFMessage(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	const char* strText = "OMG I HAVE NO DATA (DECLARING WAR)";
 
@@ -40900,8 +40900,8 @@ const char* CvDiplomacyAI::GetEndDoFMessage(PlayerTypes ePlayer)
 /// The AI is done working against someone
 const char* CvDiplomacyAI::GetEndWorkAgainstSomeoneMessage(PlayerTypes ePlayer, const Localization::String& strAgainstPlayerKey)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	const char* strText = "OMG I HAVE NO DATA (DECLARING WAR)";
 
@@ -43407,8 +43407,8 @@ bool CvDiplomacyAI::IsPlayerOpposingIdeology(PlayerTypes ePlayer) const
 /// Denounces a player
 void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	PlayerTypes eMyPlayer = GetID();
 	TeamTypes eMyTeam = GetTeam();
@@ -54287,8 +54287,8 @@ bool CvDiplomacyAIHelpers::IgnoresBackstabbing(PlayerTypes eObserver, PlayerType
 /// Possible Contact Statement - AI only
 void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -54320,8 +54320,8 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 /// Possible Contact Statement - AI only
 void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (IsAvoidDeals())
 		return;
@@ -54354,8 +54354,8 @@ void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 /// Possible Contact Statement - Vassal taxes have been raised
 void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -54402,8 +54402,8 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 /// Possible Contact Statement - Vassal taxes have been lowered
 void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -54451,8 +54451,8 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 /// Possible Contact Statement - Vassal has been liberated
 void CvDiplomacyAI::DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -54951,8 +54951,8 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLi
 /// Possible Contact Statement - Third-party offer for ePlayer to liberate their vassals
 void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	// note: we check to see if it's possible in IsMakeOfferForVassalage()
 
@@ -56312,8 +56312,8 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 /// Possible Contact Statement - We're done being ePlayer's vassal
 void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	// Don't send this to an AI teammate of a human
 	if (GET_PLAYER(ePlayer).IsAITeammateOfHuman())
@@ -56343,8 +56343,8 @@ void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementT
 /// Possible Contact Statement - World Map
 void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return;
@@ -56377,8 +56377,8 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 /// Possible Contact Statement - Purchase technology
 void CvDiplomacyAI::DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return;
@@ -56404,8 +56404,8 @@ void CvDiplomacyAI::DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 /// Possible Contact Statement - Generous Offer
 void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
@@ -56491,8 +56491,8 @@ bool CvDiplomacyAI::IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 /// Do we want to trade world maps with eOtherPlayer? - this is only used for when to trigger an AI request, not whether or not the AI will accept a deal period
 bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;

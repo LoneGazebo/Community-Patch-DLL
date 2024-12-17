@@ -90,7 +90,7 @@ void CvLandmass::changeNumTiles(int iChange)
 		bool bOldLake = isLake();
 
 		m_iNumTiles = (m_iNumTiles + iChange);
-		CvAssert(m_iNumTiles >= 0);
+		ASSERT(m_iNumTiles >= 0);
 
 		if(bOldLake != isLake())
 		{
@@ -433,7 +433,7 @@ CvMap::CvMap()
 	, m_vPlotsShared()
 	, m_plotPopupCount()
 {
-	CvAssert(sgCvMapInstanceCount == 0);
+	ASSERT(sgCvMapInstanceCount == 0);
 	++sgCvMapInstanceCount;
 
 	memset(m_apShuffledNeighbors,0,sizeof(CvPlot*)*6);
@@ -747,7 +747,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 		m_bWrapY = pInitInfo->m_bWrapY;
 	}
 
-	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvMap::reset");
+	ASSERT((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvMap::reset");
 	m_paiNumResource.init(0);
 	m_paiNumResourceOnLand.init(0);
 
@@ -975,7 +975,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 		iCount++;
 		pTestPlot = plotCheckInvalid(GC.getGame().getJonRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getJonRandNum(getGridHeight(), "Rand Plot Height"));
 
-		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
+		ASSERT(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
 		if(!pTestPlot) continue;
 
@@ -1098,7 +1098,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 {
 	CvPlot* pCheckPlot = plot(iX, iY);
 
-	CvAssertMsg(pCheckPlot != NULL, "Passed in an invalid plot to findCity");
+	ASSERT(pCheckPlot != NULL, "Passed in an invalid plot to findCity");
 	if (pCheckPlot == NULL)
 		return NULL;
 
@@ -1355,7 +1355,7 @@ int CvMap::getLandPlots()
 void CvMap::changeLandPlots(int iChange)
 {
 	m_iLandPlots = (m_iLandPlots + iChange);
-	CvAssert(getLandPlots() >= 0);
+	ASSERT(getLandPlots() >= 0);
 }
 
 
@@ -1370,7 +1370,7 @@ int CvMap::getOwnedPlots()
 void CvMap::changeOwnedPlots(int iChange)
 {
 	m_iOwnedPlots = (m_iOwnedPlots + iChange);
-	CvAssert(getOwnedPlots() >= 0);
+	ASSERT(getOwnedPlots() >= 0);
 }
 
 
@@ -1443,7 +1443,7 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 		iNumRands++;
 	}
 
-	CvAssertMsg(iNumRands > 0, "Resource should have at least 1 Quantity type to choose from")
+	ASSERT(iNumRands > 0, "Resource should have at least 1 Quantity type to choose from")
 
 	int iRand = GC.getGame().getJonRandNum(iNumRands, "Picking from random Resource Quantity types");
 
@@ -1453,24 +1453,24 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResources(ResourceTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResource[eIndex];
 }
 //	--------------------------------------------------------------------------------
 void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResource[eIndex] = (m_paiNumResource[eIndex] + iChange);
-	CvAssert(getNumResources(eIndex) >= 0);
+	ASSERT(getNumResources(eIndex) >= 0);
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
 void CvMap::setNumResources(ResourceTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 	int iResourceQuantity = 0;
 	if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -1495,8 +1495,8 @@ void CvMap::setNumResources(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceOnLand[eIndex];
 }
 
@@ -1504,10 +1504,10 @@ int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvMap::changeNumResourcesOnLand(ResourceTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResourceOnLand[eIndex] = (m_paiNumResourceOnLand[eIndex] + iChange);
-	CvAssert(getNumResourcesOnLand(eIndex) >= 0);
+	ASSERT(getNumResourcesOnLand(eIndex) >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1628,7 +1628,7 @@ void CvMap::Serialize(Map& map, Visitor& visitor)
 	visitor(map.m_bWrapY);
 	visitor(map.m_guid);
 
-	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated");
+	ASSERT((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated");
 	visitor(map.m_paiNumResource);
 	visitor(map.m_paiNumResourceOnLand);
 

@@ -36,11 +36,11 @@ void CvPolicyAI::Reset()
 	m_iPolicyWeightPropagationLevels = /*2*/ GD_INT_GET(POLICY_WEIGHT_PROPAGATION_LEVELS);
 	m_iPolicyWeightPercentDropNewBranch = /*90*/ max(GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH), 0);
 
-	CvAssertMsg(m_pCurrentPolicies != NULL, "Policy AI init failure: player policy data is NULL");
+	ASSERT(m_pCurrentPolicies != NULL, "Policy AI init failure: player policy data is NULL");
 	if(m_pCurrentPolicies != NULL)
 	{
 		CvPolicyXMLEntries* pPolicyEntries = m_pCurrentPolicies->GetPolicies();
-		CvAssertMsg(pPolicyEntries != NULL, "Policy AI init failure: no policy data");
+		ASSERT(pPolicyEntries != NULL, "Policy AI init failure: no policy data");
 		if(pPolicyEntries != NULL)
 		{
 			// Loop through reading each one and add an entry with 0 weight to our vector
@@ -5180,7 +5180,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 bool CvPolicyAI::IsBranchEffectiveInGame(PolicyBranchTypes eBranch)
 {
 	CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
-	CvAssertMsg(pBranchInfo, "Branch info not found!");
+	ASSERT(pBranchInfo, "Branch info not found!");
 	if (!pBranchInfo) return false;
 	
 	if (pBranchInfo->IsDelayWhenNoReligion())

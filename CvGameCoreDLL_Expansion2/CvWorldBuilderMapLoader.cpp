@@ -442,7 +442,7 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::Player& kSavedPlayer)
 {
 	CvTreasury* pkTreasury = kGameplayPlayer.GetTreasury();
-	FAssertMsg(pkTreasury, "Unable to set gold amount.  Treasury Missing!");
+	ASSERT(pkTreasury, "Unable to set gold amount.  Treasury Missing!");
 	if(pkTreasury != NULL)
 		pkTreasury->SetGold(kSavedPlayer.m_uiGold);
 
@@ -971,7 +971,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 {
 	CvMap& kMap = GC.getMap();
 
-	FAssertMsg(
+	ASSERT(
 	    sg_kSave.GetWidth() == kMap.getGridWidth() &&
 	    sg_kSave.GetHeight() == kMap.getGridHeight(),
 	    "Save wrong size");
@@ -1046,7 +1046,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	{
 		const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
-		FAssertMsg(pkPlot, "Missing CvPlot for this location");
+		ASSERT(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
 		pkPlot->setTerrainType((TerrainTypes)kPlotData.GetTerrainType(), false, false);
@@ -1169,7 +1169,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 		{
 			CvPlayer& kCityState = GET_PLAYER(eCityStatePlayer);
 			CvMinorCivAI* pkAI = kCityState.GetMinorCivAI();
-			FAssertMsg(pkAI, "Cannot set minor civ influence.  Missing CvMinorCivAI.");
+			ASSERT(pkAI, "Cannot set minor civ influence.  Missing CvMinorCivAI.");
 			if(pkAI != NULL)
 			{
 				for(uint uiMajorCiv = 0; uiMajorCiv < uiPlayerCount; ++uiMajorCiv)
@@ -1189,7 +1189,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	{
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
-		FAssertMsg(pkPlot, "Missing CvPlot for this location");
+		ASSERT(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
 		const int iPlotX = pkPlot->getX();
@@ -1240,7 +1240,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	{
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
-		FAssertMsg(pkPlot, "Missing CvPlot for this location");
+		ASSERT(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
 		const PlayerTypes eOwner = GetPlayerType(kPlotData.m_byCulture);
@@ -1305,7 +1305,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 	{
 		CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
-		FAssertMsg(pkPlot, "Missing CvPlot for this location");
+		ASSERT(pkPlot, "Missing CvPlot for this location");
 		if(pkPlot == NULL) continue;
 
 		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
@@ -1404,7 +1404,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -1413,7 +1413,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 	lua_getglobal(L, "MapModData");
 	bool bFoundTable = lua_istable(L, -1);
 
-	FAssertMsg(bFoundTable, "Unable to find mod data table");
+	ASSERT(bFoundTable, "Unable to find mod data table");
 	if(!bFoundTable)
 	{
 		lua_settop(L, iTop);
@@ -1640,7 +1640,7 @@ int CvWorldBuilderMapLoader::RunPostProcessScript(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -1672,18 +1672,18 @@ int CvWorldBuilderMapLoader::RunPostProcessScript(lua_State* L)
 						const bool bResult = gDLL->GetEvaluatedMapScriptPath(szLua, szMapScriptPath, 1040);
 						if(!bResult)
 						{
-							FAssertMsg(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
+							ASSERT(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
 						}
 
 						const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, szMapScriptPath);
-						FAssertMsg(bLoadedMapGenerator, "Failed to load Post Process Map Script.");
+						ASSERT(bLoadedMapGenerator, "Failed to load Post Process Map Script.");
 						if(bLoadedMapGenerator)
 						{
 							lua_getglobal(L, "PostProcessMap");
 							if(lua_isfunction(L, -1))
 								pkScriptSystem->CallFunction(L, 0, 0);
 							else
-								FAssertMsg(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
+								ASSERT(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
 						}
 					}
 				}
@@ -1714,7 +1714,7 @@ void CvWorldBuilderMapLoader::ValidateTerrain()
 		}
 	}
 
-	FAssertMsg(eValidTerrain != NO_TERRAIN, "Could not find ANY valid terrain types!");
+	ASSERT(eValidTerrain != NO_TERRAIN, "Could not find ANY valid terrain types!");
 
 	const int iPlotCount = kMap.getGridWidth() * kMap.getGridHeight();
 	for(int i = 0; i < iPlotCount; ++i)
@@ -1869,7 +1869,7 @@ void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayer
 
 			sg_auiPlayerSlots[ePlayerSlot] = uiPlayer;
 
-			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!");
+			ASSERT(eOldSlot != NO_PLAYER, "Player list has holes in it!");
 			if(eOldSlot != NO_PLAYER)
 				sg_auiPlayerSlots[eOldSlot] = uiCurrent;
 		}
@@ -1921,7 +1921,7 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -2034,7 +2034,7 @@ int CvWorldBuilderMapLoader::GetMapPlayers(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -2109,7 +2109,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -2126,7 +2126,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 	{
 		const char* szLuaFile = "WorldBuilderRandomItems.lua";
 		const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, szLuaFile);
-		FAssertMsg1(bLoadedMapGenerator, "Failed to load %s", szLuaFile);
+		FAssert(bLoadedMapGenerator, "Failed to load %s", szLuaFile);
 		if(bLoadedMapGenerator)
 		{
 			if(bRandomGoodies)
@@ -2136,7 +2136,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 				if(lua_isfunction(L, -1))
 					pkScriptSystem->CallFunction(L, 0, 0);
 				else
-					FAssertMsg2(0, "Failed to find \"%s\" in %s", szGoodiesFunction, szLuaFile);
+					FAssert(0, "Failed to find \"%s\" in %s", szGoodiesFunction, szLuaFile);
 			}
 
 			if(bRandomResources)
@@ -2146,7 +2146,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 				if(lua_isfunction(L, -1))
 					pkScriptSystem->CallFunction(L, 0, 0);
 				else
-					FAssertMsg2(0, "Failed to find \"%s\" in %s", szResourcesFunction, szLuaFile);
+					FAssert(0, "Failed to find \"%s\" in %s", szResourcesFunction, szLuaFile);
 			}
 		}
 	}
@@ -2160,7 +2160,7 @@ int CvWorldBuilderMapLoader::ScatterResources(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -2170,14 +2170,14 @@ int CvWorldBuilderMapLoader::ScatterResources(lua_State* L)
 	if(pkScriptSystem != NULL)
 	{
 		const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, "WorldBuilderRandomItems.lua");
-		FAssertMsg(bLoadedMapGenerator, "Failed to load WorldBuilderRandomItems.lua");
+		ASSERT(bLoadedMapGenerator, "Failed to load WorldBuilderRandomItems.lua");
 		if(bLoadedMapGenerator)
 		{
 			lua_getglobal(L, "AddResourcesForWorldBuilderMap");
 			if(lua_isfunction(L, -1))
 				pkScriptSystem->CallFunction(L, 0, 0);
 			else
-				FAssertMsg(0, "Failed to find \"AddResourcesForWorldBuilderMap\" in WorldBuilderRandomItems.lua");
+				ASSERT(0, "Failed to find \"AddResourcesForWorldBuilderMap\" in WorldBuilderRandomItems.lua");
 		}
 	}
 
@@ -2190,7 +2190,7 @@ int CvWorldBuilderMapLoader::ScatterGoodies(lua_State* L)
 {
 	if(L == NULL)
 	{
-		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		ASSERT(L, "Seriously, you really need a lua state for this.");
 		return 0;
 	}
 
@@ -2200,14 +2200,14 @@ int CvWorldBuilderMapLoader::ScatterGoodies(lua_State* L)
 	if(pkScriptSystem != NULL)
 	{
 		const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, "WorldBuilderRandomItems.lua");
-		FAssertMsg(bLoadedMapGenerator, "Failed to load WorldBuilderRandomItems.lua");
+		ASSERT(bLoadedMapGenerator, "Failed to load WorldBuilderRandomItems.lua");
 		if(bLoadedMapGenerator)
 		{
 			lua_getglobal(L, "AddGoodies");
 			if(lua_isfunction(L, -1))
 				pkScriptSystem->CallFunction(L, 0, 0);
 			else
-				FAssertMsg(0, "Failed to find \"AddGoodies\" in WorldBuilderRandomItems.lua");
+				ASSERT(0, "Failed to find \"AddGoodies\" in WorldBuilderRandomItems.lua");
 		}
 	}
 

@@ -34,8 +34,8 @@ bool CvPlotInfo::isImpassable() const
 
 int CvPlotInfo::getYield(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	return m_piYields ? m_piYields[i] : -1;
 }
 
@@ -43,10 +43,10 @@ int CvPlotInfo::getYield(int i) const
 //------------------------------------------------------------------------------
 int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield, bool bNaturalWonderPlot) const
 {
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
-	CvAssertMsg(eFeature > -1, "Index out of bounds");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(eYield > -1, "Index out of bounds");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	ASSERT(eFeature > -1, "Index out of bounds");
+	ASSERT(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT(eYield > -1, "Index out of bounds");
 
 	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	int iYieldChange = 0;
@@ -103,8 +103,8 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(bool bNaturalWonderPlot) const
 /// Check if a plot gains yields from a particular feature
 bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNaturalWonderPlot) const
 {
-	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
-	CvAssertMsg(eFeature > -1, "Index out of bounds");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	ASSERT(eFeature > -1, "Index out of bounds");
 
 	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
