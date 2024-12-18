@@ -425,7 +425,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 	if(!pkTargetPlot && pkDefender)
 		pkTargetPlot = pkDefender->plot();
 
-	CvAssert_Debug(pkAttacker && pkDefender && pkTargetPlot);
+	ASSERT_DEBUG(pkAttacker && pkDefender && pkTargetPlot);
 
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 
@@ -1013,10 +1013,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 //	int iMaxXP = kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER);
 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
-	CvAssert_Debug(pkAttacker);
+	ASSERT_DEBUG(pkAttacker);
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
-	CvAssert_Debug(pkTargetPlot);
+	ASSERT_DEBUG(pkTargetPlot);
 
 	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	CvString strBuffer;
@@ -1027,7 +1027,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		{
 			// Unit
 			CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
-			CvAssert_Debug(pkDefender != NULL);
+			ASSERT_DEBUG(pkDefender != NULL);
 			if(pkDefender)
 			{
 				if(pkAttacker)
@@ -1161,7 +1161,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		{
 			// City
 			CvCity* pCity = pkTargetPlot->getPlotCity();
-			CvAssert_Debug(pCity != NULL);
+			ASSERT_DEBUG(pCity != NULL);
 			if(pCity)
 			{
 				if(pkAttacker)
@@ -1252,13 +1252,13 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 	bool bBarbarian = false;
 
 	CvCity* pkAttacker = kCombatInfo.getCity(BATTLE_UNIT_ATTACKER);
-	CvAssert_Debug(pkAttacker);
+	ASSERT_DEBUG(pkAttacker);
 
 	if(pkAttacker)
 		pkAttacker->clearCombat();
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
-	CvAssert_Debug(pkTargetPlot);
+	ASSERT_DEBUG(pkTargetPlot);
 
 	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	int iActivePlayerID = GC.getGame().getActivePlayer();
@@ -1268,7 +1268,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 		if(!pkTargetPlot->isCity())
 		{
 			CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
-			CvAssert_Debug(pkDefender != NULL);
+			ASSERT_DEBUG(pkDefender != NULL);
 			if(pkDefender)
 			{
 				bBarbarian = pkDefender->isBarbarian();
@@ -1365,13 +1365,13 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
 	CvCity* pkDefender = kCombatInfo.getCity(BATTLE_UNIT_DEFENDER);
 
-	CvAssert_Debug(pkAttacker && pkDefender);
+	ASSERT_DEBUG(pkAttacker && pkDefender);
 
 	CvPlot* pkPlot = kCombatInfo.getPlot();
 	if(!pkPlot && pkDefender)
 		pkPlot = pkDefender->plot();
 
-	CvAssert_Debug(pkPlot);
+	ASSERT_DEBUG(pkPlot);
 
 	int iAttackerDamageInflicted = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
 	int iDefenderDamageInflicted = kCombatInfo.getDamageInflicted(BATTLE_UNIT_DEFENDER);
@@ -1843,7 +1843,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
 
 	// If there's no valid attacker, then get out of here
-	CvAssert_Debug(pkAttacker);
+	ASSERT_DEBUG(pkAttacker);
 
 	// Interception?
 	int iInterceptionDamage = kCombatInfo.getDamageInflicted(BATTLE_UNIT_INTERCEPTOR);
@@ -1855,7 +1855,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		iDefenderDamageInflicted = 1;
 
 	CvUnit* pInterceptor = kCombatInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
-	CvAssert_Debug(pInterceptor);
+	ASSERT_DEBUG(pInterceptor);
 	if(pInterceptor)
 	{
 		pInterceptor->increaseInterceptionCount();
@@ -1870,7 +1870,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	}
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
-	CvAssert_Debug(pkTargetPlot);
+	ASSERT_DEBUG(pkTargetPlot);
 
 	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	int iActivePlayerID = GC.getGame().getActivePlayer();
@@ -1882,7 +1882,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		{
 			// Target was a Unit
 			CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
-			CvAssert_Debug(pkDefender != NULL);
+			ASSERT_DEBUG(pkDefender != NULL);
 
 			if(pkDefender)
 			{
@@ -2075,7 +2075,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		{
 			// Target was a City
 			CvCity* pCity = pkTargetPlot->getPlotCity();
-			CvAssert_Debug(pCity != NULL);
+			ASSERT_DEBUG(pCity != NULL);
 
 			if(pCity)
 			{
@@ -2351,7 +2351,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 	if(!pkTargetPlot && pkDefender)
 		pkTargetPlot = pkDefender->plot();
 
-	CvAssert_Debug(pkAttacker && pkDefender && pkTargetPlot);
+	ASSERT_DEBUG(pkAttacker && pkDefender && pkTargetPlot);
 
 	// Internal variables
 	int iAttackerDamageInflicted = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
@@ -3196,10 +3196,10 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 	UNREFERENCED_PARAMETER(uiParentEventID);
 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
-	CvAssert_Debug(pkAttacker);
+	ASSERT_DEBUG(pkAttacker);
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
-	CvAssert_Debug(pkTargetPlot);
+	ASSERT_DEBUG(pkTargetPlot);
 
 	CvString strBuffer;
 

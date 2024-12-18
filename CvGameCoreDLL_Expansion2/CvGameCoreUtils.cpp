@@ -269,8 +269,8 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 #endif // VPRELEASE_ERRORMSG
 }
 
-#endif WIN32
-#endif CVASSERT_ENABLE
+#endif // WIN32
+#endif // CVASSERT_ENABLE
 
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
 {
@@ -302,8 +302,8 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	bool bIgnoreAlways = false;
 	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
 #endif
-#endif WIN32
-#endif CVASSERT_ENABLE
+#endif // WIN32
+#endif // CVASSERT_ENABLE
 }
 
 

@@ -2069,7 +2069,7 @@ void CvCity::PreKill()
 
 	// Killing a city while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a city.
-	CvAssert_Debug(!isFighting(), "isFighting did not return false as expected");
+	ASSERT_DEBUG(!isFighting(), "isFighting did not return false as expected");
 
 	clearCombat();
 
