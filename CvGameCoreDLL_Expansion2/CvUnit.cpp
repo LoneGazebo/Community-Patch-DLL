@@ -2663,7 +2663,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	// Killing a unit while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a unit.
-	CvAssert_Debug(!isInCombat(), "isCombat did not return false as expected");
+	ASSERT_DEBUG(!isInCombat(), "isCombat did not return false as expected");
 
 	clearCombat();	// Disconnect from any combat
 

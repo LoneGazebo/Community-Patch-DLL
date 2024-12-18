@@ -47,9 +47,9 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 // An assert that only happens in the when CVASSERT_ENABLE is true AND it is a debug build
 #ifdef _DEBUG
-#define CvAssert_Debug( expr, ...) CvAssertMsg( expr, __VA_ARGS__)
+#define ASSERT_DEBUG( expr, ...) ASSERT( expr, __VA_ARGS__)
 #else
-#define CvAssert_Debug(expr, ...)
+#define ASSERT_DEBUG(expr, ...)
 #endif
 
 #if 0 // disabling Object Validation
@@ -91,8 +91,8 @@ struct ObjectValidator
 
 #else	//CVASSERT_ENABLE == FALSE
 
-#define CvAssert(expr)
-#define CvAssert_Debug(expr)
+#define ASSERT(expr, ...)
+#define ASSERT_DEBUG(expr, ...)
 
 #define OBJECT_VALIDATE_DEFINITION(ObjectType)
 #define OBJECT_ALLOCATED
