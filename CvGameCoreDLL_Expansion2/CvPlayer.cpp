@@ -22631,15 +22631,13 @@ void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
 	else
 	{
 		int iThreshold = max(1, GC.getGame().GetSpyThreshold());
-		int iSpyPointGain = iThreshold;
 
-		// Spies scaling with era. Instead of 1 spy, we gain 100 spy points. For each time the number of spy points exceeds the threshold, a spy is created
-		if (bScaling)
-			iSpyPointGain = 100;
+		// Spies scaling with map size. Instead of 1 spy, we gain ESPIONAGE_SPY_POINT_UNIT spy points. For each time the number of spy points exceeds the threshold, a spy is created
+		int iSpyPointUnit = bScaling ?  /*100*/ GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT) :  iThreshold;
 
 		// Note that iNumSpies can be NEGATIVE (e.g. removing a policy that gives spy points). In that case, the player enters a spy debt.
-		m_iSpyPointsTotal += iNumSpies * iSpyPointGain;
-		m_iSpyPoints += iNumSpies * iSpyPointGain;
+		m_iSpyPointsTotal += iNumSpies * iSpyPointUnit;
+		m_iSpyPoints += iNumSpies * iSpyPointUnit;
 		while (m_iSpyPoints >= iThreshold)
 		{
 			pEspionage->CreateSpy();

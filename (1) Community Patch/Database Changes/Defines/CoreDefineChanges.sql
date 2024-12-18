@@ -924,6 +924,7 @@ VALUES
 	('ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT', 0), -- When successfully completing a Spy Mission, gain (NP Points needed for Mission) * ESPIONAGE_XP_MISSION_SUCESS_PERCENT / 100 XP
 
 	('ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN', 5), -- Cooldown between switching Counterspy Missions
+	('ESPIONAGE_SPY_POINT_UNIT', 100), -- Number of spy points a value of '1' in database columns like Eras.SpiesGrantedForPlayer or Buildings.ExtraSpies corresponds to
 
 ---------------------------------------
 -- VP happiness system
