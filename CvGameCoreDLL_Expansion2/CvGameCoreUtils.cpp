@@ -176,7 +176,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		char szBuffer[4096];
 		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 			"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from just before this bug.\n\n"
+			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
 			"You may continue playing, but unexpected behavior might occur. It is recommended to wait until a hotfix has been released that resolves the issue.\n\n"
 			"==================\n"
 			"Detailed information:\n"
@@ -282,7 +282,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	char szBuffer[4096];
 	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from just before this bug.\n\n"
+		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
 		"To prevent undefined or gamebreaking behavior, the game will now crash.\n\n"
 		"==================\n"
 		"Detailed information:\n"
