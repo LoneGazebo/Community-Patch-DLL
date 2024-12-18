@@ -42,8 +42,8 @@ CvTeam* CvTeam::m_aTeams = NULL;
 
 CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
-	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
+	ASSERT(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	ASSERT(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
 
 	if (eTeam == NO_TEAM || eTeam >= MAX_TEAMS)
 		eTeam = BARBARIAN_TEAM;
@@ -426,8 +426,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	int iI = 0;
 	int iJ = 0;
 
-	CvAssert(eTeam != NO_TEAM);
-	CvAssert(eTeam != GetID());
+	ASSERT(eTeam != NO_TEAM);
+	ASSERT(eTeam != GetID());
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -629,8 +629,8 @@ void CvTeam::shareItems(TeamTypes eTeam)
 	int iJ = 0;
 	int iK = 0;
 
-	CvAssert(eTeam != NO_TEAM);
-	CvAssert(eTeam != GetID());
+	ASSERT(eTeam != NO_TEAM);
+	ASSERT(eTeam != GetID());
 
 	CvTeam& kTeam = GET_TEAM(eTeam);
 
@@ -796,7 +796,7 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange)
 //	--------------------------------------------------------------------------------
 void CvTeam::doTurn()
 {
-	CvAssertMsg(isAlive(), "isAlive is expected to be true");
+	ASSERT(isAlive(), "isAlive is expected to be true");
 
 	// Barbarians get all Techs that 3/4 of alive players get
 	if (isBarbarian())
@@ -892,7 +892,7 @@ void CvTeam::doTurn()
 		if(!isAtWar(GET_PLAYER((PlayerTypes) iMinorLoop).getTeam()))
 			continue;
 
-		CvAssertMsg(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad. Please send Jon this along with your last 5 autosaves and a changelist #.");
+		ASSERT(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad.");
 	}
 #endif
 }
@@ -923,7 +923,7 @@ void CvTeam::DoBarbarianTech()
 		}
 	}
 
-	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
+	ASSERT(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
 	// x% of majors (rounded down) need the tech for the Barbs to get it
 	int iTechPercent = /*75 in CP, 80 in VP*/ GD_INT_GET(BARBARIAN_TECH_PERCENT);
@@ -989,7 +989,7 @@ void CvTeam::DoMinorCivTech()
 		}
 	}
 
-	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
+	ASSERT(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
 	// x% of majors (rounded down) need the tech for the Minors to get it
 	int iTechPercent = /*40 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_TECH_PERCENT);
@@ -1116,7 +1116,7 @@ void CvTeam::changeCorporationsEnabledCount(int iChange)
 		}
 	}
 	m_iCorporationsEnabledCount = m_iCorporationsEnabledCount + iChange;
-	CvAssert(getCorporationsEnabledCount() >= 0);
+	ASSERT(getCorporationsEnabledCount() >= 0);
 }
 #endif
 
@@ -1244,8 +1244,8 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	Localization::String locSummary;
 	int iI = 0;
 
-	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
+	ASSERT(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	ASSERT(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
 	// War declarations on vassals are redirected to the master
 	if (!isMinorCiv())
@@ -2142,8 +2142,8 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 {
 	CvString strBuffer;
 
-	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
+	ASSERT(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	ASSERT(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
 	// Not at war? Do nothing!
 	if (!isAtWar(eTeam))
@@ -2664,7 +2664,7 @@ int CvTeam::getAtWarCount(bool bIgnoreMinors) const
 			{
 				if(isAtWar((TeamTypes)iI))
 				{
-					CvAssert(iI != GetID());
+					ASSERT(iI != GetID());
 					iCount++;
 				}
 			}
@@ -2693,7 +2693,7 @@ int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
 				{
 					if(isHasMet((TeamTypes)iI))
 					{
-						CvAssert(iI != GetID());
+						ASSERT(iI != GetID());
 						iCount++;
 					}
 				}
@@ -2720,7 +2720,7 @@ bool CvTeam::hasMetHuman() const
 				{
 					if(isHasMet((TeamTypes)iI))
 					{
-						CvAssert(iI != GetID());
+						ASSERT(iI != GetID());
 						return true;
 					}
 				}
@@ -3097,7 +3097,7 @@ HandicapTypes CvTeam::getHandicapType() const
 
 	if(iCount > 0)
 	{
-		CvAssertMsg((iGameHandicap / iCount) >= 0, "(iGameHandicap / iCount) is expected to be non-negative (invalid Index)");
+		ASSERT((iGameHandicap / iCount) >= 0, "(iGameHandicap / iCount) is expected to be non-negative (invalid Index)");
 		return ((HandicapTypes)(iGameHandicap / iCount));
 	}
 	else
@@ -3231,7 +3231,7 @@ int CvTeam::getAliveCount() const
 void CvTeam::changeAliveCount(int iChange)
 {
 	m_iAliveCount = (m_iAliveCount + iChange);
-	CvAssert(getAliveCount() >= 0);
+	ASSERT(getAliveCount() >= 0);
 }
 
 
@@ -3253,7 +3253,7 @@ int CvTeam::isEverAlive() const
 void CvTeam::changeEverAliveCount(int iChange)
 {
 	m_iEverAliveCount = (m_iEverAliveCount + iChange);
-	CvAssert(getEverAliveCount() >= 0);
+	ASSERT(getEverAliveCount() >= 0);
 }
 
 
@@ -3268,7 +3268,7 @@ int CvTeam::getNumCities() const
 void CvTeam::changeNumCities(int iChange)
 {
 	m_iNumCities = (m_iNumCities + iChange);
-	CvAssert(getNumCities() >= 0);
+	ASSERT(getNumCities() >= 0);
 }
 
 
@@ -3283,7 +3283,7 @@ int CvTeam::getTotalPopulation() const
 void CvTeam::changeTotalPopulation(int iChange)
 {
 	m_iTotalPopulation = (m_iTotalPopulation + iChange);
-	CvAssert(getTotalPopulation() >= 0);
+	ASSERT(getTotalPopulation() >= 0);
 }
 
 
@@ -3298,7 +3298,7 @@ int CvTeam::getTotalLand() const
 void CvTeam::changeTotalLand(int iChange)
 {
 	m_iTotalLand = (m_iTotalLand + iChange);
-	CvAssert(getTotalLand() >= 0);
+	ASSERT(getTotalLand() >= 0);
 }
 
 
@@ -3313,7 +3313,7 @@ int CvTeam::getNukeInterception() const
 void CvTeam::changeNukeInterception(int iChange)
 {
 	m_iNukeInterception = (m_iNukeInterception + iChange);
-	CvAssert(getNukeInterception() >= 0);
+	ASSERT(getNukeInterception() >= 0);
 }
 
 
@@ -3335,7 +3335,7 @@ bool CvTeam::isForceTeamVoteEligible(VoteSourceTypes eVoteSource) const
 void CvTeam::changeForceTeamVoteEligibilityCount(VoteSourceTypes eVoteSource, int iChange)
 {
 	m_aiForceTeamVoteEligibilityCount[eVoteSource] += iChange;
-	CvAssert(getForceTeamVoteEligibilityCount(eVoteSource) >= 0);
+	ASSERT(getForceTeamVoteEligibilityCount(eVoteSource) >= 0);
 }
 
 
@@ -3361,7 +3361,7 @@ void CvTeam::changeExtraWaterSeeFromCount(int iChange)
 		GC.getMap().updateSight(false);
 
 		m_iExtraWaterSeeFromCount = (m_iExtraWaterSeeFromCount + iChange);
-		CvAssert(getExtraWaterSeeFromCount() >= 0);
+		ASSERT(getExtraWaterSeeFromCount() >= 0);
 
 		GC.getMap().updateSight(true);
 	}
@@ -3386,7 +3386,7 @@ bool CvTeam::isMapTrading()	const
 void CvTeam::changeMapTradingCount(int iChange)
 {
 	m_iMapTradingCount = (m_iMapTradingCount + iChange);
-	CvAssert(getMapTradingCount() >= 0);
+	ASSERT(getMapTradingCount() >= 0);
 }
 
 
@@ -3408,7 +3408,7 @@ bool CvTeam::isTechTrading() const
 void CvTeam::changeTechTradingCount(int iChange)
 {
 	m_iTechTradingCount = (m_iTechTradingCount + iChange);
-	CvAssert(getTechTradingCount() >= 0);
+	ASSERT(getTechTradingCount() >= 0);
 }
 
 
@@ -3430,7 +3430,7 @@ bool CvTeam::isGoldTrading() const
 void CvTeam::changeGoldTradingCount(int iChange)
 {
 	m_iGoldTradingCount = (m_iGoldTradingCount + iChange);
-	CvAssert(getGoldTradingCount() >= 0);
+	ASSERT(getGoldTradingCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3473,7 +3473,7 @@ bool CvTeam::isAllowEmbassyTradingAllowed() const
 void CvTeam::changeAllowEmbassyTradingAllowedCount(int iChange)
 {
 	m_iAllowEmbassyTradingAllowedCount = (m_iAllowEmbassyTradingAllowedCount + iChange);
-	CvAssert(getAllowEmbassyTradingAllowedCount() >= 0);
+	ASSERT(getAllowEmbassyTradingAllowedCount() >= 0);
 }
 
 
@@ -3500,7 +3500,7 @@ bool CvTeam::isOpenBordersTradingAllowedWithTeam(TeamTypes eTeam) const
 void CvTeam::changeOpenBordersTradingAllowedCount(int iChange)
 {
 	m_iOpenBordersTradingAllowedCount = (m_iOpenBordersTradingAllowedCount + iChange);
-	CvAssert(getOpenBordersTradingAllowedCount() >= 0);
+	ASSERT(getOpenBordersTradingAllowedCount() >= 0);
 }
 
 
@@ -3530,7 +3530,7 @@ bool CvTeam::isDefensivePactTradingAllowedWithTeam(TeamTypes eTeam) const
 void CvTeam::changeDefensivePactTradingAllowedCount(int iChange)
 {
 	m_iDefensivePactTradingAllowedCount = (m_iDefensivePactTradingAllowedCount + iChange);
-	CvAssert(getDefensivePactTradingAllowedCount() >= 0);
+	ASSERT(getDefensivePactTradingAllowedCount() >= 0);
 }
 
 
@@ -3557,7 +3557,7 @@ bool CvTeam::IsResearchAgreementTradingAllowedWithTeam(TeamTypes eTeam) const
 void CvTeam::ChangeResearchAgreementTradingAllowedCount(int iChange)
 {
 	m_iResearchAgreementTradingAllowedCount = (m_iResearchAgreementTradingAllowedCount + iChange);
-	CvAssert(GetResearchAgreementTradingAllowedCount() >= 0);
+	ASSERT(GetResearchAgreementTradingAllowedCount() >= 0);
 }
 
 #if defined(MOD_TECHS_CITY_WORKING)
@@ -3663,7 +3663,7 @@ void CvTeam::changeBridgeBuildingCount(int iChange)
 	if(iChange != 0)
 	{
 		m_iBridgeBuildingCount = (m_iBridgeBuildingCount + iChange);
-		CvAssert(getBridgeBuildingCount() >= 0);
+		ASSERT(getBridgeBuildingCount() >= 0);
 
 		if(m_eID == GC.getGame().getActiveTeam())
 		{
@@ -3698,7 +3698,7 @@ void CvTeam::changeCityLessEmbarkCost(int iChange)
 	if(iChange != 0)
 	{
 		m_iCityLessEmbarkCost = (m_iCityLessEmbarkCost + iChange);
-		CvAssert(getCityLessEmbarkCost() >= 0);
+		ASSERT(getCityLessEmbarkCost() >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -3717,7 +3717,7 @@ void CvTeam::changeCityNoEmbarkCost(int iChange)
 	if(iChange != 0)
 	{
 		m_iCityNoEmbarkCost = (m_iCityNoEmbarkCost + iChange);
-		CvAssert(getCityNoEmbarkCost() >= 0);
+		ASSERT(getCityNoEmbarkCost() >= 0);
 	}
 }
 #endif
@@ -3741,7 +3741,7 @@ void CvTeam::changeWaterWorkCount(int iChange)
 	if(iChange != 0)
 	{
 		m_iWaterWorkCount = (m_iWaterWorkCount + iChange);
-		CvAssert(getWaterWorkCount() >= 0);
+		ASSERT(getWaterWorkCount() >= 0);
 	}
 }
 
@@ -3763,7 +3763,7 @@ void CvTeam::changeBorderObstacleCount(int iChange)
 	if(iChange != 0)
 	{
 		m_iBorderObstacleCount = (m_iBorderObstacleCount + iChange);
-		CvAssert(getBorderObstacleCount() >= 0);
+		ASSERT(getBorderObstacleCount() >= 0);
 	}
 }
 
@@ -3800,8 +3800,8 @@ TeamTypes CvTeam::GetID() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getTechShareCount(int iIndex) const
 {
-	CvAssertMsg(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+	ASSERT(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
 	if(iIndex < 0 || iIndex >= MAX_TEAMS) return 0; // as set in reset()
 	return m_aiTechShareCount[iIndex];
 }
@@ -3817,13 +3817,13 @@ bool CvTeam::isTechShare(int iIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeTechShareCount(int iIndex, int iChange)
 {
-	CvAssertMsg(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+	ASSERT(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
 	if(iIndex < 0 || iIndex >= MAX_TEAMS) return;
 	if(iChange != 0)
 	{
 		m_aiTechShareCount[iIndex] = (m_aiTechShareCount[iIndex] + iChange);
-		CvAssert(getTechShareCount(iIndex) >= 0);
+		ASSERT(getTechShareCount(iIndex) >= 0);
 
 		if(isTechShare(iIndex))
 		{
@@ -3836,8 +3836,8 @@ void CvTeam::changeTechShareCount(int iIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getExtraMoves(DomainTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiExtraMoves[eIndex];
 }
 
@@ -3845,10 +3845,10 @@ int CvTeam::getExtraMoves(DomainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiExtraMoves[eIndex] = (m_aiExtraMoves[eIndex] + iChange);
-	CvAssert(getExtraMoves(eIndex) >= 0);
+	ASSERT(getExtraMoves(eIndex) >= 0);
 }
 
 
@@ -3969,7 +3969,7 @@ void CvTeam::changeDefensiveEmbarkCount(int iChange)
 			}
 		}
 	}
-	CvAssert(getDefensiveEmbarkCount() >= 0);
+	ASSERT(getDefensiveEmbarkCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4041,7 +4041,7 @@ void CvTeam::ChangeNumNaturalWondersDiscovered(int iChange)
 	{
 		m_iNumNaturalWondersDiscovered += iChange;
 	}
-	CvAssert(GetNumNaturalWondersDiscovered() >= 0);
+	ASSERT(GetNumNaturalWondersDiscovered() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4057,7 +4057,7 @@ void CvTeam::ChangeNumLandmarksBuilt(int iChange)
 	{
 		m_iNumLandmarksBuilt += iChange;
 	}
-	CvAssert(GetNumLandmarksBuilt() >= 0);
+	ASSERT(GetNumLandmarksBuilt() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4079,8 +4079,8 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 	if (eIndex == NO_TEAM)
 		return false;
 
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (isObserver())
 	{
@@ -4275,32 +4275,32 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetTurnsSinceMeetingTeam(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return GC.getGame().getGameTurn() - m_aiTurnTeamMet[eTeam];
 }
 
 //	--------------------------------------------------------------------------------
 int CvTeam::GetTurnTeamMet(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiTurnTeamMet[eTeam];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::SetTurnTeamMet(TeamTypes eTeam, int iTurn)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiTurnTeamMet[eTeam] = iTurn;
 }
 
 //	--------------------------------------------------------------------------------
 int CvTeam::GetNumTurnsAtWar(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	int iTurn = m_aiTurnWarStarted[eTeam];
 	if (iTurn == -1)
 		return INT_MAX;
@@ -4311,8 +4311,8 @@ int CvTeam::GetNumTurnsAtWar(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetTurnWarStarted(TeamTypes eTeam, int iTurn)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiTurnWarStarted[eTeam] = iTurn;
 }
 
@@ -4320,8 +4320,8 @@ void CvTeam::SetTurnWarStarted(TeamTypes eTeam, int iTurn)
 /// Have we seen ePlayer's territory before?
 bool CvTeam::IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	return m_abHasFoundPlayersTerritory[ePlayer];
 }
 
@@ -4329,8 +4329,8 @@ bool CvTeam::IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const
 /// Sets us to have seen ePlayer's territory before
 bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 {
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	if (IsHasFoundPlayersTerritory(ePlayer) != bValue)
 	{
@@ -4345,24 +4345,24 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAggressor(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return (isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isPacifier(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return (!isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAtWar(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abAtWar[eIndex];
 }
 
@@ -4370,9 +4370,9 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
 	if (eIndex == GetID())
 		return;
 
@@ -4524,8 +4524,8 @@ bool CvTeam::HasCommonEnemy(TeamTypes eOtherTeam) const
 /// How long are we locked into a war with eTeam?
 int CvTeam::GetNumTurnsLockedIntoWar(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiNumTurnsLockedIntoWar[eTeam];
 }
 
@@ -4560,8 +4560,8 @@ void CvTeam::ChangeNumTurnsLockedIntoWar(TeamTypes eTeam, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTurnMadePeaceTreatyWithTeam[eIndex];
 }
 
@@ -4569,16 +4569,16 @@ int CvTeam::GetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex, int iNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTurnMadePeaceTreatyWithTeam[eIndex] = iNewValue;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isPermanentWarPeace(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abPermanentWarPeace[eIndex];
 }
 
@@ -4586,8 +4586,8 @@ bool CvTeam::isPermanentWarPeace(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::setPermanentWarPeace(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_abPermanentWarPeace[eIndex] = bNewValue;
 }
 
@@ -4650,8 +4650,8 @@ void CvTeam::SetKilledByTeam(TeamTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvTeam::CloseEmbassyAtTeam(TeamTypes eIndex)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	SetHasEmbassyAtTeam(eIndex, false);
 	SetHasDefensivePact(eIndex, false);
@@ -4680,8 +4680,8 @@ bool CvTeam::HasEmbassyAtTeam(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(HasEmbassyAtTeam(eIndex) != bNewValue)
 	{
@@ -4699,7 +4699,7 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 				if(pCity)
 				{
 					CvPlot* pPlot = pCity->plot();
-					CvAssertMsg(pPlot, "Capital city lacks plot? How'd that happen?");
+					ASSERT(pPlot, "Capital city lacks plot? How'd that happen?");
 					if(pPlot)
 					{
 						const int iPopRange = 2;
@@ -4765,8 +4765,8 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvTeam::HasSpyAtTeam(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	for (uint uiMyPlayer = 0; uiMyPlayer < MAX_MAJOR_CIVS; uiMyPlayer++)
 	{
@@ -4881,8 +4881,8 @@ void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvTeam::IsHasDefensivePact(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abDefensivePact[eIndex];
 }
 
@@ -4890,8 +4890,8 @@ bool CvTeam::IsHasDefensivePact(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_abDefensivePact[eIndex] = bNewValue;
 
@@ -4990,8 +4990,8 @@ int CvTeam::GetTotalNumResearchAgreements() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::IsHasResearchAgreement(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abResearchAgreement[eIndex];
 }
 
@@ -4999,8 +4999,8 @@ bool CvTeam::IsHasResearchAgreement(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetHasResearchAgreement(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(IsHasResearchAgreement(eIndex) != bNewValue)
 	{
@@ -5034,8 +5034,8 @@ void CvTeam::CancelResearchAgreement(TeamTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isForcePeace(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abForcePeace[eIndex];
 }
 
@@ -5043,8 +5043,8 @@ bool CvTeam::isForcePeace(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::setForcePeace(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_abForcePeace[eIndex] = bNewValue;
 }
 
@@ -5052,8 +5052,8 @@ void CvTeam::setForcePeace(TeamTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvTeam::IsWonLatestWar(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_abWonLatestWar[eIndex];
 }
 
@@ -5061,8 +5061,8 @@ bool CvTeam::IsWonLatestWar(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetWonLatestWar(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_abWonLatestWar[eIndex] = bNewValue;
 }
 
@@ -5070,16 +5070,16 @@ void CvTeam::SetWonLatestWar(TeamTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 int CvTeam::getRouteChange(RouteTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiRouteChange[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiRouteChange[eIndex] = (m_paiRouteChange[eIndex] + iChange);
 }
 
@@ -5087,16 +5087,16 @@ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTradeRouteDomainExtraRange[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTradeRouteDomainExtraRange[eIndex] = (m_paiTradeRouteDomainExtraRange[eIndex] + iChange);
 }
 #endif
@@ -5104,16 +5104,16 @@ void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getBuildTimeChange(BuildTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildTimeChange[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeBuildTimeChange(BuildTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	if (iChange != 0)
 	{
 		m_paiBuildTimeChange[eIndex] = (m_paiBuildTimeChange[eIndex] + iChange);
@@ -5131,8 +5131,8 @@ RouteTypes CvTeam::GetBestPossibleRoute()
 /// Sets what the best route this team can build is
 void CvTeam::SetBestPossibleRoute(RouteTypes eRoute)
 {
-	CvAssertMsg(eRoute >= NO_ROUTE, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eRoute < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eRoute >= NO_ROUTE, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eRoute < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(GetBestPossibleRoute() != eRoute)
 	{
@@ -5194,59 +5194,59 @@ void CvTeam::DoUpdateBestRoute()
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectCount(ProjectTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiProjectCount[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectDefaultArtType(ProjectTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiProjectDefaultArtTypes[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::setProjectDefaultArtType(ProjectTypes eIndex, int value)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiProjectDefaultArtTypes[eIndex] = value;
 }
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectArtType(ProjectTypes eIndex, int number) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(number >= 0, "number is expected to be non-negative (invalid Index)");
-	CvAssertMsg(number < getProjectCount(eIndex), "number is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(number >= 0, "number is expected to be non-negative (invalid Index)");
+	ASSERT(number < getProjectCount(eIndex), "number is expected to be within maximum bounds (invalid Index)");
 	return m_pavProjectArtTypes[eIndex][number];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::setProjectArtType(ProjectTypes eIndex, int number, int value)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(number >= 0, "number is expected to be non-negative (invalid Index)");
-	CvAssertMsg(number < getProjectCount(eIndex), "number is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(number >= 0, "number is expected to be non-negative (invalid Index)");
+	ASSERT(number < getProjectCount(eIndex), "number is expected to be within maximum bounds (invalid Index)");
 	m_pavProjectArtTypes[eIndex][number] = value;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(!isTeamProject(eIndex))
 	{
 		return false;
 	}
 
-	CvAssertMsg(getProjectCount(eIndex) <= GC.getProjectInfo(eIndex)->GetMaxTeamInstances(), "Current Project count is expected to not exceed the maximum number of instances for this project");
+	ASSERT(getProjectCount(eIndex) <= GC.getProjectInfo(eIndex)->GetMaxTeamInstances(), "Current Project count is expected to not exceed the maximum number of instances for this project");
 
 	return ((getProjectCount(eIndex) + iExtra) >= GC.getProjectInfo(eIndex)->GetMaxTeamInstances());
 }
@@ -5254,8 +5254,8 @@ bool CvTeam::isProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isProjectAndArtMaxedOut(ProjectTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(getProjectCount(eIndex) >= GC.getProjectInfo(eIndex)->GetMaxTeamInstances())
 	{
@@ -5303,8 +5303,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 	int iI = 0;
 	int iJ = 0;
 
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -5318,7 +5318,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 		iOldProjectCount = getProjectCount(eIndex);
 
 		m_paiProjectCount[eIndex] = (m_paiProjectCount[eIndex] + iChange);
-		CvAssert(getProjectCount(eIndex) >= 0);
+		ASSERT(getProjectCount(eIndex) >= 0);
 
 		//adjust default art types
 		if(iChange >= 0)
@@ -5336,7 +5336,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			for(int i=0; i<-iChange; i++)
 				m_pavProjectArtTypes[eIndex].pop_back();
 		}
-		CvAssertMsg(getProjectCount(eIndex) == (int)m_pavProjectArtTypes[eIndex].size(), "[Jason] Unbalanced project art types.");
+		ASSERT(getProjectCount(eIndex) == (int)m_pavProjectArtTypes[eIndex].size(), "[Jason] Unbalanced project art types.");
 
 		CvProjectEntry* pkProject = GC.getProjectInfo(eIndex);
 
@@ -5568,8 +5568,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectMaking(ProjectTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiProjectMaking[eIndex];
 }
 
@@ -5577,18 +5577,18 @@ int CvTeam::getProjectMaking(ProjectTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeProjectMaking(ProjectTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiProjectMaking[eIndex] = (m_paiProjectMaking[eIndex] + iChange);
-	CvAssert(getProjectMaking(eIndex) >= 0);
+	ASSERT(getProjectMaking(eIndex) >= 0);
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getUnitClassCount(UnitClassTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitClassCount[eIndex];
 }
 
@@ -5596,8 +5596,8 @@ int CvTeam::getUnitClassCount(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eIndex);
 	if(pkUnitClassInfo == NULL)
@@ -5610,7 +5610,7 @@ bool CvTeam::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 		return false;
 	}
 
-	CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxTeamInstances(), "The current unit class count is expected not to exceed the maximum number of instances allowed for this team");
+	ASSERT(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxTeamInstances(), "The current unit class count is expected not to exceed the maximum number of instances allowed for this team");
 
 	return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxTeamInstances());
 }
@@ -5619,18 +5619,18 @@ bool CvTeam::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeUnitClassCount(UnitClassTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitClassCount[eIndex] = (m_paiUnitClassCount[eIndex] + iChange);
-	CvAssert(getUnitClassCount(eIndex) >= 0);
+	ASSERT(getUnitClassCount(eIndex) >= 0);
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getBuildingClassCount(BuildingClassTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingClassCount[eIndex];
 }
 
@@ -5638,13 +5638,13 @@ int CvTeam::getBuildingClassCount(BuildingClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
 	if(pkBuildingClassInfo == NULL)
 	{
-		CvAssertMsg(false, "Could not find BuildingClassInfo for BuildingClassType.");
+		ASSERT(false, "Could not find BuildingClassInfo for BuildingClassType.");
 		return false;
 	}
 
@@ -5653,7 +5653,7 @@ bool CvTeam::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) cons
 		return false;
 	}
 
-	CvAssertMsg(getBuildingClassCount(eIndex) <= pkBuildingClassInfo->getMaxTeamInstances(), "The current building class count is expected not to exceed the maximum number of instances allowed for this team");
+	ASSERT(getBuildingClassCount(eIndex) <= pkBuildingClassInfo->getMaxTeamInstances(), "The current building class count is expected not to exceed the maximum number of instances allowed for this team");
 
 	return ((getBuildingClassCount(eIndex) + iExtra) >= pkBuildingClassInfo->getMaxTeamInstances());
 }
@@ -5662,18 +5662,18 @@ bool CvTeam::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) cons
 //	--------------------------------------------------------------------------------
 void CvTeam::changeBuildingClassCount(BuildingClassTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiBuildingClassCount[eIndex] = (m_paiBuildingClassCount[eIndex] + iChange);
-	CvAssert(getBuildingClassCount(eIndex) >= 0);
+	ASSERT(getBuildingClassCount(eIndex) >= 0);
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getObsoleteBuildingCount(BuildingTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiObsoleteBuildingCount[eIndex];
 }
 
@@ -5693,15 +5693,15 @@ void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
 	int iLoop = 0;
 	int iI = 0;
 
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		bOldObsoleteBuilding = isObsoleteBuilding(eIndex);
 
 		m_paiObsoleteBuildingCount[eIndex] = (m_paiObsoleteBuildingCount[eIndex] + iChange);
-		CvAssert(getObsoleteBuildingCount(eIndex) >= 0);
+		ASSERT(getObsoleteBuildingCount(eIndex) >= 0);
 
 		if(bOldObsoleteBuilding != isObsoleteBuilding(eIndex))
 		{
@@ -5732,8 +5732,8 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eIndex);
 	if(thisBuildingEntry == NULL)
@@ -5770,8 +5770,8 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getTerrainTradeCount(TerrainTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTerrainTradeCount[eIndex];
 }
 
@@ -5786,29 +5786,29 @@ bool CvTeam::isTerrainTrade(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeTerrainTradeCount(TerrainTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiTerrainTradeCount[eIndex] = (m_paiTerrainTradeCount[eIndex] + iChange);
-		CvAssert(getTerrainTradeCount(eIndex) >= 0);
+		ASSERT(getTerrainTradeCount(eIndex) >= 0);
 	}
 }
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getVictoryCountdown(VictoryTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiVictoryCountdown[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiVictoryCountdown[eIndex] = iTurnsLeft;
 }
 
@@ -5816,13 +5816,13 @@ void CvTeam::setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft)
 //	--------------------------------------------------------------------------------
 void CvTeam::changeVictoryCountdown(VictoryTypes eIndex, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_aiVictoryCountdown[eIndex] += iChange;
-		CvAssert(m_aiVictoryCountdown[eIndex] >= 0);
+		ASSERT(m_aiVictoryCountdown[eIndex] >= 0);
 	}
 }
 
@@ -5837,7 +5837,7 @@ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
 
 		if(pkProject && iCount < pkProject->GetVictoryMinThreshold(eVictory))
 		{
-			CvAssert(false);
+			ASSERT(false);
 			return -1;
 		}
 
@@ -5955,7 +5955,7 @@ void CvTeam::changeVictoryPoints(int iChange)
 	}
 
 	// Right now there's no reason VPs should ever be negative
-	CvAssert(m_iVictoryPoints >= 0);
+	ASSERT(m_iVictoryPoints >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -6154,10 +6154,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		ePlayer = getLeaderID();
 	}
 
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	if(ePlayer == NO_PLAYER)
 	{
@@ -6285,7 +6285,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				if(eResource != NO_RESOURCE)
 				{
 					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-					CvAssert(pResourceInfo);
+					ASSERT(pResourceInfo);
 					if (!pResourceInfo)
 						continue;
 
@@ -7336,7 +7336,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				if (GC.getGame().isFinalInitialized())
 				{
-					CvAssert(ePlayer != NO_PLAYER);
+					ASSERT(ePlayer != NO_PLAYER);
 					if(GET_PLAYER(ePlayer).isHuman())
 					{
 						if(GET_PLAYER(ePlayer).GetPlayerTechs()->IsResearch() && (GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH))
@@ -7428,25 +7428,25 @@ int CvTeam::GetTechProgressPercent() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiFeatureYieldChange[eIndex1][eIndex2];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_ppaaiFeatureYieldChange[eIndex1][eIndex2] = (m_ppaaiFeatureYieldChange[eIndex1][eIndex2] + iChange);
-		CvAssert(getFeatureYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(getFeatureYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}
@@ -7455,25 +7455,25 @@ void CvTeam::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, 
 //	--------------------------------------------------------------------------------
 int CvTeam::getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiTerrainYieldChange[eIndex1][eIndex2];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_ppaaiTerrainYieldChange[eIndex1][eIndex2] = (m_ppaaiTerrainYieldChange[eIndex1][eIndex2] + iChange);
-		CvAssert(getTerrainYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(getTerrainYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}
@@ -7482,10 +7482,10 @@ void CvTeam::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, 
 //	--------------------------------------------------------------------------------
 int CvTeam::getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiImprovementYieldChange[eIndex1][eIndex2];
 }
 
@@ -7493,15 +7493,15 @@ int CvTeam::getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eInde
 //	--------------------------------------------------------------------------------
 void CvTeam::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_ppaaiImprovementYieldChange[eIndex1][eIndex2] = (m_ppaaiImprovementYieldChange[eIndex1][eIndex2] + iChange);
-		CvAssert(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}
@@ -7511,10 +7511,10 @@ void CvTeam::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes e
 //	--------------------------------------------------------------------------------
 int CvTeam::getImprovementNoFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiImprovementNoFreshWaterYieldChange[eIndex1][eIndex2];
 }
 
@@ -7522,15 +7522,15 @@ int CvTeam::getImprovementNoFreshWaterYieldChange(ImprovementTypes eIndex1, Yiel
 //	--------------------------------------------------------------------------------
 void CvTeam::changeImprovementNoFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_ppaaiImprovementNoFreshWaterYieldChange[eIndex1][eIndex2] = (m_ppaaiImprovementNoFreshWaterYieldChange[eIndex1][eIndex2] + iChange);
-		CvAssert(getImprovementNoFreshWaterYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(getImprovementNoFreshWaterYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}
@@ -7540,10 +7540,10 @@ void CvTeam::changeImprovementNoFreshWaterYieldChange(ImprovementTypes eIndex1, 
 //	--------------------------------------------------------------------------------
 int CvTeam::getImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiImprovementFreshWaterYieldChange[eIndex1][eIndex2];
 }
 
@@ -7551,15 +7551,15 @@ int CvTeam::getImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldT
 //	--------------------------------------------------------------------------------
 void CvTeam::changeImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_ppaaiImprovementFreshWaterYieldChange[eIndex1][eIndex2] = (m_ppaaiImprovementFreshWaterYieldChange[eIndex1][eIndex2] + iChange);
-		CvAssert(getImprovementFreshWaterYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(getImprovementFreshWaterYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}
@@ -7601,7 +7601,7 @@ void CvTeam::updateTechShare(TechTypes eTech)
 				{
 					if(isHasMet((TeamTypes)iI))
 					{
-						CvAssertMsg(iI != GetID(), "iI is not expected to be equal with GetID()");
+						ASSERT(iI != GetID(), "iI is not expected to be equal with GetID()");
 						iCount++;
 					}
 				}
@@ -9015,7 +9015,7 @@ int CvTeam::countNumHumanGameTurnActive() const
 //	--------------------------------------------------------------------------------
 void CvTeam::setTurnActive(bool bNewValue, bool bDoTurn)
 {
-	CvAssert(GC.getGame().isSimultaneousTeamTurns());
+	ASSERT(GC.getGame().isSimultaneousTeamTurns());
 
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
@@ -9030,7 +9030,7 @@ void CvTeam::setTurnActive(bool bNewValue, bool bDoTurn)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isTurnActive() const
 {
-	CvAssert(GC.getGame().isSimultaneousTeamTurns());
+	ASSERT(GC.getGame().isSimultaneousTeamTurns());
 
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
@@ -9050,7 +9050,7 @@ bool CvTeam::isTurnActive() const
 //	--------------------------------------------------------------------------------
 void CvTeam::PushIgnoreWarning (TeamTypes eTeam)
 {
-	CvAssertMsg(eTeam != NO_TEAM, "PushIgnoreWarning got NO_TEAM passed to it");
+	ASSERT(eTeam != NO_TEAM, "PushIgnoreWarning got NO_TEAM passed to it");
 	if (eTeam == NO_TEAM)
 	{
 		return;
@@ -9062,13 +9062,13 @@ void CvTeam::PushIgnoreWarning (TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 void CvTeam::PopIgnoreWarning (TeamTypes eTeam)
 {
-	CvAssertMsg(eTeam != NO_TEAM, "PopIgnoreWarning got NO_TEAM passed to it");
+	ASSERT(eTeam != NO_TEAM, "PopIgnoreWarning got NO_TEAM passed to it");
 	if (eTeam == NO_TEAM)
 	{
 		return;
 	}
 
-	CvAssertMsg(m_aiIgnoreWarningCount[eTeam] > 0, "Trying to pop when there's nothing to be popped");
+	ASSERT(m_aiIgnoreWarningCount[eTeam] > 0, "Trying to pop when there's nothing to be popped");
 	if (m_aiIgnoreWarningCount[eTeam] > 0)
 	{
 		m_aiIgnoreWarningCount[eTeam] -= 1;
@@ -9078,7 +9078,7 @@ void CvTeam::PopIgnoreWarning (TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetIgnoreWarningCount (TeamTypes eTeam)
 {
-	CvAssertMsg(eTeam != NO_TEAM, "GetIgnoreWarningCount got NO_TEAM passed to it");
+	ASSERT(eTeam != NO_TEAM, "GetIgnoreWarningCount got NO_TEAM passed to it");
 	if (eTeam == NO_TEAM)
 	{
 		return -1;
@@ -9280,8 +9280,8 @@ void CvTeam::AddNotification(NotificationTypes eNotificationType, const char* st
 //  Acquire the map (territory or world) of eTeam
 void CvTeam::AcquireMap(TeamTypes eTeam, bool bTerritoryOnly)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pPlot = NULL;
@@ -9338,7 +9338,7 @@ bool CvTeam::IsVassalageTradingAllowed() const
 void CvTeam::changeVassalageTradingAllowedCount(int iChange)
 {
 	m_iVassalageTradingAllowedCount = (m_iVassalageTradingAllowedCount + iChange);
-	CvAssert(getVassalageTradingAllowedCount() >= 0);
+	ASSERT(getVassalageTradingAllowedCount() >= 0);
 }
 //	--------------------------------------------------------------------------------
 // Find out who we're a vassal of
@@ -9883,8 +9883,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 	Localization::String locString;
 	Localization::String summaryString;
 
-	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
+	ASSERT(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	ASSERT(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
 	// we must be able to become their vassal
 	if(!canBecomeVassal(eTeam, /*bIgnoreAlreadyVassal*/ true))
@@ -10205,17 +10205,17 @@ void CvTeam::ChangeNumTurnsIsVassal(int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetNumTurnsSinceVassalEnded(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiNumTurnsSinceVassalEnded[eTeam];
 }
 
 //	--------------------------------------------------------------------------------
 void CvTeam::SetNumTurnsSinceVassalEnded(TeamTypes eTeam, int iValue)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eTeam != GetID(), "Team is setting vassal ended turns with itself!");
+	ASSERT(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTeam != GetID(), "Team is setting vassal ended turns with itself!");
 	if(eTeam != GetID() || iValue == 0)
 		m_aiNumTurnsSinceVassalEnded[eTeam] = iValue;
 }
@@ -10292,32 +10292,32 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 //	--------------------------------------------------------------------------------
 void CvTeam::SetVassalTax(PlayerTypes ePlayer, int iPercent)
 {
-	CvAssertMsg(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	ASSERT(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.");
 	
 	m_aiVassalTax[ePlayer] = iPercent;
 }
 //	--------------------------------------------------------------------------------
 int CvTeam::GetVassalTax(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "TEAM: VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "TEAM: VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	ASSERT(ePlayer >= 0, "TEAM: VASSAL TAX! Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "TEAM: VASSAL TAX! Invalid Player Index.");
 	
 	return m_aiVassalTax[ePlayer];
 }
 //	--------------------------------------------------------------------------------
 int CvTeam::GetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	ASSERT(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.");
 
 	return m_aiNumTurnsSinceVassalTaxSet[ePlayer];
 }
 //	--------------------------------------------------------------------------------
 void CvTeam::ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange)
 {
-	CvAssertMsg(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	ASSERT(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.");
 
 	if(iChange != 0)
 		SetNumTurnsSinceVassalTaxSet(ePlayer, GetNumTurnsSinceVassalTaxSet(ePlayer) + iChange);
@@ -10325,8 +10325,8 @@ void CvTeam::ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange)
 //	--------------------------------------------------------------------------------
 void CvTeam::SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue)
 {
-	CvAssertMsg(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	ASSERT(ePlayer >= 0, "SET VASSAL TAX! Invalid Player Index.");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "SET VASSAL TAX! Invalid Player Index.");
 
 	m_aiNumTurnsSinceVassalTaxSet[ePlayer] = iValue;
 }
@@ -10342,8 +10342,8 @@ bool CvTeam::IsTooSoonForVassal(TeamTypes eTeam) const
 /// How many vassals do we have?
 int CvTeam::GetNumVassals()
 {
-	CvAssertMsg(GetID() >= 0, "TeamID is expected to be non-negative (invalid Index)");
-	CvAssertMsg(GetID() < MAX_TEAMS, "TeamID is expected to be within maximum bounds (invalid Index)");
+	ASSERT(GetID() >= 0, "TeamID is expected to be non-negative (invalid Index)");
+	ASSERT(GetID() < MAX_TEAMS, "TeamID is expected to be within maximum bounds (invalid Index)");
 
 	if(GET_TEAM(GetID()).isMinorCiv() || GET_TEAM(GetID()).isBarbarian())
 		return 0;

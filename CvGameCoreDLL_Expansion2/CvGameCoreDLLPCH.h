@@ -62,15 +62,6 @@
 #define NODISCARD
 #endif // __cplusplus >= 201703L
 
-/// Asserts that the given expression is true.
-///
-/// Failure to assert that the expression is `true` will result in the program trapping.
-/// 
-/// Although it is typically expected that the expression will be evaluated, please do not write code that may
-/// depend on the expression always being evaluated. Doing so makes it more difficult to swap this macro safely
-/// with similar ones which may not evaluate the expression.
-#define ASSERT(expr) if (!(expr)) do { ASSERT_DIALOGUE(#expr); BUILTIN_TRAP(); } while(0)
-
 /// Similar to `ASSERT` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
 /// 
 /// When `STRONG_ASSUMPTIONS` is defined, instead of trapping when the expression is `false`, the compiler is
@@ -85,6 +76,11 @@
 #define ASSUME(expr) ASSERT(expr)
 #endif // STRONG_ASSUMPTIONS
 
+
+/// Similar to `ASSERT`, calling PRECONDITION with an expression that is `false` will cause the game to crash.
+// Depending on the project settings (see `CVASSERT_ENABLE` in CvAssert.h) a message dialog may be shown in both debug and release configurations.
+
+#define PRECONDITION(expr, ...) if (!(expr)) {CvString str; CvString::format(str, __VA_ARGS__); CvPreconditionDlg(#expr, __FILE__, __LINE__, str.c_str()); BUILTIN_TRAP();}
 /// Indicates that some location is unreachable.
 ///
 /// Reaching this location during execution will result in the program trapping.
@@ -93,7 +89,8 @@
 /// that a conditional expression be provided and can more clearly represent what was meant when a code author
 /// placed it at a location. This makes it primarily useful as a statement within a `switch` `case` or `else` branch
 /// when it can be assumed that the location is unreachable.
-#define UNREACHABLE() do { ASSERT_DIALOGUE("UNREACHABLE()"); BUILTIN_TRAP(); } while(0)
+/// 
+#define UNREACHABLE() PRECONDITION(false, "UNREACHABLE")
 
 /// Similar to `UNREACHABLE` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
 ///
@@ -106,7 +103,7 @@
 #ifdef STRONG_ASSUMPTIONS
 #define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
 #else
-#define UNREACHABLE_UNCHECKED() do { ASSERT_DIALOGUE("UNREACHABLE_UNCHECKED()"); BUILTIN_TRAP(); } while(0)
+#define UNREACHABLE_UNCHECKED() UNREACHABLE PRECONDITION(false, "UNREACHABLE_UNCHECKED")
 #endif // STRONG_ASSUMPTIONS
 
 // Take off iterator security checks

@@ -16,7 +16,7 @@ CvDllUnit::CvDllUnit(CvUnit* pUnit)
 	: m_pUnit(pUnit)
 	, m_uiRefCount(1)
 {
-	FAssertMsg(pUnit != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pUnit != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllUnit::~CvDllUnit()

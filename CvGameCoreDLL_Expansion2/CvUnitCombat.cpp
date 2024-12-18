@@ -723,7 +723,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	PlayerTypes eDefenderOwner;
 	if(!plot.isCity())
 	{
-		CvAssert(pkDefender != NULL);
+		ASSERT(pkDefender != NULL);
 
 		eDefenderOwner = pkDefender->getOwner();
 
@@ -732,7 +732,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
 
-		//CvAssert(pkDefender->IsCanDefend());
+		//ASSERT(pkDefender->IsCanDefend());
 		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
@@ -762,7 +762,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		if (kAttacker.isRangedSupportFire()) return; // can't attack cities with this
 
 		CvCity* pCity = plot.getPlotCity();
-		CvAssert(pCity != NULL);
+		ASSERT(pCity != NULL);
 		if(!pCity) return;
 		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 
@@ -912,14 +912,14 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	PlayerTypes eDefenderOwner = NO_PLAYER;
 	if(!plot.isCity())
 	{
-		CvAssert(pkDefender != NULL);
+		ASSERT(pkDefender != NULL);
 
 		eDefenderOwner = pkDefender->getOwner();
 
 		if(pkDefender->isBarbarian())
 			bBarbarian = true;
 
-		//CvAssert(pkDefender->IsCanDefend());
+		//ASSERT(pkDefender->IsCanDefend());
 		iDamage = kAttacker.rangeCombatDamage(pkDefender,bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
@@ -943,7 +943,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-		FAssertMsg(false, "City vs. City not supported.");	// Don't even think about it Jon....
+		ASSERT(false, "City vs. City not supported.");	// Don't even think about it Jon....
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -1343,7 +1343,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 		}
 		else
 		{
-			CvAssert(false);	// Left as an exercise for the reader
+			ASSERT(false);	// Left as an exercise for the reader
 			bTargetDied = true;
 		}
 	}
@@ -1627,7 +1627,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	// Special: Missiles always attack the unit, even when it's in a city
 	if(!plot.isCity() || kAttacker.AI_getUnitAIType() == UNITAI_MISSILE_AIR )
 	{
-		CvAssert(pkDefender != NULL);
+		ASSERT(pkDefender != NULL);
 		if(!pkDefender)
 			return;
 
@@ -1687,7 +1687,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	else
 	{
 		CvCity* pCity = plot.getPlotCity();
-		CvAssert(pCity != NULL);
+		ASSERT(pCity != NULL);
 		if(!pCity) return;
 		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 
@@ -3118,7 +3118,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								}
 								else
 								{
-									CvAssertMsg(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
+									ASSERT(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
 								}
 							}
 						}
@@ -3180,7 +3180,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 					}
 					else
 					{
-						CvAssertMsg(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
+						ASSERT(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
 					}
 				}
 			}
@@ -3245,7 +3245,7 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 		}
 		else
 		{
-			CvAssertMsg(pkAttacker->isSuicide(), "A nuke unit that is not a one time use?");
+			ASSERT(pkAttacker->isSuicide(), "A nuke unit that is not a one time use?");
 
 			// Clean up some stuff
 			pkAttacker->setCombatUnit(NULL);
@@ -3269,8 +3269,8 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 //	---------------------------------------------------------------------------
 bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
-	CvAssertMsg(!paraUnit.isDelayedDeath(), "Trying to paradrop and the unit is already dead!");
-	CvAssert(paraUnit.getCombatTimer() == 0);
+	ASSERT(!paraUnit.isDelayedDeath(), "Trying to paradrop and the unit is already dead!");
+	ASSERT(paraUnit.getCombatTimer() == 0);
 
 	// Any interception to be done?
 	CvUnit* pInterceptor = dropPlot.GetBestInterceptor(paraUnit.getOwner(), &paraUnit);
@@ -3747,14 +3747,14 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	CvString strBuffer;
 
 	//VALIDATE_OBJECT
-	CvAssert(kAttacker.canMoveInto(targetPlot, CvUnit::MOVEFLAG_ATTACK ));
-	CvAssert(kAttacker.getCombatTimer() == 0);
+	ASSERT(kAttacker.canMoveInto(targetPlot, CvUnit::MOVEFLAG_ATTACK ));
+	ASSERT(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;
 
-	CvAssert(kAttacker.getCombatTimer() == 0);
-	//	CvAssert(pDefender != NULL);
-	CvAssert(!kAttacker.isFighting());
+	ASSERT(kAttacker.getCombatTimer() == 0);
+	//	ASSERT(pDefender != NULL);
+	ASSERT(!kAttacker.isFighting());
 
 	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
 	if(!pDefender)
@@ -3795,7 +3795,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	CvCombatInfo kCombatInfo;
 	GenerateMeleeCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
 
-	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+	ASSERT(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
 	if (pDefender->CheckWithdrawal(kAttacker) && pDefender->DoFallBack(kAttacker, true))
 	{
@@ -3855,7 +3855,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		CvMissionInfo* pkSurrenderMission = GC.getMissionInfo(CvTypes::getMISSION_SURRENDER());
 		if(pkSurrenderMission == NULL)
 		{
-			CvAssert(false);
+			ASSERT(false);
 		}
 		else
 		{
@@ -3919,7 +3919,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			CvUnit* pFireSupportUnit = GetFireSupportUnit(pDefender->getOwner(), pDefender->getX(), pDefender->getY(), kAttacker.getX(), kAttacker.getY());
 			if(pFireSupportUnit != NULL)
 			{
-				CvAssertMsg(!pFireSupportUnit->isDelayedDeath(), "Supporting battle unit is already dead!");
+				ASSERT(!pFireSupportUnit->isDelayedDeath(), "Supporting battle unit is already dead!");
 				eSupportResult = AttackRanged(*pFireSupportUnit, kAttacker.getX(), kAttacker.getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 			}
 
@@ -3979,7 +3979,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 	ATTACK_RESULT eResult = ATTACK_ABORTED;
 
-	CvAssertMsg(kAttacker.getDomainType() != DOMAIN_AIR, "Air units should not use AttackRanged, they should just MoveTo the target");
+	ASSERT(kAttacker.getDomainType() != DOMAIN_AIR, "Air units should not use AttackRanged, they should just MoveTo the target");
 
 	if(NULL == pPlot)
 	{
@@ -4024,7 +4024,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateRangedCombatInfo(kAttacker, pDefender, *pPlot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 		
 		if (!kAttacker.isRangedSupportFire())
 		{
@@ -4062,7 +4062,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	{
 		CvCombatInfo kCombatInfo;
 		GenerateRangedCombatInfo(kAttacker, NULL, *pPlot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
 		kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 
@@ -4107,7 +4107,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION /* eOption */)
 {
 	//VALIDATE_OBJECT
-	CvAssert(kAttacker.getCombatTimer() == 0);
+	ASSERT(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;
 
@@ -4147,7 +4147,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 		kAttacker.setMadeAttack(true);
 
 		uint uiParentEventID = 0;
@@ -4184,7 +4184,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 	{
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, NULL, targetPlot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
 
 		uint uiParentEventID = 0;
@@ -4224,7 +4224,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION /* eOption */)
 {
 	//VALIDATE_OBJECT
-	CvAssert(kAttacker.getCombatTimer() == 0);
+	ASSERT(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;
 
@@ -4247,7 +4247,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 
 		CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
 		pkDefender->SetAutomateType(NO_AUTOMATE);
-		CvAssertMsg(!kAttacker.isDelayedDeath() && !pkDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath() && !pkDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
 		uint uiParentEventID = 0;
 		bool bDoImmediate = CvPreGame::quickCombat();
@@ -4328,7 +4328,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 
 	ATTACK_RESULT eResult = ATTACK_ABORTED;
 	CvCity* pCity = plot.getPlotCity();
-	CvAssertMsg(pCity != NULL, "If this unit is attacking a NULL city then something funky is goin' down");
+	ASSERT(pCity != NULL, "If this unit is attacking a NULL city then something funky is goin' down");
 	if(!pCity) return eResult;
 
 	kAttacker.SetAutomateType(NO_AUTOMATE);
@@ -4357,7 +4357,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 		// We are doing a non-ranged attack on a city
 		CvCombatInfo kCombatInfo;
 		GenerateMeleeCombatInfo(kAttacker, NULL, plot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		ASSERT(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
 
 		// Send the combat message if the target plot is visible.

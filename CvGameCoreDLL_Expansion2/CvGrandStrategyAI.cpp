@@ -49,24 +49,24 @@ bool CvAIGrandStrategyXMLEntry::CacheResults(Database::Results& kResults, CvData
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetFlavorValue(int i) const
 {
-	FAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	FAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetSpecializationBoost(YieldTypes eYield) const
 {
-	FAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	FAssertMsg(eYield > -1, "Index out of bounds");
+	ASSERT(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT(eYield > -1, "Index out of bounds");
 	return m_piSpecializationBoost ? m_piSpecializationBoost[(int)eYield] : 0;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetFlavorModValue(int i) const
 {
-	FAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	FAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	return m_piFlavorModValue ? m_piFlavorModValue[i] : 0;
 }
 
@@ -141,7 +141,7 @@ void CvGrandStrategyAI::Init(CvAIGrandStrategyXMLEntries* pAIGrandStrategies, Cv
 	m_pPlayer = pPlayer;
 
 	// Initialize AIGrandStrategy status array
-	FAssertMsg(m_paiGrandStrategyPriority==NULL, "about to leak memory, CvGrandStrategyAI::m_paiGrandStrategyPriority");
+	ASSERT(m_paiGrandStrategyPriority==NULL, "about to leak memory, CvGrandStrategyAI::m_paiGrandStrategyPriority");
 	m_paiGrandStrategyPriority = FNEW(int[m_pAIGrandStrategies->GetNumAIGrandStrategies()], c_eCiv5GameplayDLL, 0);
 
 	Reset();
@@ -191,7 +191,7 @@ void CvGrandStrategyAI::Serialize(GrandStrategyAI& grandStrategyAI, Visitor& vis
 	visitor(grandStrategyAI.m_iNumTurnsSinceActiveSet);
 	visitor(grandStrategyAI.m_eActiveGrandStrategy);
 
-	CvAssertMsg(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
+	ASSERT(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
 	visitor(MakeConstSpan(grandStrategyAI.m_paiGrandStrategyPriority, grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies()));
 
 	visitor(grandStrategyAI.m_eGuessOtherPlayerActiveGrandStrategy);
@@ -1272,7 +1272,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	else
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		CvAssert(pLeague != NULL);
+		ASSERT(pLeague != NULL);
 		if (pLeague != NULL)
 		{
 			// Votes we control

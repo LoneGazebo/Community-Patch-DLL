@@ -2879,7 +2879,7 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
-	CvAssert(aWeightedDirectives.size() == aDirectives.size());
+	ASSERT(aWeightedDirectives.size() == aDirectives.size());
 
 	return aWeightedDirectives;
 }
@@ -4554,7 +4554,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 							break;
 						}
 
-						CvAssertMsg(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
+						ASSERT(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
 						if (eSelectedBuildType != NO_BUILD)
 						{
 							pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, false, false, MISSIONAI_BUILD, pTargetPlot);
@@ -6078,7 +6078,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 		CvPlot* pPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 		if(pPlot)
 		{
-			CvAssert(!pUnit->atPlot(*pPlot));
+			ASSERT(!pUnit->atPlot(*pPlot));
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;

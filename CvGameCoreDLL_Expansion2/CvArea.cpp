@@ -184,7 +184,7 @@ int CvArea::getNumTiles() const
 void CvArea::changeNumTiles(int iChange)
 {
 	m_iNumTiles = (m_iNumTiles + iChange);
-	CvAssert(m_iNumTiles >= 0);
+	ASSERT(m_iNumTiles >= 0);
 }
 
 
@@ -206,8 +206,8 @@ int CvArea::getNumUnownedTiles() const
 void CvArea::changeNumOwnedTiles(int iChange)
 {
 	m_iNumOwnedTiles = (m_iNumOwnedTiles + iChange);
-	CvAssert(getNumOwnedTiles() >= 0);
-	CvAssert(getNumUnownedTiles() >= 0);
+	ASSERT(getNumOwnedTiles() >= 0);
+	ASSERT(getNumUnownedTiles() >= 0);
 }
 
 
@@ -222,7 +222,7 @@ int CvArea::getNumRiverEdges() const
 void CvArea::changeNumRiverEdges(int iChange)
 {
 	m_iNumRiverEdges = (m_iNumRiverEdges + iChange);
-	CvAssert(getNumRiverEdges() >= 0);
+	ASSERT(getNumRiverEdges() >= 0);
 }
 
 
@@ -257,7 +257,7 @@ int CvArea::getNumStartingPlots() const
 void CvArea::changeNumStartingPlots(int iChange)
 {
 	m_iNumStartingPlots = m_iNumStartingPlots + iChange;
-	CvAssert(getNumStartingPlots() >= 0);
+	ASSERT(getNumStartingPlots() >= 0);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -584,7 +584,7 @@ void CvArea::setTotalFoundValue(int iNewValue)
 {
 	//avoid overflow
 	m_iTotalFoundValue = min(INT_MAX/2,max(0,iNewValue));
-	CvAssert(m_iTotalFoundValue >= 0);
+	ASSERT(m_iTotalFoundValue >= 0);
 }
 
 //	--------------------------------------------------------------------------------

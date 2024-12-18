@@ -2695,7 +2695,7 @@ void CvGlobals::init()
 		DIRECTION_WEST,			// DIRECTION_NORTHWEST
 	};
 
-	CvAssertMsg(gDLL != NULL, "Civ app needs to set gDLL");
+	ASSERT(gDLL != NULL, "Civ app needs to set gDLL");
 	m_asyncRand = FNEW(CvRandom("UiRng"), c_eCiv5GameplayDLL, 0);
 
 	gDLL->InitGlobals();	// some globals need to be allocated outside the dll
@@ -2916,8 +2916,8 @@ std::vector<CvInterfaceModeInfo*>& CvGlobals::getInterfaceModeInfo()
 
 CvInterfaceModeInfo* CvGlobals::getInterfaceModeInfo(InterfaceModeTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < NUM_INTERFACEMODE_TYPES);
+	ASSERT(e > -1);
+	ASSERT(e < NUM_INTERFACEMODE_TYPES);
 	if(e > -1 && e < (int)m_paInterfaceModeInfo.size())
 		return m_paInterfaceModeInfo[e];
 	else
@@ -3052,12 +3052,12 @@ int* CvGlobals::getRingFromLinearOffset()
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
-	CvAssertMsg(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) return -1;
 
-	CvAssertMsg(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
+	ASSERT(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT(j > -1, "Index out of bounds");
 	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) return -1;
 
 	return m_aaiRingPlotIndex[i][j];
@@ -3070,8 +3070,8 @@ DirectionTypes* CvGlobals::getTurnLeftDirection()
 
 DirectionTypes CvGlobals::getTurnLeftDirection(int i)
 {
-	CvAssertMsg(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -3085,8 +3085,8 @@ DirectionTypes* CvGlobals::getTurnRightDirection()
 
 DirectionTypes CvGlobals::getTurnRightDirection(int i)
 {
-	CvAssertMsg(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -3120,8 +3120,8 @@ std::vector<CvColorInfo*>& CvGlobals::GetColorInfo()
 
 CvColorInfo* CvGlobals::GetColorInfo(ColorTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GetNumColorInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GetNumColorInfos());
 	if(e > -1 && e < (int)m_paColorInfo.size())
 		return m_paColorInfo[e];
 	else
@@ -3141,8 +3141,8 @@ std::vector<CvPlayerColorInfo*>& CvGlobals::GetPlayerColorInfo()
 
 CvPlayerColorInfo* CvGlobals::GetPlayerColorInfo(PlayerColorTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GetNumPlayerColorInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GetNumPlayerColorInfos());
 	if(e > -1 && e < (int)m_paPlayerColorInfo.size())
 		return m_paPlayerColorInfo[e];
 	else
@@ -3161,8 +3161,8 @@ std::vector<CvEntityEventInfo*>& CvGlobals::getEntityEventInfo()
 
 CvEntityEventInfo* CvGlobals::getEntityEventInfo(EntityEventTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEntityEventInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumEntityEventInfos());
 	if(e > -1 && e < (int)m_paEntityEventInfo.size())
 		return m_paEntityEventInfo[e];
 	else
@@ -3181,8 +3181,8 @@ std::vector<CvMultiUnitFormationInfo*>& CvGlobals::getMultiUnitFormationInfo()
 
 CvMultiUnitFormationInfo* CvGlobals::getMultiUnitFormationInfo(int i)
 {
-	CvAssert(i > -1);
-	CvAssert(i < GC.getNumMultiUnitFormationInfos());
+	ASSERT(i > -1);
+	ASSERT(i < GC.getNumMultiUnitFormationInfos());
 	if(i > -1 && i < (int)m_paMultiUnitFormationInfo.size())
 		return m_paMultiUnitFormationInfo[i];
 	else
@@ -3201,8 +3201,8 @@ std::vector<CvPlotInfo*>& CvGlobals::getPlotInfo()
 
 CvPlotInfo* CvGlobals::getPlotInfo(PlotTypes ePlotNum)
 {
-	CvAssert(ePlotNum > -1);
-	CvAssert(ePlotNum < GC.getNumPlotInfos());
+	ASSERT(ePlotNum > -1);
+	ASSERT(ePlotNum < GC.getNumPlotInfos());
 	if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size())
 		return m_paPlotInfo[ePlotNum];
 	else
@@ -3221,8 +3221,8 @@ std::vector<CvGreatPersonInfo*>& CvGlobals::getGreatPersonInfo()
 
 CvGreatPersonInfo* CvGlobals::getGreatPersonInfo(GreatPersonTypes eGreatPersonNum)
 {
-	CvAssert(eGreatPersonNum > -1);
-	CvAssert(eGreatPersonNum < GC.getNumGreatPersonInfos());
+	ASSERT(eGreatPersonNum > -1);
+	ASSERT(eGreatPersonNum < GC.getNumGreatPersonInfos());
 	if (eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size())
 		return m_paGreatPersonInfo[eGreatPersonNum];
 	else
@@ -3241,8 +3241,8 @@ std::vector<CvTerrainInfo*>& CvGlobals::getTerrainInfo()
 
 CvTerrainInfo* CvGlobals::getTerrainInfo(TerrainTypes eTerrainNum)
 {
-	CvAssert(eTerrainNum > -1);
-	CvAssert(eTerrainNum < GC.getNumTerrainInfos());
+	ASSERT(eTerrainNum > -1);
+	ASSERT(eTerrainNum < GC.getNumTerrainInfos());
 	if(eTerrainNum > -1 && eTerrainNum < (int)m_paTerrainInfo.size())
 		return m_paTerrainInfo[eTerrainNum];
 	else
@@ -3261,8 +3261,8 @@ std::vector<CvResourceClassInfo*>& CvGlobals::getResourceClassInfo()
 
 CvResourceClassInfo* CvGlobals::getResourceClassInfo(ResourceClassTypes eResourceNum)
 {
-	CvAssert(eResourceNum > -1);
-	CvAssert(eResourceNum < GC.getNumResourceClassInfos());
+	ASSERT(eResourceNum > -1);
+	ASSERT(eResourceNum < GC.getNumResourceClassInfos());
 	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceClassInfo.size())
 		return m_paResourceClassInfo[eResourceNum];
 	else
@@ -3282,8 +3282,8 @@ std::vector<CvResourceInfo*>& CvGlobals::getResourceInfo()
 
 CvResourceInfo* CvGlobals::getResourceInfo(ResourceTypes eResourceNum)
 {
-	CvAssert(eResourceNum > -1);
-	CvAssert(eResourceNum < GC.getNumResourceInfos());
+	ASSERT(eResourceNum > -1);
+	ASSERT(eResourceNum < GC.getNumResourceInfos());
 	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceInfo.size())
 		return m_paResourceInfo[eResourceNum];
 	else
@@ -3302,8 +3302,8 @@ std::vector<CvFeatureInfo*>& CvGlobals::getFeatureInfo()
 
 CvFeatureInfo* CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
 {
-	CvAssert(eFeatureNum > -1);
-	CvAssert(eFeatureNum < GC.getNumFeatureInfos());
+	ASSERT(eFeatureNum > -1);
+	ASSERT(eFeatureNum < GC.getNumFeatureInfos());
 	if(eFeatureNum > -1 && eFeatureNum < (int)m_paFeatureInfo.size())
 		return m_paFeatureInfo[eFeatureNum];
 	else
@@ -3332,8 +3332,8 @@ std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()
 
 CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
 {
-	CvAssert(eCivilizationNum > -1);
-	CvAssert(eCivilizationNum < GC.getNumCivilizationInfos());
+	ASSERT(eCivilizationNum > -1);
+	ASSERT(eCivilizationNum < GC.getNumCivilizationInfos());
 	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size())
 		return m_paCivilizationInfo[eCivilizationNum];
 	else
@@ -3342,7 +3342,7 @@ CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizati
 
 CivilizationTypes CvGlobals::getCivilizationInfoIndex(const char* pszType)
 {
-	CvAssert(pszType != NULL);
+	ASSERT(pszType != NULL);
 	if(pszType != NULL)
 	{
 		int iIndex = 0;
@@ -3384,8 +3384,8 @@ std::vector<CvMinorCivInfo*>& CvGlobals::getMinorCivInfo()
 
 CvMinorCivInfo* CvGlobals::getMinorCivInfo(MinorCivTypes eMinorCivNum)
 {
-	CvAssert(eMinorCivNum > -1);
-	CvAssert(eMinorCivNum < GC.getNumMinorCivInfos());
+	ASSERT(eMinorCivNum > -1);
+	ASSERT(eMinorCivNum < GC.getNumMinorCivInfos());
 	if(eMinorCivNum > -1 && eMinorCivNum < (int)m_paMinorCivInfo.size())
 		return m_paMinorCivInfo[eMinorCivNum];
 	else
@@ -3404,8 +3404,8 @@ std::vector<CvLeaderHeadInfo*>& CvGlobals::getLeaderHeadInfo()
 
 CvLeaderHeadInfo* CvGlobals::getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum)
 {
-	CvAssert(eLeaderHeadNum > -1);
-	CvAssert(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
+	ASSERT(eLeaderHeadNum > -1);
+	ASSERT(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
 	if(eLeaderHeadNum > -1 && eLeaderHeadNum < (int)m_paLeaderHeadInfo.size())
 		return m_paLeaderHeadInfo[eLeaderHeadNum];
 	else
@@ -3424,8 +3424,8 @@ std::vector<CvUnitEntry*>& CvGlobals::getUnitInfo()
 
 CvUnitEntry* CvGlobals::getUnitInfo(UnitTypes eUnitNum)
 {
-	CvAssert(eUnitNum > -1);
-	CvAssert(eUnitNum < GC.getNumUnitInfos());
+	ASSERT(eUnitNum > -1);
+	ASSERT(eUnitNum < GC.getNumUnitInfos());
 	if(eUnitNum > -1 && eUnitNum < GC.getNumUnitInfos())
 		return m_pUnits->GetUnitEntries()[eUnitNum];
 	else
@@ -3449,8 +3449,8 @@ std::vector<CvSpecialUnitInfo*>& CvGlobals::getSpecialUnitInfo()
 
 CvSpecialUnitInfo* CvGlobals::getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNum)
 {
-	CvAssert(eSpecialUnitNum > -1);
-	CvAssert(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
+	ASSERT(eSpecialUnitNum > -1);
+	ASSERT(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
 	if(eSpecialUnitNum > -1 && eSpecialUnitNum < (int)m_paSpecialUnitInfo.size())
 		return m_paSpecialUnitInfo[eSpecialUnitNum];
 	else
@@ -3469,8 +3469,8 @@ std::vector<CvVoteSourceInfo*>& CvGlobals::getVoteSourceInfo()
 
 CvVoteSourceInfo* CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumVoteSourceInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumVoteSourceInfos());
 	if(e > -1 && e < (int)m_paVoteSourceInfo.size())
 		return m_paVoteSourceInfo[e];
 	else
@@ -3490,8 +3490,8 @@ std::vector<CvModEventInfo*>& CvGlobals::getEventInfo()
 
 CvModEventInfo* CvGlobals::getEventInfo(EventTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumEventInfos());
 	if(e > -1 && e < (int)m_paEventInfo.size())
 		return m_paEventInfo[e];
 	else
@@ -3510,8 +3510,8 @@ std::vector<CvModEventChoiceInfo*>& CvGlobals::getEventChoiceInfo()
 
 CvModEventChoiceInfo* CvGlobals::getEventChoiceInfo(EventChoiceTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventChoiceInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumEventChoiceInfos());
 	if(e > -1 && e < (int)m_paEventChoiceInfo.size())
 		return m_paEventChoiceInfo[e];
 	else
@@ -3529,8 +3529,8 @@ std::vector<CvModCityEventInfo*>& CvGlobals::getCityEventInfo()
 
 CvModCityEventInfo* CvGlobals::getCityEventInfo(CityEventTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumCityEventInfos());
 	if(e > -1 && e < (int)m_paCityEventInfo.size())
 		return m_paCityEventInfo[e];
 	else
@@ -3549,8 +3549,8 @@ std::vector<CvModEventCityChoiceInfo*>& CvGlobals::getCityEventChoiceInfo()
 
 CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventChoiceInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumCityEventChoiceInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
 		return m_paCityEventChoiceInfo[e];
 	else
@@ -3569,8 +3569,8 @@ std::vector<CvEventLinkingInfo*>& CvGlobals::getEventLinkingInfo()
 
 CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventLinkingInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumEventLinkingInfos());
 	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
 		return m_paEventLinkingInfo[e];
 	else
@@ -3589,8 +3589,8 @@ std::vector<CvEventChoiceLinkingInfo*>& CvGlobals::getEventChoiceLinkingInfo()
 
 CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventChoiceLinkingInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
 		return m_paEventChoiceLinkingInfo[e];
 	else
@@ -3609,8 +3609,8 @@ std::vector<CvCityEventLinkingInfo*>& CvGlobals::getCityEventLinkingInfo()
 
 CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventLinkingInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumCityEventLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
 		return m_paCityEventLinkingInfo[e];
 	else
@@ -3629,8 +3629,8 @@ std::vector<CvCityEventChoiceLinkingInfo*>& CvGlobals::getCityEventChoiceLinking
 
 CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEventChoiceTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventChoiceLinkingInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumCityEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
 		return m_paCityEventChoiceLinkingInfo[e];
 	else
@@ -3650,8 +3650,8 @@ std::vector<CvBaseInfo*>& CvGlobals::getUnitCombatClassInfo()
 
 CvBaseInfo* CvGlobals::getUnitCombatClassInfo(UnitCombatTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumUnitCombatClassInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumUnitCombatClassInfos());
 	if(e > -1 && e < (int)m_paUnitCombatClassInfo.size())
 		return m_paUnitCombatClassInfo[e];
 	else
@@ -3665,8 +3665,8 @@ std::vector<CvBaseInfo*>& CvGlobals::getUnitAIInfo()
 
 CvBaseInfo* CvGlobals::getUnitAIInfo(UnitAITypes eUnitAINum)
 {
-	CvAssert(eUnitAINum >= 0);
-	CvAssert(eUnitAINum < NUM_UNITAI_TYPES);
+	ASSERT(eUnitAINum >= 0);
+	ASSERT(eUnitAINum < NUM_UNITAI_TYPES);
 	if(eUnitAINum > -1 && eUnitAINum < (int)m_paUnitAIInfos.size())
 		return m_paUnitAIInfos[eUnitAINum];
 	else
@@ -3685,8 +3685,8 @@ std::vector<CvGameOptionInfo*>& CvGlobals::getGameOptionInfo()
 
 CvGameOptionInfo* CvGlobals::getGameOptionInfo(GameOptionTypes eGameOptionNum)
 {
-	CvAssert(eGameOptionNum >= 0);
-	CvAssert(eGameOptionNum < GC.getNumGameOptionInfos());
+	ASSERT(eGameOptionNum >= 0);
+	ASSERT(eGameOptionNum < GC.getNumGameOptionInfos());
 	if(eGameOptionNum > -1 && eGameOptionNum < (int)m_paGameOptionInfos.size())
 		return m_paGameOptionInfos[eGameOptionNum];
 	else
@@ -3705,8 +3705,8 @@ std::vector<CvMPOptionInfo*>& CvGlobals::getMPOptionInfo()
 
 CvMPOptionInfo* CvGlobals::getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum)
 {
-	CvAssert(eMPOptionNum >= 0);
-	CvAssert(eMPOptionNum < GC.getNumMPOptionInfos());
+	ASSERT(eMPOptionNum >= 0);
+	ASSERT(eMPOptionNum < GC.getNumMPOptionInfos());
 	if(eMPOptionNum > -1 && eMPOptionNum < (int)m_paMPOptionInfos.size())
 		return m_paMPOptionInfos[eMPOptionNum];
 	else
@@ -3720,7 +3720,7 @@ std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
 
 CvPlayerOptionInfo* CvGlobals::getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum)
 {
-	CvAssert(ePlayerOptionNum >= 0);
+	ASSERT(ePlayerOptionNum >= 0);
 	if(ePlayerOptionNum > -1 && ePlayerOptionNum < (int)m_paPlayerOptionInfos.size())
 		return m_paPlayerOptionInfos[ePlayerOptionNum];
 	else
@@ -3734,8 +3734,8 @@ std::vector<CvYieldInfo*>& CvGlobals::getYieldInfo()
 
 CvYieldInfo* CvGlobals::getYieldInfo(YieldTypes eYieldNum)
 {
-	CvAssert(eYieldNum > -1);
-	CvAssert(eYieldNum < NUM_YIELD_TYPES);
+	ASSERT(eYieldNum > -1);
+	ASSERT(eYieldNum < NUM_YIELD_TYPES);
 	if(eYieldNum > -1 && eYieldNum < (int)m_paYieldInfo.size())
 		return m_paYieldInfo[eYieldNum];
 	else
@@ -3754,8 +3754,8 @@ std::vector<CvRouteInfo*>& CvGlobals::getRouteInfo()
 
 CvRouteInfo* CvGlobals::getRouteInfo(RouteTypes eRouteNum)
 {
-	CvAssert(eRouteNum > -1);
-	CvAssert(eRouteNum < GC.getNumRouteInfos());
+	ASSERT(eRouteNum > -1);
+	ASSERT(eRouteNum < GC.getNumRouteInfos());
 	if(eRouteNum > -1 && eRouteNum < (int)m_paRouteInfo.size())
 		return m_paRouteInfo[eRouteNum];
 	else
@@ -3774,8 +3774,8 @@ std::vector<CvImprovementEntry*>& CvGlobals::getImprovementInfo()
 
 CvImprovementEntry* CvGlobals::getImprovementInfo(ImprovementTypes eImprovementNum)
 {
-	CvAssert(eImprovementNum > -1);
-	CvAssert(eImprovementNum < GC.getNumImprovementInfos());
+	ASSERT(eImprovementNum > -1);
+	ASSERT(eImprovementNum < GC.getNumImprovementInfos());
 	if(eImprovementNum > -1 && eImprovementNum < GC.getNumImprovementInfos())
 		return m_pImprovements->GetImprovementEntries()[eImprovementNum];
 	else
@@ -3799,8 +3799,8 @@ std::vector<CvBuildInfo*>& CvGlobals::getBuildInfo()
 
 CvBuildInfo* CvGlobals::getBuildInfo(BuildTypes eBuildNum)
 {
-	CvAssert(eBuildNum > -1);
-	CvAssert(eBuildNum < GC.getNumBuildInfos());
+	ASSERT(eBuildNum > -1);
+	ASSERT(eBuildNum < GC.getNumBuildInfos());
 	if(eBuildNum > -1 && eBuildNum < (int)m_paBuildInfo.size())
 		return m_paBuildInfo[eBuildNum];
 	else
@@ -3819,8 +3819,8 @@ std::vector<CvHandicapInfo*>& CvGlobals::getHandicapInfo()
 
 CvHandicapInfo* CvGlobals::getHandicapInfo(HandicapTypes eHandicapNum)
 {
-	CvAssert(eHandicapNum > -1);
-	CvAssert(eHandicapNum < GC.getNumHandicapInfos());
+	ASSERT(eHandicapNum > -1);
+	ASSERT(eHandicapNum < GC.getNumHandicapInfos());
 	if(eHandicapNum > -1 && eHandicapNum < (int)m_paHandicapInfo.size())
 		return m_paHandicapInfo[eHandicapNum];
 	else
@@ -3839,8 +3839,8 @@ std::vector<CvGameSpeedInfo*>& CvGlobals::getGameSpeedInfo()
 
 CvGameSpeedInfo* CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
 {
-	CvAssert(eGameSpeedNum > -1);
-	CvAssert(eGameSpeedNum < GC.getNumGameSpeedInfos());
+	ASSERT(eGameSpeedNum > -1);
+	ASSERT(eGameSpeedNum < GC.getNumGameSpeedInfos());
 	if(eGameSpeedNum > -1 && eGameSpeedNum < (int)m_paGameSpeedInfo.size())
 		return m_paGameSpeedInfo[eGameSpeedNum];
 	else
@@ -3860,8 +3860,8 @@ std::vector<CvDiploModifierInfo*>& CvGlobals::getDiploModifierInfo()
 
 CvDiploModifierInfo* CvGlobals::getDiploModifierInfo(DiploModifierTypes eDiploModifierNum)
 {
-	CvAssert(eDiploModifierNum > -1);
-	CvAssert(eDiploModifierNum < GC.getNumDiploModifierInfos());
+	ASSERT(eDiploModifierNum > -1);
+	ASSERT(eDiploModifierNum < GC.getNumDiploModifierInfos());
 	if(eDiploModifierNum > -1 && eDiploModifierNum < (int)m_paDiploModifierInfo.size())
 		return m_paDiploModifierInfo[eDiploModifierNum];
 	else
@@ -3882,8 +3882,8 @@ std::vector<CvProcessInfo*>& CvGlobals::getProcessInfo()
 
 CvProcessInfo* CvGlobals::getProcessInfo(ProcessTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumProcessInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumProcessInfos());
 	if(e > -1 && e < (int)m_paProcessInfo.size())
 		return m_paProcessInfo[e];
 	else
@@ -3902,8 +3902,8 @@ std::vector<CvVoteInfo*>& CvGlobals::getVoteInfo()
 
 CvVoteInfo* CvGlobals::getVoteInfo(VoteTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumVoteInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumVoteInfos());
 	if(e > -1 && e < (int)m_paVoteInfo.size())
 		return m_paVoteInfo[e];
 	else
@@ -3922,8 +3922,8 @@ std::vector<CvProjectEntry*>& CvGlobals::getProjectInfo()
 
 CvProjectEntry* CvGlobals::getProjectInfo(ProjectTypes e)
 {
-	CvAssert(e > -1);
-	CvAssert(e < GC.getNumProjectInfos());
+	ASSERT(e > -1);
+	ASSERT(e < GC.getNumProjectInfos());
 	if(e > -1 && e < GC.getNumProjectInfos())
 		return m_pProjects->GetProjectEntries()[e];
 	else
@@ -3947,8 +3947,8 @@ std::vector<CvBuildingClassInfo*>& CvGlobals::getBuildingClassInfo()
 
 CvBuildingClassInfo* CvGlobals::getBuildingClassInfo(BuildingClassTypes eBuildingClassNum)
 {
-	CvAssert(eBuildingClassNum > -1);
-	CvAssert(eBuildingClassNum < GC.getNumBuildingClassInfos());
+	ASSERT(eBuildingClassNum > -1);
+	ASSERT(eBuildingClassNum < GC.getNumBuildingClassInfos());
 	if(eBuildingClassNum > -1 && eBuildingClassNum < (int)m_paBuildingClassInfo.size())
 		return m_paBuildingClassInfo[eBuildingClassNum];
 	else
@@ -3967,8 +3967,8 @@ std::vector<CvBuildingEntry*>& CvGlobals::getBuildingInfo()
 
 CvBuildingEntry* CvGlobals::getBuildingInfo(BuildingTypes eBuildingNum)
 {
-	CvAssert(eBuildingNum > -1);
-	CvAssert(eBuildingNum < GC.getNumBuildingInfos());
+	ASSERT(eBuildingNum > -1);
+	ASSERT(eBuildingNum < GC.getNumBuildingInfos());
 	if(eBuildingNum > -1 && eBuildingNum < GC.getNumBuildingInfos())
 		return m_pBuildings->GetBuildingEntries()[eBuildingNum];
 	else
@@ -4166,8 +4166,8 @@ std::vector<CvUnitClassInfo*>& CvGlobals::getUnitClassInfo()
 
 CvUnitClassInfo* CvGlobals::getUnitClassInfo(UnitClassTypes eUnitClassNum)
 {
-	CvAssert(eUnitClassNum > -1);
-	CvAssert(eUnitClassNum < GC.getNumUnitClassInfos());
+	ASSERT(eUnitClassNum > -1);
+	ASSERT(eUnitClassNum < GC.getNumUnitClassInfos());
 	if(eUnitClassNum > -1 && eUnitClassNum < (int)m_paUnitClassInfo.size())
 		return m_paUnitClassInfo[eUnitClassNum];
 	else
@@ -4186,8 +4186,8 @@ std::vector<CvActionInfo*>& CvGlobals::getActionInfo()
 
 CvActionInfo* CvGlobals::getActionInfo(int i)
 {
-	CvAssertMsg(i < getNumActionInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT(i < getNumActionInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	if(i > -1 && i < (int)m_paActionInfo.size())
 		return m_paActionInfo[i];
 	else
@@ -4201,8 +4201,8 @@ std::vector<CvMissionInfo*>& CvGlobals::getMissionInfo()
 
 CvMissionInfo* CvGlobals::getMissionInfo(MissionTypes eMissionNum)
 {
-	CvAssert(eMissionNum > -1);
-	CvAssert(static_cast<unsigned int>(eMissionNum) < CvTypes::getNUM_MISSION_TYPES());
+	ASSERT(eMissionNum > -1);
+	ASSERT(static_cast<unsigned int>(eMissionNum) < CvTypes::getNUM_MISSION_TYPES());
 	if(eMissionNum > -1 && eMissionNum < (int)m_paMissionInfo.size())
 		return m_paMissionInfo[eMissionNum];
 	else
@@ -4216,8 +4216,8 @@ std::vector<CvControlInfo*>& CvGlobals::getControlInfo()
 
 CvControlInfo* CvGlobals::getControlInfo(ControlTypes eControlNum)
 {
-	CvAssert(eControlNum > -1);
-	CvAssert(eControlNum < NUM_CONTROL_TYPES);
+	ASSERT(eControlNum > -1);
+	ASSERT(eControlNum < NUM_CONTROL_TYPES);
 	if(eControlNum > -1 && eControlNum < (int)m_paControlInfo.size())
 		return m_paControlInfo[eControlNum];
 	else
@@ -4231,8 +4231,8 @@ std::vector<CvCommandInfo*>& CvGlobals::getCommandInfo()
 
 CvCommandInfo* CvGlobals::getCommandInfo(CommandTypes eCommandNum)
 {
-	CvAssert(eCommandNum > -1);
-	CvAssert(eCommandNum < NUM_COMMAND_TYPES);
+	ASSERT(eCommandNum > -1);
+	ASSERT(eCommandNum < NUM_COMMAND_TYPES);
 	if(eCommandNum > -1 && eCommandNum < (int)m_paCommandInfo.size())
 		return m_paCommandInfo[eCommandNum];
 	else
@@ -4251,8 +4251,8 @@ std::vector<CvAutomateInfo*>& CvGlobals::getAutomateInfo()
 
 CvAutomateInfo* CvGlobals::getAutomateInfo(int iAutomateNum)
 {
-	CvAssertMsg(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
-	CvAssertMsg(iAutomateNum > -1, "Index out of bounds");
+	ASSERT(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
+	ASSERT(iAutomateNum > -1, "Index out of bounds");
 	if(iAutomateNum > -1 && iAutomateNum < (int)m_paAutomateInfo.size())
 		return m_paAutomateInfo[iAutomateNum];
 	else
@@ -4271,8 +4271,8 @@ std::vector<CvPromotionEntry*>& CvGlobals::getPromotionInfo()
 
 CvPromotionEntry* CvGlobals::getPromotionInfo(PromotionTypes ePromotionNum)
 {
-	CvAssert(ePromotionNum > -1);
-	CvAssert(ePromotionNum < GC.getNumPromotionInfos());
+	ASSERT(ePromotionNum > -1);
+	ASSERT(ePromotionNum < GC.getNumPromotionInfos());
 	if(ePromotionNum > -1 && ePromotionNum < GC.getNumPromotionInfos())
 		return m_pPromotions->GetPromotionEntries()[ePromotionNum];
 	else
@@ -4296,8 +4296,8 @@ std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()
 
 CvSpecialistInfo* CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
 {
-	CvAssert(eSpecialistNum > -1);
-	CvAssert(eSpecialistNum < GC.getNumSpecialistInfos());
+	ASSERT(eSpecialistNum > -1);
+	ASSERT(eSpecialistNum < GC.getNumSpecialistInfos());
 	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size())
 		return m_paSpecialistInfo[eSpecialistNum];
 	else
@@ -4341,8 +4341,8 @@ std::vector<CvCitySpecializationXMLEntry*>& CvGlobals::getCitySpecializationInfo
 
 CvCitySpecializationXMLEntry* CvGlobals::getCitySpecializationInfo(CitySpecializationTypes eCitySpecialization)
 {
-	CvAssert(eCitySpecialization > -1);
-	CvAssert(eCitySpecialization < GC.getNumCitySpecializationInfos());
+	ASSERT(eCitySpecialization > -1);
+	ASSERT(eCitySpecialization < GC.getNumCitySpecializationInfos());
 	if(eCitySpecialization > -1 && eCitySpecialization < GC.getNumCitySpecializationInfos())
 		return m_pCitySpecializations->GetCitySpecializationEntries()[eCitySpecialization];
 	else
@@ -4410,8 +4410,8 @@ std::vector<CvAICityStrategyEntry*>& CvGlobals::getAICityStrategyInfo()
 
 CvAICityStrategyEntry* CvGlobals::getAICityStrategyInfo(AICityStrategyTypes eAICityStrategyNum)
 {
-	CvAssert(eAICityStrategyNum > -1);
-	CvAssert(eAICityStrategyNum < GC.getNumAICityStrategyInfos());
+	ASSERT(eAICityStrategyNum > -1);
+	ASSERT(eAICityStrategyNum < GC.getNumAICityStrategyInfos());
 	return m_pAICityStrategies->GetAICityStrategyEntries()[eAICityStrategyNum];
 }
 
@@ -4432,8 +4432,8 @@ std::vector<CvPolicyEntry*>& CvGlobals::getPolicyInfo()
 
 CvPolicyEntry* CvGlobals::getPolicyInfo(PolicyTypes ePolicyNum)
 {
-	CvAssert(ePolicyNum > -1);
-	CvAssert(ePolicyNum < GC.getNumPolicyInfos());
+	ASSERT(ePolicyNum > -1);
+	ASSERT(ePolicyNum < GC.getNumPolicyInfos());
 	return m_pPolicies->GetPolicyEntries()[ePolicyNum];
 }
 
@@ -4454,8 +4454,8 @@ std::vector<CvPolicyBranchEntry*>& CvGlobals::getPolicyBranchInfo()
 
 CvPolicyBranchEntry* CvGlobals::getPolicyBranchInfo(PolicyBranchTypes ePolicyBranchNum)
 {
-	CvAssert(ePolicyBranchNum > -1);
-	CvAssert(ePolicyBranchNum < GC.getNumPolicyBranchInfos());
+	ASSERT(ePolicyBranchNum > -1);
+	ASSERT(ePolicyBranchNum < GC.getNumPolicyBranchInfos());
 	return m_pPolicies->GetPolicyBranchEntries()[ePolicyBranchNum];
 }
 
@@ -4471,8 +4471,8 @@ std::vector<CvEmphasisEntry*>& CvGlobals::getEmphasisInfo()
 
 CvEmphasisEntry* CvGlobals::getEmphasisInfo(EmphasizeTypes eEmphasisNum)
 {
-	CvAssert(eEmphasisNum > -1);
-	CvAssert(eEmphasisNum < GC.getNumEmphasisInfos());
+	ASSERT(eEmphasisNum > -1);
+	ASSERT(eEmphasisNum < GC.getNumEmphasisInfos());
 	return m_pEmphases->GetEmphasisEntries()[eEmphasisNum];
 }
 
@@ -4493,8 +4493,8 @@ std::vector<CvTraitEntry*>& CvGlobals::getTraitInfo()
 
 CvTraitEntry* CvGlobals::getTraitInfo(TraitTypes eTraitNum)
 {
-	CvAssert(eTraitNum > -1);
-	CvAssert(eTraitNum < GC.getNumTraitInfos());
+	ASSERT(eTraitNum > -1);
+	ASSERT(eTraitNum < GC.getNumTraitInfos());
 	return m_pTraits->GetTraitEntries()[eTraitNum];
 }
 
@@ -4515,8 +4515,8 @@ std::vector<CvReligionEntry*>& CvGlobals::getReligionInfo()
 
 CvReligionEntry* CvGlobals::getReligionInfo(ReligionTypes eReligionNum)
 {
-	CvAssert(eReligionNum > -1);
-	CvAssert(eReligionNum < GC.getNumReligionInfos());
+	ASSERT(eReligionNum > -1);
+	ASSERT(eReligionNum < GC.getNumReligionInfos());
 	return m_pReligions->GetReligionEntries()[eReligionNum];
 }
 
@@ -4537,8 +4537,8 @@ std::vector<CvBeliefEntry*>& CvGlobals::getBeliefInfo()
 
 CvBeliefEntry* CvGlobals::getBeliefInfo(BeliefTypes eBeliefNum)
 {
-	CvAssert(eBeliefNum > -1);
-	CvAssert(eBeliefNum < GC.getNumBeliefInfos());
+	ASSERT(eBeliefNum > -1);
+	ASSERT(eBeliefNum < GC.getNumBeliefInfos());
 	return m_pBeliefs->GetBeliefEntries()[eBeliefNum];
 }
 
@@ -4560,8 +4560,8 @@ std::vector<CvCorporationEntry*>& CvGlobals::getCorporationInfo()
 
 CvCorporationEntry* CvGlobals::getCorporationInfo(CorporationTypes eCorporationNum)
 {
-	CvAssert(eCorporationNum > -1);
-	CvAssert(eCorporationNum < GC.getNumCorporationInfos());
+	ASSERT(eCorporationNum > -1);
+	ASSERT(eCorporationNum < GC.getNumCorporationInfos());
 	return m_pCorporations->GetCorporationEntries()[eCorporationNum];
 }
 
@@ -4582,8 +4582,8 @@ std::vector<CvContractEntry*>& CvGlobals::getContractInfo()
 
 CvContractEntry* CvGlobals::getContractInfo(ContractTypes eContract)
 {
-	CvAssert(eContract > -1);
-	CvAssert(eContract < GC.getNumContractInfos());
+	ASSERT(eContract > -1);
+	ASSERT(eContract < GC.getNumContractInfos());
 	return m_paContractInfo[eContract];
 }
 
@@ -4605,8 +4605,8 @@ std::vector<CvSpyPassiveBonusEntry*>& CvGlobals::getSpyPassiveBonusInfo()
 
 _Ret_maybenull_ CvSpyPassiveBonusEntry* CvGlobals::getSpyPassiveBonusInfo(SpyPassiveBonusTypes eSpyPassiveBonusNum)
 {
-	CvAssert(eSpyPassiveBonusNum > -1);
-	CvAssert(eSpyPassiveBonusNum < GC.getNumSpyPassiveBonusInfos());
+	ASSERT(eSpyPassiveBonusNum > -1);
+	ASSERT(eSpyPassiveBonusNum < GC.getNumSpyPassiveBonusInfos());
 	return m_pSpyPassiveBonuses->GetSpyPassiveBonusEntries()[eSpyPassiveBonusNum];
 }
 
@@ -4627,8 +4627,8 @@ std::vector<CvSpyPassiveBonusDiplomatEntry*>& CvGlobals::getSpyPassiveBonusDiplo
 
 _Ret_maybenull_ CvSpyPassiveBonusDiplomatEntry* CvGlobals::getSpyPassiveBonusDiplomatInfo(SpyPassiveBonusDiplomatTypes eSpyPassiveBonusDiplomatNum)
 {
-	CvAssert(eSpyPassiveBonusDiplomatNum > -1);
-	CvAssert(eSpyPassiveBonusDiplomatNum < GC.getNumSpyPassiveBonusDiplomatInfos());
+	ASSERT(eSpyPassiveBonusDiplomatNum > -1);
+	ASSERT(eSpyPassiveBonusDiplomatNum < GC.getNumSpyPassiveBonusDiplomatInfos());
 	return m_pSpyPassiveBonusesDiplomat->GetSpyPassiveBonusDiplomatEntries()[eSpyPassiveBonusDiplomatNum];
 }
 
@@ -4649,8 +4649,8 @@ std::vector<CvLeagueSpecialSessionEntry*>& CvGlobals::getLeagueSpecialSessionInf
 
 _Ret_maybenull_ CvLeagueSpecialSessionEntry* CvGlobals::getLeagueSpecialSessionInfo(LeagueSpecialSessionTypes eLeagueSpecialSessionNum)
 {
-	CvAssert(eLeagueSpecialSessionNum > -1);
-	CvAssert(eLeagueSpecialSessionNum < GC.getNumLeagueSpecialSessionInfos());
+	ASSERT(eLeagueSpecialSessionNum > -1);
+	ASSERT(eLeagueSpecialSessionNum < GC.getNumLeagueSpecialSessionInfos());
 	return m_pLeagueSpecialSessions->GetLeagueSpecialSessionEntries()[eLeagueSpecialSessionNum];
 }
 
@@ -4671,8 +4671,8 @@ std::vector<CvLeagueNameEntry*>& CvGlobals::getLeagueNameInfo()
 
 CvLeagueNameEntry* CvGlobals::getLeagueNameInfo(LeagueNameTypes eLeagueNameNum)
 {
-	CvAssert(eLeagueNameNum > -1);
-	CvAssert(eLeagueNameNum < GC.getNumLeagueNameInfos());
+	ASSERT(eLeagueNameNum > -1);
+	ASSERT(eLeagueNameNum < GC.getNumLeagueNameInfos());
 	return m_pLeagueNames->GetLeagueNameEntries()[eLeagueNameNum];
 }
 
@@ -4693,8 +4693,8 @@ std::vector<CvLeagueProjectEntry*>& CvGlobals::getLeagueProjectInfo()
 
 CvLeagueProjectEntry* CvGlobals::getLeagueProjectInfo(LeagueProjectTypes eLeagueProjectNum)
 {
-	CvAssert(eLeagueProjectNum > -1);
-	CvAssert(eLeagueProjectNum < GC.getNumLeagueProjectInfos());
+	ASSERT(eLeagueProjectNum > -1);
+	ASSERT(eLeagueProjectNum < GC.getNumLeagueProjectInfos());
 	return m_pLeagueProjects->GetLeagueProjectEntries()[eLeagueProjectNum];
 }
 
@@ -4715,8 +4715,8 @@ std::vector<CvLeagueProjectRewardEntry*>& CvGlobals::getLeagueProjectRewardInfo(
 
 CvLeagueProjectRewardEntry* CvGlobals::getLeagueProjectRewardInfo(LeagueProjectRewardTypes eLeagueProjectRewardNum)
 {
-	CvAssert(eLeagueProjectRewardNum > -1);
-	CvAssert(eLeagueProjectRewardNum < GC.getNumLeagueProjectRewardInfos());
+	ASSERT(eLeagueProjectRewardNum > -1);
+	ASSERT(eLeagueProjectRewardNum < GC.getNumLeagueProjectRewardInfos());
 	return m_pLeagueProjectRewards->GetLeagueProjectRewardEntries()[eLeagueProjectRewardNum];
 }
 
@@ -4760,8 +4760,8 @@ std::vector<CvTechEntry*>& CvGlobals::getTechInfo()
 
 CvTechEntry* CvGlobals::getTechInfo(TechTypes eTechNum)
 {
-	CvAssert(eTechNum > -1);
-	CvAssert(eTechNum < GC.getNumTechInfos());
+	ASSERT(eTechNum > -1);
+	ASSERT(eTechNum < GC.getNumTechInfos());
 	return m_pTechs->GetTechEntries()[eTechNum];
 }
 
@@ -4782,8 +4782,8 @@ std::vector<CvEraInfo*>& CvGlobals::getEraInfo()
 
 CvEraInfo* CvGlobals::getEraInfo(EraTypes eEraNum)
 {
-	CvAssert(eEraNum > -1);
-	CvAssert(eEraNum < GC.getNumEraInfos());
+	ASSERT(eEraNum > -1);
+	ASSERT(eEraNum < GC.getNumEraInfos());
 	return m_aEraInfo[eEraNum];
 }
 
@@ -4799,8 +4799,8 @@ std::vector<CvHurryInfo*>& CvGlobals::getHurryInfo()
 
 CvHurryInfo* CvGlobals::getHurryInfo(HurryTypes eHurryNum)
 {
-	CvAssert(eHurryNum > -1);
-	CvAssert(eHurryNum < GC.getNumHurryInfos());
+	ASSERT(eHurryNum > -1);
+	ASSERT(eHurryNum < GC.getNumHurryInfos());
 	return m_paHurryInfo[eHurryNum];
 }
 
@@ -4816,8 +4816,8 @@ std::vector<CvVictoryInfo*>& CvGlobals::getVictoryInfo()
 
 CvVictoryInfo* CvGlobals::getVictoryInfo(VictoryTypes eVictoryNum)
 {
-	CvAssert(eVictoryNum > -1);
-	CvAssert(eVictoryNum < GC.getNumVictoryInfos());
+	ASSERT(eVictoryNum > -1);
+	ASSERT(eVictoryNum < GC.getNumVictoryInfos());
 	return m_paVictoryInfo[eVictoryNum];
 }
 
@@ -4833,8 +4833,8 @@ std::vector<CvSmallAwardInfo*>& CvGlobals::getSmallAwardInfo()	// For Moose - XM
 
 CvSmallAwardInfo* CvGlobals::getSmallAwardInfo(SmallAwardTypes eSmallAwardNum)
 {
-	CvAssert(eSmallAwardNum > -1);
-	CvAssert(eSmallAwardNum < GC.getNumSmallAwardInfos());
+	ASSERT(eSmallAwardNum > -1);
+	ASSERT(eSmallAwardNum < GC.getNumSmallAwardInfos());
 	return m_paSmallAwardInfo[eSmallAwardNum];
 }
 
@@ -4851,8 +4851,8 @@ std::vector<CvDomainInfo*>& CvGlobals::getUnitDomainInfo()
 
 CvDomainInfo* CvGlobals::getUnitDomainInfo(DomainTypes eDomainNum)
 {
-	CvAssert(eDomainNum > -1);
-	CvAssert(eDomainNum < GC.getNumUnitDomainInfos());
+	ASSERT(eDomainNum > -1);
+	ASSERT(eDomainNum < GC.getNumUnitDomainInfos());
 	return m_paUnitDomainInfo[eDomainNum];
 }
 
@@ -4884,8 +4884,8 @@ std::vector<CvAchievementInfo*>& CvGlobals::getAchievementInfo()
 
 CvAchievementInfo* CvGlobals::getAchievementInfo(EAchievement eAchievementNum)
 {
-	CvAssert(eAchievementNum > -1);
-	CvAssert(eAchievementNum < GC.getNumAchievementInfos());
+	ASSERT(eAchievementNum > -1);
+	ASSERT(eAchievementNum < GC.getNumAchievementInfos());
 	if(eAchievementNum > -1 && eAchievementNum < GC.getNumAchievementInfos())
 		return m_pAchievements->GetAchievementEntries()[eAchievementNum];
 	else
@@ -4904,8 +4904,8 @@ CvString*& CvGlobals::getFootstepAudioTags()
 
 CvString& CvGlobals::getFootstepAudioTags(int i)
 {
-//	CvAssertMsg(i < getNumFootstepAudioTags(), "Index out of bounds")
-	CvAssertMsg(i > -1, "Index out of bounds");
+//	ASSERT(i < getNumFootstepAudioTags(), "Index out of bounds")
+	ASSERT(i > -1, "Index out of bounds");
 	return m_paszFootstepAudioTags[i];
 }
 
@@ -7317,7 +7317,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, int& iValue, bool bReportEr
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "Integer Define Value not found for %s", szName);
+		ASSERT(bSuccess, "Integer Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7339,7 +7339,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, float& fValue, bool bReport
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "Float Define Value not found for %s", szName);
+		ASSERT(bSuccess, "Float Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7361,7 +7361,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, CvString& strValue, bool bR
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "String Define Value not found for %s", szName);
+		ASSERT(bSuccess, "String Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7460,7 +7460,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 {
 	if(!hideAssert)
 	{
-		CvAssertMsg(szType, "null info type string");
+		ASSERT(szType, "null info type string");
 	}
 
 	if(szType == NULL)
@@ -7480,7 +7480,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 		//
 		CvString strError;
 		strError.Format("Info type %s not found.", szType);
-		CvAssertMsg(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, strError.c_str());
+		ASSERT(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, strError.c_str());
 //		gDLL->logMsg("xml.log", szError);
 	}
 
@@ -7489,16 +7489,16 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 
 void CvGlobals::setInfoTypeFromString(const char* szType, int idx)
 {
-	CvAssertMsg(szType, "null info type string");
+	ASSERT(szType, "null info type string");
 	uint uiHash = FString::Hash(szType);
 #ifdef _DEBUG
 	InfosMap::const_iterator it = m_infosMap.find(szType);
 	int iExisting = (it!=m_infosMap.end()) ? it->second : -1;
-	CvAssertMsg(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
+	ASSERT(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
 
 	InfosHashMap::const_iterator ith = m_infosHashMap.find(uiHash);
 	iExisting = (ith!=m_infosHashMap.end()) ? ith->second : -1;
-	CvAssertMsg(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
+	ASSERT(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
 #endif
 	m_infosMap[szType] = idx;
 	m_infosHashMap[uiHash] = idx;
@@ -7522,7 +7522,7 @@ int CvGlobals::getInfoTypeForHash(uint uiHash, bool hideAssert) const
 
 	if(!hideAssert)
 	{
-		CvAssertMsg(uiHash==0, "Could not find resource hash");
+		ASSERT(uiHash==0, "Could not find resource hash");
 	}
 
 	return -1;

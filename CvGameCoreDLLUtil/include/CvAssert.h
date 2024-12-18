@@ -5,9 +5,7 @@
 //!		This file includes assertion macros used by Civilization.
 //!
 //!  Key Macros:
-//!  - CvAssert(expr)				- assertions w/ no message
-//!	 - CvAssertFmt(expr, fmt, ...)  - assertions w/ printf style messages
-//!  - CvAssertMsg(expr, msg)		- assertions w/ constant messages
+//!  - CvAssert(expr, ...)			- assertions w/ printf style messages
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifndef _CVASSERT_H
 #define _CVASSERT_H
@@ -23,48 +21,35 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 #define CVASSERT_BREAKPOINT assert(0)
 #endif
 
-// Only compile in FAssert's if CVASSERT_ENABLE is defined.  By default, however, let's key off of
-// _DEBUG.  Sometimes, however, it's useful to enable asserts in release builds, and you can do that
-// simply by changing the following lines to define CVASSERT_ENABLE or using project settings to override
-#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
+// Only compile in CvAssertMsg's in debug configuration, or in release configuration (with a more user-friendly text) if VPRELEASE_ERRORMSG is defined
+// Asserts can be disabled by defining DISABLE_CVASSERT in the project settings
+#if !defined(CVASSERT_ENABLE) && !defined(DISABLE_CVASSERT)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG) || defined(VPRELEASE_ERRORMSG)
 #define		CVASSERT_ENABLE
 #endif	// FINAL_RELEASE
-
+#endif	// DISABLE_CVASSERT
 
 #ifdef CVASSERT_ENABLE 
 
-#define CvAssertMsg(expr, msg)																\
+// shows a message dialog if expr is false and CVASSERT_ENABLE is defined.
+// Unlike PRECONDITION, a failed assertion does not cause the game to crash
+#define ASSERT(expr, ...)																\
 {																							\
 	static bool bIgnoreAlways = false;														\
-	if( !bIgnoreAlways && !(expr) )								                							\
+	if( !bIgnoreAlways && !(expr) )								                			\
 	{																						\
-		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, msg))						\
+		CvString str;																		\
+		CvString::format(str, __VA_ARGS__);													\
+		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, str.c_str()))				\
 			{ CVASSERT_BREAKPOINT; }														\
 	}																						\
 }
 
-#define CvAssertFmt(expr, fmt, ...)															\
-{																							\
-	static bool bIgnoreAlways = false;														\
-	if( !bIgnoreAlways && !(expr) )															\
-	{																						\
-		CvString str;																		\
-		CvString::format(str, fmt, __VA_ARGS__);											\
-		if(CvAssertDlg(#expr, __FILE__, __LINE__,											\
-			bIgnoreAlways, str.c_str()))													\
-				{ CVASSERT_BREAKPOINT; }													\
-	}																						\
-}
-
-#define CvAssert( expr ) CvAssertMsg(expr, "")
-
 // An assert that only happens in the when CVASSERT_ENABLE is true AND it is a debug build
 #ifdef _DEBUG
-#define CvAssert_Debug( expr ) CvAssertMsg(expr, "")
-#define CvAssertMsg_Debug(expr, msg) CvAssertMsg(expr, msg)
+#define CvAssert_Debug( expr, ...) CvAssertMsg( expr, __VA_ARGS__)
 #else
-#define CvAssert_Debug(expr)
-#define CvAssertMsg_Debug(expr, msg)
+#define CvAssert_Debug(expr, ...)
 #endif
 
 #if 0 // disabling Object Validation
@@ -106,11 +91,8 @@ struct ObjectValidator
 
 #else	//CVASSERT_ENABLE == FALSE
 
-#define CvAssertFmt(expr, fmt, ...)
-#define CvAssertMsg(expr, msg)
 #define CvAssert(expr)
 #define CvAssert_Debug(expr)
-#define CvAssertMsg_Debug(expr, msg)
 
 #define OBJECT_VALIDATE_DEFINITION(ObjectType)
 #define OBJECT_ALLOCATED

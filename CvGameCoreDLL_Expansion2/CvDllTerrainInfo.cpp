@@ -13,7 +13,7 @@ CvDllTerrainInfo::CvDllTerrainInfo(CvTerrainInfo* pTerrainInfo)
 	: m_pTerrainInfo(pTerrainInfo)
 	, m_uiRefCount(1)
 {
-	FAssertMsg(pTerrainInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pTerrainInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllTerrainInfo::~CvDllTerrainInfo()

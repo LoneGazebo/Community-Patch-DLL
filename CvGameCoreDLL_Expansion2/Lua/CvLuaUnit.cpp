@@ -4705,7 +4705,7 @@ int CvLuaUnit::lGetPlot(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	if(!GC.getMap().isPlot(pkUnit->getX(), pkUnit->getY()))
 	{
-		CvAssertMsg(false, "pUnit plot is not valid. Pushing nil!")
+		ASSERT(false, "pUnit plot is not valid. Pushing nil!")
 		lua_pushnil(L);
 		return 1;
 	}

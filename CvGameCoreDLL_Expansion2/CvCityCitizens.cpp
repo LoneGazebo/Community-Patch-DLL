@@ -84,7 +84,7 @@ void CvCityCitizens::Reset()
 	int iI = 0;
 
 	m_vWorkedPlots.clear();
-	CvAssertMsg((0 < MAX_CITY_PLOTS), "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
+	ASSERT((0 < MAX_CITY_PLOTS), "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
 	for (iI = 0; iI < MAX_CITY_PLOTS; iI++)
 	{
 		m_pabWorkingPlot[iI] = false;
@@ -383,14 +383,14 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 
-		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+		ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 		DoReallocateCitizens(bForceCheck);
 	}
 
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+	ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 	DoSpecialists();
 
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+	ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 }
 
 int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache)
@@ -1418,7 +1418,7 @@ int CvCityCitizens::GetNumUnassignedCitizens() const
 void CvCityCitizens::ChangeNumUnassignedCitizens(int iChange)
 {
 	m_iNumUnassignedCitizens += iChange;
-	CvAssertMsg(m_iNumUnassignedCitizens >= 0, "invalid number of unassigned citizens in CvCityCitizens::ChangeNumUnassignedCitizens!");
+	ASSERT(m_iNumUnassignedCitizens >= 0, "invalid number of unassigned citizens in CvCityCitizens::ChangeNumUnassignedCitizens!");
 }
 
 /// How many Citizens are working Plots?
@@ -2303,7 +2303,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
-	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+	ASSERT(iIndex >= 0, "iIndex expected to be >= 0");
 
 	int iPlotNum = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 	std::vector<int>::iterator it = std::find(m_vWorkedPlots.begin(), m_vWorkedPlots.end(), iPlotNum);
@@ -2319,7 +2319,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 			m_vWorkedPlots.erase(it);
 	}
 
-	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+	ASSERT(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if (IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
 	{
@@ -2566,8 +2566,8 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 {
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
-	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
-	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+	ASSERT(iIndex >= 0, "iIndex expected to be >= 0");
+	ASSERT(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if (IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
 	{
@@ -2999,8 +2999,8 @@ int CvCityCitizens::GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kB
 /// Are we in the position to add another Specialist to eBuilding?
 bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	if (m_pCity->IsResistance() || m_pCity->IsRazing())
 		return false;
@@ -3020,8 +3020,8 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 /// Adds and initializes a Specialist for this building
 void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	//no building means laborer
 	if (eBuilding == NO_BUILDING)
@@ -3097,8 +3097,8 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 /// Removes and uninitializes a Specialist for this building
 void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -3162,8 +3162,8 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 /// It is up to the caller to reassign population.
 void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode)
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -3302,8 +3302,8 @@ void CvCityCitizens::ChangeNumForcedDefaultSpecialists(int iChange)
 /// How many Specialists do we have assigned of this type in our City?
 int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistCounts[eIndex];
 }
@@ -3311,15 +3311,15 @@ int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 #if defined(MOD_BALANCE_CORE)
 int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistSlots[eIndex];
 }
 void CvCityCitizens::ChangeNumSpecialistSlots(SpecialistTypes eIndex, int iValue)
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	m_aiSpecialistSlots[eIndex] += iValue;
 }
@@ -3367,8 +3367,8 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 /// GPP changes from Buildings
 int CvCityCitizens::GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist) const
 {
-	CvAssert(eSpecialist > -1);
-	CvAssert(eSpecialist < GC.getNumSpecialistInfos());
+	ASSERT(eSpecialist > -1);
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos());
 
 	return m_piBuildingGreatPeopleRateChanges[eSpecialist];
 }
@@ -3376,8 +3376,8 @@ int CvCityCitizens::GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialis
 /// Change GPP from Buildings
 void CvCityCitizens::ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist, int iChange)
 {
-	CvAssert(eSpecialist > -1);
-	CvAssert(eSpecialist < GC.getNumSpecialistInfos());
+	ASSERT(eSpecialist > -1);
+	ASSERT(eSpecialist < GC.getNumSpecialistInfos());
 
 	m_piBuildingGreatPeopleRateChanges[eSpecialist] += iChange;
 }
@@ -3385,8 +3385,8 @@ void CvCityCitizens::ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpeci
 /// How much progress does this City have towards a Great Person from eIndex?
 int CvCityCitizens::GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) const
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	return GetSpecialistGreatPersonProgressTimes100(eIndex) / 100;
 }
@@ -3394,8 +3394,8 @@ int CvCityCitizens::GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) con
 /// How much progress does this City have towards a Great Person from eIndex? (in hundreds)
 int CvCityCitizens::GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex) const
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistGreatPersonProgressTimes100[eIndex];
 }
@@ -3403,8 +3403,8 @@ int CvCityCitizens::GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIn
 /// Change progress for this City towards a Great Person
 void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange, bool bCheckForSpawn)
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] += iChange;
 
@@ -3439,16 +3439,16 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 /// Reset Specialist progress
 void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove)
 {
-	CvAssert(eIndex > -1);
-	CvAssert(eIndex < GC.getNumSpecialistInfos());
+	ASSERT(eIndex > -1);
+	ASSERT(eIndex < GC.getNumSpecialistInfos());
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] -= iAmountToRemove;
 }
 
 /// How many Specialists are assigned to eBuilding?
 int CvCityCitizens::GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	return m_aiNumSpecialistsInBuilding[eBuilding];
 }
@@ -3456,8 +3456,8 @@ int CvCityCitizens::GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const
 /// How many Forced Specialists are assigned to eBuilding?
 int CvCityCitizens::GetNumForcedSpecialistsInBuilding(BuildingTypes eBuilding) const
 {
-	CvAssert(eBuilding > -1);
-	CvAssert(eBuilding < GC.getNumBuildingInfos());
+	ASSERT(eBuilding > -1);
+	ASSERT(eBuilding < GC.getNumBuildingInfos());
 
 	return m_aiNumForcedSpecialistsInBuilding[eBuilding];
 }
@@ -3594,7 +3594,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 /// Create a GP!
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bIsFree)
 {
-	CvAssert(eUnit != NO_UNIT);
+	ASSERT(eUnit != NO_UNIT);
 
 	if (GC.getUnitInfo(eUnit)->IsFoundReligion() && GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 		return;

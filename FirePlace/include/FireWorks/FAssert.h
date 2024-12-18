@@ -151,14 +151,14 @@ void SetAssertLogCallback( FASSERT_LOG_CALLBACK pfnAssertLogCallback );
 #elif !defined(NDEBUG)
 	// Enable minimal assertion behavior for Vox-Populi debug builds.
 	// For release builds we'll consider to assume that Firaxis' assertions hold true.
-	#define FAssert( expr ) ASSERT(expr)
-	#define FAssertMsg( expr, msg ) ASSERT(expr)
-	#define FAssertMsg0( expr, _fmt ) ASSERT(expr)
-	#define FAssertMsg1( expr, _fmt, _p0 ) ASSERT(expr)
-	#define FAssertMsg2( expr, _fmt, _p0, _p1 ) ASSERT(expr)
-	#define FAssertMsg3( expr, _fmt, _p0, _p1, _p2 ) ASSERT(expr)
-	#define FAssertMsg4( expr, _fmt, _p0, _p1, _p2, _p3 ) ASSERT(expr)
-	#define FAssertMsg6( expr, _fmt, _p0, _p1, _p2, _p3, _p4, _p5 ) ASSERT(expr)
+	#define FAssert( expr, ... ) if (!(expr)) do { ASSERT_DIALOGUE(#expr); BUILTIN_TRAP(); } while(0)
+	#define FAssertMsg( expr, msg ) FAssert(expr)
+	#define FAssertMsg0( expr, _fmt ) FAssert(expr)
+	#define FAssertMsg1( expr, _fmt, _p0 ) FAssert(expr)
+	#define FAssertMsg2( expr, _fmt, _p0, _p1 ) FAssert(expr)
+	#define FAssertMsg3( expr, _fmt, _p0, _p1, _p2 ) FAssert(expr)
+	#define FAssertMsg4( expr, _fmt, _p0, _p1, _p2, _p3 ) FAssert(expr)
+	#define FAssertMsg6( expr, _fmt, _p0, _p1, _p2, _p3, _p4, _p5 ) FAssert(expr)
 
 #else
 	// FASSERT_ENABLE not defined
@@ -174,10 +174,6 @@ void SetAssertLogCallback( FASSERT_LOG_CALLBACK pfnAssertLogCallback );
 #endif
 
 #define	FASSERT( expr, msg )	FAssertMsg( expr, msg )
-
-#ifndef		ASSERT
-#define		ASSERT					FAssert
-#endif	//	ASSERT
 
 // A class that disables asserts when it is instantiated and
 // re-enables them (if they were enabled to being with) when 

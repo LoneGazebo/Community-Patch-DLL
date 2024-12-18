@@ -15,6 +15,8 @@
 
 #undef min
 
+void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg);
+
 inline int sqrti(int input)
 {
 	return int(sqrt((float)abs(input)));
@@ -22,7 +24,7 @@ inline int sqrti(int input)
 
 inline int range(int iNum, int iLow, int iHigh)
 {
-	CvAssertMsg(iHigh >= iLow, "High should be higher than low");
+	ASSERT(iHigh >= iLow, "High should be higher than low");
 
 	if(iNum < iLow)
 	{
@@ -40,7 +42,7 @@ inline int range(int iNum, int iLow, int iHigh)
 
 inline float range(float fNum, float fLow, float fHigh)
 {
-	CvAssertMsg(fHigh >= fLow, "High should be higher than low");
+	ASSERT(fHigh >= fLow, "High should be higher than low");
 
 	if(fNum < fLow)
 	{
@@ -472,7 +474,7 @@ private:
 	int gcd(int a, int b);
 public:
 
-	fraction(int num = 0, int den = 1): num(num), den(den) { CvAssert(den != 0); }
+	fraction(int num = 0, int den = 1): num(num), den(den) { ASSERT(den != 0); }
 
 	fraction operator+(const fraction &rhs);
 	fraction operator-(const fraction &rhs);

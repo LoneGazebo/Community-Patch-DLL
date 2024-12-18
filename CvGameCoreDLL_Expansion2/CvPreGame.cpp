@@ -2300,7 +2300,7 @@ void setCalendar(const CvString& c)
 	Database::SingleResult kResult;
 	if(!DB.SelectAt(kResult, "Calendars", "Type", c.c_str()))
 	{
-		CvAssertMsg(false, "Cannot find calendar info.");
+		ASSERT(false, "Cannot find calendar info.");
 	}
 	s_calendarInfo.CacheResult(kResult);
 
@@ -2367,7 +2367,7 @@ void setClimate(const CvString& c)
 
 void setCustomWorldSize(int iWidth, int iHeight, int iPlayers, int iMinorCivs)
 {
-	FAssertMsg(iWidth >= 20 && iHeight >= 20, "Cannot have a map that small!");
+	ASSERT(iWidth >= 20 && iHeight >= 20, "Cannot have a map that small!");
 
 	const int iArea = iWidth * iHeight;
 
@@ -2956,7 +2956,7 @@ void setGameType(const CvString& g)
 	}
 	else
 	{
-		//CvAssertMsg(false, "Invalid game type in ini file!");
+		//ASSERT(false, "Invalid game type in ini file!");
 		setGameType(GAME_TYPE_NONE);
 	}
 }
@@ -3364,7 +3364,7 @@ void setTurnTimer(TurnTimerTypes t)
 	Database::SingleResult kResult;
 	if(!DB.SelectAt(kResult, "TurnTimers", "ID", static_cast<int>(t)))
 	{
-		CvAssertMsg(false, "Cannot find turn timer info.");
+		ASSERT(false, "Cannot find turn timer info.");
 	}
 	s_turnTimer.CacheResult(kResult);
 }
@@ -3374,7 +3374,7 @@ void setTurnTimer(const CvString& t)
 	Database::SingleResult kResult;
 	if(!DB.SelectAt(kResult, "TurnTimers", "Type", t.c_str()))
 	{
-		CvAssertMsg(false, "Cannot find turn timer info.");
+		ASSERT(false, "Cannot find turn timer info.");
 	}
 	s_turnTimer.CacheResult(kResult);
 
@@ -3399,7 +3399,7 @@ void setVictory(VictoryTypes v, bool isValid)
 
 void setVictories(const std::vector<bool>& v)
 {
-	CvAssert(v.size() <= std::size_t(s_numVictoryInfos));
+	ASSERT(v.size() <= std::size_t(s_numVictoryInfos));
 	for (std::size_t i = 0; i < v.size(); i++)
 		s_victories[i] = v[i];
 }
@@ -3468,7 +3468,7 @@ void VerifyHandicap(PlayerTypes p, bool bHumanPlayerSwap)
 
 void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 {
-	CvAssert(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
+	ASSERT(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
 
 	//Query
 	Database::Results kQuery;
@@ -3484,13 +3484,13 @@ void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 	}
 	else
 	{
-		CvAssertMsg(false, "Could not find world size entry.")
+		ASSERT(false, "Could not find world size entry.")
 	}
 }
 
 void setWorldSize(const CvString& w)
 {
-	CvAssert(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
+	ASSERT(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
 
 	Database::Results kQuery;
 
@@ -3505,7 +3505,7 @@ void setWorldSize(const CvString& w)
 	}
 	else
 	{
-		CvAssertMsg(false, "Could not find world size entry.")
+		ASSERT(false, "Could not find world size entry.")
 	}
 }
 
@@ -3530,7 +3530,7 @@ const std::vector<SlotStatus>& GetSlotStatus()
 
 void StringToBools(const char* szString, int* iNumBools, bool** ppBools)
 {
-	FAssertMsg(szString, "null string");
+	ASSERT(szString, "null string");
 	if(szString)
 	{
 		*iNumBools = strlen(szString);
@@ -3932,7 +3932,7 @@ bool isKnownPlayerReq(PlayerTypes ePlayer)
 bool handleKnownPlayerReq(PlayerTypes ePlayer)
 {
 	// Only makes sense for Network MP
-	CvAssertMsg(isNetworkMultiplayerGame(), "Checking known players table does not make sense outside of Network MP games!");
+	ASSERT(isNetworkMultiplayerGame(), "Checking known players table does not make sense outside of Network MP games!");
 	
 	// decode actual player ID - it was encoded as -(ePlayer+2), probably in StagingRoom.lua
 	ePlayer = static_cast<PlayerTypes>(-ePlayer - 2);
