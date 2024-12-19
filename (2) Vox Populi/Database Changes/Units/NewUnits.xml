@@ -743,6 +743,7 @@
 			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
 			<Class>UNITCLASS_ASAMU</Class>
 			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_ASAMU</UnitArtInfo>
