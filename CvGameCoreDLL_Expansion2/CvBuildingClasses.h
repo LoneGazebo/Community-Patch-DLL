@@ -467,6 +467,8 @@ public:
 	int GetYieldChangePerGoldenAgeCap(int i) const;
 	int* GetYieldChangePerGoldenAgeCapArray() const;
 
+	int GetYieldChangesPerLocalTheme(int i) const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -1029,6 +1031,7 @@ private:
 	int* m_piYieldChangePerGoldenAge;
 	int* m_piYieldChangePerGoldenAgeCap;
 	int* m_piGoldenAgeYieldMod;
+	int* m_piYieldChangesPerLocalTheme;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;

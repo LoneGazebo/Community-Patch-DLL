@@ -1137,6 +1137,10 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 					if (pLoopCity->getGPRateModifierPerLocalTheme() > 0)
 					{
 						building.m_iGPThemingBonus = pLoopCity->getGPRateModifierPerLocalTheme() * pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							building.m_iGPThemingBonus += pLoopCity->GetYieldChangesPerLocalTheme((YieldTypes)iI);
+						}
 					}
 
 					if (pLoopCity->isCapital())
@@ -1248,6 +1252,10 @@ void CvPlayerCulture::DoSwapGreatWorks(YieldTypes eFocusYield)
 					if (pLoopCity->getGPRateModifierPerLocalTheme() > 0)
 					{
 						building.m_iGPThemingBonus = pLoopCity->getGPRateModifierPerLocalTheme() * pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							building.m_iGPThemingBonus += pLoopCity->GetYieldChangesPerLocalTheme((YieldTypes)iI);
+						}
 					}
 
 					if (pLoopCity->isCapital())
