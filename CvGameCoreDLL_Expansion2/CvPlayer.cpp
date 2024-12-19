@@ -348,6 +348,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumPolicies()
 	, m_uiStartTime()  // XXX save these?
 	, m_bHasUUPeriod()
+	, m_bInstantYieldsFromUnitGift()
 	, m_bNoNewWars()
 	, m_bTerribleShapeForWar()
 	, m_bHasBetrayedMinorCiv()
@@ -1634,6 +1635,7 @@ void CvPlayer::uninit()
 #endif
 	m_uiStartTime = 0;
 	m_bHasUUPeriod = false;
+	m_bInstantYieldsFromUnitGift = false;
 	m_iTotalImprovementsBuilt = 0;
 	m_iCostNextPolicy = 0;
 	m_iNumBuilders = 0;
@@ -26430,6 +26432,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = pLoopCity->GetYieldFromGoldenAgeStart(eYield);
 					break;
 				}
+				case INSTANT_YIELD_TYPE_UNIT_GIFT:
+				{
+					iValue = pLoopCity->GetYieldFromUnitGiftGlobal(eYield);
+					break;
+				}
 			}
 
 			//Now, let's apply these yields here as total yields.
@@ -27407,6 +27414,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START");
 				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_UNIT_GIFT:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT");
+				localizedText << totalyieldString;
+				//We do this at the player level once per turn.
+				addInstantYieldText(iType, localizedText.toUTF8());
 				break;
 			}
 			// These yields intentionally have no notification.
@@ -40000,6 +40015,16 @@ bool CvPlayer::unlockedGrowthAnywhereThisTurn() const
 	return m_bUnlockedGrowthAnywhereThisTurn;
 }
 
+void CvPlayer::setInstantYieldsFromUnitGift(bool bValue)
+{
+	m_bInstantYieldsFromUnitGift = bValue;
+}
+
+bool CvPlayer::isInstantYieldsFromUnitGift() const
+{
+	return m_bInstantYieldsFromUnitGift;
+}
+
 bool CvPlayer::IsEarlyExpansionPhase() const
 {
 	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
@@ -41250,6 +41275,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
 			{
 				instantYieldName = "Start Golden Age";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_UNIT_GIFT:
+			{
+				instantYieldName = "Unit Gift";
 				break;
 			}
 	}
@@ -43045,6 +43075,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_viCoreCitiesForSpaceshipProduction);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
+	visitor(player.m_bInstantYieldsFromUnitGift);
 	visitor(player.m_bNoNewWars);
 	visitor(player.m_bTerribleShapeForWar);
 	visitor(player.m_bHasBetrayedMinorCiv);

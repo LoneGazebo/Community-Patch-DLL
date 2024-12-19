@@ -1040,7 +1040,7 @@ void CvHomelandAI::ExecuteUnitGift()
 	}
 
 	// No City-State quest? But are we Germany?
-	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0 || GET_PLAYER(ePlayer).isInstantYieldsFromUnitGift())
 	{
 		// Don't consider gifting if we're in military trouble
 		if (GET_PLAYER(ePlayer).IsNoNewWars() || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
