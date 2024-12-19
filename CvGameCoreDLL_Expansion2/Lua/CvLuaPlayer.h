@@ -89,6 +89,7 @@ protected:
 	static int lIsAITeammateOfHuman(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 	static int lGetName(lua_State* L);
+	static int lGetBuildingTechEnhancedYields(lua_State* L);
 	static int lGetNameKey(lua_State* L);
 	static int lGetNickName(lua_State* L);
 	static int lGetCivilizationDescription(lua_State* L);
