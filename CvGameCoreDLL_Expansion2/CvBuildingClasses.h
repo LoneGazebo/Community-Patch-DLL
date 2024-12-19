@@ -642,6 +642,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
 	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstruction() const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -1109,6 +1110,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;

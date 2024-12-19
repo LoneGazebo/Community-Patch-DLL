@@ -414,6 +414,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal(),
 	m_miTechEnhancedYields(),
+	m_miGreatPersonPointFromConstruction(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
 	m_ppaiSpecialistYieldChangeLocal(NULL),
@@ -568,6 +569,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal.clear();
 	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChangeLocal);
@@ -1242,6 +1244,34 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
+	}
+
+	// Building_GreatPersonPointFromConstruction
+	// Table structure (BuildingType, GreatPersonType, EraType, Value)
+	// The building gives GPP to the specified GreatPersonType whenever a building unlocked in EraType or later is constructed. The number of GPP is (BuildingCost) * Value / 100
+	{
+		std::string strKey("Building_GreatPersonPointFromConstruction");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Eras.ID as EraID, Value from Building_GreatPersonPointFromConstruction inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Eras on Eras.Type = EraType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iEra = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_miGreatPersonPointFromConstruction[std::make_pair((GreatPersonTypes)iGreatPerson, (EraTypes)iEra)] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<pair<GreatPersonTypes, EraTypes>, int>(m_miGreatPersonPointFromConstruction).swap(m_miGreatPersonPointFromConstruction);
 	}
 
 	//Building_YieldChangesPerPopInEmpire
@@ -4347,6 +4377,11 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
 {
 	return m_miTechEnhancedYields;
+}
+
+std::map<pair<GreatPersonTypes, EraTypes>, int> CvBuildingEntry::GetGreatPersonPointFromConstruction() const
+{
+	return m_miGreatPersonPointFromConstruction;
 }
 
 /// Change to Feature yield by type
