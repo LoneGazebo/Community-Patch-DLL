@@ -2891,6 +2891,9 @@ public:
 	void setUnlockedGrowthAnywhereThisTurn(bool bValue);
 	bool unlockedGrowthAnywhereThisTurn() const;
 
+	void setInstantYieldsFromUnitGift(bool bValue);
+	bool isInstantYieldsFromUnitGift() const;
+
 	bool IsEarlyExpansionPhase() const;
 	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
@@ -3446,6 +3449,7 @@ protected:
 	uint m_uiStartTime;  // XXX save these?
 
 	bool m_bHasUUPeriod;
+	bool m_bInstantYieldsFromUnitGift;
 	bool m_bNoNewWars;
 	bool m_bTerribleShapeForWar;
 	bool m_bHasBetrayedMinorCiv;
@@ -4258,6 +4262,7 @@ SYNC_ARCHIVE_VAR(int, m_iCachedCurrentWarValue)
 SYNC_ARCHIVE_VAR(vector<int>, m_viCoreCitiesForSpaceshipProduction)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
+SYNC_ARCHIVE_VAR(bool, m_bInstantYieldsFromUnitGift)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
 SYNC_ARCHIVE_VAR(bool, m_bTerribleShapeForWar)
 SYNC_ARCHIVE_VAR(bool, m_bHasBetrayedMinorCiv)

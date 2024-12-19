@@ -332,6 +332,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChangePerGoldenAgeCap(NULL),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldChangesPerLocalTheme(NULL),
+	m_piYieldFromUnitGiftGlobal(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
@@ -482,6 +483,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAgeCap);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerLocalTheme);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitGiftGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
@@ -991,6 +993,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap");
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangesPerLocalTheme, "Building_YieldChangesPerLocalTheme", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitGiftGlobal, "Building_YieldFromUnitGiftGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
@@ -3456,6 +3459,14 @@ int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldChangesPerLocalTheme ? m_piYieldChangesPerLocalTheme[i] : -1;
+}
+
+/// Instant yields from gifting a unit
+int CvBuildingEntry::GetYieldFromUnitGiftGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitGiftGlobal ? m_piYieldFromUnitGiftGlobal[i] : -1;
 }
 
 /// Change to yield during golden ages
