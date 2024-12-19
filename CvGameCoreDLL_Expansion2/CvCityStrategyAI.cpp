@@ -3508,16 +3508,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
-	map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
-	map<int, std::map<int, int>>::iterator it;
-	for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
+	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
 	{
-		if (GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
+		map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
+		map<int, std::map<int, int>>::iterator it;
+		for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
 		{
-			std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
-			if (it2 != (it->second).end())
+			if (GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
 			{
-				iFlatYield += it2->second;
+				std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+				if (it2 != (it->second).end())
+				{
+					iFlatYield += it2->second;
+				}
 			}
 		}
 	}
@@ -4838,22 +4841,6 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += kPlayer.getWorkerSpeedModifier() + pkBuildingInfo->GetWorkerSpeedModifier();
 	}
 
-	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-	{
-		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
-		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if(pkSpecialistInfo)
-		{
-			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
-			if (iNumWorkers <= 0)
-				continue;
-
-			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
-
-			iValue += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 5;
-		}
-	}
-
 	if(pkBuildingInfo->GetBorderGrowthRateIncrease() > 0)
 	{
 		iValue += 2 * abs((kPlayer.GetBorderGrowthRateIncreaseGlobal() + pkBuildingInfo->GetBorderGrowthRateIncrease()));
@@ -5175,6 +5162,35 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
 
+	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+	{
+		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+		if (pkSpecialistInfo)
+		{
+			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
+			if (iNumWorkers <= 0)
+				continue;
+
+			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
+
+			iValue += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 5;
+		}
+	}
+
+	if (!pkBuildingInfo->GetGreatPersonPointFromConstruction().empty())
+	{
+		std::map<pair<GreatPersonTypes, EraTypes>, int> mGreatPersonPointFromConstruction = pkBuildingInfo->GetGreatPersonPointFromConstruction();
+		std::map<pair<GreatPersonTypes, EraTypes>, int>::iterator it;
+		for (it = mGreatPersonPointFromConstruction.begin(); it != mGreatPersonPointFromConstruction.end(); it++)
+		{
+			EraTypes eGPConstructionEra = (it->first).second;
+			if (kPlayer.GetCurrentEra() >= eGPConstructionEra)
+			{
+				iValue += (it->second) * (GC.getNumEraInfos() - eGPConstructionEra);
+			}
+		}
+	}
 	if (pkBuildingInfo->GetPopulationChange() > 0)
 	{
 		iValue += (pkBuildingInfo->GetPopulationChange() + pCity->getPopulation()) * 10;
