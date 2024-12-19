@@ -680,11 +680,11 @@ public:
 
 	int GetExtraHappinessPerCity() const;
 	void ChangeExtraHappinessPerCity(int iChange);
-	int GetExtraHappinessPerXPolicies() const;
-	void ChangeExtraHappinessPerXPolicies(int iChange);
+	fraction GetExtraHappinessPolicies() const;
+	void ChangeExtraHappinessPolicies(fraction iChange);
 
-	int GetExtraHappinessPerXPoliciesFromPolicies() const;
-	void ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange);
+	fraction GetExtraHappinessPoliciesFromPolicies() const;
+	void ChangeExtraHappinessPoliciesFromPolicies(fraction iChange);
 
 	int GetHappinessPerXGreatWorks() const;
 	void ChangeHappinessPerXGreatWorks(int iChange);
@@ -3049,8 +3049,8 @@ protected:
 	int m_iBarbarianCombatBonus;
 	int m_iAlwaysSeeBarbCampsCount;
 	int m_iHappinessPerCity;
-	int m_iHappinessPerXPolicies;
-	int m_iExtraHappinessPerXPoliciesFromPolicies;
+	fraction m_fHappinessPolicies;
+	fraction m_fExtraHappinessPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
 	int m_iSpySecurityModifier;
@@ -3913,8 +3913,8 @@ SYNC_ARCHIVE_VAR(int, m_iUnitUpgradeCostMod)
 SYNC_ARCHIVE_VAR(int, m_iBarbarianCombatBonus)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysSeeBarbCampsCount)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerCity)
-SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
-SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
+SYNC_ARCHIVE_VAR(fraction, m_fHappinessPolicies)
+SYNC_ARCHIVE_VAR(fraction, m_fExtraHappinessPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
