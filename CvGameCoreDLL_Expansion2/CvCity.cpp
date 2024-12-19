@@ -20313,15 +20313,15 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 			}
 		}
 
-		if (kPlayer.GetExtraHappinessPerXPoliciesFromPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPoliciesFromPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPoliciesFromPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPoliciesFromPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 
 		// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
-		if (kPlayer.GetExtraHappinessPerXPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 	}
 
