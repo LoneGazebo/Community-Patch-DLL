@@ -9,6 +9,7 @@ UPDATE Units SET Cost = 0 WHERE CombatClass = 'UNITCOMBAT_SETTLER';
 -- Civilians
 UPDATE Units SET Cost = 80 WHERE Class = 'UNITCLASS_WORKER';
 UPDATE Units SET Cost = 40 WHERE Class = 'UNITCLASS_WORKBOAT';
+UPDATE Units SET Cost = 300 WHERE Class = 'UNITCLASS_ASAMU';
 UPDATE Units SET Cost = 100, FaithCost = 200 WHERE Class = 'UNITCLASS_SIEGE_TOWER';
 UPDATE Units SET Cost = 450, FaithCost = 450 WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 
@@ -167,7 +168,6 @@ DROP TABLE UnitClass_Costs;
 UPDATE Units SET Cost = 40, FaithCost = 100 WHERE Class IN ('UNITCLASS_WARRIOR', 'UNITCLASS_SLINGER', 'UNITCLASS_PATHFINDER');
 
 -- Outliers
-UPDATE Units SET Cost = 125 WHERE Class = 'UNITCLASS_ELEPHANT_RIDER';
 UPDATE Units SET Cost = 100 WHERE Class = 'UNITCLASS_SWORDSMAN';
 UPDATE Units SET Cost = 160 WHERE Class = 'UNITCLASS_LONGSWORDSMAN';
 UPDATE Units SET Cost = 125 WHERE Class = 'UNITCLASS_FREE_COMPANY';
@@ -177,6 +177,7 @@ UPDATE Units SET Cost = 2500 WHERE Class = 'UNITCLASS_MODERN_ARMOR';
 -- Unique Units
 UPDATE Units SET Cost = 70, FaithCost = 150 WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR'; -- earlier but same cost
 UPDATE Units SET Cost = 100, FaithCost = 200 WHERE Type = 'UNIT_IRON_CHARIOT'; -- unique class
+UPDATE Units SET Cost = 120, FaithCost = 200 WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT'; -- more expensive
 UPDATE Units SET Cost = 100 WHERE Type = 'UNIT_MAYAN_ATLATLIST'; -- cheaper and earlier
 UPDATE Units SET Cost = 135, FaithCost = 300 WHERE Type = 'UNIT_DANISH_BERSERKER'; -- earlier but same cost
 UPDATE Units SET Cost = 275, FaithCost = 350 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT'; -- cheaper

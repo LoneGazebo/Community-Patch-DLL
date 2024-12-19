@@ -136,30 +136,6 @@ UPDATE Units
 SET PrereqTech = 'TECH_ARCHERY' -- Military Strategy
 WHERE Class = 'UNITCLASS_HORSEMAN';
 
--- War Elephant
-DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
-
-UPDATE Units
-SET
-	Description = 'TXT_KEY_UNIT_ELEPHANT_RIDER',
-	Civilopedia = 'TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT',
-	Help = 'TXT_KEY_UNIT_ELEPHANT_RIDER_HELP',
-	Strategy = 'TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY'
-WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
-
-UPDATE Units
-SET
-	PrereqTech = 'TECH_ARCHERY', -- Military Strategy
-	ResourceType = 'RESOURCE_IVORY'
-WHERE Class = 'UNITCLASS_ELEPHANT_RIDER';
-
-INSERT INTO Unit_BuildingClassRequireds
-	(UnitType, BuildingClassType)
-SELECT
-	Type, 'BUILDINGCLASS_BARRACKS'
-FROM Units
-WHERE Class = 'UNITCLASS_ELEPHANT_RIDER';
-
 -- Knight
 UPDATE Units SET ObsoleteTech = 'TECH_METALLURGY' WHERE Class = 'UNITCLASS_KNIGHT';
 
