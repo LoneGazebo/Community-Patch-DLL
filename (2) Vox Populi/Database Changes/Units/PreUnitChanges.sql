@@ -86,6 +86,8 @@ WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 
 -- Carthage: Trireme
 
+-- Carthage: Horseman
+
 -- Celts: Spearman
 
 -- China: Crossbowman
