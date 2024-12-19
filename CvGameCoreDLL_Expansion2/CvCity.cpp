@@ -418,6 +418,7 @@ CvCity::CvCity() :
 	, m_aiYieldChangePerGoldenAgeCap()
 	, m_aiYieldFromPreviousGoldenAges()
 	, m_aiGoldenAgeYieldMod()
+	, m_aiYieldChangesPerLocalTheme()
 	, m_aiYieldFromWLTKD()
 	, m_aiYieldFromConstruction()
 	, m_aiYieldFromTech()
@@ -1365,6 +1366,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldChangePerGoldenAgeCap.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPreviousGoldenAges.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangesPerLocalTheme.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES);
@@ -1466,6 +1468,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldChangePerGoldenAgeCap[iI] = 0;
 		m_aiYieldFromPreviousGoldenAges[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
+		m_aiYieldChangesPerLocalTheme[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
 		m_aiYieldFromConstruction[iI] = 0;
 		m_aiYieldFromTech[iI] = 0;
@@ -14678,6 +14681,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0))
+			{
+				ChangeYieldChangesPerLocalTheme(eYield, pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromWLTKD(eYield) > 0))
 			{
 				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
@@ -24199,6 +24207,33 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Extra yield from themed buildings
+int CvCity::GetYieldChangesPerLocalTheme(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangesPerLocalTheme[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from themed buildings
+void CvCity::ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangesPerLocalTheme[eIndex] = m_aiYieldChangesPerLocalTheme[eIndex] + iChange;
+		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
+		ResetGreatWorkYieldCache();
+	}
+
+}
+
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -31557,6 +31592,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldChangePerGoldenAge);
 	visitor(city.m_aiYieldChangePerGoldenAgeCap);
 	visitor(city.m_aiGoldenAgeYieldMod);
+	visitor(city.m_aiYieldChangesPerLocalTheme);
 	visitor(city.m_aiYieldFromWLTKD);
 	visitor(city.m_aiYieldFromConstruction);
 	visitor(city.m_aiYieldFromTech);
