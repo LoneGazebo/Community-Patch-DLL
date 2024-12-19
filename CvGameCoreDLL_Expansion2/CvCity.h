@@ -1143,6 +1143,9 @@ public:
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
+	int GetYieldChangesPerLocalTheme(YieldTypes eIndex) const;
+	void ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromWLTKD(YieldTypes eIndex) const;
 	void ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange);
 
@@ -1994,6 +1997,7 @@ protected:
 	std::vector<int> m_aiYieldChangePerGoldenAgeCap;
 	std::vector<int> m_aiYieldFromPreviousGoldenAges;
 	std::vector<int> m_aiGoldenAgeYieldMod;
+	std::vector<int> m_aiYieldChangesPerLocalTheme;
 	std::vector<int> m_aiYieldFromWLTKD;
 	std::vector<int> m_aiYieldFromConstruction;
 	std::vector<int> m_aiYieldFromTech;
@@ -2399,6 +2403,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAge)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAgeCap)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangesPerLocalTheme)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)

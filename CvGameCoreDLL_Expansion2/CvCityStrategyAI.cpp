@@ -3508,6 +3508,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
+	if (pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
 	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
 	{
 		map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();

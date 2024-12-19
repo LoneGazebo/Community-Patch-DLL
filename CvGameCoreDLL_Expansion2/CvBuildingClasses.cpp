@@ -331,6 +331,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChangePerGoldenAge(NULL),
 	m_piYieldChangePerGoldenAgeCap(NULL),
 	m_piGoldenAgeYieldMod(NULL),
+	m_piYieldChangesPerLocalTheme(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
@@ -476,6 +477,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAge);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAgeCap);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerLocalTheme);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
@@ -984,6 +986,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChangePerGoldenAge, "Building_YieldChangesPerGoldenAge", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap", 0);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangesPerLocalTheme, "Building_YieldChangesPerLocalTheme", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
@@ -3441,6 +3444,14 @@ int CvBuildingEntry::GetYieldChangePerGoldenAgeCap(int i) const
 int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
 {
 	return m_piYieldChangePerGoldenAgeCap;
+}
+
+/// Change to yield during golden ages
+int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangesPerLocalTheme ? m_piYieldChangesPerLocalTheme[i] : -1;
 }
 
 /// Change to yield during golden ages
@@ -6134,6 +6145,8 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			}
 		}
 	}
+
+	iThemingBonusTotal += m_pCity->GetYieldChangesPerLocalTheme(eYield) * GetTotalNumThemedBuildings();
 	
 	//No works? Abort!
 	if(iRealWorkCount <= 0)
