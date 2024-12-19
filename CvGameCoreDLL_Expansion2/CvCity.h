@@ -1357,6 +1357,11 @@ public:
 	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
 #endif
 
+	std::map<int, std::map<int, int>> GetTechEnhancedYieldsMap() const;
+	int GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const;
+	bool TechEnhancesAnyYield(TechTypes eTech) const;
+	void ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange);
+
 	int GetYieldPerReligionTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange);
 
@@ -2076,6 +2081,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
+	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
 	std::vector<int> m_aiYieldPerReligion;
 	std::vector<int> m_aiPowerYieldRateModifier;
 	std::vector<int> m_aiResourceYieldRateModifier;
