@@ -1362,6 +1362,10 @@ public:
 	bool TechEnhancesAnyYield(TechTypes eTech) const;
 	void ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange);
 
+	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstructionMap() const;
+	int GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
+	void ChangeGreatPersonPointFromConstruction(pair<GreatPersonTypes, EraTypes> pGreatPersonEra, int iChange);
+
 	int GetYieldPerReligionTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange);
 
@@ -2082,6 +2086,7 @@ protected:
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	std::vector<int> m_aiYieldPerReligion;
 	std::vector<int> m_aiPowerYieldRateModifier;
 	std::vector<int> m_aiResourceYieldRateModifier;
