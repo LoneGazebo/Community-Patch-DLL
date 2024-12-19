@@ -354,6 +354,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	
 	-- Food
 	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
+	iFood = iFood + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_FOOD);
 	if (pCity ~= nil) then
 		iFood = iFood + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
@@ -387,6 +388,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		-- Production Change
 	local iProd = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 	iProd = iProd + pActivePlayer:GetPolicyBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+	iProd = iProd + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 -- CBP
 	if (pCity ~= nil) then
 		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
@@ -424,6 +426,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		
 	-- Gold Change
 	iGold = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_GOLD);
+	iGold = iGold + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_GOLD);
 	if (pCity ~= nil) then
 		iGold = iGold + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
 		iGold = iGold + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
@@ -455,6 +458,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	
 	-- Culture
 	local iCulture = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_CULTURE);
+	iCulture = iCulture + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_CULTURE);
 	if (pCity ~= nil) then
 		iCulture = iCulture + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
@@ -488,6 +492,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 	-- Faith
 	local iFaith = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FAITH);
+	iFaith = iFaith + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_FAITH);
 	if (pCity ~= nil) then
 		iFaith = iFaith + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
@@ -521,6 +526,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	
 	-- Science Change
 	local iScienceChange = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_SCIENCE);
+	iScienceChange = iScienceChange + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_SCIENCE);
 	if (pCity ~= nil) then
 		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
@@ -625,40 +631,20 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, localizedText);
 	end
 
+	local iTourism = 0;
+	iTourism = iTourism + pActivePlayer:GetBuildingTechEnhancedYields(iBuildingID, YieldTypes.YIELD_TOURISM);
+	iTourism = iTourism + pActivePlayer:GetExtraYieldWorldWonder(iBuildingID, YieldTypes.YIELD_TOURISM);	
 	if (pCity ~= nil) then
-		local iTourism = pCity:GetFaithBuildingTourism();
-		if(iTourism > 0 and pBuildingInfo.FaithCost > 0 and pBuildingInfo.UnlockedByBelief and pBuildingInfo.Cost == -1) then
-			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
-			table.insert(lines, localizedText);
+		iTourism = iTourism + pCity:GetBuildingClassTourism(buildingClassID)
+		if(pCity:GetFaithBuildingTourism() > 0 and (pBuildingInfo.FaithCost > 0 or pBuildingInfo.FaithCost > 0) and pBuildingInfo.UnlockedByBelief and pBuildingInfo.Cost == -1) then
+			iTourism = iTourism + pCity:GetFaithBuildingTourism();
 		end
--- CBP FIX
-		if(iTourism > 0 and pBuildingInfo.FaithCost > 0 and pBuildingInfo.PolicyType ~= nil and pBuildingInfo.Cost == -1) then
-			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
-			table.insert(lines, localizedText);
-		end
+	end
 
-		iTourism = pCity:GetBuildingClassTourism(buildingClassID)
-		if iTourism ~= 0 then
-			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
-			table.insert(lines, localizedText);
-		end
-	end
-	-- CBP
-	if (pCity ~= nil) then
-		local iTourism = pActivePlayer:GetExtraYieldWorldWonder(iBuildingID, YieldTypes.YIELD_TOURISM);
-		if(iTourism > 0) then
-			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
-			table.insert(lines, localizedText);
-		end
-	end
-	-- END
-	
-	local iTechEnhancedTourism = pBuildingInfo.TechEnhancedTourism;
-	local iEnhancingTech = GameInfoTypes[pBuildingInfo.EnhancedYieldTech];
-	if(iTechEnhancedTourism > 0 and pActiveTeam:GetTeamTechs():HasTech(iEnhancingTech)) then
-		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTechEnhancedTourism);
+	if iTourism ~= 0 then
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 		table.insert(lines, localizedText);
-	end	
+	end
 
 	strHelpText = strHelpText .. table.concat(lines, "[NEWLINE]");
 	

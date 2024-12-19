@@ -35,8 +35,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iFreeStartEra(NO_ERA),
 	m_iMaxStartEra(NO_ERA),
 	m_iObsoleteTech(NO_TECH),
-	m_iEnhancedYieldTech(NO_TECH),
-	m_iTechEnhancedTourism(0),
 	m_iGoldMaintenance(0),
 	m_iMutuallyExclusiveGroup(0),
 	m_iReplacementBuildingClass(NO_BUILDINGCLASS),
@@ -370,7 +368,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
 	m_piGlobalYieldModifier(NULL),
-	m_piTechEnhancedYieldChange(NULL),
 	m_piUnitCombatFreeExperience(NULL),
 	m_piUnitCombatProductionModifiers(NULL),
 	m_piUnitCombatProductionModifiersGlobal(NULL),
@@ -416,6 +413,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiFeatureYieldChange(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal(),
+	m_miTechEnhancedYields(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
 	m_ppaiSpecialistYieldChangeLocal(NULL),
@@ -519,7 +517,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGlobalYieldModifier);
-	SAFE_DELETE_ARRAY(m_piTechEnhancedYieldChange);
 	SAFE_DELETE_ARRAY(m_piUnitCombatFreeExperience);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
@@ -570,6 +567,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal.clear();
+	m_miTechEnhancedYields.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChangeLocal);
@@ -864,11 +862,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("ObsoleteTech");
 	m_iObsoleteTech = GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("EnhancedYieldTech");
-	m_iEnhancedYieldTech = GC.getInfoTypeForString(szTextVal, true);
-
-	m_iTechEnhancedTourism = kResults.GetInt("TechEnhancedTourism");
-
 	szTextVal = kResults.GetText("FreeBuilding");
 	m_iFreeBuildingClass = GC.getInfoTypeForString(szTextVal, true);
 
@@ -1026,7 +1019,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldModifier, "Building_YieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piAreaYieldModifier, "Building_AreaYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGlobalYieldModifier, "Building_GlobalYieldModifiers", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	kUtility.SetYields(m_piInstantYield, "Building_InstantYield", "BuildingType", szBuildingType);
 #endif
@@ -1206,6 +1198,50 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
+	}
+
+	// Building_TechEnhancedYieldChanges
+	// Table structure (BuildingType, YieldType, Yield, TechType)
+	// The building produces additional yields per turn once the corresponding technology has been researched
+	{
+		// In vanilla, this table didn't have the column TechType, the technology was stored in Buildings.EnhancedYieldTech instead.
+		// That means that a building couldn't get additional yields for more than one tech.
+		// To keep compatibility with existing mods the new column TechType is nullable, if it is empty, Buildings.EnhancedYieldTech is used as fallback value.
+		// In vanilla, the column Buildings.TechEnhancedTourism can also be used together with Buildings.EnhancedYieldTech to give tourism once a particular tech is researched, this is now also processed here
+		std::string strKey("Building_TechEnhancedYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select coalesce(Technologies.ID, -1) as TechID, Yields.ID as YieldID, Yield from Building_TechEnhancedYieldChanges left join Technologies on Technologies.Type = TechType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		szTextVal = kResults.GetText("EnhancedYieldTech");
+		int iFallbackTech = GC.getInfoTypeForString(szTextVal, true);
+
+		while (pResults->Step())
+		{
+			const int iTech = pResults->GetInt(0) >= 0 ? pResults->GetInt(0) : iFallbackTech;
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			if (iTech >= 0)
+			{
+				m_miTechEnhancedYields[iTech][iYieldType] += iYield;
+			}
+		}
+
+		int iTechEnhancedTourism = kResults.GetInt("TechEnhancedTourism");
+		if (iTechEnhancedTourism > 0 && iFallbackTech >= 0)
+		{
+			m_miTechEnhancedYields[iFallbackTech][YIELD_TOURISM] += iTechEnhancedTourism;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
 	}
 
 	//Building_YieldChangesPerPopInEmpire
@@ -1748,18 +1784,6 @@ int CvBuildingEntry::GetMaxStartEra() const
 int CvBuildingEntry::GetObsoleteTech() const
 {
 	return m_iObsoleteTech;
-}
-
-/// Tech that improves the yield from this building
-int CvBuildingEntry::GetEnhancedYieldTech() const
-{
-	return m_iEnhancedYieldTech;
-}
-
-/// ... or provides tourism from this building
-int CvBuildingEntry::GetTechEnhancedTourism() const
-{
-	return m_iTechEnhancedTourism;
 }
 
 /// How much GPT does this Building cost?
@@ -3074,10 +3098,6 @@ bool CvBuildingEntry::IsScienceBuilding() const
 	{
 		bRtnValue = true;
 	}
-	else if(GetTechEnhancedYieldChange(YIELD_SCIENCE) > 0)
-	{
-		bRtnValue = true;
-	}
 	else if(GetYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		bRtnValue = true;
@@ -3822,20 +3842,6 @@ int* CvBuildingEntry::GetGlobalYieldModifierArray() const
 	return m_piGlobalYieldModifier;
 }
 
-/// Change to yield based on earning a tech
-int CvBuildingEntry::GetTechEnhancedYieldChange(int i) const
-{
-	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piTechEnhancedYieldChange ? m_piTechEnhancedYieldChange[i] : -1;
-}
-
-/// Array of yield changes based on earning a tech
-int* CvBuildingEntry::GetTechEnhancedYieldChangeArray() const
-{
-	return m_piTechEnhancedYieldChange;
-}
-
 /// Sea plot yield changes by type
 int CvBuildingEntry::GetSeaPlotYieldChange(int i) const
 {
@@ -4337,6 +4343,11 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 	return 0;
 }
 #endif
+
+std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
+{
+	return m_miTechEnhancedYields;
+}
 
 /// Change to Feature yield by type
 int CvBuildingEntry::GetFeatureYieldChange(int i, int j) const

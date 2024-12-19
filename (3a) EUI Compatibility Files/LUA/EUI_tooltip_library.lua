@@ -639,9 +639,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local citySupplyFlatGlobal = tonumber(building.CitySupplyFlatGlobal) or 0
 -- Vox Populi END
 	
-	local enhancedYieldTech = building.EnhancedYieldTech and GameInfo.Technologies[ building.EnhancedYieldTech ]
-	local enhancedYieldTechName = enhancedYieldTech and TechColor( L(enhancedYieldTech.Description) ) or ""
-
 	if activePlayer then
 		activeCivilizationType = (GameInfo.Civilizations[ activePlayer:GetCivilizationType() ] or {}).Type
 		city = city or UI_GetHeadSelectedCity()
@@ -708,6 +705,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 		if Game and buildingClassID and yieldID < YieldTypes.NUM_YIELD_TYPES then -- weed out strange Communitas yields
 			yieldChange = Game.GetBuildingYieldChange( buildingID, yieldID )
+			yieldChange = yieldChange + activePlayer:GetBuildingTechEnhancedYields(buildingID, yieldID)
 			yieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 			if activePlayer then
 				if gk_mode then
@@ -731,8 +729,8 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				if bnw_mode then
 					yieldChange = yieldChange + city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID )
 				end
--- CBP
-				
+-- CBP	
+
 				yieldChange = yieldChange + city:GetLocalBuildingClassYield(buildingClassID, yieldID)
 					
 				yieldChange = yieldChange + city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
@@ -745,12 +743,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				end
 				-- Events
 				yieldChange = yieldChange + city:GetEventBuildingClassYield(buildingClassID, yieldID);
-				-- Tech Enhanced Yield
-				for row in GameInfo.Building_TechEnhancedYieldChanges( thisBuildingType ) do
-					if (Teams[city:GetTeam()]:IsHasTech(GameInfoTypes[ building.EnhancedYieldTech ])) and (row.YieldType == yield.Type) then
-						yieldChange = yieldChange + (row.Yield or 0)
-					end
-				end
 				-- End
 -- END CBP
 			end
@@ -1075,10 +1067,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			end
 		end
 -- END
-		if enhancedYieldTechName and (building.TechEnhancedTourism or 0) ~= 0 then
-			tip = S("%s %s %+i[ICON_TOURISM]", tip, enhancedYieldTechName, building.TechEnhancedTourism )
-		end
-		tips:insertIf( #tip > 0 and L"TXT_KEY_CITYVIEW_TOURISM_TEXT" .. ":" .. tip )
 	end
 -- TODO GetInternationalTradeRouteYourBuildingBonus
 	if gk_mode then
@@ -1232,12 +1220,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	for row in GameInfo.Building_UnitCombatFreeExperiences( thisBuildingType ) do
 		item = GameInfo.UnitCombatInfos[ row.UnitCombatType ]
 		tips:insertIf( item and (row.Experience or 0)>0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )
-	end
-
-	-- Yields enhanced by Technology
-	if techFilter( enhancedYieldTech ) then
-		tip = GetYieldString( GameInfo.Building_TechEnhancedYieldChanges( thisBuildingType ) )
-		tips:insertIf( #tip > 0 and "[ICON_BULLET]" .. enhancedYieldTechName .. tip )
 	end
 
 	items = {}

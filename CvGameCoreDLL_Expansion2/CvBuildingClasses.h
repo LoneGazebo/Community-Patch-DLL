@@ -122,8 +122,6 @@ public:
 	int GetFreeStartEra() const;
 	int GetMaxStartEra() const;
 	int GetObsoleteTech() const;
-	int GetEnhancedYieldTech() const;
-	int GetTechEnhancedTourism() const;
 	int GetGoldMaintenance() const;
 	int GetMutuallyExclusiveGroup() const;
 	int GetReplacementBuildingClass() const;
@@ -562,8 +560,6 @@ public:
 	int* GetAreaYieldModifierArray() const;
 	int GetGlobalYieldModifier(int i) const;
 	int* GetGlobalYieldModifierArray() const;
-	int GetTechEnhancedYieldChange(int i) const;
-	int* GetTechEnhancedYieldChangeArray() const;
 	int GetSeaPlotYieldChange(int i) const;
 	int* GetSeaPlotYieldChangeArray() const;
 	int GetRiverPlotYieldChange(int i) const;
@@ -645,6 +641,7 @@ public:
 	int* GetFeatureYieldChangeArray(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
+	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -700,8 +697,6 @@ private:
 	int m_iFreeStartEra;
 	int m_iMaxStartEra;
 	int m_iObsoleteTech;
-	int m_iEnhancedYieldTech;
-	int m_iTechEnhancedTourism;
 	int m_iGoldMaintenance;
 	int m_iMutuallyExclusiveGroup;
 	int m_iReplacementBuildingClass;
@@ -1069,7 +1064,6 @@ private:
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
 	int* m_piGlobalYieldModifier;
-	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
 	int* m_piUnitCombatProductionModifiersGlobal;
@@ -1114,6 +1108,7 @@ private:
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
+	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;

@@ -3483,6 +3483,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
+	map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
+	map<int, std::map<int, int>>::iterator it;
+	for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
+	{
+		if (GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
+		{
+			std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+			if (it2 != (it->second).end())
+			{
+				iFlatYield += it2->second;
+			}
+		}
+	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -4703,10 +4716,6 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	if (pkBuildingInfo->GetSeaTourismEnd() > 0)
 	{
 		iTourismValue += (pkBuildingInfo->GetSeaTourismEnd() * 10);
-	}
-	if (pkBuildingInfo->GetTechEnhancedTourism() > 0)
-	{
-		iTourismValue += (pkBuildingInfo->GetTechEnhancedTourism() * 10);
 	}
 	if (pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0)
 	{
