@@ -6000,21 +6000,6 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 		}
 	}
 
-	// Tech enhanced Tourism
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
-	for(size_t iI = 0; iI < allBuildings.size(); iI++)
-	{
-		BuildingTypes eBuilding = allBuildings[iI];
-		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-		if (pkBuilding)
-		{
-			int iTourism = pkBuilding->GetTechEnhancedTourism();
-			if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
-			{
-				iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-			}
-		}
-	}
 	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
 }
 
@@ -6345,27 +6330,6 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 	}
 
-	// Tech enhanced Tourism
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
-	for(size_t iI = 0; iI < allBuildings.size(); iI++)
-	{
-		BuildingTypes eBuilding = allBuildings[iI];
-		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-		if (pkBuilding)
-		{
-			int iTechEnhancedTourism = pkBuilding->GetTechEnhancedTourism();
-			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
-			{
-				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-
-				if (!szRtnValue.empty())
-				{
-					szRtnValue += "[NEWLINE][NEWLINE]";
-				}
-				szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TECH_ENHANCED", iTechEnhancedTourism);
-			}
-		}
-	}
 #if defined(MOD_BALANCE_CORE)
 	//Buildings with Tourism
 	int iTourismFromWW = kCityPlayer.GetYieldChangeWorldWonder(YIELD_TOURISM);
@@ -6392,6 +6356,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 #endif
 
+	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);

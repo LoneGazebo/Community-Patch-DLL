@@ -275,6 +275,8 @@ CvCity::CvCity() :
 	, m_aiYieldPerPop()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
+	, m_miTechEnhancedYields()
+	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 #endif
 	, m_aiYieldPerReligion()
@@ -1132,6 +1134,8 @@ void CvCity::uninit()
 {
 	VALIDATE_OBJECT
 	m_aiYieldPerPopInEmpire.clear();
+	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 
 #if defined(MOD_BALANCE_CORE)
 	m_ppiGreatPersonProgressFromConstruction.clear();
@@ -1424,6 +1428,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_aiYieldPerPopInEmpire.clear();
 #endif
+	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
@@ -14704,6 +14710,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
+		if (!pBuildingInfo->GetGreatPersonPointFromConstruction().empty())
+		{
+			std::map<pair<GreatPersonTypes, EraTypes>, int> mGreatPersonPointFromConstruction = pBuildingInfo->GetGreatPersonPointFromConstruction();
+			std::map<pair<GreatPersonTypes, EraTypes>, int>::iterator it;
+			for (it = mGreatPersonPointFromConstruction.begin(); it != mGreatPersonPointFromConstruction.end(); ++it)
+			{
+				ChangeGreatPersonPointFromConstruction(it->first, it->second * iChange);
+			}
+		}
+
 		YieldTypes eYield;
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -15053,11 +15069,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldPerXFeatureFromBuildingsTimes100(((FeatureTypes)iJ), eYield, (pBuildingInfo->GetYieldPerXFeature(iJ, eYield) * iChange));
 			}
 
-			if (pBuildingInfo->GetEnhancedYieldTech() != NO_TECH)
+			if (!pBuildingInfo->GetTechEnhancedYields().empty())
 			{
-				if (owningTeam.GetTeamTechs()->HasTech((TechTypes)pBuildingInfo->GetEnhancedYieldTech()))
+				map<int, std::map<int, int>> mTechEnhancedYields = pBuildingInfo->GetTechEnhancedYields();
+				map<int, std::map<int, int>>::iterator it;
+				for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); ++it)
 				{
-					ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetTechEnhancedYieldChange(eYield) * iChange);
+					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+					if (it2 != (it->second).end())
+					{
+						ChangeTechEnhancedYields((TechTypes)it->first, eYield, it2->second * iChange);
+					}
 				}
 			}
 
@@ -20308,15 +20330,15 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 			}
 		}
 
-		if (kPlayer.GetExtraHappinessPerXPoliciesFromPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPoliciesFromPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPoliciesFromPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPoliciesFromPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 
 		// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
-		if (kPlayer.GetExtraHappinessPerXPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 	}
 
@@ -25934,6 +25956,112 @@ void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
 		m_aiYieldPerPopInEmpire[(int)eIndex] += iChange;
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+/// Extra yields when a tech is researched
+std::map<int, std::map<int, int>> CvCity::GetTechEnhancedYieldsMap() const
+{
+	return m_miTechEnhancedYields;
+}
+int CvCity::GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	std::map<int, std::map<int, int>>::const_iterator it = m_miTechEnhancedYields.find((int)eTech);
+	if (it != m_miTechEnhancedYields.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		std::map<int, int> miTechMap = it->second;
+		std::map<int, int>::const_iterator it2 = miTechMap.find((int)eYield);
+		if (it2 != miTechMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
+}
+bool CvCity::TechEnhancesAnyYield(TechTypes eTech) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+
+	return m_miTechEnhancedYields.find((int)eTech) != m_miTechEnhancedYields.end();
+}
+void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+
+	if (iChange != 0)
+	{
+		// if we already have the tech, we need to change the yields generated in the city
+		if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(eTech))
+		{
+			ChangeBaseYieldRateFromBuildings(eYield, iChange);
+		}
+
+		m_miTechEnhancedYields[eTech][eYield] += iChange;
+		CvAssertMsg(m_miTechEnhancedYields[eTech][eYield] >= 0, "negative value in m_miTechEnhancedYields");
+		if (m_miTechEnhancedYields[eTech][eYield] == 0)
+		{
+			m_miTechEnhancedYields[eTech].erase(eYield);
+			if (m_miTechEnhancedYields[eTech].size() == 0)
+			{
+				m_miTechEnhancedYields.erase(eTech);
+			}
+		}
+		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yields when a tech is researched
+std::map<pair<GreatPersonTypes, EraTypes>, int> CvCity::GetGreatPersonPointFromConstructionMap() const
+{
+	return m_miGreatPersonPointFromConstruction;
+}
+int CvCity::GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eGreatPerson expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	CvAssertMsg(eEra >= 0, "eEra expected to be >= 0");
+	CvAssertMsg(eEra < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+
+	std::map<pair<GreatPersonTypes, EraTypes>, int>::const_iterator it = m_miGreatPersonPointFromConstruction.find(std::make_pair(eGreatPerson, eEra));
+	if (it != m_miGreatPersonPointFromConstruction.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+void CvCity::ChangeGreatPersonPointFromConstruction(pair<GreatPersonTypes, EraTypes> pGreatPersonEra, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(pGreatPersonEra.first >= 0, "eGreatPerson expected to be >= 0");
+	CvAssertMsg(pGreatPersonEra.first < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	CvAssertMsg(pGreatPersonEra.second >= 0, "eEra expected to be >= 0");
+	CvAssertMsg(pGreatPersonEra.second < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+
+	if (iChange != 0)
+	{
+		m_miGreatPersonPointFromConstruction[pGreatPersonEra] += iChange;
+		CvAssertMsg(m_miGreatPersonPointFromConstruction[pGreatPersonEra] >= 0, "negative value in m_miTechEnhancedYields");
+		if (m_miGreatPersonPointFromConstruction[pGreatPersonEra] == 0)
+		{
+			m_miGreatPersonPointFromConstruction.erase(pGreatPersonEra);
+		}
+	}
+}
 
 //	--------------------------------------------------------------------------------
 /// Extra yield for each religion with a follower
@@ -31899,6 +32027,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_eventYields);
 	visitor(city.m_ppiGreatPersonProgressFromConstruction);
 	visitor(city.m_aiYieldPerPopInEmpire);
+	visitor(city.m_miTechEnhancedYields);
+	visitor(city.m_miGreatPersonPointFromConstruction);
 }
 
 //	--------------------------------------------------------------------------------

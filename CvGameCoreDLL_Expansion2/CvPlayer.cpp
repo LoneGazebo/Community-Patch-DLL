@@ -178,8 +178,8 @@ CvPlayer::CvPlayer() :
 	, m_iBarbarianCombatBonus()
 	, m_iAlwaysSeeBarbCampsCount()
 	, m_iHappinessPerCity()
-	, m_iHappinessPerXPolicies()
-	, m_iExtraHappinessPerXPoliciesFromPolicies()
+	, m_fHappinessPolicies()
+	, m_fExtraHappinessPoliciesFromPolicies()
 	, m_iHappinessPerXGreatWorks()
 	, m_iAttackBonusTurns()
 	, m_iCultureBonusTurns()
@@ -1349,8 +1349,8 @@ void CvPlayer::uninit()
 	m_iBarbarianCombatBonus = 0;
 	m_iAlwaysSeeBarbCampsCount = 0;
 	m_iHappinessPerCity = 0;
-	m_iHappinessPerXPolicies = 0;
-	m_iExtraHappinessPerXPoliciesFromPolicies = 0;
+	m_fHappinessPolicies = 0;
+	m_fExtraHappinessPoliciesFromPolicies = 0;
 	m_iHappinessPerXGreatWorks = 0;
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
@@ -15637,7 +15637,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeExtraHappinessPerCity(pBuildingInfo->GetHappinessPerCity() * iChange);
 
 	// Extra Happiness Per Policy
-	ChangeExtraHappinessPerXPolicies(pBuildingInfo->GetHappinessPerXPolicies() * iChange);
+	if (pBuildingInfo->GetHappinessPerXPolicies() > 0)
+	{
+		ChangeExtraHappinessPolicies(fraction(1, pBuildingInfo->GetHappinessPerXPolicies()) * iChange);
+	}
 
 	// City Count Unhappiness Mod
 	ChangeCityCountUnhappinessMod(pBuildingInfo->GetCityCountUnhappinessMod() * iChange);
@@ -21070,32 +21073,32 @@ void CvPlayer::ChangeExtraHappinessPerCity(int iChange)
 		m_iHappinessPerCity += iChange;
 }
 
-/// Returns the amount of extra Happiness per City
-int CvPlayer::GetExtraHappinessPerXPolicies() const
+/// Returns the amount of extra Happiness per Policy
+fraction CvPlayer::GetExtraHappinessPolicies() const
 {
-	return m_iHappinessPerXPolicies;
+	return m_fHappinessPolicies;
 }
 
-/// Changes amount of extra Happiness per City
-void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
+/// Changes amount of extra Happiness per Policy
+void CvPlayer::ChangeExtraHappinessPolicies(fraction iChange)
 {
-	CvAssertMsg(m_iHappinessPerXPolicies >= 0, "Count of extra happiness per buildings is corrupted");
+	CvAssertMsg(m_fHappinessPolicies >= 0, "Count of extra happiness per buildings is corrupted");
 
 	if(iChange != 0)
-		m_iHappinessPerXPolicies += iChange;
+		m_fHappinessPolicies += iChange;
 }
 
 /// Returns the amount of extra Happiness per City
-int CvPlayer::GetExtraHappinessPerXPoliciesFromPolicies() const
+fraction CvPlayer::GetExtraHappinessPoliciesFromPolicies() const
 {
-	return m_iExtraHappinessPerXPoliciesFromPolicies;
+	return m_fExtraHappinessPoliciesFromPolicies;
 }
 
 /// Changes amount of extra Happiness per City
-void CvPlayer::ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange)
+void CvPlayer::ChangeExtraHappinessPoliciesFromPolicies(fraction iChange)
 {
-	m_iExtraHappinessPerXPoliciesFromPolicies += iChange;
-	CvAssertMsg(m_iExtraHappinessPerXPoliciesFromPolicies >= 0, "Count of extra happiness per buildings is corrupted");
+	m_fExtraHappinessPoliciesFromPolicies += iChange;
+	CvAssertMsg(m_fExtraHappinessPoliciesFromPolicies >= 0, "Count of extra happiness per buildings is corrupted");
 }
 
 /// Returns the amount of extra Happiness per City
@@ -27705,12 +27708,12 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
 			if (eSpecialist == NO_SPECIALIST)
 				continue;
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 
 			// 1st step: Get the progress towards the next GP
 			// if bPercentValue is true, the number of GPP points given is (iValue) percent of the GP threshold
 			// if bPercentValue is false, iValue contains the absolute number of GPP points given
 			int iValue = 0;
-			bool bPercentValue = true;
 			switch (iType)
 			{
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
@@ -27718,6 +27721,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					if (pLoopCity->isCapital())
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
+						iValue *= pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+						iValue /= 100;
 					}
 					break;
 				}
@@ -27742,6 +27747,13 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 							{
 								iValue += pLoopCity->GetGreatPersonProgressFromConstruction(eGreatPerson, (EraTypes)iLoopEra);
 							}
+							iValue *= pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+							iValue /= 100;
+
+							for (int iLoopEra = 0; iLoopEra <= iEra; ++iLoopEra)
+							{
+								iValue += pLoopCity->GetGreatPersonPointFromConstruction(eGreatPerson, (EraTypes)iLoopEra) * pkBuildingInfo->GetProductionCost() / 100;
+							}
 						}
 					}
 					break;
@@ -27758,12 +27770,12 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					{
 						iValue += iPassValue;
 					}
+					iValue *= pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iValue /= 100;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
-					// this is not a percentage value
-					bPercentValue = false;
 					iValue = iPassValue * pLoopCity->GetGPPOnCitizenBirth() * max(1, (int)GetCurrentEra());
 					break;
 				}
@@ -27774,35 +27786,26 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			// 2nd step: Apply the desired amount of GP points to the loop city
 			if (iValue != 0)
 			{
-				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-				if (pkSpecialistInfo)
+				CvGreatPersonInfo* pGreatPerson = GC.getGreatPersonInfo(eGreatPerson);
+				pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iValue * 100, false); // Dont spawn the GP yet, so the points given to all cities remain the same
+				// 3rd step: Notifications
+				if (GetID() == GC.getGame().getActivePlayer() && iValue > 0)
 				{
-					if (bPercentValue)
-					{
-						iValue *= pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-						iValue /= 100;
-					}
-					CvGreatPersonInfo* pGreatPerson = GC.getGreatPersonInfo(eGreatPerson);
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iValue * 100, false); // Dont spawn the GP yet, so the points given to all cities remain the same
-					// 3rd step: Notifications
-					if (GetID() == GC.getGame().getActivePlayer() && iValue > 0)
-					{
-						char text[256] = { 0 };
+					char text[256] = { 0 };
 
-						gpString.Format("%s+%%d[ENDCOLOR] %s", "[COLOR_WHITE]", pGreatPerson->GetIconString());
-						sprintf_s(text, gpString, iValue);
-						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
-					}
-					if (citynameString.empty())
-					{
-						citynameString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_CITY", pLoopCity->getNameKey());
-					}
-					if (!citygpString.empty())
-					{
-						citygpString += ", ";
-					}
-					citygpString += GetLocalizedText("TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS", pGreatPerson->GetDescriptionKey(), pGreatPerson->GetIconString(), iValue);
+					gpString.Format("%s+%%d[ENDCOLOR] %s", "[COLOR_WHITE]", pGreatPerson->GetIconString());
+					sprintf_s(text, gpString, iValue);
+					SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 				}
+				if (citynameString.empty())
+				{
+					citynameString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_CITY", pLoopCity->getNameKey());
+				}
+				if (!citygpString.empty())
+				{
+					citygpString += ", ";
+				}
+				citygpString += GetLocalizedText("TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS", pGreatPerson->GetDescriptionKey(), pGreatPerson->GetIconString(), iValue);
 			}
 		}
 		if (!citynameString.empty() && !citygpString.empty())
@@ -27868,20 +27871,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				if (eBuilding != NO_BUILDING)
 				{
-					if (getInstantGreatPersonProgressText(iType).empty() || getInstantGreatPersonProgressText(iType) == NULL)
-					{
-						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
-						localizedText << totalgpString;
-						//We do this at the player level once per turn.
-						addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
-					}
-					else
-					{
-						localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
-						localizedText << totalgpString;
-						//We do this at the player level once per turn.
-						addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
-					}
+
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
+					localizedText << totalgpString;
+					bImmediate = true;
 				}
 				break;
 			}
@@ -41466,7 +41459,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeMonopolyModPercent(pkPolicyInfo->GetMonopolyModPercent() * iChange);
 	ChangeTRVisionBoost(pkPolicyInfo->GetTRVisionBoost() * iChange);
 	ChangeTRSpeedBoost(pkPolicyInfo->GetTRSpeedBoost() * iChange);
-	ChangeExtraHappinessPerXPoliciesFromPolicies(pkPolicyInfo->GetHappinessPerXPolicies() * iChange);
+	if (pkPolicyInfo->GetHappinessPerXPolicies() > 0)
+	{
+		ChangeExtraHappinessPoliciesFromPolicies(fraction(1, pkPolicyInfo->GetHappinessPerXPolicies()) * iChange);
+	}
 	ChangeHappinessPerXGreatWorks(pkPolicyInfo->GetHappinessPerXGreatWorks() * iChange);
 	ChangeMissionaryExtraStrength(pkPolicyInfo->GetExtraMissionaryStrength() * iChange);
 	ChangeNumMissionarySpreads(pkPolicyInfo->GetExtraMissionarySpreads() * iChange);
@@ -42704,8 +42700,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iBarbarianCombatBonus);
 	visitor(player.m_iAlwaysSeeBarbCampsCount);
 	visitor(player.m_iHappinessPerCity);
-	visitor(player.m_iHappinessPerXPolicies);
-	visitor(player.m_iExtraHappinessPerXPoliciesFromPolicies);
+	visitor(player.m_fHappinessPolicies);
+	visitor(player.m_fExtraHappinessPoliciesFromPolicies);
 	visitor(player.m_iHappinessPerXGreatWorks);
 	visitor(player.m_iEspionageModifier);
 	visitor(player.m_iSpySecurityModifier);
