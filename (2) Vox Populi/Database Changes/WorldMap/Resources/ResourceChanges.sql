@@ -64,6 +64,12 @@ UPDATE Resources
 SET WonderProductionMod = 15, WonderProductionModObsoleteEra = 'ERA_INDUSTRIAL'
 WHERE Type = 'RESOURCE_MARBLE';
 
+-- Ivory provides production discount for pre-Industrial siege units
+INSERT INTO Resource_UnitCombatProductionCostModifiersLocal
+	(ResourceType, UnitCombatType, ObsoleteEra, CostModifier)
+VALUES
+	('RESOURCE_IVORY', 'UNITCOMBAT_SIEGE', 'ERA_INDUSTRIAL', -15);
+
 -- No need for horses anymore after Agribusiness, Landship and Light Tank
 UPDATE Resources
 SET TechObsolete = 'TECH_ROCKETRY'
