@@ -1027,7 +1027,7 @@
 			<Text>Royal Guardhouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_HELP">
-			<Text>10% [ICON_SILVER_FIST] Military Supply from Population in all Cities.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_ARISTOCRACY}[ENDCOLOR] Policy.</Text>
+			<Text>+10% [ICON_SILVER_FIST] Military Supply from Population in all Cities.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_ARISTOCRACY}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_TEXT">
 			<Text>A Royal Guard describes any group of military bodyguards, soldiers or armed retainers responsible for the protection of a royal person, such as Emperor/Empress, King/Queen, or Prince/Princess. They often are an elite unit of the regular armed forces, or are designated as such, and may maintain special rights or privileges.</Text>

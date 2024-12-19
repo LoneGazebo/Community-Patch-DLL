@@ -295,6 +295,8 @@ UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_RELIGION' AND Le
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_BISMARCK'; -- 3, Unit Gifter
 UPDATE Leader_Flavors SET Flavor = 3 WHERE FlavorType = 'FLAVOR_RECON' AND LeaderType = 'LEADER_BISMARCK'; -- 8, Can't gift recon units
 
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_BOUDICCA'; -- 5, UI requires great people
+
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR'; -- 4, UB & UU focus on mobile
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR'; -- 4, UB & UU focus on mobile
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_PRODUCTION' AND LeaderType = 'LEADER_CASIMIR'; -- 6, generalist
@@ -507,6 +509,7 @@ UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_TRADE_DESTINA
 
 UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_THEODORA'; -- 3, generalist
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_THEODORA'; -- 4, UU
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_THEODORA'; -- 5, UU
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RANGED' AND LeaderType = 'LEADER_WASHINGTON'; -- 7, UU
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_WASHINGTON'; -- 6, primary: culture

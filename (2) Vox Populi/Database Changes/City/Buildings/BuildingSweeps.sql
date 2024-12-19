@@ -102,15 +102,22 @@ WHERE BuildingClass IN (
 
 -- Exception for Unique National Wonders
 UPDATE Buildings SET NumCityCostMod = 10
+WHERE BuildingClass IN (
+	SELECT Type FROM BuildingClasses
+	WHERE MaxPlayerInstances = 1
+) AND EXISTS (
+	SELECT 1 FROM Civilization_BuildingClassOverrides
+	WHERE BuildingType = Type AND CivilizationType NOT IN (
+		'CIVILIZATION_BARBARIAN',
+		'CIVILIZATION_MINOR'
+	)
+);
+
+UPDATE Buildings SET NumCityCostMod = 10
 WHERE Type IN (
-	'BUILDING_ROYAL_LIBRARY',
-	'BUILDING_GREAT_COTHON',
-	'BUILDING_PIAZZA_SAN_MARCO',
 	'BUILDING_ARSENALE_DI_VENEZIA',
 	'BUILDING_MURANO_GLASSWORKS',
-	'BUILDING_RIALTO_DISTRICT',
-	'BUILDING_WHITE_TOWER',
-	'BUILDING_INDEPENDENCE_HALL'
+	'BUILDING_RIALTO_DISTRICT'
 );
 
 -- Classical T1
