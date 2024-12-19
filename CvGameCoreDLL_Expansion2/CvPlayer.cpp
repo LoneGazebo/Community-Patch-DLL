@@ -178,8 +178,8 @@ CvPlayer::CvPlayer() :
 	, m_iBarbarianCombatBonus()
 	, m_iAlwaysSeeBarbCampsCount()
 	, m_iHappinessPerCity()
-	, m_iHappinessPerXPolicies()
-	, m_iExtraHappinessPerXPoliciesFromPolicies()
+	, m_fHappinessPolicies()
+	, m_fExtraHappinessPoliciesFromPolicies()
 	, m_iHappinessPerXGreatWorks()
 	, m_iAttackBonusTurns()
 	, m_iCultureBonusTurns()
@@ -1349,8 +1349,8 @@ void CvPlayer::uninit()
 	m_iBarbarianCombatBonus = 0;
 	m_iAlwaysSeeBarbCampsCount = 0;
 	m_iHappinessPerCity = 0;
-	m_iHappinessPerXPolicies = 0;
-	m_iExtraHappinessPerXPoliciesFromPolicies = 0;
+	m_fHappinessPolicies = 0;
+	m_fExtraHappinessPoliciesFromPolicies = 0;
 	m_iHappinessPerXGreatWorks = 0;
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
@@ -15540,7 +15540,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeExtraHappinessPerCity(pBuildingInfo->GetHappinessPerCity() * iChange);
 
 	// Extra Happiness Per Policy
-	ChangeExtraHappinessPerXPolicies(pBuildingInfo->GetHappinessPerXPolicies() * iChange);
+	if (pBuildingInfo->GetHappinessPerXPolicies() > 0)
+	{
+		ChangeExtraHappinessPolicies(fraction(1, pBuildingInfo->GetHappinessPerXPolicies()) * iChange);
+	}
 
 	// City Count Unhappiness Mod
 	ChangeCityCountUnhappinessMod(pBuildingInfo->GetCityCountUnhappinessMod() * iChange);
@@ -20972,32 +20975,30 @@ void CvPlayer::ChangeExtraHappinessPerCity(int iChange)
 		m_iHappinessPerCity += iChange;
 }
 
-/// Returns the amount of extra Happiness per City
-int CvPlayer::GetExtraHappinessPerXPolicies() const
+/// Returns the amount of extra Happiness per Policy
+fraction CvPlayer::GetExtraHappinessPolicies() const
 {
-	return m_iHappinessPerXPolicies;
+	return m_fHappinessPolicies;
 }
 
-/// Changes amount of extra Happiness per City
-void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
+/// Changes amount of extra Happiness per Policy
+void CvPlayer::ChangeExtraHappinessPolicies(fraction iChange)
 {
-	ASSERT(m_iHappinessPerXPolicies >= 0, "Count of extra happiness per buildings is corrupted");
-
-	if(iChange != 0)
-		m_iHappinessPerXPolicies += iChange;
+	m_fHappinessPolicies += iChange;
+	ASSERT(m_fHappinessPolicies >= 0, "Count of extra happiness per buildings is corrupted");
 }
 
 /// Returns the amount of extra Happiness per City
-int CvPlayer::GetExtraHappinessPerXPoliciesFromPolicies() const
+fraction CvPlayer::GetExtraHappinessPoliciesFromPolicies() const
 {
-	return m_iExtraHappinessPerXPoliciesFromPolicies;
+	return m_fExtraHappinessPoliciesFromPolicies;
 }
 
 /// Changes amount of extra Happiness per City
-void CvPlayer::ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange)
+void CvPlayer::ChangeExtraHappinessPoliciesFromPolicies(fraction iChange)
 {
-	m_iExtraHappinessPerXPoliciesFromPolicies += iChange;
-	ASSERT(m_iExtraHappinessPerXPoliciesFromPolicies >= 0, "Count of extra happiness per buildings is corrupted");
+	m_fExtraHappinessPoliciesFromPolicies += iChange;
+	ASSERT(m_fExtraHappinessPoliciesFromPolicies >= 0, "Count of extra happiness per policies is corrupted");
 }
 
 /// Returns the amount of extra Happiness per City
@@ -41348,7 +41349,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeMonopolyModPercent(pkPolicyInfo->GetMonopolyModPercent() * iChange);
 	ChangeTRVisionBoost(pkPolicyInfo->GetTRVisionBoost() * iChange);
 	ChangeTRSpeedBoost(pkPolicyInfo->GetTRSpeedBoost() * iChange);
-	ChangeExtraHappinessPerXPoliciesFromPolicies(pkPolicyInfo->GetHappinessPerXPolicies() * iChange);
+	if (pkPolicyInfo->GetHappinessPerXPolicies() > 0)
+	{
+		ChangeExtraHappinessPoliciesFromPolicies(fraction(1, pkPolicyInfo->GetHappinessPerXPolicies()) * iChange);
+	}
 	ChangeHappinessPerXGreatWorks(pkPolicyInfo->GetHappinessPerXGreatWorks() * iChange);
 	ChangeMissionaryExtraStrength(pkPolicyInfo->GetExtraMissionaryStrength() * iChange);
 	ChangeNumMissionarySpreads(pkPolicyInfo->GetExtraMissionarySpreads() * iChange);
@@ -42580,8 +42584,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iBarbarianCombatBonus);
 	visitor(player.m_iAlwaysSeeBarbCampsCount);
 	visitor(player.m_iHappinessPerCity);
-	visitor(player.m_iHappinessPerXPolicies);
-	visitor(player.m_iExtraHappinessPerXPoliciesFromPolicies);
+	visitor(player.m_fHappinessPolicies);
+	visitor(player.m_fExtraHappinessPoliciesFromPolicies);
 	visitor(player.m_iHappinessPerXGreatWorks);
 	visitor(player.m_iEspionageModifier);
 	visitor(player.m_iSpySecurityModifier);
