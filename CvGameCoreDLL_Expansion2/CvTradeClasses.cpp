@@ -6138,7 +6138,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			{
 				iGoldAmount += pFromCity->GetLandTourismBonus();
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
-				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
+				if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
 					if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetCivLowestInfluence(false) == kTradeConnection.m_eDestOwner)
 					{
@@ -6162,7 +6162,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			{
 				iGoldAmount += pFromCity->GetSeaTourismBonus();
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
-				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
+				if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
 					if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetCivLowestInfluence(false) == kTradeConnection.m_eDestOwner)
 					{

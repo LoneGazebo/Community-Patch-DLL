@@ -391,16 +391,16 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvGoodyHuts::Reset();
 
 	doUpdateCacheOnTurn();
-
-	updateGlobalMedians();
-
-	DoBarbCountdown();
 }
 
 //	--------------------------------------------------------------------------------
 bool CvGame::init2()
 {
 	InitPlayers();
+
+	updateGlobalMedians();
+
+	DoBarbCountdown();
 
 	CvGameInitialItemsOverrides kItemOverrides;
 	if(!InitMap(kItemOverrides))
@@ -3826,6 +3826,7 @@ void CvGame::doControl(ControlTypes eControl)
 					CvPreGame::VerifyHandicap(ePreviousPlayer);
 					CvPreGame::setSlotStatus(eNextPlayer, SS_TAKEN);
 					GC.getGame().setActivePlayer(eNextPlayer, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					GET_PLAYER(ePreviousPlayer).SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);
 					GET_PLAYER(ePreviousPlayer).GetDiplomacyAI()->SlotStateChange();
 					GET_PLAYER(eNextPlayer).GetDiplomacyAI()->SlotStateChange();
 				}
