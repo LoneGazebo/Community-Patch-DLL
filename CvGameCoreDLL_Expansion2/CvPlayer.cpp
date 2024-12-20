@@ -26335,6 +26335,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = pLoopCity->GetYieldFromUnitGiftGlobal(eYield);
 					break;
 				}
+				case INSTANT_YIELD_TYPE_BAKTUN_END:
+				{
+					iValue = pLoopCity->GetYieldFromLongCount(eYield);
+					break;
+				}
 			}
 
 			//Now, let's apply these yields here as total yields.
@@ -27319,11 +27324,39 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_UNIT_GIFT:
 			{
-				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT");
-				localizedText << totalyieldString;
-				//We do this at the player level once per turn.
-				addInstantYieldText(iType, localizedText.toUTF8());
-				break;
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			case INSTANT_YIELD_TYPE_BAKTUN_END:
+			{
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
 			}
 			// These yields intentionally have no notification.
 			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
@@ -41160,6 +41193,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_UNIT_GIFT:
 			{
 				instantYieldName = "Unit Gift";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_BAKTUN_END:
+			{
+				instantYieldName = "Maya Baktun End";
 				break;
 			}
 	}
