@@ -543,6 +543,8 @@ public:
 	int GetYieldFromSpyDefenseOrID(int i) const;
 	int* GetYieldFromSpyDefenseOrIDArray() const;
 
+	int GetYieldChangesPerCityStrengthTimes100(int i) const;
+
 	int GetYieldFromSpyRigElection(int i) const;
 	int* GetYieldFromSpyRigElectionArray() const;
 
@@ -1043,6 +1045,7 @@ private:
 	int* m_piYieldFromSpyIdentify;
 	int* m_piYieldFromSpyDefenseOrID;
 	int* m_piYieldFromSpyRigElection;
+	int* m_piYieldChangesPerCityStrengthTimes100;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;

@@ -3487,6 +3487,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
 	}
+	if (pkBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) * pCity->getStrengthValue() / 10000;
+	}
+	// take into account if this is a defense building and we're getting yields per city strength
+	if (pkBuildingInfo->GetDefenseModifier() && pCity->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
+	{
+		iFlatYield += pCity->GetYieldChangesPerCityStrengthTimes100(eYield) * pkBuildingInfo->GetDefenseModifier() / 10000;
+	}
 	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
 	{
 		map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
