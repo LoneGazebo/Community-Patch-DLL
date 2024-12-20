@@ -525,6 +525,8 @@ public:
 	int GetYieldFromInternal(int i) const;
 	int* GetYieldFromInternalArray() const;
 
+	int GetYieldFromLongCount(int i) const;
+
 	int GetYieldFromProcessModifier(int i) const;
 	int* GetYieldFromProcessModifierArray() const;
 
@@ -1062,6 +1064,7 @@ private:
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternal;
 	int* m_piYieldFromProcessModifier;
+	int* m_piYieldFromLongCount;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

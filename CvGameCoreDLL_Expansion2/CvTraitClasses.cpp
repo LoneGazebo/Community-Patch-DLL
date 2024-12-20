@@ -6925,6 +6925,7 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 	if(m_iBaktunPreviousTurn + 1 == m_iBaktun)
 	{
 		bRtnValue = true;
+		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_BAKTUN_END);
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
 		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)

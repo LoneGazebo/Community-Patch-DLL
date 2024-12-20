@@ -1222,11 +1222,14 @@ public:
 	int GetYieldFromProcessModifier(YieldTypes eIndex1) const;
 	void ChangeYieldFromProcessModifier(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromLongCount(YieldTypes eIndex1) const;
+	void ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange);
+
 	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
 
-	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
 	int GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const;
+	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -2023,6 +2026,7 @@ protected:
 	std::vector<int> m_aiYieldFromInternalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
 	std::vector<int> m_aiYieldFromProcessModifier;
+	std::vector<int> m_aiYieldFromLongCount;
 	std::vector<int> m_aiSpecialistRateModifierFromBuildings;
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
@@ -2431,6 +2435,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromLongCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifierFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)

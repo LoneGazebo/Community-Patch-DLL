@@ -437,6 +437,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromInternalTREnd()
 	, m_aiYieldFromInternalTR()
 	, m_aiYieldFromProcessModifier()
+	, m_aiYieldFromLongCount()
 	, m_aiSpecialistRateModifierFromBuildings()
 	, m_aiNumTimesOwned()
 	, m_aiStaticCityYield()
@@ -1387,6 +1388,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromProcessModifier.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromLongCount.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1491,6 +1493,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromInternalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
 		m_aiYieldFromProcessModifier[iI] = 0;
+		m_aiYieldFromLongCount[iI] = 0;
 		m_aiThemingYieldBonus[iI] = 0;
 		m_aiYieldFromSpyAttack[iI] = 0;
 		m_aiYieldFromSpyDefense[iI] = 0;
@@ -14870,6 +14873,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromProcessModifier(eYield, (pBuildingInfo->GetYieldFromProcessModifier(eYield) * iChange));
 			}
 
+			if ((pBuildingInfo->GetYieldFromLongCount(eYield) > 0))
+			{
+				ChangeYieldFromLongCount(eYield, (pBuildingInfo->GetYieldFromLongCount(eYield) * iChange));
+			}
 
 			if ((pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
@@ -24908,6 +24915,31 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Extra yield when a b'ak'tun ends
+int CvCity::GetYieldFromLongCount(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromLongCount[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a b'ak'tun ends
+void CvCity::ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromLongCount[eIndex1] = m_aiYieldFromLongCount[eIndex1] + iChange;
+		CvAssert(GetYieldFromLongCount(eIndex1) >= 0);
+	}
+}
+
 /// Extra yield from building
 int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const
 {
@@ -25102,7 +25134,7 @@ void CvCity::ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iC
 	if (iChange != 0)
 	{
 		m_aiYieldChangesPerCityStrengthTimes100[eIndex] = m_aiYieldChangesPerCityStrengthTimes100[eIndex] + iChange;
-		CvAssert(GetYieldFromSpyRigElection(eIndex) >= 0);
+		CvAssert(GetYieldChangesPerCityStrengthTimes100(eIndex) >= 0);
 	}
 }
 #endif
@@ -31885,6 +31917,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromInternalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
 	visitor(city.m_aiYieldFromProcessModifier);
+	visitor(city.m_aiYieldFromLongCount);
 	visitor(city.m_aiSpecialistRateModifierFromBuildings);
 	visitor(city.m_aiThemingYieldBonus);
 	visitor(city.m_aiYieldFromSpyAttack);
