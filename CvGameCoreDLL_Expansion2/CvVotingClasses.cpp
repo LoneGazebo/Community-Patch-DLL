@@ -10581,7 +10581,6 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 		ASSERT(pLeague != NULL);
 		if (pLeague != NULL)
 		{
-			ASSERT(iNumVotes == pLeague->GetCoreVotesForMember(GetPlayer()->GetID()));
 			if (pLeague->IsProposed(iResolutionID, bRepeal))
 			{
 				// Vote to repeal

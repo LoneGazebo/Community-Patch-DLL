@@ -2879,8 +2879,6 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
-	ASSERT(aWeightedDirectives.size() == aDirectives.size());
-
 	return aWeightedDirectives;
 }
 

@@ -3088,7 +3088,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 						break;
 					}
 					PlayerTypes eAlly = GetMinorCivAI()->GetAlly();
-					if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
+					if (eOwner != NO_PLAYER && eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
 					{
 						iStealScore = 0;
 						break;

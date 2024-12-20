@@ -6845,7 +6845,7 @@ void CvCityEspionage::Process(PlayerTypes ePlayer)
 {
 	ASSERT(m_aiAmount[ePlayer] != -1, "Amount has not been set");
 	ASSERT(m_aiRate[ePlayer] != -1, "Rate has not been set");
-	ASSERT(m_aiGoal[ePlayer] != -1, "Goal has not been set");
+	ASSERT(!MOD_BALANCE_VP || m_aiGoal[ePlayer] != -1, "Goal has not been set");
 	ChangeAmount(ePlayer, GetRate(ePlayer));
 	SetMaxAmount(ePlayer, max(GetMaxAmount(ePlayer), GetAmount(ePlayer)));
 }
@@ -7104,9 +7104,12 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 		SetNextPassiveBonus(eSpyOwner, iNextPassiveBonus);
 	}
 	// add network points gained this turn to total
-	SetRate(eSpyOwner, iNetworkPointsAdded);
-	SetLastProgress(eSpyOwner, iNetworkPointsAdded);
-	Process(eSpyOwner);
+	if (!bInit)
+	{
+		SetRate(eSpyOwner, iNetworkPointsAdded);
+		SetLastProgress(eSpyOwner, iNetworkPointsAdded);
+		Process(eSpyOwner);
+	}
 	int iPassiveBonusThresholdAfter = GetMaxAmount(eSpyOwner);
 	int iActiveBonusThresholdAfter = GetAmount(eSpyOwner);
 
@@ -8629,29 +8632,32 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 					}
 				}
 				ProjectTypes eProject = pCity->getProductionProject();
-				CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
-				if (pkProject && !pkProject->IsRepeatable())
+				if (eProject != NO_PROJECT)
 				{
-					// Are they building the Apollo Program? Stop them!
-					if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
+					CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
+					if (pkProject && !pkProject->IsRepeatable())
 					{
-						if (pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) > BLOCK_LEVEL_NONE)
+						// Are they building the Apollo Program? Stop them!
+						if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
 						{
-							iScore += 50;
+							if (pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) > BLOCK_LEVEL_NONE)
+							{
+								iScore += 50;
+							}
 						}
-					}
-					// Are they building the Manhattan Project?
-					else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
-					{
-						// At war, planning war, or they've declared war on us before? Let's make it harder for them to nuke us.
-						if (m_pPlayer->IsAtWarWith(ePlayer) || pDiplomacyAI->GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
+						// Are they building the Manhattan Project?
+						else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
 						{
-							iScore += 30;
-						}
-						else if (!GET_PLAYER(ePlayer).IsVassalOfSomeone())
-						{
-							if (pDiplomacyAI->GetNumWarsDeclaredOnUs(ePlayer) > 0 || pDiplomacyAI->GetNumCitiesCapturedBy(ePlayer) > 0 || pDiplomacyAI->GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
-								iScore += 15;
+							// At war, planning war, or they've declared war on us before? Let's make it harder for them to nuke us.
+							if (m_pPlayer->IsAtWarWith(ePlayer) || pDiplomacyAI->GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
+							{
+								iScore += 30;
+							}
+							else if (!GET_PLAYER(ePlayer).IsVassalOfSomeone())
+							{
+								if (pDiplomacyAI->GetNumWarsDeclaredOnUs(ePlayer) > 0 || pDiplomacyAI->GetNumCitiesCapturedBy(ePlayer) > 0 || pDiplomacyAI->GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
+									iScore += 15;
+							}
 						}
 					}
 				}

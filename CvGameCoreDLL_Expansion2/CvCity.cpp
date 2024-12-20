@@ -4623,7 +4623,7 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (eSpyOwner == NO_PLAYER)
 		return false;
 
-	CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(uiSpyIndex);
+	CvEspionageSpy* pSpy = uiSpyIndex >= 0 ? GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(uiSpyIndex) : NULL;
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
 	if (pkEventInfo == NULL)
