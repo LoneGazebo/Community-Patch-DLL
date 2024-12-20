@@ -6072,16 +6072,16 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
 		return ret;
 
-	// if this was recently plundered, 0 the score
-	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-		return ret;
-
-	// don't send trade routes if we're about to declare war?
+	// don't send trade routes if we're about to declare war!
 	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
 		return ret;
 
 	if (m_pPlayer->GetDiplomacyAI()->AvoidExchangesWithPlayer(kTradeConnection.m_eDestOwner, true))
 		return ret;
+
+	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
+	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -6089,7 +6089,26 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	if (!pToCity || !pFromCity)
 		return ret;
 
-	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
+	// War near our origin city?
+	if (pFromCity->isUnderSiege())
+	{
+		if (!bInvulnerability)
+			return ret;
+
+		// Don't send a trade route from a city about to fall - even if our routes are invulnerable, our cities are not
+		if (pFromCity->isInDangerOfFalling())
+			return ret;
+
+		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pFromCity->plot()))
+			return ret;
+	}
+
+	// Don't send a trade route to a besieged city - chances are the city's not doing well, and we may not like the new owner if it falls
+	if (pToCity->isUnderSiege())
+		return ret;
+
+	// if this was recently plundered, 0 the score
+	if (!bInvulnerability && m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 		return ret;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
@@ -6200,18 +6219,18 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 
 	//If we are friends with the player, let's not care about how much gold they make.
-	if (m_pPlayer->GetDiplomacyAI()->GetCivApproach(kTradeConnection.m_eDestOwner) >= CIV_APPROACH_AFRAID)
-	{
-		iOtherGoldAmount /= 10;
-	}
-	else if (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(kTradeConnection.m_eDestOwner) >= CIV_OPINION_NEUTRAL)
+	bool bFriendOrAlly = GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->IsFriendOrAlly(kTradeConnection.m_eDestOwner) : false;
+	bool bStrategicTradePartner = GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->IsStrategicTradePartner(kTradeConnection.m_eDestOwner) : false;
+	CivApproachTypes eApproach = m_pPlayer->GetDiplomacyAI()->GetCivApproach(kTradeConnection.m_eDestOwner);
+	CivOpinionTypes eOpinion = m_pPlayer->GetDiplomacyAI()->GetCivOpinion(kTradeConnection.m_eDestOwner);
+	if (bFriendOrAlly || bStrategicTradePartner || eApproach == CIV_APPROACH_FRIENDLY || eOpinion >= CIV_OPINION_NEUTRAL)
 	{
 		iOtherGoldAmount /= 10;
 	}
 
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
-	// getting out of a logjam at the beginning of the game on an archepeligo map
+	// getting out of a logjam at the beginning of the game on an archipelago map
 	// if the player has made a trade unit but all the trade routes yields will be negative to the player
 	// still try to trade with some of the minor civs
 	if (iGoldDelta <= 0 && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
@@ -6293,11 +6312,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 
 	//If we are friends with the player, let's not care about how much science they make.
-	if(m_pPlayer->GetDiplomacyAI()->GetCivApproach(kTradeConnection.m_eDestOwner) >= CIV_APPROACH_NEUTRAL)
-	{
-		iAdjustedTechDifferenceP2fromP1 /= 3;
-	}
-	else if(m_pPlayer->GetDiplomacyAI()->GetCivOpinion(kTradeConnection.m_eDestOwner) >= CIV_OPINION_NEUTRAL)
+	if (bFriendOrAlly || bStrategicTradePartner || eApproach == CIV_APPROACH_FRIENDLY || eOpinion >= CIV_OPINION_FRIEND)
 	{
 		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
@@ -6376,12 +6391,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iAdjustedCultureDifferenceP2fromP1 += iPolicyBump;
 	}
 
-	//If we are friends with the player, let's not care about how much science they make.
-	if (m_pPlayer->GetDiplomacyAI()->GetCivApproach(kTradeConnection.m_eDestOwner) >= CIV_APPROACH_NEUTRAL)
-	{
-		iAdjustedCultureDifferenceP2fromP1 /= 3;
-	}
-	else if (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(kTradeConnection.m_eDestOwner) >= CIV_OPINION_NEUTRAL)
+	//If we are friends with the player, let's not care about how much culture they make.
+	if (bFriendOrAlly || bStrategicTradePartner || eApproach == CIV_APPROACH_FRIENDLY || eOpinion >= CIV_OPINION_FRIEND)
 	{
 		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
@@ -6496,32 +6507,35 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iScore += pToCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
 	}
 
-	int iDangerSum = 1; // can't be zero because we divide by it!
-	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
+	// Account for danger along the path
+	int iDangerSum = 0;
+	if (!bInvulnerability)
 	{
-		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-		ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-		if (pPlot == NULL)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			break;
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
+			{
+				break;
+			}
+
+			//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
+			if (!pPlot->isVisible(m_pPlayer->getTeam()))
+				iDangerSum += 1;
+
+			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
+				iDangerSum += 100;
+			else if (pPlot->getTeam() != m_pPlayer->getTeam())
+				iDangerSum += 10;
+
+			if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
+				iDangerSum += 100;
 		}
-
-		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
-		if (!pPlot->isVisible(m_pPlayer->getTeam()))
-			iDangerSum += 1;
-
-		if (pPlot->getTeam() && m_pPlayer->getTeam())
-			iDangerSum += 10;
-
-		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
-			iDangerSum += 100;
-
-		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
-			iDangerSum += 100;
 	}
 
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
-	iScore = (iScore * iEra) / iDangerSum;
+	iScore = (iScore * iEra) / max(iDangerSum, 1);
 
 	//Let's encourage TRs to feitorias.
 	if (MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
@@ -6529,16 +6543,20 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iScore *= 10;
 	}
 
-	// if we have any tourism and the destination owner is not a minor civ
-	if (bHaveTourism && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv())
 	{
-		// if we're not connected to a player, double the value to that player
-		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+		// if we have any tourism and we're not connected to a player, multiply by 5 if going for Culture Victory
+		if (bHaveTourism && !GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 		{
-			if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
+			if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
 				iScore *= 5;
 			}
+		}
+		// if Diplo AI has identified a major as a strategic trade partner, double the value of this route
+		if (bStrategicTradePartner)
+		{
+			iScore *= 2;
 		}
 	}
 
@@ -6598,9 +6616,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 	if (m_pPlayer->GetCorporations()->CanCreateFranchiseInCity(pFromCity, pToCity))
 	{
-		CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
-
-		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 		if (pkCorporationInfo != NULL)
 		{
 			int iGPYieldFromCorp = pFromCity->GetGPRateModifierPerXFranchises();
@@ -6702,31 +6717,49 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	}
 
 	if (!bValidTarget)
-	{
 		return 0;
-	}
-
-	// if this was recently plundered, zero the score, don't try again 
-	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-	{
-		return 0;
-	}
 
 	CvCity* pOriginCity = GET_PLAYER(kTradeConnection.m_eOriginOwner).getCity(kTradeConnection.m_iOriginID);
 	CvCity* pDestCity = GET_PLAYER(kTradeConnection.m_eDestOwner).getCity(kTradeConnection.m_iDestID);
-	if(pDestCity == NULL || pOriginCity == NULL)
-	{
+	if (pDestCity == NULL || pOriginCity == NULL)
 		return 0;
+
+	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
+	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
+
+	// War near our origin city? Might still consider it if our trade routes are invulnerable.
+	if (pOriginCity->isUnderSiege())
+	{
+		if (!bInvulnerability)
+			return 0;
+
+		// Don't send a trade route from a city about to fall - even if our routes are invulnerable, our cities are not
+		if (pOriginCity->isInDangerOfFalling())
+			return 0;
+
+		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pOriginCity->plot()))
+			return 0;
 	}
 
-	if (pDestCity->isUnderSiege() || pOriginCity->isUnderSiege())
+	// War near our destination city? The same rules apply.
+	if (pDestCity->isUnderSiege())
+	{
+		if (!bInvulnerability)
+			return 0;
+
+		if (pDestCity->isInDangerOfFalling())
+			return 0;
+
+		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pDestCity->plot()))
+			return 0;
+	}
+
+	// if this was recently plundered, zero the score, don't try again 
+	if (!bInvulnerability && m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 		return 0;
 
-#if defined(MOD_BALANCE_CORE)
 	int iDistance = (kTradeConnection.m_aPlotList.size() / 5);
-#else
-	int iDistance = kTradeConnection.m_aPlotList.size();
-#endif
 
 	int iScore = 0;
 	switch (kTradeConnection.m_eConnectionType)
@@ -6803,19 +6836,22 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		}
 	}
 
-	int iDangerSum = 1; // can't be zero because we divide by it!
-	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
+	int iDangerSum = 0;
+	if (!bInvulnerability)
 	{
-		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-		ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-		if (pPlot == NULL)
+		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
-			break;
-		}
+			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
+			if (pPlot == NULL)
+			{
+				break;
+			}
 
-		//avoid fallout etc
-		if (m_pPlayer->GetPlotDanger(*pPlot,true)>0)
-			iDangerSum++;
+			//avoid fallout etc
+			if (m_pPlayer->GetPlotDanger(*pPlot,true)>0)
+				iDangerSum++;
+		}
 	}
 
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -6853,7 +6889,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	}
 #endif
 
-	return iScore / (iDistance + iDangerSum);
+	return iScore / (iDistance + max(iDangerSum, 1));
 }
 
 int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList)

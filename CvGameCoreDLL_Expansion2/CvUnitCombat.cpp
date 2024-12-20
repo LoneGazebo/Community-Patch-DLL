@@ -3079,8 +3079,26 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 					{
 						if(pLoopUnit != pkAttacker)
 						{
-							bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what
-							if(!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+							bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what, unless invulnerable
+							if (bTradeUnit)
+							{
+								CorporationTypes eCorporation = GET_PLAYER(pLoopUnit->getOwner()).GetCorporations()->GetFoundedCorporation();
+								CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+								if (pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable())
+								{
+									// If the nuclear strike destroyed the corporate HQ by destroying the city it's in, the trade unit should also die.
+									// Outside of this rare circumstance, the trade unit is invulnerable.
+									CvCity* pHQ = GET_PLAYER(pLoopUnit->getOwner()).GetCorporations()->GetHeadquarters();
+									if (!pHQ->IsOriginalCapital() && plotDistance(*pHQ->plot(), *pkTargetPlot) <= iBlastRadius)
+									{
+										if (iDamageLevel < 2 || (iDamageLevel == 2 && pHQ->getPopulation() >= /*5*/ GD_INT_GET(NUKE_LEVEL2_ELIM_POPULATION_THRESHOLD)))
+											continue;
+									}
+									else
+										continue;
+								}
+							}
+							if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
 							{
 								int iNukeDamage = 0;
 								// How much destruction is unleashed on nearby Units?
