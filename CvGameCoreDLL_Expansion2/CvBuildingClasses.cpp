@@ -341,6 +341,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromSpyIdentify(NULL),
 	m_piYieldFromSpyDefenseOrID(NULL),
 	m_piYieldFromSpyRigElection(NULL),
+	m_piYieldChangesPerCityStrengthTimes100(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromInternalTREnd(NULL),
@@ -488,6 +489,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyIdentify);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyDefenseOrID);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyRigElection);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerCityStrengthTimes100);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChangeLocal);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
@@ -998,6 +1000,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromSpyIdentify, "Building_YieldFromSpyIdentify", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyDefenseOrID, "Building_YieldFromSpyDefenseOrID", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyRigElection, "Building_YieldFromSpyRigElection", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangesPerCityStrengthTimes100, "Building_YieldChangesPerCityStrengthTimes100", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChangeLocal, "Building_GreatWorkYieldChangesLocal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
@@ -3764,6 +3767,13 @@ int* CvBuildingEntry::GetYieldFromSpyDefenseOrIDArray() const
 	return m_piYieldFromSpyDefenseOrID;
 }
 
+int CvBuildingEntry::GetYieldChangesPerCityStrengthTimes100(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangesPerCityStrengthTimes100 ? m_piYieldChangesPerCityStrengthTimes100[i] : -1;
+}
+
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyRigElection(int i) const
 {
@@ -3771,6 +3781,7 @@ int CvBuildingEntry::GetYieldFromSpyRigElection(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyRigElection ? m_piYieldFromSpyRigElection[i] : -1;
 }
+
 /// Array of yield changes
 int* CvBuildingEntry::GetYieldFromSpyRigElectionArray() const
 {

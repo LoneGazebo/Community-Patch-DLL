@@ -1170,6 +1170,9 @@ public:
 	int GetYieldFromSpyRigElection(YieldTypes eIndex) const;
 	void ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange);
 
+	int GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const;
+	void ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
@@ -2027,6 +2030,7 @@ protected:
 	std::vector<int> m_aiYieldFromSpyIdentify;
 	std::vector<int> m_aiYieldFromSpyDefenseOrID;
 	std::vector<int> m_aiYieldFromSpyRigElection;
+	std::vector<int> m_aiYieldChangesPerCityStrengthTimes100;
 	std::vector<int> m_aiNumTimesOwned;
 	std::vector<int> m_aiStaticCityYield;
 	int m_iTradePriorityLand;
@@ -2434,6 +2438,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefense)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyIdentify)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefenseOrID)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyRigElection)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangesPerCityStrengthTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesOwned)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticCityYield)
 SYNC_ARCHIVE_VAR(int, m_iTradePriorityLand)
