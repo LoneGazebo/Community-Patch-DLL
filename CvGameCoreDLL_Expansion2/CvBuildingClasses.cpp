@@ -347,7 +347,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromInternalTREnd(NULL),
 	m_piYieldFromInternal(NULL),
 	m_piYieldFromProcessModifier(NULL),
-
+	m_piYieldFromLongCount(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthEraScaling(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
@@ -497,6 +497,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
 	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
+	SAFE_DELETE_ARRAY(m_piYieldFromLongCount);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
@@ -1008,6 +1009,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromLongCount, "Building_YieldFromLongCount", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
 	kUtility.SetYields(m_piYieldFromBirthEraScaling, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Building_YieldFromBirthRetroactive", "BuildingType", szBuildingType);
@@ -3688,6 +3690,14 @@ int* CvBuildingEntry::GetYieldFromInternalArray() const
 	return m_piYieldFromInternal;
 }
 
+
+/// Does this Policy grant yields when a b'ak'tun ends?
+int CvBuildingEntry::GetYieldFromLongCount(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromLongCount[i];
+}
 
 /// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromProcessModifier(int i) const
