@@ -8081,8 +8081,8 @@ void CvUnit::DoAttrition()
 
 	int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
 
-	// No damage for cargo or naval units
-	if (!isCargo() && getDomainType() != DOMAIN_SEA)
+	// No damage for cargo, trade, or naval units
+	if (!isTrade() && !isCargo() && getDomainType() != DOMAIN_SEA)
 	{
 		if (iDamage != 0)
 		{
