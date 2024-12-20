@@ -122,8 +122,6 @@ public:
 	int GetFreeStartEra() const;
 	int GetMaxStartEra() const;
 	int GetObsoleteTech() const;
-	int GetEnhancedYieldTech() const;
-	int GetTechEnhancedTourism() const;
 	int GetGoldMaintenance() const;
 	int GetMutuallyExclusiveGroup() const;
 	int GetReplacementBuildingClass() const;
@@ -469,6 +467,10 @@ public:
 	int GetYieldChangePerGoldenAgeCap(int i) const;
 	int* GetYieldChangePerGoldenAgeCapArray() const;
 
+	int GetYieldChangesPerLocalTheme(int i) const;
+
+	int GetYieldFromUnitGiftGlobal(int i) const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -523,6 +525,8 @@ public:
 	int GetYieldFromInternal(int i) const;
 	int* GetYieldFromInternalArray() const;
 
+	int GetYieldFromLongCount(int i) const;
+
 	int GetYieldFromProcessModifier(int i) const;
 	int* GetYieldFromProcessModifierArray() const;
 
@@ -540,6 +544,8 @@ public:
 
 	int GetYieldFromSpyDefenseOrID(int i) const;
 	int* GetYieldFromSpyDefenseOrIDArray() const;
+
+	int GetYieldChangesPerCityStrengthTimes100(int i) const;
 
 	int GetYieldFromSpyRigElection(int i) const;
 	int* GetYieldFromSpyRigElectionArray() const;
@@ -562,8 +568,6 @@ public:
 	int* GetAreaYieldModifierArray() const;
 	int GetGlobalYieldModifier(int i) const;
 	int* GetGlobalYieldModifierArray() const;
-	int GetTechEnhancedYieldChange(int i) const;
-	int* GetTechEnhancedYieldChangeArray() const;
 	int GetSeaPlotYieldChange(int i) const;
 	int* GetSeaPlotYieldChangeArray() const;
 	int GetRiverPlotYieldChange(int i) const;
@@ -645,6 +649,8 @@ public:
 	int* GetFeatureYieldChangeArray(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
+	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstruction() const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -700,8 +706,6 @@ private:
 	int m_iFreeStartEra;
 	int m_iMaxStartEra;
 	int m_iObsoleteTech;
-	int m_iEnhancedYieldTech;
-	int m_iTechEnhancedTourism;
 	int m_iGoldMaintenance;
 	int m_iMutuallyExclusiveGroup;
 	int m_iReplacementBuildingClass;
@@ -1033,6 +1037,8 @@ private:
 	int* m_piYieldChangePerGoldenAge;
 	int* m_piYieldChangePerGoldenAgeCap;
 	int* m_piGoldenAgeYieldMod;
+	int* m_piYieldChangesPerLocalTheme;
+	int* m_piYieldFromUnitGiftGlobal;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
@@ -1041,6 +1047,7 @@ private:
 	int* m_piYieldFromSpyIdentify;
 	int* m_piYieldFromSpyDefenseOrID;
 	int* m_piYieldFromSpyRigElection;
+	int* m_piYieldChangesPerCityStrengthTimes100;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;
@@ -1057,6 +1064,7 @@ private:
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternal;
 	int* m_piYieldFromProcessModifier;
+	int* m_piYieldFromLongCount;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
@@ -1069,7 +1077,6 @@ private:
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
 	int* m_piGlobalYieldModifier;
-	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
 	int* m_piUnitCombatProductionModifiersGlobal;
@@ -1114,6 +1121,8 @@ private:
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
+	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;

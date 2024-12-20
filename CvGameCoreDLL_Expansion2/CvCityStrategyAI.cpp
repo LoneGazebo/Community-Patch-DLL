@@ -3508,6 +3508,35 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
+	if (pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
+	if (pkBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) * pCity->getStrengthValue() / 10000;
+	}
+	// take into account if this is a defense building and we're getting yields per city strength
+	if (pkBuildingInfo->GetDefenseModifier() && pCity->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
+	{
+		iFlatYield += pCity->GetYieldChangesPerCityStrengthTimes100(eYield) * pkBuildingInfo->GetDefenseModifier() / 10000;
+	}
+	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
+	{
+		map<int, std::map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
+		map<int, std::map<int, int>>::iterator it;
+		for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
+		{
+			if (GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
+			{
+				std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+				if (it2 != (it->second).end())
+				{
+					iFlatYield += it2->second;
+				}
+			}
+		}
+	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -4729,10 +4758,6 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iTourismValue += (pkBuildingInfo->GetSeaTourismEnd() * 10);
 	}
-	if (pkBuildingInfo->GetTechEnhancedTourism() > 0)
-	{
-		iTourismValue += (pkBuildingInfo->GetTechEnhancedTourism() * 10);
-	}
 	if (pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0)
 	{
 		iTourismValue += pkBuildingInfo->GetLandmarksTourismPercentGlobal() * kPlayer.getNumCities();
@@ -4827,22 +4852,6 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	if(pkBuildingInfo->GetWorkerSpeedModifier() > 0)
 	{
 		iValue += kPlayer.getWorkerSpeedModifier() + pkBuildingInfo->GetWorkerSpeedModifier();
-	}
-
-	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-	{
-		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
-		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if(pkSpecialistInfo)
-		{
-			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
-			if (iNumWorkers <= 0)
-				continue;
-
-			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
-
-			iValue += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 5;
-		}
 	}
 
 	if(pkBuildingInfo->GetBorderGrowthRateIncrease() > 0)
@@ -5166,6 +5175,35 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
 
+	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+	{
+		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+		if (pkSpecialistInfo)
+		{
+			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
+			if (iNumWorkers <= 0)
+				continue;
+
+			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
+
+			iValue += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 5;
+		}
+	}
+
+	if (!pkBuildingInfo->GetGreatPersonPointFromConstruction().empty())
+	{
+		std::map<pair<GreatPersonTypes, EraTypes>, int> mGreatPersonPointFromConstruction = pkBuildingInfo->GetGreatPersonPointFromConstruction();
+		std::map<pair<GreatPersonTypes, EraTypes>, int>::iterator it;
+		for (it = mGreatPersonPointFromConstruction.begin(); it != mGreatPersonPointFromConstruction.end(); it++)
+		{
+			EraTypes eGPConstructionEra = (it->first).second;
+			if (kPlayer.GetCurrentEra() >= eGPConstructionEra)
+			{
+				iValue += (it->second) * (GC.getNumEraInfos() - eGPConstructionEra);
+			}
+		}
+	}
 	if (pkBuildingInfo->GetPopulationChange() > 0)
 	{
 		iValue += (pkBuildingInfo->GetPopulationChange() + pCity->getPopulation()) * 10;
