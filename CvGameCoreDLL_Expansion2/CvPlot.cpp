@@ -11465,36 +11465,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			}
 		}
 
-		// If there are any Units here, meet their owners
-		for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
-		{
-			// If the AI spots a human Unit, don't meet - wait for the human to find the AI
-			CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
-			if (!loopUnit)
-				continue;
-
-			// If it is an enemy unit, update the danger plots! 
-			if (GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()))
-			{
-				const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
-				for (size_t iI = 0; iI < aePlayers.size(); iI++)
-				{
-					PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
-					if (ePlayer != NO_PLAYER)
-					{
-						if (GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit) && pUnit)
-							pUnit->SetSpottedEnemy(true);
-					}
-				}
-			}
-
-			//why shouldn't an AI meet a human?
-			if (!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
-				continue;
-
-			GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
-		}
-
 		// If there's a City here, meet its owner
 		if (isCity())
 		{
@@ -11512,11 +11482,44 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		{
 			updateCenterUnit();
 		}
-
 	}
+
+	// Check units. Does not matter if we could see the plot before, invisible units might have turned visible!
+	if (iChange > 0)
+	{
+		for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
+		{
+			CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
+			if (!loopUnit || loopUnit->isInvisible(eTeam, false, false))
+				continue;
+
+			// If it is an enemy unit, update the danger plots! 
+			if (GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()))
+			{
+				const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
+				for (size_t iI = 0; iI < aePlayers.size(); iI++)
+				{
+					PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
+					if (ePlayer != NO_PLAYER)
+					{
+						//todo: create a new tactical target as well? but might be too late
+						if (GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit))
+							//might want to interrupt move mission ...
+							if (pUnit)
+								pUnit->SetSpottedEnemy(true);
+					}
+				}
+			}
+
+			// If the AI spots a human Unit, don't meet - wait for the human to find the AI
+			if (GET_TEAM(eTeam).isHuman())
+				GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
+		}
+	}
+
 	// We could se the plot before but not anymore
 	// With delayed visibility we do this in setTurnActive()
-	else if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
+	if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
 	{
 		eResult = VISIBILITY_CHANGE_TO_INVISIBLE;
 		if (eTeam == GC.getGame().getActiveTeam())

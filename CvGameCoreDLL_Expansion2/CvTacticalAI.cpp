@@ -555,7 +555,9 @@ void CvTacticalAI::FindTacticalTargets()
 			{
 				// ... enemy combat unit? we allow visible ones and some we remember from the previous turn
 				CvUnit* pUnit = pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true);
-				if (pUnit != NULL && (pLoopPlot->isVisible(m_pPlayer->getTeam()) || m_pPlayer->IsVanishedUnit(pUnit->GetIDInfo())))
+				bool bCanSeeUnit = pUnit && pLoopPlot->isVisible(m_pPlayer->getTeam()) && !pUnit->isInvisible(m_pPlayer->getTeam(), false);
+				bool bRememberUnit = pUnit && m_pPlayer->IsVanishedUnit(pUnit->GetIDInfo());
+				if (bCanSeeUnit || bRememberUnit)
 				{
 					//minors ignore barbarians until they are close to their borders
 					if (!m_pPlayer->isMinorCiv() || !pUnit->isBarbarian() || pUnit->plot()->isAdjacentTeam(m_pPlayer->getTeam()))
@@ -3814,9 +3816,9 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 
 //evaluate many possible unit assignments around the target plot and choose the best one
 //will not necessarily attack only the target plot when other targets are present!
-//todos:
+//
+//todo:
 // - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
-// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker so will be safe from retaliation)
 bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 {
 	vector<CvUnit*> vUnits;
@@ -3833,7 +3835,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	ExecuteAirAttack(pTargetPlot);
 
 	//did the air attack already kill the enemy?
-	if (pTargetPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true) == NULL && !pTargetPlot->isCity())
+	if (pTargetPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true, true) == NULL && !pTargetPlot->isCity())
 		return true;
 
 #if defined(MOD_CORE_DEBUGGING)
@@ -5138,7 +5140,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 	bool rtnValue = false;
 	bool bIsCityTarget = pTarget->isCity();
 	bool bAirUnitsAdded = false;
-	CvUnit* pDefender = pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID());
+	CvUnit* pDefender = pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, false, true);
 
 	//todo: check if defender can be damaged at all or if an attacker would die?
 	// Loop through all units available to tactical AI this turn
@@ -8326,6 +8328,10 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	//times 10 to match with ScorePlotForCombatUnitOffensive()
 	newAssignment.iScore *= 10;
 
+	//small bias for staying close to our cities, to have a way to retreat if necessary
+	int iCityDistanceScore = 10 - GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(assumedUnitPlot.getPlot());
+	newAssignment.iScore += max(iCityDistanceScore, 0);
+
 	//what happens next?
 	if (AttackEndsTurn(unit.pUnit, unit.iAttacksLeft))
 	{
@@ -8404,6 +8410,10 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
 	result.iScore = (result.iScore + 8) * 10;
 
+	//small bias for staying close to our cities, to have a way to retreat if necessary
+	int iCityDistanceScore = 10 - GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(assumedUnitPlot.getPlot());
+	result.iScore += max(iCityDistanceScore, 0);
+
 	//strongly discourage melee attack on cities if the real target is something else (capturing is ok)
 	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
 		result.iScore /= 4;
@@ -8479,6 +8489,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	//enemy distance alone is not enough
 	//there may be multiple enemy combat units but we only care about the best defender
 	//also ignore the official visibility, we only add tactical plots if we can see them in the sim
+	//note that AI can see all submarines at this stage (might be ignored as tactical target though)
 	pEnemyCombatUnit = pPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true,true);
 
 	//concerning embarkation. this is complex because it allows combat units to stack, violating the 1UPT rule.
@@ -9317,7 +9328,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 						//remember the id of the bad unit so if necessary we can try again without that unit
 						//there might be double-counting or omissions of bad units but we just need to produce a plausible candidate
-						gBadUnitsCount[iProblemUnit]++;
+						if (iProblemUnit!=-1)
+							gBadUnitsCount[iProblemUnit]++;
 					}
 				}
 				else
@@ -11248,7 +11260,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 #endif
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), iMoveflags, false, false, MISSIONAI_OPMOVE);
-			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
+
+			//movement may indeed fail if we stumble upon an invisible unit!
+			bPostcondition = (pUnit->plot() == pToPlot);
 
 #ifdef TACTDEBUG
 			//check this only for moves, eg melee kills can fail this check because the pathfinder assumes attacks end the turn!

@@ -626,7 +626,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	//--------------------------------
-	// Init other game data
+	// Init other game data	
 	plot()->updateCenterUnit();
 
 	SetGreatWork(NO_GREAT_WORK);
@@ -29510,10 +29510,20 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
 
-	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+	if (HasSpottedEnemy())
 	{
-		if (HasSpottedEnemy())
+		if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 		{
+			ClearPathCache();
+			return MOVE_RESULT_CANCEL;
+		}
+		else if (!isHuman() && IsCanAttack() && !isOutOfAttacks())
+		{
+			//special - try to attack submarines - chances are we cannot run so have to preempt their attack
+			//also chances are we will lose all our movement to ZOC when trying to move past!
+			//but we cannot use PushMission here b/c we're already processing a mission
+			//finally we don't know the context of this move mission at all, so fingers crossed ...
+			//at least in tactsim context this would lead to a re-sim and hopefully correct consideration of the enemy
 			ClearPathCache();
 			return MOVE_RESULT_CANCEL;
 		}
@@ -29823,12 +29833,37 @@ const char* aTrTypes[] = {
 	"Resource"
 };
 
+//only for debugging, not shown in regular UI
 const char* CvUnit::GetMissionInfo()
 {
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
+	bool bUnitIsInvisible = true;
+	bool bPlotIsVisible = false;
+	vector<PlayerTypes> vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
+	for (vector<PlayerTypes>::iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	{
+		TeamTypes enemyTeam = GET_PLAYER(*it).getTeam();
+		bPlotIsVisible |= plot()->isVisible(enemyTeam);
+
+		//same logic as in FindTacticalTargets
+		bool bCanSeeUnit = plot()->isVisible(enemyTeam) && !isInvisible(enemyTeam, false);
+		bool bRememberUnit = GET_PLAYER(*it).IsVanishedUnit(GetIDInfo());
+		if (bCanSeeUnit || bRememberUnit)
+		{
+			if (!isInvisible(enemyTeam,false))
+				bUnitIsInvisible = false;
+		}
+	}
+
 	m_strMissionInfoString += " // ";
+
+	if (bPlotIsVisible)
+		m_strMissionInfoString += " ENEMY_SEES_PLOT // ";
+
+	if (!bUnitIsInvisible)
+		m_strMissionInfoString += " ENEMY_SEES_UNIT // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
 		m_strMissionInfoString += "no move assigned";
