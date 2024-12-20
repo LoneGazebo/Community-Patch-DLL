@@ -447,6 +447,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromSpyIdentify()
 	, m_aiYieldFromSpyDefenseOrID()
 	, m_aiYieldFromSpyRigElection()
+	, m_aiYieldChangesPerCityStrengthTimes100()
 	, m_aiBaseYieldRateFromCSAlliance()
 	, m_aiBaseYieldRateFromCSFriendship()
 	, m_aiYieldFromMinors()
@@ -1393,6 +1394,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromSpyIdentify.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefenseOrID.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyRigElection.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangesPerCityStrengthTimes100.resize(NUM_YIELD_TYPES);
 	m_aiNumTimesOwned.resize(REALLY_MAX_PLAYERS);
 	m_aiStaticCityYield.resize(NUM_YIELD_TYPES);
 #endif
@@ -1496,6 +1498,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromSpyIdentify[iI] = 0;
 		m_aiYieldFromSpyDefenseOrID[iI] = 0;
 		m_aiYieldFromSpyRigElection[iI] = 0;
+		m_aiYieldChangesPerCityStrengthTimes100[iI] = 0;
 		m_aiEventCityYield[iI] = 0;
 		m_aiEventCityYieldModifier[iI] = 0;
 #endif
@@ -14776,6 +14779,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromSpyRigElection(eYield, pBuildingInfo->GetYieldFromSpyRigElection(eYield) * iChange);
 			}
+			if ((pBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) > 0))
+			{
+				ChangeYieldChangesPerCityStrengthTimes100(eYield, pBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) * iChange);
+			}
 
 			if ((pBuildingInfo->GetYieldFromBirth(eYield) > 0))
 			{
@@ -24940,6 +24947,31 @@ void CvCity::ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange)
 		ASSERT(GetYieldFromSpyRigElection(eIndex) >= 0);
 	}
 }
+
+//	--------------------------------------------------------------------------------
+/// Extra yield per city strength
+int CvCity::GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangesPerCityStrengthTimes100[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield per city strength
+void CvCity::ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangesPerCityStrengthTimes100[eIndex] = m_aiYieldChangesPerCityStrengthTimes100[eIndex] + iChange;
+		CvAssert(GetYieldFromSpyRigElection(eIndex) >= 0);
+	}
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -27110,12 +27142,23 @@ void CvCity::updateStrengthValue()
 		// set new strength values
 		m_iStrengthValueRanged = iStrengthValueRanged;
 		m_iStrengthValue = iStrengthValue;
-
+		bool bHasCityYieldsPerCityStrength = false;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			if (GetYieldChangesPerCityStrengthTimes100((YieldTypes)iI) > 0)
+			{
+				bHasCityYieldsPerCityStrength = true;
+				break;
+			}
+		}
 		if (bHadBonusesBefore != bHasBonusesNow)
 		{
 			// update happiness
 			GET_PLAYER(getOwner()).CalculateNetHappiness();
 			updateNetHappiness();
+		}
+		if (bHadBonusesBefore != bHasBonusesNow || bHasCityYieldsPerCityStrength)
+		{
 			// update yields
 			updateYield();
 		}
@@ -31656,6 +31699,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromSpyIdentify);
 	visitor(city.m_aiYieldFromSpyDefenseOrID);
 	visitor(city.m_aiYieldFromSpyRigElection);
+	visitor(city.m_aiYieldChangesPerCityStrengthTimes100);
 	visitor(city.m_aiNumTimesOwned);
 	visitor(city.m_aiStaticCityYield);
 	visitor(city.m_iTradePriorityLand);
