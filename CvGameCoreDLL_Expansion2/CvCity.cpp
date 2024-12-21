@@ -436,6 +436,7 @@ CvCity::CvCity() :
 	, m_aiYieldPerAlly()
 	, m_aiYieldPerFriend()
 	, m_aiYieldFromInternalTREnd()
+	, m_aiYieldFromInternationalTREnd()
 	, m_aiYieldFromInternalTR()
 	, m_aiYieldFromProcessModifier()
 	, m_aiYieldFromLongCount()
@@ -1387,6 +1388,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromInternationalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromProcessModifier.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromLongCount.resize(NUM_YIELD_TYPES);
@@ -1492,6 +1494,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldPerAlly[iI] = 0;
 		m_aiYieldPerFriend[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
+		m_aiYieldFromInternationalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
 		m_aiYieldFromProcessModifier[iI] = 0;
 		m_aiYieldFromLongCount[iI] = 0;
@@ -14745,6 +14748,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromInternalTREnd(eYield, (pBuildingInfo->GetYieldFromInternalTREnd(eYield) * iChange));
 			}
+			if ((pBuildingInfo->GetYieldFromInternationalTREnd(eYield) > 0))
+			{
+				ChangeYieldFromInternationalTREnd(eYield, (pBuildingInfo->GetYieldFromInternationalTREnd(eYield) * iChange));
+			}
 
 			if ((pBuildingInfo->GetYieldFromInternal(eYield) > 0))
 			{
@@ -24708,6 +24715,31 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
+int CvCity::GetYieldFromInternationalTREnd(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromInternationalTREnd[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromInternationalTREnd(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromInternationalTREnd[eIndex1] = m_aiYieldFromInternationalTREnd[eIndex1] + iChange;
+		CvAssert(GetYieldFromInternationalTREnd(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
 int CvCity::GetYieldFromInternalTREnd(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT();
@@ -31722,6 +31754,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldPerAlly);
 	visitor(city.m_aiYieldPerFriend);
 	visitor(city.m_aiYieldFromInternalTREnd);
+	visitor(city.m_aiYieldFromInternationalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
 	visitor(city.m_aiYieldFromProcessModifier);
 	visitor(city.m_aiYieldFromLongCount);
