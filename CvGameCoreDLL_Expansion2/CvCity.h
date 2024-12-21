@@ -1228,8 +1228,15 @@ public:
 	int GetYieldFromLongCount(YieldTypes eIndex1) const;
 	void ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange);
 
+
 	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
+
+	int GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const;
+	void ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange);
+
+	int GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const;
+	void ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange);
 
 	int GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const;
 	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
@@ -2031,6 +2038,8 @@ protected:
 	std::vector<int> m_aiYieldFromInternalTR;
 	std::vector<int> m_aiYieldFromProcessModifier;
 	std::vector<int> m_aiYieldFromLongCount;
+	std::vector<int> m_aiYieldFromGPBirthScaledWithWriterBulb;
+	std::vector<int> m_aiYieldFromGPBirthScaledWithArtistBulb;
 	std::vector<int> m_aiSpecialistRateModifierFromBuildings;
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
@@ -2441,6 +2450,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternationalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromLongCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithWriterBulb)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithArtistBulb)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifierFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
