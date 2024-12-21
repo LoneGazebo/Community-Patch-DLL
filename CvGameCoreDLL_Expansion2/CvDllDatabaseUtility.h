@@ -55,6 +55,8 @@ private:
 	//! Prefetch the game data into local arrays.
 	bool PrefetchGameData();
 
+	void DatabaseRemapper();
+
 	//! Validation routines
 	bool ValidateGameDatabase();
 	bool ValidatePrefetchProcess();
