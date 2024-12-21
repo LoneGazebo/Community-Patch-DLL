@@ -3083,7 +3083,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 							if (bTradeUnit)
 							{
 								CorporationTypes eCorporation = GET_PLAYER(pLoopUnit->getOwner()).GetCorporations()->GetFoundedCorporation();
-								CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+								CvCorporationEntry* pkCorporationInfo = eCorporation != NO_CORPORATION ? GC.getCorporationInfo(eCorporation) : NULL;
 								if (pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable())
 								{
 									// If the nuclear strike destroyed the corporate HQ by destroying the city it's in, the trade unit should also die.
