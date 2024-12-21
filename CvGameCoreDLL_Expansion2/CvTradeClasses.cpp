@@ -6096,7 +6096,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			return ret;
 
 		// Don't send a trade route from a city about to fall - even if our routes are invulnerable, our cities are not
-		if (pFromCity->isInDangerOfFalling())
+		if (pFromCity->isInDangerOfFalling(true))
 			return ret;
 
 		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pFromCity->plot()))
@@ -6735,7 +6735,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 			return 0;
 
 		// Don't send a trade route from a city about to fall - even if our routes are invulnerable, our cities are not
-		if (pOriginCity->isInDangerOfFalling())
+		if (pOriginCity->isInDangerOfFalling(true))
 			return 0;
 
 		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pOriginCity->plot()))
@@ -6748,7 +6748,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		if (!bInvulnerability)
 			return 0;
 
-		if (pDestCity->isInDangerOfFalling())
+		if (pDestCity->isInDangerOfFalling(true))
 			return 0;
 
 		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pDestCity->plot()))

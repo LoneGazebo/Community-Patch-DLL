@@ -113,298 +113,290 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_eCurrentVictoryPursuit = NO_VICTORY_PURSUIT;
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
 
-	// Diplomatic Interactions
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		for (int iJ = 0; iJ < NUM_DIPLO_STATEMENT_TYPES; iJ++)
-		{
-			m_aaiTurnStatementLastSent[iI][iJ] = -1;
-		}
-	}
-
-	// Minors
-	for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
-	{
-		m_abWantToRouteToMinor[iI] = false;
-	}
-
-	// Majors
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		// Diplomatic Interactions
-		for (int iJ = 0; iJ < MAX_MINOR_CIVS; iJ++)
-		{
-			m_aabSentAttackMessageToMinorCivProtector[iI][iJ] = false;
-		}
-
-		// Opinion & Approach
-		m_aeCivOpinion[iI] = CIV_OPINION_NEUTRAL;
-		m_aiCachedOpinionWeight[iI] = 0;
-		m_aeCivStrategicApproach[iI] = CIV_APPROACH_NEUTRAL;
-		m_aeCachedSurfaceApproach[iI] = -1;
-
-		for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
-		{
-			m_aaiApproachValues[iI][iJ] = 0;
-			m_aaiStrategicApproachValues[iI][iJ] = 0;
-		}
-
-		// Planning Exchanges
-		m_abMajorCompetitor[iI] = false;
-		m_abStrategicTradePartner[iI] = false;
-		m_abWantsDoFWithPlayer[iI] = false;
-		m_abWantsDefensivePactWithPlayer[iI] = false;
-		m_abWantsToEndDoFWithPlayer[iI] = false;
-		m_abWantsToEndDefensivePactWithPlayer[iI] = false;
-		m_abWantsResearchAgreementWithPlayer[iI] = false;
-
-		// Exchanges
-		m_aiDoFAcceptedTurn[iI] = -1;
-		m_aeDoFType[iI] = DOF_TYPE_NEW;
-		m_aiDenouncedPlayerTurn[iI] = -1;
-		m_abCantMatchDeal[iI] = false;
-		m_aiNumDemandsMade[iI] = 0;
-		m_aiDemandMadeTurn[iI] = -1;
-		m_aiDemandTooSoonNumTurns[iI] = -1;
-		m_aiNumConsecutiveDemandsTheyAccepted[iI] = 0;
-		m_aiDemandAcceptedTurn[iI] = -1;
-		m_aiTradeValue[iI] = 0;
-		m_aiCommonFoeValue[iI] = 0;
-		m_aiAssistValue[iI] = 0;
-
-		// Coop Wars
-		for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
-		{
-			m_aaeCoopWarState[iI][iJ] = NO_COOP_WAR_STATE;
-			m_aaiCoopWarStateChangeTurn[iI][iJ] = -1;
-		}
-		m_aiCoopWarAgreementScore[iI] = 0;
-
-		// War
-		m_aiNumWarsDeclaredOnUs[iI] = 0;
-		m_aiCivilianKillerValue[iI] = 0;
-
-		// Peace
-		m_aePeaceTreatyWillingToOffer[iI] = NO_PEACE_TREATY_TYPE;
-		m_aePeaceTreatyWillingToAccept[iI] = NO_PEACE_TREATY_TYPE;
-
-		// Backstabbing Penalties
-		m_abUntrustworthyFriend[iI] = false;
-		m_abEverBackstabbedBy[iI] = false;
-		m_aiDoFBrokenTurn[iI] = -1;
-		m_aiFriendDenouncedUsTurn[iI] = -1;
-		m_aiFriendDeclaredWarOnUsTurn[iI] = -1;
-
-		// Warmongering Penalties
-		m_aiNumMinorsAttacked[iI] = 0;
-		m_aiNumMinorsConquered[iI] = 0;
-		m_aiNumMajorsAttacked[iI] = 0;
-		m_aiNumMajorsConquered[iI] = 0;
-		m_aiWarmongerAmountTimes100[iI] = 0;
-
-		// Aggressive Postures
-		m_aePlotBuyingAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
-
-		// Dispute Levels
-		m_abEndgameAggressiveTo[iI] = false;
-		m_abRecklessExpander[iI] = false;
-		m_abWonderSpammer[iI] = false;
-		m_aeVictoryDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
-		m_aeVictoryBlockLevel[iI] = BLOCK_LEVEL_NONE;
-		m_aeWonderDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
-		m_aeMinorCivDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
-		m_aeTechBlockLevel[iI] = BLOCK_LEVEL_NONE;
-		m_aePolicyBlockLevel[iI] = BLOCK_LEVEL_NONE;
-
-		// Threat Levels
-		m_aeWarmongerThreat[iI] = THREAT_NONE;
-
-		// PROMISES
-		// Military Promise
-		m_aeMilitaryPromiseState[iI] = NO_PROMISE_STATE;
-		m_aiMilitaryPromiseTurn[iI] = -1;
-
-		// Expansion Promise
-		m_aeExpansionPromiseState[iI] = NO_PROMISE_STATE;
-		m_aiExpansionPromiseTurn[iI] = -1;
-		m_abAngryAboutExpansion[iI] = false;
-		m_abEverRequestedExpansionPromise[iI] = false;
-
-		// Border Promise
-		m_aeBorderPromiseState[iI] = NO_PROMISE_STATE;
-		m_aeBorderPromisePosture[iI] = AGGRESSIVE_POSTURE_NONE;
-		m_aiBorderPromiseTurn[iI] = -1;
-		m_abEverMadeBorderPromise[iI] = false;
-
-		// Bully City-State Promise
-		m_aeBullyCityStatePromiseState[iI] = NO_PROMISE_STATE;
-		m_aiBullyCityStatePromiseTurn[iI] = -1;
-
-		// Attack City-State Promise
-		m_aeAttackCityStatePromiseState[iI] = NO_PROMISE_STATE;
-		m_aiAttackCityStatePromiseTurn[iI] = -1;
-
-		// Spy Promise
-		m_aeSpyPromiseState[iI] = NO_PROMISE_STATE;
-		m_aiSpyPromiseTurn[iI] = -1;
-
-		// No Convert Promise
-		m_aeNoConvertPromiseState[iI] = NO_PROMISE_STATE;
-		m_aiNoConvertPromiseTurn[iI] = -1;
-		m_abAskedNotToConvert[iI] = false;
-		m_abEverConvertedCity[iI] = false;
-
-		// No Digging Promise
-		m_aeNoDiggingPromiseState[iI] = NO_PROMISE_STATE;
-		m_aiNoDiggingPromiseTurn[iI] = -1;
-		m_abAskedNotToDig[iI] = false;
-
-		// Coop War Promise
-		m_aiBrokenCoopWarPromiseTurn[iI] = -1;
-
-		// END PROMISES
-		// Event Flags
-		m_abReturnedCapital[iI] = false;
-		m_abReturnedHolyCity[iI] = false;
-		m_abLiberatedCapital[iI] = false;
-		m_abLiberatedHolyCity[iI] = false;
-		m_abCapturedCapital[iI] = false;
-		m_abCapturedHolyCity[iI] = false;
-		m_abEverCapturedCapital[iI] = false;
-		m_abEverCapturedHolyCity[iI] = false;
-		m_abResurrectorAttackedUs[iI] = false;
-		m_abEverSanctionedUs[iI] = false;
-		m_abEverUnsanctionedUs[iI] = false;
-
-		// # of times/points counters
-		m_aiNumCitiesLiberated[iI] = 0;
-		m_aiNumCitiesEverLiberated[iI] = 0;
-		m_aiNumCiviliansReturnedToMe[iI] = 0;
-		m_aiNumTimesIntrigueSharedBy[iI] = 0;
-		m_aiNumLandmarksBuiltForMe[iI] = 0;
-		m_aiTheyPlottedAgainstUs[iI] = 0;
-		m_aiNumTradeRoutesPlundered[iI] = 0;
-		m_aiNumWondersBeatenTo[iI] = 0;
-		m_aiNumTimesCultureBombed[iI] = 0;
-		m_aiTheyLoweredOurInfluence[iI] = 0;
-		m_aiNumProtectedMinorsBullied[iI] = 0;
-		m_aiNumProtectedMinorsAttacked[iI] = 0;
-		m_aiNumProtectedMinorsKilled[iI] = 0;
-		m_aiNegativeReligiousConversionPoints[iI] = 0;
-		m_aiNumTimesRobbedBy[iI] = 0;
-		m_aiPerformedCoupAgainstUs[iI] = 0;
-		m_aiLikedTheirProposalValue[iI] = 0;
-		m_aiSupportedOurProposalValue[iI] = 0;
-		m_aiVotingHistoryScore[iI] = 0;
-		m_aiSupportedOurHostingValue[iI] = 0;
-		m_aiNegativeArchaeologyPoints[iI] = 0;
-		m_aiArtifactsEverDugUp[iI] = 0;
-		m_aiNumTimesNuked[iI] = 0;
-
-		// Turn counters
-		m_aiResurrectedOnTurn[iI] = -1;
-		m_aiLiberatedCitiesTurn[iI] = -1;
-		m_aiCiviliansReturnedToMeTurn[iI] = -1;
-		m_aiIntrigueSharedTurn[iI] = -1;
-		m_aiPlayerForgaveForSpyingTurn[iI] = -1;
-		m_aiLandmarksBuiltForMeTurn[iI] = -1;
-		m_aiPlottedAgainstUsTurn[iI] = -1;
-		m_aiPlunderedTradeRouteTurn[iI] = -1;
-		m_aiBeatenToWonderTurn[iI] = -1;
-		m_aiLoweredOurInfluenceTurn[iI] = -1;
-		m_aiSidedWithProtectedMinorTurn[iI] = -1;
-		m_aiBulliedProtectedMinorTurn[iI] = -1;
-		m_aiAttackedProtectedMinorTurn[iI] = -1;
-		m_aiKilledProtectedMinorTurn[iI] = -1;
-		m_aiReligiousConversionTurn[iI] = -1;
-		m_aiTimesRobbedTurn[iI] = -1;
-		m_aiPerformedCoupTurn[iI] = -1;
-		m_aiStoleArtifactTurn[iI] = -1;
-		m_aiWeLikedTheirProposalTurn[iI] = -1;
-		m_aiWeDislikedTheirProposalTurn[iI] = -1;
-		m_aiTheySupportedOurProposalTurn[iI] = -1;
-		m_aiTheyFoiledOurProposalTurn[iI] = -1;
-		m_aiTheySanctionedUsTurn[iI] = -1;
-		m_aiTheyUnsanctionedUsTurn[iI] = -1;
-		m_aiTheySupportedOurHostingTurn[iI] = -1;
-
-		// Player-Specific Memory Values
-		m_aeProtectedMinorBullied[iI] = NO_PLAYER;
-		m_aeProtectedMinorAttacked[iI] = NO_PLAYER;
-		m_aeProtectedMinorKilled[iI] = NO_PLAYER;
-
-		// Guesses about other players' feelings towards us
-		//m_aeOpinionTowardsUsGuess[iI] = CIV_OPINION_NEUTRAL;
-		//m_aeApproachTowardsUsGuess[iI] = CIV_APPROACH_NEUTRAL;
-		//m_aeApproachTowardsUsGuessCounter[iI] = 0;
-
-		// C4DF Values
-		m_aeShareOpinionResponse[iI] = NO_SHARE_OPINION_RESPONSE;
-		m_aiHelpRequestAcceptedTurn[iI] = -1;
-		m_aiHelpRequestTooSoonNumTurns[iI] = -1;
-		m_aiVassalProtectValue[iI] = 0;
-		m_aiPlayerVassalagePeacefullyRevokedTurn[iI] = -1;
-		m_aiPlayerVassalageForcefullyRevokedTurn[iI] = -1;
-		m_aiBrokeVassalAgreementTurn[iI] = -1;
-		m_abMoveTroopsRequestAccepted[iI] = false;
-		m_abOfferingGift[iI] = false;
-		m_abOfferedGift[iI] = false;
-		m_abMasterLiberatedMeFromVassalage[iI] = false;
-		m_abVassalTaxRaised[iI] = false;
-		m_abVassalTaxLowered[iI] = false;
-		m_aiVassalGoldPerTurnTaxedSinceVassalStarted[iI] = 0;
-		m_aiVassalGoldPerTurnCollectedSinceVassalStarted[iI] = 0;
-
-		m_aTradePriority[iI] = 0.0f;
-	}
-
-	// All Civs
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		// Opinion & Approach
-		m_aeCivApproach[iI] = CIV_APPROACH_NEUTRAL;
-
-		// War
-		m_abSaneDiplomaticTarget[iI] = true;
-		m_abPotentialWarTarget[iI] = false;
-		m_abArmyInPlaceForAttack[iI] = false;
-		m_abAggressor[iI] = false;
-		m_aiNumWarsFought[iI] = 0;
-		m_aeWarState[iI] = NO_WAR_STATE_TYPE;
-		m_aiWarProgressScore[iI] = 0;
-
-		// Aggressive Postures
-		m_aeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
-
-		// Dispute Levels
-		m_aeLandDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
-
-		// Strength Assessments
-		m_aeEconomicStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
-		m_aeMilitaryStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
-		m_aeRawMilitaryStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
-		m_aeTargetValue[iI] = TARGET_VALUE_CAKEWALK;
-		m_aeRawTargetValue[iI] = TARGET_VALUE_CAKEWALK;
-		m_abEasyTarget[iI] = false;
-	}
-	// All Players (includes Barbarians)
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		// War
+		if (iI < MAX_MINOR_CIVS)
+		{
+			m_abWantToRouteToMinor[iI] = false;
+		}
+
+		if (iI < MAX_MAJOR_CIVS)
+		{
+			// Diplomatic Interactions
+			for (int iJ = 0; iJ < NUM_DIPLO_STATEMENT_TYPES; iJ++)
+			{
+				m_aaiTurnStatementLastSent[iI][iJ] = -1;
+			}
+			for (int iJ = 0; iJ < MAX_MINOR_CIVS; iJ++)
+			{
+				m_aabSentAttackMessageToMinorCivProtector[iI][iJ] = false;
+			}
+
+			// Opinion & Approach
+			m_aeCivOpinion[iI] = CIV_OPINION_NEUTRAL;
+			m_aiCachedOpinionWeight[iI] = 0;
+			m_aeCivStrategicApproach[iI] = CIV_APPROACH_NEUTRAL;
+			m_aeCachedSurfaceApproach[iI] = -1;
+
+			for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
+			{
+				m_aaiApproachValues[iI][iJ] = 0;
+				m_aaiStrategicApproachValues[iI][iJ] = 0;
+			}
+
+			// Planning Exchanges
+			m_abMajorCompetitor[iI] = false;
+			m_abStrategicTradePartner[iI] = false;
+			m_abWantsDoFWithPlayer[iI] = false;
+			m_abWantsDefensivePactWithPlayer[iI] = false;
+			m_abWantsToEndDoFWithPlayer[iI] = false;
+			m_abWantsToEndDefensivePactWithPlayer[iI] = false;
+			m_abWantsResearchAgreementWithPlayer[iI] = false;
+
+			// Exchanges
+			m_aiDoFAcceptedTurn[iI] = -1;
+			m_aeDoFType[iI] = DOF_TYPE_NEW;
+			m_aiDenouncedPlayerTurn[iI] = -1;
+			m_abCantMatchDeal[iI] = false;
+			m_aiNumDemandsMade[iI] = 0;
+			m_aiDemandMadeTurn[iI] = -1;
+			m_aiDemandTooSoonNumTurns[iI] = -1;
+			m_aiNumConsecutiveDemandsTheyAccepted[iI] = 0;
+			m_aiDemandAcceptedTurn[iI] = -1;
+			m_aiTradeValue[iI] = 0;
+			m_aiCommonFoeValue[iI] = 0;
+			m_aiAssistValue[iI] = 0;
+
+			// Coop Wars
+			for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+			{
+				m_aaeCoopWarState[iI][iJ] = NO_COOP_WAR_STATE;
+				m_aaiCoopWarStateChangeTurn[iI][iJ] = -1;
+			}
+			m_aiCoopWarAgreementScore[iI] = 0;
+
+			// War
+			m_aiNumWarsDeclaredOnUs[iI] = 0;
+			m_aiCivilianKillerValue[iI] = 0;
+
+			// Peace
+			m_aePeaceTreatyWillingToOffer[iI] = NO_PEACE_TREATY_TYPE;
+			m_aePeaceTreatyWillingToAccept[iI] = NO_PEACE_TREATY_TYPE;
+
+			// Backstabbing Penalties
+			m_abUntrustworthyFriend[iI] = false;
+			m_abEverBackstabbedBy[iI] = false;
+			m_aiDoFBrokenTurn[iI] = -1;
+			m_aiFriendDenouncedUsTurn[iI] = -1;
+			m_aiFriendDeclaredWarOnUsTurn[iI] = -1;
+
+			// Warmongering Penalties
+			m_aiNumMinorsAttacked[iI] = 0;
+			m_aiNumMinorsConquered[iI] = 0;
+			m_aiNumMajorsAttacked[iI] = 0;
+			m_aiNumMajorsConquered[iI] = 0;
+			m_aiWarmongerAmountTimes100[iI] = 0;
+
+			// Aggressive Postures
+			m_aePlotBuyingAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
+
+			// Dispute Levels
+			m_abEndgameAggressiveTo[iI] = false;
+			m_abRecklessExpander[iI] = false;
+			m_abWonderSpammer[iI] = false;
+			m_aeVictoryDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+			m_aeVictoryBlockLevel[iI] = BLOCK_LEVEL_NONE;
+			m_aeWonderDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+			m_aeMinorCivDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+			m_aeTechBlockLevel[iI] = BLOCK_LEVEL_NONE;
+			m_aePolicyBlockLevel[iI] = BLOCK_LEVEL_NONE;
+
+			// Threat Levels
+			m_aeWarmongerThreat[iI] = THREAT_NONE;
+
+			// PROMISES
+			// Military Promise
+			m_aeMilitaryPromiseState[iI] = NO_PROMISE_STATE;
+			m_aiMilitaryPromiseTurn[iI] = -1;
+
+			// Expansion Promise
+			m_aeExpansionPromiseState[iI] = NO_PROMISE_STATE;
+			m_aiExpansionPromiseTurn[iI] = -1;
+			m_abAngryAboutExpansion[iI] = false;
+			m_abEverRequestedExpansionPromise[iI] = false;
+
+			// Border Promise
+			m_aeBorderPromiseState[iI] = NO_PROMISE_STATE;
+			m_aeBorderPromisePosture[iI] = AGGRESSIVE_POSTURE_NONE;
+			m_aiBorderPromiseTurn[iI] = -1;
+			m_abEverMadeBorderPromise[iI] = false;
+
+			// Bully City-State Promise
+			m_aeBullyCityStatePromiseState[iI] = NO_PROMISE_STATE;
+			m_aiBullyCityStatePromiseTurn[iI] = -1;
+
+			// Attack City-State Promise
+			m_aeAttackCityStatePromiseState[iI] = NO_PROMISE_STATE;
+			m_aiAttackCityStatePromiseTurn[iI] = -1;
+
+			// Spy Promise
+			m_aeSpyPromiseState[iI] = NO_PROMISE_STATE;
+			m_aiSpyPromiseTurn[iI] = -1;
+
+			// No Convert Promise
+			m_aeNoConvertPromiseState[iI] = NO_PROMISE_STATE;
+			m_aiNoConvertPromiseTurn[iI] = -1;
+			m_abAskedNotToConvert[iI] = false;
+			m_abEverConvertedCity[iI] = false;
+
+			// No Digging Promise
+			m_aeNoDiggingPromiseState[iI] = NO_PROMISE_STATE;
+			m_aiNoDiggingPromiseTurn[iI] = -1;
+			m_abAskedNotToDig[iI] = false;
+
+			// Coop War Promise
+			m_aiBrokenCoopWarPromiseTurn[iI] = -1;
+
+			// END PROMISES
+			// Event Flags
+			m_abReturnedCapital[iI] = false;
+			m_abReturnedHolyCity[iI] = false;
+			m_abLiberatedCapital[iI] = false;
+			m_abLiberatedHolyCity[iI] = false;
+			m_abCapturedCapital[iI] = false;
+			m_abCapturedHolyCity[iI] = false;
+			m_abEverCapturedCapital[iI] = false;
+			m_abEverCapturedHolyCity[iI] = false;
+			m_abResurrectorAttackedUs[iI] = false;
+			m_abEverSanctionedUs[iI] = false;
+			m_abEverUnsanctionedUs[iI] = false;
+
+			// # of times/points counters
+			m_aiNumCitiesLiberated[iI] = 0;
+			m_aiNumCitiesEverLiberated[iI] = 0;
+			m_aiNumCiviliansReturnedToMe[iI] = 0;
+			m_aiNumTimesIntrigueSharedBy[iI] = 0;
+			m_aiNumLandmarksBuiltForMe[iI] = 0;
+			m_aiTheyPlottedAgainstUs[iI] = 0;
+			m_aiNumTradeRoutesPlundered[iI] = 0;
+			m_aiNumWondersBeatenTo[iI] = 0;
+			m_aiNumTimesCultureBombed[iI] = 0;
+			m_aiTheyLoweredOurInfluence[iI] = 0;
+			m_aiNumProtectedMinorsBullied[iI] = 0;
+			m_aiNumProtectedMinorsAttacked[iI] = 0;
+			m_aiNumProtectedMinorsKilled[iI] = 0;
+			m_aiNegativeReligiousConversionPoints[iI] = 0;
+			m_aiNumTimesRobbedBy[iI] = 0;
+			m_aiPerformedCoupAgainstUs[iI] = 0;
+			m_aiLikedTheirProposalValue[iI] = 0;
+			m_aiSupportedOurProposalValue[iI] = 0;
+			m_aiVotingHistoryScore[iI] = 0;
+			m_aiSupportedOurHostingValue[iI] = 0;
+			m_aiNegativeArchaeologyPoints[iI] = 0;
+			m_aiArtifactsEverDugUp[iI] = 0;
+			m_aiNumTimesNuked[iI] = 0;
+
+			// Turn counters
+			m_aiResurrectedOnTurn[iI] = -1;
+			m_aiLiberatedCitiesTurn[iI] = -1;
+			m_aiCiviliansReturnedToMeTurn[iI] = -1;
+			m_aiIntrigueSharedTurn[iI] = -1;
+			m_aiPlayerForgaveForSpyingTurn[iI] = -1;
+			m_aiLandmarksBuiltForMeTurn[iI] = -1;
+			m_aiPlottedAgainstUsTurn[iI] = -1;
+			m_aiPlunderedTradeRouteTurn[iI] = -1;
+			m_aiBeatenToWonderTurn[iI] = -1;
+			m_aiLoweredOurInfluenceTurn[iI] = -1;
+			m_aiSidedWithProtectedMinorTurn[iI] = -1;
+			m_aiBulliedProtectedMinorTurn[iI] = -1;
+			m_aiAttackedProtectedMinorTurn[iI] = -1;
+			m_aiKilledProtectedMinorTurn[iI] = -1;
+			m_aiReligiousConversionTurn[iI] = -1;
+			m_aiTimesRobbedTurn[iI] = -1;
+			m_aiPerformedCoupTurn[iI] = -1;
+			m_aiStoleArtifactTurn[iI] = -1;
+			m_aiWeLikedTheirProposalTurn[iI] = -1;
+			m_aiWeDislikedTheirProposalTurn[iI] = -1;
+			m_aiTheySupportedOurProposalTurn[iI] = -1;
+			m_aiTheyFoiledOurProposalTurn[iI] = -1;
+			m_aiTheySanctionedUsTurn[iI] = -1;
+			m_aiTheyUnsanctionedUsTurn[iI] = -1;
+			m_aiTheySupportedOurHostingTurn[iI] = -1;
+
+			// Player-Specific Memory Values
+			m_aeProtectedMinorBullied[iI] = NO_PLAYER;
+			m_aeProtectedMinorAttacked[iI] = NO_PLAYER;
+			m_aeProtectedMinorKilled[iI] = NO_PLAYER;
+
+			// Guesses about other players' feelings towards us
+			//m_aeOpinionTowardsUsGuess[iI] = CIV_OPINION_NEUTRAL;
+			//m_aeApproachTowardsUsGuess[iI] = CIV_APPROACH_NEUTRAL;
+			//m_aeApproachTowardsUsGuessCounter[iI] = 0;
+
+			// C4DF Values
+			m_aeShareOpinionResponse[iI] = NO_SHARE_OPINION_RESPONSE;
+			m_aiHelpRequestAcceptedTurn[iI] = -1;
+			m_aiHelpRequestTooSoonNumTurns[iI] = -1;
+			m_aiVassalProtectValue[iI] = 0;
+			m_aiPlayerVassalagePeacefullyRevokedTurn[iI] = -1;
+			m_aiPlayerVassalageForcefullyRevokedTurn[iI] = -1;
+			m_aiBrokeVassalAgreementTurn[iI] = -1;
+			m_abMoveTroopsRequestAccepted[iI] = false;
+			m_abOfferingGift[iI] = false;
+			m_abOfferedGift[iI] = false;
+			m_abMasterLiberatedMeFromVassalage[iI] = false;
+			m_abVassalTaxRaised[iI] = false;
+			m_abVassalTaxLowered[iI] = false;
+			m_aiVassalGoldPerTurnTaxedSinceVassalStarted[iI] = 0;
+			m_aiVassalGoldPerTurnCollectedSinceVassalStarted[iI] = 0;
+
+			m_aTradePriority[iI] = 0.0f;
+		}
+
+		if (iI < MAX_CIV_PLAYERS)
+		{
+			// Opinion & Approach
+			m_aeCivApproach[iI] = CIV_APPROACH_NEUTRAL;
+
+			// War
+			m_abSaneDiplomaticTarget[iI] = true;
+			m_abPotentialWarTarget[iI] = false;
+			m_abArmyInPlaceForAttack[iI] = false;
+			m_abAggressor[iI] = false;
+			m_aiNumWarsFought[iI] = 0;
+			m_aeWarState[iI] = NO_WAR_STATE_TYPE;
+			m_aiWarProgressScore[iI] = 0;
+
+			// Aggressive Postures
+			m_aeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
+
+			// Dispute Levels
+			m_aeLandDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+
+			// Strength Assessments
+			m_aeEconomicStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
+			m_aeMilitaryStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
+			m_aeRawMilitaryStrengthComparedToUs[iI] = STRENGTH_PATHETIC;
+			m_aeTargetValue[iI] = TARGET_VALUE_CAKEWALK;
+			m_aeRawTargetValue[iI] = TARGET_VALUE_CAKEWALK;
+			m_abEasyTarget[iI] = false;
+		}
+
+		// Init this value for all players, Barbarians included
 		m_aiNumCitiesCaptured[iI] = 0;
 	}
 
+	// Non-serialized memory
 	m_bAvoidDeals = false;
 	m_bIgnoreWarmonger = false;
 	m_eVassalPlayerToLiberate = NO_PLAYER;
 
+	// MOD_ACTIVE_DIPLOMACY
 	m_aGreetPlayers.clear();
-
 	m_eDiploMode = DIPLO_ALL_PLAYERS;
 	m_eTargetPlayer = NO_PLAYER;
 }
 
-///
 template<typename DiplomacyAI, typename Visitor>
 void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 {
@@ -675,7 +667,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	// Guesses about other players' feelings towards us
 	//visitor(diplomacyAI.m_aeOpinionTowardsUsGuess);
 	//visitor(diplomacyAI.m_aeApproachTowardsUsGuess);
-	//visitor(diplomacyAI.m_aeApproachTowardsUsGuessCounter);
+	//visitor(diplomacyAI.m_aiApproachTowardsUsGuessCounter);
 
 	// C4DF Values
 	visitor(diplomacyAI.m_aeShareOpinionResponse);
