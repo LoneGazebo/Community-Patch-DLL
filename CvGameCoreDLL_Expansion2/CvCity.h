@@ -1213,6 +1213,9 @@ public:
 	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iValue);
 
+	int GetYieldFromInternationalTREnd(YieldTypes eIndex1) const;
+	void ChangeYieldFromInternationalTREnd(YieldTypes eIndex1, int iChange);
+
 	int GetYieldFromInternalTREnd(YieldTypes eIndex1) const;
 	void ChangeYieldFromInternalTREnd(YieldTypes eIndex, int iChange);
 
@@ -2024,6 +2027,7 @@ protected:
 	std::vector<int> m_aiYieldPerAlly;
 	std::vector<int> m_aiYieldPerFriend;
 	std::vector<int> m_aiYieldFromInternalTREnd;
+	std::vector<int> m_aiYieldFromInternationalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
 	std::vector<int> m_aiYieldFromProcessModifier;
 	std::vector<int> m_aiYieldFromLongCount;
@@ -2433,6 +2437,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternationalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromLongCount)
