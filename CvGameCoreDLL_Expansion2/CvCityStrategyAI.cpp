@@ -3893,6 +3893,23 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		// there are 13 Baktuns in total, the building is more valuable if more baktuns are yet to come
 		iInstant += pkBuildingInfo->GetYieldFromLongCount(eYield) * max(1, 13 - kPlayer.GetPlayerTraits()->GetCurrentBaktun());
 	}
+	if (pkBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) > 0)
+	{
+		// do we have writers in this city?
+		SpecialistTypes eWriter = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_WRITER", true);
+		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eWriter) * pkBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) * 10;
+	}
+	if (pkBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) > 0)
+	{
+		// do we have artists in this city?
+		SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST", true);
+		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eArtist) * pkBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) * 10;
+	}
+	if (pkBuildingInfo->GetYieldFromLongCount(eYield) > 0 && kPlayer.GetPlayerTraits()->IsUsingMayaCalendar())
+	{
+		// there are 13 Baktuns in total, the building is more valuable if more baktuns are yet to come
+		iInstant += pkBuildingInfo->GetYieldFromLongCount(eYield) * max(1, 13 - kPlayer.GetPlayerTraits()->GetCurrentBaktun());
+	}
 	if (pkBuildingInfo->GetYieldFromConstruction(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromConstruction(eYield);

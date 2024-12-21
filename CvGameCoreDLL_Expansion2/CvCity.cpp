@@ -439,6 +439,8 @@ CvCity::CvCity() :
 	, m_aiYieldFromInternalTR()
 	, m_aiYieldFromProcessModifier()
 	, m_aiYieldFromLongCount()
+	, m_aiYieldFromGPBirthScaledWithWriterBulb()
+	, m_aiYieldFromGPBirthScaledWithArtistBulb()
 	, m_aiSpecialistRateModifierFromBuildings()
 	, m_aiNumTimesOwned()
 	, m_aiStaticCityYield()
@@ -1391,6 +1393,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromProcessModifier.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromLongCount.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromGPBirthScaledWithWriterBulb.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromGPBirthScaledWithArtistBulb.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1497,6 +1501,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromInternalTR[iI] = 0;
 		m_aiYieldFromProcessModifier[iI] = 0;
 		m_aiYieldFromLongCount[iI] = 0;
+		m_aiYieldFromGPBirthScaledWithWriterBulb[iI] = 0;
+		m_aiYieldFromGPBirthScaledWithArtistBulb[iI] = 0;
 		m_aiThemingYieldBonus[iI] = 0;
 		m_aiYieldFromSpyAttack[iI] = 0;
 		m_aiYieldFromSpyDefense[iI] = 0;
@@ -14885,6 +14891,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromLongCount(eYield, (pBuildingInfo->GetYieldFromLongCount(eYield) * iChange));
 			}
 
+			if ((pBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) > 0))
+			{
+				ChangeYieldFromGPBirthScaledWithWriterBulb(eYield, (pBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) * iChange));
+			}
+
+			if ((pBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) > 0))
+			{
+				ChangeYieldFromGPBirthScaledWithArtistBulb(eYield, (pBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) * iChange));
+			}
+
 			if ((pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
@@ -24972,6 +24988,56 @@ void CvCity::ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Writer is born
+int CvCity::GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Writer is born
+void CvCity::ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] + iChange;
+		CvAssert(GetYieldFromGPBirthScaledWithWriterBulb(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Artist is born
+int CvCity::GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Artist is born
+void CvCity::ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] + iChange;
+		CvAssert(GetYieldFromGPBirthScaledWithArtistBulb(eIndex1) >= 0);
+	}
+}
+
 /// Extra yield from building
 int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const
 {
@@ -31951,6 +32017,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromInternalTR);
 	visitor(city.m_aiYieldFromProcessModifier);
 	visitor(city.m_aiYieldFromLongCount);
+	visitor(city.m_aiYieldFromGPBirthScaledWithWriterBulb);
+	visitor(city.m_aiYieldFromGPBirthScaledWithArtistBulb);
 	visitor(city.m_aiSpecialistRateModifierFromBuildings);
 	visitor(city.m_aiThemingYieldBonus);
 	visitor(city.m_aiYieldFromSpyAttack);

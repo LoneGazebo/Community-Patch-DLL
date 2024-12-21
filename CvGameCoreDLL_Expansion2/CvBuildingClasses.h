@@ -529,6 +529,9 @@ public:
 
 	int GetYieldFromLongCount(int i) const;
 
+	int GetYieldFromGPBirthScaledWithWriterBulb(int i) const;
+	int GetYieldFromGPBirthScaledWithArtistBulb(int i) const;
+
 	int GetYieldFromProcessModifier(int i) const;
 	int* GetYieldFromProcessModifierArray() const;
 
@@ -1068,6 +1071,8 @@ private:
 	int* m_piYieldFromInternal;
 	int* m_piYieldFromProcessModifier;
 	int* m_piYieldFromLongCount;
+	int* m_piYieldFromGPBirthScaledWithWriterBulb;
+	int* m_piYieldFromGPBirthScaledWithArtistBulb;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
