@@ -25965,7 +25965,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_TR_END:
 				{
 					iValue += bInternational ? GetPlayerTraits()->GetTradeRouteEndYieldInternational(eYield) : GetPlayerTraits()->GetTradeRouteEndYieldDomestic(eYield);
-					if (!bInternational)
+					if (bInternational)
+					{
+						iValue += pLoopCity->GetYieldFromInternationalTREnd(eYield);
+					}
+					else
 					{
 						iValue += pLoopCity->GetYieldFromInternalTREnd(eYield);
 						if (pOtherCity != NULL)

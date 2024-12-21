@@ -3859,6 +3859,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromInternalTREnd(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromInternationalTREnd(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromInternationalTREnd(eYield);
+	}
 	if (pkBuildingInfo->GetYieldFromLongCount(eYield) > 0 && kPlayer.GetPlayerTraits()->IsUsingMayaCalendar())
 	{
 		// there are 13 Baktuns in total, the building is more valuable if more baktuns are yet to come

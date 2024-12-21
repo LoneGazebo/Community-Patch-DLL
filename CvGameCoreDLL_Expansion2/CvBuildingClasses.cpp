@@ -345,6 +345,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromInternalTREnd(NULL),
+	m_piYieldFromInternationalTREnd(NULL),
 	m_piYieldFromInternal(NULL),
 	m_piYieldFromProcessModifier(NULL),
 	m_piYieldFromLongCount(NULL),
@@ -499,6 +500,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
+	SAFE_DELETE_ARRAY(m_piYieldFromInternationalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
 	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
 	SAFE_DELETE_ARRAY(m_piYieldFromLongCount);
@@ -1011,6 +1013,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromInternationalTREnd, "Building_YieldFromInternationalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromLongCount, "Building_YieldFromLongCount", "BuildingType", szBuildingType);
@@ -3667,7 +3670,15 @@ int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 	return m_piYieldFromFaithPurchase;
 }
 
-/// Does this Policy grant yields from constructing buildings?
+/// Instant yield granted when an international trade route ends
+int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromInternationalTREnd[i];
+}
+
+/// Instant yield granted when an international trade route ends
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
