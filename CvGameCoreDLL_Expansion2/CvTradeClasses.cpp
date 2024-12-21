@@ -6080,7 +6080,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		return ret;
 
 	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
-	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+	CvCorporationEntry* pkCorporationInfo = eCorporation != NO_CORPORATION ? GC.getCorporationInfo(eCorporation) : NULL;
 	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
@@ -6644,7 +6644,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				}
 			}
 
-			if (m_pPlayer->GetCulture()->GetInfluenceLevel(pToCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->GetCorporations()->GetCorporationFreeFranchiseAbovePopular() != 0)
+			if (GET_PLAYER(pToCity->getOwner()).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(pToCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->GetCorporations()->GetCorporationFreeFranchiseAbovePopular() != 0)
 			{
 				iScore *= 10;
 			}
@@ -6725,7 +6725,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		return 0;
 
 	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
-	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+	CvCorporationEntry* pkCorporationInfo = eCorporation != NO_CORPORATION ? GC.getCorporationInfo(eCorporation) : NULL;
 	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
 
 	// War near our origin city? Might still consider it if our trade routes are invulnerable.

@@ -17914,7 +17914,10 @@ void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes eTeam)
 	for (CivsList::const_iterator it = veMembers.begin(); it != veMembers.end(); ++it)
 	{
 		PlayerTypes eMember = *it;
-		DoFriendshipChangeEffects(eMember, iWarFriendshipTimes100, GetBaseFriendshipWithMajorTimes100(eMember));
+		if (GET_PLAYER(eMember).isMajorCiv())
+		{
+			DoFriendshipChangeEffects(eMember, iWarFriendshipTimes100, GetBaseFriendshipWithMajorTimes100(eMember));
+		}
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);

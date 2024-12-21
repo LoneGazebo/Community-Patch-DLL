@@ -3074,24 +3074,27 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 				if (pAdjacentPlot->IsStealBlockedByImprovement())
 					continue;
 
-				// We shouldn't steal from them
-				if (isMajorCiv() && GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
+				if (eOwner != NO_PLAYER)
 				{
-					iStealScore = 0;
-					break;
-				}
-				else if (isMinorCiv())
-				{
-					if (GetMinorCivAI()->IsFriends(eOwner) || GetMinorCivAI()->IsProtectedByMajor(eOwner))
+					// We shouldn't steal from them
+					if (isMajorCiv() && GetDiplomacyAI()->IsBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 					{
 						iStealScore = 0;
 						break;
 					}
-					PlayerTypes eAlly = GetMinorCivAI()->GetAlly();
-					if (eOwner != NO_PLAYER && eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
+					else if (isMinorCiv())
 					{
-						iStealScore = 0;
-						break;
+						if (GetMinorCivAI()->IsFriends(eOwner) || GetMinorCivAI()->IsProtectedByMajor(eOwner))
+						{
+							iStealScore = 0;
+							break;
+						}
+						PlayerTypes eAlly = GetMinorCivAI()->GetAlly();
+						if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
+						{
+							iStealScore = 0;
+							break;
+						}
 					}
 				}
 

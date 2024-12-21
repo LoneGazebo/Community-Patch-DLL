@@ -6845,7 +6845,7 @@ void CvCityEspionage::Process(PlayerTypes ePlayer)
 {
 	ASSERT(m_aiAmount[ePlayer] != -1, "Amount has not been set");
 	ASSERT(m_aiRate[ePlayer] != -1, "Rate has not been set");
-	ASSERT(!MOD_BALANCE_VP || m_aiGoal[ePlayer] != -1, "Goal has not been set");
+	ASSERT(MOD_BALANCE_VP || m_aiGoal[ePlayer] != -1, "Goal has not been set");
 	ChangeAmount(ePlayer, GetRate(ePlayer));
 	SetMaxAmount(ePlayer, max(GetMaxAmount(ePlayer), GetAmount(ePlayer)));
 }

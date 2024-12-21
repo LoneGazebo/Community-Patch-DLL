@@ -5406,6 +5406,9 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	CvPlot* pOldPlot = plot();
 	ASSERT(pOldPlot, "pOldPlot needs to have a value");
 
+	if (pOldPlot == &targetPlot)
+		return;
+
 	//will never be more than we have left!
 	int iMoveCost = targetPlot.movementCost(this, plot(), getMoves());
 
