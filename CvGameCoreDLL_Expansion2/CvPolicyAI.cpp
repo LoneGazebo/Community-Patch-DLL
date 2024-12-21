@@ -178,7 +178,8 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 		{
 			// Have we not finished it yet? If we can finish it, let's not open a new one.
-			if (!m_pCurrentPolicies->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()) && CanContinuePolicyBranch(ePolicyBranch2))
+			PolicyTypes eFinisher = (PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy();
+			if (eFinisher != NO_POLICY && !m_pCurrentPolicies->HasPolicy(eFinisher) && CanContinuePolicyBranch(ePolicyBranch2))
 			{
 				bNeedToFinish = true;
 				break;

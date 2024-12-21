@@ -24254,6 +24254,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 	{
 		CivApproachTypes eLoopApproach = (CivApproachTypes) iApproachLoop;
+		if (eLoopApproach == CIV_APPROACH_DECEPTIVE || eLoopApproach == CIV_APPROACH_GUARDED || eLoopApproach == CIV_APPROACH_AFRAID)
+			continue;
+
 		int iBias = GetMinorCivApproachBias(eLoopApproach) * 100; // x100 for greater fidelity
 		vApproachBias.push_back(iBias);
 
@@ -30278,7 +30281,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if (eStatement == DIPLO_STATEMENT_COOP_WAR_REQUEST)
 	{
 		PlayerTypes eAgainstPlayer = (PlayerTypes) iData1;
-		ASSERT(!IsPlayerValid(eAgainstPlayer));
+		ASSERT(IsPlayerValid(eAgainstPlayer));
 		if (IsPlayerValid(eAgainstPlayer))
 		{
 			// Send message to human

@@ -2285,6 +2285,9 @@ bool CvCityCitizens::IsWorkingPlot(int iIndex) const
 /// Is our City working a CvPlot?
 bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 {
+	if (plotDistance(m_pCity->getX(), m_pCity->getY(), pPlot->getX(), pPlot->getY()) > MAX_CITY_RADIUS)
+		return false;
+
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	if (iIndex != -1)

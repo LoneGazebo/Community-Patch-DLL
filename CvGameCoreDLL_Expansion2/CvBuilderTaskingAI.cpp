@@ -3758,7 +3758,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					break;
 				}
 				PlayerTypes eAlly = m_pPlayer->GetMinorCivAI()->GetAlly();
-				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
+				if (eOwner != NO_PLAYER && eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eOwner).getTeam())
 				{
 					iStealScore = -10000;
 					break;

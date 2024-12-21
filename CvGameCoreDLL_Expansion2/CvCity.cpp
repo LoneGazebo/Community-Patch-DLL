@@ -19515,7 +19515,6 @@ void CvCity::changeOverflowProduction(int iChange)
 {
 	VALIDATE_OBJECT
 	ASSERT(iChange >= 0, "Production overflow is too low.");
-	ASSERT(iChange < 250, "Production overflow is too high.");
 	changeOverflowProductionTimes100(iChange * 100);
 }
 
@@ -19542,7 +19541,6 @@ void CvCity::changeOverflowProductionTimes100(int iChange)
 {
 	VALIDATE_OBJECT
 	ASSERT(iChange >= 0, "Production overflow is too low.");
-	ASSERT(iChange < 25000, "Production overflow is too high.");
 	setOverflowProductionTimes100(getOverflowProductionTimes100() + iChange);
 }
 
