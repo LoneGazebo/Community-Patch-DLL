@@ -25658,6 +25658,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, eYield);
 					}
+					if (pUnit->GetCultureBlastStrength() > 0)
+					{
+						iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
+					}
+					if (pUnit->GetGAPBlastStrength() > 0)
+					{
+						iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_F_CONQUEST:
