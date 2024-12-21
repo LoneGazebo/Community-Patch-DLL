@@ -7212,6 +7212,12 @@ void CvPlayerTraits::ComputeMayaDate()
 	}
 }
 
+int CvPlayerTraits::GetCurrentBaktun() const
+{
+	ASSERT(IsUsingMayaCalendar());
+	return m_iBaktun;
+}
+
 /// At the end of which calendar cycle was this unit chosen as a special bonus (0 if none)?
 int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 {
