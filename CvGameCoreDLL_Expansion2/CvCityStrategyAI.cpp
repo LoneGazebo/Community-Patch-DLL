@@ -4688,6 +4688,10 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iConquestValue += pkBuildingInfo->GetFreeExperience();
 	}
+	if(pkBuildingInfo->GetExperiencePerGoldenAge() > 0)
+	{
+		iConquestValue += pkBuildingInfo->GetExperiencePerGoldenAge();
+	}
 	PromotionTypes eFreePromotion = (PromotionTypes) pkBuildingInfo->GetFreePromotion();
 	if(eFreePromotion != NO_PROMOTION)
 	{

@@ -933,6 +933,13 @@ public:
 	bool IsIgnoreCityForHappiness() const;
 	void SetIgnoreCityForHappiness(bool bValue);
 
+	int GetExperiencePerGoldenAge() const;
+	void ChangeExperiencePerGoldenAge(int iChange);
+	int GetExperiencePerGoldenAgeCap() const;
+	void ChangeExperiencePerGoldenAgeCap(int iChange);
+	int GetExperienceFromPreviousGoldenAges() const;
+	void ChangeExperienceFromPreviousGoldenAges(int iChange);
+
 	BuildingTypes ChooseFreeCultureBuilding() const;
 	BuildingTypes ChooseFreeFoodBuilding() const;
 
@@ -2069,6 +2076,9 @@ protected:
 	int m_iDeepWaterTileDamage;
 	int m_iNumNearbyMountains;
 	int m_iLocalUnhappinessMod;
+	int m_iExperiencePerGoldenAge;
+	int m_iExperiencePerGoldenAgeCap;
+	int m_iExperienceFromPreviousGoldenAges;
 	bool m_bNoWarmonger;
 	int m_iNoStarvationNonSpecialist;
 	int m_iEmpireSizeModifierReduction;
@@ -2481,6 +2491,9 @@ SYNC_ARCHIVE_VAR(int, m_iBorderObstacleWater)
 SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
 SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
 SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
+SYNC_ARCHIVE_VAR(int, m_iExperiencePerGoldenAge)
+SYNC_ARCHIVE_VAR(int, m_iExperiencePerGoldenAgeCap)
+SYNC_ARCHIVE_VAR(int, m_iExperienceFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
 SYNC_ARCHIVE_VAR(int, m_iNoStarvationNonSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)

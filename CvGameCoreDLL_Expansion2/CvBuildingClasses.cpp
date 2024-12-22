@@ -211,6 +211,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iIlliteracyFlatReductionGlobal(0),
 	m_iBoredomFlatReductionGlobal(0),
 	m_iReligiousUnrestFlatReductionGlobal(0),
+	m_iExperiencePerGoldenAge(0),
+	m_iExperiencePerGoldenAgeCap(0),
 	m_iInstantReligionPressure(0),
 	m_iBasePressureModGlobal(0),
 	m_iDefensePerXWonder(0),
@@ -966,8 +968,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
 	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
 	m_iReligiousUnrestFlatReductionGlobal = kResults.GetInt("ReligiousUnrestFlatReductionGlobal");
-
+	
 	m_iInstantReligionPressure = kResults.GetInt("InstantReligiousPressure");
+	m_iExperiencePerGoldenAge = kResults.GetInt("ExperiencePerGoldenAge");
+	m_iExperiencePerGoldenAgeCap = kResults.GetInt("ExperiencePerGoldenAgeCap");
+
 	m_iBasePressureModGlobal = kResults.GetInt("BasePressureModifierGlobal");
 	m_iDefensePerXWonder = kResults.GetInt("DefensePerXWonder");
 
@@ -3250,6 +3255,16 @@ int CvBuildingEntry::GetBoredomFlatReductionGlobal() const
 int CvBuildingEntry::GetReligiousUnrestFlatReductionGlobal() const
 {
 	return m_iReligiousUnrestFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetExperiencePerGoldenAge() const
+{
+	return m_iExperiencePerGoldenAge;
+}
+
+int CvBuildingEntry::GetExperiencePerGoldenAgeCap() const
+{
+	return m_iExperiencePerGoldenAgeCap;
 }
 
 /// Instant Boost of religious pressure in the city when built
