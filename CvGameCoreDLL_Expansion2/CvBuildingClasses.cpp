@@ -353,6 +353,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromLongCount(NULL),
 	m_piYieldFromGPBirthScaledWithWriterBulb(NULL),
 	m_piYieldFromGPBirthScaledWithArtistBulb(NULL),
+	m_miYieldFromGPBirthScaledWithPerTurnYield(),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthEraScaling(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
@@ -510,6 +511,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromLongCount);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPBirthScaledWithWriterBulb);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPBirthScaledWithArtistBulb);
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
@@ -1028,6 +1030,31 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromLongCount, "Building_YieldFromLongCount", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPBirthScaledWithWriterBulb, "Building_YieldFromGPBirthScaledWithWriterBulb", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPBirthScaledWithArtistBulb, "Building_YieldFromGPBirthScaledWithArtistBulb", "BuildingType", szBuildingType);
+	{
+		std::string strKey("Building_YieldFromGPBirthScaledWithPerTurnYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, YieldsIn.ID as YieldInID, YieldsOut.ID as YieldOutID, Value from Building_YieldFromGPBirthScaledWithPerTurnYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields as YieldsIn on YieldsIn.Type = YieldIn inner join Yields as YieldsOut on YieldsOut.Type = YieldOut where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iYieldIn = pResults->GetInt(1);
+			const int iYieldOut= pResults->GetInt(2);
+			const int iYield = pResults->GetInt(3);
+
+			m_miYieldFromGPBirthScaledWithPerTurnYield[(GreatPersonTypes)iGreatPerson][std::make_pair((YieldTypes)iYieldIn, (YieldTypes)iYieldOut)] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>>(m_miYieldFromGPBirthScaledWithPerTurnYield).swap(m_miYieldFromGPBirthScaledWithPerTurnYield);
+	}
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
 	kUtility.SetYields(m_piYieldFromBirthEraScaling, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Building_YieldFromBirthRetroactive", "BuildingType", szBuildingType);
@@ -3749,6 +3776,37 @@ int CvBuildingEntry::GetYieldFromGPBirthScaledWithArtistBulb(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromGPBirthScaledWithArtistBulb[i];
+}
+
+/// Does this Building grant yields from other yields when a Great Person is born?
+map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYieldMap() const
+{
+	return m_miYieldFromGPBirthScaledWithPerTurnYield;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+int CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	CvAssertMsg(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	CvAssertMsg(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
+	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		map<std::pair<YieldTypes, YieldTypes>, int> miYieldMap = it->second;
+		map<std::pair<YieldTypes, YieldTypes>, int>::const_iterator it2 = miYieldMap.find(std::make_pair(eYieldIn, eYieldOut));
+		if (it2 != miYieldMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
 }
 
 /// Does this Building grant yields from constructing buildings?

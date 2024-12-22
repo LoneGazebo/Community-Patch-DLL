@@ -592,6 +592,8 @@ public:
 	int GetEmpireSizeModifierReductionGlobal() const;
 	void ChangeEmpireSizeModifierReductionGlobal(int iChange);
 
+	int GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const;
+
 	int GetDistressFlatReductionGlobal() const;
 	void ChangeDistressFlatReductionGlobal(int iChange);
 

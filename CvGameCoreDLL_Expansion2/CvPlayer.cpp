@@ -19856,6 +19856,29 @@ void CvPlayer::ChangeEmpireSizeModifierReductionGlobal(int iChange)
 	m_iEmpireSizeModifierReductionGlobal += iChange;
 }
 
+int CvPlayer::GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const
+{
+	switch(eYield)
+	{
+	case YIELD_TOURISM:
+		return GetCulture()->GetTourism() / 100;
+	case YIELD_FAITH:
+		return GetTotalFaithPerTurn();
+	case YIELD_CULTURE:
+		return GetTotalJONSCulturePerTurn();
+	default:
+	{
+		int iResult = 0;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iResult += pLoopCity->getYieldRate(eYield, false, bStatic);
+		}
+		return iResult;
+	}
+	}
+}
+
 int CvPlayer::GetDistressFlatReductionGlobal() const
 {
 	return m_iDistressFlatReductionGlobal;
@@ -25674,6 +25697,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if (pUnit->GetGAPBlastStrength() > 0)
 					{
 						iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
+					}
+					if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+					{
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+							{
+								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRate((YieldTypes)iI, false) / 100;
+							}
+						}
 					}
 					break;
 				}

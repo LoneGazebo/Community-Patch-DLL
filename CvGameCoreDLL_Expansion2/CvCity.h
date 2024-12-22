@@ -1246,6 +1246,10 @@ public:
 	int GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const;
 	void ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange);
 
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> GetYieldFromGPBirthScaledWithPerTurnYieldMap() const;
+	int GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const;
+	void ChangeYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, std::pair<YieldTypes, YieldTypes> eYieldPair, int iChange);
+
 	int GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const;
 	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
 #endif
@@ -2051,6 +2055,7 @@ protected:
 	std::vector<int> m_aiYieldFromLongCount;
 	std::vector<int> m_aiYieldFromGPBirthScaledWithWriterBulb;
 	std::vector<int> m_aiYieldFromGPBirthScaledWithArtistBulb;
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 	std::vector<int> m_aiSpecialistRateModifierFromBuildings;
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
@@ -2466,6 +2471,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromLongCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithWriterBulb)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithArtistBulb)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<GreatPersonTypes, std::map<std::pair<YieldTypes, YieldTypes>, int>>), m_miYieldFromGPBirthScaledWithPerTurnYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifierFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
@@ -2531,6 +2537,8 @@ SYNC_ARCHIVE_VAR(int, m_iResourceDiversityModifier)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDamagePermyriad)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miTechEnhancedYields)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)

@@ -3872,13 +3872,36 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		// do we have writers in this city?
 		SpecialistTypes eWriter = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_WRITER", true);
-		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eWriter) * pkBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) * 10;
+		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eWriter) * pkBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield);
 	}
 	if (pkBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) > 0)
 	{
 		// do we have artists in this city?
 		SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST", true);
-		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eArtist) * pkBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) * 10;
+		iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eArtist) * pkBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield);
+	}
+	if (!pkBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+	{
+		map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> mYieldFromGPBirthScaledWithPerTurnYield = pkBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap();
+		map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::iterator it;
+		for (it = mYieldFromGPBirthScaledWithPerTurnYield.begin(); it != mYieldFromGPBirthScaledWithPerTurnYield.end(); ++it)
+		{
+			GreatPersonTypes eGreatPerson = it->first;
+			SpecialistTypes eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
+			if (eSpecialist == NO_SPECIALIST)
+				continue;
+
+			map<std::pair<YieldTypes, YieldTypes>, int> mInnerYieldMap = it->second;
+			map<std::pair<YieldTypes, YieldTypes>, int>::iterator it2;
+			for (it2 = mInnerYieldMap.begin(); it2 != mInnerYieldMap.end(); ++it2)
+			{
+				std::pair<YieldTypes, YieldTypes> eYieldPair = it2->first;
+				if (eYieldPair.second == eYield)
+				{
+					iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist) * kPlayer.GetEmpireYieldRate(eYieldPair.first, true) * it2->second / 100;
+				}
+			}
+		}
 	}
 	if (pkBuildingInfo->GetYieldFromLongCount(eYield) > 0 && kPlayer.GetPlayerTraits()->IsUsingMayaCalendar())
 	{
