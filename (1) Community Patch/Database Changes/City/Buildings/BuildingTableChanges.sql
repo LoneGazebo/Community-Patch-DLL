@@ -53,6 +53,10 @@ ALTER TABLE Buildings ADD LocalPopRequired integer DEFAULT 0;
 -- Adds population instantly to city.
 ALTER TABLE Buildings ADD PopulationChange integer DEFAULT 0;
 
+-- Newly trained units in this city gain additional experience for every golden age started after contruction of the building
+ALTER TABLE Buildings ADD ExperiencePerGoldenAge integer DEFAULT 0;
+ALTER TABLE Buildings ADD ExperiencePerGoldenAgeCap integer DEFAULT 0;
+
 -- Movement speed penalty (like Great Wall) for land plots worked by a City.
 ALTER TABLE Buildings ADD BorderObstacleCity boolean DEFAULT 0;
 

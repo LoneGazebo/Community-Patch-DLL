@@ -1188,11 +1188,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvCity* pCity = plot()->getEffectiveOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, this);
 		}
 		else if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity());
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity(), false, true, false, NO_YIELD, this);
 		}
 		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}

@@ -6110,7 +6110,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
-
+	
 	int iPlayerEra = MAX((int)m_pPlayer->GetCurrentEra(), 1);
 	int iOtherPlayerEra = MAX((int)GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra(), 1);
 
@@ -6139,6 +6139,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		{
 			iGoldAmount += iPoverty * 10;
 		}
+	}
+
+	// instant gold when the trade route ends?
+	if (pFromCity->GetYieldFromInternationalTREnd(YIELD_GOLD) > 0)
+	{
+		int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pFromCity, pToCity, kTradeConnection.m_eDomain, NULL);
+		ASSERT(iTurnsToComplete > 0);
+		iGoldAmount += pFromCity->GetYieldFromInternationalTREnd(YIELD_GOLD) / iTurnsToComplete;
 	}
 
 	//If we are somewhat influential, let's count that here.
@@ -6275,6 +6283,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		}
 	}
 
+	// instant science when the trade route ends?
+	if (pFromCity->GetYieldFromInternationalTREnd(YIELD_SCIENCE) > 0)
+	{
+		int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pFromCity, pToCity, kTradeConnection.m_eDomain, NULL);
+		ASSERT(iTurnsToComplete > 0);
+		iAdjustedTechDifferenceP1fromP2 += pFromCity->GetYieldFromInternationalTREnd(YIELD_SCIENCE) / iTurnsToComplete;
+	}
+
 	int iTechDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner,   kTradeConnection.m_eOriginOwner);
 	int iAdjustedTechDifferenceP2fromP1 = 0;
 	if (iTechDifferenceP2fromP1 > 0)
@@ -6358,6 +6374,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		{
 			iAdjustedCultureDifferenceP1fromP2 += iBoredom;
 		}
+	}
+
+	// instant culture when the trade route ends?
+	if (pFromCity->GetYieldFromInternationalTREnd(YIELD_CULTURE) > 0)
+	{
+		int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pFromCity, pToCity, kTradeConnection.m_eDomain, NULL);
+		ASSERT(iTurnsToComplete > 0);
+		iAdjustedCultureDifferenceP1fromP2 += pFromCity->GetYieldFromInternationalTREnd(YIELD_CULTURE) / iTurnsToComplete;
 	}
 
 	int iCultureDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
@@ -6459,8 +6483,9 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	if(iScore <= 0)
 		return ret;
 
-	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
+		YieldTypes eYieldLoop = (YieldTypes)iJ;
 		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
 			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
@@ -6469,23 +6494,23 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			{
 				continue;
 			}
-			if(pPlot->getOwner() != m_pPlayer->GetID())
+			if (pPlot->getOwner() != m_pPlayer->GetID())
 			{
 				continue;
 			}
-			if(pPlot->getTerrainType() == NO_TERRAIN)
+			if (pPlot->getTerrainType() == NO_TERRAIN)
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
 		}
 
-		//If we get a bonus from sending trade routes to foreign territory, let's send an international route!
-		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		if (eYieldLoop != YIELD_GOLD && eYieldLoop != YIELD_SCIENCE && eYieldLoop != YIELD_CULTURE) // We already checked these yield types above with a more sophisticated routine
 		{
-			YieldTypes eYieldLoop = (YieldTypes)iJ;
-			if (eYieldLoop != YIELD_GOLD && eYieldLoop != YIELD_SCIENCE && eYieldLoop != YIELD_CULTURE) // We already checked these yield types above with a more sophisticated routine
+			//If we get a bonus from sending trade routes to foreign territory, let's send an international route!
+			if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 			{
+
 				int iTempScore = 0;
 				iTempScore += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYieldLoop, true);
 				iTempScore += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYieldLoop, false);
@@ -6493,6 +6518,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				// Era scaler here because the instant yield scales with era
 				// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 				iScore += iTempScore * iPlayerEra / 2;
+			}
+
+			// instant yields when the trade route ends?
+			if (pFromCity->GetYieldFromInternationalTREnd(eYieldLoop) > 0)
+			{
+				int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pFromCity, pToCity, kTradeConnection.m_eDomain, NULL);
+				ASSERT(iTurnsToComplete > 0);
+				iScore += pFromCity->GetYieldFromInternationalTREnd(eYieldLoop) / iTurnsToComplete;
 			}
 		}
 	}
@@ -6833,6 +6866,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
+		YieldTypes eYieldLoop = (YieldTypes)iJ;
 		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
 			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
@@ -6849,7 +6883,15 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
+		}
+
+		// instant yields when the trade route ends?
+		if (pOriginCity->GetYieldFromInternalTREnd(eYieldLoop) + pDestCity->GetYieldFromInternalTREnd(eYieldLoop) > 0)
+		{
+			int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, kTradeConnection.m_eDomain, NULL);
+			ASSERT(iTurnsToComplete > 0);
+			iScore += (pOriginCity->GetYieldFromInternalTREnd(eYieldLoop) + pDestCity->GetYieldFromInternalTREnd(eYieldLoop)) / iTurnsToComplete;
 		}
 	}
 
@@ -7063,6 +7105,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 
 	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
+		YieldTypes eYieldLoop = (YieldTypes)iJ;
 		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
 		{
 			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
@@ -7079,7 +7122,15 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			{
 				continue;
 			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
+			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
+		}
+
+		// instant yields when the trade route ends?
+		if (pFromCity->GetYieldFromInternalTREnd(eYieldLoop) + pToCity->GetYieldFromInternalTREnd(eYieldLoop) > 0)
+		{
+			int iTurnsToComplete = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pFromCity, pToCity, kTradeConnection.m_eDomain, NULL);
+			ASSERT(iTurnsToComplete > 0);
+			iScore += (pFromCity->GetYieldFromInternalTREnd(eYieldLoop) + pToCity->GetYieldFromInternalTREnd(eYieldLoop)) / iTurnsToComplete;
 		}
 	}
 

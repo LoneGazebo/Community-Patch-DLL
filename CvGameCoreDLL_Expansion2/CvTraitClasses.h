@@ -2095,6 +2095,7 @@ public:
 	CvString GetMayaCalendarLongString();
 	void ChooseMayaBoost();
 	void ComputeMayaDate();
+	int GetCurrentBaktun() const;
 	int GetUnitBaktun(UnitTypes eUnit) const;
 	void SetUnitBaktun(UnitTypes eUnit);
 	bool IsFreeMayaGreatPersonChoice() const;

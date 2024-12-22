@@ -275,6 +275,8 @@ CvCity::CvCity() :
 	, m_aiYieldPerPop()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
+	, m_miTechEnhancedYields()
+	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 #endif
 	, m_aiYieldPerReligion()
@@ -415,6 +417,8 @@ CvCity::CvCity() :
 	, m_aiYieldChangePerGoldenAgeCap()
 	, m_aiYieldFromPreviousGoldenAges()
 	, m_aiGoldenAgeYieldMod()
+	, m_aiYieldChangesPerLocalTheme()
+	, m_aiYieldFromUnitGiftGlobal()
 	, m_aiYieldFromWLTKD()
 	, m_aiYieldFromConstruction()
 	, m_aiYieldFromTech()
@@ -431,8 +435,13 @@ CvCity::CvCity() :
 	, m_aiYieldPerAlly()
 	, m_aiYieldPerFriend()
 	, m_aiYieldFromInternalTREnd()
+	, m_aiYieldFromInternationalTREnd()
 	, m_aiYieldFromInternalTR()
 	, m_aiYieldFromProcessModifier()
+	, m_aiYieldFromLongCount()
+	, m_aiYieldFromGPBirthScaledWithWriterBulb()
+	, m_aiYieldFromGPBirthScaledWithArtistBulb()
+	, m_miYieldFromGPBirthScaledWithPerTurnYield()
 	, m_aiSpecialistRateModifierFromBuildings()
 	, m_aiNumTimesOwned()
 	, m_aiStaticCityYield()
@@ -442,6 +451,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromSpyIdentify()
 	, m_aiYieldFromSpyDefenseOrID()
 	, m_aiYieldFromSpyRigElection()
+	, m_aiYieldChangesPerCityStrengthTimes100()
 	, m_aiBaseYieldRateFromCSAlliance()
 	, m_aiBaseYieldRateFromCSFriendship()
 	, m_aiYieldFromMinors()
@@ -493,6 +503,9 @@ CvCity::CvCity() :
 	, m_iNumNearbyMountains()
 	, m_iLocalUnhappinessMod()
 #endif
+	, m_iExperiencePerGoldenAge()
+	, m_iExperiencePerGoldenAgeCap()
+	, m_iExperienceFromPreviousGoldenAges()
 	, m_bOwedFoodBuilding()
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn()
@@ -1132,6 +1145,8 @@ void CvCity::uninit()
 {
 	VALIDATE_OBJECT
 	m_aiYieldPerPopInEmpire.clear();
+	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 
 #if defined(MOD_BALANCE_CORE)
 	m_ppiGreatPersonProgressFromConstruction.clear();
@@ -1327,6 +1342,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iDeepWaterTileDamage = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
+	m_iExperiencePerGoldenAge = 0;
+	m_iExperiencePerGoldenAgeCap = 0;
+	m_iExperienceFromPreviousGoldenAges = 0;
 	m_iTradePriorityLand = 0;
 	m_iNukeInterceptionChance = 0;
 	m_iTradeRouteSeaDistanceModifier = 0;
@@ -1360,6 +1378,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldChangePerGoldenAgeCap.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPreviousGoldenAges.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangesPerLocalTheme.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromUnitGiftGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES);
@@ -1376,14 +1396,20 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromInternationalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromProcessModifier.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromLongCount.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromGPBirthScaledWithWriterBulb.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromGPBirthScaledWithArtistBulb.resize(NUM_YIELD_TYPES);
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyIdentify.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefenseOrID.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyRigElection.resize(NUM_YIELD_TYPES);
+	m_aiYieldChangesPerCityStrengthTimes100.resize(NUM_YIELD_TYPES);
 	m_aiNumTimesOwned.resize(REALLY_MAX_PLAYERS);
 	m_aiStaticCityYield.resize(NUM_YIELD_TYPES);
 #endif
@@ -1424,6 +1450,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_aiYieldPerPopInEmpire.clear();
 #endif
+	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
@@ -1459,6 +1487,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldChangePerGoldenAgeCap[iI] = 0;
 		m_aiYieldFromPreviousGoldenAges[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
+		m_aiYieldChangesPerLocalTheme[iI] = 0;
+		m_aiYieldFromUnitGiftGlobal[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
 		m_aiYieldFromConstruction[iI] = 0;
 		m_aiYieldFromTech[iI] = 0;
@@ -1475,14 +1505,19 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldPerAlly[iI] = 0;
 		m_aiYieldPerFriend[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
+		m_aiYieldFromInternationalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
 		m_aiYieldFromProcessModifier[iI] = 0;
+		m_aiYieldFromLongCount[iI] = 0;
+		m_aiYieldFromGPBirthScaledWithWriterBulb[iI] = 0;
+		m_aiYieldFromGPBirthScaledWithArtistBulb[iI] = 0;
 		m_aiThemingYieldBonus[iI] = 0;
 		m_aiYieldFromSpyAttack[iI] = 0;
 		m_aiYieldFromSpyDefense[iI] = 0;
 		m_aiYieldFromSpyIdentify[iI] = 0;
 		m_aiYieldFromSpyDefenseOrID[iI] = 0;
 		m_aiYieldFromSpyRigElection[iI] = 0;
+		m_aiYieldChangesPerCityStrengthTimes100[iI] = 0;
 		m_aiEventCityYield[iI] = 0;
 		m_aiEventCityYieldModifier[iI] = 0;
 #endif
@@ -1501,6 +1536,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiExtraSpecialistYield[iI] = 0;
 		m_aiProductionToYieldModifier[iI] = 0;
 	}
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	m_abEventChoiceFired.resize(GC.getNumCityEventChoiceInfos());
 	m_aiEventChoiceDuration.resize(GC.getNumCityEventChoiceInfos());
@@ -10683,6 +10719,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
 				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier(pkUnitInfo->GetDomainType());
 			}
 
+			iExperience += GetExperienceFromPreviousGoldenAges();
 			iExperience += getSpecialistFreeExperience();
 		}
 	}
@@ -14208,6 +14245,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
 
 		ChangeBaseHappinessFromBuildings(pBuildingInfo->GetHappiness() * iChange);
+		
+		ChangeExperiencePerGoldenAge(pBuildingInfo->GetExperiencePerGoldenAge() * iChange);
+		ChangeExperiencePerGoldenAgeCap(pBuildingInfo->GetExperiencePerGoldenAgeCap() * iChange);
 
 		if (pBuildingInfo->GetUnmoddedHappiness() != 0)
 		{
@@ -14704,6 +14744,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
+		if (!pBuildingInfo->GetGreatPersonPointFromConstruction().empty())
+		{
+			std::map<pair<GreatPersonTypes, EraTypes>, int> mGreatPersonPointFromConstruction = pBuildingInfo->GetGreatPersonPointFromConstruction();
+			std::map<pair<GreatPersonTypes, EraTypes>, int>::iterator it;
+			for (it = mGreatPersonPointFromConstruction.begin(); it != mGreatPersonPointFromConstruction.end(); ++it)
+			{
+				ChangeGreatPersonPointFromConstruction(it->first, it->second * iChange);
+			}
+		}
+
 		YieldTypes eYield;
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -14779,6 +14829,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0))
+			{
+				ChangeYieldChangesPerLocalTheme(eYield, pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * iChange);
+			}
+
+			if ((pBuildingInfo->GetYieldFromUnitGiftGlobal(eYield) > 0))
+			{
+				ChangeYieldFromUnitGiftGlobal(eYield, pBuildingInfo->GetYieldFromUnitGiftGlobal(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromWLTKD(eYield) > 0))
 			{
 				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
@@ -14824,6 +14884,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromInternalTREnd(eYield, (pBuildingInfo->GetYieldFromInternalTREnd(eYield) * iChange));
 			}
+			if ((pBuildingInfo->GetYieldFromInternationalTREnd(eYield) > 0))
+			{
+				ChangeYieldFromInternationalTREnd(eYield, (pBuildingInfo->GetYieldFromInternationalTREnd(eYield) * iChange));
+			}
 
 			if ((pBuildingInfo->GetYieldFromInternal(eYield) > 0))
 			{
@@ -14835,6 +14899,20 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromProcessModifier(eYield, (pBuildingInfo->GetYieldFromProcessModifier(eYield) * iChange));
 			}
 
+			if ((pBuildingInfo->GetYieldFromLongCount(eYield) > 0))
+			{
+				ChangeYieldFromLongCount(eYield, (pBuildingInfo->GetYieldFromLongCount(eYield) * iChange));
+			}
+
+			if ((pBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) > 0))
+			{
+				ChangeYieldFromGPBirthScaledWithWriterBulb(eYield, (pBuildingInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) * iChange));
+			}
+
+			if ((pBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) > 0))
+			{
+				ChangeYieldFromGPBirthScaledWithArtistBulb(eYield, (pBuildingInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) * iChange));
+			}
 
 			if ((pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
@@ -14860,6 +14938,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if ((pBuildingInfo->GetYieldFromSpyRigElection(eYield) > 0))
 			{
 				ChangeYieldFromSpyRigElection(eYield, pBuildingInfo->GetYieldFromSpyRigElection(eYield) * iChange);
+			}
+			if ((pBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) > 0))
+			{
+				ChangeYieldChangesPerCityStrengthTimes100(eYield, pBuildingInfo->GetYieldChangesPerCityStrengthTimes100(eYield) * iChange);
 			}
 
 			if ((pBuildingInfo->GetYieldFromBirth(eYield) > 0))
@@ -15053,11 +15135,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldPerXFeatureFromBuildingsTimes100(((FeatureTypes)iJ), eYield, (pBuildingInfo->GetYieldPerXFeature(iJ, eYield) * iChange));
 			}
 
-			if (pBuildingInfo->GetEnhancedYieldTech() != NO_TECH)
+			if (!pBuildingInfo->GetTechEnhancedYields().empty())
 			{
-				if (owningTeam.GetTeamTechs()->HasTech((TechTypes)pBuildingInfo->GetEnhancedYieldTech()))
+				map<int, std::map<int, int>> mTechEnhancedYields = pBuildingInfo->GetTechEnhancedYields();
+				map<int, std::map<int, int>>::iterator it;
+				for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); ++it)
 				{
-					ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetTechEnhancedYieldChange(eYield) * iChange);
+					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+					if (it2 != (it->second).end())
+					{
+						ChangeTechEnhancedYields((TechTypes)it->first, eYield, it2->second * iChange);
+					}
 				}
 			}
 
@@ -15065,6 +15153,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (iBuildingClassBonus > 0)
 			{
 				ChangeBaseYieldRateFromBuildings(eYield, iBuildingClassBonus * iChange);
+			}
+		}
+
+		if (!pBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+		{
+			map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> mYieldFromGPBirthScaledWithPerTurnYield = pBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap();
+			map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::iterator it;
+			for (it = mYieldFromGPBirthScaledWithPerTurnYield.begin(); it != mYieldFromGPBirthScaledWithPerTurnYield.end(); ++it)
+			{
+				map<std::pair<YieldTypes, YieldTypes>, int> mInnerYieldMap = it->second;
+				map<std::pair<YieldTypes, YieldTypes>, int>::iterator it2;
+				for (it2 = mInnerYieldMap.begin(); it2 != mInnerYieldMap.end(); ++it2)
+				{
+					ChangeYieldFromGPBirthScaledWithPerTurnYield(it->first, it2->first, it2->second);
+				}
 			}
 		}
 
@@ -20308,15 +20411,15 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 			}
 		}
 
-		if (kPlayer.GetExtraHappinessPerXPoliciesFromPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPoliciesFromPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPoliciesFromPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPoliciesFromPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 
 		// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
-		if (kPlayer.GetExtraHappinessPerXPolicies() > 0)
+		if (kPlayer.GetExtraHappinessPolicies() > 0)
 		{
-			iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / kPlayer.GetExtraHappinessPerXPolicies();
+			iTotalHappiness += (kPlayer.GetExtraHappinessPolicies() * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned()).Truncate();
 		}
 	}
 
@@ -22222,6 +22325,52 @@ bool CvCity::IsIgnoreCityForHappiness() const
 void CvCity::SetIgnoreCityForHappiness(bool bValue)
 {
 	m_bIgnoreCityForHappiness = bValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+int CvCity::GetExperiencePerGoldenAge() const
+{
+	return m_iExperiencePerGoldenAge;
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+void CvCity::ChangeExperiencePerGoldenAge(int iChange)
+{
+	m_iExperiencePerGoldenAge += iChange;
+	ASSERT(m_iExperiencePerGoldenAge >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+int CvCity::GetExperiencePerGoldenAgeCap() const
+{
+	return m_iExperiencePerGoldenAgeCap;
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+void CvCity::ChangeExperiencePerGoldenAgeCap(int iChange)
+{
+	m_iExperiencePerGoldenAgeCap += iChange;
+	ASSERT(m_iExperiencePerGoldenAgeCap >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+/// Additional XP for Units trained in this city from previous golden ages
+int CvCity::GetExperienceFromPreviousGoldenAges() const
+{
+	return m_iExperienceFromPreviousGoldenAges;
+}
+
+//	--------------------------------------------------------------------------------
+/// Additional XP for Units trained in this city from previous golden ages
+void CvCity::ChangeExperienceFromPreviousGoldenAges(int iChange)
+{
+	m_iExperienceFromPreviousGoldenAges += iChange;
+	ASSERT(m_iExperienceFromPreviousGoldenAges >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -24310,6 +24459,63 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Extra yield from themed buildings
+int CvCity::GetYieldChangesPerLocalTheme(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangesPerLocalTheme[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from themed buildings
+void CvCity::ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangesPerLocalTheme[eIndex] = m_aiYieldChangesPerLocalTheme[eIndex] + iChange;
+		CvAssert(GetYieldChangesPerLocalTheme(eIndex) >= 0);
+		ResetGreatWorkYieldCache();
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Instant yields from gifting units
+int CvCity::GetYieldFromUnitGiftGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromUnitGiftGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Instant yields from gifting units
+void CvCity::ChangeYieldFromUnitGiftGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromUnitGiftGlobal[eIndex] = m_aiYieldFromUnitGiftGlobal[eIndex] + iChange;
+		CvAssert(GetYieldFromUnitGiftGlobal(eIndex) >= 0);
+		if (GetYieldFromUnitGiftGlobal(eIndex) > 0)
+		{
+			GET_PLAYER(getOwner()).setInstantYieldsFromUnitGift(true);
+		}
+	}
+
+}
+
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -24732,6 +24938,31 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
+int CvCity::GetYieldFromInternationalTREnd(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromInternationalTREnd[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromInternationalTREnd(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromInternationalTREnd[eIndex1] = m_aiYieldFromInternationalTREnd[eIndex1] + iChange;
+		CvAssert(GetYieldFromInternationalTREnd(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
 int CvCity::GetYieldFromInternalTREnd(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT
@@ -24803,6 +25034,140 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 	{
 		m_aiYieldFromProcessModifier[eIndex1] = m_aiYieldFromProcessModifier[eIndex1] + iChange;
 		CvAssert(GetYieldFromProcessModifier(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a b'ak'tun ends
+int CvCity::GetYieldFromLongCount(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromLongCount[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a b'ak'tun ends
+void CvCity::ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromLongCount[eIndex1] = m_aiYieldFromLongCount[eIndex1] + iChange;
+		CvAssert(GetYieldFromLongCount(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Writer is born
+int CvCity::GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Writer is born
+void CvCity::ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] + iChange;
+		CvAssert(GetYieldFromGPBirthScaledWithWriterBulb(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Artist is born
+int CvCity::GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield when a Great Artist is born
+void CvCity::ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] + iChange;
+		CvAssert(GetYieldFromGPBirthScaledWithArtistBulb(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> CvCity::GetYieldFromGPBirthScaledWithPerTurnYieldMap() const
+{
+	return m_miYieldFromGPBirthScaledWithPerTurnYield;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+int CvCity::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	CvAssertMsg(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	CvAssertMsg(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
+	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		map<std::pair<YieldTypes, YieldTypes>, int> miYieldMap = it->second;
+		map<std::pair<YieldTypes, YieldTypes>, int>::const_iterator it2 = miYieldMap.find(std::make_pair(eYieldIn, eYieldOut));
+		if (it2 != miYieldMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+void CvCity::ChangeYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, std::pair<YieldTypes, YieldTypes> eYieldPair, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	CvAssertMsg(eYieldPair.first >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eYieldPair.first < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYieldPair.second >= 0, "eYieldOut expected to be >= 0");
+	CvAssertMsg(eYieldPair.second < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] += iChange;
+		ASSERT(m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] >= 0);
+
+		if (m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] == 0)
+		{
+			m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson].erase(eYieldPair);
+			if (m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson].empty())
+			{
+				m_miYieldFromGPBirthScaledWithPerTurnYield.erase(eGreatPerson);
+			}
+		}
 	}
 }
 
@@ -24976,6 +25341,31 @@ void CvCity::ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromSpyRigElection[eIndex] = m_aiYieldFromSpyRigElection[eIndex] + iChange;
 		CvAssert(GetYieldFromSpyRigElection(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield per city strength
+int CvCity::GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldChangesPerCityStrengthTimes100[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield per city strength
+void CvCity::ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldChangesPerCityStrengthTimes100[eIndex] = m_aiYieldChangesPerCityStrengthTimes100[eIndex] + iChange;
+		CvAssert(GetYieldChangesPerCityStrengthTimes100(eIndex) >= 0);
 	}
 }
 #endif
@@ -25934,6 +26324,112 @@ void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
 		m_aiYieldPerPopInEmpire[(int)eIndex] += iChange;
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+/// Extra yields when a tech is researched
+std::map<int, std::map<int, int>> CvCity::GetTechEnhancedYieldsMap() const
+{
+	return m_miTechEnhancedYields;
+}
+int CvCity::GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	std::map<int, std::map<int, int>>::const_iterator it = m_miTechEnhancedYields.find((int)eTech);
+	if (it != m_miTechEnhancedYields.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		std::map<int, int> miTechMap = it->second;
+		std::map<int, int>::const_iterator it2 = miTechMap.find((int)eYield);
+		if (it2 != miTechMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
+}
+bool CvCity::TechEnhancesAnyYield(TechTypes eTech) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+
+	return m_miTechEnhancedYields.find((int)eTech) != m_miTechEnhancedYields.end();
+}
+void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
+	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+
+	if (iChange != 0)
+	{
+		// if we already have the tech, we need to change the yields generated in the city
+		if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(eTech))
+		{
+			ChangeBaseYieldRateFromBuildings(eYield, iChange);
+		}
+
+		m_miTechEnhancedYields[eTech][eYield] += iChange;
+		CvAssertMsg(m_miTechEnhancedYields[eTech][eYield] >= 0, "negative value in m_miTechEnhancedYields");
+		if (m_miTechEnhancedYields[eTech][eYield] == 0)
+		{
+			m_miTechEnhancedYields[eTech].erase(eYield);
+			if (m_miTechEnhancedYields[eTech].size() == 0)
+			{
+				m_miTechEnhancedYields.erase(eTech);
+			}
+		}
+		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yields when a tech is researched
+std::map<pair<GreatPersonTypes, EraTypes>, int> CvCity::GetGreatPersonPointFromConstructionMap() const
+{
+	return m_miGreatPersonPointFromConstruction;
+}
+int CvCity::GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eGreatPerson expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	CvAssertMsg(eEra >= 0, "eEra expected to be >= 0");
+	CvAssertMsg(eEra < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+
+	std::map<pair<GreatPersonTypes, EraTypes>, int>::const_iterator it = m_miGreatPersonPointFromConstruction.find(std::make_pair(eGreatPerson, eEra));
+	if (it != m_miGreatPersonPointFromConstruction.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+void CvCity::ChangeGreatPersonPointFromConstruction(pair<GreatPersonTypes, EraTypes> pGreatPersonEra, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(pGreatPersonEra.first >= 0, "eGreatPerson expected to be >= 0");
+	CvAssertMsg(pGreatPersonEra.first < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	CvAssertMsg(pGreatPersonEra.second >= 0, "eEra expected to be >= 0");
+	CvAssertMsg(pGreatPersonEra.second < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+
+	if (iChange != 0)
+	{
+		m_miGreatPersonPointFromConstruction[pGreatPersonEra] += iChange;
+		CvAssertMsg(m_miGreatPersonPointFromConstruction[pGreatPersonEra] >= 0, "negative value in m_miTechEnhancedYields");
+		if (m_miGreatPersonPointFromConstruction[pGreatPersonEra] == 0)
+		{
+			m_miGreatPersonPointFromConstruction.erase(pGreatPersonEra);
+		}
+	}
+}
 
 //	--------------------------------------------------------------------------------
 /// Extra yield for each religion with a follower
@@ -27042,12 +27538,23 @@ void CvCity::updateStrengthValue()
 		// set new strength values
 		m_iStrengthValueRanged = iStrengthValueRanged;
 		m_iStrengthValue = iStrengthValue;
-
+		bool bHasCityYieldsPerCityStrength = false;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			if (GetYieldChangesPerCityStrengthTimes100((YieldTypes)iI) > 0)
+			{
+				bHasCityYieldsPerCityStrength = true;
+				break;
+			}
+		}
 		if (bHadBonusesBefore != bHasBonusesNow)
 		{
 			// update happiness
 			GET_PLAYER(getOwner()).CalculateNetHappiness();
 			updateNetHappiness();
+		}
+		if (bHadBonusesBefore != bHasBonusesNow || bHasCityYieldsPerCityStrength)
+		{
 			// update yields
 			updateYield();
 		}
@@ -31622,6 +32129,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldChangePerGoldenAge);
 	visitor(city.m_aiYieldChangePerGoldenAgeCap);
 	visitor(city.m_aiGoldenAgeYieldMod);
+	visitor(city.m_aiYieldChangesPerLocalTheme);
+	visitor(city.m_aiYieldFromUnitGiftGlobal);
 	visitor(city.m_aiYieldFromWLTKD);
 	visitor(city.m_aiYieldFromConstruction);
 	visitor(city.m_aiYieldFromTech);
@@ -31637,8 +32146,13 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldPerAlly);
 	visitor(city.m_aiYieldPerFriend);
 	visitor(city.m_aiYieldFromInternalTREnd);
+	visitor(city.m_aiYieldFromInternationalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
 	visitor(city.m_aiYieldFromProcessModifier);
+	visitor(city.m_aiYieldFromLongCount);
+	visitor(city.m_aiYieldFromGPBirthScaledWithWriterBulb);
+	visitor(city.m_aiYieldFromGPBirthScaledWithArtistBulb);
+	visitor(city.m_miYieldFromGPBirthScaledWithPerTurnYield);
 	visitor(city.m_aiSpecialistRateModifierFromBuildings);
 	visitor(city.m_aiThemingYieldBonus);
 	visitor(city.m_aiYieldFromSpyAttack);
@@ -31646,6 +32160,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromSpyIdentify);
 	visitor(city.m_aiYieldFromSpyDefenseOrID);
 	visitor(city.m_aiYieldFromSpyRigElection);
+	visitor(city.m_aiYieldChangesPerCityStrengthTimes100);
 	visitor(city.m_aiNumTimesOwned);
 	visitor(city.m_aiStaticCityYield);
 	visitor(city.m_iTradePriorityLand);
@@ -31667,6 +32182,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iDeepWaterTileDamage);
 	visitor(city.m_iNumNearbyMountains);
 	visitor(city.m_iLocalUnhappinessMod);
+	visitor(city.m_iExperiencePerGoldenAge);
+	visitor(city.m_iExperiencePerGoldenAgeCap);
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
 	visitor(city.m_iNoStarvationNonSpecialist);
@@ -31899,6 +32416,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_eventYields);
 	visitor(city.m_ppiGreatPersonProgressFromConstruction);
 	visitor(city.m_aiYieldPerPopInEmpire);
+	visitor(city.m_miTechEnhancedYields);
+	visitor(city.m_miGreatPersonPointFromConstruction);
 }
 
 //	--------------------------------------------------------------------------------

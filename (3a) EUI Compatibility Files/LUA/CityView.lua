@@ -950,6 +950,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			thisBuildingAndYieldTypes.YieldType = (GameInfo.Yields[yieldID] or {}).Type or -1
 			-- Yield changes from the building
 			buildingYieldRate = Game.GetBuildingYieldChange( buildingID, yieldID )
+						+ cityOwner:GetBuildingTechEnhancedYields(buildingID, yieldID)
 						+ (gk_mode and cityOwner:GetPlayerBuildingClassYieldChange( buildingClassID, yieldID )
 						+ city:GetReligionBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
 						+ (bnw_mode and city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
@@ -1027,14 +1028,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
-			-- Tech Enhanced Yield
-			buildingTechEnhancedYield = 0
-			for row in GameInfo.Building_TechEnhancedYieldChanges( thisBuildingAndYieldTypes ) do
-				if (Teams[city:GetTeam()]:IsHasTech(GameInfoTypes[ building.EnhancedYieldTech ])) then
-					buildingTechEnhancedYield = buildingTechEnhancedYield + (row.Yield or 0)
-				end
-			end
-			buildingYieldRate = buildingYieldRate + buildingTechEnhancedYield
 			-- End
 			-- Vox Populi Comparable Yields
 			cityYieldRateModifier = 100
@@ -1057,8 +1050,6 @@ local function SetupBuildingList( city, buildings, buildingIM )
 					and building.Cost == -1
 					and city and city:GetFaithBuildingTourism()
 					) or 0 )
---			local enhancedYieldTechID = GameInfoTypes[ building.EnhancedYieldTech ]
-			tourism = tourism + (tonumber(building.TechEnhancedTourism) or 0)
 			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
 		end
 

@@ -10050,7 +10050,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 				iYield += kPlayer.GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 			}
 
-			// Yields from strong city
+			// Yields from city strength
+			if (pOwningCity->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
+			{
+				iYield += pOwningCity->GetYieldChangesPerCityStrengthTimes100(eYield) * pOwningCity->getStrengthValue() / 10000;
+			}
 			if (pOwningCity->getStrengthValue() >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
 			{
 				iYield += kPlayer.getYieldPerCityOverStrengthThreshold(eYield);
