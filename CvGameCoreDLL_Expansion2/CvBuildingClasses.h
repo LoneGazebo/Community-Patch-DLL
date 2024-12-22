@@ -420,6 +420,9 @@ public:
 	int GetBoredomFlatReductionGlobal() const;
 	int GetReligiousUnrestFlatReductionGlobal() const;
 
+	int GetExperiencePerGoldenAge() const;
+	int GetExperiencePerGoldenAgeCap() const;
+
 	// Accessor Functions (Arrays)
 	int GetGrowthExtraYield(int i) const;
 	int* GetGrowthExtraYieldArray() const;
@@ -909,6 +912,8 @@ private:
 	int m_iIlliteracyFlatReductionGlobal;
 	int m_iBoredomFlatReductionGlobal;
 	int m_iReligiousUnrestFlatReductionGlobal;
+	int m_iExperiencePerGoldenAge;
+	int m_iExperiencePerGoldenAgeCap;
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
 
