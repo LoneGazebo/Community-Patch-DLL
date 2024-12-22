@@ -5105,6 +5105,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 
 				//Also get our XP boosts local to this city.
 				iCombatClassValue += pLoopCity->getFreeExperience();
+				iCombatClassValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
 
 				if(pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
@@ -5163,6 +5164,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 
 				//Also get our XP boosts local to this city.
 				iDomainValue += pLoopCity->getFreeExperience();
+				iDomainValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
 
 				if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
 				{
@@ -24695,6 +24697,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 					iNewValue = max(0, min(iNewValue, pLoopCity->GetYieldChangePerGoldenAgeCap(eYield)));
 					pLoopCity->ChangeYieldFromPreviousGoldenAges(eYield, iNewValue - iOldValue);
 				}
+			}
+			if (pLoopCity->GetExperiencePerGoldenAge() != 0)
+			{
+				int iOldValue = pLoopCity->GetExperienceFromPreviousGoldenAges();
+				int iNewValue = iOldValue + pLoopCity->GetExperiencePerGoldenAge();
+				iNewValue = max(0, min(iNewValue, pLoopCity->GetExperiencePerGoldenAgeCap()));
+				pLoopCity->ChangeExperienceFromPreviousGoldenAges(iNewValue - iOldValue);
 			}
 			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity->GetCityCulture()->CalculateBaseTourism();

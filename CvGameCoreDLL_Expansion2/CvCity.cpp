@@ -502,6 +502,9 @@ CvCity::CvCity() :
 	, m_iNumNearbyMountains()
 	, m_iLocalUnhappinessMod()
 #endif
+	, m_iExperiencePerGoldenAge()
+	, m_iExperiencePerGoldenAgeCap()
+	, m_iExperienceFromPreviousGoldenAges()
 	, m_bOwedFoodBuilding()
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn()
@@ -1338,6 +1341,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iDeepWaterTileDamage = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
+	m_iExperiencePerGoldenAge = 0;
+	m_iExperiencePerGoldenAgeCap = 0;
+	m_iExperienceFromPreviousGoldenAges = 0;
 	m_iTradePriorityLand = 0;
 	m_iNukeInterceptionChance = 0;
 	m_iTradeRouteSeaDistanceModifier = 0;
@@ -10710,6 +10716,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
 				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier(pkUnitInfo->GetDomainType());
 			}
 
+			iExperience += GetExperienceFromPreviousGoldenAges();
 			iExperience += getSpecialistFreeExperience();
 		}
 	}
@@ -14235,6 +14242,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
 
 		ChangeBaseHappinessFromBuildings(pBuildingInfo->GetHappiness() * iChange);
+		
+		ChangeExperiencePerGoldenAge(pBuildingInfo->GetExperiencePerGoldenAge() * iChange);
+		ChangeExperiencePerGoldenAgeCap(pBuildingInfo->GetExperiencePerGoldenAgeCap() * iChange);
 
 		if (pBuildingInfo->GetUnmoddedHappiness() != 0)
 		{
@@ -22297,6 +22307,52 @@ bool CvCity::IsIgnoreCityForHappiness() const
 void CvCity::SetIgnoreCityForHappiness(bool bValue)
 {
 	m_bIgnoreCityForHappiness = bValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+int CvCity::GetExperiencePerGoldenAge() const
+{
+	return m_iExperiencePerGoldenAge;
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+void CvCity::ChangeExperiencePerGoldenAge(int iChange)
+{
+	m_iExperiencePerGoldenAge += iChange;
+	ASSERT(m_iExperiencePerGoldenAge >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+int CvCity::GetExperiencePerGoldenAgeCap() const
+{
+	return m_iExperiencePerGoldenAgeCap;
+}
+
+//	--------------------------------------------------------------------------------
+/// Units trained in this city start with additional XP for every golden age started
+void CvCity::ChangeExperiencePerGoldenAgeCap(int iChange)
+{
+	m_iExperiencePerGoldenAgeCap += iChange;
+	ASSERT(m_iExperiencePerGoldenAgeCap >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+/// Additional XP for Units trained in this city from previous golden ages
+int CvCity::GetExperienceFromPreviousGoldenAges() const
+{
+	return m_iExperienceFromPreviousGoldenAges;
+}
+
+//	--------------------------------------------------------------------------------
+/// Additional XP for Units trained in this city from previous golden ages
+void CvCity::ChangeExperienceFromPreviousGoldenAges(int iChange)
+{
+	m_iExperienceFromPreviousGoldenAges += iChange;
+	ASSERT(m_iExperienceFromPreviousGoldenAges >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -32048,6 +32104,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iDeepWaterTileDamage);
 	visitor(city.m_iNumNearbyMountains);
 	visitor(city.m_iLocalUnhappinessMod);
+	visitor(city.m_iExperiencePerGoldenAge);
+	visitor(city.m_iExperiencePerGoldenAgeCap);
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
 	visitor(city.m_iNoStarvationNonSpecialist);
