@@ -14643,11 +14643,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			// Add extra luxury counts
 
-			for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+				pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
-				if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+				if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner() && pLoopPlot->getOwningCityID() == GetID())
 				{
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)

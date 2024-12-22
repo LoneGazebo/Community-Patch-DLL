@@ -7080,7 +7080,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 				continue;
 			CvImprovementEntry& pImprovementEntry = *GC.getImprovementInfo(eImprovement);
 			ResourceTypes eResource = pDigPlot->getResourceType(GET_PLAYER(ePlayer).getTeam());
-			if (!(pImprovementEntry.IsPromptWhenComplete() && pImprovementEntry.IsImprovementResourceMakesValid(eResource)))
+			if (!(pImprovementEntry.IsPromptWhenComplete() && eResource != NO_RESOURCE && pImprovementEntry.IsImprovementResourceMakesValid(eResource)))
 				continue;
 			// Does the player have access to the build action?
 			if (!GET_PLAYER(ePlayer).canBuild(pDigPlot, eBuild, false /*bTestEra*/, false /*bTestVisible*/, false /*bTestGold*/, false /*bTestPlotOwner*/))
@@ -17246,7 +17246,7 @@ void CvMinorCivAI::DoElection()
 						break;
 					}
 				}
-				ASSERT(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ");
+				ASSERT(iSpyID != -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -17364,7 +17364,7 @@ void CvMinorCivAI::DoElection()
 							break;
 						}
 					}
-					ASSERT(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ");
+					ASSERT(iSpyID != -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
 				}
 			}
