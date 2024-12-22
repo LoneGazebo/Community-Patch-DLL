@@ -4300,7 +4300,8 @@ bool CvPlayerTrade::IsConnectedToPlayer(PlayerTypes eOtherPlayer) const
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath /* = true */) const
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	if (pDestCity->isBarbarian())
+		return false;
 
 	// if you can't see the plot, you're not allowed to connect it
 	if (!pDestCity->plot()->isRevealed(m_pPlayer->getTeam(), false))
@@ -4313,6 +4314,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 		return false;
 	}
 
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	return pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath);
 }
 

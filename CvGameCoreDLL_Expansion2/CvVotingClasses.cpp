@@ -13512,7 +13512,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iExtra -= iAllyDesire * 150 / 100;
 				}
-				else
+				else if (eAlliedPlayer != NO_PLAYER)
 				{
 					int iInfluencePercent = range((iInfluence * 100) / max(1, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer)), 0, 100);
 					iExtra -= iAllyDesire * iInfluencePercent / 100;

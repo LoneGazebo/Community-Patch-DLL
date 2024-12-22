@@ -845,8 +845,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					// in VP, Diplomats start schmoozing immediately after arriving in the city
 					pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_SCHMOOZE);
 					int iRate = CalcPerTurn(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
-					int iGoal = CalcRequired(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
-					pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
+					pCityEspionage->SetActivity(ePlayer, 0, iRate, -1);
 					// activate passive bonuses of the 0 NP threshold
 					pCityEspionage->AddNetworkPointsDiplomat(m_pPlayer->GetID(), pSpy, 0, /*bInit*/ true);
 				}
