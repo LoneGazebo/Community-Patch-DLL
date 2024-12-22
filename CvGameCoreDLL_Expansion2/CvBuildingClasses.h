@@ -535,6 +535,9 @@ public:
 	int GetYieldFromGPBirthScaledWithWriterBulb(int i) const;
 	int GetYieldFromGPBirthScaledWithArtistBulb(int i) const;
 
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> GetYieldFromGPBirthScaledWithPerTurnYieldMap() const;
+	int GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const;
+
 	int GetYieldFromProcessModifier(int i) const;
 	int* GetYieldFromProcessModifierArray() const;
 
@@ -1078,6 +1081,7 @@ private:
 	int* m_piYieldFromLongCount;
 	int* m_piYieldFromGPBirthScaledWithWriterBulb;
 	int* m_piYieldFromGPBirthScaledWithArtistBulb;
+	map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
