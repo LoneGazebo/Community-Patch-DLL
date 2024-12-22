@@ -25777,6 +25777,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
 					}
+					if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+					{
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+							{
+								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * pLoopCity->getYieldRate((YieldTypes)iI, false) / 100;
+							}
+						}
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_F_CONQUEST:

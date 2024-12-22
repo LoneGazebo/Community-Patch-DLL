@@ -441,6 +441,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromLongCount()
 	, m_aiYieldFromGPBirthScaledWithWriterBulb()
 	, m_aiYieldFromGPBirthScaledWithArtistBulb()
+	, m_miYieldFromGPBirthScaledWithPerTurnYield()
 	, m_aiSpecialistRateModifierFromBuildings()
 	, m_aiNumTimesOwned()
 	, m_aiStaticCityYield()
@@ -1401,6 +1402,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromLongCount.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromGPBirthScaledWithWriterBulb.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromGPBirthScaledWithArtistBulb.resize(NUM_YIELD_TYPES);
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1534,6 +1536,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiExtraSpecialistYield[iI] = 0;
 		m_aiProductionToYieldModifier[iI] = 0;
 	}
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	m_abEventChoiceFired.resize(GC.getNumCityEventChoiceInfos());
 	m_aiEventChoiceDuration.resize(GC.getNumCityEventChoiceInfos());
@@ -15153,6 +15156,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
+		if (!pBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+		{
+			map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> mYieldFromGPBirthScaledWithPerTurnYield = pBuildingInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap();
+			map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::iterator it;
+			for (it = mYieldFromGPBirthScaledWithPerTurnYield.begin(); it != mYieldFromGPBirthScaledWithPerTurnYield.end(); ++it)
+			{
+				map<std::pair<YieldTypes, YieldTypes>, int> mInnerYieldMap = it->second;
+				map<std::pair<YieldTypes, YieldTypes>, int>::iterator it2;
+				for (it2 = mInnerYieldMap.begin(); it2 != mInnerYieldMap.end(); ++it2)
+				{
+					ChangeYieldFromGPBirthScaledWithPerTurnYield(it->first, it2->first, it2->second);
+				}
+			}
+		}
+
 		if (pBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
 		{
 			GetCityCitizens()->ChangeBuildingGreatPeopleRateChanges((SpecialistTypes)pBuildingInfo->GetSpecialistType(), pBuildingInfo->GetGreatPeopleRateChange() * iChange);
@@ -25094,6 +25112,65 @@ void CvCity::ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int 
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> CvCity::GetYieldFromGPBirthScaledWithPerTurnYieldMap() const
+{
+	return m_miYieldFromGPBirthScaledWithPerTurnYield;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+int CvCity::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	CvAssertMsg(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	CvAssertMsg(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
+	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		map<std::pair<YieldTypes, YieldTypes>, int> miYieldMap = it->second;
+		map<std::pair<YieldTypes, YieldTypes>, int>::const_iterator it2 = miYieldMap.find(std::make_pair(eYieldIn, eYieldOut));
+		if (it2 != miYieldMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+void CvCity::ChangeYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, std::pair<YieldTypes, YieldTypes> eYieldPair, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	CvAssertMsg(eYieldPair.first >= 0, "eYieldIn expected to be >= 0");
+	CvAssertMsg(eYieldPair.first < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYieldPair.second >= 0, "eYieldOut expected to be >= 0");
+	CvAssertMsg(eYieldPair.second < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] += iChange;
+		ASSERT(m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] >= 0);
+
+		if (m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson][eYieldPair] == 0)
+		{
+			m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson].erase(eYieldPair);
+			if (m_miYieldFromGPBirthScaledWithPerTurnYield[eGreatPerson].empty())
+			{
+				m_miYieldFromGPBirthScaledWithPerTurnYield.erase(eGreatPerson);
+			}
+		}
+	}
+}
+
 /// Extra yield from building
 int CvCity::GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const
 {
@@ -32075,6 +32152,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromLongCount);
 	visitor(city.m_aiYieldFromGPBirthScaledWithWriterBulb);
 	visitor(city.m_aiYieldFromGPBirthScaledWithArtistBulb);
+	visitor(city.m_miYieldFromGPBirthScaledWithPerTurnYield);
 	visitor(city.m_aiSpecialistRateModifierFromBuildings);
 	visitor(city.m_aiThemingYieldBonus);
 	visitor(city.m_aiYieldFromSpyAttack);
