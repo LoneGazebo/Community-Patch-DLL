@@ -8877,7 +8877,7 @@ CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const
 	if (aSpawnPlots.empty())
 		return NULL;
 
-	int iRandomIndex = GC.getGame().urandLimitExclusive(aSpawnPlots.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GetPseudoRandomSeed()));
+	int iRandomIndex = GC.getGame().urandLimitExclusive(aSpawnPlots.size(), GET_PLAYER(ePlayer).GetPseudoRandomSeed().mix(GetPseudoRandomSeed()));
 
 	return aSpawnPlots[iRandomIndex];
 }
