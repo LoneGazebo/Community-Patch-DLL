@@ -2,9 +2,6 @@
 <GameData>
 	<Language_en_US>
 		<!-- Great Writer names -->
-		<Row Tag="TXT_KEY_GREAT_PERSON_MOSES">
-			<Text>Moses</Text>
-		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_W__010">
 			<Text>Sin-Leqi-Unninni</Text>
 		</Row>
