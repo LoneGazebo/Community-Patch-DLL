@@ -45,7 +45,6 @@ VALUES
 	('CIVILIZATION_SHOSHONE', 'REGION_PLAINS'), -- UI needs flat land, Industiral UU wants horses but not rewarded for expanding aggressively (historical)
 	('CIVILIZATION_SHOSHONE', 'REGION_GRASS'),
 
-	('CIVILIZATION_CELTS', 'REGION_HILLS'),     -- Ancient UU wants Hills
 	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid
