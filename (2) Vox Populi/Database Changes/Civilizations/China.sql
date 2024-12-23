@@ -5,15 +5,26 @@ UPDATE Traits
 SET
 	GreatGeneralRateModifier = 0,
 	GreatGeneralExtraBonus = 0,
-	GreatWorkWLTKD = 1,
-	ExpansionWLTKD = 1,
-	PermanentYieldsDecreaseEveryEra = 1
+	UnhappyUnitProductionMod = 25,
+	NoAvoidGrowth = 1,
+	RevoltTimerMod = -50
 WHERE Type = 'TRAIT_ART_OF_WAR';
 
-INSERT INTO Trait_PermanentYieldChangeWLTKD
+INSERT INTO Trait_YieldChangeFromCityGain
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_ART_OF_WAR', 'YIELD_FOOD', 2);
+
+INSERT INTO Trait_PermanentYieldChangeGoldenAge
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_ART_OF_WAR', 'YIELD_FOOD', 2);
+
+INSERT INTO Trait_UnhappyYieldModifiers
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_ART_OF_WAR', 'YIELD_CULTURE', 25),
+	('TRAIT_ART_OF_WAR', 'YIELD_FAITH', 25);
 
 ----------------------------------------------------------
 -- Unique Unit: Chu-Ko-Nu (Crossbowman)
@@ -34,6 +45,35 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_CHINESE_CHUKONU', 'PROMOTION_SIEGE_VOLLEY');
+
+----------------------------------------------------------
+-- Unique Unit: Treasure Ship (Frigate)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_CHINA', 'UNITCLASS_FRIGATE', 'UNIT_TREASURE_SHIP');
+
+UPDATE Units
+SET
+	PrereqTech = 'TECH_ASTRONOMY',
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_FRIGATE'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_FRIGATE') + 3,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_FRIGATE') + 2
+WHERE Type = 'UNIT_TREASURE_SHIP';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_TREASURE_SHIP', 'PROMOTION_COASTAL_RAIDER_3'),
+	('UNIT_TREASURE_SHIP', 'PROMOTION_GAIN_EXPERIENCE'),
+	('UNIT_TREASURE_SHIP', 'PROMOTION_KOWTOW');
 
 ----------------------------------------------------------
 -- Unique Improvement: Siheyuan
@@ -77,6 +117,12 @@ VALUES
 	('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1);
 
+INSERT INTO Improvement_GoldenAgeYields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_SIHEYUAN', 'YIELD_GREAT_GENERAL_POINTS', 1),
+	('IMPROVEMENT_SIHEYUAN', 'YIELD_GREAT_ADMIRAL_POINTS', 1);
+
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
@@ -85,3 +131,20 @@ VALUES
 	('IMPROVEMENT_SIHEYUAN', 'TECH_ARCHITECTURE', 'YIELD_SCIENCE', 1),
 	('IMPROVEMENT_SIHEYUAN', 'TECH_ELECTRICITY', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_SIHEYUAN', 'TECH_ELECTRICITY', 'YIELD_CULTURE', 1);
+
+----------------------------------------------------------
+-- Unique Building: Examination Hall (Chancery)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_CHINA', 'BUILDINGCLASS_CHANCERY', 'BUILDING_EXAMINATION_HALL');
+
+UPDATE Buildings
+SET GPPOnCitizenBirth = 15
+WHERE Type = 'BUILDING_EXAMINATION_HALL';
+
+INSERT INTO Building_GreatWorkYieldChangesLocal
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_EXAMINATION_HALL', 'YIELD_GOLD', 2);
