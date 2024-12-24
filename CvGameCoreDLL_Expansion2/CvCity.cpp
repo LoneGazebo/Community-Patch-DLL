@@ -22208,7 +22208,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 		if (pkBuildingInfo)
 		{
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-			if (!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo))
+			if (!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo) && !isTeamWonderClass(kBuildingClassInfo))
 			{
 				int iCulture = pkBuildingInfo->GetYieldChange(YIELD_CULTURE);
 				int iCost = pkBuildingInfo->GetProductionCost();
@@ -22238,7 +22238,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 }
 
 //	--------------------------------------------------------------------------------
-/// Find the non-wonder building that provides the highest culture at the least cost
+/// Find the non-wonder building that provides the highest food kept at the least cost
 BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 {
 	BuildingTypes eRtnValue = NO_BUILDING;
@@ -22252,7 +22252,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 		if (pkBuildingInfo)
 		{
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-			if (!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo))
+			if (!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo) && !isTeamWonderClass(kBuildingClassInfo))
 			{
 				if (getFirstBuildingOrder(eBuilding) != -1 || canConstruct(eBuilding))
 				{
