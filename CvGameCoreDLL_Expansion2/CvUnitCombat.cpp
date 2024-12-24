@@ -3071,9 +3071,9 @@ int CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDama
 					CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 					pUnitNode = oldUnits.next(pUnitNode);
 
-					if (pLoopUnit && pLoopUnit != pkAttacker)
+					if (pLoopUnit && pLoopUnit != pkAttacker && !pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
 					{
-						bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what, unless invulnerable
+						bool bTradeUnit = pLoopUnit->isTrade();
 						if (bTradeUnit)
 						{
 							CvPlayer& kPlayer = GET_PLAYER(pLoopUnit->getOwner());
@@ -3097,40 +3097,38 @@ int CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDama
 								}
 							}
 						}
-						if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+
+						// Nuke level 1: units on impact plot are dealt lethal damage unless in a protected city; those in blast radius are dealt random damage
+						// Nuke level 2: all units on blast radius are dealt lethal damage unless in a protected city
+						// Trade units are always killed unless invulnerable
+						int iNukeDamage = 0;
+						if (iDamageLevel >= 2 || pLoopPlot == pkTargetPlot || bTradeUnit)
 						{
-							// Nuke level 1: units on impact plot are dealt lethal damage unless in a protected city; those in blast radius are dealt random damage
-							// Nuke level 2: all units on blast radius are dealt lethal damage unless in a protected city
-							// Trade units are always killed unless invulnerable
-							int iNukeDamage;
-							if (iDamageLevel >= 2 || pLoopPlot == pkTargetPlot || bTradeUnit)
-							{
-								iNukeDamage = pLoopUnit->GetMaxHitPoints();
-							}
-							else
-							{
-								iNukeDamage = /*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY));
-							}
+							iNukeDamage = pLoopUnit->GetMaxHitPoints();
+						}
+						else
+						{
+							iNukeDamage = /*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY));
+						}
 
-							if (pLoopCity && !bTradeUnit)
-							{
-								iNukeDamage *= max(0, pLoopCity->getNukeModifier() + 100);
-								iNukeDamage /= 100;
-							}
+						if (pLoopCity && !bTradeUnit)
+						{
+							iNukeDamage *= max(0, pLoopCity->getNukeModifier() + 100);
+							iNukeDamage /= 100;
+						}
 
-							CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, &iDamageMembers, iMaxDamageMembers, pLoopUnit);
-							if (pkDamageEntry)
-							{
-								if (pLoopUnit != pDefenderUnit)
-									BATTLE_JOINED(pLoopUnit, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+						CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, &iDamageMembers, iMaxDamageMembers, pLoopUnit);
+						if (pkDamageEntry)
+						{
+							if (pLoopUnit != pDefenderUnit)
+								BATTLE_JOINED(pLoopUnit, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 
-								pkDamageEntry->SetDamage(iNukeDamage);
-								pkDamageEntry->SetFinalDamage(min(iNukeDamage + pLoopUnit->getDamage(), pLoopUnit->GetMaxHitPoints()));
-								pkDamageEntry->SetMaxHitPoints(pLoopUnit->GetMaxHitPoints());
+							pkDamageEntry->SetDamage(iNukeDamage);
+							pkDamageEntry->SetFinalDamage(min(iNukeDamage + pLoopUnit->getDamage(), pLoopUnit->GetMaxHitPoints()));
+							pkDamageEntry->SetMaxHitPoints(pLoopUnit->GetMaxHitPoints());
 
-								if (pkAttacker)
-									pLoopUnit->setCombatUnit(pkAttacker);
-							}
+							if (pkAttacker)
+								pLoopUnit->setCombatUnit(pkAttacker);
 						}
 					}
 				}
