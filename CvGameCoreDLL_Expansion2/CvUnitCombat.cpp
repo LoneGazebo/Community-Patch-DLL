@@ -2759,8 +2759,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setAttackNuclearLevel(iNukeDamageLevel + 1);
 
 	// Set all of the units in the blast radius to defenders and calculate their damage
-	int iDamageMembers = 0;
-	GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount());
+	int iDamageMembers = GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), pkCombatInfo->getMaxDamageMemberCount());
 	pkCombatInfo->setDamageMemberCount(iDamageMembers);
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
@@ -2770,8 +2769,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 uint CvUnitCombat::ApplyNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* /* pkAttacker = NULL*/)
 {
 	CvCombatMemberEntry kDamageMembers[MAX_NUKE_DAMAGE_MEMBERS];
-	int iDamageMembers = 0;
-	GenerateNuclearExplosionDamage(pkTargetPlot, iDamageLevel, NULL, &kDamageMembers[0], &iDamageMembers, MAX_NUKE_DAMAGE_MEMBERS);
+	int iDamageMembers = GenerateNuclearExplosionDamage(pkTargetPlot, iDamageLevel, NULL, &kDamageMembers[0], MAX_NUKE_DAMAGE_MEMBERS);
 	return ApplyNuclearExplosionDamage(&kDamageMembers[0], iDamageMembers, NULL, pkTargetPlot, iDamageLevel);
 }
 
@@ -3028,143 +3026,119 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 //	-------------------------------------------------------------------------------------
 //	Generate nuclear explosion damage for all the units and cities in the radius of the specified plot.
-//	The attacker is optional, this is also called for a meltdown
-void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers)
+//	The attacker is optional - this is also called for a meltdown
+//	Returns the number of damaged entities (cities or units)
+int CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, const int iMaxDamageMembers)
 {
-	int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
+	const int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
 
-#if defined(MOD_EVENTS_BATTLES)
 	CvCity* pDefenderCity = NULL;
 	CvUnit* pDefenderUnit = NULL;
-
-	if (pkTargetPlot->isCity())
+	if (MOD_EVENTS_BATTLES)
 	{
-		pDefenderCity = pkTargetPlot->getPlotCity();
+		if (pkTargetPlot->isCity())
+		{
+			pDefenderCity = pkTargetPlot->getPlotCity();
+		}
+		else
+		{
+			pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner());
+		}
 	}
-	else
-	{
-		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner());
-	}
-#endif
 
-	*piDamageMembers = 0;
+	int iDamageMembers = 0;
 
-	for(int iDX = -(iBlastRadius); iDX <= iBlastRadius; iDX++)
+	for (int iDX = -iBlastRadius; iDX <= iBlastRadius; iDX++)
 	{
-		for(int iDY = -(iBlastRadius); iDY <= iBlastRadius; iDY++)
+		for (int iDY = -iBlastRadius; iDY <= iBlastRadius; iDY++)
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(pkTargetPlot->getX(), pkTargetPlot->getY(), iDX, iDY, iBlastRadius);
-
-			if(pLoopPlot != NULL)
+			if (pLoopPlot)
 			{
 				CvCity* pLoopCity = pLoopPlot->getPlotCity();
 
-				FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
+				FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL> oldUnits;
 				IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-				while(pUnitNode != NULL)
+				while (pUnitNode)
 				{
 					oldUnits.insertAtEnd(pUnitNode);
 					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 				}
 
 				pUnitNode = oldUnits.head();
-
-				while(pUnitNode != NULL)
+				while (pUnitNode)
 				{
-					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+					CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 					pUnitNode = oldUnits.next(pUnitNode);
 
-					if(pLoopUnit != NULL)
+					if (pLoopUnit && pLoopUnit != pkAttacker)
 					{
-						if(pLoopUnit != pkAttacker)
+						bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what, unless invulnerable
+						if (bTradeUnit)
 						{
-							bool bTradeUnit = pLoopUnit->isTrade(); // instantly destroyed no matter what, unless invulnerable
-							if (bTradeUnit)
+							CvPlayer& kPlayer = GET_PLAYER(pLoopUnit->getOwner());
+							CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
+							if (eCorporation != NO_CORPORATION)
 							{
-								CorporationTypes eCorporation = GET_PLAYER(pLoopUnit->getOwner()).GetCorporations()->GetFoundedCorporation();
-								CvCorporationEntry* pkCorporationInfo = eCorporation != NO_CORPORATION ? GC.getCorporationInfo(eCorporation) : NULL;
+								CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 								if (pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable())
 								{
 									// If the nuclear strike destroyed the corporate HQ by destroying the city it's in, the trade unit should also die.
 									// Outside of this rare circumstance, the trade unit is invulnerable.
-									CvCity* pHQ = GET_PLAYER(pLoopUnit->getOwner()).GetCorporations()->GetHeadquarters();
-									if (!pHQ->IsOriginalCapital() && plotDistance(*pHQ->plot(), *pkTargetPlot) <= iBlastRadius)
-									{
-										if (iDamageLevel < 2 || (iDamageLevel == 2 && pHQ->getPopulation() >= /*5*/ GD_INT_GET(NUKE_LEVEL2_ELIM_POPULATION_THRESHOLD)))
-											continue;
-									}
-									else
+									CvCity* pHQ = kPlayer.GetCorporations()->GetHeadquarters();
+
+									// City isn't being hit
+									if (plotDistance(*pHQ->plot(), *pkTargetPlot) > iBlastRadius)
+										continue;
+
+									// City won't be destroyed by this nuke
+									if (!pHQ->IsNukeKillable(iDamageLevel))
 										continue;
 								}
 							}
-							if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+						}
+						if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+						{
+							// Nuke level 1: units on impact plot are dealt lethal damage unless in a protected city; those in blast radius are dealt random damage
+							// Nuke level 2: all units on blast radius are dealt lethal damage unless in a protected city
+							// Trade units are always killed unless invulnerable
+							int iNukeDamage;
+							if (iDamageLevel >= 2 || pLoopPlot == pkTargetPlot || bTradeUnit)
 							{
-								int iNukeDamage = 0;
-								// How much destruction is unleashed on nearby Units?
-								if (iDamageLevel == 1 && pLoopPlot != pkTargetPlot && !bTradeUnit)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
-								{
-									iNukeDamage = (/*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY)));
-								}
-								// Wipe everything out
-								else
-								{
-									iNukeDamage = pLoopUnit->GetMaxHitPoints();
-								}
+								iNukeDamage = pLoopUnit->GetMaxHitPoints();
+							}
+							else
+							{
+								iNukeDamage = /*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY));
+							}
 
-								if (pLoopCity && !bTradeUnit)
-								{
-									iNukeDamage *= std::max(0, pLoopCity->getNukeModifier() + 100);
-									iNukeDamage /= 100;
-								}
+							if (pLoopCity && !bTradeUnit)
+							{
+								iNukeDamage *= max(0, pLoopCity->getNukeModifier() + 100);
+								iNukeDamage /= 100;
+							}
 
-								CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopUnit);
-								if(pkDamageEntry)
-								{
-#if defined(MOD_EVENTS_BATTLES)
-									if (pLoopUnit != pDefenderUnit)
-									{
-										BATTLE_JOINED(pLoopUnit, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
-									}
-#endif
-									pkDamageEntry->SetDamage(iNukeDamage);
-									pkDamageEntry->SetFinalDamage(std::min(iNukeDamage + pLoopUnit->getDamage(), pLoopUnit->GetMaxHitPoints()));
-									pkDamageEntry->SetMaxHitPoints(pLoopUnit->GetMaxHitPoints());
+							CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, &iDamageMembers, iMaxDamageMembers, pLoopUnit);
+							if (pkDamageEntry)
+							{
+								if (pLoopUnit != pDefenderUnit)
+									BATTLE_JOINED(pLoopUnit, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 
-									if(pkAttacker)
-										pLoopUnit->setCombatUnit(pkAttacker);
-								}
-								else
-								{
-									ASSERT(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
-								}
+								pkDamageEntry->SetDamage(iNukeDamage);
+								pkDamageEntry->SetFinalDamage(min(iNukeDamage + pLoopUnit->getDamage(), pLoopUnit->GetMaxHitPoints()));
+								pkDamageEntry->SetMaxHitPoints(pLoopUnit->GetMaxHitPoints());
+
+								if (pkAttacker)
+									pLoopUnit->setCombatUnit(pkAttacker);
 							}
 						}
 					}
 				}
 
-				if(pLoopCity != NULL)
+				if (pLoopCity)
 				{
-					bool bKillCity = false;
-
-					// Is the city wiped out? - no capitals!
-					if(!pLoopCity->IsOriginalCapital())
-					{
-						if(iDamageLevel > 2)
-						{
-							bKillCity = true;
-						}
-						else if(iDamageLevel > 1)
-						{
-							if(pLoopCity->getPopulation() < /*5*/ GD_INT_GET(NUKE_LEVEL2_ELIM_POPULATION_THRESHOLD))
-							{
-								bKillCity = true;
-							}
-						}
-					}
-
 					int iTotalDamage = 0;
-					if(bKillCity)
+					if (pLoopCity->IsNukeKillable(iDamageLevel))
 					{
 						iTotalDamage = pLoopCity->GetMaxHitPoints();
 					}
@@ -3180,30 +3154,25 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 						iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
 					}
 
-					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopCity);
-					if(pkDamageEntry)
+					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, &iDamageMembers, iMaxDamageMembers, pLoopCity);
+					if (pkDamageEntry)
 					{
-#if defined(MOD_EVENTS_BATTLES)
 						if (pLoopCity != pDefenderCity)
-						{
 							BATTLE_JOINED(pLoopCity, BATTLE_UNIT_COUNT, true); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
-						}
-#endif
+
 						pkDamageEntry->SetDamage(iTotalDamage - pLoopCity->getDamage());
 						pkDamageEntry->SetFinalDamage(iTotalDamage);
 						pkDamageEntry->SetMaxHitPoints(pLoopCity->GetMaxHitPoints());
 
-						if(pkAttacker)
+						if (pkAttacker)
 							pLoopCity->setCombatUnit(pkAttacker);
-					}
-					else
-					{
-						ASSERT(*piDamageMembers < iMaxDamageMembers, "Ran out of entries for the nuclear damage array");
 					}
 				}
 			}
 		}
 	}
+
+	return iDamageMembers;
 }
 
 //	---------------------------------------------------------------------------
