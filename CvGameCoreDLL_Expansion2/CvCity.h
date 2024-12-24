@@ -1815,6 +1815,8 @@ public:
 	BuildingTypes GetBuildingTypeFromClass(const BuildingClassTypes eBuildingClass, const bool bFallback = false) const;
 	void AddFreeCapitalBuildings(const bool bRemoveFromCurrent = false);
 
+	bool IsNukeKillable(int iNukeLevel);
+
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
