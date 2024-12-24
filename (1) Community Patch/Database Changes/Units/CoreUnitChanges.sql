@@ -65,11 +65,6 @@ WHERE Type IN (
 -----------------------------------------------------
 -- Great Writer names
 -----------------------------------------------------
-INSERT INTO Unit_UniqueNames
-	(UnitType, UniqueName, GreatWorkType, EraType)
-VALUES
-	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_MOSES', 'GREAT_WORK_GENESIS', 'ERA_ANCIENT');
-
 CREATE TEMP TABLE GreatWriters (
 	ID TEXT,
 	EraType TEXT
