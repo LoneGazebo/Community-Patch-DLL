@@ -35247,16 +35247,16 @@ void CvCity::AddFreeCapitalBuildings(const bool bRemoveFromCurrent)
 // Would this city be destroyed by a nuke of iNukeLevel?
 bool CvCity::IsNukeKillable(int iNukeLevel)
 {
+	if (IsOriginalCapital())
+		return false;
+
 	if (iNukeLevel < 2)
 		return false;
 
 	if (iNukeLevel > 2)
 		return true;
 
-	if (getPopulation() < /*5*/ GD_INT_GET(NUKE_LEVEL2_ELIM_POPULATION_THRESHOLD))
-		return true;
-
-	return false;
+	return getPopulation() < /*5*/ GD_INT_GET(NUKE_LEVEL2_ELIM_POPULATION_THRESHOLD);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)
