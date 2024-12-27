@@ -337,6 +337,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SCIENCE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_ELIZABETH'; -- 6, secondary: science
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_ESPIONAGE' AND LeaderType = 'LEADER_ELIZABETH'; -- 8, UA, UB
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_HAPPINESS' AND LeaderType = 'LEADER_ELIZABETH'; -- 5, primary: dom
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_EXPANSION' AND LeaderType = 'LEADER_ELIZABETH'; -- 7, UA, UU2
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_WATER_CONNECTION' AND LeaderType = 'LEADER_ELIZABETH'; -- 6, naval oriented
 UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ELIZABETH'; -- 9, DOM
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_ELIZABETH'; -- 8, DOM
