@@ -282,6 +282,11 @@
 			<Description>TXT_KEY_UNIT_OTTOMAN_SIPAHI</Description>
 			<DefaultUnit>UNIT_OTTOMAN_SIPAHI</DefaultUnit>
 		</Row>
+		<Row>
+			<Type>UNITCLASS_MEHAL_SEFARI</Type>
+			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
+			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
+		</Row>
 	</UnitClasses>
 	<Units>
 		<!-- Heavy Skirmisher -->
