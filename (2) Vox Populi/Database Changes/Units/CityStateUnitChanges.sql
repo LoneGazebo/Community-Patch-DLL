@@ -50,6 +50,22 @@ VALUES
 	('UNIT_HUN_BATTERING_RAM', 'UNITAI_CITY_BOMBARD');
 
 -------------------------------------
+-- Mehal Sefari
+-------------------------------------
+UPDATE Units
+SET
+	Class = 'UNITCLASS_MEHAL_SEFARI',
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_RIFLEMAN') + 4
+WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_ETHIOPIAN_MEHAL_SEFARI', 'PROMOTION_COVER_1'),
+	('UNIT_ETHIOPIAN_MEHAL_SEFARI', 'PROMOTION_DEFEND_NEAR_CAPITAL'),
+	('UNIT_ETHIOPIAN_MEHAL_SEFARI', 'PROMOTION_HOMELAND_GUARDIAN');
+
+-------------------------------------
 -- Norwegian Ski Infantry
 -------------------------------------
 UPDATE Units
