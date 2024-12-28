@@ -32643,11 +32643,10 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
 
 void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default is true (CvPlayer.h)
 {
-	//experiment for debugging. in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
-#if defined(VPDEBUG)
-	if(!GC.getGame().isGameMultiPlayer() && isHuman() && !bNewValue)
+	//in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
+	//also they will have the correct year in the name! hooray
+	if(!GC.getGame().isNetworkMultiPlayer() && isHuman() && !bNewValue)
 		gDLL->AutoSave(false, true);
-#endif
 
 	if(isTurnActive() != bNewValue)
 	{
@@ -44276,6 +44275,7 @@ void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 
 bool CvPlayer::IsVanishedUnit(const IDInfo& id) const
 {
+	//note that we do not check for unit invisiblity here!
 	const UnitSet& units = m_pDangerPlots->GetVanishedUnits();
 	return units.find(make_pair(id.eOwner,id.iID)) != units.end();
 }

@@ -8505,10 +8505,6 @@ void CvGame::doTurn()
 	if (MOD_UNIT_KILL_STATS)
 		GC.getMap().DoKillCountDecay();
 
-	//create an autosave at turn start
-	if(!isNetworkMultiPlayer())
-		gDLL->AutoSave(false, false);
-
 	// END OF TURN
 
 	//We reset the turn timer now so that we know that the turn timer has been reset at least once for

@@ -15,7 +15,7 @@
 class FDataStream;
 
 //for tactical combat
-enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
+enum eAggressionLevel { AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
 extern const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 
 // STL "find_if" predicate
@@ -206,7 +206,7 @@ public:
 		m_iZoneID = -1;
 		m_pUnit = NULL;
 		m_iAuxData = 0;
-		m_eLastAggLvl = AL_NONE;
+		m_eLastAggLvl = AL_LOW;
 		m_vLastUnits.clear();
 	};
 	inline bool operator<(const CvTacticalTarget& target) const
@@ -438,8 +438,8 @@ private:
 
 	void ClearCurrentMoveUnits(AITacticalMove eNewMove);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
-	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_NONE);
-	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_NONE);
+	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_LOW);
+	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_LOW);
 	CvTacticalTarget* GetFirstUnitTarget();
 	CvTacticalTarget* GetNextUnitTarget();
 
@@ -918,6 +918,7 @@ public:
 
 	bool isExhausted() const;
 	bool isEarlyFinish() const;
+	bool wantToFight() const;
 	bool addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID);
 	bool isKillOrImprovedPosition() const;
 	void countEnemiesAndCheckVisibility();
