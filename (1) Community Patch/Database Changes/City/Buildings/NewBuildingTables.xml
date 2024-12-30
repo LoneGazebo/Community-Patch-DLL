@@ -484,7 +484,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the city when any unit gift from the player reaches the target city state -->
+	<!-- Instant yields to the city when any unit gift from the player reaches the target city state, scaling with era -->
 	<Table name="Building_YieldFromUnitGiftGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
