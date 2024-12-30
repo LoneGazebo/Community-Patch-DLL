@@ -561,6 +561,14 @@ struct STacticalAssignment
 	bool operator==(const STacticalAssignment& rhs) const;
 };
 
+struct SComboMove
+{
+	STacticalAssignment a, b;
+	bool operator<(const SComboMove& rhs) const { return a.iScore+b.iScore > rhs.a.iScore+rhs.b.iScore; }
+	bool operator==(const SComboMove& rhs) const { return a == rhs.a && b == rhs.b; }
+	bool addMove(const STacticalAssignment& move);
+};
+
 struct STacticalUnit
 {
 	int iUnitID;

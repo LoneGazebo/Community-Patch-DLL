@@ -45,10 +45,9 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
 CvTactPosStorage gTactPosStorage(5000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
-vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
-vector<STacticalAssignment> gPossibleMoves;
-vector<STacticalAssignment> gOverAllChoices;
-vector<STacticalAssignment> gMovesToAdd;
+vector<int> gLandEnemies, gSeaEnemies, gCitadels, gCities, gNewlyVisiblePlots;
+vector<STacticalAssignment> gPossibleMoves, gPossibleRangedAttacks, gOverAllChoices;
+vector<SComboMove> gMovesToAdd;
 map<int, int> gBadUnitsCount;
 UnitIdContainer gEnemiesToIgnore;
 TUnitFlagLookup gSafePlotCount;
@@ -1034,15 +1033,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 
 					// Are we a melee unit
 					if (!pUnit->IsCanAttackRanged())
-					{
 						iMeleeCount++;
-
-						//don't use too many far-away melee units
-						//the combat sim can't deal with too many units
-						//make sure there are ranged units in there as well
-						if (iMeleeCount > 3 && m_CurrentMoveUnits.size()>9 && !pPlot->isAdjacent(pUnit->plot()))
-							m_CurrentMoveUnits[iI].SetAttackStrength(-1);
-					}
 				}
 
 				if (iMeleeCount == 0 && iRequiredDamage <= 1)
@@ -7929,30 +7920,29 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	//even for intermediate plots, so as not to bias against them
 	if (assumedPosition.wantToFight())
 	{
-		int iPlotTypeScores[5][5] = {
+		//zero to TACTICAL_COMBAT_MAX_TARGET_DISTANCE
+		int iPlotScoreForEnemyDistance[5][5] = {
 			{ -1,-1,-1,-1,-1 }, //none (should not occur)
 			{  1, 12, 6, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
 			{ -1, 6, 12, 2, -1 }, //secondline
-			{ -1, 1, 8, 12, -1 }, //thirdline
-			{ -1, 1, 8,  8, -1 }, //support (can happen for damaged melee units)
+			{ -1, 1, 8, 12, -1 }, //thirdline (ranged and damaged melee units)
+			{ -1, 1, 8,  8, -1 }, //support
 		};
-		iPlotScore = iPlotTypeScores[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
+		iPlotScore = iPlotScoreForEnemyDistance[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 	}
 	else
 	{
-		int iPlotTypeScores[5][5] = {
-			{ -1,-1,-1,-1,-1 }, //none (should not occur)
-			{ -1, 12, 6, 4, 1 }, //firstline
-			{ -1, 1, 12, 8, 1 }, //secondline
-			{ -1, 1, 8, 12, 1 }, //thirdline
-			{ -1, 1, 8, 8, -1 }, //support (can happen for damaged melee units)
-		};
-		iPlotScore = iPlotTypeScores[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
+		//we have no enemies around prepare for the unexpected, melee units screening far from the target, other units closer
+		int iTargetDistance = min(plotDistance(*assumedPosition.getTarget(), *pTestPlot), (int)TACTICAL_COMBAT_MAX_TARGET_DISTANCE);
 
-		//assume we want to defend the target, ie be ready for an attack from the "outside"
-		//move close to the (friendly) target and weigh the target distance to be competitive with the enemy distance
-		int iPlotDistance = plotDistance(*assumedPosition.getTarget(), *pTestPlot);
-		iPlotScore += 3 * (3 - iPlotDistance);
+		int iPlotScoreForTargetDistance[5][5] = {
+			{ -1,-1,-1,-1,-1 }, //none (should not occur)
+			{  1, 2, 4, 8, 8 }, //firstline
+			{  4, 4, 2, 1, 1 }, //secondline
+			{  8, 8, 2, 1, 1 }, //thirdline
+			{  8, 8, 2, 1, 1 }, //support (can happen for damaged melee units)
+		};
+		iPlotScore = iPlotScoreForTargetDistance[unit.eMoveStrategy][iTargetDistance];
 	}
 
 	//if we made a kill, assume we are in a good plot
@@ -8813,6 +8803,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//on the other hand, the daring moves may still be possible later in the sim when they are not so daring anymore.
 	//todo: try "fixup moves", meaning if a possible move is invalid, see if it can be made valid by moving another unit.
 	gPossibleMoves.clear();
+	gPossibleRangedAttacks.clear();
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
@@ -8955,10 +8946,21 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					if (enemyPlot.isEnemyCity() && getTarget() != enemyPlot.getPlot() && pUnit->GetRange()>1 && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD)
 						newAssignment.iScore /= 2;
 
-					gPossibleMoves.push_back(newAssignment);
+					gPossibleRangedAttacks.push_back(newAssignment);
 				}
 			}
 		}
+
+		//it can happen that there are a lot of targets to attack - typically this means we should retreat!
+		//so make sure we consider at least one MOVE and not only RANGE_ATTACK assignments
+		//but keep at least one ranged attack!
+		if (gPossibleRangedAttacks.size() >= (size_t)nMaxCount && nMaxCount>1)
+		{
+			std::stable_sort(gPossibleRangedAttacks.begin(), gPossibleRangedAttacks.end());
+			gPossibleRangedAttacks.erase(gPossibleRangedAttacks.begin() + nMaxCount - 1, gPossibleRangedAttacks.end());
+		}
+		//only now add the ranged attacks
+		gPossibleMoves.insert(gPossibleMoves.end(), gPossibleRangedAttacks.begin(), gPossibleRangedAttacks.end());
 	}
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
@@ -9101,26 +9103,40 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
 
-	//note that this is a stable sort, meaning in case of ties the original order is maintained
-	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
+	//important that moves are ordered by quality instead of unit id when we want to create combos with blocked/finished below
 	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
-	for (size_t i=0; i<gOverAllChoices.size(); i++)
-	{
-		gMovesToAdd.clear();
 
-		//easy case first, no conflict
+	//sometimes we want to do combo moves, ie swaps should have the combined score of two moves
+	gMovesToAdd.clear();
+	for (size_t i = 0; i < gOverAllChoices.size(); i++)
+	{
+		//easy case first, no conflict possible
 		if (gOverAllChoices[i].eAssignmentType != A_MOVE)
 		{
 			//just do the original move
-			gMovesToAdd.push_back(gOverAllChoices[i]);
+			gMovesToAdd.push_back( SComboMove() );
+			gMovesToAdd.back().addMove(gOverAllChoices[i]);
+
+			//maybe we have a block/finish move following our "primary" move? should be harmless to add them together. this reduces our total search depth
+			if (heapSort.bDepthFirst)
+			{
+				if (i < gOverAllChoices.size() - 1 && (gOverAllChoices[i + 1].eAssignmentType == A_FINISH_TEMP || gOverAllChoices[i + 1].eAssignmentType == A_BLOCKED))
+				{
+					//this will fail if the unit id is the same ...
+					if (gMovesToAdd.back().addMove(gOverAllChoices[i+1]))
+						//consider the extra move consumed
+						i++;
+				}
+			}
 		}
 		else
 		{
-			 //possibly our target plot is still occupied ...
+			//possibly our target plot is still occupied ...
 			int blocks = countBlockingUnitsAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
 			if (blocks == 0)
 			{
-				gMovesToAdd.push_back(gOverAllChoices[i]);
+				gMovesToAdd.push_back(SComboMove());
+				gMovesToAdd.back().addMove(gOverAllChoices[i]);
 			}
 			else if (blocks == 1)
 			{
@@ -9128,11 +9144,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				int blockID = getFirstBlockingUnitIDAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
 				for (size_t j = 0; j < gOverAllChoices.size(); j++)
 				{
-					if (gOverAllChoices[j].iUnitID==blockID && gOverAllChoices[j].eAssignmentType == A_MOVE)
+					if (gOverAllChoices[j].iUnitID == blockID && gOverAllChoices[j].eAssignmentType == A_MOVE)
 					{
-						//check if the combo has a positive score - but forcing out a similar unit is usually pointless
-						int iBias = (gOverAllChoices[i].eMoveType != gOverAllChoices[j].eMoveType) ? 0 : 10;
-						if (gOverAllChoices[i].iScore + gOverAllChoices[j].iScore < iBias)
+						//allow slightly negative scores for the combo so as not to prohibit rotation of frontline units
+						if (gOverAllChoices[i].iScore + gOverAllChoices[j].iScore < -10)
 							continue;
 
 						//block wants to move into the plot currently occupied by this unit. bingo!
@@ -9141,21 +9156,25 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 							const STacticalAssignment* pLA = getLatestAssignment(gOverAllChoices[j].iUnitID);
 							if (pLA->eAssignmentType != A_MOVE_SWAP) //don't want to swap out a unit which was just swapped in
 							{
-								gMovesToAdd.push_back(gOverAllChoices[i]);
-								gMovesToAdd.back().eAssignmentType = A_MOVE_SWAP; //this one will actually move both units
-								gMovesToAdd.push_back(gOverAllChoices[j]);
-								gMovesToAdd.back().eAssignmentType = A_MOVE_SWAP_REVERSE; //this one is just bookkeeping
+								gMovesToAdd.push_back(SComboMove());
+								gMovesToAdd.back().addMove(gOverAllChoices[i]);
+								//this one will actually move both units
+								gMovesToAdd.back().a.eAssignmentType = A_MOVE_SWAP;
+								gMovesToAdd.back().addMove(gOverAllChoices[j]);
+								//this one is just bookkeeping
+								gMovesToAdd.back().b.eAssignmentType = A_MOVE_SWAP_REVERSE;
 								break;
 							}
 						}
 						else if (!isMoveBlockedByOtherUnit(gOverAllChoices[j])) //free plot
 						{
+							gMovesToAdd.push_back(SComboMove());
 							//add the move to make space
-							gMovesToAdd.push_back(gOverAllChoices[j]);
+							gMovesToAdd.back().addMove(gOverAllChoices[j]);
 							//mark that this is a forced move so we're allowed to move back later
-							gMovesToAdd.back().eAssignmentType = A_MOVE_FORCED;
+							gMovesToAdd.back().a.eAssignmentType = A_MOVE_FORCED; //this one will actually move both units
 							//now we can do the original move
-							gMovesToAdd.push_back(gOverAllChoices[i]);
+							gMovesToAdd.back().addMove(gOverAllChoices[i]);
 							break;
 						}
 					}
@@ -9168,72 +9187,60 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			else //too many blocks to sort out
 				continue;
 		}
+	}
 
-		if (!gMovesToAdd.empty())
+	//note that this is a stable sort, meaning in case of ties the original order is maintained
+	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
+	std::stable_sort(gMovesToAdd.begin(), gMovesToAdd.end());
+
+	for (size_t i = 0; i < gMovesToAdd.size(); i++)
+	{
+		//we need memory for the new child but we'll commit it only later after the uniqueness check
+		CvTacticalPosition* pNewChild = storage.peekNext();
+		if (!pNewChild)
+			break;
+
+		//important, hook it up to the parent so we can access the history
+		addChild(pNewChild);
+
+		bool isConsistent = pNewChild->addAssignment(gMovesToAdd[i].a) && pNewChild->addAssignment(gMovesToAdd[i].b);
+
+		//try to detect duplicates ...
+		if (isConsistent && pNewChild->isUnique(TACTSIM_UNIQUENESS_CHECK_GENERATIONS))
 		{
-			if (heapSort.bDepthFirst)
+			//do we need to keep working on this one?
+			if (pNewChild->isEarlyFinish() || pNewChild->isExhausted())
 			{
-				//maybe we have a block/finish move following our "primary" move? should be harmless to add them together. this reduces our total search depth
-				while (i < gOverAllChoices.size() - 1 && (gOverAllChoices[i + 1].eAssignmentType == A_FINISH_TEMP || gOverAllChoices[i + 1].eAssignmentType == A_BLOCKED))
+				int iProblemUnit = -1;
+				if (pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish(), iProblemUnit))
 				{
-					//if we don't have a move for the next unit yet
-					if (std::find_if(gMovesToAdd.begin(), gMovesToAdd.end(), PrIsMoveForUnit(gOverAllChoices[i+1].iUnitID)) == gMovesToAdd.end())
-					{
-						gMovesToAdd.push_back(gOverAllChoices[++i]);
-					}
-					else
-						break;
-				}
-			}
-
-			//we need memory for the new child but we'll commit it only later after the uniqueness check
-			CvTacticalPosition* pNewChild = storage.peekNext();
-			if (!pNewChild)
-				break;
-
-			addChild(pNewChild);
-
-			bool isConsistent = true;
-			for (vector<STacticalAssignment>::iterator itNewMove = gMovesToAdd.begin(); itNewMove != gMovesToAdd.end(); ++itNewMove)
-				isConsistent &= pNewChild->addAssignment(*itNewMove);
-
-			//try to detect duplicates ...
-			if (isConsistent && pNewChild->isUnique(TACTSIM_UNIQUENESS_CHECK_GENERATIONS))
-			{
-				//do we need to keep working on this one?
-				if (pNewChild->isEarlyFinish() || pNewChild->isExhausted())
-				{
-					int iProblemUnit = -1;
-					if (pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish(),iProblemUnit))
-					{
-						//good case, we're done
-						completedPositions.push_back(pNewChild);
-						storage.consumeOne();
-						giValidEndPos++;
-					}
-					else
-					{
-						//position is illegal, forget about it so we can re-use the memory
-						removeChild(pNewChild);
-						giInvalidEndPos++;
-
-						//remember the id of the bad unit so if necessary we can try again without that unit
-						//there might be double-counting or omissions of bad units but we just need to produce a plausible candidate
-						if (iProblemUnit!=-1)
-							gBadUnitsCount[iProblemUnit]++;
-					}
+					//good case, we're done
+					completedPositions.push_back(pNewChild);
+					giValidEndPos++;
+					storage.consumeOne();
 				}
 				else
 				{
-					//also good case, keep this for the next round
-					openPositionsHeap.push_back(pNewChild);
-					push_heap(openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
-					storage.consumeOne();
+					//position is illegal, do not remember it so we can re-use the memory
+					giInvalidEndPos++;
+					removeChild(pNewChild);
+
+					//remember the id of the bad unit so if necessary we can try again without that unit
+					//there might be double-counting or omissions of bad units but we just need to produce a plausible candidate
+					if (iProblemUnit != -1)
+						gBadUnitsCount[iProblemUnit]++;
 				}
 			}
 			else
-				removeChild(pNewChild);
+			{
+				//also good case, keep this for the next round
+				openPositionsHeap.push_back(pNewChild);
+				push_heap(openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
+				storage.consumeOne();
+			}
 		}
+		else
+			removeChild(pNewChild);
 
 		if (childPositions.size() >= (size_t)iMaxBranches)
 			break;
@@ -9557,14 +9564,21 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 	gLandEnemies.clear();
 	gSeaEnemies.clear();
 	gCitadels.clear();
+	gCities.clear();
 
 	for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 	{
 		//need to check whether this is a city or actual units
-		if (it->getEnemyDistance(CvTacticalPlot::TD_LAND) == 0 && it->isEnemyCombatUnit())
-			gLandEnemies.push_back( it->getPlotIndex() );
-		if (it->getEnemyDistance(CvTacticalPlot::TD_SEA) == 0 && it->isEnemyCombatUnit())
-			gSeaEnemies.push_back( it->getPlotIndex() );
+		if (it->isEnemyCity())
+			gCities.push_back(it->getPlotIndex());
+		//ignore garrisons for enemy distance consideration
+		else if (it->isEnemyCombatUnit())
+		{
+			if (it->getEnemyDistance(CvTacticalPlot::TD_LAND) == 0)
+				gLandEnemies.push_back(it->getPlotIndex());
+			if (it->getEnemyDistance(CvTacticalPlot::TD_SEA) == 0)
+				gSeaEnemies.push_back(it->getPlotIndex());
+		}
 
 		it->resetVolatileProperties();
 
@@ -9605,6 +9619,23 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 			{
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_BOTH,it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH)+1);
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_SEA,it->getNumAdjacentEnemies(CvTacticalPlot::TD_SEA)+1);
+			}
+		}
+
+	//pt3
+	for (size_t i = 0; i < gCities.size(); i++)
+		for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
+		{
+			int iDistance = plotDistance(*GC.getMap().plotByIndexUnchecked(gCities[i]), *it->getPlot());
+			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
+				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
+			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_SEA))
+				it->setEnemyDistance(CvTacticalPlot::TD_SEA, iDistance);
+			if (iDistance == 1)
+			{
+				it->setNumAdjacentEnemies(CvTacticalPlot::TD_BOTH, it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) + 1);
+				it->setNumAdjacentEnemies(CvTacticalPlot::TD_LAND, it->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) + 1);
+				it->setNumAdjacentEnemies(CvTacticalPlot::TD_SEA, it->getNumAdjacentEnemies(CvTacticalPlot::TD_SEA) + 1);
 			}
 		}
 
@@ -10005,6 +10036,10 @@ STacticalAssignment * CvTacticalPosition::getLatestAssignmentMutable(int iUnitID
 
 bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 {
+	//empty assignment, nothing to do, consider this a good case
+	if (newAssignment.iUnitID == 0)
+		return true;
+
 	//if we killed an enemy ZOC will change
 	bool bRecomputeAllMoves = false;
 	//newly visible plots, newly visible enemies
@@ -10204,6 +10239,23 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 bool STacticalAssignment::operator==(const STacticalAssignment& rhs) const
 {
 	return memcmp(this, &rhs, sizeof(STacticalAssignment)) == 0;
+}
+
+//do not allow one unit to be present multiple times!
+bool SComboMove::addMove(const STacticalAssignment& move)
+{
+	if (a.iUnitID == 0)
+	{
+		a = move;
+		return true;
+	}
+	else if (b.iUnitID == 0 && a.iUnitID != move.iUnitID)
+	{
+		b = move;
+		return true;
+	}
+	else
+		return false;
 }
 
 //try to detect simple permutations in the unit assigments which result in equivalent results
@@ -11372,3 +11424,4 @@ const char* assignmentTypeNames[] =
 	"USEPOWER",
 	"FINISHTEMP"
 };
+
