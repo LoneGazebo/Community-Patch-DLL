@@ -125,6 +125,17 @@
 			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<Row>
+			<Type>IMPROVEMENT_OBELISK</Type>
+			<Description>TXT_KEY_IMPROVEMENT_OBELISK</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_OBELISK_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_OBELISK_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_MONOLITH_AFRI</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_EGYPT</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<Row>
 			<Type>IMPROVEMENT_OPPIDUM</Type>
 			<Description>TXT_KEY_IMPROVEMENT_OPPIDUM</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_OPPIDUM_TEXT</Civilopedia>
@@ -133,7 +144,7 @@
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
-			<PortraitIndex>11</PortraitIndex>
+			<PortraitIndex>12</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_ORDO</Type>
@@ -142,7 +153,7 @@
 			<Help>TXT_KEY_IMPROVEMENT_ORDO_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_ORDO</ArtDefineTag>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
-			<PortraitIndex>12</PortraitIndex>
+			<PortraitIndex>13</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_SIHEYUAN</Type>
@@ -153,7 +164,7 @@
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_CHINA</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
-			<PortraitIndex>13</PortraitIndex>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_TERSANE</Type>
@@ -164,7 +175,7 @@
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
-			<PortraitIndex>14</PortraitIndex>
+			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_VILLA</Type>
@@ -175,7 +186,7 @@
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
-			<PortraitIndex>15</PortraitIndex>
+			<PortraitIndex>16</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_POLDER_WATER</Type>
