@@ -123,6 +123,18 @@
 			<IconIndex>10</IconIndex>
 		</Row>
 		<Row>
+			<Type>BUILD_OBELISK</Type>
+			<ImprovementType>IMPROVEMENT_OBELISK</ImprovementType>
+			<Description>TXT_KEY_BUILD_OBELISK</Description>
+			<Help>TXT_KEY_BUILD_OBELISK_HELP</Help>
+			<Recommendation>TXT_KEY_BUILD_OBELISK_REC</Recommendation>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>97</OrderPriority>
+			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
+			<IconIndex>11</IconIndex>
+		</Row>
+		<Row>
 			<Type>BUILD_OPPIDUM</Type>
 			<ImprovementType>IMPROVEMENT_OPPIDUM</ImprovementType>
 			<Description>TXT_KEY_BUILD_OPPIDUM</Description>
@@ -132,7 +144,7 @@
 			<OrderPriority>95</OrderPriority>
 			<Kill>true</Kill>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>11</IconIndex>
+			<IconIndex>12</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_ORDO</Type>
@@ -144,7 +156,7 @@
 			<OrderPriority>95</OrderPriority>
 			<Kill>true</Kill>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>12</IconIndex>
+			<IconIndex>13</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_SIHEYUAN</Type>
@@ -156,7 +168,7 @@
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>97</OrderPriority>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>13</IconIndex>
+			<IconIndex>14</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_TERSANE</Type>
@@ -168,7 +180,7 @@
 			<OrderPriority>95</OrderPriority>
 			<Kill>true</Kill>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>14</IconIndex>
+			<IconIndex>15</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_VILLA</Type>
@@ -180,7 +192,7 @@
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>97</OrderPriority>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>15</IconIndex>
+			<IconIndex>16</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_POLDER_WATER</Type>
