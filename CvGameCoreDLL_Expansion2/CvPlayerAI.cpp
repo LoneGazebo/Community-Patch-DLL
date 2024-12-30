@@ -1266,10 +1266,10 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
+			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToLandmassOrOcean(pMusterPlot->getLandmass()))
 				bCitySameAsMuster = true;
 
-			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
+			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToLandmassOrOcean(pMusterPlot->getLandmass()))
 				continue;
 
 			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
@@ -2191,7 +2191,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		{
 			// rough approximation
 			iTransportTurns = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) / 15;
-			if (!pLoopCity->HasAccessToLandmass(pCapital->plot()->getLandmass()))
+			if (!pLoopCity->HasAccessToLandmassOrOcean(pCapital->plot()->getLandmass()))
 			{
 				iTransportTurns += 2;
 			}
@@ -2580,7 +2580,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !CanEmbark())
+	if (!pCity->HasAccessToLandmassOrOcean(pUnit->plot()->getLandmass()) && !CanEmbark())
 		return 0;
 
 	//Is there a proposal (not resolution) involving a Sphere of Influence or Open Door?
@@ -2927,7 +2927,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		iDistance *= 3;
 
 	//Let's downplay far/distant minors without full embarkation.
-	if(!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !GET_PLAYER(GetID()).CanCrossOcean())
+	if(!pCity->HasAccessToLandmassOrOcean(pUnit->plot()->getLandmass()) && !GET_PLAYER(GetID()).CanCrossOcean())
 		iDistance *= 3;
 
 	//If this is way too far away, let's not penalize it too much.

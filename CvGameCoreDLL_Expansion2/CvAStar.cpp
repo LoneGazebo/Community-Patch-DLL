@@ -1715,14 +1715,14 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	if (pFromPlot->isCity())
 	{
 		CvCity* pCity = pFromPlot->getPlotCity();
-		if (pCity->HasAccessToLandmass(pToPlot->getLandmass()))
+		if (pCity->HasAccessToLandmassOrOcean(pToPlot->getLandmass()))
 			bAllow = true;
 	}
 
 	if (pToPlot->isCity())
 	{
 		CvCity* pCity = pToPlot->getPlotCity();
-		if (pCity->HasAccessToLandmass(pFromPlot->getLandmass()))
+		if (pCity->HasAccessToLandmassOrOcean(pFromPlot->getLandmass()))
 			bAllow = true;
 	}
 
@@ -1801,14 +1801,14 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 			if (pFromPlot->isCity())
 			{
 				CvCity* pCity = pFromPlot->getPlotCity();
-				if (pCity->HasAccessToLandmass(pToPlot->getLandmass()))
+				if (pCity->HasAccessToLandmassOrOcean(pToPlot->getLandmass()))
 					bAllowStep = true;
 			}
 
 			if (pToPlot->isCity())
 			{
 				CvCity* pCity = pToPlot->getPlotCity();
-				if (pCity->HasAccessToLandmass(pFromPlot->getLandmass()))
+				if (pCity->HasAccessToLandmassOrOcean(pFromPlot->getLandmass()))
 					bAllowStep = true;
 			}
 		}

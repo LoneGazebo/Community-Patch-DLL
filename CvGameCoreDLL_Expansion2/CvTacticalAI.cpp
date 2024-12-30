@@ -4782,14 +4782,14 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			CvTacticalDominanceZone* pNextZone = GetTacticalAnalysisMap()->GetZoneByID(*it);
 			if (pNextZone && pNextZone->GetZoneCity() && pNextZone->IsWater() == (pUnit->getDomainType() == DOMAIN_SEA))
 			{
+				CvPlot* pTestPlot = pNextZone->GetZoneCity()->plot();
 				int iScore = pNextZone->getHospitalityScore();
-				int iTurns = pUnit->TurnsToReachTarget(pTargetPlot, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 12);
+				int iTurns = pUnit->TurnsToReachTarget(pTestPlot, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 12);
 				if (iTurns == INT_MAX)
 					continue;
 
 				iScore = (iScore * 100) / (iTurns + 1);
-
-				if (iScore > iBestScore && pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
+				if (iScore > iBestScore)
 				{
 					pTargetPlot = GC.getMap().plot(pNextZone->GetCenterX(), pNextZone->GetCenterY());
 					iBestScore = iScore;
@@ -4799,15 +4799,17 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 
 		if (!pTargetPlot)
 		{
-			// Compute moves to nearest city and use as sort criteria
+			//Just go towards nearest city and try to avoid expensive distance map updates for minor players ...
 			CvCity* pNearestCity = m_pPlayer->isMinorCiv() ? m_pPlayer->getCapitalCity() : m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
+
+			//Note this might for naval units since pathlength is cross-domain, might give impossible target!
+			//But considering we have another fallback below this should be ok
 			if (pNearestCity)
 				pTargetPlot = pNearestCity->plot();
 		}
 
-		if (pTargetPlot)
+		if (pTargetPlot && MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true))
 		{
-			MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 			UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 			if(GC.getLogging() && GC.getAILogging())
@@ -7446,8 +7448,8 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		if (!pEnemy->IsCanAttack())
 			fAggBias /= 2;
 
-		//don't be distracted by attacks on barbarians when there are real enemies around
-		if (pEnemy->getOwner() == BARBARIAN_PLAYER)
+		//don't be distracted by attacks on barbarians or melee units in other domain when there are real enemies around
+		if (pEnemy->getOwner() == BARBARIAN_PLAYER || (!pEnemy->IsCanAttackRanged() && pEnemy->getDomainType() != pUnit->getDomainType()))
 			bScoreReduction = true;
 
 		//if there is a chance that the enemy will be killed during the sim, we want to know

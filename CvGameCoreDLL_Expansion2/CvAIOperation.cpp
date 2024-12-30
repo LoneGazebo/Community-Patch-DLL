@@ -3347,8 +3347,9 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if(pLoopCity->isCoastal(iMinWaterSize) && pLoopCity->HasAccessToLandmass(pRefPlot->getLandmass()))
+		if(pLoopCity->isCoastal(iMinWaterSize) && pLoopCity->HasAccessToLandmassOrOcean(pRefPlot->getLandmass()))
 		{
+			//dangerous: city might be on the wrong side of a continent! need to create path length distance map per domain!
 			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pRefPlot->getX(), pRefPlot->getY());
 			if(iDistance >= 0 && iDistance < iBestDistance)
 			{

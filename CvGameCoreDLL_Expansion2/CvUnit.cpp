@@ -28138,7 +28138,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 			bool bForbidden = (pTargetPlot->getLandmass() != pSourcePlot->getLandmass());
 	
 			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
-			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToLandmass(pSourcePlot->getLandmass()))
+			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToLandmassOrOcean(pSourcePlot->getLandmass()))
 				bForbidden = false;
 
 			if (bForbidden)

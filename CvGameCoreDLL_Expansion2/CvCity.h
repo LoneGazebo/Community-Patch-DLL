@@ -574,7 +574,7 @@ public:
 	bool HasAccessToArea(int iAreaID) const;
 	bool HasSharedAreaWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 	//landmasses can also be water bodies
-	bool HasAccessToLandmass(int iLandmassID) const;
+	bool HasAccessToLandmassOrOcean(int iLandmassID) const;
 	bool HasSharedLandmassWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	bool NeedsGarrison() const;

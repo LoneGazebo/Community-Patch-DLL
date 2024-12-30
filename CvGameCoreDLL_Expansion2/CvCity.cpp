@@ -16544,8 +16544,9 @@ bool CvCity::HasSharedAreaWith(const CvCity * pOther, bool bAllowLand, bool bAll
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::HasAccessToLandmass(int iLandmassID) const
+bool CvCity::HasAccessToLandmassOrOcean(int iLandmassID) const
 {
+	//"landmass id" doubles as "ocean id"!
 	CvPlot* pPlot = plot();
 	if (pPlot)
 	{
@@ -33137,7 +33138,7 @@ UnitTypes CvCity::GetUnitForOperation()
 
 		if (pThisArmy && pThisOperation)
 		{
-			if (!HasAccessToLandmass(pThisOperation->GetMusterPlot()->getLandmass()))
+			if (!HasAccessToLandmassOrOcean(pThisOperation->GetMusterPlot()->getLandmass()))
 				return NO_UNIT;
 
 			// figure out the primary and secondary unit type to potentially build
