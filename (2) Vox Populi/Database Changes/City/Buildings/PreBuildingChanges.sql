@@ -226,6 +226,22 @@ VALUES
 -- Set to follow NewBuildings.xml, delete from all other tables
 -- These need to be edited every time a new column value is added to/removed from the base building in NewBuildings.xml
 
+-- Greece: Scrivener's Office
+-- Keeping the on-map building model for now
+UPDATE Buildings
+SET
+	PrereqTech = (SELECT PrereqTech FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	MaxStartEra = (SELECT MaxStartEra FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	SpecialistType = (SELECT SpecialistType FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	GreatPeopleRateChange = (SELECT GreatPeopleRateChange FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	GreatWorkSlotType = (SELECT GreatWorkSlotType FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	GreatWorkCount = (SELECT GreatWorkCount FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	FreeGreatWork = (SELECT FreeGreatWork FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	WonderSplashImage = NULL,
+	WonderSplashAudio = NULL
+WHERE Type = 'BUILDING_PARTHENON';
+
 -- Iroquois: Herbalist
 UPDATE Buildings
 SET
