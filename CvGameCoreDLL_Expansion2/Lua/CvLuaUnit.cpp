@@ -2438,7 +2438,7 @@ int CvLuaUnit::lGetUnitCombatType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const UnitCombatTypes eResult = (UnitCombatTypes)pkUnit->getUnitCombatType();
+	const UnitCombatTypes eResult = pkUnit->getUnitCombatType();
 	lua_pushinteger(L, eResult);
 	return 1;
 }
