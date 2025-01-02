@@ -351,6 +351,8 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_AIR_CARRIER' AND
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 5, primary: dom
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 9, primary: dom
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 5, UU2
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_NAVAL_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 7, UI
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 6, secondary: diplo
 
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_GANDHI'; -- 4, skirmisher
