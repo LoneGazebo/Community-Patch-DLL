@@ -7558,9 +7558,6 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT();
 
-	if (!IsHurt())
-		return false;
-
 	if (isHuman() && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
@@ -7573,7 +7570,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 	if (bCheckMovement && hasMoved() && !isAlwaysHeal())
 		return false;
 
-	// No barb healing
+	// No barb healing, except for a special case handled in CvUnit::doHeal()
 	if (isBarbarian())
 		return false;
 
@@ -7963,7 +7960,7 @@ void CvUnit::doHeal()
 			}
 		}
 	}
-	else if (canHeal(plot())) //normal player units
+	else if (IsHurt() && canHeal(plot())) //normal player units
 	{
 		int iHealRate = healRate(plot());
 		if (iHealRate==0)
@@ -28587,7 +28584,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	}
 	else 
 	{
-		if (GetNumEnemyUnitsAdjacent()>0)
+		if (GetNumEnemyUnitsAdjacent()>0 || IsEnemyCityAdjacent())
 		{
 			//only run away if strictly necessary
 			return isProjectedToDieNextTurn() && (GetDanger() > GetCurrHitPoints());

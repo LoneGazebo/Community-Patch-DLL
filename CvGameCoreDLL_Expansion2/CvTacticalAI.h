@@ -746,8 +746,8 @@ public:
 	bool isEnemyCombatUnit() const { return pEnemyCombatUnit!=NULL; }
 	CvUnit* getEnemyUnit() const { return pEnemyCombatUnit; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const;
-	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, eUnitMovementStrategy moveType, eTactPlotDomain unitDomain, int iChange) const;
+	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain, bool bOverride=false);
 
 	int getNumVisiblePlotsRange2() const { return (int)nVisiblePlotsNearEnemyRange2; }
 	int getNumVisiblePlotsRange3() const { return (int)nVisiblePlotsNearEnemyRange2; }
@@ -930,7 +930,7 @@ public:
 	bool addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID);
 	bool isKillOrImprovedPosition() const;
 	void countEnemiesAndCheckVisibility();
-	void refreshVolatilePlotProperties();
+	void refreshVolatilePlotProperties(bool bInitial = false);
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage, 

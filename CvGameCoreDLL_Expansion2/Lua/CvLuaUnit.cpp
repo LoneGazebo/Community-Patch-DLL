@@ -1447,7 +1447,7 @@ int CvLuaUnit::lCanHeal(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bResult = pkUnit->canHeal(pkPlot);
+	const bool bResult = pkUnit->IsHurt() && pkUnit->canHeal(pkPlot);
 
 	lua_pushboolean(L, bResult);
 	return 1;

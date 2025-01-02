@@ -32645,7 +32645,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 {
 	//in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
 	//also they will have the correct year in the name! hooray
-	if(!GC.getGame().isNetworkMultiPlayer() && isHuman() && !bNewValue)
+	if(!GC.getGame().isNetworkMultiPlayer() && m_eID==0 && !bNewValue)
 		gDLL->AutoSave(false, true);
 
 	if(isTurnActive() != bNewValue)
