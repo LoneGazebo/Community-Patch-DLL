@@ -51,6 +51,33 @@ VALUES
 	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_FEARED_ELEPHANT');
 
 ----------------------------------------------------------
+-- Unique Unit: Dhanurdhara (Archer)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_INDIA', 'UNITCLASS_ARCHER', 'UNIT_DHANURDHARA');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_ARCHER'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_ARCHER') + 1,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_ARCHER') + 2
+WHERE Type = 'UNIT_DHANURDHARA';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_DHANURDHARA', 'PROMOTION_EPIC'),
+	('UNIT_DHANURDHARA', 'PROMOTION_DHANURVIDYA');
+
+----------------------------------------------------------
 -- Unique Building: Harappan Reservoir (Aqueduct)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
@@ -78,3 +105,27 @@ INSERT INTO Building_ImprovementYieldChanges
 VALUES
 	('BUILDING_HARAPPAN_RESERVOIR', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
 	('BUILDING_HARAPPAN_RESERVOIR', 'IMPROVEMENT_FARM', 'YIELD_PRODUCTION', 1);
+
+----------------------------------------------------------
+-- Unique Building: Qila (Castle)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_INDIA', 'BUILDINGCLASS_CASTLE', 'BUILDING_MUGHAL_FORT');
+
+UPDATE Buildings
+SET
+	DefensePerXWonder = 2,
+	DamageReductionFlat = (SELECT DamageReductionFlat FROM Buildings WHERE Type = 'BUILDING_CASTLE') + 2
+WHERE Type = 'BUILDING_MUGHAL_FORT';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MUGHAL_FORT', 'YIELD_CULTURE', 2);
+
+INSERT INTO Building_YieldChangesPerCityStrengthTimes100
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MUGHAL_FORT', 'YIELD_CULTURE', 20);
