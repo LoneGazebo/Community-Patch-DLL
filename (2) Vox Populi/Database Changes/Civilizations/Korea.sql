@@ -62,6 +62,27 @@ VALUES
 	('UNIT_KOREAN_HWACHA', 'PROMOTION_LOGISTICS');
 
 ----------------------------------------------------------
+-- Unique Unit: Turtle Ship (Caravel)
+----------------------------------------------------------
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_CARAVEL'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CARAVEL') + 7
+WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_KOREAN_TURTLE_SHIP', 'PROMOTION_SHALLOW_DRAFT'),
+	('UNIT_KOREAN_TURTLE_SHIP', 'PROMOTION_DECK_SPIKES');
+
+----------------------------------------------------------
 -- Unique Building: Seowon (University)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
@@ -102,3 +123,36 @@ DROP TABLE Helper;
 UPDATE Building_GrowthExtraYield
 SET Yield = (SELECT Yield FROM Building_GrowthExtraYield WHERE BuildingType = 'BUILDING_UNIVERSITY' AND YieldType = 'YIELD_SCIENCE') * 2
 WHERE BuildingType = 'BUILDING_SEOWON' AND YieldType = 'YIELD_SCIENCE';
+
+----------------------------------------------------------
+-- Unique Building: Chaebol (Stock Exchange)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_KOREA', 'BUILDINGCLASS_STOCK_EXCHANGE', 'BUILDING_CHAEBOL');
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_STOCK_EXCHANGE' AND YieldType = 'YIELD_GOLD') + 2
+WHERE BuildingType = 'BUILDING_CHAEBOL' AND YieldType = 'YIELD_GOLD';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHAEBOL', 'YIELD_PRODUCTION', 4);
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_CHAEBOL', 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 4);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_CHAEBOL', 'BUILDINGCLASS_STOCK_EXCHANGE', 'YIELD_GOLD', 2),
+	('BUILDING_CHAEBOL', 'BUILDINGCLASS_STOCK_EXCHANGE', 'YIELD_SCIENCE', 2),
+	('BUILDING_CHAEBOL', 'BUILDINGCLASS_STOCK_EXCHANGE', 'YIELD_CULTURE', 2);
+
+UPDATE Building_HurryModifiersLocal
+SET HurryCostModifier = (SELECT HurryCostModifier FROM Building_HurryModifiersLocal WHERE BuildingType = 'BUILDING_STOCK_EXCHANGE') - 5
+WHERE BuildingType = 'BUILDING_CHAEBOL';
