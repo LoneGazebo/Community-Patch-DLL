@@ -14327,7 +14327,7 @@ void CvDiplomacyAI::DoUpdateOpinions()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
-		if (GET_PLAYER(eLoopPlayer).isAlive() && !IsAlwaysAtWar(eLoopPlayer) && IsHasMet(eLoopPlayer, bMPDealUpdates))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && !IsAlwaysAtWar(eLoopPlayer) && eLoopPlayer != GetID() && IsHasMet(eLoopPlayer, bMPDealUpdates))
 			DoUpdateOnePlayerOpinion(eLoopPlayer);
 	}
 }
