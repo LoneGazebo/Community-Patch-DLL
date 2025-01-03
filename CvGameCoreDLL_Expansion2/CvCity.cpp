@@ -27711,7 +27711,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 										if (pkAdjacentResource->getWonderProductionMod() > 0 && GET_PLAYER(getOwner()).GetCurrentEra() < pkAdjacentResource->getWonderProductionModObsoleteEra())
 											iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST * pkAdjacentResource->getWonderProductionMod() / 100;
 
-										if (GET_PLAYER(getOwner()).WouldGainMonopoly(eResource, pAdjacentPlot->getNumResource()))
+										if (GET_PLAYER(getOwner()).WouldGainMonopoly(eAdjacentResource, pAdjacentPlot->getNumResource()))
 											iAdjacentCost += iPLOT_INFLUENCE_RESOURCE_COST;
 									}
 								}
@@ -27732,7 +27732,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 									}
 									else if (eAdjacentFeature != NO_FEATURE)
 									{
-										CvFeatureInfo* pkFeature = GC.getFeatureInfo(eFeature);
+										CvFeatureInfo* pkFeature = GC.getFeatureInfo(eAdjacentFeature);
 										if (pkFeature && pkFeature->isNoImprovement())
 											iAdjacentCost += iPLOT_INFLUENCE_WATER_COST;
 									}

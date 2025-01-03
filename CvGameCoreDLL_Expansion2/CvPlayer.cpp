@@ -13220,9 +13220,11 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 {
 	std::vector<BuildingTypes>v_StarterBuildings;
 
-	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
-	if (pkCivilizationInfo == NULL)
+	if (getCivilizationType() == NO_CIVILIZATION)
 		return v_StarterBuildings;
+
+	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+	PRECONDITION(pkCivilizationInfo);
 
 	//first, loop through all buildings...
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
