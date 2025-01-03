@@ -6113,9 +6113,10 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 			// ... antiquity site?
 			if((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
 			{
-				if(pLoopPlot->getOwner() != NO_PLAYER)
+				PlayerTypes eLoopPlotOwner = pLoopPlot->getOwner();
+				if(eLoopPlotOwner != NO_PLAYER)
 				{
-					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->MadeNoDiggingPromise(pLoopPlot->getOwner()))
+					if(eLoopPlotOwner == m_pPlayer->GetID() || !GET_PLAYER(eLoopPlotOwner).isMajorCiv() || !m_pPlayer->GetDiplomacyAI()->MadeNoDiggingPromise(eLoopPlotOwner))
 					{
 						return true;
 					}
