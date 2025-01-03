@@ -7565,6 +7565,14 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 	if (!IsHurt())
 		return false;
 
+	if (isHuman() && !IsFortified())
+	{
+		if (!canEndTurnAtPlot(pPlot))
+		{
+			return false;
+		}
+	}
+
 	// No healing after movement, except for exceptions
 	if (bCheckMovement && hasMoved() && !isAlwaysHeal())
 		return false;
