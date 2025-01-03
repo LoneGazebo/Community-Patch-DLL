@@ -6315,8 +6315,10 @@ int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 				int iIndex = GetThemingBonusIndex(*iI);
 				if (iIndex < 0)
 					continue;
-
-				int iBonus = pkBuilding->GetThemingBonusInfo(iIndex)->GetBonus();
+				
+				CvThemingBonusInfo* pkThemingBonus = pkBuilding->GetThemingBonusInfo(iIndex);
+				PRECONDITION(pkThemingBonus);
+				int iBonus = pkThemingBonus->GetBonus();
 				int iModifier = m_pCity->GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
 
 				if (m_pCity->isCapital())
