@@ -6596,15 +6596,13 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 	if (eUnit == NO_UNIT)
 		return;
 
-	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	std::set<int> siPlots = pCity->GetPlotList();
+	for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
 		// It's possible that the player runs out of supply mid loop
 		if (m_pPlayer->GetNumUnitsToSupply() >= m_pPlayer->GetNumUnitsSupplied())
 			return;
-
-		CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-		if (!pLoopPlot)
-			continue;
 
 		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 		if (eImprovement == NO_IMPROVEMENT)
