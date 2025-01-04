@@ -36759,15 +36759,6 @@ void CvPlayer::addResourcesOnPlotToTotal(CvPlot* pPlot, bool bOnlyExtraResources
 			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ false);
 		}
 	}
-	CvCity* pEffectiveOwningCity = pPlot->getEffectiveOwningCity();
-	if (pEffectiveOwningCity && pEffectiveOwningCity->GetCityCitizens()->IsWorkingPlot(pPlot))
-		{
-		pEffectiveOwningCity->ChangeNumResourceWorked(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
-		if (!bOnlyExtraResources)
-		{
-			pEffectiveOwningCity->ChangeNumResourceWorked(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
-		}
-	}
 }
 
 void CvPlayer::removeResourcesOnPlotFromTotal(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
@@ -36787,15 +36778,6 @@ void CvPlayer::removeResourcesOnPlotFromTotal(CvPlot* pPlot, bool bOnlyExtraReso
 		if (!bOnlyExtraResources)
 		{
 			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ false);
-		}
-	}
-	CvCity* pEffectiveOwningCity = pPlot->getEffectiveOwningCity();
-	if (pEffectiveOwningCity && pEffectiveOwningCity->GetCityCitizens()->IsWorkingPlot(pPlot))
-	{
-		pEffectiveOwningCity->ChangeNumResourceWorked(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
-		if (!bOnlyExtraResources)
-		{
-			pEffectiveOwningCity->ChangeNumResourceWorked(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
 		}
 	}
 }

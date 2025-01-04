@@ -2373,10 +2373,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				{
 					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), 1);
 				}
-				if (pPlot->IsResourceImprovedForOwner())
-				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), pPlot->getNumResourceForPlayer(GetCity()->getOwner(), true) + pPlot->getNumResourceForPlayer(GetCity()->getOwner(), false));
-				}
 				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 				{
 					GetCity()->ChangeNumImprovementWorked(pPlot->getImprovementType(), 1);
@@ -2408,10 +2404,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				if (pPlot->getFeatureType() != NO_FEATURE)
 				{
 					GetCity()->ChangeNumFeatureWorked(pPlot->getFeatureType(), -1);
-				}
-				if (pPlot->IsResourceImprovedForOwner())
-				{
-					GetCity()->ChangeNumResourceWorked(pPlot->getResourceType(GetCity()->getTeam()), -1 * (pPlot->getNumResourceForPlayer(GetCity()->getOwner(), true) + pPlot->getNumResourceForPlayer(GetCity()->getOwner(), false)));
 				}
 				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 				{

@@ -300,9 +300,6 @@ public:
 	void ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange);
 	int GetNumFeatureWorked(FeatureTypes eFeature);
 
-	void ChangeNumResourceWorked(ResourceTypes eResource, int iChange);
-	int GetNumResourceWorked(ResourceTypes eResource);
-
 	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
 	int GetNumImprovementWorked(ImprovementTypes eImprovement);
 
@@ -2091,7 +2088,6 @@ protected:
 	std::vector<int> m_paiNumTerrainWorked;
 	std::vector<int> m_paiNumFeaturelessTerrainWorked;
 	std::vector<int> m_paiNumFeatureWorked;
-	std::vector<int> m_paiNumResourceWorked;
 	std::vector<int> m_paiNumImprovementWorked;
 #endif
 	CvString m_strScriptData;
@@ -2485,7 +2481,6 @@ SYNC_ARCHIVE_VAR(int, m_iExtraBuildingMaintenance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumTerrainWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeaturelessTerrainWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeatureWorked)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumImprovementWorked)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenThisTurn)
