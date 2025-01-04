@@ -679,7 +679,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 
 	UnitAITypes eAIType = NO_UNITAI;
 	const CvUnitEntry* pkUnitType = GC.getUnitInfo(eUnitType);
-	FAssert(pkUnitType); // We should probably be concerned if this unit type isn't valid
+	ASSERT(pkUnitType); // We should probably be concerned if this unit type isn't valid
 	if(pkUnitType != NULL)
 		eAIType = pkUnitType->GetDefaultUnitAIType();
 	else
@@ -1902,7 +1902,7 @@ static wchar_t sg_wszTempMapName[MAX_PATH] = {0};
 
 bool CheckTempMap(const wchar_t* wszFilename)
 {
-	FAssert(wszFilename);
+	ASSERT(wszFilename);
 
 	if(wszFilename && *wszFilename)
 	{
@@ -2126,7 +2126,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 	{
 		const char* szLuaFile = "WorldBuilderRandomItems.lua";
 		const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, szLuaFile);
-		FAssert(bLoadedMapGenerator, "Failed to load %s", szLuaFile);
+		ASSERT(bLoadedMapGenerator, "Failed to load %s", szLuaFile);
 		if(bLoadedMapGenerator)
 		{
 			if(bRandomGoodies)
@@ -2136,7 +2136,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 				if(lua_isfunction(L, -1))
 					pkScriptSystem->CallFunction(L, 0, 0);
 				else
-					FAssert(0, "Failed to find \"%s\" in %s", szGoodiesFunction, szLuaFile);
+					ASSERT(0, "Failed to find \"%s\" in %s", szGoodiesFunction, szLuaFile);
 			}
 
 			if(bRandomResources)
@@ -2146,7 +2146,7 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 				if(lua_isfunction(L, -1))
 					pkScriptSystem->CallFunction(L, 0, 0);
 				else
-					FAssert(0, "Failed to find \"%s\" in %s", szResourcesFunction, szLuaFile);
+					ASSERT(0, "Failed to find \"%s\" in %s", szResourcesFunction, szLuaFile);
 			}
 		}
 	}
