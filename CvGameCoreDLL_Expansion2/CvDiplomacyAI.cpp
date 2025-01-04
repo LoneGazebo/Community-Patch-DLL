@@ -25272,13 +25272,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
-			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+			std::set<int> siPlots = pLoopCity->GetPlotList();
+			for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 			{
-				CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+				CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
 
-				if (pCityPlot && pCityPlot->getOwner() == ePlayer && pCityPlot->IsImprovementEmbassy())
+				if (pLoopPlot && pLoopPlot->getOwner() == ePlayer && pLoopPlot->IsImprovementEmbassy())
 				{
-					if (GET_PLAYER(pCityPlot->GetPlayerThatBuiltImprovement()).getTeam() == GetTeam())
+					if (GET_PLAYER(pLoopPlot->GetPlayerThatBuiltImprovement()).getTeam() == GetTeam())
 					{
 						vApproachScores[CIV_APPROACH_WAR] = 0;
 						bPotentialWarTarget = false;

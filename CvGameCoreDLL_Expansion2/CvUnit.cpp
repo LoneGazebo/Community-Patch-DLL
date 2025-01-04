@@ -9712,12 +9712,11 @@ bool CvUnit::sellExoticGoods()
 					CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
 					if (pCity != NULL)
 					{
-
-						for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+						std::set<int> siPlots = pCity->GetPlotList();
+						for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 						{
-
-							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-							if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
+							CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+							if (!pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 							{
 								if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -9732,10 +9731,11 @@ bool CvUnit::sellExoticGoods()
 						}
 						if (!bAlreadyHere)
 						{
-							for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+							std::set<int> siPlots = pCity->GetPlotList();
+							for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 							{
-								CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-								if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
+								CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+								if (!pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 								{
 									//If we can build on an empty spot, do so.
 									if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)

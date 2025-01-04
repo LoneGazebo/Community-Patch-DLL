@@ -6428,24 +6428,21 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 
 	// Is there an available spot for us to build on?
 	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
-	CvPlot* pEmbassyPlot = NULL;
 
-	for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+	std::set<int> siPlots = pCity->GetPlotList();
+	for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 	{
-		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
-		{
-			// Don't be captured but allow some fog danger
-			if (pUnit->GetDanger(pCityPlot) > 10)
-				continue;
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+		// Don't be captured but allow some fog danger
+		if (pUnit->GetDanger(pLoopPlot) > 10)
+			continue;
 
-			//use the first (innermost) plot we find
-			if (!pEmbassyPlot && pUnit->canBuild(pCityPlot, eEmbassyBuild))
-				pEmbassyPlot = pCityPlot;
-		}
+		//use the first (innermost) plot we find
+		if (pUnit->canBuild(pLoopPlot, eEmbassyBuild))
+			return pLoopPlot;
 	}
 
-	return pEmbassyPlot;
+	return NULL;
 }
 
 

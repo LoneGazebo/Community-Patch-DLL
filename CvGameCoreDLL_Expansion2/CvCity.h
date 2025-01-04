@@ -334,6 +334,10 @@ public:
 	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
 	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
 
+	std::set<int> GetPlotList() const;
+	void AddToPlotList(CvPlot* pPlot);
+	void RemoveFromPlotList(CvPlot* pPlot);
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsHasFeatureLocal(FeatureTypes eFeature) const;
 #endif
@@ -1951,6 +1955,7 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
+	std::set<int> m_siPlots;
 	std::vector<int> m_aiChangeGrowthExtraYield;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
@@ -2351,6 +2356,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromMisc)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromLeague)
+SYNC_ARCHIVE_VAR(std::set<int>, m_siPlots)
 SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
 SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
