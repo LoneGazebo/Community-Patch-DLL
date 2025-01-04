@@ -466,7 +466,6 @@ CvCity::CvCity() :
 	, m_paiNumTerrainWorked()
 	, m_paiNumFeaturelessTerrainWorked()
 	, m_paiNumFeatureWorked()
-	, m_paiNumResourceWorked()
 	, m_paiNumImprovementWorked()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -1762,7 +1761,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
 		int iNumFeatureInfos = GC.getNumFeatureInfos();
-		int iNumResourceInfos = GC.getNumResourceInfos();
 		int iNumImprovementInfos = GC.getNumImprovementInfos();
 
 #if defined(MOD_BALANCE_CORE)
@@ -1781,13 +1779,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		for (iI = 0; iI < iNumFeatureInfos; iI++)
 		{
 			m_paiNumFeatureWorked[iI] = 0;
-		}
-
-		m_paiNumResourceWorked.clear();
-		m_paiNumResourceWorked.resize(iNumResourceInfos);
-		for (iI = 0; iI < iNumResourceInfos; iI++)
-		{
-			m_paiNumResourceWorked[iI] = 0;
 		}
 
 		m_paiNumImprovementWorked.clear();
@@ -2867,8 +2858,6 @@ void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -4275,9 +4264,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	if (pkEventInfo->getPillageResourceTilesChance() > 0)
 	{
-		int iX = getX();
-		int iY = getY();
-		int iCityID = GetID();
 		bool bImprovementFound = false;
 		for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 		{
@@ -6032,8 +6018,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 
 	if (pkEventInfo->getPillageResourceTilesChance() > 0)
 	{
-		int iX = getX();
-		int iY = getY();
 		int iCityID = GetID();
 		bool bImprovementFound = false;
 		for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -6909,7 +6893,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				if (eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementDestruction(eImprovement) > 0)
 				{
 					aBestPlots.clear();
-					int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 					for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 					{
@@ -6972,7 +6955,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						if (pResource && pResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 						{
 							aBestPlots.clear();
-							int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 							for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 							{
@@ -7028,8 +7010,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			int iPillageResourceTilesChance = pkEventChoiceInfo->getPillageResourceTilesChance();
 			if (iPillageResourceTilesChance > 0)
 			{
-				int iX = getX();
-				int iY = getY();
 				int iCityID = GetID();
 				for (std::set<int>::iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 				{
@@ -7058,8 +7038,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			int iPillageRoadsChance = pkEventChoiceInfo->getPillageRoadsChance();
 			if (iPillageRoadsChance > 0)
 			{
-				int iX = getX();
-				int iY = getY();
 				int iCityID = GetID();
 				for (std::set<int>::iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 				{
@@ -7082,8 +7060,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			int iPillageFortificationsChance = pkEventChoiceInfo->getPillageFortificationsChance();
 			if (iPillageFortificationsChance > 0)
 			{
-				int iX = getX();
-				int iY = getY();
 				int iCityID = GetID();
 				for (std::set<int>::iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 				{
@@ -14634,7 +14610,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			std::set<int>::iterator it;
 			for (it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 			{
-				CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+				pLoopPlot = GC.getMap().plotByIndex(*it);
 				PRECONDITION(pLoopPlot);
 
 				ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
@@ -18428,21 +18404,6 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 
 		UpdateYieldPerXFeature(((YieldTypes)iI), eFeature);
 	}
-}
-//	--------------------------------------------------------------------------------
-int CvCity::GetNumResourceWorked(ResourceTypes eResource)
-{
-	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
-	return m_paiNumResourceWorked[eResource];
-}
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeNumResourceWorked(ResourceTypes eResource, int iChange)
-{
-	ASSERT(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	ASSERT(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
-	m_paiNumResourceWorked[eResource] = m_paiNumResourceWorked[eResource] + iChange;
-	ASSERT(GetNumResourceWorked(eResource) >= 0);
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumImprovementWorked(ImprovementTypes eImprovement)
@@ -31670,7 +31631,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_paiNumTerrainWorked);
 	visitor(city.m_paiNumFeaturelessTerrainWorked);
 	visitor(city.m_paiNumFeatureWorked);
-	visitor(city.m_paiNumResourceWorked);
 	visitor(city.m_paiNumImprovementWorked);
 	visitor(city.m_strScriptData);
 	visitor(city.m_iDamageTakenThisTurn);
@@ -33537,8 +33497,6 @@ bool CvCity::IsCivilization(CivilizationTypes iCivilizationType) const
 
 bool CvCity::HasFeature(FeatureTypes iFeatureType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33554,8 +33512,6 @@ bool CvCity::HasFeature(FeatureTypes iFeatureType) const
 
 bool CvCity::HasWorkedFeature(FeatureTypes iFeatureType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33575,10 +33531,6 @@ bool CvCity::HasWorkedFeature(FeatureTypes iFeatureType) const
 
 bool CvCity::HasAnyNaturalWonder() const
 {
-	int iX = getX();
-	int iY = getY();
-	int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33598,8 +33550,6 @@ bool CvCity::HasNaturalWonder(FeatureTypes iFeatureType) const
 
 bool CvCity::HasImprovement(ImprovementTypes iImprovementType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33614,8 +33564,6 @@ bool CvCity::HasImprovement(ImprovementTypes iImprovementType) const
 
 bool CvCity::HasWorkedImprovement(ImprovementTypes iImprovementType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33635,8 +33583,6 @@ bool CvCity::HasWorkedImprovement(ImprovementTypes iImprovementType) const
 
 bool CvCity::HasPlotType(PlotTypes iPlotType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33651,8 +33597,6 @@ bool CvCity::HasPlotType(PlotTypes iPlotType) const
 
 bool CvCity::HasWorkedPlotType(PlotTypes iPlotType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33682,8 +33626,6 @@ bool CvCity::HasReligion(ReligionTypes iReligionType) const
 
 bool CvCity::HasResource(ResourceTypes iResourceType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33708,8 +33650,6 @@ bool CvCity::HasResource(ResourceTypes iResourceType) const
 
 bool CvCity::HasWorkedResource(ResourceTypes iResourceType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33763,8 +33703,6 @@ bool CvCity::HasSpecialist(SpecialistTypes iSpecialistType) const
 
 bool CvCity::HasTerrain(TerrainTypes iTerrainType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33779,8 +33717,6 @@ bool CvCity::HasTerrain(TerrainTypes iTerrainType) const
 
 bool CvCity::HasWorkedTerrain(TerrainTypes iTerrainType) const
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
-
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -33986,7 +33922,6 @@ bool CvCity::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 
 int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -34010,7 +33945,6 @@ int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 
 int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool IgnorePillaged)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -34037,7 +33971,6 @@ int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool Ignore
 
 int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -34061,7 +33994,6 @@ int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 
 int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -34084,7 +34016,6 @@ int CvCity::CountNumImprovement(ImprovementTypes eImprovement)
 }
 int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 {
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -34234,7 +34165,6 @@ int CvCity::CountFeature(FeatureTypes iFeatureType) const
 int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34276,7 +34206,6 @@ int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreate
 int CvCity::CountWorkedImprovement(ImprovementTypes iImprovementType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34313,7 +34242,6 @@ int CvCity::CountPlotType(PlotTypes iPlotType) const
 int CvCity::CountWorkedPlotType(PlotTypes iPlotType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34335,7 +34263,6 @@ int CvCity::CountWorkedPlotType(PlotTypes iPlotType) const
 int CvCity::CountResource(ResourceTypes iResourceType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34356,7 +34283,6 @@ int CvCity::CountResource(ResourceTypes iResourceType) const
 int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34393,7 +34319,6 @@ int CvCity::CountTerrain(TerrainTypes iTerrainType) const
 int CvCity::CountWorkedTerrain(TerrainTypes iTerrainType) const
 {
 	int iCount = 0;
-	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 
 	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
 	{
@@ -34861,7 +34786,6 @@ int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber,
 
 	int iNumUnitSpawned = 0;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	CvCityCitizens* pCitizens = GetCityCitizens();
 
 	// Melee -> Ranged -> Repeat
 	bool bCanBeRanged = false;
