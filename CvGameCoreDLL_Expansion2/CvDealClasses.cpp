@@ -234,7 +234,6 @@ int CvDeal::GetNumItems()
 /// Who is player 1 in this deal (called from Lua because the interface has a static Deal that is initialized with both players as -1)
 void CvDeal::SetFromPlayer(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "DEAL: Invalid Player Index.");
 	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eFromPlayer = ePlayer;
@@ -243,7 +242,6 @@ void CvDeal::SetFromPlayer(PlayerTypes ePlayer)
 /// Who is player 2 in this deal (called from Lua because the interface has a static Deal that is initialized with both players as -1)
 void CvDeal::SetToPlayer(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "DEAL: Invalid Player Index.");
 	ASSERT(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.");
 
 	m_eToPlayer = ePlayer;

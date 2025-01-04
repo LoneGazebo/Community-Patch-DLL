@@ -196,7 +196,7 @@ local g_cityToolTips = {
 					local resourceID = plot:GetResourceType( g_activeTeamID )
 					local numResource = plot:GetNumResource()
 					if numResource > 0 then
-						if not plot:IsCity() and (plot:IsImprovementPillaged() or not plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
+						if not plot:IsCity() and (plot:IsImprovementPillaged() or not (plot:GetImprovementType() ~= -1 and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() ))) then
 							numResource = numResource / 65536
 						end
 						resources[ resourceID ] = ( resources[ resourceID ] or 0 ) + numResource

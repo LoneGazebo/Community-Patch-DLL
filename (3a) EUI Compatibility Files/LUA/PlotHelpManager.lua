@@ -695,7 +695,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			resource = GameInfo.Resources[ resourceID ]
 			resourceUsageType = Game.GetResourceUsageType( resourceID )
 			isResourceUsefull = resourceUsageType ~= ResourceUsageTypes_RESOURCEUSAGE_BONUS
-			isResourceConnected = plot:IsResourceConnectedByImprovement( revealedImprovementID ) and not isPillaged
+			isResourceConnected = revealedImprovementID ~= -1 and plot:IsResourceConnectedByImprovement( revealedImprovementID ) and not isPillaged
 			numResource = plot:GetNumResource()
 
 			if resourceUsageType == ResourceUsageTypes_RESOURCEUSAGE_STRATEGIC then
