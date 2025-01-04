@@ -4706,7 +4706,10 @@ void CvCityReligions::DoPopulationChange(int iChange)
 	if(iChange > 0)
 		AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, GetReligiousMajority(), iChange * /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP));
 
-	RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+	if (m_pCity->getPopulation() > 0)
+	{
+		RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+	}
 	m_pCity->GetCityCitizens()->SetDirty(true);
 }
 

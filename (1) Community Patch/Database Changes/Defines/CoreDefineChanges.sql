@@ -433,7 +433,11 @@ VALUES
 	('REVOLT_COUNTER_MIN', 10), -- Number of turns in super unhappy before a city revolts
 	('RELIGION_ADJACENT_CITY_DISTANCE', 9), -- Base trade route distance affected by religious pressure
 	('WOUNDED_DAMAGE_MULTIPLIER', 34), -- CP changed the wounded penalty from damage penalty to CS penalty. Adjust accordingly so it's actually 1% per 3HP lost.
-	('WLTKD_RESOURCE_RESET_TURNS', 0); -- WLTKD Reset Timer (<= 0 means disabled); scales with game speed
+	('WLTKD_RESOURCE_RESET_TURNS', 0), -- WLTKD Reset Timer (<= 0 means disabled); scales with game speed
+-- These will be replaced by PostDefines in VP
+	('EMBASSY_IMPROVEMENT', -1),
+	('JUGGERNAUT_PROMOTION', -1),
+	('MARCH_SKIRMISHER_PROMOTION', -1);
 
 --------------------------------
 -- City State quest disables
