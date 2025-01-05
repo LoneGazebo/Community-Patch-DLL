@@ -5214,14 +5214,14 @@ void CvPlayer::UpdateBestMilitaryCities()
 }
 void CvPlayer::SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	ASSERT(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	m_aiBestMilitaryDomainCity[eDomain] = iValue;
 }
 void CvPlayer::SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eUnitCombat >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	ASSERT(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	m_aiBestMilitaryCombatClassCity[eUnitCombat] = iValue;
@@ -5245,14 +5245,14 @@ CvCity* CvPlayer::GetBestMilitaryCity(UnitCombatTypes eUnitCombat, DomainTypes e
 #if defined(MOD_BALANCE_CORE_EVENTS)
 int CvPlayer::GetEventChoiceDuration(EventChoiceTypes eEventChoice) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventChoiceDuration[eEventChoice];
 }
 void CvPlayer::ChangeEventChoiceDuration(EventChoiceTypes eEventChoice,int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
@@ -5262,21 +5262,21 @@ void CvPlayer::ChangeEventChoiceDuration(EventChoiceTypes eEventChoice,int iValu
 }
 void CvPlayer::SetEventChoiceDuration(EventChoiceTypes eEventChoice,int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventChoiceDuration[eEventChoice] = iValue;
 }
 int CvPlayer::GetEventIncrement(EventTypes eEvent) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventIncrement[eEvent];
 }
 void CvPlayer::IncrementEvent(EventTypes eEvent, int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
@@ -5286,12 +5286,12 @@ void CvPlayer::IncrementEvent(EventTypes eEvent, int iValue)
 }
 int CvPlayer::GetPlayerEventCooldown() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iPlayerEventCooldown;
 }
 void CvPlayer::ChangePlayerEventCooldown(int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	if(iValue != 0)
 	{
 		m_iPlayerEventCooldown += iValue;
@@ -5299,14 +5299,14 @@ void CvPlayer::ChangePlayerEventCooldown(int iValue)
 }
 int CvPlayer::GetEventCooldown(EventTypes eEvent) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCooldown[eEvent];
 }
 void CvPlayer::ChangeEventCooldown(EventTypes eEvent,int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
@@ -5316,7 +5316,7 @@ void CvPlayer::ChangeEventCooldown(EventTypes eEvent,int iValue)
 }
 void CvPlayer::SetEventCooldown(EventTypes eEvent,int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventCooldown[eEvent] = iValue;
@@ -5324,7 +5324,7 @@ void CvPlayer::SetEventCooldown(EventTypes eEvent,int iValue)
 
 void CvPlayer::SetEventActive(EventTypes eEvent, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5332,7 +5332,7 @@ void CvPlayer::SetEventActive(EventTypes eEvent, bool bValue)
 }
 bool CvPlayer::IsEventActive(EventTypes eEvent) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5340,7 +5340,7 @@ bool CvPlayer::IsEventActive(EventTypes eEvent) const
 }
 void CvPlayer::SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5348,7 +5348,7 @@ void CvPlayer::SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue)
 }
 bool CvPlayer::IsEventChoiceActive(EventChoiceTypes eEventChoice) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5356,7 +5356,7 @@ bool CvPlayer::IsEventChoiceActive(EventChoiceTypes eEventChoice) const
 }
 void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5364,7 +5364,7 @@ void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
 }
 bool CvPlayer::IsEventChoiceFired(EventChoiceTypes eEvent) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5372,7 +5372,7 @@ bool CvPlayer::IsEventChoiceFired(EventChoiceTypes eEvent) const
 }
 void CvPlayer::SetEventFired(EventTypes eEvent, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -5380,7 +5380,7 @@ void CvPlayer::SetEventFired(EventTypes eEvent, bool bValue)
 }
 bool CvPlayer::IsEventFired(EventTypes eEvent) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
 	ASSERT(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -14659,7 +14659,7 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 
 void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 		ASSERT(eUnitType >= 0, "eUnitType expected to be >= 0");
 	ASSERT(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
@@ -14668,7 +14668,7 @@ void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 
 int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 		ASSERT(eUnitType >= 0, "eUnitType expected to be >= 0");
 	ASSERT(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
@@ -17063,7 +17063,7 @@ void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 
 int CvPlayer::getLakePlotYield(YieldTypes eYield) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eYield >= 0, "eYield expected to be >= 0");
 	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 	return m_aiLakePlotYield[eYield];
@@ -17073,7 +17073,7 @@ int CvPlayer::getLakePlotYield(YieldTypes eYield) const
 /// Extra yield from building
 void CvPlayer::changeLakePlotYield(YieldTypes eYield, int iChange)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eYield >= 0, "eYield expected to be >= 0");
 	ASSERT(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
@@ -21302,7 +21302,7 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 
 void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
 	ASSERT(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
@@ -21316,7 +21316,7 @@ void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 
 void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eUnitClass >= 0, "eIndex expected to be >= 0");
 	ASSERT(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
 	m_paiUnitClassProductionModifiers[eUnitClass] = m_paiUnitClassProductionModifiers[eUnitClass] + iValue;
@@ -21324,7 +21324,7 @@ void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int 
 
 int CvPlayer::GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 		ASSERT(eUnitClass >= 0, "eIndex expected to be >= 0");
 	ASSERT(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
 	return m_paiUnitClassProductionModifiers[eUnitClass];
@@ -22967,7 +22967,7 @@ void CvPlayer::UpdateHappinessFromAnnexedMinors()
 
 int CvPlayer::getHappinessPerMajorWar() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iHappinessPerMajorWar;
 }
 void CvPlayer::changeHappinessPerMajorWar(int iValue)
@@ -22980,7 +22980,7 @@ void CvPlayer::changeHappinessPerMajorWar(int iValue)
 
 int CvPlayer::getMilitaryProductionModPerMajorWar() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iMilitaryProductionModPerMajorWar;
 }
 void CvPlayer::changeMilitaryProductionModPerMajorWar(int iValue)
@@ -27421,7 +27421,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 }
 void CvPlayer::addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
@@ -27429,14 +27429,14 @@ void CvPlayer::addInstantYieldText(InstantYieldType iType, const CvString& strIn
 }
 void CvPlayer::setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	m_aistrInstantYield[iType] = strInstantYield;
 }
 CvString CvPlayer::getInstantYieldText(InstantYieldType iType) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	return m_aistrInstantYield[iType];
@@ -27942,7 +27942,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 
 void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
@@ -27958,7 +27958,7 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, const C
 }
 void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
@@ -27974,7 +27974,7 @@ void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, const C
 }
 CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(iType >= 0, "iType expected to be >= 0");
 	ASSERT(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
@@ -29277,7 +29277,7 @@ void CvPlayer::changeTradeRouteSeaDistanceModifier(int iChange)
 
 int CvPlayer::GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex];
@@ -29285,7 +29285,7 @@ int CvPlayer::GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) cons
 
 void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] = m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange;
@@ -29293,7 +29293,7 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 
 int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
@@ -29308,7 +29308,7 @@ int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
 
 void CvPlayer::ChangeDomainFreeExperience(DomainTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
@@ -29943,14 +29943,14 @@ int CvPlayer::GetProsperityScore() const
 
 bool CvPlayer::PlayerHasContract(ContractTypes eContract) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eContract >= 0, "eContract expected to be >= 0");
 	ASSERT(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
 	return m_abActiveContract[eContract];
 }
 void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eContract >= 0, "eContract expected to be >= 0");
 	ASSERT(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
 	if (m_abActiveContract[eContract] != bValue)
@@ -33697,7 +33697,7 @@ void CvPlayer::changeYieldFromDeath(YieldTypes eIndex, int iChange)
 
 int CvPlayer::GetYieldFromPillage(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPillage[eIndex];
@@ -33724,7 +33724,7 @@ void CvPlayer::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 
 int CvPlayer::GetYieldFromVictory(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 		ASSERT(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictory[eIndex];

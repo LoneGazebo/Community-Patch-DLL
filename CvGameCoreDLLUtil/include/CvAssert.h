@@ -81,12 +81,12 @@ struct ObjectValidator
 
 #define OBJECT_ALLOCATED s_objectValidator.objectAllocated(this);;
 #define OBJECT_DESTROYED s_objectValidator.objectDestroyed(this);
-#define VALIDATE_OBJECT s_objectValidator.isObjectValid(this);
+#define VALIDATE_OBJECT() s_objectValidator.isObjectValid(this);
 #else
 #define OBJECT_VALIDATE_DEFINITION(ObjectType)
 #define OBJECT_ALLOCATED
 #define OBJECT_DESTROYED
-#define VALIDATE_OBJECT
+#define VALIDATE_OBJECT() PRECONDITION(this, "Null pointer exception")
 #endif
 
 #else	//CVASSERT_ENABLE == FALSE
@@ -97,7 +97,7 @@ struct ObjectValidator
 #define OBJECT_VALIDATE_DEFINITION(ObjectType)
 #define OBJECT_ALLOCATED
 #define OBJECT_DESTROYED
-#define VALIDATE_OBJECT
+#define VALIDATE_OBJECT()
 
 #endif
 

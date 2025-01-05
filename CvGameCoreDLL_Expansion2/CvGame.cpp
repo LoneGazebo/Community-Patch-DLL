@@ -13972,7 +13972,7 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 #if defined(MOD_BALANCE_CORE_JFD)	
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	ASSERT(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
@@ -13983,7 +13983,7 @@ void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iVal
 }
 int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	ASSERT(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	ASSERT(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 

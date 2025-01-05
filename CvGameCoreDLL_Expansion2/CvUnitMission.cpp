@@ -2183,7 +2183,7 @@ MissionData* CvUnitMission::DeleteMissionData(CvUnit* hUnit, MissionData* pNode)
 /// Clear all queued missions
 void CvUnitMission::ClearMissionQueue(CvUnit* hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride)
 {
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 	ASSERT(hUnit->getOwner() != NO_PLAYER);
 
 	DeactivateHeadMission(hUnit, iUnitCycleTimerOverride);
@@ -2210,7 +2210,6 @@ void CvUnitMission::ClearMissionQueue(CvUnit* hUnit, bool bKeepPathCache, int iU
 /// Start our first mission
 void CvUnitMission::ActivateHeadMission(CvUnit* hUnit)
 {
-	VALIDATE_OBJECT
 	ASSERT(hUnit->getOwner() != NO_PLAYER);
 	if(hUnit->GetLengthMissionQueue() != 0)
 	{
@@ -2225,7 +2224,6 @@ void CvUnitMission::ActivateHeadMission(CvUnit* hUnit)
 /// Deactivate our first mission, waking up the unit
 void CvUnitMission::DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer)
 {
-	VALIDATE_OBJECT
 	ASSERT(hUnit->getOwner() != NO_PLAYER);
 
 	if(hUnit->GetLengthMissionQueue() != 0)
