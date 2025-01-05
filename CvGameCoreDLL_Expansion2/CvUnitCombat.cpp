@@ -3731,7 +3731,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 {
 	CvString strBuffer;
 
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 	ASSERT(kAttacker.canMoveInto(targetPlot, CvUnit::MOVEFLAG_ATTACK ));
 	ASSERT(kAttacker.getCombatTimer() == 0);
 
@@ -3960,7 +3960,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 //	---------------------------------------------------------------------------
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX, int iY, CvUnitCombat::ATTACK_OPTION /* eOption */)
 {
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 	ATTACK_RESULT eResult = ATTACK_ABORTED;
 
@@ -4091,7 +4091,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 //	----------------------------------------------------------------------------
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION /* eOption */)
 {
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 	ASSERT(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;
@@ -4208,7 +4208,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 //	----------------------------------------------------------------------------
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION /* eOption */)
 {
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 	ASSERT(kAttacker.getCombatTimer() == 0);
 
 	CvUnitCombat::ATTACK_RESULT eResult = CvUnitCombat::ATTACK_ABORTED;
@@ -4309,7 +4309,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 //	---------------------------------------------------------------------------
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& plot, CvUnitCombat::ATTACK_OPTION eOption)
 {
-	//VALIDATE_OBJECT
+	//VALIDATE_OBJECT();
 
 	ATTACK_RESULT eResult = ATTACK_ABORTED;
 	CvCity* pCity = plot.getPlotCity();
@@ -4381,8 +4381,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 //	Return a ranged unit that will defend the supplied location against the attacker at the specified location.
 CvUnit* CvUnitCombat::GetFireSupportUnit(PlayerTypes eDefender, int iDefendX, int iDefendY, int iAttackX, int iAttackY)
 {
-	VALIDATE_OBJECT
-
 	if (/*1*/ GD_INT_GET(FIRE_SUPPORT_DISABLED) == 1)
 		return NULL;
 

@@ -44,20 +44,20 @@ CvCityAI::~CvCityAI()
 
 void CvCityAI::AI_init()
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	AI_reset();
 }
 
 void CvCityAI::AI_uninit()
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 }
 
 // FUNCTION: AI_reset()
 // Initializes data members that are serialized.
 void CvCityAI::AI_reset()
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	AI_uninit();
 
 	m_bChooseProductionDirty = false;
@@ -73,7 +73,7 @@ void CvCityAI::AI_doTurn()
 
 void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	CvCitySpecializationAI* pSpecializationAI = kOwner.GetCitySpecializationAI();
 	
@@ -168,20 +168,20 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 
 bool CvCityAI::AI_isChooseProductionDirty()
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_bChooseProductionDirty;
 }
 
 void CvCityAI::AI_setChooseProductionDirty(bool bNewValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	m_bChooseProductionDirty = bNewValue;
 }
 
 /// How many of our City's plots have been grabbed by someone else?
 int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
 	
@@ -195,7 +195,7 @@ int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 /// Changes how many of our City's plots have been grabbed by someone else
 void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int iChange)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
 
@@ -365,7 +365,7 @@ void CvCityAI::Serialize(CityAI& cityAI, Visitor& visitor)
 //
 void CvCityAI::read(FDataStream& kStream)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	CvCity::read(kStream);
 
 	CvStreamLoadVisitor serialVisitor(kStream);
@@ -377,7 +377,7 @@ void CvCityAI::read(FDataStream& kStream)
 //
 void CvCityAI::write(FDataStream& kStream) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	CvCity::write(kStream);
 
 	CvStreamSaveVisitor serialVisitor(kStream);

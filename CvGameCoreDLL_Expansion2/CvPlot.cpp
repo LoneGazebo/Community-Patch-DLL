@@ -3571,7 +3571,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 	if (eAttackingPlayer == NO_PLAYER)
 		return NULL;
 
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	CvUnit* pBestUnit = 0;
 	int iBestValue = 0;
 	int iBestDistance = INT_MAX;
@@ -13057,22 +13057,22 @@ int CvPlot::getNumUnits() const
 #if defined(MOD_BALANCE_CORE)
 int CvPlot::GetUnitPlotExperience() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iUnitPlotExperience;
 }
 void CvPlot::ChangeUnitPlotExperience(int iExperience)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	m_iUnitPlotExperience += iExperience;
 }
 int CvPlot::GetUnitPlotGAExperience() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iUnitPlotGAExperience;
 }
 void CvPlot::ChangeUnitPlotGAExperience(int iExperience)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	m_iUnitPlotGAExperience += iExperience;
 }
 bool CvPlot::IsUnitPlotExperience() const
@@ -13081,22 +13081,22 @@ bool CvPlot::IsUnitPlotExperience() const
 }
 int CvPlot::GetPlotMovesChange() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iPlotChangeMoves;
 }
 void CvPlot::ChangePlotMovesChange(int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	m_iPlotChangeMoves += iValue;
 }
 bool CvPlot::IsRestoreMoves() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iRestoreMoves > 0;
 }
 void CvPlot::ChangeRestoreMovesCount(int iValue)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
 #endif
@@ -14413,7 +14413,7 @@ bool CvPlot::HasWrittenArtifact() const
 // Citadel
 int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	int iDamage = 0;
 
 	// Look around this unit to see if there's an adjacent citadel
