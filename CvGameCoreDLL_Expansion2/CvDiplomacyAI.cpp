@@ -2812,7 +2812,7 @@ int CvDiplomacyAI::GetMajorCivApproachBias(CivApproachTypes eApproach) const
 }
 
 /// What is this AI leader's bias towards a particular Minor Civ Approach?
-int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
+int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach, bool bHideAssert) const
 {
 	PRECONDITION(eApproach >= 0 && eApproach < NUM_CIV_APPROACHES, "Approach index out of bounds");
 	switch (eApproach)
@@ -2826,7 +2826,7 @@ int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
 	case CIV_APPROACH_FRIENDLY:
 		return m_iMinorCivFriendlyBias;
 	default:
-		ASSERT(false, "GetMinorCivApproachBias() called for major Approach");
+		ASSERT(bHideAssert, "GetMinorCivApproachBias() called for major Approach");
 		return 0;
 	}
 }
@@ -24254,10 +24254,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 	{
 		CivApproachTypes eLoopApproach = (CivApproachTypes) iApproachLoop;
-		if (eLoopApproach == CIV_APPROACH_DECEPTIVE || eLoopApproach == CIV_APPROACH_GUARDED || eLoopApproach == CIV_APPROACH_AFRAID)
-			continue;
 
-		int iBias = GetMinorCivApproachBias(eLoopApproach) * 100; // x100 for greater fidelity
+		int iBias = GetMinorCivApproachBias(eLoopApproach, true) * 100; // x100 for greater fidelity
 		vApproachBias.push_back(iBias);
 
 		// Add 1x bias for each approach to reflect personality weight
