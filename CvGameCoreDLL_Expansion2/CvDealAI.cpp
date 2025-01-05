@@ -4902,7 +4902,7 @@ void CvDealAI::DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iGold
 	if(iNumGoldInThisDeal > 0)
 	{
 		// Found some Gold to remove
-		int iNumGoldToRemove = min(iNumGoldInThisDeal, iGold);
+		int iNumGoldToRemove = max(0, min(iNumGoldInThisDeal, iGold));
 		iNumGoldInThisDeal -= iNumGoldToRemove;
 
 		// Removing ALL Gold, so just erase the item from the deal

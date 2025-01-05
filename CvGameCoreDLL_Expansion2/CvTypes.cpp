@@ -147,7 +147,6 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 				sprintf_s(msg, "ArtifactType - %s is used in the DLL but does not exist in the database.", it->first.c_str());
 				FILogFile* pLog = LOGFILEMGR.GetLog("Gamecore.log", FILogFile::kDontTimeStamp);
 				pLog->WarningMsg(msg);
-				ASSERT(false, msg);
 			}
 		}
 	}

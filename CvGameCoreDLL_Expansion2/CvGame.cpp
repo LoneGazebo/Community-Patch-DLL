@@ -10190,7 +10190,7 @@ uint CvGame::randCore(const CvSeeder& extraSeed) const
 
 uint CvGame::urandLimitExclusive(uint limit, const CvSeeder& extraSeed) const
 {
-	ASSERT(limit != 0);
+	PRECONDITION(limit != 0);
 	const uint rand = randCore(extraSeed);
 	return rand % limit;
 }
@@ -13001,7 +13001,6 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 //	--------------------------------------------------------------------------------
 void CalculateDigSiteWeights(int iGridSize, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites, vector<int>& currentWeights)
 {
-	ASSERT(NO_GREAT_WORK_ARTIFACT_CLASS == 0, "Value of NO_ARTIFACT has changed");
 	for (int i = 0; i < iGridSize; i++)
 	{
 		currentWeights[i] = CalculateDigSiteWeight(i, inputData, chosenDigSites);
@@ -13205,16 +13204,25 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		}
 	}
 
+
 	CvWeightedVector<int> eEraWeights;
 	eEraWeights.clear();
 	int iMaxEraWeight = 0;
-	for (int i=0; i < static_cast<int>(eHighestEra); i++)
+	if (eHighestEra > 0)
 	{
-		int iWeight = static_cast<int>(eHighestEra) - i;
-		eEraWeights.push_back(i,iWeight);
-		iMaxEraWeight += iWeight;
+		for (int i = 0; i < static_cast<int>(eHighestEra); i++)
+		{
+			int iWeight = static_cast<int>(eHighestEra) - i;
+			eEraWeights.push_back(i, iWeight);
+			iMaxEraWeight += iWeight;
+		}
+		eEraWeights.StableSortItems();
 	}
-	eEraWeights.StableSortItems();
+	else
+	{
+		// make sure this isn't empty
+		eEraWeights.push_back(0, 1);
+	}
 
 	// find out how many dig sites we have now
 	int iHowManyChosenDigSites = 0;

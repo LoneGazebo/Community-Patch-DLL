@@ -2145,7 +2145,7 @@ if civ5_mode and gk_mode then
 				for plot in CityPlots( city ) do
 					local resourceID = plot:GetResourceType( g_activeTeamID )
 					local numResource = plot:GetNumResource()
-					if numResource > 0
+					if numResource > 0 and resourceID ~= -1
 						and Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
 					then
 						if plot:IsCity() or (plot:GetImprovementType() ~= -1 and not plot:IsImprovementPillaged() and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
