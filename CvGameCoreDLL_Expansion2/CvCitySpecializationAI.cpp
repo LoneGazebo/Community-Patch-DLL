@@ -72,8 +72,8 @@ bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvD
 /// What Flavors will be added by adopting this Strategy?
 int CvCitySpecializationXMLEntry::GetFlavorValue(int i) const
 {
-	ASSERT(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 

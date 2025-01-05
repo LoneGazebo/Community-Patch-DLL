@@ -188,7 +188,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReligion& readFrom)
 CvString CvReligion::GetName() const
 {
 	CvReligionEntry* pEntry = GC.getReligionInfo(m_eReligion);
-	ASSERT(pEntry, "pEntry for religion not expected to be NULL.");
+	PRECONDITION(pEntry, "pEntry for religion not expected to be NULL.");
 	if (pEntry)
 	{
 		CvString szReligionName = strlen(m_szCustomName) == 0 ? pEntry->GetDescriptionKey() : m_szCustomName;

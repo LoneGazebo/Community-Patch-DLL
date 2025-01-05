@@ -585,7 +585,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();
-	ASSERT(iNewTradeRouteIndex < (int)m_aTradeConnections.size(), "iNewTradeRouteIndex out of bounds");
+	PRECONDITION(iNewTradeRouteIndex < (int)m_aTradeConnections.size(), "iNewTradeRouteIndex out of bounds");
 
 	// couldn't find valid connection, bail out
 	if (iNewTradeRouteIndex < 0)
@@ -1109,7 +1109,7 @@ bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::ClearTradeRoute(int iIndex)
 {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 		return false;
 
@@ -1882,7 +1882,7 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 }
 
 bool CvGameTrade::IsRecalledUnit (int iIndex) {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return false;
@@ -1895,7 +1895,7 @@ bool CvGameTrade::IsRecalledUnit (int iIndex) {
 //	--------------------------------------------------------------------------------
 /// recall a trade unit
 void CvGameTrade::RecallUnit (int iIndex, bool bImmediate) {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return;
@@ -1913,7 +1913,7 @@ void CvGameTrade::RecallUnit (int iIndex, bool bImmediate) {
 //	--------------------------------------------------------------------------------
 /// end a trade route
 void CvGameTrade::EndTradeRoute (int iIndex) {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return;
@@ -1928,7 +1928,7 @@ void CvGameTrade::EndTradeRoute (int iIndex) {
 /// move a trade unit along its path for all its movement points
 bool CvGameTrade::MoveUnit (int iIndex) 
 {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return false;
@@ -2009,7 +2009,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 /// move a trade unit a single step along its path (called by MoveUnit)
 bool CvGameTrade::StepUnit (int iIndex)
 {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return false;
@@ -2093,7 +2093,7 @@ bool CvGameTrade::StepUnit (int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::CreateTradeUnitForRoute(int iIndex)
 {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return;
@@ -2121,7 +2121,7 @@ void CvGameTrade::CreateTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 {
-	ASSERT(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
+	PRECONDITION(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return NULL;

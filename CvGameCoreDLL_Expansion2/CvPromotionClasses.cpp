@@ -745,7 +745,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iTerrainID = pResults->GetInt("TerrainID");
-			ASSERT(iTerrainID > -1 && iTerrainID < iNumTerrains);
+			PRECONDITION(iTerrainID > -1 && iTerrainID < iNumTerrains);
 
 			const int iTerrainAttack = pResults->GetInt("Attack");
 			m_piTerrainAttackPercent[iTerrainID] = iTerrainAttack;
@@ -815,7 +815,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iFeatureID = pResults->GetInt("FeatureID");
-			ASSERT(iFeatureID > -1 && iFeatureID < iNumFeatures);
+			PRECONDITION(iFeatureID > -1 && iFeatureID < iNumFeatures);
 
 			const int iFeatureAttack = pResults->GetInt("Attack");
 			m_piFeatureAttackPercent[iFeatureID] = iFeatureAttack;
@@ -875,7 +875,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			ASSERT(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromScouting[iYieldID] = iYield;
@@ -902,7 +902,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			ASSERT(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromKills[iYieldID] = iYield;
@@ -928,7 +928,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			ASSERT(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piGarrisonYield[iYieldID] = iYield;
@@ -955,7 +955,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while (pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			ASSERT(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piGarrisonYield[iYieldID] = iYield;
@@ -982,7 +982,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			ASSERT(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromBarbarianKills[iYieldID] = iYield;
@@ -1011,7 +1011,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iUnitClassID = pResults->GetInt(0);
-			ASSERT(iUnitClassID > -1 && iUnitClassID  < iNumUnitClasses);
+			PRECONDITION(iUnitClassID > -1 && iUnitClassID  < iNumUnitClasses);
 
 			const int iModifier = pResults->GetInt("Modifier");
 			m_piUnitClassModifierPercent[iUnitClassID] = iModifier;
@@ -1049,7 +1049,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iUnitCombatID = pResults->GetInt(0);
-			ASSERT(iUnitCombatID > -1 && iUnitCombatID  < iNumUnitCombatClasses);
+			PRECONDITION(iUnitCombatID > -1 && iUnitCombatID  < iNumUnitCombatClasses);
 
 			const int iModifier = pResults->GetInt("Modifier");
 			m_piCombatModPerAdjacentUnitCombatModifierPercent[iUnitCombatID] = iModifier;
@@ -1114,7 +1114,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iDomainID = pResults->GetInt(0);
-			ASSERT(iDomainID > -1 && iDomainID < iNumDomains);
+			PRECONDITION(iDomainID > -1 && iDomainID < iNumDomains);
 
 			const int iModifier = pResults->GetInt("Modifier");
 			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES)
@@ -1152,7 +1152,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iUnitCombatID = pResults->GetInt(0);
-			ASSERT(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
+			PRECONDITION(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
 
 			const int iUnitCombatMod = pResults->GetInt(1);
 			m_piUnitCombatModifierPercent[iUnitCombatID] = iUnitCombatMod;
@@ -1181,7 +1181,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iUnitCombatInfoID = pResults->GetInt(0);
-			ASSERT(iUnitCombatInfoID < iNumUnitCombatClasses);
+			PRECONDITION(iUnitCombatInfoID < iNumUnitCombatClasses);
 
 			m_pbUnitCombat[iUnitCombatInfoID] = true;
 		}
@@ -1209,7 +1209,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iUnit = (UnitTypes)pResults->GetInt(0);
-			ASSERT(iUnit < iNumUnitTypes);
+			PRECONDITION(iUnit < iNumUnitTypes);
 
 			m_pbCivilianUnitType[iUnit] = true;
 		}
@@ -2669,8 +2669,8 @@ void CvPromotionEntry::SetSound(const char* szVal)
 /// Percentage bonus when attacking a tile of a given terrain
 int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainAttackPercent)
 	{
@@ -2683,8 +2683,8 @@ int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 /// Percentage bonus when when defending a tile of a given terrain
 int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainDefensePercent)
 	{
@@ -2697,8 +2697,8 @@ int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 /// Percentage bonus when when attacking a tile with a given feature
 int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureAttackPercent)
 	{
@@ -2711,8 +2711,8 @@ int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 /// Percentage bonus when when defending a tile with a given feature
 int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureDefensePercent)
 	{
@@ -2725,8 +2725,8 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 /// Modifier to yield by type
 int CvPromotionEntry::GetYieldModifier(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldModifier)
 	{
 		return m_piYieldModifier[i];
@@ -2738,8 +2738,8 @@ int CvPromotionEntry::GetYieldModifier(int i) const
 /// Modifier to yield by type
 int CvPromotionEntry::GetYieldChange(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldChange)
 	{
 		return m_piYieldChange[i];
@@ -2749,8 +2749,8 @@ int CvPromotionEntry::GetYieldChange(int i) const
 }
 int CvPromotionEntry::GetYieldFromScouting(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromScouting)
 	{
@@ -2762,8 +2762,8 @@ int CvPromotionEntry::GetYieldFromScouting(int i) const
 #endif
 int CvPromotionEntry::GetYieldFromKills(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromKills)
 	{
@@ -2775,8 +2775,8 @@ int CvPromotionEntry::GetYieldFromKills(int i) const
 
 int CvPromotionEntry::GetGarrisonYield(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piGarrisonYield)
 	{
@@ -2788,8 +2788,8 @@ int CvPromotionEntry::GetGarrisonYield(int i) const
 
 int CvPromotionEntry::GetFortificationYield(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if (i > -1 && i < NUM_YIELD_TYPES && m_piFortificationYield)
 	{
@@ -2801,8 +2801,8 @@ int CvPromotionEntry::GetFortificationYield(int i) const
 
 int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromBarbarianKills)
 	{
@@ -2815,8 +2815,8 @@ int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
 /// Percentage bonus when fighting against a specific unit *combat* class
 int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 {
-	ASSERT(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatModifierPercent)
 	{
@@ -2829,8 +2829,8 @@ int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 /// Percentage bonus when fighting against a specific unit class
 int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 {
-	ASSERT(i < GC.getNumUnitClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassModifierPercent)
 	{
@@ -2843,8 +2843,8 @@ int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 /// Percentage bonus when attacking a specific unit class
 int CvPromotionEntry::GetUnitClassAttackModifier(int i) const
 {
-	ASSERT(i < GC.getNumUnitClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassAttackModifier)
 	{
@@ -2857,8 +2857,8 @@ int CvPromotionEntry::GetUnitClassAttackModifier(int i) const
 /// Percentage bonus when defending against a specific unit class
 int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 {
-	ASSERT(i < GC.getNumUnitClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassDefenseModifier)
 	{
@@ -2871,8 +2871,8 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 /// Percentage bonus when fighting against a unit with a specific domain (LAND/SEA/AIR)
 int CvPromotionEntry::GetDomainModifierPercent(int i) const
 {
-	ASSERT(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainModifierPercent)
 	{
@@ -2885,8 +2885,8 @@ int CvPromotionEntry::GetDomainModifierPercent(int i) const
 /// Percentage bonus when attacking a unit with a specific domain (LAND/SEA/AIR)
 int CvPromotionEntry::GetDomainAttackPercent(int i) const
 {
-	ASSERT(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainAttackPercent)
 	{
@@ -2899,8 +2899,8 @@ int CvPromotionEntry::GetDomainAttackPercent(int i) const
 /// Percentage bonus when defending against a unit with a specific domain (LAND/SEA/AIR)
 int CvPromotionEntry::GetDomainDefensePercent(int i) const
 {
-	ASSERT(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainDefensePercent)
 	{
@@ -2914,8 +2914,8 @@ int CvPromotionEntry::GetDomainDefensePercent(int i) const
 #if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const
 {
-	ASSERT(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatModifierPercent)
 	{
@@ -2928,8 +2928,8 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) co
 /// Percentage bonus when attacking next to friendly unit *combat* classes (increases with more adjacent units)
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) const
 {
-	ASSERT(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatAttackModifier)
 	{
@@ -2942,8 +2942,8 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) con
 /// Percentage bonus when defending next to friendly unit *combat* classes (increases with more adjacent units) [not enemy as intended]
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) const
 {
-	ASSERT(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatDefenseModifier)
 	{
@@ -2956,8 +2956,8 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) co
 /// Immediately gain these Yields when the promotion is gained
 std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 {
-	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if (i > -1 && i < NUM_YIELD_TYPES && !m_piInstantYields.empty())
 	{
@@ -2975,8 +2975,8 @@ std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 /// Indicates if a feature type is traversable by the unit
 int CvPromotionEntry::GetFeaturePassableTech(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeaturePassableTech)
 	{
@@ -2989,8 +2989,8 @@ int CvPromotionEntry::GetFeaturePassableTech(int i) const
 /// Indicates if a unit ignores terrain cost in a type of terrain
 bool CvPromotionEntry::GetIgnoreTerrainCostIn(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbIgnoreTerrainCostIn)
 	{
@@ -3003,8 +3003,8 @@ bool CvPromotionEntry::GetIgnoreTerrainCostIn(int i) const
 /// Indicates if a unit ignores terrain cost from a type of terrain
 bool CvPromotionEntry::GetIgnoreTerrainCostFrom(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbIgnoreTerrainCostFrom)
 	{
@@ -3017,8 +3017,8 @@ bool CvPromotionEntry::GetIgnoreTerrainCostFrom(int i) const
 /// Indicates if a unit ignores terrain cost in a type of terrain feature
 bool CvPromotionEntry::GetIgnoreFeatureCostIn(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbIgnoreFeatureCostIn)
 	{
@@ -3031,8 +3031,8 @@ bool CvPromotionEntry::GetIgnoreFeatureCostIn(int i) const
 /// Indicates if a unit ignores terrain cost in a type of terrain feature
 bool CvPromotionEntry::GetIgnoreFeatureCostFrom(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbIgnoreFeatureCostFrom)
 	{
@@ -3045,8 +3045,8 @@ bool CvPromotionEntry::GetIgnoreFeatureCostFrom(int i) const
 /// Indicates if a unit can move twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleMove(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainDoubleMove)
 	{
@@ -3059,8 +3059,8 @@ bool CvPromotionEntry::GetTerrainDoubleMove(int i) const
 /// Indicates if a unit can move twice as fast in a type of terrain feature
 bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureDoubleMove)
 	{
@@ -3074,8 +3074,8 @@ bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 /// Indicates if a unit can move half as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainHalfMove)
 	{
@@ -3088,8 +3088,8 @@ bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 /// Indicates if a unit loses one movement point when entering a given terrain
 bool CvPromotionEntry::GetTerrainExtraMove(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if (i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainExtraMove)
 	{
@@ -3102,8 +3102,8 @@ bool CvPromotionEntry::GetTerrainExtraMove(int i) const
 /// Indicates if a unit can move half as fast in a type of feature
 bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureHalfMove)
 	{
@@ -3116,8 +3116,8 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 /// Indicates if a unit loses one movement point when entering a given feature
 bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if (i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureExtraMove)
 	{
@@ -3131,8 +3131,8 @@ bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 /// Indicates if a unit can heal twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainDoubleHeal)
 	{
@@ -3145,8 +3145,8 @@ bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 /// Indicates if a unit can heal twice as fast in a type of feature
 bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureDoubleHeal)
 	{
@@ -3159,8 +3159,8 @@ bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 /// Indicates if a terrain type is impassable
 bool CvPromotionEntry::GetTerrainImpassable(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainImpassable)
 	{
@@ -3173,8 +3173,8 @@ bool CvPromotionEntry::GetTerrainImpassable(int i) const
 /// Indicates what tech is needed to pass through a terrain type
 int CvPromotionEntry::GetTerrainPassableTech(int i) const
 {
-	ASSERT(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainPassableTech)
 	{
@@ -3187,8 +3187,8 @@ int CvPromotionEntry::GetTerrainPassableTech(int i) const
 /// Indicates if a feature type is impassable
 bool CvPromotionEntry::GetFeatureImpassable(int i) const
 {
-	ASSERT(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureImpassable)
 	{
@@ -3201,8 +3201,8 @@ bool CvPromotionEntry::GetFeatureImpassable(int i) const
 /// Returns the combat classes that this promotion is available for
 bool CvPromotionEntry::GetUnitCombatClass(int i) const
 {
-	ASSERT(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_pbUnitCombat)
 	{
@@ -3215,8 +3215,8 @@ bool CvPromotionEntry::GetUnitCombatClass(int i) const
 /// Returns the civilian unit type that this promotion is available for
 bool CvPromotionEntry::GetCivilianUnitType(int i) const
 {
-	ASSERT(i < GC.getNumUnitInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitInfos() && m_pbCivilianUnitType)
 	{
@@ -3231,8 +3231,8 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 /// The first element of the pair is the flat amount, the second element is the era scaling amount.
 std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const
 {
-	ASSERT(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
-	ASSERT(eYield > NO_YIELD, "Yield index out of bounds");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	PRECONDITION(eYield > NO_YIELD, "Yield index out of bounds");
 
 	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
 	{
@@ -3250,8 +3250,8 @@ std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) con
 /// If this a promotion that names a unit
 bool CvPromotionEntry::IsUnitNaming(int i) const
 {
-	ASSERT(i < GC.getNumPromotionInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumPromotionInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pbUnitName ? m_pbUnitName[i] : false;
 }
 
@@ -3273,8 +3273,8 @@ void CvPromotionEntry::GetUnitName(UnitTypes eUnit, CvString& sUnitName) const
 /// If this a promotion that can randomly turn into other c
 bool CvPromotionEntry::IsPostCombatRandomPromotion(int i) const
 {
-	ASSERT(i < GC.getNumPromotionInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumPromotionInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pbPostCombatRandomPromotion ? m_pbPostCombatRandomPromotion[i] : false;
 }
 
@@ -3399,8 +3399,8 @@ FDataStream& operator<<(FDataStream& stream, const CvUnitPromotions& unitPromoti
 /// Accessor: Does the unit have a certain promotion
 bool CvUnitPromotions::HasPromotion(PromotionTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(eIndex >= 0 && eIndex < GC.getNumPromotionInfos())
 	{
@@ -3413,8 +3413,8 @@ bool CvUnitPromotions::HasPromotion(PromotionTypes eIndex) const
 /// Sets the promotion to a certain value
 void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(eIndex >= 0 && eIndex < GC.getNumPromotionInfos())
 	{

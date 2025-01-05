@@ -2699,8 +2699,8 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 
 bool CvLeague::CanProposeEnactAnyChoice(ResolutionTypes eResolution, PlayerTypes eProposer)
 {
-	ASSERT(eResolution >= 0, "Invalid resolution type.");
-	ASSERT(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
+	PRECONDITION(eResolution >= 0, "Invalid resolution type.");
+	PRECONDITION(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
 
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	ASSERT(pInfo, "Resolution info is null.");
@@ -2733,8 +2733,8 @@ bool CvLeague::CanProposeEnactAnyChoice(ResolutionTypes eResolution, PlayerTypes
 
 bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice, CvString* sTooltipSink)
 {
-	ASSERT(eResolution >= 0, "Invalid resolution type.");
-	ASSERT(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
+	PRECONDITION(eResolution >= 0, "Invalid resolution type.");
+	PRECONDITION(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
 
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	ASSERT(pInfo, "Resolution info is null.");
@@ -3477,8 +3477,8 @@ bool CvLeague::IsAnythingProposed()
 //antonjs: todo: refactor:
 bool CvLeague::IsActiveResolution(ResolutionTypes eResolution, int iProposerChoice)
 {
-	ASSERT(eResolution >= 0, "Invalid resolution type.");
-	ASSERT(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
+	PRECONDITION(eResolution >= 0, "Invalid resolution type.");
+	PRECONDITION(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
 
 	for (uint i = 0; i < m_vActiveResolutions.size(); i++)
 	{
@@ -3557,8 +3557,8 @@ bool CvLeague::IsProposed(int iResolutionID, bool bRepeal, bool bCheckOnHold)
 //antonjs: todo: refactor:
 bool CvLeague::IsEnactProposed(ResolutionTypes eResolution, int iProposerChoice)
 {
-	ASSERT(eResolution >= 0, "Invalid resolution type.");
-	ASSERT(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
+	PRECONDITION(eResolution >= 0, "Invalid resolution type.");
+	PRECONDITION(eResolution < GC.getNumResolutionInfos(), "Resolution index out of bounds.");
 
 	for (uint i = 0; i < m_vEnactProposals.size(); i++)
 	{
@@ -3904,8 +3904,8 @@ bool CvLeague::CanVote(PlayerTypes ePlayer)
 
 bool CvLeague::CanEverVote(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index).");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index).");
+	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index).");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index).");
 
 	if (IsMember(ePlayer))
 	{
@@ -4413,8 +4413,8 @@ bool CvLeague::CanPropose(PlayerTypes ePlayer)
 
 bool CvLeague::CanEverPropose(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index).");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index).");
+	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index).");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index).");
 
 	if (IsMember(ePlayer))
 	{
@@ -5049,9 +5049,9 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 
 bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
-	ASSERT(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader.");
+	PRECONDITION(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader.");
 	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) return false;
-	ASSERT(eRecipient >= 0 && eRecipient < MAX_CIV_PLAYERS, "Invalid index for eRecipient.");
+	PRECONDITION(eRecipient >= 0 && eRecipient < MAX_CIV_PLAYERS, "Invalid index for eRecipient.");
 	if (eRecipient < 0 || eRecipient >= MAX_CIV_PLAYERS) return false;
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
@@ -10385,8 +10385,8 @@ int CvLeagueAI::GetVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int 
 // Can someone secure our vote on a certain matter through a deal?
 bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
-	ASSERT(eToPlayer >= 0, "eToPlayer is expected to be non-negative (invalid Index).");
-	ASSERT(eToPlayer < MAX_MAJOR_CIVS, "eToPlayer is expected to be within maximum bounds (invalid Index).");
+	PRECONDITION(eToPlayer >= 0, "eToPlayer is expected to be non-negative (invalid Index).");
+	PRECONDITION(eToPlayer < MAX_MAJOR_CIVS, "eToPlayer is expected to be within maximum bounds (invalid Index).");
 	if (eToPlayer < 0 || eToPlayer >= MAX_MAJOR_CIVS) return false;
 
 	bool bCanCommit = true;
