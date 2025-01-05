@@ -118,8 +118,6 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	if(!m_bGameDatabaseNeedsCaching)
 		return true;
 
-	DatabaseRemapper();
-
 	//The following code depends on a valid initialized database.
 	bool bSuccess = true;
 
@@ -204,6 +202,10 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 	//Updates performed here are done AFTER the database has been built or read
 	//from cache.
 	Database::Connection* db = GC.GetGameDatabase();
+
+	// remap IDs in the database tables to make sure they start at 0 and there are no gaps
+	// this needs to be done before PostDefines are processed
+	DatabaseRemapper();
 
 	//Update Defines table from references in PostDefines table
 	db->BeginTransaction();
@@ -444,6 +446,9 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 
 	std::set<CvString> sTablesToExclude;
 	sTablesToExclude.insert("GreatWorkClasses");
+	sTablesToExclude.insert("MultiplayerOptions");
+	sTablesToExclude.insert("ReplayDataSets");
+	sTablesToExclude.insert("HistoricRankings");
 
 	LogMsg("**** Remapping IDs in Game Database *****");
 	cvStopWatch kPerfTest("Remapper Game Database", "xml-perf.log");

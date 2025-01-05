@@ -854,7 +854,6 @@
     <File md5="56CB7A9A43D4BDABE293594BA1947805" import="0">Database Changes/GameSpeedChanges.sql</File>
     <File md5="00F0AAB0571A35F0B70075A4FDE884D1" import="0">Database Changes/NewAutomates.xml</File>
     <File md5="F747ECA5B46F0DB1D0951D152873FEE4" import="0">Database Changes/NewGameOptions.xml</File>
-    <File md5="46B04FD27203515F73D074C04C1D7FEA" import="0">Database Changes/Remapper.sql</File>
     <File md5="AF353EC60BC26D65A6010786E6F43E39" import="0">Database Changes/Triggers.sql</File>
     <File md5="893F1B61E4A6FEF11E02417C6F275A9D" import="0">Database Changes/WorldChanges.sql</File>
     <File md5="3586B7238A5E2448AE2CBA08AC2C18A3" import="0">Database Changes/AI/BuildingFlavorSweeps.sql</File>
@@ -1371,7 +1370,6 @@
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ResourceTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/RouteTextChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Remapper.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Triggers.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
