@@ -110,7 +110,7 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	const TeamTypes eTeam = kPlayer.getTeam();
 
-	FAssert(eTeam != eRivalTeam);
+	ASSERT(eTeam != eRivalTeam);
 
 	if(bWar)
 	{
@@ -131,7 +131,7 @@ void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamType
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	const TeamTypes eTeam = kPlayer.getTeam();
-	FAssert(eTeam != eRivalTeam);
+	ASSERT(eTeam != eRivalTeam);
 	
 	kTeam.PushIgnoreWarning(eRivalTeam);
 }
@@ -490,8 +490,8 @@ void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyI
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eSpyPlayer))
 		return;
 
-	ASSERT(eSpyPlayer != NO_PLAYER, "eSpyPlayer invalid");
-	ASSERT(iSpyIndex >= 0, "iSpyIndex invalid");
+	PRECONDITION(eSpyPlayer != NO_PLAYER, "eSpyPlayer invalid");
+	PRECONDITION(iSpyIndex >= 0, "iSpyIndex invalid");
 
 	CvPlayerAI& kPlayer = GET_PLAYER(eSpyPlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
@@ -509,9 +509,9 @@ void CvDllNetMessageHandler::ResponseFaithPurchase(PlayerTypes ePlayer, FaithPur
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
-	ASSERT(ePlayer != NO_PLAYER, "ePlayer invalid");
-	ASSERT(eFaithPurchaseType > -1, "Faith Purchase Type invalid");
-	ASSERT(iFaithPurchaseIndex > -1, "Faith Purchase Index invalid");
+	PRECONDITION(ePlayer != NO_PLAYER, "ePlayer invalid");
+	PRECONDITION(eFaithPurchaseType > -1, "Faith Purchase Type invalid");
+	PRECONDITION(iFaithPurchaseIndex > -1, "Faith Purchase Index invalid");
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	kPlayer.SetFaithPurchaseType(eFaithPurchaseType);
@@ -524,8 +524,8 @@ void CvDllNetMessageHandler::ResponseLeagueVoteEnact(LeagueTypes eLeague, int iR
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
-	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
+	PRECONDITION(eLeague != NO_LEAGUE, "eLeague invalid");
+	PRECONDITION(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
@@ -538,8 +538,8 @@ void CvDllNetMessageHandler::ResponseLeagueVoteRepeal(LeagueTypes eLeague, int i
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
-	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
+	PRECONDITION(eLeague != NO_LEAGUE, "eLeague invalid");
+	PRECONDITION(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
@@ -552,8 +552,8 @@ void CvDllNetMessageHandler::ResponseLeagueVoteAbstain(LeagueTypes eLeague, Play
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
 		return;
 
-	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
-	ASSERT(eVoter != NO_PLAYER, "eVoter invalid");
+	PRECONDITION(eLeague != NO_LEAGUE, "eLeague invalid");
+	PRECONDITION(eVoter != NO_PLAYER, "eVoter invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	ASSERT(pLeague->CanVote(eVoter), "eVoter not allowed to vote.");
@@ -566,9 +566,9 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
 		return;
 
-	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
-	ASSERT(eResolution != NO_RESOLUTION, "eResolution invalid");
-	ASSERT(eProposer != NO_PLAYER, "eProposer invalid");
+	PRECONDITION(eLeague != NO_LEAGUE, "eLeague invalid");
+	PRECONDITION(eResolution != NO_RESOLUTION, "eResolution invalid");
+	PRECONDITION(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	ASSERT(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution.");
@@ -581,8 +581,8 @@ void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, in
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
 		return;
 
-	ASSERT(eLeague != NO_LEAGUE, "eLeague invalid");
-	ASSERT(eProposer != NO_PLAYER, "eProposer invalid");
+	PRECONDITION(eLeague != NO_LEAGUE, "eLeague invalid");
+	PRECONDITION(eProposer != NO_PLAYER, "eProposer invalid");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	ASSERT(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution.");
@@ -688,7 +688,7 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
-	ASSERT(ePlayer != NO_PLAYER, "ePlayer invalid");
+	PRECONDITION(ePlayer != NO_PLAYER, "ePlayer invalid");
 
 	// is this player alive
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);

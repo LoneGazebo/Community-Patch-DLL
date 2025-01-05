@@ -10018,7 +10018,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 						{
 							const vector<STacticalUnit>& units = neighborPlot.getUnitsAtPlot();
 							for (size_t j = 0; j < units.size(); j++)
-								FAssert(!isCombatUnit(units[j].eMoveType));
+								ASSERT(!isCombatUnit(units[j].eMoveType));
 						}
 					}
 				}

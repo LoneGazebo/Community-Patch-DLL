@@ -474,7 +474,7 @@ private:
 	int gcd(int a, int b);
 public:
 
-	fraction(int num = 0, int den = 1): num(num), den(den) { ASSERT(den != 0); }
+	fraction(int num = 0, int den = 1): num(num), den(den) { PRECONDITION(den != 0, "trying to divide by zero"); }
 
 	fraction operator+(const fraction &rhs);
 	fraction operator-(const fraction &rhs);

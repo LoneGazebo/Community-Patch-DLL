@@ -16482,7 +16482,7 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 	bool bIgnoreEnemySpies = luaL_optbool(L, 3, false);
 
 	int iSpyIndex = pkPlayerEspionage->GetSpyIndexInCity(pkCity);
-	ASSERT(iSpyIndex >= 0, "iSpyIndex out of bounds");
+	PRECONDITION(iSpyIndex >= 0, "iSpyIndex out of bounds");
 	if(iSpyIndex < 0)
 	{
 		lua_pushinteger(L, 0);

@@ -3830,8 +3830,8 @@ void CvPlayerCulture::SetLastTurnCPT(int iValue)
 /// What is our cultural influence now?
 int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 {
-	ASSERT(ePlayer >= 0, "Invalid player index");
-	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -3841,8 +3841,8 @@ int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 // What is our cultural influence now?
 void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(ePlayer >= 0, "Invalid player index");
-	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
@@ -3883,8 +3883,8 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 {
-	ASSERT(ePlayer >= 0, "Invalid player index");
-	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -3894,8 +3894,8 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const
 {
-	ASSERT(ePlayer >= 0, "Invalid player index");
-	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -6954,14 +6954,14 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 	if (iIndex != -1)
 	{
 		CvThemingBonusInfo* pkThemingInfo = pkBuildingInfo->GetThemingBonusInfo(iIndex);
-		ASSERT(pkThemingInfo);
+		ASSERT(pkThemingInfo, "Couldn't find theming bonus info");
 
 		CvString szBonusString = "";
 		szBonusString.Format("+%d [ICON_TOURISM]/[ICON_CULTURE]: ", GetThemingBonus(eBuildingClass));
 
 		CvString szThemeDescription = "";
 		int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, 0);
-		if (iGreatWork != -1)
+		if (pkThemingInfo && iGreatWork != -1)
 		{
 			CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
 			CvString szEraString = GC.getEraInfo(work.m_eEra)->getShortDesc();

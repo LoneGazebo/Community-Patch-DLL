@@ -385,13 +385,13 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 	//but we want the rise before the fall always. so fix it.
 	if (colFall < colRise)
 	{
-		assert(GC.getMap().isWrapX());
+		ASSERT(GC.getMap().isWrapX());
 		colFall += occupiedCols.size();
 	}
 
 	if (rowFall < rowRise)
 	{
-		assert(GC.getMap().isWrapY());
+		ASSERT(GC.getMap().isWrapY());
 		rowFall += occupiedRows.size();
 	}
 

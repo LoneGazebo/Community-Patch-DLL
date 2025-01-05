@@ -2814,7 +2814,7 @@ int CvDiplomacyAI::GetMajorCivApproachBias(CivApproachTypes eApproach) const
 /// What is this AI leader's bias towards a particular Minor Civ Approach?
 int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
 {
-	ASSERT(eApproach >= 0 && eApproach < NUM_CIV_APPROACHES, "Approach index out of bounds");
+	PRECONDITION(eApproach >= 0 && eApproach < NUM_CIV_APPROACHES, "Approach index out of bounds");
 	switch (eApproach)
 	{
 	case CIV_APPROACH_WAR:
@@ -2853,7 +2853,7 @@ VictoryPursuitTypes CvDiplomacyAI::GetPrimaryVictoryPursuit() const
 
 void CvDiplomacyAI::SetPrimaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
-	ASSERT(eVictoryPursuit >= NO_VICTORY_PURSUIT && eVictoryPursuit < NUM_VICTORY_PURSUITS, "Invalid VictoryPursuitType");
+	PRECONDITION(eVictoryPursuit >= NO_VICTORY_PURSUIT && eVictoryPursuit < NUM_VICTORY_PURSUITS, "Invalid VictoryPursuitType");
 	m_ePrimaryVictoryPursuit = eVictoryPursuit;
 }
 
@@ -2890,7 +2890,7 @@ VictoryPursuitTypes CvDiplomacyAI::GetSecondaryVictoryPursuit() const
 
 void CvDiplomacyAI::SetSecondaryVictoryPursuit(VictoryPursuitTypes eVictoryPursuit)
 {
-	ASSERT(eVictoryPursuit >= NO_VICTORY_PURSUIT && eVictoryPursuit < NUM_VICTORY_PURSUITS, "Invalid VictoryPursuitType");
+	PRECONDITION(eVictoryPursuit >= NO_VICTORY_PURSUIT && eVictoryPursuit < NUM_VICTORY_PURSUITS, "Invalid VictoryPursuitType");
 	m_eSecondaryVictoryPursuit = eVictoryPursuit;
 }
 

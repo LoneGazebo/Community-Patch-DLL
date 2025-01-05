@@ -4671,7 +4671,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				break;
 				case SPY_RESULT_KILLED_NOT_IDENTIFIED:
 				{
-					ASSERT(false, "This code was not expected to be called");
+					UNREACHABLE();
 				}
 				break;
 				}
@@ -4728,7 +4728,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				case SPY_RESULT_KILLED_NOT_IDENTIFIED:
 					// notify defending player that they killed a spy
 				{
-					ASSERT(false, "This code was not expected to be called");
+					UNREACHABLE();
 				}
 				break;
 				}
@@ -5815,7 +5815,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 /// GetIntrigueMessage - Getting the intrigue message in another text format for the intrigue message display
 Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 {
-	ASSERT(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
+	PRECONDITION(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
 	if(uiIndex >= m_aIntrigueNotificationMessages.size())
 	{
 		return "";

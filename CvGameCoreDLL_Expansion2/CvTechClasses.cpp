@@ -572,8 +572,8 @@ int CvTechEntry::GetTradeRouteDomainExtraRange(int i) const
 /// Find value of flavors associated with this tech
 int CvTechEntry::GetFlavorValue(int i) const
 {
-	ASSERT(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
@@ -592,10 +592,10 @@ int CvTechEntry::GetPrereqAndTechs(int i) const
 //------------------------------------------------------------------------------
 int CvTechEntry::GetTechYieldChanges(int i, int j) const
 {
-	ASSERT(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT(i > -1, "Index out of bounds");
-	ASSERT(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppiTechYieldChanges[i][j];
 }
 int CvTechEntry::GetHappiness() const
@@ -1035,16 +1035,16 @@ CvTechAI* CvPlayerTechs::GetTechAI()
 /// Accessor: is a player researching a tech?
 bool CvPlayerTechs::IsResearchingTech(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabResearchingTech[eIndex];
 }
 
 /// Accessor: set whether player is researching a tech
 void CvPlayerTechs::SetResearchingTech(TechTypes eIndex, bool bNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(m_pabResearchingTech[eIndex] != bNewValue)
 	{
@@ -1055,8 +1055,8 @@ void CvPlayerTechs::SetResearchingTech(TechTypes eIndex, bool bNewValue)
 /// Accessor: set Civ's priority multiplier for researching techs (for instance techs that unlock civ unique bonuses)
 void CvPlayerTechs::SetCivTechPriority(TechTypes eIndex, int iNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_piCivTechPriority[eIndex] = iNewValue;
 }
@@ -1064,16 +1064,16 @@ void CvPlayerTechs::SetCivTechPriority(TechTypes eIndex, int iNewValue)
 /// Accessor: get Civ's priority multiplier for researching techs (for instance techs that unlock civ unique bonuses)
 int CvPlayerTechs::GetCivTechPriority(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piCivTechPriority[eIndex];
 }
 
 /// Accessor: set locale priority multiplier for researching techs (for instance techs that unlock nearby resources)
 void CvPlayerTechs::SetLocaleTechPriority(TechTypes eIndex, int iNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_piLocaleTechPriority[eIndex] = iNewValue;
 }
@@ -1081,55 +1081,55 @@ void CvPlayerTechs::SetLocaleTechPriority(TechTypes eIndex, int iNewValue)
 /// Accessor: get locale priority multiplier for researching techs (for instance techs that unlock nearby resources)
 int CvPlayerTechs::GetLocaleTechPriority(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piLocaleTechPriority[eIndex];
 }
 #if defined(MOD_BALANCE_CORE)
 /// Accessor: get GC priority multiplier for researching techs
 int CvPlayerTechs::GetGSTechPriority(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piGSTechPriority[eIndex];
 }
 /// Accessor: set locale priority multiplier for researching techs
 void CvPlayerTechs::SetGSTechPriority(TechTypes eIndex, int iNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_piGSTechPriority[eIndex] = iNewValue;
 }
 #endif
 ResourceTypes CvPlayerTechs::GetLocaleTechResource(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_peLocaleTechResources[eIndex];
 }
 
 UnitTypes CvPlayerTechs::GetCivTechUniqueUnit(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_peCivTechUniqueUnits[eIndex];
 }
 
 BuildingTypes CvPlayerTechs::GetCivTechUniqueBuilding(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_peCivTechUniqueBuildings[eIndex];
 }
 
 ImprovementTypes CvPlayerTechs::GetCivTechUniqueImprovement(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_peCivTechUniqueImprovements[eIndex];
 }
@@ -1563,8 +1563,8 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 /// Can we pick this as a Free Tech (ex. from a Wonder)?
 bool CvPlayerTechs::CanResearchForFree(TechTypes eTech) const
 {
-	ASSERT(eTech >= 0, "eTech is expected to be non-negative (invalid Index)");
-	ASSERT(eTech < GC.getNumTechInfos(), "eTech is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTech >= 0, "eTech is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTech < GC.getNumTechInfos(), "eTech is expected to be within maximum bounds (invalid Index)");
 	if(eTech < 0 || eTech >= GC.getNumTechInfos()) return false;
 
 	// We can pick any tech that we are able to research
@@ -2350,8 +2350,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTeamTechs& writeTo)
 /// Accessor: set whether team owns a tech
 void CvTeamTechs::SetHasTech(TechTypes eIndex, bool bNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(m_pabHasTech[eIndex] != bNewValue)
 	{
@@ -2384,9 +2384,9 @@ bool CvTeamTechs::HasTech(TechTypes eIndex) const
 		return true;
 	}
 
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	ASSERT(m_pabHasTech != NULL, "m_pabHasTech is not expected to be equal with NULL");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(m_pabHasTech != NULL, "m_pabHasTech is not expected to be equal with NULL");
 	if(m_pabHasTech != NULL)
 		return m_pabHasTech[eIndex];
 	else
@@ -2402,8 +2402,8 @@ TechTypes CvTeamTechs::GetLastTechAcquired() const
 /// What was the most recent tech acquired?
 void CvTeamTechs::SetLastTechAcquired(TechTypes eTech)
 {
-	ASSERT(eTech >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eTech < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTech >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTech < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_eLastTechAcquired = eTech;
 }
@@ -2428,8 +2428,8 @@ bool CvTeamTechs::HasResearchedAllTechs() const
 /// Accessor: set whether team owns a tech
 void CvTeamTechs::SetNoTradeTech(TechTypes eIndex, bool bNewValue)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(m_pabNoTradeTech[eIndex] != bNewValue)
 	{
@@ -2440,8 +2440,8 @@ void CvTeamTechs::SetNoTradeTech(TechTypes eIndex, bool bNewValue)
 /// Accessor: does team have a tech?
 bool CvTeamTechs::IsNoTradeTech(TechTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabNoTradeTech[eIndex];
 }
 
@@ -2466,10 +2466,10 @@ void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTyp
 /// Accessor: set research done on one tech (in hundredths)
 void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	//Crash failsafe.
 	if(ePlayer == NO_PLAYER || eIndex == -1)

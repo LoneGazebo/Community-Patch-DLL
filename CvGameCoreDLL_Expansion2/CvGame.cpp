@@ -5710,8 +5710,8 @@ void CvGame::SetNumVictoryVotesExpected(int iValue)
 //	--------------------------------------------------------------------------------
 TeamTypes CvGame::GetVoteCast(TeamTypes eVotingTeam) const
 {
-	ASSERT(eVotingTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eVotingTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eVotingTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
 
 	return (TeamTypes) m_aiVotesCast[eVotingTeam];
 }
@@ -5721,8 +5721,8 @@ TeamTypes CvGame::GetVoteCast(TeamTypes eVotingTeam) const
 /// Preliminary votes will be counted, but will not trigger victory
 void CvGame::SetVoteCast(TeamTypes eVotingTeam, TeamTypes eVote, bool bPreliminaryVote)
 {
-	ASSERT(eVotingTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eVotingTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eVotingTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
 
 	if(eVote != GetVoteCast(eVotingTeam))
 	{
@@ -5745,8 +5745,8 @@ void CvGame::SetVoteCast(TeamTypes eVotingTeam, TeamTypes eVote, bool bPrelimina
 /// Get the last vote this team made, for record keeping
 TeamTypes CvGame::GetPreviousVoteCast(TeamTypes eVotingTeam) const
 {
-	ASSERT(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
 	if (eVotingTeam < 0 || eVotingTeam >= MAX_CIV_TEAMS) return NO_TEAM;
 
 	return (TeamTypes) m_aiPreviousVotesCast[eVotingTeam];
@@ -5756,8 +5756,8 @@ TeamTypes CvGame::GetPreviousVoteCast(TeamTypes eVotingTeam) const
 /// Set the last vote this team made, for record keeping
 void CvGame::SetPreviousVoteCast(TeamTypes eVotingTeam, TeamTypes eVotingTarget)
 {
-	ASSERT(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
 	if (eVotingTeam < 0 || eVotingTeam >= MAX_CIV_TEAMS) return;
 
 	if (eVotingTarget != GetPreviousVoteCast(eVotingTeam))
@@ -5769,8 +5769,8 @@ void CvGame::SetPreviousVoteCast(TeamTypes eVotingTeam, TeamTypes eVotingTarget)
 //	--------------------------------------------------------------------------------
 int CvGame::GetNumVotesForTeam(TeamTypes eTeam) const
 {
-	ASSERT(eTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiNumVotesForTeam[eTeam];
 }
@@ -5778,8 +5778,8 @@ int CvGame::GetNumVotesForTeam(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvGame::SetNumVotesForTeam(TeamTypes eTeam, int iValue)
 {
-	ASSERT(eTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_CIV_TEAMS, "eMajor is expected to be within maximum bounds (invalid Index)");
 
 	if(iValue != GetNumVotesForTeam(eTeam))
 	{
@@ -8049,8 +8049,8 @@ CalendarTypes CvGame::getCalendar() const
 //	--------------------------------------------------------------------------------
 int CvGame::getEndTurnMessagesReceived(int iIndex)
 {
-	ASSERT(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
-	ASSERT(iIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(iIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiEndTurnMessagesReceived[iIndex];
 }
 
@@ -8058,8 +8058,8 @@ int CvGame::getEndTurnMessagesReceived(int iIndex)
 //	--------------------------------------------------------------------------------
 void CvGame::incrementEndTurnMessagesReceived(int iIndex)
 {
-	ASSERT(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
-	ASSERT(iIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(iIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiEndTurnMessagesReceived[iIndex]++;
 }
 
@@ -8067,8 +8067,8 @@ void CvGame::incrementEndTurnMessagesReceived(int iIndex)
 //	--------------------------------------------------------------------------------
 PlayerTypes CvGame::getRankPlayer(int iRank)
 {
-	ASSERT(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
-	ASSERT(iRank < MAX_PLAYERS, "iRank is expected to be within maximum bounds (invalid Rank)");
+	PRECONDITION(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
+	PRECONDITION(iRank < MAX_PLAYERS, "iRank is expected to be within maximum bounds (invalid Rank)");
 	return (PlayerTypes)m_aiRankPlayer[iRank];
 }
 
@@ -8076,8 +8076,8 @@ PlayerTypes CvGame::getRankPlayer(int iRank)
 //	--------------------------------------------------------------------------------
 void CvGame::setRankPlayer(int iRank, PlayerTypes ePlayer)
 {
-	ASSERT(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
-	ASSERT(iRank < MAX_PLAYERS, "iRank is expected to be within maximum bounds (invalid Rank)");
+	PRECONDITION(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
+	PRECONDITION(iRank < MAX_PLAYERS, "iRank is expected to be within maximum bounds (invalid Rank)");
 
 	if(getRankPlayer(iRank) != ePlayer)
 	{
@@ -8089,8 +8089,8 @@ void CvGame::setRankPlayer(int iRank, PlayerTypes ePlayer)
 //	--------------------------------------------------------------------------------
 int CvGame::getPlayerRank(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	return m_aiPlayerRank[ePlayer];
 }
 
@@ -8098,8 +8098,8 @@ int CvGame::getPlayerRank(PlayerTypes ePlayer)
 //	--------------------------------------------------------------------------------
 void CvGame::setPlayerRank(PlayerTypes ePlayer, int iRank)
 {
-	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	m_aiPlayerRank[ePlayer] = iRank;
 	ASSERT(getPlayerRank(ePlayer) >= 0);
 }
@@ -8108,8 +8108,8 @@ void CvGame::setPlayerRank(PlayerTypes ePlayer, int iRank)
 //	--------------------------------------------------------------------------------
 int CvGame::getPlayerScore(PlayerTypes ePlayer)
 {
-	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	return m_aiPlayerScore[ePlayer];
 }
 
@@ -8117,8 +8117,8 @@ int CvGame::getPlayerScore(PlayerTypes ePlayer)
 //	--------------------------------------------------------------------------------
 void CvGame::setPlayerScore(PlayerTypes ePlayer, int iScore)
 {
-	ASSERT(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	if(getPlayerScore(ePlayer) != iScore)
 	{
@@ -8133,8 +8133,8 @@ void CvGame::setPlayerScore(PlayerTypes ePlayer, int iScore)
 //	--------------------------------------------------------------------------------
 TeamTypes CvGame::getRankTeam(int iRank)
 {
-	ASSERT(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
-	ASSERT(iRank < MAX_TEAMS, "iRank is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
+	PRECONDITION(iRank < MAX_TEAMS, "iRank is expected to be within maximum bounds (invalid Index)");
 	return (TeamTypes)m_aiRankTeam[iRank];
 }
 
@@ -8142,8 +8142,8 @@ TeamTypes CvGame::getRankTeam(int iRank)
 //	--------------------------------------------------------------------------------
 void CvGame::setRankTeam(int iRank, TeamTypes eTeam)
 {
-	ASSERT(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
-	ASSERT(iRank < MAX_TEAMS, "iRank is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(iRank >= 0, "iRank is expected to be non-negative (invalid Rank)");
+	PRECONDITION(iRank < MAX_TEAMS, "iRank is expected to be within maximum bounds (invalid Index)");
 
 	if(getRankTeam(iRank) != eTeam)
 	{
@@ -8155,8 +8155,8 @@ void CvGame::setRankTeam(int iRank, TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 int CvGame::getTeamRank(TeamTypes eTeam)
 {
-	ASSERT(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	return m_aiTeamRank[eTeam];
 }
 
@@ -8164,8 +8164,8 @@ int CvGame::getTeamRank(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 void CvGame::setTeamRank(TeamTypes eTeam, int iRank)
 {
-	ASSERT(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_aiTeamRank[eTeam] = iRank;
 	ASSERT(getTeamRank(eTeam) >= 0);
 }
@@ -8174,8 +8174,8 @@ void CvGame::setTeamRank(TeamTypes eTeam, int iRank)
 //	--------------------------------------------------------------------------------
 int CvGame::getTeamScore(TeamTypes eTeam) const
 {
-	ASSERT(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	return m_aiTeamScore[eTeam];
 }
 
@@ -8183,8 +8183,8 @@ int CvGame::getTeamScore(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvGame::setTeamScore(TeamTypes eTeam, int iScore)
 {
-	ASSERT(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_aiTeamScore[eTeam] = iScore;
 	ASSERT(getTeamScore(eTeam) >= 0);
 }
@@ -8237,8 +8237,8 @@ void CvGame::setMPOption(MultiplayerOptionTypes eIndex, bool bEnabled)
 //	--------------------------------------------------------------------------------
 int CvGame::getUnitCreatedCount(UnitTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitCreatedCount[eIndex];
 }
 
@@ -8246,8 +8246,8 @@ int CvGame::getUnitCreatedCount(UnitTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvGame::incrementUnitCreatedCount(UnitTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitCreatedCount[eIndex]++;
 }
 
@@ -8255,8 +8255,8 @@ void CvGame::incrementUnitCreatedCount(UnitTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvGame::getUnitClassCreatedCount(UnitClassTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitClassCreatedCount[eIndex];
 }
 
@@ -8264,8 +8264,8 @@ int CvGame::getUnitClassCreatedCount(UnitClassTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvGame::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eIndex);
 	if(pkUnitClassInfo == NULL)
@@ -8278,7 +8278,7 @@ bool CvGame::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra)
 		return false;
 	}
 
-	ASSERT(getUnitClassCreatedCount(eIndex) <= pkUnitClassInfo->getMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(getUnitClassCreatedCount(eIndex) <= pkUnitClassInfo->getMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
 
 	return ((getUnitClassCreatedCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxGlobalInstances());
 }
@@ -8287,8 +8287,8 @@ bool CvGame::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra)
 //	--------------------------------------------------------------------------------
 void CvGame::incrementUnitClassCreatedCount(UnitClassTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitClassCreatedCount[eIndex]++;
 }
 
@@ -8296,8 +8296,8 @@ void CvGame::incrementUnitClassCreatedCount(UnitClassTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvGame::getBuildingClassCreatedCount(BuildingClassTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingClassCreatedCount[eIndex];
 }
 
@@ -8305,8 +8305,8 @@ int CvGame::getBuildingClassCreatedCount(BuildingClassTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvGame::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
 	if(pkBuildingClassInfo == NULL)
@@ -8321,7 +8321,7 @@ bool CvGame::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra)
 		return false;
 	}
 
-	ASSERT(getBuildingClassCreatedCount(eIndex) <= pkBuildingClassInfo->getMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(getBuildingClassCreatedCount(eIndex) <= pkBuildingClassInfo->getMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
 
 	return ((getBuildingClassCreatedCount(eIndex) + iExtra) >= pkBuildingClassInfo->getMaxGlobalInstances());
 }
@@ -8330,16 +8330,16 @@ bool CvGame::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra)
 //	--------------------------------------------------------------------------------
 void CvGame::incrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiBuildingClassCreatedCount[eIndex]++;
 }
 
 //	--------------------------------------------------------------------------------
 void CvGame::decrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiBuildingClassCreatedCount[eIndex]--;
 }
 
@@ -8347,8 +8347,8 @@ void CvGame::decrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvGame::getProjectCreatedCount(ProjectTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiProjectCreatedCount[eIndex];
 }
 
@@ -8356,15 +8356,15 @@ int CvGame::getProjectCreatedCount(ProjectTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvGame::isProjectMaxedOut(ProjectTypes eIndex, int iExtra)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(!isWorldProject(eIndex))
 	{
 		return false;
 	}
 
-	ASSERT(getProjectCreatedCount(eIndex) <= GC.getProjectInfo(eIndex)->GetMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(getProjectCreatedCount(eIndex) <= GC.getProjectInfo(eIndex)->GetMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
 
 	return ((getProjectCreatedCount(eIndex) + iExtra) >= GC.getProjectInfo(eIndex)->GetMaxGlobalInstances());
 }
@@ -8373,24 +8373,24 @@ bool CvGame::isProjectMaxedOut(ProjectTypes eIndex, int iExtra)
 //	--------------------------------------------------------------------------------
 void CvGame::incrementProjectCreatedCount(ProjectTypes eIndex, int iExtra)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiProjectCreatedCount[eIndex] += iExtra;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isVictoryValid(VictoryTypes eIndex) const
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return CvPreGame::isVictory(eIndex);
 }
 
 //	--------------------------------------------------------------------------------
 void CvGame::setVictoryValid(VictoryTypes eIndex, bool bValid)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvPreGame::setVictory(eIndex, bValid);
 }
 
@@ -8419,8 +8419,8 @@ bool CvGame::areNoVictoriesValid() const
 //	--------------------------------------------------------------------------------
 bool CvGame::isSpecialUnitValid(SpecialUnitTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumSpecialUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumSpecialUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabSpecialUnitValid[eIndex];
 }
 
@@ -8428,8 +8428,8 @@ bool CvGame::isSpecialUnitValid(SpecialUnitTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvGame::makeSpecialUnitValid(SpecialUnitTypes eIndex)
 {
-	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT(eIndex < GC.getNumSpecialUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumSpecialUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_pabSpecialUnitValid[eIndex] = true;
 }
 
@@ -10210,25 +10210,25 @@ uint CvGame::urandLimitInclusive(uint limit, const CvSeeder& extraSeed) const
 
 uint CvGame::urandRangeExclusive(uint min, uint max, const CvSeeder& extraSeed) const
 {
-	ASSERT(min < max);
+	PRECONDITION(min < max);
 	return urandLimitExclusive(max - min, extraSeed) + min;
 }
 
 uint CvGame::urandRangeInclusive(uint min, uint max, const CvSeeder& extraSeed) const
 {
-	ASSERT(min <= max);
+	PRECONDITION(min <= max);
 	return urandLimitInclusive(max - min, extraSeed) + min;
 }
 
 int CvGame::randRangeExclusive(int min, int max, const CvSeeder& extraSeed) const
 {
-	ASSERT(min < max);
+	PRECONDITION(min < max);
 	return static_cast<int>(urandLimitExclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
 }
 
 int CvGame::randRangeInclusive(int min, int max, const CvSeeder& extraSeed) const
 {
-	ASSERT(min <= max);
+	PRECONDITION(min <= max);
 	return static_cast<int>(urandLimitInclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
 }
 
@@ -11801,10 +11801,10 @@ void CvGame::endTurnTimerReset()
 /// Called when a major changes its protection status towards a minor
 void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, bool bProtect, bool bPledgeNowBroken)
 {
-	ASSERT(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	ASSERT(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	ASSERT(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	if (bProtect)
 	{
@@ -11818,8 +11818,8 @@ void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, boo
 /// Amount of Gold being gifted to the Minor by the active player
 void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 {
-	ASSERT(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	ASSERT(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	gDLL->sendMinorGiftGold(eMinor, iNumGold);
 }
@@ -11828,10 +11828,10 @@ void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 /// Do the action of a major gifting a tile improvement to a minor's plot, to improve its resource
 void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, int iPlotX, int iPlotY)
 {
-	ASSERT(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	ASSERT(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	ASSERT(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	ASSERT(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	gDLL->sendMinorGiftTileImprovement(eMajor, eMinor, iPlotX, iPlotY);
 }
@@ -11841,10 +11841,10 @@ void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, 
 /// Demanded gold and a calculated bully metric are not provided (ex. from Lua, Player UI), so calculate them here
 void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	ASSERT(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	ASSERT(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	ASSERT(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	ASSERT(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
 	if (iGold <= 0)
@@ -11857,10 +11857,10 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 /// Do the action of a major bullying a unit from a minor
 void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	ASSERT(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	ASSERT(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	ASSERT(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	ASSERT(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	UnitClassTypes eUnitClassType = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyUnit();
 	UnitTypes eUnitType = GET_PLAYER(eBully).GetSpecificUnitType(eUnitClassType);
@@ -11969,10 +11969,10 @@ void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTyp
 //	--------------------------------------------------------------------------------
 int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const
 {
-	ASSERT(ePlayer1 > NO_PLAYER, "Invalid player.");
-	ASSERT(ePlayer1 <= MAX_MAJOR_CIVS, "Invalid player.");
-	ASSERT(ePlayer2 > NO_PLAYER, "Invalid player.");
-	ASSERT(ePlayer2 <= MAX_MAJOR_CIVS, "Invalid player.");
+	PRECONDITION(ePlayer1 > NO_PLAYER, "Invalid player.");
+	PRECONDITION(ePlayer1 <= MAX_MAJOR_CIVS, "Invalid player.");
+	PRECONDITION(ePlayer2 > NO_PLAYER, "Invalid player.");
+	PRECONDITION(ePlayer2 <= MAX_MAJOR_CIVS, "Invalid player.");
 
 	EraTypes ePlayer1Era = GET_TEAM(GET_PLAYER(ePlayer1).getTeam()).GetCurrentEra();
 	EraTypes ePlayer2Era = GET_TEAM(GET_PLAYER(ePlayer2).getTeam()).GetCurrentEra();
@@ -13973,8 +13973,8 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
-	ASSERT(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
+	PRECONDITION(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
+	PRECONDITION(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
 	if(m_ppaiContractUnits[eContract][eUnit] != iValue)
 	{
@@ -13984,8 +13984,8 @@ void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iVal
 int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT();
-	ASSERT(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
-	ASSERT(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
+	PRECONDITION(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
+	PRECONDITION(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
 	return m_ppaiContractUnits[eContract][eUnit];
 }
