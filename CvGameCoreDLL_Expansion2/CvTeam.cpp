@@ -4379,6 +4379,9 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	m_abAggressorPacifier[eIndex] = bAggressorPacifier;
 	m_abAtWar[eIndex] = bNewValue;
 
+	vector<PlayerTypes> vOurTeam= getPlayers();
+	vector<PlayerTypes> vTheirTeam= GET_TEAM(eIndex).getPlayers();
+
 	if (bNewValue)
 	{
 		SetTurnWarStarted(eIndex, GC.getGame().getGameTurn());
@@ -4386,7 +4389,6 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 		//Check for bad units, and capture them!
 		vector<CvUnitCaptureDefinition> kCaptureUnitList;
 
-		vector<PlayerTypes> vOurTeam = getPlayers();
 		for (size_t i = 0; i < vOurTeam.size(); i++)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
@@ -4449,45 +4451,54 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	{
 		SetTurnWarStarted(eIndex, -1);
 
-		for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+		for (size_t i = 0; i < vOurTeam.size(); i++)
 		{
-			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iLoop);
+			PlayerTypes eLoopPlayer = vOurTeam[i];
 			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
-			if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
+			if (kLoopPlayer.isAlive())
 			{
-				for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+				for (size_t j = 0; j < vTheirTeam.size(); j++)
 				{
-					PlayerTypes eLoopPlayer2 = static_cast<PlayerTypes>(iLoop2);
+					PlayerTypes eLoopPlayer2 = vTheirTeam[j];
 					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
 
-					if (kLoopPlayer2.isAlive() && kLoopPlayer2.getTeam() == eIndex)
+					if (kLoopPlayer2.isAlive())
 					{
 						kLoopPlayer.SetLastCityCaptureTurn(eLoopPlayer2, -1);
+						kLoopPlayer2.SetLastCityCaptureTurn(eLoopPlayer, -1);
+						// temporarily reset surface approaches 
+						if (kLoopPlayer.isMajorCiv() && kLoopPlayer2.isMajorCiv())
+						{
+							kLoopPlayer.GetDiplomacyAI()->SetCachedSurfaceApproach(eLoopPlayer2, CIV_APPROACH_NEUTRAL);
+							kLoopPlayer2.GetDiplomacyAI()->SetCachedSurfaceApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
+						}
 					}
 				}
 			}
 		}
 	}
 
-	for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	for (size_t i = 0; i < vOurTeam.size(); i++)
 	{
-		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+		PlayerTypes eLoopPlayer = vOurTeam[i];
+		CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isAlive())
 		{
-			kAttackingPlayer.UpdateCurrentAndFutureWars();
-			kAttackingPlayer.CalculateNetHappiness();
-			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-			{
-				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
-				{
-					kAttackingPlayer.recomputeGreatPeopleModifiers();
-					kDefendingPlayer.recomputeGreatPeopleModifiers();
-				}
-			}
+			kLoopPlayer.UpdateCurrentAndFutureWars();
+			kLoopPlayer.CalculateNetHappiness();
+			kLoopPlayer.recomputeGreatPeopleModifiers();
+		}
+	}
+	for (size_t j = 0; j < vTheirTeam.size(); j++)
+	{
+		PlayerTypes eLoopPlayer = vTheirTeam[j];
+		CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isAlive())
+		{
+			kLoopPlayer.UpdateCurrentAndFutureWars();
+			kLoopPlayer.CalculateNetHappiness();
+			kLoopPlayer.recomputeGreatPeopleModifiers();
 		}
 	}
 	
@@ -7501,7 +7512,7 @@ void CvTeam::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes e
 	if(iChange != 0)
 	{
 		m_ppaaiImprovementYieldChange[eIndex1][eIndex2] = (m_ppaaiImprovementYieldChange[eIndex1][eIndex2] + iChange);
-		ASSERT(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
+		ASSERT(MOD_BALANCE_VP || getImprovementYieldChange(eIndex1, eIndex2) >= 0); // improvements can have negative yields in VP
 
 		updateYield();
 	}

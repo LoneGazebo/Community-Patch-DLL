@@ -3058,7 +3058,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER1:
 	{
-		if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
 			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
 			{

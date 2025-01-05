@@ -3496,7 +3496,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 		iNumCreated = kPlayer.getGreatMusiciansCreated(MOD_GLOBAL_TRULY_FREE_GP);
 		iThreshold -= /*0*/ GD_INT_GET(GWAM_THRESHOLD_DECREASE);
 	}
-	else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true))
+	else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		iNumCreated = kPlayer.getGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 	}

@@ -24998,7 +24998,7 @@ void CvPlayer::incrementGreatPersonCount(const CvUnitEntry& kUnitInfo, bool bCou
 	{
 		incrementGreatMusiciansCreated(bIsFree);
 	}
-	else if (iUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+	else if (MOD_BALANCE_VP && iUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		incrementGreatDiplomatsCreated(bIsFree);
 	}

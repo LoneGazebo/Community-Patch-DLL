@@ -889,7 +889,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			if (m_pCity->canMaintain(eProcess, (m_pCity->isProductionProcess() && eProcess == m_pCity->getProductionProcess())))
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
-				if (eProcess == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+				CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
+				PRECONDITION(pProcess);
+				if (pProcess->getDefenseValue() > 0)
 				{
 					iTempWeight = 100;
 				}

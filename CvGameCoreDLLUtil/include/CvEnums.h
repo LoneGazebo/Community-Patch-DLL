@@ -3560,7 +3560,7 @@ enum CLOSED_ENUM TradeConnectionType
 
 enum OPEN_ENUM GreatWorkArtifactClass
 {
-	NO_GREAT_WORK_ARTIFACT_CLASS = 0,
+	NO_GREAT_WORK_ARTIFACT_CLASS = -1,
 };
 
 enum OPEN_ENUM GreatWorkType

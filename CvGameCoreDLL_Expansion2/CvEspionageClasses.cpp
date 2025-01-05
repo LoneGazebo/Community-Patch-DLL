@@ -9058,9 +9058,12 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 				iValue = pLoopCity->getEconomicValue(ePlayer) / 1000;
 
 				//spy already here? don't discount!
-				CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
-				if (pSpy && pSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
-					iValue += 50;
+				if (pEspionage->GetSpyIndexInCity(pLoopCity) >= 0)
+				{
+					CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
+					if (pSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
+						iValue += 50;
+				}
 
 				iValue *= 100 + iPlayerModifier + (pLoopCity->isCapital() ? 20 : 0);
 				iValue /= 100;
