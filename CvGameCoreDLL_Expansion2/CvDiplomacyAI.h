@@ -106,7 +106,7 @@ public:
 	int GetChattiness() const;
 
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
-	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
+	int GetMinorCivApproachBias(CivApproachTypes eApproach, bool bHideAssert = false) const;
 
 	int GetWarscoreThresholdPositive() const;
 	int GetWarscoreThresholdNegative() const;
