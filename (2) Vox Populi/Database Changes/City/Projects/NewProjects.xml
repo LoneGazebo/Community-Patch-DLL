@@ -50,7 +50,7 @@
 			<Help>TXT_KEY_PROJECT_YASSA_HELP</Help>
 			<Civilopedia>TXT_KEY_PROJECT_YASSA_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_YASSA_STRATEGY</Strategy>
-			<CivilizationType>CIVILIZATION_MONGOLIA</CivilizationType>
+			<CivilizationType>CIVILIZATION_MONGOL</CivilizationType>
 			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>

@@ -94,6 +94,39 @@ VALUES
 	('IMPROVEMENT_ORDO', 'TECH_ELECTRONICS', 'YIELD_PRODUCTION', 4),
 	('IMPROVEMENT_ORDO', 'TECH_STEALTH', 'YIELD_CULTURE', 4);
 
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NAVAL_TRADITION', 'IMPROVEMENT_ORDO', 'YIELD_SCIENCE', 2),
+	('POLICY_NAVAL_TRADITION', 'IMPROVEMENT_ORDO', 'YIELD_CULTURE', 1),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_ORDO', 'YIELD_PRODUCTION', 6);
+
+----------------------------------------------------------
+-- Unique Unit: Black Tug (Knight)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_MONGOL', 'UNITCLASS_KNIGHT', 'UNIT_BLACK_TUG');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_KNIGHT'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_KNIGHT') + 1
+WHERE Type = 'UNIT_BLACK_TUG';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_BLACK_TUG', 'PROMOTION_CHARGE'),
+	('UNIT_BLACK_TUG', 'PROMOTION_MINGGHAN');
+
 ----------------------------------------------------------
 -- Unique Building: Ger (Smokehouse)
 ----------------------------------------------------------
@@ -125,3 +158,25 @@ INSERT INTO Building_YieldFromBorderGrowth
 VALUES
 --	('BUILDING_GER', 'YIELD_FOOD', 5),
 	('BUILDING_GER', 'YIELD_PRODUCTION', 5);
+
+----------------------------------------------------------
+-- Unique Project: Adopt the Yassa
+----------------------------------------------------------
+UPDATE Projects
+SET EmpireSizeModifierPerCityMod = -40
+WHERE Type = 'PROJECT_YASSA';
+
+INSERT INTO Project_UnitCombatProductionModifiersGlobal
+	(ProjectType, UnitCombatType, Modifier)
+VALUES
+	('PROJECT_YASSA', 'UNITCOMBAT_ARCHER', 20),
+	('PROJECT_YASSA', 'UNITCOMBAT_SIEGE', 20),
+	('PROJECT_YASSA', 'UNITCOMBAT_MOUNTED', 20),
+	('PROJECT_YASSA', 'UNITCOMBAT_ARMOR', 20);
+
+INSERT INTO Project_YieldFromConquestAllCities
+	(ProjectType, YieldType, Yield)
+VALUES
+	('PROJECT_YASSA', 'YIELD_GOLD', 10),
+	('PROJECT_YASSA', 'YIELD_SCIENCE', 10),
+	('PROJECT_YASSA', 'YIELD_CULTURE', 10);
