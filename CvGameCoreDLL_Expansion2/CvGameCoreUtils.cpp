@@ -160,7 +160,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	{
 		char szBuffer[4096];
 		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-			"Assert hit. "
+			"A code error has occurred, please report it on github. "
 			"%s%s%s"
 			"Expression: %s, "
 			"File: %s, "
