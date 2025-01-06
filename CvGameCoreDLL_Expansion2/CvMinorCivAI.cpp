@@ -17797,8 +17797,8 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	ImprovementTypes eCurrentImprovement = pPlot->getImprovementType();
-	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eCurrentImprovement);
-	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource))
+	CvImprovementEntry* pImprovementInfo = eCurrentImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eCurrentImprovement) : NULL;
+	if (pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource))
 	{
 		// If we got here, IsLackingGiftableTileImprovementAtPlot() has verified that there is an existing improvement which connects the resource on the tile, and it's pillaged.
 		// So unpillage it instead of building something new. Calling setImprovementType() will unpillage it.
