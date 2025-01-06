@@ -2140,7 +2140,11 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pkImprovementInfo)
 	{
-		bResult = pkImprovementInfo->IsConnectsResource(kPlot->getResourceType(GC.getGame().getActiveTeam()));
+		ResourceTypes eResource = kPlot->getResourceType(GC.getGame().getActiveTeam());
+		if (eResource != NO_RESOURCE)
+		{
+			bResult = pkImprovementInfo->IsConnectsResource(kPlot->getResourceType(GC.getGame().getActiveTeam()));
+		}
 	}
 
 	lua_pushboolean(L, bResult);
@@ -2157,7 +2161,7 @@ int CvLuaPlot::lIsBuildRemovesFeature(lua_State* L)
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if(NULL != pkBuildInfo && kPlot->getFeatureType() != NO_FEATURE)
 		bFeatureRemoved = pkBuildInfo->isFeatureRemove(kPlot->getFeatureType());
-
+	
 	lua_pushboolean(L, bFeatureRemoved);
 	return 1;
 }
