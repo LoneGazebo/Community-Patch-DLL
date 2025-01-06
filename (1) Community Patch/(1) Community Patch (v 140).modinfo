@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="139">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="140">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.17.8) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.18) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>139</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>140</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -456,8 +456,9 @@
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
-    <File md5="6AEEF74153BB6DC7B88D08AF17400109" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="19CB0F5D46C6ACD55CD84FAD4D0C7137" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="493E50FD96DDC30C4E390B93B95A960F" import="0">Database Changes/CommunityTables.xml</File>
+    <File md5="988FF9B66460D42D896502D75FCE69C2" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="FFEE301FC50B4E582AC132C881BF31A7" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
     <File md5="A2285BA8703A8551E98AC1E7F8B5D6D1" import="0">Database Changes/CoreNewAutomates.xml</File>
     <File md5="A5FB4344A8CB72305CABE032AE3B9C88" import="0">Database Changes/CoreNewControls.xml</File>
@@ -507,7 +508,7 @@
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="D757F2B8B4B0C78E74D0741FE61D6A79" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
+    <File md5="A66757B47891D2C2E55510DBF1729CD1" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="148CBB2467D31B709154C87DB18515AD" import="0">Database Changes/Defines/DiploAIOptions.sql</File>
     <File md5="948C7007CD1779D44C09F02C2EE34D35" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
     <File md5="4F6425A6CA99362D146F66879881A7D9" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
@@ -515,7 +516,7 @@
     <File md5="9D0ECAA5F7605AAAB93079A6316D7C3B" import="0">Database Changes/Difficulty/CoreDifficultyChanges.xml</File>
     <File md5="55B355AAC161A6CC73D3AD258CC1568F" import="0">Database Changes/Difficulty/DifficultyTableChanges.sql</File>
     <File md5="B8689F681ECD542B37607E7AAB6B6391" import="0">Database Changes/Difficulty/NewDifficultyTables.xml</File>
-    <File md5="996978F14924D9ED7F970B119CCBCADC" import="0">Database Changes/Difficulty/PreCoreDifficultyChanges.sql</File>
+    <File md5="567CE3935D9B561FA74496986B08DABD" import="0">Database Changes/Difficulty/PreCoreDifficultyChanges.sql</File>
     <File md5="376FF84B710068713C93114E15F923FE" import="0">Database Changes/Espionage/NewEspionageTables.xml</File>
     <File md5="E8DB394A191BD15765AA9CF41BC8C178" import="0">Database Changes/Events/CoreNewEvents.xml</File>
     <File md5="76C2084139414723D7C3C6F3FC5DED3D" import="0">Database Changes/Events/NewEventTables.xml</File>
@@ -535,7 +536,6 @@
     <File md5="AC06CF33E4D5BF34C20DBBA511CE8245" import="0">Database Changes/Tech/EraTableChanges.sql</File>
     <File md5="CC98C8BF5289799F0A0763486D965F58" import="0">Database Changes/Tech/NewTechTables.xml</File>
     <File md5="8026B7ADBF7E854971889276F3942085" import="0">Database Changes/Tech/TechTableChanges.sql</File>
-    <File md5="8ACC0D1F2F9298BAFAF5BDA16787183E" import="0">Database Changes/Text/en_US/CoreGameOptionTextChanges.sql</File>
     <File md5="5823F7AEDDFB8C95A12260C464C973AC" import="0">Database Changes/Text/en_US/CoreNewAutomateText.xml</File>
     <File md5="79D913FD4E5F6212319A9AB0140D758A" import="0">Database Changes/Text/en_US/CoreNewChatMessageText.xml</File>
     <File md5="C6CB385022EED9DCF762E0F8B6FDF586" import="0">Database Changes/Text/en_US/CoreNewEnumText.xml</File>
@@ -561,7 +561,7 @@
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
-    <File md5="35F6AD59E3A7D01FEEDDFBFD393C8251" import="0">Database Changes/Text/en_US/Units/CoreNewUnitText.xml</File>
+    <File md5="EC63888373F4E5691ECF0BC3247D1445" import="0">Database Changes/Text/en_US/Units/CoreNewUnitText.xml</File>
     <File md5="936D5D64F7ACC319B27BD9C7450F7A37" import="0">Database Changes/Text/en_US/Units/CoreUnitTextChanges.sql</File>
     <File md5="CD4454A964C6F682682F380493304B13" import="0">Database Changes/Text/en_US/WorldMap/CoreGoodyHutTextChanges.sql</File>
     <File md5="9D632E0E9421808A004113EA0822E6D2" import="0">Database Changes/Text/en_US/WorldMap/CoreImprovementTextChanges.sql</File>
@@ -574,7 +574,7 @@
     <File md5="7011891CB29FA3A5E8626E77027BFB0C" import="0">Database Changes/UnitPromotions/PromotionTableChanges.sql</File>
     <File md5="91C62C39D4D285A0E8EE860BC0D369DF" import="0">Database Changes/Units/CoreNewUnitFormations.xml</File>
     <File md5="F317B3A914FFEDD4AFF61D4B0BE29B32" import="0">Database Changes/Units/CoreUnitAIChanges.sql</File>
-    <File md5="D0200614E7CAE3D978B6F991163D1B0B" import="0">Database Changes/Units/CoreUnitChanges.sql</File>
+    <File md5="7C136672E158F9C8453C35F7F5561A70" import="0">Database Changes/Units/CoreUnitChanges.sql</File>
     <File md5="263F2C6CC25B7ADF58689DCA757382B1" import="0">Database Changes/Units/CoreUnitFormationChanges.sql</File>
     <File md5="3BA501DF9DB3E5E4C99F02ED175DB816" import="0">Database Changes/Units/CoreUnitSweeps.sql</File>
     <File md5="06BD2AF012E4666699D94E5BB59AEAF5" import="0">Database Changes/Units/NewUnitTables.xml</File>
@@ -712,6 +712,7 @@
       <UpdateDatabase>Database Changes\WorldMap\NewAncientRuins.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Plots\CoreNewPlots.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Yields\CoreNewYields.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\CoreGameOptionChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreGameSpeedChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreWorldChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Defines\CoreDefineChanges.sql</UpdateDatabase>
@@ -764,7 +765,6 @@
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreNewUnitText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\WorldMap\CoreNewGoodyHutText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\WorldMap\CoreNewYieldText.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Text\en_US\CoreGameOptionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\AI\CoreDiplomacyResponseTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\AI\CoreStrategyTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\City\CoreBuildingTextChanges.sql</UpdateDatabase>
