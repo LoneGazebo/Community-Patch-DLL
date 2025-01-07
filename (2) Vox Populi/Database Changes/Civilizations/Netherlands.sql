@@ -7,17 +7,21 @@ SET
 	ImportsCountTowardsMonopolies = 1
 WHERE Type = 'TRAIT_LUXURY_RETENTION';
 
+INSERT INTO Trait_LuxuryYieldChanges
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 1),
+	('TRAIT_LUXURY_RETENTION', 'YIELD_CULTURE', 1);
+
 INSERT INTO Trait_YieldFromImport
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 3),
-	('TRAIT_LUXURY_RETENTION', 'YIELD_CULTURE', 3);
+	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 4);
 
 INSERT INTO Trait_YieldFromExport
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 3),
-	('TRAIT_LUXURY_RETENTION', 'YIELD_CULTURE', 3);
+	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 4);
 
 ----------------------------------------------------------
 -- Unique Unit: Sea Beggar (Corvette)
@@ -40,6 +44,32 @@ VALUES
 	('UNIT_DUTCH_SEA_BEGGAR', 'PROMOTION_VANGUARD'),
 	('UNIT_DUTCH_SEA_BEGGAR', 'PROMOTION_SUPPLY'),
 	('UNIT_DUTCH_SEA_BEGGAR', 'PROMOTION_PRIZE_SHIPS');
+
+----------------------------------------------------------
+-- Unique Unit: Goedendag (Pikeman)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_NETHERLANDS', 'UNITCLASS_PIKEMAN', 'UNIT_GOEDENDAG');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_PIKEMAN'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 3
+WHERE Type = 'UNIT_GOEDENDAG';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_GOEDENDAG', 'PROMOTION_BURGHER'),
+	('UNIT_GOEDENDAG', 'PROMOTION_GOEDENDAG');
 
 ----------------------------------------------------------
 -- Unique Improvement: Polder
@@ -102,3 +132,38 @@ VALUES
 	('IMPROVEMENT_POLDER_WATER', 'TECH_CHEMISTRY', 'YIELD_CULTURE', 1),
 	('IMPROVEMENT_POLDER_WATER', 'TECH_ECONOMICS', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_POLDER_WATER', 'TECH_ECONOMICS', 'YIELD_GOLD', 2);
+
+----------------------------------------------------------
+-- Unique Building: Doelen (Constabulary)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_NETHERLANDS', 'BUILDINGCLASS_CONSTABLE', 'BUILDING_DOELEN');
+
+UPDATE Buildings
+SET
+	Defense = 500,
+	SpecialistType = 'SPECIALIST_ARTIST',
+	SpecialistCount = 1,
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+	GreatWorkCount = 1,
+	SpySecurityModifier = (SELECT SpySecurityModifier FROM Buildings WHERE Type = 'BUILDING_CONSTABLE') + 5
+WHERE Type = 'BUILDING_DOELEN';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DOELEN', 'YIELD_PRODUCTION', 3);
+
+INSERT INTO Building_YieldFromSpyDefenseOrID
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DOELEN', 'YIELD_CULTURE', 50);
+
+INSERT INTO Building_YieldChangesFromMonopoly
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DOELEN', 'YIELD_GOLD', 1),
+	('BUILDING_DOELEN', 'YIELD_SCIENCE', 1),
+	('BUILDING_DOELEN', 'YIELD_CULTURE', 1);
