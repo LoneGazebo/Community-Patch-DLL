@@ -508,6 +508,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yield boost to the building, scaling with era -->
+	<Table name="Building_YieldChangesEraScalingTimes100">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- Yield boost to the building per NumRequired (non-dummy) buildings in the city -->
 	<Table name="Building_YieldChangesPerXBuilding">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
