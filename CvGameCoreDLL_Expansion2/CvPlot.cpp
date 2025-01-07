@@ -7412,7 +7412,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 #endif
 		updateYield();
 		updateImpassable();
-#if defined(MOD_BALANCE_CORE)
+
 		if(pOwningCity != NULL)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
@@ -7426,13 +7426,14 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			}
 		}
 
-		if (getOwner()!=NO_PLAYER)
+		if (getOwner() != NO_PLAYER)
 		{
-			GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
-			if(eNewValue != NO_FEATURE)
-				GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
+			CvPlayer& kOwner = GET_PLAYER(getOwner());
+			if (eOldFeature != NO_FEATURE)
+				kOwner.UpdateCityFeatureCount(eOldFeature);
+			if (eNewValue != NO_FEATURE)
+				kOwner.UpdateCityFeatureCount(eNewValue);
 		}
-#endif
 
 		if(bUpdateSight)
 		{

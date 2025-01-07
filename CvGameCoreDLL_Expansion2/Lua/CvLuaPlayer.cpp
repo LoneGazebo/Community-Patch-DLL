@@ -2210,16 +2210,30 @@ int CvLuaPlayer::lGetArtStyleType(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getArtStyleType);
 }
 //------------------------------------------------------------------------------
-//int countCityFeatures(FeatureTypes  eFeature);
+//int countCityFeatures(FeatureTypes eFeature, bool bRecount = false);
 int CvLuaPlayer::lCountCityFeatures(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::countCityFeatures);
+	CvPlayer* pPlayer = GetInstance(L);
+	const FeatureTypes eFeature = static_cast<FeatureTypes>(lua_tointeger(L, 2));
+	const bool bRecount = luaL_optint(L, 3, 0);
+	if (bRecount)
+		lua_pushinteger(L, pPlayer->UpdateCityFeatureCount(eFeature));
+	else
+		lua_pushinteger(L, pPlayer->getCityFeatures(eFeature));
+	return 1;
 }
 //------------------------------------------------------------------------------
-//int countNumBuildings(BuildingTypes  eBuilding);
+//int countNumBuildings(BuildingTypes eBuilding, bool bRecount = false);
 int CvLuaPlayer::lCountNumBuildings(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::countNumBuildings);
+	CvPlayer* pPlayer = GetInstance(L);
+	const BuildingTypes eBuilding = static_cast<BuildingTypes>(lua_tointeger(L, 2));
+	const bool bRecount = luaL_optint(L, 3, 0);
+	if (bRecount)
+		lua_pushinteger(L, pPlayer->UpdateNumBuildings(eBuilding));
+	else
+		lua_pushinteger(L, pPlayer->getNumBuildings(eBuilding));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumWorldWonders();
@@ -2241,7 +2255,7 @@ int CvLuaPlayer::lGetNumWorldWonders(lua_State* L)
 		{
 			if(::isWorldWonderClass(pkBuildingEntry->GetBuildingClassInfo()))
 			{
-				iWonderCount += pkPlayer->countNumBuildings(eBuilding);
+				iWonderCount += pkPlayer->getNumBuildings(eBuilding);
 			}
 		}
 	}

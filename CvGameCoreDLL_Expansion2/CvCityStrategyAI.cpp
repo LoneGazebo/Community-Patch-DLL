@@ -2377,7 +2377,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
+	int iCurrentNumCities = kPlayer.getCitiesNeedingTerrainImprovements();
 
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
 	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= NO_WORKER_AFTER_DISBAND_DURATION)
@@ -2473,7 +2473,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 		if (iNumBuilders < 1)
 			return true;
 
-		int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
+		int iCurrentNumCities = kPlayer.getCitiesNeedingTerrainImprovements();
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 		if (iNumBuilders < iCurrentNumCities * pCityStrategy->GetWeightThreshold()) // limit to x builders per city
 			return true;
@@ -2517,7 +2517,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 
 	int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pCity);	// 10 Extra Weight per TILE_IMPROVEMENT Flavor
 	int iPerCityThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 100
-	int iNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
+	int iNumCities = kPlayer.getCitiesNeedingTerrainImprovements();
 
 	// Average Player wants no more than 1.50 Builders per City [150 Weight is Average; range is 100 to 200]
 	return (iNumBuilders * 100) >= iPerCityThreshold*iNumCities;

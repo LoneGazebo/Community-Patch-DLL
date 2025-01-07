@@ -10045,7 +10045,7 @@ void CvPlayer::doTurn()
 		cacheAvgGoldRate();
 
 		//Reset for reevaluation of citystrategy AI
-		countCitiesNeedingTerrainImprovements(true);
+		UpdateNumCitiesNeedingTerrainImprovements();
 
 		if (isMajorCiv())
 		{
@@ -11212,95 +11212,57 @@ void CvPlayer::ChangeScoreFromScenario4(int iChange)
 // End Civ 5 Score
 //////////////////////////////////////////////////////////////////////////
 
-int CvPlayer::countCityFeatures(FeatureTypes eFeature, bool bReset) const
+int CvPlayer::UpdateCityFeatureCount(FeatureTypes eFeature)
 {
-	if (bReset)
+	int iCount = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		int iCount = 0;
-		int iLoop = 0;
-
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
 		{
-			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-			{
-				const CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
-
-				if (pLoopPlot && pLoopPlot->getFeatureType() == eFeature)
-					iCount++;
-			}
+			const CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+			if (pLoopPlot && pLoopPlot->getFeatureType() == eFeature)
+				iCount++;
 		}
-
-		//const call hack
-		GET_PLAYER(GetID()).setCityFeatures(eFeature, iCount);
 	}
 
-	return getCityFeatures(eFeature);
+	setCityFeatures(eFeature, iCount);
+	return iCount;
 }
 
-int CvPlayer::countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset) const
+// Updates the cached number of eBuilding in cities owned by this player, and returns it
+// Also updates the cached number of eBuilding in puppet cities owned by this player
+int CvPlayer::UpdateNumBuildings(BuildingTypes eBuilding)
 {
-	if (bReset)
+	int iCount = 0;
+	int iPuppetCount = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		int iCount = 0;
-		int iLoop = 0;
-
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (!pLoopCity->IsPuppet())
-				continue;
-
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-
-		//const call hack
-		GET_PLAYER(GetID()).setNumBuildingsInPuppets(eBuilding, iCount);
+		int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		iCount += iBuildingCount;
+		if (pLoopCity->IsPuppet())
+			iPuppetCount += iBuildingCount;
 	}
 
-	return getNumBuildingsInPuppets(eBuilding);
-}
-
-int CvPlayer::countNumBuildings(BuildingTypes eBuilding, bool bReset) const
-{
-	if(bReset)
-	{
-		int iCount = 0;
-		int iLoop = 0;
-
-		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-			}
-		}
-
-		//const call hack
-		GET_PLAYER(GetID()).setNumBuildings(eBuilding, iCount);
-	}
-
-	return getNumBuildings(eBuilding);
+	setNumBuildings(eBuilding, iCount);
+	setNumBuildingsInPuppets(eBuilding, iPuppetCount);
+	return iCount;
 }
 
 /// How many cities in the empire surrounded by features?
-int CvPlayer::countCitiesNeedingTerrainImprovements(bool bReset) const
+int CvPlayer::UpdateNumCitiesNeedingTerrainImprovements()
 {
-	if (bReset)
+	int iCount = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		int iCount = 0;
-		int iLoop = 0;
-
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			//what is a sensible threshold here?
-			if (pLoopCity->GetTerrainImprovementNeed()>0)
-				iCount++;
-		}
-
-		GET_PLAYER(GetID()).setCitiesNeedingTerrainImprovements(iCount);
+		if (pLoopCity->GetTerrainImprovementNeed() > 0)
+			iCount++;
 	}
 
-	return getCitiesNeedingTerrainImprovements();
+	setCitiesNeedingTerrainImprovements(iCount);
+	return iCount;
 }
 
 void CvPlayer::setCityFeatures(FeatureTypes eFeature, int iValue)
@@ -15798,8 +15760,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	}
 
 	//Refresh cache data.
-	countNumBuildings(eBuilding, true);
-	countNumBuildingsInPuppets(eBuilding, true);
+	UpdateNumBuildings(eBuilding);
 }
 
 /// Get yield change from buildings for a specific building class
@@ -15889,7 +15850,7 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
 		{
 			// Do we have this building anywhere in empire?
-			int iNum = countNumBuildings((BuildingTypes)i);
+			int iNum = getNumBuildings((BuildingTypes)i);
 
 			if (iNum > 0)
 			{

@@ -1412,7 +1412,7 @@ bool CvMinorCivQuest::IsComplete()
 		BuildingTypes eWonder = (BuildingTypes)m_iData1;
 
 		// Player built the Wonder?
-		return pAssignedPlayer->countNumBuildings(eWonder) > 0;
+		return pAssignedPlayer->getNumBuildings(eWonder) > 0;
 	}
 	case MINOR_CIV_QUEST_GREAT_PERSON:
 	{
@@ -1780,7 +1780,7 @@ bool CvMinorCivQuest::IsExpired()
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 			// Someone built the Wonder, and it wasn't us
-			if (m_eAssignedPlayer != eLoopPlayer && GET_PLAYER(eLoopPlayer).countNumBuildings(eWonder) > 0)
+			if (m_eAssignedPlayer != eLoopPlayer && GET_PLAYER(eLoopPlayer).getNumBuildings(eWonder) > 0)
 				return true;
 		}
 
@@ -3647,7 +3647,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (m_eAssignedPlayer != eLoopPlayer && GET_PLAYER(eLoopPlayer).countNumBuildings(eWonder) > 0)
+			if (m_eAssignedPlayer != eLoopPlayer && GET_PLAYER(eLoopPlayer).getNumBuildings(eWonder) > 0)
 			{
 				bSomeoneElseHasBuiltWonder = true;
 				break;
