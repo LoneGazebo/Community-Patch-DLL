@@ -7936,7 +7936,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 			{  1, 12, 6, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
 			{ -1, 6, 12, 2, -1 }, //secondline
 			{ -1, 1, 8, 12, -1 }, //thirdline (ranged and damaged melee units)
-			{ -1, 1, 8,  8, -1 }, //support
+			{ -1, 1, 8,  8, -1 }, //support (can also happen for damaged melee units)
 		};
 		iPlotScore = iPlotScoreForEnemyDistance[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 	}
@@ -7947,10 +7947,10 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 
 		int iPlotScoreForTargetDistance[5][5] = {
 			{ -1,-1,-1,-1,-1 }, //none (should not occur)
-			{  1, 2, 4, 8, 8 }, //firstline
-			{  4, 4, 2, 1, 1 }, //secondline
-			{  8, 8, 2, 1, 1 }, //thirdline
-			{  8, 8, 2, 1, 1 }, //support (can happen for damaged melee units)
+			{  6, 6, 5, 3, 1 }, //firstline can go anywhere but outside when in doubt
+			{  8, 8, 3, 2, 1 }, //secondline prefers "inside"
+			{  10, 10, 2, 1, 1 }, //thirdline prefers inside even more
+			{  8, 8, 2, 1, 1 }, //support (can also happen for damaged melee units)
 		};
 		iPlotScore = iPlotScoreForTargetDistance[unit.eMoveStrategy][iTargetDistance];
 	}
@@ -8224,7 +8224,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	if (newAssignment.iScore < 0)
 		return newAssignment;
 
-	//times 10 to match with ScorePlotForCombatUnitOffensive()
+	//times 10 to match with ScorePlotForCombatUnitMove()
 	newAssignment.iScore *= 10;
 
 	//small bias for staying close to our cities, to have a way to retreat if necessary
