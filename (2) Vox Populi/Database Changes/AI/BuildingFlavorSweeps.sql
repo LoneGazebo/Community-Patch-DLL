@@ -325,6 +325,9 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_STEAM_MILL', 'FLAVOR_GREAT_PEOPLE', 10),
 --------------------------------
 ('BUILDING_HOTEL', 'FLAVOR_CULTURE', 50),
+
+('BUILDING_RIAD', 'FLAVOR_CULTURE', 100),
+('BUILDING_RIAD', 'FLAVOR_GOLD', 20),
 -------------------------------
 ('BUILDING_MILITARY_ACADEMY', 'FLAVOR_MILITARY_TRAINING', 25),
 
