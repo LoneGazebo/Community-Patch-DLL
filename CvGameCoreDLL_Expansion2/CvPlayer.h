@@ -277,10 +277,9 @@ public:
 	void ChangeScoreFromScenario4(int iChange);
 	// End Civ 5 Score
 		
-	int countCityFeatures(FeatureTypes eFeature, bool bReset = false) const;
-	int countNumBuildings(BuildingTypes eBuilding, bool bReset = false) const;
-	int countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset = false) const;
-	int countCitiesNeedingTerrainImprovements(bool bReset = false) const;
+	int UpdateCityFeatureCount(FeatureTypes eFeature);
+	int UpdateNumBuildings(BuildingTypes eBuilding);
+	int UpdateNumCitiesNeedingTerrainImprovements();
 
 	void setCityFeatures(FeatureTypes eFeature, int iValue);
 	int getCityFeatures(FeatureTypes eFeature) const;

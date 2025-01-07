@@ -818,7 +818,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		FeatureTypes eFeature2 = (FeatureTypes)iFeatureLoop;
 		if (eFeature2 != NO_FEATURE)
 		{
-			GET_PLAYER(getOwner()).countCityFeatures(eFeature2, true);
+			GET_PLAYER(getOwner()).UpdateCityFeatureCount(eFeature2);
 		}
 	}
 
@@ -20399,12 +20399,12 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 			if (!pkBuildingInfoGlobal)
 				continue;
 
-			int iNumBuildingGlobal = kPlayer.countNumBuildings(eBuildingGlobal);
+			int iNumBuildingGlobal = kPlayer.getNumBuildings(eBuildingGlobal);
 
 			// Buildings in non-Venice puppets don't provide happiness
 			bool bVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 			if (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice)
-				iNumBuildingGlobal -= kPlayer.countNumBuildingsInPuppets(eBuildingGlobal);
+				iNumBuildingGlobal -= kPlayer.getNumBuildingsInPuppets(eBuildingGlobal);
 
 			iTotalHappiness += pkBuildingInfoGlobal->GetBuildingClassHappiness(eBuildingClass) * iNumBuildingGlobal * iNumBuilding;
 		}

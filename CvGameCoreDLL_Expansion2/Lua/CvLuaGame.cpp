@@ -1182,7 +1182,7 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 			{
 				if(::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 				{
-					iWonderCount += kLoopPlayer.countNumBuildings(eBuilding);
+					iWonderCount += kLoopPlayer.getNumBuildings(eBuilding);
 				}
 			}
 		}
