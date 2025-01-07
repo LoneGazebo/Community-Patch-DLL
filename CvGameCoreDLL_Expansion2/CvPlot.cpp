@@ -6154,45 +6154,41 @@ bool CvPlot::isNEOfRiver() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setNEOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 {
-	CvPlot* pAdjacentPlot = NULL;
-	int iI = 0;
+	// Nothing is being changed here
+	if (isNEOfRiver() == bNewValue && eRiverDir == getRiverSWFlowDirection())
+		return;
 
-	if((isNEOfRiver() != bNewValue) || (eRiverDir != m_eRiverSWFlowDirection))
+	ASSERT(eRiverDir == FLOWDIRECTION_SOUTHEAST || eRiverDir == FLOWDIRECTION_NORTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+
+	// This adds or removes a river segment
+	if (isNEOfRiver() != bNewValue)
 	{
-		ASSERT(m_eRiverSWFlowDirection == NO_FLOWDIRECTION && eRiverDir != NO_FLOWDIRECTION, "invalid parameter");
-		if(isNEOfRiver() != bNewValue)
+		if (MOD_EVENTS_TERRAFORMING)
 		{
-#if defined(MOD_EVENTS_TERRAFORMING)
-			if (MOD_EVENTS_TERRAFORMING) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_NORTHEAST, ((int) bNewValue), ((int) m_bNEOfRiver), eRiverDir, m_eRiverSWFlowDirection);
-			}
-#endif
-
-			m_bNEOfRiver = bNewValue;
-
-			updateRiverCrossing();
-			updateYield();
-
-			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if(pAdjacentPlot != NULL)
-				{
-					pAdjacentPlot->updateRiverCrossing();
-					pAdjacentPlot->updateYield();
-				}
-			}
-
-			if(area() != NULL)
-			{
-				area()->changeNumRiverEdges((isNEOfRiver()) ? 1 : -1);
-			}
+			// Not sure if this works. The parameters for TERRAFORMINGEVENT_RIVER seem to be different from other terraform types.
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_NORTHEAST, bNewValue, isNEOfRiver(), eRiverDir, getRiverSWFlowDirection());
 		}
 
-		ASSERT(eRiverDir == FLOWDIRECTION_NORTHWEST || eRiverDir == FLOWDIRECTION_SOUTHEAST || eRiverDir == NO_FLOWDIRECTION, "invalid parameter");
-		m_eRiverSWFlowDirection = eRiverDir;
+		m_bNEOfRiver = bNewValue;
+
+		updateRiverCrossing(DIRECTION_SOUTHWEST);
+		updateYield();
+
+		// Also update the plot across the river (if exists)
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), DIRECTION_SOUTHWEST);
+		if (pAdjacentPlot)
+		{
+			pAdjacentPlot->updateRiverCrossing(DIRECTION_NORTHEAST);
+			pAdjacentPlot->updateYield();
+		}
+
+		if (area())
+		{
+			area()->changeNumRiverEdges(bNewValue ? 1 : -1);
+		}
 	}
+
+	m_eRiverSWFlowDirection = eRiverDir;
 }
 
 
@@ -6206,45 +6202,41 @@ bool CvPlot::isWOfRiver() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setWOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 {
-	CvPlot* pAdjacentPlot = NULL;
-	int iI = 0;
+	// Nothing is being changed here
+	if (isWOfRiver() == bNewValue && eRiverDir == getRiverEFlowDirection())
+		return;
 
-	if((isWOfRiver() != bNewValue) || (eRiverDir != m_eRiverEFlowDirection))
+	ASSERT(eRiverDir == FLOWDIRECTION_NORTH || eRiverDir == FLOWDIRECTION_SOUTH || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+
+	// This adds or removes a river segment
+	if (isWOfRiver() != bNewValue)
 	{
-		ASSERT(m_eRiverEFlowDirection == NO_FLOWDIRECTION && eRiverDir != NO_FLOWDIRECTION, "invalid parameter");
-		if(isWOfRiver() != bNewValue)
+		if (MOD_EVENTS_TERRAFORMING)
 		{
-#if defined(MOD_EVENTS_TERRAFORMING)
-			if (MOD_EVENTS_TERRAFORMING) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_WEST, ((int) bNewValue), ((int) m_bWOfRiver), eRiverDir, m_eRiverEFlowDirection);
-			}
-#endif
-
-			m_bWOfRiver = bNewValue;
-
-			updateRiverCrossing();
-			updateYield();
-
-			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if(pAdjacentPlot != NULL)
-				{
-					pAdjacentPlot->updateRiverCrossing();
-					pAdjacentPlot->updateYield();
-				}
-			}
-
-			if(area())
-			{
-				area()->changeNumRiverEdges((isWOfRiver()) ? 1 : -1);
-			}
+			// Not sure if this works. The parameters for TERRAFORMINGEVENT_RIVER seem to be different from other terraform types.
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_WEST, bNewValue, isWOfRiver(), eRiverDir, getRiverEFlowDirection());
 		}
 
-		ASSERT(eRiverDir == FLOWDIRECTION_NORTH || eRiverDir == FLOWDIRECTION_SOUTH || eRiverDir == NO_FLOWDIRECTION, "invalid parameter");
-		m_eRiverEFlowDirection= eRiverDir;
+		m_bWOfRiver = bNewValue;
+
+		updateRiverCrossing(DIRECTION_EAST);
+		updateYield();
+
+		// Also update the plot across the river (if exists)
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), DIRECTION_EAST);
+		if (pAdjacentPlot)
+		{
+			pAdjacentPlot->updateRiverCrossing(DIRECTION_WEST);
+			pAdjacentPlot->updateYield();
+		}
+
+		if (area())
+		{
+			area()->changeNumRiverEdges(bNewValue ? 1 : -1);
+		}
 	}
+
+	m_eRiverEFlowDirection = eRiverDir;
 }
 
 
@@ -6258,45 +6250,41 @@ bool CvPlot::isNWOfRiver() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setNWOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 {
-	CvPlot* pAdjacentPlot = NULL;
-	int iI = 0;
+	// Nothing is being changed here
+	if (isNWOfRiver() == bNewValue && eRiverDir == getRiverSEFlowDirection())
+		return;
 
-	if((isNWOfRiver() != bNewValue) || (eRiverDir != m_eRiverSEFlowDirection))
+	ASSERT(eRiverDir == FLOWDIRECTION_NORTHEAST || eRiverDir == FLOWDIRECTION_SOUTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+
+	// This adds or removes a river segment
+	if (isNWOfRiver() != bNewValue)
 	{
-		ASSERT(m_eRiverSEFlowDirection == NO_FLOWDIRECTION && eRiverDir != NO_FLOWDIRECTION, "invalid parameter");
-		if(isNWOfRiver() != bNewValue)
+		if (MOD_EVENTS_TERRAFORMING)
 		{
-#if defined(MOD_EVENTS_TERRAFORMING)
-			if (MOD_EVENTS_TERRAFORMING) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_NORTHWEST, ((int) bNewValue), ((int) m_bNWOfRiver), eRiverDir, m_eRiverSEFlowDirection);
-			}
-#endif
-
-			m_bNWOfRiver = bNewValue;
-
-			updateRiverCrossing();
-			updateYield();
-
-			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if(pAdjacentPlot != NULL)
-				{
-					pAdjacentPlot->updateRiverCrossing();
-					pAdjacentPlot->updateYield();
-				}
-			}
-
-			if(area())
-			{
-				area()->changeNumRiverEdges((isNWOfRiver()) ? 1 : -1);
-			}
+			// Not sure if this works. The parameters for TERRAFORMINGEVENT_RIVER seem to be different from other terraform types.
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_RIVER, m_iX, m_iY, DIRECTION_NORTHWEST, bNewValue, isNWOfRiver(), eRiverDir, getRiverSEFlowDirection());
 		}
 
-		ASSERT(eRiverDir == FLOWDIRECTION_NORTHEAST || eRiverDir == FLOWDIRECTION_SOUTHWEST || eRiverDir == NO_FLOWDIRECTION, "invalid parameter");
-		m_eRiverSEFlowDirection = eRiverDir;
+		m_bNWOfRiver = bNewValue;
+
+		updateRiverCrossing(DIRECTION_SOUTHEAST);
+		updateYield();
+
+		// Also update the plot across the river (if exists)
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), DIRECTION_SOUTHEAST);
+		if (pAdjacentPlot)
+		{
+			pAdjacentPlot->updateRiverCrossing(DIRECTION_NORTHWEST);
+			pAdjacentPlot->updateYield();
+		}
+
+		if (area())
+		{
+			area()->changeNumRiverEdges(bNewValue ? 1 : -1);
+		}
 	}
+
+	m_eRiverSEFlowDirection = eRiverDir;
 }
 
 
@@ -11662,27 +11650,19 @@ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
 {
-
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eIndex < NUM_DIRECTION_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	bool bValid = false;
 	CvPlot* pPlot = plotDirection(getX(), getY(), eIndex);
 
-	if((NULL == pPlot) || (!pPlot->isWater() && !isWater()))  // if there is no plot in that direction or both plots are land
+	if (!pPlot || (!pPlot->isWater() && !isWater())) // if there is no plot in that direction or both plots are land
 	{
-		switch(eIndex)
+		switch (eIndex)
 		{
-
 		case DIRECTION_NORTHEAST:
-		{
-			if(pPlot && pPlot->isNEOfRiver())
-			{
-				bValid = true;
-				break;
-			}
-		}
-		break;
+			bValid = pPlot && pPlot->isNEOfRiver();
+			break;
 
 		case DIRECTION_EAST:
 			bValid = isWOfRiver();
@@ -11697,29 +11677,23 @@ void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
 			break;
 
 		case DIRECTION_WEST:
-			if(pPlot != NULL)
-			{
-				bValid = pPlot->isWOfRiver();
-			}
+			bValid = pPlot && pPlot->isWOfRiver();
 			break;
 
 		case DIRECTION_NORTHWEST:
-			if(pPlot != NULL)
-			{
-				bValid = pPlot->isNWOfRiver();
-			}
+			bValid = pPlot && pPlot->isNWOfRiver();
 			break;
 
 		default:
-			ASSERT(false);
+			UNREACHABLE();
 			break;
 		}
 	}
 
-	if(isRiverCrossing(eIndex) != bValid)
+	if (isRiverCrossing(eIndex) != bValid)
 	{
 		char iFlowMask = 1 << eIndex;
-		if(bValid)
+		if (bValid)
 		{
 			m_cRiverCrossing |= iFlowMask;
 			changeRiverCrossingCount(1);
@@ -11736,11 +11710,9 @@ void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvPlot::updateRiverCrossing()
 {
-	int iI = 0;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		updateRiverCrossing((DirectionTypes)iI);
+		updateRiverCrossing(static_cast<DirectionTypes>(iI));
 	}
 }
 
