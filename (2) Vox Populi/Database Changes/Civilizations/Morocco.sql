@@ -46,6 +46,31 @@ VALUES
 	('UNIT_BERBER_CAVALRY', 'UNITAI_EXPLORE');
 
 ----------------------------------------------------------
+-- Unique Unit: Corsair (Corvette)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_MOROCCO', 'UNITCLASS_PRIVATEER', 'UNIT_CORSAIR');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_PRIVATEER'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PRIVATEER') + 2
+WHERE Type = 'UNIT_CORSAIR';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_CORSAIR', 'PROMOTION_RAZZIA');
+
+----------------------------------------------------------
 -- Unique Improvement: Kasbah
 ----------------------------------------------------------
 UPDATE Builds
@@ -91,3 +116,32 @@ INSERT INTO Improvement_AdjacentTerrainYieldChanges
 	(ImprovementType, TerrainType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_KASBAH', 'TERRAIN_COAST', 'YIELD_CULTURE', 1);
+
+----------------------------------------------------------
+-- Unique Building: Riad (Hotel)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_MOROCCO', 'BUILDINGCLASS_HOTEL', 'BUILDING_RIAD');
+
+UPDATE Buildings
+SET LandmarksTourismPercent = 33 -- 25
+WHERE Type = 'BUILDING_RIAD';
+
+INSERT INTO Building_YieldChangesEraScalingTimes100
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_RIAD', 'YIELD_GOLD', 100),
+	('BUILDING_RIAD', 'YIELD_CULTURE', 100);
+
+INSERT INTO Building_YieldChangesPerXBuilding
+	(BuildingType, YieldType, Yield, NumRequired)
+VALUES
+	('BUILDING_RIAD', 'YIELD_GOLD', 1, 8),
+	('BUILDING_RIAD', 'YIELD_CULTURE', 1, 8);
+
+INSERT INTO Building_YieldFromPurchase
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_RIAD', 'YIELD_TOURISM', 10);
