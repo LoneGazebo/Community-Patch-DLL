@@ -40,6 +40,7 @@ const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override first
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
+const int TACTSIM_MAX_UNITS = 15; //we have limited storage and time ...
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(5000);
@@ -7715,16 +7716,21 @@ int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& test
 				continue;
 
 			//we don't care for damage here but let's reuse the scoring function
-			STacticalAssignment temp;
 			//note here we don't care whether it's a kill or not - don't want to double dip for the move and the kill
 			//also, if the attack would be next turn, chance is the enemy will flee, so it never happens
+			STacticalAssignment temp;
 			bool bIsKill = ScoreAttackDamage(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
-			if (bIsKill && temp.iScore>0)
+			if (bIsKill && iNumAttacks > 0 && temp.iScore > 0)
 			{
-				//if we can attack this turn or the target cannot flee
-				if (iNumAttacks>0 || targetPlot.isEnemyCity())
-					temp.iScore += 100;
+				//if we can attack this turn
+				temp.iScore += 100;
 			}
+			else if (targetPlot.isEnemyCity() && targetPlot.getPlot()->getPlotCity()->isInDangerOfFalling() && !pUnit->IsCanAttackRanged())
+			{
+				//melee should stay close even if the attack is not possible yet
+				temp.iScore = max(temp.iScore, 50);
+			}
+
 			iBestAttackScore = max(temp.iScore, iBestAttackScore);
 		}
 	}
@@ -9010,7 +9016,6 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	updateMovePlotsIfRequired();
 
 	//get the best move for each unit
-	gOverAllChoices.clear();
 	bool bHaveSupport = false;
 	for (size_t i = 0; i < availableUnits.size() && iMaxUnitsToKeep>0; i++)
 	{
@@ -9018,6 +9023,11 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		getPreferredAssignmentsForUnit(availableUnits[i], 1);
 
 		int iScore = gPossibleMoves.front().iScore;
+
+		//prefer to use healthy units so the others can heal
+		CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(availableUnits[i].iUnitID);
+		if (pUnit && pUnit->GetCurrHitPoints() < 50)
+			iScore /= 2;
 
 		//make sure to include a general if we have one
 		if (availableUnits[i].eMoveStrategy == MS_SUPPORT)
@@ -10975,9 +10985,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	}
 #endif
 
-	cvStopWatch timer("tactsim",NULL,0,true);
-	timer.StartPerfTest();
-
 	//clean up from the last run
 	storage.reset(eLastTactSimPlayer!=ePlayer);
 	eLastTactSimPlayer = ePlayer;
@@ -11063,8 +11070,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//small performance optimization
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
 
-	//around 15 units everythings becomes slow so don't use more
-	initialPosition->dropSuperfluousUnits(15);
+	//around 15 units everything becomes slow so don't use too many
+	initialPosition->dropSuperfluousUnits(TACTSIM_MAX_UNITS);
 
 	openPositionsHeap.clear();
 	completedPositions.clear();
@@ -11076,6 +11083,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//initially we go breadth-first, later switch to depth-first
 	CvTacticalPosition::PrPositionSortHeapGeneration heapSort(false);
 
+	cvStopWatch timer("tactsim", NULL, 0, true);
+	timer.StartPerfTest();
 	while (!openPositionsHeap.empty())
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
@@ -11154,7 +11163,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			break;
 		}
 	}
-
 	timer.EndPerfTest();
 
 	if (completedPositions.empty())
