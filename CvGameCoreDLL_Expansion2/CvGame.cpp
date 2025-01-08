@@ -3187,8 +3187,8 @@ void CvGame::handleAction(int iAction)
 					if(pBuildInfo->getRoute() == NO_ROUTE)
 					{
 						// Let them build over an improvement if the new improvement REQUIRES the old one
-						CvImprovementEntry *pImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement());
-						if (!pImprovementInfo || !pImprovementInfo->IsRequiresImprovement())
+						ImprovementTypes eImprovement = (ImprovementTypes)pBuildInfo->getImprovement();
+						if (eImprovement == NO_IMPROVEMENT || !GC.getImprovementInfo(eImprovement)->IsRequiresImprovement())
 						{
 							if(pHeadSelectedUnit)
 							{

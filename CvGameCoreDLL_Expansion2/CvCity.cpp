@@ -33466,7 +33466,11 @@ bool CvCity::HasBuildingClass(BuildingClassTypes iBuildingClassType) const
 	}
 	else
 	{
-		return HasBuilding((BuildingTypes)getCivilizationInfo().getCivilizationBuildings(iBuildingClassType));
+		BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(iBuildingClassType);
+		if (eBuilding == NO_BUILDING)
+			return false;
+
+		return HasBuilding(eBuilding);
 	}
 }
 

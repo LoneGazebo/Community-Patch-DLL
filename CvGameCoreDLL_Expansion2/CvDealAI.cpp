@@ -5102,6 +5102,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	PlayerTypes eLosingPlayer = bMeSurrendering ? GetPlayer()->GetID() : eOtherPlayer;
 	CvPlayer* pLosingPlayer = &GET_PLAYER(eLosingPlayer);
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
+	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
+
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 
@@ -5280,12 +5282,16 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			if (eUsage != RESOURCEUSAGE_LUXURY)
 				continue;
 
-			// Don't bother looking at this Resource if the other player doesn't even have any of it
+			// Don't bother looking at this Resource if the losing player doesn't even have any of it
 			if (pLosingPlayer->getNumResourceAvailable(eResource, false) == 0)
 				continue;
 
+			// Don't bother looking at this Resource if the winning player has it already (unless they can import duplicate resources)
+			if (pWinningPlayer->getNumResourceAvailable(eResource, true) > 0 && !pWinningPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+				continue;
+
 			// resource value evaluation from the winner's perspective
-			int iCurrentResourceValue = GET_PLAYER(eWinningPlayer).GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eLosingPlayer, eResource, 1, -1, false, GC.getGame().GetDealDuration(), false, /*bEqualize*/ false);
+			int iCurrentResourceValue = pWinningPlayer->GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eLosingPlayer, eResource, 1, -1, false, GC.getGame().GetDealDuration(), false, /*bEqualize*/ false);
 
 			if(iCurrentResourceValue == INT_MAX)
 				continue;
@@ -5343,7 +5349,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 			iResourceQuantity = pLosingPlayer->getNumResourceAvailable(eResource, false);
 
-			// Don't bother looking at this Resource if the other player doesn't even have any of it
+			// Don't bother looking at this Resource if the losing player doesn't even have any of it
 			if (iResourceQuantity == 0)
 			{
 				continue;
@@ -5354,7 +5360,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				iResourceQuantity = 3;
 			}
 
-			int iCurrentResourceValue = GET_PLAYER(eWinningPlayer).GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eLosingPlayer, eResource, iResourceQuantity, -1, false, GC.getGame().GetDealDuration(), false, /*bEqualize*/ false);
+			int iCurrentResourceValue = pWinningPlayer->GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eLosingPlayer, eResource, iResourceQuantity, -1, false, GC.getGame().GetDealDuration(), false, /*bEqualize*/ false);
 
 			if(iCurrentResourceValue == INT_MAX)
 				continue;
