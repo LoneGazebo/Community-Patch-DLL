@@ -6783,7 +6783,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 				continue;
 		}
 
-		int iDanger = pUnit->GetDanger(pPlot);
+		int iDanger = min(pUnit->GetDanger(pPlot),10000); //handle INT_MAX for civilians
 		int iHealRate = pUnit->healRate(pPlot);
 		int nFriends = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, true, pUnit);
 
@@ -7534,7 +7534,7 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			fAggFactor *= 1.1f;
 			break;
 		case AL_HIGH:
-			//we check whether we can survive a counterattack in ScoreTurnEnd
+			//we check whether we can survive a counterattack in ScoreCombatUnitTurnEnd
 			fAggFactor *= 2.3f;
 			break;
 		case AL_BRAVEHEART:
@@ -7746,7 +7746,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
-int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, 
+int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, 
 							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, int iAssumedExtraKill,
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bRelaxedCheck)
 {
@@ -7986,7 +7986,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 			iPlotScore += pUnit->GetAdjacentCityDefenseMod();
 		}
 
-		iDangerScore = ScoreTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
+		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -8867,7 +8867,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			{
 				int iBonus = 0;
 				//give a bonus for potential fortifying/healing
-				//redundant with ScoreTurnEnd but we have to make sure we consider these moves in the first place
+				//redundant with ScoreCombatUnitTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == pUnit->maxMoves())
 				{
 					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
@@ -10714,18 +10714,23 @@ bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignme
 		return false;
 	}
 
-	//if we have nowhere to flee to, we can just as well stay?
-	if (gSafePlotCount[assignment.iUnitID] == 0)
-		return true;
-
-	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(iEndPlotIndex);
+	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(assignment.iUnitID);
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return false;
 
-	return ScoreTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH, 
-		unit->iSelfDamage+assignment.iSelfDamage, assignment.iKillOrNearKillId, *this, EM_FINAL, availableUnits.size()>1) != INT_MAX;
+	if (pUnit->IsCanDefend())
+	{
+		//if we have nowhere to flee to, we can just as well stay?
+		if (gSafePlotCount[assignment.iUnitID] == 0)
+			return true;
+		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH,
+			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
+	}
+	else
+		//civilians need cover. full scoring logic in ScorePlotForNonFightingUnitMove is more complex; here we just need a rule of thumb
+		return assumedUnitPlot.isCombatEndTurn();
 }
 
 std::ostream& operator<<(ostream& os, const CvPlot& p)
