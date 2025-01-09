@@ -260,10 +260,14 @@ UPDATE Units SET ObsoleteTech = 'TECH_GUNPOWDER' WHERE Class = 'UNITCLASS_TREBUC
 -- Cannon
 UPDATE Units
 SET
-	PrereqTech = 'TECH_GUNPOWDER',
-	ObsoleteTech = 'TECH_RIFLING',
 	IconAtlas = 'UNIT_ATLAS_VP_2',
 	PortraitIndex = 16
+WHERE Type = 'UNIT_CANNON';
+
+UPDATE Units
+SET
+	PrereqTech = 'TECH_GUNPOWDER',
+	ObsoleteTech = 'TECH_RIFLING'
 WHERE Class = 'UNITCLASS_CANNON';
 
 -- Field Gun

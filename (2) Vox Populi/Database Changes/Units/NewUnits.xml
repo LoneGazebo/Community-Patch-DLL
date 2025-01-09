@@ -244,6 +244,7 @@
 			<Type>UNITCLASS_GREAT_BOMBARD</Type>
 			<Description>TXT_KEY_UNIT_GREAT_BOMBARD</Description>
 			<DefaultUnit>NONE</DefaultUnit>
+			<MaxPlayerInstances>2</MaxPlayerInstances>
 		</Row>
 		<!-- Fusta -->
 		<Row>
