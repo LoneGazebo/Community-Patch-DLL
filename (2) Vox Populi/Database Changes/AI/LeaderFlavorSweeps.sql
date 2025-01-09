@@ -298,7 +298,6 @@ UPDATE Leader_Flavors SET Flavor = 3 WHERE FlavorType = 'FLAVOR_RECON' AND Leade
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_BOUDICCA'; -- 5, UI requires great people
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR'; -- 4, UB & UU focus on mobile
-UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR'; -- 4, UB & UU focus on mobile
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_PRODUCTION' AND LeaderType = 'LEADER_CASIMIR'; -- 6, generalist
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_CASIMIR'; -- 10, generalist
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_CASIMIR'; -- 6, generalist
