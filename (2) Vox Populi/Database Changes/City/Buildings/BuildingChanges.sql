@@ -2017,7 +2017,7 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
--- Oxford University
+-- Imperial College
 UPDATE Buildings
 SET
 	FreeTechs = 0,
