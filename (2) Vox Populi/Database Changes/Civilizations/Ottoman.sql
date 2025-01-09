@@ -40,6 +40,109 @@ VALUES
 	('UNIT_OTTOMAN_JANISSARY', 'PROMOTION_ATTACK_BONUS');
 
 ----------------------------------------------------------
+-- Unique Unit: Great Bombard
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_OTTOMAN', 'UNITCLASS_GREAT_BOMBARD', 'UNIT_GREAT_BOMBARD');
+
+UPDATE Units
+SET
+	Combat = 11,
+	RangedCombat = 43,
+	"Range" = 2
+WHERE Type = 'UNIT_GREAT_BOMBARD';
+
+INSERT INTO Unit_ClassUpgrades
+	(UnitType, UnitClassType)
+VALUES
+	('UNIT_GREAT_BOMBARD', 'UNITCLASS_FIELD_GUN');
+
+DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_GREAT_BOMBARD' AND PromotionType IN ('PROMOTION_CITY_SIEGE', 'PROMOTION_SIEGE_INACCURACY');
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_GREAT_BOMBARD', 'PROMOTION_CITY_ASSAULT'),
+	('UNIT_GREAT_BOMBARD', 'PROMOTION_UNWIELDY');
+
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_GREAT_BOMBARD', 'UNITAI_CITY_BOMBARD'),
+	('UNIT_GREAT_BOMBARD', 'UNITAI_RANGED');
+
+INSERT INTO Unit_UniqueNames
+	(UnitType, UniqueName)
+VALUES
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_1'),
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_2'),
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_3'),
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_4');
+
+----------------------------------------------------------
+-- Unique Improvement: Tersane
+----------------------------------------------------------
+UPDATE Builds
+SET
+	Water = 1,
+	CanBeEmbarked = 1
+WHERE Type = 'BUILD_SIHEYUAN';
+
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
+VALUES
+	('UNIT_GREAT_GENERAL', 'BUILD_TERSANE'),
+	('UNIT_GREAT_ADMIRAL', 'BUILD_TERSANE');
+
+UPDATE Improvements
+SET
+	Water = 1,
+	Cityside = 1, -- makes valid
+	BuildableOnResources = 1,
+	ConnectsAllResources = 1,
+	NoTwoAdjacent = 1,
+	CreatedByGreatPerson = 1,
+	CultureBombRadius = 1,
+	DefenseModifier = 50,
+	NoFollowUp = 1,
+	NearbyEnemyDamage = 30
+WHERE Type = 'IMPROVEMENT_TERSANE';
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TERSANE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_TERSANE', 'YIELD_GOLD', 3),
+	('IMPROVEMENT_TERSANE', 'YIELD_SCIENCE', 2);
+
+INSERT INTO Improvement_TechYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TERSANE', 'TECH_CHEMISTRY', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_TERSANE', 'TECH_MILITARY_SCIENCE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_TERSANE', 'TECH_MILITARY_SCIENCE', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_TERSANE', 'TECH_STEALTH', 'YIELD_SCIENCE', 4),
+	('IMPROVEMENT_TERSANE', 'TECH_ELECTRONICS', 'YIELD_PRODUCTION', 4),
+	('IMPROVEMENT_TERSANE', 'TECH_ELECTRONICS', 'YIELD_GOLD', 4);
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_TERSANE', 'YIELD_PRODUCTION', 6);
+
+INSERT INTO Improvement_DomainProductionModifier
+	(ImprovementType, DomainType, Modifier)
+VALUES
+	('IMPROVEMENT_TERSANE', 'DOMAIN_SEA', 25);
+
+INSERT INTO Improvement_DomainFreeExperience
+	(ImprovementType, DomainType, Experience)
+VALUES
+	('IMPROVEMENT_TERSANE', 'DOMAIN_SEA', 10);
+
+----------------------------------------------------------
 -- Unique Building: Siege Foundry (Forge)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
