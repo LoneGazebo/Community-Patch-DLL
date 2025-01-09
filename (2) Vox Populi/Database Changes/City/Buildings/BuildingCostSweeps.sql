@@ -195,6 +195,11 @@ WHERE Type IN (
 	'BUILDING_CHANCERY'
 );
 
+-- Barbican
+UPDATE Buildings
+SET Cost = 450
+WHERE Type = 'BUILDING_BARBICAN';
+
 -- Skola
 UPDATE Buildings
 SET Cost = 800, GoldMaintenance = 4
