@@ -43,6 +43,33 @@ VALUES
 	('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_FOCUS_FIRE');
 
 ----------------------------------------------------------
+-- Unique Unit: Tarkhan (Horseman)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_HUNS', 'UNITCLASS_HORSEMAN', 'UNIT_TARKHAN');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_HORSEMAN'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HORSEMAN') + 1
+WHERE Type = 'UNIT_TARKHAN';
+
+DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_TARKHAN';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_BELLUM_ALET');
+
+----------------------------------------------------------
 -- Unique Improvement: Eki
 ----------------------------------------------------------
 UPDATE Builds
@@ -107,3 +134,38 @@ VALUES
 	('IMPROVEMENT_EKI', 'TECH_CHIVALRY', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_EKI', 'TECH_FERTILIZER', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_EKI', 'TECH_ROBOTICS', 'YIELD_PRODUCTION', 3);
+
+----------------------------------------------------------
+-- Unique Unit: Ulticur (Circus Maximus)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_HUNS', 'BUILDINGCLASS_CIRCUS_MAXIMUS', 'BUILDING_ULTICUR');
+
+UPDATE Buildings
+SET
+	GlobalHappinessPerMajorWar = 2,
+	GlobalMilitaryProductionModPerMajorWar = 10
+WHERE Type = 'BUILDING_ULTICUR';
+
+UPDATE Building_ResourceQuantity
+SET Quantity = (SELECT Quantity FROM Building_ResourceQuantity WHERE BuildingType = 'BUILDING_CIRCUS_MAXIMUS') * 2
+WHERE BuildingType = 'BUILDING_ULTICUR';
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_CIRCUS_MAXIMUS' AND YieldType = 'YIELD_CULTURE') + 2
+WHERE BuildingType = 'BUILDING_ULTICUR' AND YieldType = 'YIELD_CULTURE';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ULTICUR', 'YIELD_PRODUCTION', 3);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_ULTICUR', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_PRODUCTION', 2),
+--	('BUILDING_ULTICUR', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2),
+	('BUILDING_ULTICUR', 'BUILDINGCLASS_STABLE', 'YIELD_PRODUCTION', 2),
+	('BUILDING_ULTICUR', 'BUILDINGCLASS_STABLE', 'YIELD_GOLD', 2);

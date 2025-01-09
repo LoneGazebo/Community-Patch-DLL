@@ -8,6 +8,7 @@ DELETE FROM Civilization_Start_Region_Avoid;
 INSERT INTO Civilization_Start_Along_Ocean
 	(CivilizationType, StartAlongOcean)
 VALUES
+	('CIVILIZATION_BYZANTIUM', '1'),   -- Classical UU needs coast (historical)
 	('CIVILIZATION_ENGLAND', '1'),     -- UA + Renaissance UU wants coast (historical)
 	('CIVILIZATION_POLYNESIA', '1'),   -- UA wants coast (historical) UI needs Coast
 	('CIVILIZATION_DENMARK', '1'),     -- UA + Classical UU want coast (historical)
@@ -32,8 +33,6 @@ VALUES
 
 	('CIVILIZATION_IROQUOIS', 'REGION_FOREST'), -- UA + Classical UU wants forest/jungle (historical)
 	('CIVILIZATION_IROQUOIS', 'REGION_JUNGLE'),
-	('CIVILIZATION_AZTEC', 'REGION_JUNGLE'),    -- Ancient UU wants jungle/forest (historical)
-	('CIVILIZATION_AZTEC', 'REGION_FOREST'),
 	('CIVILIZATION_BRAZIL', 'REGION_JUNGLE'),   -- UI needs jungle/forest (historical)
 	('CIVILIZATION_BRAZIL', 'REGION_FOREST'),
 	('CIVILIZATION_MAYA', 'REGION_JUNGLE'),     -- UI needs jungle/forest (historical)
@@ -46,7 +45,6 @@ VALUES
 	('CIVILIZATION_SHOSHONE', 'REGION_PLAINS'), -- UI needs flat land, Industiral UU wants horses but not rewarded for expanding aggressively (historical)
 	('CIVILIZATION_SHOSHONE', 'REGION_GRASS'),
 
-	('CIVILIZATION_CELTS', 'REGION_HILLS'),     -- Ancient UU wants Hills
 	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid

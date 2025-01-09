@@ -110,6 +110,7 @@ WHERE SpaceshipProject IS NOT NULL;
 
 -----------------------------------------------------------------
 -- RequiresFaithPurchaseEnabled: only applicable to land/air units
+-- This blocks the unit from being always faith purchasable as long as it has a faith cost
 -----------------------------------------------------------------
 
 -- All non-naval military units except mercenary units
@@ -118,8 +119,11 @@ SET RequiresFaithPurchaseEnabled = 1
 WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1 AND IsNaval = 0)
 AND PurchaseOnly = 0;
 
--- Siege Tower and Archaeologist can also be faith purchased
+-- Siege Tower and Archaeologist also require beliefs to be faith purchased
 UPDATE Units SET RequiresFaithPurchaseEnabled = 1 WHERE Class IN ('UNITCLASS_SIEGE_TOWER', 'UNITCLASS_ARCHAEOLOGIST');
+
+-- Qizilbash can always be faith purchased
+UPDATE Units SET RequiresFaithPurchaseEnabled = 0 WHERE Type = 'UNIT_QIZILBASH';
 
 -----------------------------------------------------------------
 -- Minimum size of adjacent water body to train this unit

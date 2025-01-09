@@ -15,6 +15,10 @@ VALUES
 	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 100),
 	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_SCIENCE', 25);
 
+UPDATE Civilization_FreeUnits
+SET UnitClassType = 'UNITCLASS_ASAMU'
+WHERE CivilizationType = 'CIVILIZATION_CARTHAGE' AND UnitClassType = 'UNITCLASS_SETTLER';
+
 ----------------------------------------------------------
 -- Unique Unit: Quinquereme (Trireme)
 ----------------------------------------------------------
@@ -35,6 +39,69 @@ INSERT INTO Unit_FreePromotions
 VALUES
 	('UNIT_CARTHAGINIAN_QUINQUEREME', 'PROMOTION_PINCER'),
 	('UNIT_CARTHAGINIAN_QUINQUEREME', 'PROMOTION_HEAVY_ASSAULT');
+
+----------------------------------------------------------
+-- Unique Unit: Atlas Elephant (Horseman)
+----------------------------------------------------------
+UPDATE Units
+SET
+	PrereqTech = 'TECH_HORSEBACK_RIDING', -- Trade
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_HORSEMAN'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HORSEMAN') + 3,
+	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_HORSEMAN') - 1
+WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
+
+DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
+
+DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT' AND PromotionType = 'PROMOTION_CAN_MOVE_AFTER_ATTACKING';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_FEARED_ELEPHANT'),
+	('UNIT_CARTHAGINIAN_FOREST_ELEPHANT', 'PROMOTION_AT_THE_GATES');
+
+----------------------------------------------------------
+-- Unique Unit: Asamu
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_CARTHAGE', 'UNITCLASS_ASAMU', 'UNIT_ASAMU');
+
+UPDATE Units
+SET
+	Moves = 2,
+	PurchaseOnly = 1,
+	MoveAfterPurchase = 1,
+	Found = 1
+WHERE Type = 'UNIT_ASAMU';
+
+INSERT INTO Unit_ClassUpgrades
+	(UnitType, UnitClassType)
+VALUES
+	('UNIT_ASAMU', 'UNITCLASS_PIONEER');
+
+INSERT INTO Unit_BuildOnFound
+	(UnitType, BuildingClassType)
+VALUES
+	('UNIT_ASAMU', 'BUILDINGCLASS_LIGHTHOUSE'); -- coastal only
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_ASAMU', 'PROMOTION_ELISHAS_GUILE');
+
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_ASAMU', 'UNITAI_SETTLE');
 
 ----------------------------------------------------------
 -- Unique Building: Great Cothon (East India Company)

@@ -237,12 +237,14 @@
 			<Type>UNITCLASS_ASAMU</Type>
 			<Description>TXT_KEY_UNIT_ASAMU</Description>
 			<DefaultUnit>NONE</DefaultUnit>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!-- Great Bombard -->
 		<Row>
 			<Type>UNITCLASS_GREAT_BOMBARD</Type>
 			<Description>TXT_KEY_UNIT_GREAT_BOMBARD</Description>
 			<DefaultUnit>NONE</DefaultUnit>
+			<MaxPlayerInstances>2</MaxPlayerInstances>
 		</Row>
 		<!-- Fusta -->
 		<Row>
@@ -280,6 +282,11 @@
 			<Type>UNITCLASS_SIPAHI</Type>
 			<Description>TXT_KEY_UNIT_OTTOMAN_SIPAHI</Description>
 			<DefaultUnit>UNIT_OTTOMAN_SIPAHI</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_MEHAL_SEFARI</Type>
+			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
+			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
 		</Row>
 	</UnitClasses>
 	<Units>
@@ -742,6 +749,7 @@
 			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
 			<Class>UNITCLASS_ASAMU</Class>
 			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_ASAMU</UnitArtInfo>
@@ -1062,6 +1070,7 @@
 			<Domain>DOMAIN_AIR</Domain>
 			<CombatClass>UNITCOMBAT_FIGHTER</CombatClass>
 			<Class>UNITCLASS_TRIPLANE</Class>
+			<Special>SPECIALUNIT_FIGHTER</Special>
 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
 			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_RADAR</ObsoleteTech>
