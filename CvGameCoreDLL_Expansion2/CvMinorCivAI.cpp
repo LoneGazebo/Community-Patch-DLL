@@ -4883,7 +4883,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			PlayerTypes e = (PlayerTypes)i;
 			// special workaround to allow status changes despite minor already being dead
 			DoFriendshipChangeEffects(e, GetEffectiveFriendshipWithMajorTimes100(e), vNewInfluence.at(i), /*bFromQuest*/ false, /*bIgnoreMinorDeath*/ true);
-			SetFriendshipWithMajor(e, vNewInfluence.at(i));
+			SetFriendshipWithMajorTimes100(e, vNewInfluence.at(i));
 		}
 		SetDisableNotifications(false);
 	}
@@ -4902,7 +4902,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			//make sure we are consistent
 			if (bAlive && !IsFriends(ePlayer))
 			{
-				CUSTOMLOG("inconsistent friendship state after resurrection!");
+				ASSERT(false, "inconsistent friendship state after resurrection!");
 				SetFriends(ePlayer, true);
 			}
 			bFriends = true;
