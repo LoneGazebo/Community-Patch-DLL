@@ -26428,7 +26428,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 					case YIELD_PRODUCTION:
 					{
-						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
+						if (pLoopCity->isProduction() && (pLoopCity->getProduction() < pLoopCity->getProductionNeeded() || iValue < 0))
 						{
 							pLoopCity->changeProduction(iValue);
 						}
