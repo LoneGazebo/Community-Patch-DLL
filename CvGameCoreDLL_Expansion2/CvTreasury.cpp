@@ -183,7 +183,7 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 /// Modifies current balance in treasury (in hundredths)
 void CvTreasury::ChangeGoldTimes100(int iChange)
 {
-	SetGoldTimes100(GetGoldTimes100() + iChange);
+	SetGoldTimes100(max(GetGoldTimes100() + iChange, 0));
 
 	//track the income for each turn (instant yields and regular)
 	if (iChange > 0)
