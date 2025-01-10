@@ -5420,10 +5420,13 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 				}
 			}
 			//Using a system of numbers instead? Okay.
-			int iNumPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true);
-			if(iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
+			if (MOD_BALANCE_VP)
 			{
-				bCanUnlockEarly = true;
+				int iNumPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true);
+				if (iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
+				{
+					bCanUnlockEarly = true;
+				}
 			}
 
 			if(!bCanUnlockEarly && GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
