@@ -754,6 +754,7 @@ public:
 	void setNumVisiblePlotsRange2(int count) { nVisiblePlotsNearEnemyRange2 = (unsigned char)count; }
 	void setNumVisiblePlotsRange3(int count) { nVisiblePlotsNearEnemyRange3 = (unsigned char)count; }
 
+	bool hasCoverFromOtherUnits(const CvTacticalPosition& currentPosition) const;
 
 protected:
 	const CvPlot* pPlot; //null if invalid
@@ -942,7 +943,7 @@ public:
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
-	bool couldEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const;
+	bool canProbablyEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const;
 	int countBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	int getFirstBlockingUnitIDAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);

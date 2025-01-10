@@ -536,7 +536,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	bool bHaveStopNodeHere = false;
 
 	//direct neighbors
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
 		if (!check)
@@ -1667,7 +1667,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 	if (bUpdateCacheForNeighbors)
 	{
 		//update cache for also all possible children
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < NUM_DIRECTION_TYPES; i++)
 		{
 			CvAStarNode* neighbor = node->m_apNeighbors[i];
 			UpdateNodeCacheData(neighbor,pUnit,this);
@@ -2607,7 +2607,7 @@ bool CvTwoLayerPathFinder::CommonNeighborIsPassable(const CvAStarNode * a, const
 	if (!a || !b)
 		return false;
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
 		CvAStarNode* check = a->m_apNeighbors[i];
 		if (check && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)

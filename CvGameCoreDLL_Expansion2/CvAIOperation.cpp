@@ -879,6 +879,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 {
 	CvPlot* pRtnValue = NULL;
+	CvPlot* pNextWaypoint = NULL;
 
 	switch(m_eCurrentState)
 	{
@@ -890,38 +891,36 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 	case AI_OPERATION_STATE_GATHERING_FORCES:
-		// Just use the muster point if we're still recruiting/gathering
-		pRtnValue = GetMusterPlot();
+		pNextWaypoint = GetMusterPlot();
 		break;
 
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
-		{
-			CvPlot *pGoalPlot = pArmy->GetGoalPlot();
-			CvPlot* pCurrent = pArmy->GetCenterOfMass();
-			if (pCurrent && pGoalPlot)
-			{
-				//problem: center of mass may be on a mountain etc ...
-				if (!pCurrent->isValidMovePlot(m_eOwner))
-				{
-					CvUnit* pFirstUnit = pArmy->GetFirstUnit();
-					if (pFirstUnit)
-						pCurrent = pFirstUnit->plot();
-					else
-						return NULL;
-				}
-
-				//get where we want to be next. always put the carrot a little bit further out
-				pRtnValue = GetPlotXInStepPath(pCurrent, pGoalPlot, pArmy->GetMovementRate()+1, true);
-				if (!pRtnValue)
-				{
-					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
-					OutputDebugString(CvString::format("CvAIOperation: cannot find a step path from %d,%d to %d,%d\n",
-						pCurrent->getX(), pCurrent->getY(), pGoalPlot->getX(), pGoalPlot->getY()).c_str());
-					return NULL;
-				}
-			}
-		}
+		pNextWaypoint = pArmy->GetGoalPlot();
 		break;
+	}
+
+	CvPlot* pCurrent = pArmy->GetCenterOfMass();
+	if (pCurrent && pNextWaypoint)
+	{
+		//problem: center of mass may be on a mountain etc ...
+		if (!pCurrent->isValidMovePlot(m_eOwner))
+		{
+			CvUnit* pFirstUnit = pArmy->GetFirstUnit();
+			if (pFirstUnit)
+				pCurrent = pFirstUnit->plot();
+			else
+				return NULL;
+		}
+
+		//get where we want to be next. always put the carrot a little bit further out
+		pRtnValue = GetPlotXInStepPath(pCurrent, pNextWaypoint, pArmy->GetMovementRate() + 1, true);
+		if (!pRtnValue)
+		{
+			// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
+			OutputDebugString(CvString::format("CvAIOperation: cannot find a step path from %d,%d to %d,%d\n",
+				pCurrent->getX(), pCurrent->getY(), pNextWaypoint->getX(), pNextWaypoint->getY()).c_str());
+			return NULL;
+		}
 	}
 
 	return pRtnValue;

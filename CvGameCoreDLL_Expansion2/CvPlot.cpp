@@ -4643,7 +4643,7 @@ int CvPlot::countMatchingAdjacentPlots(DomainTypes eDomain, PlayerTypes eOwningP
 {
 	int iMatchingAdjacentCount = 0;
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
 		CvPlot* pNeighbor = aNeighbors[i];
 		if (!pNeighbor)
