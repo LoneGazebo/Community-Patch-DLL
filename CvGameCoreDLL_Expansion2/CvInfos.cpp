@@ -2251,6 +2251,8 @@ bool CvCivilizationInfo::isLeaders(int i) const
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::IsBlocksMinor(int i) const
 {
+	PRECONDITION(i < GC.getNumMinorCivInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_BlockedMinors[i];
 }
 //------------------------------------------------------------------------------
