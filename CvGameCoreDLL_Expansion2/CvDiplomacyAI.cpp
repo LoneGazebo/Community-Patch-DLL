@@ -29515,7 +29515,7 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 	}
 
 	// Major Civ
-	if (GET_PLAYER(ePlayer).isMajorCiv())
+	if (GET_PLAYER(ePlayer).isMajorCiv() && NotTeam(ePlayer))
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
