@@ -3297,7 +3297,7 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	PlayerTypes eCityOwner = pCity->getOwner();
 
 	// Base Influence
-	iTemp = /*20*/ GD_INT_GET(ESPIONAGE_NP_BASE);
+	iTemp = /*30*/ GD_INT_GET(ESPIONAGE_NP_BASE);
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_BASE_TT", iTemp);
 
