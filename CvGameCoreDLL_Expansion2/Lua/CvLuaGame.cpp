@@ -622,7 +622,10 @@ int CvLuaGame::lCityPushOrder(lua_State* L)
 	const bool bShift		= luaL_optbool(L, 5, 0);
 	const bool bCtrl		= luaL_optbool(L, 6, 0);
 
-	GetInstance()->cityPushOrder(pkCity, eOrder, iData, bAlt, bShift, bCtrl);
+	if (GET_PLAYER(pkCity->getOwner()).isTurnActive())
+	{
+		GetInstance()->cityPushOrder(pkCity, eOrder, iData, bAlt, bShift, bCtrl);
+	}
 	return 0;
 }
 //------------------------------------------------------------------------------
