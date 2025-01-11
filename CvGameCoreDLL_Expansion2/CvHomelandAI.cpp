@@ -1174,9 +1174,12 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 					GiftedUnitID = pUnit->GetID();
 				}
 			}
-			GET_PLAYER(eBestGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
-			UnitProcessed(GiftedUnitID);
-			return true;
+			if (pGiftedUnit)
+			{
+				GET_PLAYER(eBestGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
+				UnitProcessed(GiftedUnitID);
+				return true;
+			}
 		}
 	}
 
