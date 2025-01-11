@@ -12995,10 +12995,13 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
-			if (bAllyChange)
-				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iSign * iEra));
 			if (bFriendChange)
 				pCapital->ChangeBaseYieldRateFromCSFriendship(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iSign * iEra));
+
+			if (bAllyChange)
+				// stupid definition of the database tables: "YieldFromCSFriends" actually means "Yields from being friends, but not being allies"...
+				// so when we become allies, we need to remove the "YieldFromCSFriends" bonus again...
+				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, ((kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)- kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)) * iSign * iEra));
 		}
 	}
 

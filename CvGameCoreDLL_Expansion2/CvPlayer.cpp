@@ -30585,10 +30585,12 @@ void CvPlayer::SetNumCSAllies(int iChange)
 	}
 }
 
+// misleading name: this actually means "number of CS friends that are not allies"
 int CvPlayer::GetNumCSFriends() const
 {
 	return m_iCSFriends;
 }
+// misleading name: this actually means "number of CS friends that are not allies"
 void CvPlayer::SetNumCSFriends(int iChange)
 {
 	if (m_iCSFriends != iChange)
