@@ -8415,7 +8415,10 @@ int CvLuaPlayer::lChangeMinorCivFriendshipWithMajor(lua_State* L)
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 	int iChange = lua_tointeger(L, 3);
 
-	pkPlayer->GetMinorCivAI()->ChangeFriendshipWithMajor(ePlayer, iChange);
+	if (ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
+	{
+		pkPlayer->GetMinorCivAI()->ChangeFriendshipWithMajor(ePlayer, iChange);
+	}
 	return 1;
 }
 //------------------------------------------------------------------------------
