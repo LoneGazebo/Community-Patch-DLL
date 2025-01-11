@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="140">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.18.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.18.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -456,7 +456,7 @@
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
-    <File md5="12D4BF5313025F1643CCF66F97CE10B2" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="CC6BD8FE471046989628FA46C129D11E" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="493E50FD96DDC30C4E390B93B95A960F" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="988FF9B66460D42D896502D75FCE69C2" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="FFEE301FC50B4E582AC132C881BF31A7" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -528,7 +528,7 @@
     <File md5="7F4022E9196E6797EE0B175D0498F05D" import="0">Database Changes/Policies/NewPolicyTables.xml</File>
     <File md5="88F725E614B5C0E2420C84727A6E878B" import="0">Database Changes/Policies/PolicyChanges.sql</File>
     <File md5="BE173CB3BCFE1ADF5DF6B9D251C6AF3C" import="0">Database Changes/Policies/PolicySweeps.sql</File>
-    <File md5="1F12192CAAA7F9064A316295D0FBFB3B" import="0">Database Changes/Policies/PolicyTableChanges.sql</File>
+    <File md5="AD5FB4C30232FEE18957B0C042C3D0C5" import="0">Database Changes/Policies/PolicyTableChanges.sql</File>
     <File md5="77B06B5F985EB8C4E80103621E105489" import="0">Database Changes/Religions/BeliefTableChanges.sql</File>
     <File md5="3BBF8BE66E216431A30202F7AC0E2B8E" import="0">Database Changes/Religions/NewBeliefTables.xml</File>
     <File md5="428774E348538C799BBCF3729539430E" import="0">Database Changes/Religions/ReligionTableChanges.sql</File>
