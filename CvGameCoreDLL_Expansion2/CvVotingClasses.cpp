@@ -1449,6 +1449,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		{
 			if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
 			{
+				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(GET_PLAYER(eOriginalProposer).getTeam());
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentAlly(eOriginalProposer);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eOriginalProposer,false);
 			}
@@ -3059,40 +3060,43 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 	if (pInfo->IsSphereOfInfluence())
 	{
 		PlayerTypes eMinor = (PlayerTypes)iChoice;
-		if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != eProposer)
+		if (eMinor != NO_PLAYER)
 		{
-			if (sTooltipSink != NULL)
-			{
-				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER").toUTF8();
-				(*sTooltipSink) += "[ENDCOLOR]";
-			}
-			bValid = false;
-		}
-		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
-		{
-			if (it->GetEffects()->bOpenDoor && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != eProposer)
 			{
 				if (sTooltipSink != NULL)
 				{
 					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER").toUTF8();
 					(*sTooltipSink) += "[ENDCOLOR]";
 				}
 				bValid = false;
 			}
-		}
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
-		{
-			if (it->GetEffects()->bOpenDoor && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+			for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->bOpenDoor && (eMinor == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+					bValid = false;
 				}
-				bValid = false;
+			}
+			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+			{
+				if (it->GetEffects()->bOpenDoor && (eMinor == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+					bValid = false;
+				}
 			}
 		}
 	}
