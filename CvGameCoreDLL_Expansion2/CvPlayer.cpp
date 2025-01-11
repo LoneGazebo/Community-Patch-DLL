@@ -35750,7 +35750,7 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 	PRECONDITION(eProximity >= NO_PLAYER_PROXIMITY, "eIndex is expected to be non-negative (invalid Index)");	// NO_PLAYER_PROXIMITY is valid because some players may have no Cities (e.g. on the first turn)
 	PRECONDITION(eProximity < NUM_PLAYER_PROXIMITIES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if((GC.getLogging() && GC.getAILogging()))
+	if(GC.getLogging() && GC.getAILogging() && GET_PLAYER(ePlayer).isEverAlive())
 	{
 		if(eProximity != m_aiProximityToPlayer[ePlayer])
 		{

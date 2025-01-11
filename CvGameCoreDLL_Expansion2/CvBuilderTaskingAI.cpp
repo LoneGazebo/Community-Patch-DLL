@@ -4359,7 +4359,7 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 	if(!m_bLogging)
 		return;
 
-	if (GC.getBuildInfo(directive.m_eBuild) == NULL)
+	if (directive.m_eBuild == NO_BUILD || GC.getBuildInfo(directive.m_eBuild) == NULL)
 		return;
 
 	CvString strLog;

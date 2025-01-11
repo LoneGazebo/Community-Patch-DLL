@@ -31838,9 +31838,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoMakeVassalageStatement(ePlayer, eStatement, pDeal);
 
 			DoLiberateMyVassalStatement(ePlayer, eStatement);
-
-			DoVassalTaxesRaisedStatement(ePlayer, eStatement);
-			DoVassalTaxesLoweredStatement(ePlayer, eStatement);
 		}
 
 		//	OFFERS - all members but ePlayer passed by address
@@ -31894,6 +31891,9 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 				DoHappySamePolicyTree(ePlayer, eStatement);
 				DoIdeologicalStatement(ePlayer, eStatement);
 				DoVictoryCompetitionStatement(ePlayer, eStatement);
+
+				DoVassalTaxesRaisedStatement(ePlayer, eStatement);
+				DoVassalTaxesLoweredStatement(ePlayer, eStatement);
 			}
 		}
 	}
@@ -54706,7 +54706,7 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassalTaxLowered(GetID()))
 				{
 					eStatement = DIPLO_STATEMENT_VASSAL_TAXES_LOWERED_AI_MASTER;
-					
+
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;

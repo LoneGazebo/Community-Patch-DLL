@@ -7473,22 +7473,18 @@ void CvUnit::LogWorkerEvent(BuildTypes eBuildType, bool bStartingConstruction)
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuildType)->getImprovement();
 	if(eImprovement != NO_IMPROVEMENT)
 	{
-		ResourceTypes eResource = plot()->getResourceType(getTeam());
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo)
+		ResourceTypes eResource = plot()->getResourceType(NO_TEAM);
+		if (eResource != NO_RESOURCE)
 		{
-			if (eResource != NO_RESOURCE)
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
 			{
 				strResource = pkResourceInfo->GetType();
 				strResource += ",";
-			}
-			else if (plot()->getResourceType(NO_TEAM) != NO_RESOURCE)
-			{
-				eResource = plot()->getResourceType(NO_TEAM);
-				strResource = pkResourceInfo->GetType();
-				strResource += ",";
-
-				strCanSee = "Can't see!,";
+				if (plot()->getResourceType(getTeam()) == NO_RESOURCE)
+				{
+					strCanSee = "Can't see!,";
+				}
 			}
 		}
 	}
