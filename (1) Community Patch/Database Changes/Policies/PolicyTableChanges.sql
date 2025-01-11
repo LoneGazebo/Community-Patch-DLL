@@ -338,7 +338,7 @@ ALTER TABLE Policies ADD ExtraMissionarySpreads integer DEFAULT 0;
 ALTER TABLE Policies ADD GreatDiplomatRateModifier integer DEFAULT 0;
 
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
-ALTER TABLE PolicyBranchTypes ADD NumPolicyRequirement integer DEFAULT 0;
+ALTER TABLE PolicyBranchTypes ADD NumPolicyRequirement integer DEFAULT -1;
 
 -- A font icon for an ideology
 ALTER TABLE PolicyBranchTypes ADD FontIcon text;

@@ -5421,7 +5421,7 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 			}
 			//Using a system of numbers instead? Okay.
 			int iNumPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true);
-			if(iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
+			if(pkBranchEntry->GetNumPolicyRequirement() >= 0 && iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
 			{
 				bCanUnlockEarly = true;
 			}
