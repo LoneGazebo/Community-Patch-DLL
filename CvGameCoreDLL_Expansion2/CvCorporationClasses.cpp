@@ -920,8 +920,6 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 		return;
 
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchise);
-	if (pBuildingInfo == NULL)
-		return;
 
 	// If we've passed all the checks above, we are ready to go!
 	pDestCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 1, true);
@@ -1204,9 +1202,10 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	int iNumFranchises = GetNumFranchises();
 
 	BuildingTypes eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
-	CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
-	if (pkOfficeInfo == NULL)
+	if (eOffice == NO_BUILDING)
 		return "";
+
+	CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
 
 	// Great Person Rate bonus?
 	if (pkOfficeInfo->GetGPRateModifierPerXFranchises() > 0)

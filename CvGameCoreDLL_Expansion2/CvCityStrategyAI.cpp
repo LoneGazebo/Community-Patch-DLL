@@ -5262,14 +5262,10 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
-			if (pkBuildingInfo)
+			int iFreeValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, true, true);
+			if (iFreeValue > 0)
 			{
-				int iFreeValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, true, true);
-				if (iFreeValue > 0)
-				{
-					iValue += iFreeValue;
-				}
+				iValue += iFreeValue;
 			}
 		}
 	}

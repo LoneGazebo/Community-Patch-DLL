@@ -4683,9 +4683,9 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	BuildingTypes eArtistsGuild = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD")));
 	BuildingTypes eMusiciansGuild = static_cast<BuildingTypes>(playerCivilizationInfo.getCivilizationBuildings(GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD")));
 
-	CvBuildingEntry* pkWritersGuildInfo = GC.getBuildingInfo(eWritersGuild);
-	if (pkWritersGuildInfo)
+	if (eWritersGuild != NO_BUILDING)
 	{
+		CvBuildingEntry* pkWritersGuildInfo = GC.getBuildingInfo(eWritersGuild);
 		if (pPlayer->HasTech(static_cast<TechTypes>(pkWritersGuildInfo->GetPrereqAndTech())))
 		{
 			if (!pPlayer->HasBuildingClass(pkWritersGuildInfo->GetBuildingClassType()))
@@ -4695,9 +4695,9 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 		}
 	}
 
-	CvBuildingEntry* pkArtistsGuildInfo = GC.getBuildingInfo(eArtistsGuild);
-	if (pkArtistsGuildInfo)
+	if (eArtistsGuild != NO_BUILDING)
 	{
+		CvBuildingEntry* pkArtistsGuildInfo = GC.getBuildingInfo(eArtistsGuild);
 		if (pPlayer->HasTech(static_cast<TechTypes>(pkArtistsGuildInfo->GetPrereqAndTech())))
 		{
 			if (!pPlayer->HasBuildingClass(pkArtistsGuildInfo->GetBuildingClassType()))
@@ -4707,9 +4707,9 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 		}
 	}
 
-	CvBuildingEntry* pkMusiciansGuildInfo = GC.getBuildingInfo(eMusiciansGuild);
-	if (pkMusiciansGuildInfo)
+	if (eMusiciansGuild != NO_BUILDING)
 	{
+		CvBuildingEntry* pkMusiciansGuildInfo = GC.getBuildingInfo(eMusiciansGuild);
 		if (pPlayer->HasTech(static_cast<TechTypes>(pkMusiciansGuildInfo->GetPrereqAndTech())))
 		{
 			if (!pPlayer->HasBuildingClass(pkMusiciansGuildInfo->GetBuildingClassType()))

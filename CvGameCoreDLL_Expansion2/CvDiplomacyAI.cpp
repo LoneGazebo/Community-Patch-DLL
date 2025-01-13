@@ -31950,7 +31950,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Would we like to buyout a minor this turn?  (Austria UA)
 	// **************************
 
-	bool bWantsToBuyout = GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
+	bool bWantsToBuyout = GetPlayer()->IsAbleToAnnexCityStates();
+	bool bWantsToMarry = GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage();
 
 	// **************************
 	// Would we like to forcefully annex a minor this turn?  (Rome UA)
@@ -32059,7 +32060,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			bWantsToBullyGold = true;
 	}
 
-	CvWeightedVector<PlayerTypes> veMinorsToBuyout; // Austria UA
+	CvWeightedVector<PlayerTypes> veMinorsToBuyout; // BNW Austria UA
+	CvWeightedVector<PlayerTypes> veMinorsToMarry; // VP Austria UA
 	CvWeightedVector<PlayerTypes> veMinorsToBullyAnnex; //Rome UA
 	CvWeightedVector<MinorGoldGiftInfo> veMinorsToGiveGold;
 	CvWeightedVector<PlayerTypes> veMinorsToBullyGold;
@@ -32118,6 +32120,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		bool bWantsToBullyUnitFromThisMinor = false;
 		bool bWantsToBullyGoldFromThisMinor = false;
 		bool bWantsToBuyoutThisMinor = false;
+		bool bWantsToMarryThisMinor = false;
 		bool bWantsToBullyAnnexThisMinor = false;
 
 		if(IsPlayerValid(eMinor))
@@ -32311,7 +32314,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to buyout this minor
-			if(bWantsToBuyout)
+			if (bWantsToBuyout)
 			{
 				int iValue = 100; //antonjs: todo: xml
 				// Only bother if we actually can buyout
@@ -32450,11 +32453,16 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						bWantsToBuyoutThisMinor = true;
 					}
 				}
-				// Only bother if we actually can buyout
-				if(GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() && pMinorCivAI->CanMajorDiploMarriage(eID))
+			}
+
+			if (bWantsToMarry)
+			{
+				// No reason not to, as long as we have the gold (checked below)
+				if (pMinorCivAI->CanMajorDiploMarriage(eID))
 				{
-					veMinorsToBuyout.push_back(eMinor, 1000);
-						bWantsToBuyoutThisMinor = true;
+					// Random weight to shuffle the list
+					veMinorsToMarry.push_back(eMinor, GC.getGame().urandLimitExclusive(1000, CvSeeder::fromRaw(0x977c30aa).mix(GC.getGame().getGameTurn()).mix(eID).mix(eMinor)));
+					bWantsToMarryThisMinor = true;
 				}
 			}
 
@@ -32645,7 +32653,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to bully a unit from this minor
-			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor)  //antonjs: todo: xml
+			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToMarryThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor)
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
@@ -32771,7 +32779,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to bully gold from this minor
-			if(bWantsToBullyGold && !bWantsToBuyoutThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor && !bWantsToBullyUnitFromThisMinor)
+			if(bWantsToBullyGold && !bWantsToBuyoutThisMinor && !bWantsToMarryThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor && !bWantsToBullyUnitFromThisMinor)
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
@@ -32839,188 +32847,175 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	int iGoldReserve = GetPlayer()->GetTreasury()->GetGold();
 
 	// Do we want to buyout a minor?
-	if(veMinorsToBuyout.size() > 0)
+	veMinorsToBuyout.StableSortItems();
+	int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
+	for (int i = 0; i < veMinorsToBuyout.size(); i++)
 	{
-		veMinorsToBuyout.StableSortItems();
-		int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
-		PlayerTypes eLoopMinor = NO_PLAYER;
-		for(int i = 0; i < veMinorsToBuyout.size(); i++)
+		PlayerTypes eLoopMinor = veMinorsToBuyout.GetElement(i);
+		int iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetBuyoutCost(eID);
+		if (iGoldLeft >= iBuyoutCost)
 		{
-			eLoopMinor = veMinorsToBuyout.GetElement(i);
-			int iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetBuyoutCost(eID);
-			if(iGoldLeft >= iBuyoutCost)
+			if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBuyout(eID))
 			{
-				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBuyout(eID))
-				{
-					GC.getGame().DoMinorBuyout(eID, eLoopMinor);
-					iGoldLeft -= iBuyoutCost;
-					break; // Don't buyout more than once in a single turn
-				}
-				else
-				{
-					ASSERT(false, "Chose a minor to buyout that cannot actually be bought!");
-				}
+				GC.getGame().DoMinorBuyout(eID, eLoopMinor);
+				break; // Don't buyout more than once in a single turn
 			}
 			else
 			{
-				if(!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
-				{
-					LogMinorCivBuyout(eLoopMinor, iBuyoutCost, /*bSaving*/ true);
-					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, /*350*/ GD_INT_GET(AI_GOLD_PRIORITY_BUYOUT_CITY_STATE));
-				}
+				ASSERT(false, "Chose a minor to buyout that cannot actually be bought!");
 			}
+		}
+		else
+		{
+			if (!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+			{
+				LogMinorCivBuyout(eLoopMinor, iBuyoutCost, /*bSaving*/ true);
+				GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, /*350*/ GD_INT_GET(AI_GOLD_PRIORITY_BUYOUT_CITY_STATE));
+			}
+		}
+	}
 
-			iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
-			if(iGoldLeft >= iBuyoutCost)
+	// Do we want to marry a city-state?
+	veMinorsToMarry.StableSortItems();
+	iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
+	for (int i = 0; i < veMinorsToMarry.size(); i++)
+	{
+		PlayerTypes eLoopMinor = veMinorsToMarry.GetElement(i);
+		int iMarriageCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
+		if (iGoldLeft >= iMarriageCost)
+		{
+			if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
 			{
-				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
-				{
-					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoBuyout(eID);
-					iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
-					iGoldLeft -= iBuyoutCost;
-				}
-				else
-				{
-					ASSERT(false, "Chose a minor to buyout that cannot actually be bought!");
-				}
+				GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoBuyout(eID);
+				iMarriageCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
+				iGoldLeft -= iMarriageCost;
 			}
 			else
 			{
-				if(!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
-				{
-					LogMinorCivBuyout(eLoopMinor, iBuyoutCost, /*bSaving*/ true);
-					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, /*350*/ GD_INT_GET(AI_GOLD_PRIORITY_BUYOUT_CITY_STATE));
-				}
+				ASSERT(false, "Chose a city-state to marry that cannot actually be married!");
+			}
+		}
+		else
+		{
+			if (!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+			{
+				LogMinorCivBuyout(eLoopMinor, iMarriageCost, /*bSaving*/ true);
+				GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iMarriageCost, /*350*/ GD_INT_GET(AI_GOLD_PRIORITY_BUYOUT_CITY_STATE));
 			}
 		}
 	}
 
 	// Do we want to annex a minor?
-	if (veMinorsToBullyAnnex.size() > 0)
+	veMinorsToBullyAnnex.StableSortItems();
+	for (int i = 0; i < veMinorsToBullyAnnex.size(); i++)
 	{
-		veMinorsToBullyAnnex.StableSortItems();
-		PlayerTypes eLoopMinor = NO_PLAYER;
-		for (int i = 0; i < veMinorsToBullyAnnex.size(); i++)
+		PlayerTypes eLoopMinor = veMinorsToBullyAnnex.GetElement(i);
+		ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully-annex NO_PLAYER!");
+		if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
 		{
-			eLoopMinor = veMinorsToBullyAnnex.GetElement(i);
-			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully-annex NO_PLAYER!");
-			if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
-			{
-				GC.getGame().DoMinorBullyAnnex(eID, eLoopMinor);
-				break; // Don't annex more than one city-state in a single turn
-			}
-			else
-			{
-				ASSERT(false, "Chose a minor to bully-annex that cannot actually be bullied!");
-			}
+			GC.getGame().DoMinorBullyAnnex(eID, eLoopMinor);
+			break; // Don't annex more than one city-state in a single turn
+		}
+		else
+		{
+			ASSERT(false, "Chose a minor to bully-annex that cannot actually be bullied!");
 		}
 	}
 
 	// Do we want to give someone Gold enough to actually do it?
-	if(veMinorsToGiveGold.size() > 0)
+	veMinorsToGiveGold.StableSortItems(); // Sort from highest desirability to lowest
+	for (int i = 0; i < veMinorsToGiveGold.size(); i++)
 	{
-		veMinorsToGiveGold.StableSortItems(); // Sort from highest desirability to lowest
-		for(int i = 0; i < veMinorsToGiveGold.size(); i++)
+		int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
+		MinorGoldGiftInfo sGift = veMinorsToGiveGold.GetElement(i);
+
+		//Interception! Let's do a tile improvement if we can (and we'll benefit from it)
+		if (sGift.eMinor != NO_PLAYER && GET_PLAYER(sGift.eMinor).GetMinorCivAI()->IsAllies(GetID()))
 		{
-			int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
-			MinorGoldGiftInfo sGift = veMinorsToGiveGold.GetElement(i);
-
-			//Interception! Let's do a tile improvement if we can (and we'll benefit from it)
-			if (sGift.eMinor != NO_PLAYER && GET_PLAYER(sGift.eMinor).GetMinorCivAI()->IsAllies(GetID()))
+			CvPlot* pImprovementPlot = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetMajorGiftTileImprovement(GetID());
+			if (pImprovementPlot != NULL)
 			{
-				CvPlot* pImprovementPlot = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetMajorGiftTileImprovement(GetID());
-				if (pImprovementPlot != NULL)
-				{
-					GET_PLAYER(sGift.eMinor).GetMinorCivAI()->DoTileImprovementGiftFromMajor(GetID(), pImprovementPlot->getX(), pImprovementPlot->getY());
-					LogMinorCivGiftTile(sGift.eMinor);
-				}
+				GET_PLAYER(sGift.eMinor).GetMinorCivAI()->DoTileImprovementGiftFromMajor(GetID(), pImprovementPlot->getX(), pImprovementPlot->getY());
+				LogMinorCivGiftTile(sGift.eMinor);
 			}
+		}
 
-			//Default is 1 - this will prevent the AI from trying to spam gold gifts of zero gold.
-			if (GD_INT_GET(CSD_GOLD_GIFT_DISABLED) > 0)
+		//Default is 1 - this will prevent the AI from trying to spam gold gifts of zero gold.
+		if (GD_INT_GET(CSD_GOLD_GIFT_DISABLED) > 0)
+		{
+			continue;
+		}
+
+		sGift.iGoldAmount = 0;
+
+		if(iGoldLeft >= iSmallGift && sGift.bQuickBoost)
+			sGift.iGoldAmount = iSmallGift;
+		else if(iGoldLeft >= iLargeGift)
+			sGift.iGoldAmount = iLargeGift;
+		else if(iGoldLeft >= iMediumGift)
+			sGift.iGoldAmount = iMediumGift;
+
+		int iOldFriendship = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eID);
+
+		// Able to give a gift?  Don't gift more than half of the gold we have in one turn
+		if(sGift.iGoldAmount > 0 && iGoldLeft >= (iGoldReserve / 2))
+		{
+			GET_PLAYER(sGift.eMinor).GetMinorCivAI()->DoGoldGiftFromMajor(GetID(), sGift.iGoldAmount); //antonjs: todo: go through CvGame instead?
+
+			LogMinorCivGiftGold(sGift.eMinor, iOldFriendship, sGift.iGoldAmount, /*bSaving*/ false, sGift.bQuickBoost, sGift.eMajorRival);
+
+			if(GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+				GetPlayer()->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT);
+		}
+		// Can't afford gift yet, so start saving
+		else
+		{
+			if(!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
 			{
-				continue;
-			}
+				int iAmountToSaveFor = iMediumGift;
 
-			sGift.iGoldAmount = 0;
+				if(sGift.bQuickBoost)
+					iAmountToSaveFor = iSmallGift;
 
-			if(iGoldLeft >= iSmallGift && sGift.bQuickBoost)
-				sGift.iGoldAmount = iSmallGift;
-			else if(iGoldLeft >= iLargeGift)
-				sGift.iGoldAmount = iLargeGift;
-			else if(iGoldLeft >= iMediumGift)
-				sGift.iGoldAmount = iMediumGift;
+				LogMinorCivGiftGold(sGift.eMinor, iOldFriendship, iAmountToSaveFor, /*bSaving*/ true, sGift.bQuickBoost, sGift.eMajorRival);
 
-			int iOldFriendship = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eID);
-
-			// Able to give a gift?  Don't gift more than half of the gold we have in one turn
-			if(sGift.iGoldAmount > 0 && iGoldLeft >= (iGoldReserve / 2))
-			{
-				GET_PLAYER(sGift.eMinor).GetMinorCivAI()->DoGoldGiftFromMajor(GetID(), sGift.iGoldAmount); //antonjs: todo: go through CvGame instead?
-
-				LogMinorCivGiftGold(sGift.eMinor, iOldFriendship, sGift.iGoldAmount, /*bSaving*/ false, sGift.bQuickBoost, sGift.eMajorRival);
-
-				if(GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
-					GetPlayer()->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT);
-			}
-			// Can't afford gift yet, so start saving
-			else
-			{
-				if(!GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
-				{
-					int iAmountToSaveFor = iMediumGift;
-
-					if(sGift.bQuickBoost)
-						iAmountToSaveFor = iSmallGift;
-
-					LogMinorCivGiftGold(sGift.eMinor, iOldFriendship, iAmountToSaveFor, /*bSaving*/ true, sGift.bQuickBoost, sGift.eMajorRival);
-
-					int iPriority = /*150*/ GD_INT_GET(AI_GOLD_PRIORITY_DIPLOMACY_BASE);
-					iPriority += iDiplomacyFlavor * /*25*/ GD_INT_GET(AI_GOLD_PRIORITY_DIPLOMACY_PER_FLAVOR_POINT);
-					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iAmountToSaveFor, iPriority);
-				}
+				int iPriority = /*150*/ GD_INT_GET(AI_GOLD_PRIORITY_DIPLOMACY_BASE);
+				iPriority += iDiplomacyFlavor * /*25*/ GD_INT_GET(AI_GOLD_PRIORITY_DIPLOMACY_PER_FLAVOR_POINT);
+				GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iAmountToSaveFor, iPriority);
 			}
 		}
 	}
 
 	// Do we want a unit enough to bully someone?
-	if(veMinorsToBullyUnit.size() > 0)
+	veMinorsToBullyUnit.StableSortItems();
+	for (int i = 0; i < veMinorsToBullyUnit.size(); i++)
 	{
-		veMinorsToBullyUnit.StableSortItems();
-		PlayerTypes eLoopMinor = NO_PLAYER;
-		for(int i = 0; i < veMinorsToBullyUnit.size(); i++)
+		PlayerTypes eLoopMinor = veMinorsToBullyUnit.GetElement(i);
+		ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully a unit from NO_PLAYER!");
+		if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
 		{
-			eLoopMinor = veMinorsToBullyUnit.GetElement(i);
-			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully a unit from NO_PLAYER!");
-			if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
-			{
-				GC.getGame().DoMinorBullyUnit(eID, eLoopMinor);
-				break; // Don't bully a unit more than once in a single turn
-			}
-			else
-			{
-				ASSERT(false, "Chose a minor to bully unit from that cannot actually be bullied!");
-			}
+			GC.getGame().DoMinorBullyUnit(eID, eLoopMinor);
+			break; // Don't bully a unit more than once in a single turn
+		}
+		else
+		{
+			ASSERT(false, "Chose a minor to bully unit from that cannot actually be bullied!");
 		}
 	}
 
 	// Do we want gold enough to bully someone?
-	if(veMinorsToBullyGold.size() > 0)
+	veMinorsToBullyGold.StableSortItems();
+	for (int i = 0; i < veMinorsToBullyGold.size(); i++)
 	{
-		veMinorsToBullyGold.StableSortItems();
-		PlayerTypes eLoopMinor = NO_PLAYER;
-		for(int i = 0; i < veMinorsToBullyGold.size(); i++)
+		PlayerTypes eLoopMinor = veMinorsToBullyGold.GetElement(i);
+		ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully gold from NO_PLAYER!");
+		if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyGold(eID))
 		{
-			eLoopMinor = veMinorsToBullyGold.GetElement(i);
-			ASSERT(eLoopMinor != NO_PLAYER, "Trying to bully gold from NO_PLAYER!");
-			if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyGold(eID))
-			{
-				GC.getGame().DoMinorBullyGold(eID, eLoopMinor);
-			}
-			else
-			{
-				ASSERT(false, "Chose a minor to bully gold from that cannot actually be bullied!");
-			}
+			GC.getGame().DoMinorBullyGold(eID, eLoopMinor);
+		}
+		else
+		{
+			ASSERT(false, "Chose a minor to bully gold from that cannot actually be bullied!");
 		}
 	}
 }

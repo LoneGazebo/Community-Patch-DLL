@@ -7814,12 +7814,9 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					if (eBuildingType != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-						if (pkBuildingInfo)
-						{
-							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
-							localizedDurationText << pkBuildingInfo->GetDescription();
-							DisabledTT += localizedDurationText.toUTF8();
-						}
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+						localizedDurationText << pkBuildingInfo->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
 					}
 				}
 			}
@@ -7851,12 +7848,9 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					if (eBuildingType != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-						if (pkBuildingInfo)
-						{
-							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
-							localizedDurationText << pkBuildingInfo->GetDescription();
-							DisabledTT += localizedDurationText.toUTF8();
-						}
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+						localizedDurationText << pkBuildingInfo->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
 					}
 				}
 			}
@@ -9127,23 +9121,19 @@ PlayerTypes CvPlayer::GetPlayerToLiberate(CvCity* pCity)
 
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
 {
-	ASSERT(eUnit != NO_UNIT, "Unit is not assigned a valid value");
-	if (eUnit == NO_UNIT)
-		return NULL;
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
 
-	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	PRECONDITION(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
-
-	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason!=REASON_UPGRADE && eReason!=REASON_GIFT)
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	if (isMajorCiv() && pkUnitInfo->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason != REASON_UPGRADE && eReason != REASON_GIFT)
 	{
 		CUSTOMLOG("Player %d creating unit over supply limit, type is %d, reason is %d", m_eID, eUnit, eReason);
 	}
 
 	CvUnit* pUnit = addUnit();
 	PRECONDITION(pUnit, "Unit is not assigned a valid value");
-	pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+	pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
 
-	if(pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
+	if (pkUnitInfo->GetWorkRate() > 0 && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
 	{
 		m_bEverTrainedBuilder = true;
 	}
@@ -9154,18 +9144,15 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
 {
-	ASSERT(eUnit != NO_UNIT, "Unit is not assigned a valid value");
-	if (eUnit == NO_UNIT)
-		return NULL;
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
 
-	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	ASSERT(pkUnitDef, "Trying to create unit of type %d, which does not exist", eUnit);
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 	CvUnit* pUnit = addUnit();
 	PRECONDITION(pUnit, "Unit is not assigned a valid value");
-	pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, false, pPassUnit);
+	pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, false, pPassUnit);
 
-	if(pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
+	if (pkUnitInfo->GetWorkRate() > 0 && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
 	{
 		m_bEverTrainedBuilder = true;
 	}
@@ -9177,57 +9164,42 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 
 CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 {
-	ASSERT(eUnit != NO_UNIT, "Unit is not assigned a valid value");
-	if (eUnit == NO_UNIT)
-		return NULL;
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
+	PRECONDITION(strKey, "No name is assigned");
 
-	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
-	ASSERT(pkUnitDef != NULL, "Trying to create unit of type %d, which does not exist", eUnit);
-	if (pkUnitDef == NULL)
-		return NULL;
-
-	if(strKey == NULL)
-		return NULL;
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 	CvString strName = strKey;
-	if(GC.getGame().isGreatPersonBorn(strName))
-	{
+	if (GC.getGame().isGreatPersonBorn(strName))
 		return NULL;
-	}
 
 	CvUnit* pUnit = addUnit();
-	ASSERT(pUnit != NULL, "Unit is not assigned a valid value");
-	if (NULL != pUnit)
+	PRECONDITION(pUnit, "Unit is not assigned a valid value");
+
+	pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
+
+	if (pkUnitInfo->GetWorkRate() > 0 && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
+		m_bEverTrainedBuilder = true;
+	}
 
-		if (pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
+	pUnit->SetGreatWork(NO_GREAT_WORK);
+
+	int iNumNames = pkUnitInfo->GetNumUnitNames();
+	for (int iI = 0; iI < iNumNames; iI++)
+	{
+		CvString strOtherName = pkUnitInfo->GetUnitNames(iI);
+		if (strOtherName == strName)
 		{
-			m_bEverTrainedBuilder = true;
-		}
-
-		pUnit->SetGreatWork(NO_GREAT_WORK);
-
-		if (strKey != NULL)
-		{
-			CvString strName = strKey;
-			int iNumNames = pUnit->getUnitInfo().GetNumUnitNames();
-			for (int iI = 0; iI < iNumNames; iI++)
+			pUnit->setName(strName);
+			pUnit->SetGreatWork(pkUnitInfo->GetGreatWorks(iI));
+			GC.getGame().addGreatPersonBornName(strName);
+			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
 			{
-				CvString strOtherName = pUnit->getUnitInfo().GetUnitNames(iI);
-				if (strOtherName == strName)
-				{
-					pUnit->setName(strName);
-					pUnit->SetGreatWork(pUnit->getUnitInfo().GetGreatWorks(iI));
-					GC.getGame().addGreatPersonBornName(strName);
-					if (MOD_GLOBAL_NO_LOST_GREATWORKS)
-					{
-						// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
-						pUnit->setGreatName(strName);
-					}
-					break;
-				}
+				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+				pUnit->setGreatName(strName);
 			}
+			break;
 		}
 	}
 
@@ -9238,151 +9210,138 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 
 void CvPlayer::disbandUnit(bool)
 {
-	CvUnit* pLoopUnit = NULL;
 	CvUnit* pBestUnit = NULL;
-	int iValue = 0;
-	int iBestValue = 0;
+	int iBestValue = INT_MAX;
 	int iLoop = 0;
 
-	iBestValue = INT_MAX;
-	pBestUnit = NULL;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(!(pLoopUnit->hasCargo()))
+		if (pLoopUnit->hasCargo())
+			continue;
+
+		if (pLoopUnit->isGoldenAge())
+			continue;
+
+		if (pLoopUnit->getUnitInfo().GetProductionCost() > 0)
 		{
-			if(!(pLoopUnit->isGoldenAge()))
+			int iValue = 10000 + GC.getGame().randRangeExclusive(0, 1000, CvSeeder(pLoopUnit->GetID()).mix(iLoop));
+
+			iValue += pLoopUnit->getUnitInfo().GetProductionCost() * 5;
+			iValue += pLoopUnit->getExperienceTimes100() / 100 * 20;
+			iValue += pLoopUnit->getLevel() * 100;
+
+			if (pLoopUnit->IsGarrisoned())
+				iValue *= 2;
+
+			if (pLoopUnit->plot()->getTeam() == pLoopUnit->getTeam())
+				iValue *= 3;
+
+			switch (pLoopUnit->AI_getUnitAIType())
 			{
-				if(pLoopUnit->getUnitInfo().GetProductionCost() > 0)
-				{
-					{
-						iValue = (10000 + GC.getGame().randRangeExclusive(0, 1000, CvSeeder(pLoopUnit->GetID()).mix(iLoop)));
+			case UNITAI_UNKNOWN:
+				break;
 
-						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
-						iValue += (pLoopUnit->getExperienceTimes100() / 100 * 20);
-						iValue += (pLoopUnit->getLevel() * 100);
+			case UNITAI_SETTLE:
+				iValue *= 20;
+				break;
 
-						if(pLoopUnit->IsGarrisoned())
-						{
-							iValue *= 2;
-						}
+			case UNITAI_WORKER:
+				iValue *= 10;
+				break;
 
-						if(pLoopUnit->plot()->getTeam() == pLoopUnit->getTeam())
-						{
-							iValue *= 3;
-						}
+			case UNITAI_ATTACK:
+			case UNITAI_CITY_BOMBARD:
+			case UNITAI_FAST_ATTACK:
+			case UNITAI_DEFENSE:
+			case UNITAI_COUNTER:
+				iValue *= 2;
+				break;
 
-						switch(pLoopUnit->AI_getUnitAIType())
-						{
-						case UNITAI_UNKNOWN:
-							break;
+			case UNITAI_RANGED:
+			case UNITAI_CITY_SPECIAL:
+			case UNITAI_PARADROP:
+				iValue *= 6;
+				break;
 
-						case UNITAI_SETTLE:
-							iValue *= 20;
-							break;
+			case UNITAI_EXPLORE:
+				iValue *= 15;
+				break;
 
-						case UNITAI_WORKER:
-							iValue *= 10;
-							break;
+			case UNITAI_ARTIST:
+			case UNITAI_SCIENTIST:
+			case UNITAI_GENERAL:
+			case UNITAI_MERCHANT:
+			case UNITAI_DIPLOMAT:
+			case UNITAI_MESSENGER:
+			case UNITAI_ENGINEER:
+			case UNITAI_SPACESHIP_PART:
+			case UNITAI_TREASURE:
+			case UNITAI_PROPHET:
+			case UNITAI_MISSIONARY:
+			case UNITAI_INQUISITOR:
+			case UNITAI_ADMIRAL:
+			case UNITAI_WRITER:
+			case UNITAI_MUSICIAN:
+				break;
 
-						case UNITAI_ATTACK:
-						case UNITAI_CITY_BOMBARD:
-						case UNITAI_FAST_ATTACK:
-						case UNITAI_DEFENSE:
-						case UNITAI_COUNTER:
-							iValue *= 2;
-							break;
+			case UNITAI_ICBM:
+				iValue *= 4;
+				break;
 
-						case UNITAI_RANGED:
-						case UNITAI_CITY_SPECIAL:
-						case UNITAI_PARADROP:
-							iValue *= 6;
-							break;
+			case UNITAI_WORKER_SEA:
+				iValue *= 18;
+				break;
 
-						case UNITAI_EXPLORE:
-							iValue *= 15;
-							break;
+			case UNITAI_ATTACK_SEA:
+			case UNITAI_RESERVE_SEA:
+			case UNITAI_ESCORT_SEA:
+				break;
 
-						case UNITAI_ARTIST:
-						case UNITAI_SCIENTIST:
-						case UNITAI_GENERAL:
-						case UNITAI_MERCHANT:
-						case UNITAI_DIPLOMAT:
-						case UNITAI_MESSENGER:
-						case UNITAI_ENGINEER:
-						case UNITAI_SPACESHIP_PART:
-						case UNITAI_TREASURE:
-						case UNITAI_PROPHET:
-						case UNITAI_MISSIONARY:
-						case UNITAI_INQUISITOR:
-						case UNITAI_ADMIRAL:
-						case UNITAI_WRITER:
-						case UNITAI_MUSICIAN:
-							break;
+			case UNITAI_EXPLORE_SEA:
+				iValue *= 25;
+				break;
 
-						case UNITAI_ICBM:
-							iValue *= 4;
-							break;
+			case UNITAI_ASSAULT_SEA:
+			case UNITAI_SETTLER_SEA:
+			case UNITAI_CARRIER_SEA:
+			case UNITAI_MISSILE_CARRIER_SEA:
+				iValue *= 5;
+				break;
 
-						case UNITAI_WORKER_SEA:
-							iValue *= 18;
-							break;
+			case UNITAI_PIRATE_SEA:
+			case UNITAI_ATTACK_AIR:
+				break;
 
-						case UNITAI_ATTACK_SEA:
-						case UNITAI_RESERVE_SEA:
-						case UNITAI_ESCORT_SEA:
-							break;
+			case UNITAI_DEFENSE_AIR:
+			case UNITAI_CARRIER_AIR:
+			case UNITAI_MISSILE_AIR:
+				iValue *= 3;
+				break;
 
-						case UNITAI_EXPLORE_SEA:
-							iValue *= 25;
-							break;
+			default:
+				UNREACHABLE();
+				break;
+			}
 
-						case UNITAI_ASSAULT_SEA:
-						case UNITAI_SETTLER_SEA:
-						case UNITAI_CARRIER_SEA:
-						case UNITAI_MISSILE_CARRIER_SEA:
-							iValue *= 5;
-							break;
+			if (pLoopUnit->getUnitInfo().GetExtraMaintenanceCost() > 0)
+			{
+				iValue /= pLoopUnit->getUnitInfo().GetExtraMaintenanceCost() + 1;
+			}
 
-						case UNITAI_PIRATE_SEA:
-						case UNITAI_ATTACK_AIR:
-							break;
-
-						case UNITAI_DEFENSE_AIR:
-						case UNITAI_CARRIER_AIR:
-						case UNITAI_MISSILE_AIR:
-							iValue *= 3;
-							break;
-
-						default:
-							ASSERT(false);
-							break;
-						}
-
-						if(pLoopUnit->getUnitInfo().GetExtraMaintenanceCost() > 0)
-						{
-							iValue /= (pLoopUnit->getUnitInfo().GetExtraMaintenanceCost() + 1);
-						}
-
-						if(iValue < iBestValue)
-						{
-							iBestValue = iValue;
-							pBestUnit = pLoopUnit;
-						}
-					}
-				}
+			if (iValue < iBestValue)
+			{
+				iBestValue = iValue;
+				pBestUnit = pLoopUnit;
 			}
 		}
 	}
 
-	if(pBestUnit != NULL)
+	if (pBestUnit)
 	{
-		if(GetID() == GC.getGame().getActivePlayer())
+		if (GetID() == GC.getGame().getActivePlayer())
 		{
 			GC.GetEngineUserInterface()->AddUnitMessage(0, pBestUnit->GetIDInfo(), GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), GetLocalizedText("TXT_KEY_MISC_UNIT_DISBANDED_NO_MONEY", pBestUnit->getNameKey()));//, "AS2D_UNITDISBANDED", MESSAGE_TYPE_MINOR_EVENT, pBestUnit->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pBestUnit->getX(), pBestUnit->getY(), true, true);
 		}
-
-		ASSERT(!(pBestUnit->isGoldenAge()));
 
 		pBestUnit->kill(false);
 	}
@@ -14272,8 +14231,6 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 					int iNumHave = vPreExistingBuildings[ePrereqBuilding];
 					if(iNumHave < iNumNeeded)
 					{
-						ePrereqBuilding = (BuildingTypes) civilizationInfo.getCivilizationBuildings(iI);
-
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_COUNT_NEEDED", pkPrereqBuilding->GetTextKey(), "", iNumNeeded - iNumHave);
 
 						if(toolTipSink == NULL)
@@ -15557,8 +15514,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
 	{
 		BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pBuildingInfo->GetFreeBuildingClass());
-		CvBuildingEntry* pFreeBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
-		if (pFreeBuildingInfo)
+		if (eFreeBuilding != NO_BUILDING)
 			changeFreeBuildingCount(eFreeBuilding, iChange);
 	}
 
@@ -38663,8 +38619,7 @@ void CvPlayer::changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange)
 		ASSERT(getBuildingClassMaking(eIndex) >= 0);
 
 		const BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eIndex);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if(pkBuildingInfo)
+		if (eBuilding != NO_BUILDING)
 		{
 			// Update the amount of a Resource used up by Buildings in Production
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -38673,6 +38628,7 @@ void CvPlayer::changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange)
 				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if(pkResourceInfo)
 				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if(pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop) > 0)
 					{
 						changeNumResourceUsed(eResource, iChange * pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop));
@@ -41581,12 +41537,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		changeResourceFromCSAlliances(eResource, pkPolicyInfo->GetResourceFromCSAlly(iI) * iChange);
 
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (!pkResource)
-			continue;
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 
 		// Update strategic resource monopolies
-		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pkPolicyInfo->GetStrategicResourceMod() > 0 && pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pkPolicyInfo->GetStrategicResourceMod() > 0 && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 		{
 			CheckForMonopoly(eResource);
 		}
@@ -41728,9 +41682,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				continue;
 
 			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (!pkBuildingInfo)
-				continue;
-
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 			if (isWorldWonderClass(kBuildingClassInfo))
 			{
@@ -41996,8 +41947,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if (pLoopCity->SetNumFreeBuilding(eBuilding, 1))
 						{
 							// Only deduct if building is not capital only
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-							if (pkBuilding && !pkBuilding->IsCapitalOnly())
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+							if (!pkBuildingInfo->IsCapitalOnly())
 								ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 						}
 					}
@@ -42071,8 +42022,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							continue;
 
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-						if (!pkUnitInfo)
-							continue;
 
 						// No settling units for One City Challenge
 						if (isHuman() && pkUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
@@ -42118,7 +42067,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for (int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
 							{
 								CvUnit* pUnit = pCapital->CreateUnit(eUnit, NO_UNITAI, REASON_GIFT);
-								if (pUnit && !pUnit->jumpToNearestValidPlot())
+								if (!pUnit->jumpToNearestValidPlot())
 								{
 									pUnit->kill(false); // Could not find a valid spot!
 								}
@@ -42139,7 +42088,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for (int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
 							{
 								CvUnit* pUnit = pCapital->CreateUnit(eUnit, NO_UNITAI, REASON_GIFT);
-								if (pUnit && !pUnit->jumpToNearestValidPlot())
+								if (!pUnit->jumpToNearestValidPlot())
 								{
 									pUnit->kill(false); // Could not find a valid spot!
 								}
@@ -42159,7 +42108,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for (int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
 							{
 								CvUnit* pUnit = pCapital->CreateUnit(eUnit, NO_UNITAI, REASON_GIFT);
-								if (pUnit && !pUnit->jumpToNearestValidPlot())
+								if (!pUnit->jumpToNearestValidPlot())
 								{
 									pUnit->kill(false); // Could not find a valid spot!
 								}
@@ -42180,7 +42129,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for (int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
 							{
 								CvUnit* pUnit = pCapital->CreateUnit(eUnit, NO_UNITAI, REASON_GIFT);
-								if (pUnit && !pUnit->jumpToNearestValidPlot())
+								if (!pUnit->jumpToNearestValidPlot())
 								{
 									pUnit->kill(false); // Could not find a valid spot!
 								}
@@ -42227,7 +42176,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				continue;
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo && pkResourceInfo->getPolicyReveal() == ePolicy)
+			if (pkResourceInfo->getPolicyReveal() == ePolicy)
 			{
 				pLoopPlot->updateYield();
 				if (pLoopPlot->isRevealed(getTeam()))
@@ -42279,9 +42228,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
 {
-	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-	if (!pkCorporationInfo)
+	if (eCorporation == NO_CORPORATION)
 		return;
+
+	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
