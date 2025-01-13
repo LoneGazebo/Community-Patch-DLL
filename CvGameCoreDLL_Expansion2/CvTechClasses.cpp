@@ -782,13 +782,10 @@ void CvPlayerTechs::Reset()
 			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
-				CvBuildingEntry* pkBuildingInfo = NULL;
-
-				if(eBuilding != -1)
-					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
-
-				if(pkBuildingInfo)
+				if (eBuilding != NO_BUILDING)
 				{
+					CvBuildingEntry* pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
+
 					// Is this one overridden for our civ?
 					if(pkInfo->isCivilizationBuildingOverridden(iI))
 					{

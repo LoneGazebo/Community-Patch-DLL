@@ -8095,7 +8095,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				area()->changeNumImprovements(eOldImprovement, -1);
 			}
 			// Someone owns this plot
-			if (owningPlayerID != NO_PLAYER)
+			if (isOwned())
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eOldImprovement, -1, eOldBuilder == owningPlayerID);
@@ -8106,7 +8106,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (owningPlayer.isMinorCiv())
 					{
 						GET_PLAYER(eOldBuilder).changeSiphonLuxuryCount(owningPlayerID, -1 * oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
-						GET_PLAYER(owningPlayerID).GetMinorCivAI()->SetSiphoned(eOldBuilder, false);
+						owningPlayer.GetMinorCivAI()->SetSiphoned(eOldBuilder, false);
 					}
 				}
 				if (oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
@@ -8317,7 +8317,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ClearArchaeologicalRecord();
 				}
 			}
-			if (newImprovementEntry.GetHappinessOnConstruction() != 0)
+			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
 			{
 				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
 				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
@@ -8398,7 +8398,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (getResourceType() == NO_RESOURCE)
 					{
 						// first roll: can we get a resource on this plot?
-						if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed())) <= iResourceChance)
+						if (GC.getGame().randRangeInclusive(1, 100, GetPseudoRandomSeed().mix(GC.getGame().getGameTurn())) <= iResourceChance)
 						{
 							// get list of valid resources for the plot
 							vector<ResourceTypes> vPossibleResources;
@@ -8420,7 +8420,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if (!vPossibleResources.empty())
 							{
 								// second roll: which resource do we get on this plot?
-								uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed()));
+								uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), GetPseudoRandomSeed().mix(GC.getGame().getGameTurn()).mix(eNewValue));
 								ResourceTypes eSelectedResource = vPossibleResources[uChoice];
 								int iResourceQuantity = GC.getMap().getRandomResourceQuantity(eSelectedResource);
 								setResourceType(eSelectedResource, iResourceQuantity);
@@ -8593,9 +8593,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				else
 					SetImprovementEmbassy(false);
 			}
-			else if(!isOwned())
+			else if (eBuilder != NO_PLAYER)
 			{
-				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
+				if (newImprovementEntry.GetGrantsVision() > 0)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
@@ -8646,7 +8646,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 
 			ResourceTypes eSpawnedResource = newImprovementEntry.SpawnsAdjacentResource();
-			if (eSpawnedResource != NO_RESOURCE)
+			if (eBuilder != NO_PLAYER && eSpawnedResource != NO_RESOURCE)
 			{
 				CvPlot* pSpawnPlot = GetAdjacentResourceSpawnPlot(eBuilder);
 				if (pSpawnPlot)

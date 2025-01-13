@@ -1760,9 +1760,6 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			continue;
 
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if (pkBuildingInfo == NULL)
-			continue;
-
 		if (pkBuildingInfo->GetResourceQuantityRequirement(eResource) == 0)
 			continue;
 

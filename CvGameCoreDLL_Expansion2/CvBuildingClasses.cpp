@@ -5079,7 +5079,9 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	{
 		BuildingTypes eBuilding = static_cast<BuildingTypes>(GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eIndex));
-		SetNumRealBuilding(eBuilding, 0);
+		if (eBuilding != NO_BUILDING)
+			SetNumRealBuilding(eBuilding, 0);
+
 		return;
 	}
 
@@ -5424,10 +5426,10 @@ void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bo
 /// Accessor: Set number of these buildings that have been constructed in the city (with date)
 void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus)
 {
-	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
-
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+
+	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	int iChangeNumRealBuilding = iNewValue - GetNumRealBuilding(eIndex);
 	if (iChangeNumRealBuilding == 0)

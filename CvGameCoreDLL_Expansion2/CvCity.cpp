@@ -8706,9 +8706,9 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 						return false;
 
 					const BuildingTypes ePrereqBuilding = static_cast<BuildingTypes>(getCivilizationInfo().getCivilizationBuildings(iBuildingClassLoop));
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
-					if (pkBuildingInfo)
+					if (ePrereqBuilding != NO_BUILDING)
 					{
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING", pkBuildingInfo->GetDescriptionKey());
 					}
 				}
@@ -8797,10 +8797,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	}
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (pkBuildingInfo == NULL)
-	{
-		return false;
-	}
 
 	//no wonders in puppets (also affects venice unless invest or already invested)
 	if (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase)))
@@ -10731,115 +10727,95 @@ UnitTypes CvCity::getProductionUnit() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
-			return ((UnitTypes)(pOrderNode->iData1));
-			break;
+			return static_cast<UnitTypes>(pOrderNode->iData1);
 
 		case ORDER_CONSTRUCT:
 		case ORDER_CREATE:
 		case ORDER_MAINTAIN:
-			break;
+			return NO_UNIT;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
 	return NO_UNIT;
 }
 
-
-
 //	--------------------------------------------------------------------------------
 UnitAITypes CvCity::getProductionUnitAI() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
-			return ((UnitAITypes)(pOrderNode->iData2));
-			break;
+			return static_cast<UnitAITypes>(pOrderNode->iData2);
 
 		case ORDER_CONSTRUCT:
 		case ORDER_CREATE:
 		case ORDER_MAINTAIN:
-			break;
+			return NO_UNITAI;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
 	return NO_UNITAI;
 }
 
-
 //	--------------------------------------------------------------------------------
 BuildingTypes CvCity::getProductionBuilding() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
-		case ORDER_TRAIN:
-			break;
-
 		case ORDER_CONSTRUCT:
-			return ((BuildingTypes)(pOrderNode->iData1));
-			break;
+			return static_cast<BuildingTypes>(pOrderNode->iData1);
 
+		case ORDER_TRAIN:
 		case ORDER_CREATE:
 		case ORDER_MAINTAIN:
-			break;
+			return NO_BUILDING;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
 	return NO_BUILDING;
 }
 
-
 //	--------------------------------------------------------------------------------
 ProjectTypes CvCity::getProductionProject() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
+		case ORDER_CREATE:
+			return static_cast<ProjectTypes>(pOrderNode->iData1);
+
 		case ORDER_TRAIN:
 		case ORDER_CONSTRUCT:
-			break;
-
-		case ORDER_CREATE:
-			return ((ProjectTypes)(pOrderNode->iData1));
-			break;
-
 		case ORDER_MAINTAIN:
-			break;
+			return NO_PROJECT;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
@@ -10851,83 +10827,61 @@ ProcessTypes CvCity::getProductionProcess() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
+		case ORDER_MAINTAIN:
+			return static_cast<ProcessTypes>(pOrderNode->iData1);
+
 		case ORDER_TRAIN:
 		case ORDER_CONSTRUCT:
 		case ORDER_CREATE:
-			break;
-
-		case ORDER_MAINTAIN:
-			return ((ProcessTypes)(pOrderNode->iData1));
-			break;
+			return NO_PROCESS;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
 	return NO_PROCESS;
 }
 
-
 //	--------------------------------------------------------------------------------
 const char* CvCity::getProductionName() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
 		{
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
-			if (pkUnitInfo)
-			{
-				return pkUnitInfo->GetDescription();
-			}
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(static_cast<UnitTypes>(pOrderNode->iData1));
+			return pkUnitInfo->GetDescription();
 		}
-		break;
 
 		case ORDER_CONSTRUCT:
 		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-			if (pkBuildingInfo)
-			{
-				return pkBuildingInfo->GetDescription();
-			}
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(static_cast<BuildingTypes>(pOrderNode->iData1));
+			return pkBuildingInfo->GetDescription();
 		}
-		break;
 
 		case ORDER_CREATE:
 		{
-			CvProjectEntry* pkProjectInfo = GC.getProjectInfo((ProjectTypes)pOrderNode->iData1);
-			if (pkProjectInfo)
-			{
-				return pkProjectInfo->GetDescription();
-			}
+			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(static_cast<ProjectTypes>(pOrderNode->iData1));
+			return pkProjectInfo->GetDescription();
 		}
-		break;
 
 		case ORDER_MAINTAIN:
 		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
-			if (pkProcessInfo)
-			{
-				return pkProcessInfo->GetDescription();
-			}
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(static_cast<ProcessTypes>(pOrderNode->iData1));
+			return pkProcessInfo->GetDescription();
 		}
-		break;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
@@ -10940,30 +10894,24 @@ int CvCity::getGeneralProductionTurnsLeft() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
-			return getProductionTurnsLeft((UnitTypes)pOrderNode->iData1, 0);
-			break;
+			return getProductionTurnsLeft(static_cast<UnitTypes>(pOrderNode->iData1), 0);
 
 		case ORDER_CONSTRUCT:
-			return getProductionTurnsLeft((BuildingTypes)pOrderNode->iData1, 0);
-			break;
+			return getProductionTurnsLeft(static_cast<BuildingTypes>(pOrderNode->iData1), 0);
 
 		case ORDER_CREATE:
-			return getProductionTurnsLeft((ProjectTypes)pOrderNode->iData1, 0);
-			break;
+			return getProductionTurnsLeft(static_cast<ProjectTypes>(pOrderNode->iData1), 0);
 
 		case ORDER_MAINTAIN:
-			return getProductionTurnsLeft((ProcessTypes)pOrderNode->iData1, 0);
-			break;
+			return getProductionTurnsLeft(static_cast<ProcessTypes>(pOrderNode->iData1), 0);
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
 
@@ -10976,58 +10924,38 @@ const char* CvCity::getProductionNameKey() const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
-
-	if (pOrderNode != NULL)
+	if (pOrderNode)
 	{
 		switch (pOrderNode->eOrderType)
 		{
 		case ORDER_TRAIN:
 		{
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
-			if (pkUnitInfo)
-			{
-				return pkUnitInfo->GetTextKey();
-			}
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(static_cast<UnitTypes>(pOrderNode->iData1));
+			return pkUnitInfo->GetTextKey();
 		}
-		break;
 
 		case ORDER_CONSTRUCT:
 		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-			if (pkBuildingInfo)
-			{
-				return pkBuildingInfo->GetTextKey();
-			}
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(static_cast<BuildingTypes>(pOrderNode->iData1));
+			return pkBuildingInfo->GetTextKey();
 		}
-		break;
 
 		case ORDER_CREATE:
 		{
-			CvProjectEntry* pkProjectInfo = GC.getProjectInfo((ProjectTypes)pOrderNode->iData1);
-			if (pkProjectInfo)
-			{
-				return pkProjectInfo->GetTextKey();
-			}
+			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(static_cast<ProjectTypes>(pOrderNode->iData1));
+			return pkProjectInfo->GetTextKey();
 		}
-		break;
 
 		case ORDER_MAINTAIN:
 		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
-			if (pkProcessInfo)
-			{
-				return pkProcessInfo->GetTextKey();
-			}
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(static_cast<ProcessTypes>(pOrderNode->iData1));
+			return pkProcessInfo->GetTextKey();
 		}
-		break;
 
 		default:
-			ASSERT(false, "pOrderNode->eOrderType failed to match a valid option");
-			break;
+			UNREACHABLE();
 		}
 	}
-
-	return "";
 }
 
 //	--------------------------------------------------------------------------------
@@ -11388,58 +11316,49 @@ int CvCity::getProductionNeeded(UnitTypes eUnit, bool bIgnoreInvestment) const
 //	--------------------------------------------------------------------------------
 int CvCity::getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreInvestment) const
 {
+	PRECONDITION(eBuilding != NO_BUILDING);
 	VALIDATE_OBJECT();
-	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eBuilding);
 
-	if (eBuilding != NO_BUILDING)
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	int iNumProductionNeeded = kOwner.getProductionNeeded(eBuilding);
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+
+	if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	{
-		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
-		if (pGameBuilding)
+		int iCostMod = 0;
+		EraTypes eBuildingEra = static_cast<EraTypes>(pkBuildingInfo->GetEra());
+		if (eBuildingEra == NO_ERA)
+			eBuildingEra = kOwner.GetCurrentEra();
+
+		bool bWonder = false;
+		if (eBuildingClass != NO_BUILDINGCLASS)
 		{
-			const BuildingClassTypes eBuildingClass = pGameBuilding->GetBuildingClassType();
+			const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			bWonder = isWorldWonderClass(*pkBuildingClassInfo) || isTeamWonderClass(*pkBuildingClassInfo) || isNationalWonderClass(*pkBuildingClassInfo);
+		}
 
-			if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+		if (!bWonder)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				int iCostMod = 0;
-				EraTypes eBuildingEra = (EraTypes)pGameBuilding->GetEra();
-
-				bool bWonder = false;
-				if (eBuildingClass != NO_BUILDINGCLASS)
+				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo->isHasBuildingProductionCostModifiersLocal() && IsHasResourceLocal(eResource, false))
 				{
-					const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if (pkBuildingClassInfo)
-					{
-						bWonder = isWorldWonderClass(*pkBuildingClassInfo) || isTeamWonderClass(*pkBuildingClassInfo) || isNationalWonderClass(*pkBuildingClassInfo);
-					}
+					iCostMod += pkResourceInfo->getBuildingProductionCostModifiersLocal(eBuildingEra);
 				}
-
-				if (eBuildingEra == NO_ERA)
-				{
-					eBuildingEra = GET_PLAYER(getOwner()).GetCurrentEra();
-				}
-
-				if (!bWonder && eBuildingEra != NO_ERA)
-				{
-					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-						CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-						if (pkResource && pkResource->isHasBuildingProductionCostModifiersLocal() && IsHasResourceLocal(eResource, false))
-						{
-							iCostMod += pkResource->getBuildingProductionCostModifiersLocal(eBuildingEra);
-						}
-					}
-				}
-
-				// Cost modifiers must be applied before the investment code
-				iNumProductionNeeded *= (iCostMod + 100);
-				iNumProductionNeeded /= 100;
-			}
-			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreInvestment && eBuildingClass != NO_BUILDINGCLASS && IsBuildingInvestment(eBuildingClass))
-			{
-				iNumProductionNeeded -= GetBuildingCostInvestmentReduction(eBuildingClass);
 			}
 		}
+
+		// Cost modifiers must be applied before the investment code
+		iNumProductionNeeded *= iCostMod + 100;
+		iNumProductionNeeded /= 100;
+	}
+
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreInvestment && eBuildingClass != NO_BUILDINGCLASS && IsBuildingInvestment(eBuildingClass))
+	{
+		iNumProductionNeeded -= GetBuildingCostInvestmentReduction(eBuildingClass);
 	}
 
 	return max(1, iNumProductionNeeded);
@@ -11533,6 +11452,7 @@ int CvCity::getProductionTurnsLeft(UnitTypes eUnit, int iNum) const
 //	--------------------------------------------------------------------------------
 int CvCity::getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const
 {
+	ASSERT(eBuilding != NO_BUILDING);
 	VALIDATE_OBJECT();
 	int iProduction = 0;
 	int iFirstBuildingOrder = getFirstBuildingOrder(eBuilding);
@@ -11611,52 +11531,48 @@ bool CvCity::IsBuildingInvestment(BuildingClassTypes eBuildingClass) const
 //	--------------------------------------------------------------------------------
 void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewValue)
 {
-	PRECONDITION(eBuildingClass >= 0);
+	PRECONDITION(eBuildingClass > NO_BUILDINGCLASS);
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos());
 
-	if (bNewValue)
-	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedBuilding, getOwner(), GetID(), eBuildingClass, bNewValue);
-	}
+	// Is there actually a building to invest in?
+	BuildingTypes eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass));
+	if (eBuilding == NO_BUILDING)
+		bNewValue = false;
 
 	m_abBuildingInvestment[eBuildingClass] = bNewValue;
-
-	if (bNewValue)
-	{
-		// calculate reduction of building production cost
-		BuildingTypes eBuilding = NO_BUILDING;
-
-		eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass);
-
-		int iNumProductionNeeded = getProductionNeeded(eBuilding);
-		int AmountNeededAfterInvestment = max(1, iNumProductionNeeded);
-
-		int iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
-		if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
-		{
-			iTotalDiscount /= 2;
-		}
-		AmountNeededAfterInvestment *= (iTotalDiscount + 100);
-		AmountNeededAfterInvestment /= 100;
-
-		// Investment checks when AmountComplete >= 50 moved here
-		int AmountComplete = GetCityBuildings()->GetBuildingProduction(eBuilding);
-		if (AmountComplete >= AmountNeededAfterInvestment)
-		{
-			int iProductionDifference = getProductionDifference(AmountNeededAfterInvestment, AmountComplete, getProductionModifier(), false, false);
-			AmountNeededAfterInvestment = max(AmountNeededAfterInvestment, AmountComplete - iProductionDifference); //allow one turn of overflow
-		}
-		m_aiBuildingCostInvestmentReduction[eBuildingClass] = iNumProductionNeeded - AmountNeededAfterInvestment;
-	}
-	else
+	if (!bNewValue)
 	{
 		m_aiBuildingCostInvestmentReduction[eBuildingClass] = 0;
+		return;
 	}
+
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedBuilding, getOwner(), GetID(), eBuildingClass, bNewValue);
+
+	// Calculate reduction of building production cost
+	int iProductionNeeded = getProductionNeeded(eBuilding, true);
+	int iProductionNeededAfterInvestment = iProductionNeeded;
+
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	int iDiscountPercent = /*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + kOwner.GetPlayerTraits()->GetInvestmentModifier() + kOwner.GetInvestmentModifier();
+	if (isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+	{
+		iDiscountPercent /= 2;
+	}
+
+	iProductionNeededAfterInvestment *= 100 + iDiscountPercent;
+	iProductionNeededAfterInvestment /= 100;
+
+	// Leave the building at least one turn (production) from completion after investment
+	int iProductionCompleted = GetCityBuildings()->GetBuildingProduction(eBuilding);
+	iProductionNeededAfterInvestment = max(iProductionNeededAfterInvestment, iProductionCompleted + 1);
+
+	// Sanity check: the building shouldn't be more expensive after investment
+	m_aiBuildingCostInvestmentReduction[eBuildingClass] = max(0, iProductionNeeded - iProductionNeededAfterInvestment);
 }
 // ---------------------------------------------------------------------------------
 int CvCity::GetBuildingCostInvestmentReduction(BuildingClassTypes eBuildingClass) const
 {
-	PRECONDITION(eBuildingClass >= 0);
+	PRECONDITION(eBuildingClass > NO_BUILDINGCLASS);
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos());
 
 	return m_aiBuildingCostInvestmentReduction[eBuildingClass];
@@ -13509,7 +13425,6 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	iModifiedProduction += iFoodProduction;
 
 	return iModifiedProduction;
-
 }
 
 
@@ -29338,8 +29253,6 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	CvPlayer& kOwner = GET_PLAYER(getOwner());
 	CvUnit* pUnit = kOwner.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType, eReason);
-	if (!pUnit)
-		return NULL;
 
 	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && !pUnit->IsCivilianUnit())
 	{
@@ -29442,10 +29355,10 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 {
 	VALIDATE_OBJECT();
 
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-	if (pkBuildingInfo == NULL)
+	if (eBuildingType == NO_BUILDING)
 		return false;
 
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
 	const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -30796,202 +30709,186 @@ void CvCity::doGrowth()
 bool CvCity::doCheckProduction()
 {
 	VALIDATE_OBJECT();
-	OrderData* pOrderNode = NULL;
-	UnitTypes eUpgradeUnit;
-	int iUpgradeProduction = 0;
-	int iProductionGold = 0;
-	bool bOK = true;
-
 	int iMaxedUnitGoldPercent = /*100*/ GD_INT_GET(MAXED_UNIT_GOLD_PERCENT);
 	int iMaxedBuildingGoldPercent = /*100*/ GD_INT_GET(MAXED_BUILDING_GOLD_PERCENT);
 	int iMaxedProjectGoldPercent = /*300*/ GD_INT_GET(MAXED_PROJECT_GOLD_PERCENT);
 
-	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
 
+	// Convert unit production to gold if unit class limit is reached
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		const UnitTypes eUnit = static_cast<UnitTypes>(iI);
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if (pkUnitInfo)
+		int iUnitProduction = getUnitProduction(eUnit);
+		if (iUnitProduction > 0)
 		{
-			int iUnitProduction = getUnitProduction(eUnit);
-			if (iUnitProduction > 0)
+			const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+			if (kOwner.isProductionMaxedUnitClass(static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType())))
 			{
-				if (thisPlayer.isProductionMaxedUnitClass((UnitClassTypes)(pkUnitInfo)->GetUnitClassType()))
-				{
-					iProductionGold = ((iUnitProduction * iMaxedUnitGoldPercent) / 100);
-
-					if (iProductionGold > 0)
-					{
-						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-
-						if (getOwner() == GC.getGame().getActivePlayer())
-						{
-							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-							localizedText << getNameKey() << GC.getUnitInfo((UnitTypes)iI)->GetTextKey() << iProductionGold;
-							DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
-						}
-					}
-
-					setUnitProduction(((UnitTypes)iI), 0);
-				}
-			}
-		}
-	}
-
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		const BuildingTypes eExpiredBuilding = static_cast<BuildingTypes>(iI);
-		CvBuildingEntry* pkExpiredBuildingInfo = GC.getBuildingInfo(eExpiredBuilding);
-
-		//skip if null
-		if (pkExpiredBuildingInfo == NULL)
-			continue;
-
-		int iBuildingProduction = m_pCityBuildings->GetBuildingProduction(eExpiredBuilding);
-		if (iBuildingProduction > 0)
-		{
-			const BuildingClassTypes eExpiredBuildingClass = pkExpiredBuildingInfo->GetBuildingClassType();
-
-			if (thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
-			{
-				// Beaten to a world wonder by someone?
-				if (isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-						// Found the culprit
-						if (GET_PLAYER(eLoopPlayer).getBuildingClassCount(eExpiredBuildingClass) > 0)
-						{
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWondersBeatenTo(eLoopPlayer, 1);
-							break;
-						}
-					}
-
-					CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
-					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes)eExpiredBuilding, 0);
-
-					//Add "achievement" for sucking it up
-					if (MOD_API_ACHIEVEMENTS)
-						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
-				}
-
-				iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
-				const BuildingClassTypes eWonderClass = pkExpiredBuildingInfo->GetBuildingClassType();
-				if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass) && isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
-				{
-					iProductionGold += ((25 * iMaxedBuildingGoldPercent) / 100);
-				}
-				if (iProductionGold > 0 && isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
-				{
-					int iConsolationPrize = iProductionGold;
-					if (MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD && GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) != 0)
-					{
-						int iEra = thisPlayer.GetCurrentEra();
-						if (iEra <= 0)
-						{
-							iEra = 1;
-						}
-						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 1)
-						{
-							//Wonders converted into Gold (default).
-							iConsolationPrize = iProductionGold;
-							iConsolationPrize *= iEra;
-							thisPlayer.GetTreasury()->ChangeGold(iConsolationPrize);
-						}
-						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 2)
-						{
-							//Wonders converted into Culture Points.
-							iConsolationPrize = (iProductionGold * /*33*/ GD_INT_GET(BALANCE_CULTURE_PERCENTAGE_VALUE)) / 100;
-							iConsolationPrize *= iEra;
-							thisPlayer.changeJONSCulture(iConsolationPrize);
-							ChangeJONSCultureStored(iConsolationPrize);
-						}
-						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 3)
-						{
-							//Wonders Converted into Golden Age Points.
-							iConsolationPrize = (iProductionGold * /*25*/ GD_INT_GET(BALANCE_GA_PERCENTAGE_VALUE)) / 100;
-							iConsolationPrize *= iEra;
-							thisPlayer.ChangeGoldenAgeProgressMeter(iConsolationPrize);
-						}
-						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 4)
-						{
-							//Wonders Converted into Science Points
-							int iScienceTurns = (iProductionGold * /*10*/ GD_INT_GET(BALANCE_SCIENCE_PERCENTAGE_VALUE)) / 100;
-							iConsolationPrize = thisPlayer.getYieldPerTurnHistory(YIELD_SCIENCE, iScienceTurns) * iEra;
-							if (iConsolationPrize > 0)
-							{
-								TechTypes eCurrentTech = thisPlayer.GetPlayerTechs()->GetCurrentResearch();
-								if (eCurrentTech == NO_TECH)
-								{
-									thisPlayer.changeOverflowResearch(iConsolationPrize);
-								}
-								else
-								{
-									GET_TEAM(thisPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iConsolationPrize, thisPlayer.GetID());
-								}
-							}
-						}
-						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 5)
-						{
-							//Wonders Converted into Faith Points
-							iConsolationPrize = (iProductionGold * /*10*/ GD_INT_GET(BALANCE_FAITH_PERCENTAGE_VALUE)) / 100;
-							iConsolationPrize *= iEra;
-							thisPlayer.ChangeFaith(iConsolationPrize);
-						}
-					}
-					else
-					{
-						thisPlayer.GetTreasury()->ChangeGold(iConsolationPrize);
-					}
-
-					if (getOwner() == GC.getGame().getActivePlayer())
-					{
-						// Notification
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-							strText << getNameKey();
-							strText << pkExpiredBuildingInfo->GetTextKey();
-							strText << iConsolationPrize;
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S");
-							strSummary << getNameKey();
-							strSummary << pkExpiredBuildingInfo->GetTextKey();
-							pNotifications->Add(NOTIFICATION_WONDER_BEATEN, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eExpiredBuilding, GetID());
-						}
-					}
-				}
-
-				m_pCityBuildings->SetBuildingProduction(eExpiredBuilding, 0);
-			}
-		}
-	}
-
-	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
-	{
-		int iProjectProduction = getProjectProduction((ProjectTypes)iI);
-		if (iProjectProduction > 0)
-		{
-			if (thisPlayer.isProductionMaxedProject((ProjectTypes)iI))
-			{
-				iProductionGold = ((iProjectProduction * iMaxedProjectGoldPercent) / 100);
-
+				int iProductionGold = iUnitProduction * iMaxedUnitGoldPercent / 100;
 				if (iProductionGold > 0)
 				{
-					thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+					kOwner.GetTreasury()->ChangeGold(iProductionGold);
 
+					// Notification
 					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-						localizedText << getNameKey() << GC.getProjectInfo((ProjectTypes)iI)->GetTextKey() << iProductionGold;
+						localizedText << getNameKey() << pkUnitInfo->GetTextKey() << iProductionGold;
 						DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
 					}
 				}
 
-				setProjectProduction(((ProjectTypes)iI), 0);
+				setUnitProduction(eUnit, 0);
+			}
+		}
+	}
+
+	// Convert building production to gold (or other yields) if global building class limit is reached
+	// For other buildings, the production is just lost
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+		int iBuildingProduction = GetCityBuildings()->GetBuildingProduction(eBuilding);
+		if (iBuildingProduction > 0)
+		{
+			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+			if (kOwner.isProductionMaxedBuildingClass(eBuildingClass))
+			{
+				// Beaten to a world wonder by someone?
+				if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				{
+					// Check diplomatic implications
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
+						if (eLoopPlayer == getOwner())
+							continue;
+
+						// Found a culprit
+						if (GET_PLAYER(eLoopPlayer).getBuildingClassCount(eBuildingClass) > 0)
+						{
+							kOwner.GetDiplomacyAI()->ChangeNumWondersBeatenTo(eLoopPlayer, 1);
+						}
+					}
+
+					// Remove world map model
+					CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
+					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), eBuilding, 0);
+
+					// Add "achievement" for sucking it up
+					if (MOD_API_ACHIEVEMENTS)
+						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
+
+					// Give consolation yields
+					int iProductionGold = iBuildingProduction * iMaxedBuildingGoldPercent / 100;
+					if (iProductionGold > 0)
+					{
+						if (MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD)
+						{
+							switch (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE))
+							{
+								case 1:
+									// Convert into gold
+									kOwner.GetTreasury()->ChangeGold(iProductionGold);
+									break;
+
+								case 2:
+									// Convert into culture
+									iProductionGold *= /*33*/ GD_INT_GET(BALANCE_CULTURE_PERCENTAGE_VALUE);
+									iProductionGold /= 100;
+									kOwner.changeJONSCulture(iProductionGold);
+									ChangeJONSCultureStored(iProductionGold);
+									break;
+
+								case 3:
+									// Convert into golden age points
+									iProductionGold *= /*25*/ GD_INT_GET(BALANCE_GA_PERCENTAGE_VALUE);
+									iProductionGold /= 100;
+									kOwner.ChangeGoldenAgeProgressMeter(iProductionGold);
+									ChangeJONSCultureStored(iProductionGold);
+									break;
+
+								case 4:
+								{
+									// Convert into science
+									iProductionGold *= /*10*/ GD_INT_GET(BALANCE_SCIENCE_PERCENTAGE_VALUE);
+									iProductionGold /= 100;
+									TechTypes eCurrentTech = kOwner.GetPlayerTechs()->GetCurrentResearch();
+
+									if (eCurrentTech == NO_TECH)
+										kOwner.changeOverflowResearch(iProductionGold);
+									else
+										GET_TEAM(kOwner.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iProductionGold, getOwner());
+
+									break;
+								}
+
+								case 5:
+									// Convert into faith
+									iProductionGold *= /*10*/ GD_INT_GET(BALANCE_FAITH_PERCENTAGE_VALUE);
+									iProductionGold /= 100;
+									kOwner.ChangeFaith(iProductionGold);
+									break;
+
+								default:
+									iProductionGold = 0;
+									break;
+							}
+						}
+						else
+						{
+							kOwner.GetTreasury()->ChangeGold(iProductionGold);
+						}
+
+						// Notification
+						if (getOwner() == GC.getGame().getActivePlayer() && iProductionGold > 0)
+						{
+							CvNotifications* pNotifications = kOwner.GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+								strText << getNameKey();
+								strText << pkBuildingInfo->GetTextKey();
+								strText << iProductionGold;
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S");
+								strSummary << getNameKey();
+								strSummary << pkBuildingInfo->GetTextKey();
+								pNotifications->Add(NOTIFICATION_WONDER_BEATEN, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eBuilding, GetID());
+							}
+						}
+					}
+				}
+
+				GetCityBuildings()->SetBuildingProduction(eBuilding, 0);
+			}
+		}
+	}
+
+	// Convert project production to gold if limit is reached
+	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+	{
+		ProjectTypes eProject = static_cast<ProjectTypes>(iI);
+		int iProjectProduction = getProjectProduction(eProject);
+		if (iProjectProduction > 0)
+		{
+			if (kOwner.isProductionMaxedProject(eProject))
+			{
+				int iProductionGold = iProjectProduction * iMaxedProjectGoldPercent / 100;
+				if (iProductionGold > 0)
+				{
+					kOwner.GetTreasury()->ChangeGold(iProductionGold);
+
+					if (getOwner() == GC.getGame().getActivePlayer())
+					{
+						Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+						localizedText << getNameKey() << GC.getProjectInfo(eProject)->GetTextKey() << iProductionGold;
+						DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
+					}
+				}
+
+				setProjectProduction(eProject, 0);
 			}
 		}
 	}
@@ -30999,99 +30896,55 @@ bool CvCity::doCheckProduction()
 	if (!isProduction() && isHuman() && !isProductionAutomated() && !IsIgnoreCityForHappiness())
 	{
 		chooseProduction();
-		return bOK;
+		return true;
 	}
 
-	// Can now construct an Upgraded version of this Unit
-	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+	// Can now train an Upgraded version of this Unit, and the current one in queue is obsolete
+	const UnitTypes eUnit = getProductionUnit();
+	if (eUnit != NO_UNIT && !canTrain(eUnit, true))
 	{
-		if (getFirstUnitOrder((UnitTypes)iI) != -1)
+		UnitTypes eUpgradeUnit = allUpgradesAvailable(eUnit);
+		if (eUpgradeUnit != NO_UNIT)
 		{
-			// If we can still actually train this Unit type then don't auto-upgrade it yet
-			if (canTrain((UnitTypes)iI, true))
-			{
-				continue;
-			}
+			ASSERT(eUpgradeUnit != eUnit, "Trying to upgrade a Unit to itself");
 
-			eUpgradeUnit = allUpgradesAvailable((UnitTypes)iI);
+			// Carry over the unit progress
+			int iUpgradeProduction = getUnitProduction(eUnit);
+			setUnitProduction(eUnit, 0);
+			setUnitProduction(eUpgradeUnit, iUpgradeProduction);
 
-			if (eUpgradeUnit != NO_UNIT)
-			{
-				ASSERT(eUpgradeUnit != iI, "Trying to upgrade a Unit to itself");
-				iUpgradeProduction = getUnitProduction((UnitTypes)iI);
-				setUnitProduction(((UnitTypes)iI), 0);
-				setUnitProduction(eUpgradeUnit, iUpgradeProduction);
-
-				pOrderNode = headOrderQueueNode();
-
-				while (pOrderNode != NULL)
-				{
-					if (pOrderNode->eOrderType == ORDER_TRAIN)
-					{
-						if (pOrderNode->iData1 == iI)
-						{
-							thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), -1);
-							pOrderNode->iData1 = eUpgradeUnit;
-							thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), 1);
-						}
-					}
-
-					pOrderNode = nextOrderQueueNode(pOrderNode);
-				}
-			}
+			// Update the production queue
+			OrderData* pOrderNode = headOrderQueueNode();
+			pOrderNode->iData1 = eUpgradeUnit;
+			kOwner.changeUnitClassMaking(static_cast<UnitClassTypes>(GC.getUnitInfo(eUnit)->GetUnitClassType()), -1);
+			kOwner.changeUnitClassMaking(static_cast<UnitClassTypes>(GC.getUnitInfo(eUpgradeUnit)->GetUnitClassType()), 1);
 		}
 	}
 
 	// Can now construct an Upgraded version of this Building
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	const BuildingTypes eBuilding = getProductionBuilding();
+	if (eBuilding != NO_BUILDING)
 	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if (pkBuildingInfo)
+		const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		BuildingClassTypes eUpgradeBuildingClass = static_cast<BuildingClassTypes>(pkBuildingInfo->GetReplacementBuildingClass());
+		if (eUpgradeBuildingClass != NO_BUILDINGCLASS)
 		{
-			if (getFirstBuildingOrder(eBuilding) != -1)
+			BuildingTypes eUpgradeBuilding = static_cast<BuildingTypes>(kOwner.getCivilizationInfo().getCivilizationBuildings(eUpgradeBuildingClass));
+			if (canConstruct(eUpgradeBuilding))
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetReplacementBuildingClass();
+				ASSERT(eUpgradeBuilding != eBuilding, "Trying to upgrade a Building to itself");
 
-				if (eBuildingClass != NO_BUILDINGCLASS)
-				{
-					BuildingTypes eUpgradeBuilding = ((BuildingTypes)(thisPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+				// Carry over the building progress
+				int iUpgradeProduction = GetCityBuildings()->GetBuildingProduction(eBuilding);
+				GetCityBuildings()->SetBuildingProduction(eBuilding, 0);
+				GetCityBuildings()->SetBuildingProduction(eUpgradeBuilding, iUpgradeProduction);
 
-					if (canConstruct(eUpgradeBuilding))
-					{
-						ASSERT(eUpgradeBuilding != iI, "Trying to upgrade a Building to itself");
-						iUpgradeProduction = m_pCityBuildings->GetBuildingProduction(eBuilding);
-						m_pCityBuildings->SetBuildingProduction((eBuilding), 0);
-						m_pCityBuildings->SetBuildingProduction(eUpgradeBuilding, iUpgradeProduction);
-
-						pOrderNode = headOrderQueueNode();
-
-						while (pOrderNode != NULL)
-						{
-							if (pOrderNode->eOrderType == ORDER_CONSTRUCT)
-							{
-								if (pOrderNode->iData1 == iI)
-								{
-									CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-									CvBuildingEntry* pkUpgradeBuildingInfo = GC.getBuildingInfo(eUpgradeBuilding);
-
-									if (NULL != pkOrderBuildingInfo && NULL != pkUpgradeBuildingInfo)
-									{
-										const BuildingClassTypes eOrderBuildingClass = pkOrderBuildingInfo->GetBuildingClassType();
-										const BuildingClassTypes eUpgradeBuildingClass = pkUpgradeBuildingInfo->GetBuildingClassType();
-
-										thisPlayer.changeBuildingClassMaking(eOrderBuildingClass, -1);
-										pOrderNode->iData1 = eUpgradeBuilding;
-										thisPlayer.changeBuildingClassMaking(eUpgradeBuildingClass, 1);
-
-									}
-								}
-							}
-
-							pOrderNode = nextOrderQueueNode(pOrderNode);
-						}
-					}
-				}
+				// Update the production queue
+				OrderData* pOrderNode = headOrderQueueNode();
+				const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+				pOrderNode->iData1 = eUpgradeBuilding;
+				kOwner.changeBuildingClassMaking(eBuildingClass, -1);
+				kOwner.changeBuildingClassMaking(eUpgradeBuildingClass, 1);
 			}
 		}
 	}
@@ -31843,11 +31696,12 @@ void CvCity::write(FDataStream& kStream) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 {
+	if (eBuilding == NO_BUILDING)
+		return false;
+
 	VALIDATE_OBJECT();
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (!pkBuildingInfo)
-		return false;
 
 	// Requires coast
 	if (pkBuildingInfo->IsWater())
@@ -32812,13 +32666,12 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 {
+	PRECONDITION(eBuilding != NO_BUILDING);
+
 	if (!MOD_API_ACHIEVEMENTS)
 		return;
 
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (pkBuildingInfo == NULL)
-		return;
-
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	const char* szBuildingTypeChar = pkBuildingInfo->GetType();
 	CvString szBuilding = szBuildingTypeChar;
 

@@ -6753,7 +6753,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 	if((eReligion != NO_RELIGION) && (eFaithBuilding != NO_BUILDINGCLASS))
 	{
 		BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFaithBuilding);
-		if(pCity->GetCityBuildings()->GetNumBuilding(eBuilding) < 1 && pCity->IsCanPurchase(true, true, NO_UNIT, eBuilding, NO_PROJECT, YIELD_FAITH))
+		if (eBuilding != NO_BUILDING && pCity->GetCityBuildings()->GetNumBuilding(eBuilding) < 1 && pCity->IsCanPurchase(true, true, NO_UNIT, eBuilding, NO_PROJECT, YIELD_FAITH))
 		{
 			if(BuyFaithBuilding(pCity, eBuilding))
 			{
@@ -7761,9 +7761,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlo
 				if (pEntry->IsBuildingClassEnabled(iI))
 				{
 					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(iI);
-					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-
-					if (pBuildingEntry)
+					if (eBuilding != NO_BUILDING)
 					{
 						bNoBuilding = false;
 						if (m_pPlayer->GetPlayerTraits()->GetFaithCostModifier() != 0)
@@ -8328,7 +8326,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 		if (pEntry->GetBuildingClassHappiness(jJ) > 0)
 		{
 			BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)jJ);
-			if (eBuilding != NO_BUILDING)
+			if (eBuilding == NO_BUILDING)
 				continue;
 
 			if (pCity && pCity->GetCityBuildings()->HasBuildingClass((BuildingClassTypes)jJ))
@@ -10038,10 +10036,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				if (pEntry->IsBuildingClassEnabled(iI))
 				{
 					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(iI);
-					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-
-					if (pBuildingEntry)
+					if (eBuilding != NO_BUILDING)
 					{
+						CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+
 						////Sanity and AI Optimization Check
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
 
@@ -11327,7 +11325,7 @@ bool CvReligionAI::CanBuyNonFaithBuilding() const
 			BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(iI);
 			if(eBuilding != NO_BUILDING)
 			{
-				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
+				CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
 
 				// Make sure it costs faith, and isn't a religious-specific building
 				if(pBuildingEntry && pBuildingEntry->GetFaithCost() > 0 && pBuildingEntry->GetReligiousPressureModifier() <= 0)

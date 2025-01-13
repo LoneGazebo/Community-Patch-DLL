@@ -6316,19 +6316,15 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
-				CvBuildingEntry* pkBuildingInfo = NULL;
-				if(eBuilding != -1)
+				if (eBuilding != NO_BUILDING)
 				{
-					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
-					if (pkBuildingInfo)
+					CvBuildingEntry* pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
+					int iIdeologyTriggerCount = pkBuildingInfo->GetXBuiltTriggersIdeologyChoice();
+					if (iIdeologyTriggerCount > 0)
 					{
-						int iIdeologyTriggerCount = pkBuildingInfo->GetXBuiltTriggersIdeologyChoice();
-						if (iIdeologyTriggerCount > 0)
+						if (m_pPlayer->getBuildingClassCount((BuildingClassTypes)iI) >= iIdeologyTriggerCount)
 						{
-							if (m_pPlayer->getBuildingClassCount((BuildingClassTypes)iI) >= iIdeologyTriggerCount)
-							{
-								return true;
-							}
+							return true;
 						}
 					}
 				}

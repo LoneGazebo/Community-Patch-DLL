@@ -17651,15 +17651,8 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 
 CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 {
-	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMajor > NO_PLAYER, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
-	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
-	if (pPlayer == NULL)
-	{
-		ASSERT(false, "pPlayer not expected to be NULL.");
-		return NULL;
-	}
 
 	// city-state's status must not be critical
 	if (GetStatus() == MINOR_CIV_STATUS_CRITICAL)
@@ -17667,7 +17660,8 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 
 	// Must have enough gold
 	const int iCost = GetGiftTileImprovementCost(eMajor);
-	if (pPlayer->GetTreasury()->GetGold() < iCost)
+	CvPlayer& kPlayer = GET_PLAYER(eMajor);
+	if (kPlayer.GetTreasury()->GetGold() < iCost)
 		return NULL;
 
 	int iBestScore = 0;
@@ -17685,10 +17679,10 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 		}
 		if (IsLackingGiftableTileImprovementAtPlot(eMajor, pPlot->getX(), pPlot->getY()))
 		{
-			if (pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()) != NO_RESOURCE)
+			if (pPlot->getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
 			{
 				int iScore = 0;
-				ResourceUsageTypes eUsage = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()))->getResourceUsage();
+				ResourceUsageTypes eUsage = GC.getResourceInfo(pPlot->getResourceType(kPlayer.getTeam()))->getResourceUsage();
 				if (eUsage == RESOURCEUSAGE_STRATEGIC)
 				{
 					iScore = (pPlot->getNumResource() * 100);
@@ -17697,7 +17691,7 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 				{
 					iScore = 150;
 					// New? Ooh.
-					if (GET_PLAYER(eMajor).getNumResourceTotal(pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()), /*bIncludeImport*/ true) == 0)
+					if (kPlayer.getNumResourceTotal(pPlot->getResourceType(kPlayer.getTeam()), /*bIncludeImport*/ true) == 0)
 						iScore += 100;
 				}
 				if (iScore > iBestScore)
