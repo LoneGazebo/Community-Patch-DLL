@@ -27341,7 +27341,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 	int iYieldLoop = 0;
 
-	// we have to use a larger value than iMaxRange because straight lines may be blocked by mountains etc.
+	// We have to use a larger value than iMaxRange because straight lines may be blocked by mountains etc.
 	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, 2 * iMaxRange);
 
 	int iWorkPlotDistance = getWorkPlotDistance();
@@ -27653,8 +27653,8 @@ int CvCity::calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const
 	if (pDest == NULL)
 		return -1;
 
-	// we have to use iMaxRange + 1 to find plots that are at up to iMaxRange tiles away because for influence pathfinding iStartMoves = 0 is used
-	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange + 1);
+	// We have to use a larger value than iMaxRange because straight lines may be blocked by mountains etc.
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, 2 * iMaxRange);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), pDest->getX(), pDest->getY(), data);
 	if (!path)
 		return -1; // no passable path exists
@@ -28326,12 +28326,13 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 	vector<int> plots;
 	GetBuyablePlotList(plots, false);
 
+	int iInfluenceDistance = INT_MAX;
 	if (!plots.empty())
 	{
-		SetCheapestPlotInfluenceDistance(calculateInfluenceDistance(GC.getMap().plotByIndex(plots.front()), /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS)));
+		iInfluenceDistance = calculateInfluenceDistance(GC.getMap().plotByIndex(plots.front()), /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS));
+		ASSERT(iInfluenceDistance != -1, "Plots returned from GetBuyablePlotList() should always be reachable");
 	}
-	else
-		SetCheapestPlotInfluenceDistance(INT_MAX);
+	SetCheapestPlotInfluenceDistance(iInfluenceDistance);
 }
 
 void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
