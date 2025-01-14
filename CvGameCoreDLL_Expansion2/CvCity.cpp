@@ -10954,6 +10954,7 @@ const char* CvCity::getProductionNameKey() const
 
 		default:
 			UNREACHABLE();
+			return NULL;
 		}
 	}
 }
