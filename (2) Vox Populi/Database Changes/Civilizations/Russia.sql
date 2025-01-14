@@ -43,6 +43,32 @@ VALUES
 	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_WITHERING_FIRE');
 
 ----------------------------------------------------------
+-- Unique Unit: Licorne (Field Gun)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_RUSSIA', 'UNITCLASS_FIELD_GUN', 'UNIT_LICORNE');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_FIELD_GUN'
+			)
+		)
+	),
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_FIELD_GUN') + 5
+WHERE Type = 'UNIT_LICORNE';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'),
+	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_GRAPESHOT');
+
+----------------------------------------------------------
 -- Unique Building: Ostrog (Bastion Fort)
 ----------------------------------------------------------
 UPDATE Civilization_BuildingClassOverrides
@@ -52,6 +78,7 @@ WHERE BuildingType = 'BUILDING_KREPOST';
 UPDATE Buildings
 SET
 	Defense = (SELECT Defense FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT') + 200,
+	DamageReductionFlat = (SELECT DamageReductionFlat FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT') + 2,
 	BorderObstacleCity = 1
 WHERE Type = 'BUILDING_KREPOST';
 
@@ -59,16 +86,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_KREPOST', 'YIELD_PRODUCTION', 3);
-
-INSERT INTO Building_ImprovementYieldChanges
-	(BuildingType, ImprovementType, YieldType, Yield)
-VALUES
-	('BUILDING_KREPOST', 'IMPROVEMENT_CAMP', 'YIELD_PRODUCTION', 1),
-	('BUILDING_KREPOST', 'IMPROVEMENT_CAMP', 'YIELD_GOLD', 1),
-	('BUILDING_KREPOST', 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 1),
-	('BUILDING_KREPOST', 'IMPROVEMENT_MINE', 'YIELD_GOLD', 1),
-	('BUILDING_KREPOST', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1),
-	('BUILDING_KREPOST', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1);
 
 CREATE TEMP TABLE Helper (
 	YieldType TEXT
@@ -82,8 +99,48 @@ VALUES
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 SELECT
-	'BUILDING_KREPOST', a.Type, b.YieldType, 1
+	'BUILDING_KREPOST', a.Type, b.YieldType, 2
 FROM Resources a, Helper b
 WHERE a.ResourceUsage = 1 AND a.type <> 'RESOURCE_PAPER';
 
 DROP TABLE Helper;
+
+----------------------------------------------------------
+-- Unique Building: Pogost (Customs House)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_RUSSIA', 'BUILDINGCLASS_MINT', 'BUILDING_POGOST');
+
+UPDATE Buildings
+SET TradeRouteRecipientBonus = (SELECT TradeRouteRecipientBonus FROM Buildings WHERE Type = 'BUILDING_MINT') + 2
+WHERE Type = 'BUILDING_POGOST';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+--	('BUILDING_POGOST', 'YIELD_CULTURE', 2),
+	('BUILDING_POGOST', 'YIELD_GOLD', 2);
+
+INSERT INTO Building_TechEnhancedYieldChanges
+	(BuildingType, TechType, YieldType, Yield)
+VALUES
+	('BUILDING_POGOST', 'TECH_BANKING', 'YIELD_SCIENCE', 2),
+	('BUILDING_POGOST', 'TECH_ECONOMICS', 'YIELD_FOOD', 2),
+	('BUILDING_POGOST', 'TECH_RAILROAD', 'YIELD_PRODUCTION', 2),
+	('BUILDING_POGOST', 'TECH_RAILROAD', 'YIELD_FAITH', 2),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_FOOD', 1),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_PRODUCTION', 1),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_GOLD', 1),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_SCIENCE', 1),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_CULTURE', 1),
+	('BUILDING_POGOST', 'TECH_INDUSTRIALIZATION', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_POGOST', 'IMPROVEMENT_TRADING_POST', 'YIELD_PRODUCTION', 1),
+	('BUILDING_POGOST', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
+	('BUILDING_POGOST', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_PRODUCTION', 1),
+	('BUILDING_POGOST', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
