@@ -28413,7 +28413,15 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 
 	if (!plots.empty())
 	{
-		SetCheapestPlotInfluenceDistance(calculateInfluenceDistance(GC.getMap().plotByIndex(plots.front()), /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS)));
+		int influenceDistance = calculateInfluenceDistance(GC.getMap().plotByIndex(plots.front()), /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS));
+		if (influenceDistance != -1)
+		{
+			SetCheapestPlotInfluenceDistance(influenceDistance);
+		}
+		else
+		{
+			SetCheapestPlotInfluenceDistance(INT_MAX);
+		}
 	}
 	else
 		SetCheapestPlotInfluenceDistance(INT_MAX);
