@@ -27,7 +27,7 @@
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
-//// TEMPORARY
+// All changes added by VP that aren't covered by another CustomModOption.
 #define MOD_BALANCE_VP	gCustomMods.isBALANCE_VP()
 
 //////////////////////////
@@ -112,6 +112,8 @@
 #define MOD_BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES	gCustomMods.isBALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES()
 // Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back.
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS	gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
+// Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over.
+#define MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS	gCustomMods.isUI_DISPLAY_PRECISE_MOVEMENT_POINTS()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -1276,6 +1278,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
 	MOD_OPT_DECL(BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
+	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);

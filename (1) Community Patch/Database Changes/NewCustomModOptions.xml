@@ -21,7 +21,7 @@
 		<!--         1 - required database updates -->
 		<!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
-		<!-- New version of the MOD_BALANCE_CORE define. Will be changed back to MOD_BALANCE_CORE once that define actually works. -->
+		<!-- All changes added by VP that aren't covered by another CustomModOption. -->
 		<Row Class="6" Name="BALANCE_VP" Value="0"/>
 
 		<!-- Balance the number of City-States with each trait evenly. -->
@@ -35,6 +35,9 @@
 
 		<!-- Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back. -->
 		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
+
+		<!-- Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over. -->
+		<Row Class="2" Name="UI_DISPLAY_PRECISE_MOVEMENT_POINTS" Value="0"/>
 
 		<!-- Changes in Milae's Alternative Difficulty Mod -->
 		<!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
