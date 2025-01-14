@@ -19006,7 +19006,6 @@ int CvUnit::GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 /// Is a particular enemy city next to us?
 bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 {
-	ASSERT(pSpecifyCity, "City is NULL when checking if it is adjacent to a unit");
 	if (plot() != NULL)
 	{
 		return plot()->IsEnemyCityAdjacent(getTeam(), pSpecifyCity);
