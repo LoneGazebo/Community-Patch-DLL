@@ -8047,7 +8047,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 									if (aPlotList[uiPlotIndex].m_iX == iPlotX && aPlotList[uiPlotIndex].m_iY == iPlotY)
 									{
 										CUSTOMLOG("Cancelling trade route for domain %i in plot (%i, %i) as enabling improvement destroyed", eTradeRouteDomain, iPlotX, iPlotY);
-										pTrade->EndTradeRoute(pConnection->m_iID);
+										pTrade->EndTradeRoute(pTrade->GetIndexFromID(pConnection->m_iID));
 										break;
 									}
 								}
