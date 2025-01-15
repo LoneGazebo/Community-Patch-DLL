@@ -475,6 +475,7 @@ UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AN
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_RAMESSES'; -- 9, 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GOLD' AND LeaderType = 'LEADER_RAMESSES'; -- 7, UB 
 
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 7, UU2
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 4, UU 
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 5
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 8, only: diplo

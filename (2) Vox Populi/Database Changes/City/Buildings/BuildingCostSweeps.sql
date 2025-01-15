@@ -260,5 +260,8 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_GURDWARA'
 );
 
+-- Wat
+UPDATE Buildings SET Cost = -1, FaithCost = 300, GoldMaintenance = 0 WHERE BuildingClass = 'BUILDINGCLASS_WAT';
+
 -- Reformation buildings
 UPDATE Buildings SET Cost = 125 WHERE IsReformation = 1;
