@@ -124,7 +124,7 @@
 		<!-- Wat -->
 		<Row>
 			<Type>BUILDINGCLASS_WAT</Type>
-			<DefaultBuilding>BUILDING_WAT</DefaultBuilding>
+			<DefaultBuilding>NONE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WAT_DESC</Description>
 		</Row>
 		<!-- National Wonders -->
