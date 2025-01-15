@@ -12539,6 +12539,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									BuildingTypes eBuilding = getProductionBuilding();
 									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 									BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+									BuildingTypes eDefaultBuilding = static_cast<BuildingTypes>(GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex());
 
 									// check if this building is valid in the origin city
 									// we are going very light on restrictions, so we are not using CanConstruct()
@@ -12555,7 +12556,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										bValid = false;
 									}
 									// If the building class exists in the city, but the default building in the city doesn't, that means we already managed to siphon a unique building. Do not replace in this case.
-									else if (pOriginCity->HasBuildingClass(eBuildingClass) && pOriginCity->m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex()) == 0)
+									else if (pOriginCity->HasBuildingClass(eBuildingClass) && (eDefaultBuilding == NO_BUILDING || pOriginCity->m_pCityBuildings->GetNumBuilding(eDefaultBuilding) == 0))
 									{
 										bValid = false;
 									}
@@ -12600,11 +12601,10 @@ void CvCity::changeProductionTimes100(int iChange)
 										if (iOverflow >= 0)
 										{
 											// due to above check, if building class already exists, it means we are replacing the default building with a unique building
-											if (pOriginCity->HasBuildingClass(eBuildingClass))
+											if (eDefaultBuilding != NO_BUILDING && pOriginCity->HasBuildingClass(eBuildingClass))
 											{
-												BuildingTypes eClassDefault = (BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex();
-												pOriginCity->m_pCityBuildings->SetNumRealBuilding(eClassDefault, 0);
-												pOriginCity->m_pCityBuildings->SetNumFreeBuilding(eClassDefault, 0);
+												pOriginCity->m_pCityBuildings->SetNumRealBuilding(eDefaultBuilding, 0);
+												pOriginCity->m_pCityBuildings->SetNumFreeBuilding(eDefaultBuilding, 0);
 											}
 
 											pOriginCity->produce(eBuilding, false);

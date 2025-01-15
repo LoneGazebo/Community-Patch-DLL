@@ -9413,36 +9413,30 @@ UnitTypes CvPlayer::GetSpecificUnitType(UnitClassTypes eUnitClassType) const
 }
 
 // Given a building class, get the players specific building of that class
+// This can return NO_BUILDING
 BuildingTypes CvPlayer::GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert)
 {
-	BuildingTypes eBuildingType = NO_BUILDING;
-	BuildingClassTypes eBuildingClassType = (BuildingClassTypes) GC.getInfoTypeForString(szBuildingClass, hideAssert);
-
-	const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClassType);
-
-	if (pkBuildingClassInfo)
+	BuildingTypes eBuilding = NO_BUILDING;
+	const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(szBuildingClass, hideAssert));
+	if (eBuildingClass != NO_BUILDINGCLASS)
 	{
-		CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
-
-		if (pCivilizationInfo != NULL)
+		const CivilizationTypes eCivilization = getCivilizationType();
+		if (eCivilization != NO_CIVILIZATION)
 		{
-			eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClassType);
+			eBuilding = static_cast<BuildingTypes>(GC.getCivilizationInfo(eCivilization)->getCivilizationBuildings(eBuildingClass));
 		}
 		else
 		{
-			eBuildingType = (BuildingTypes) pkBuildingClassInfo->getDefaultBuildingIndex();
+			eBuilding = static_cast<BuildingTypes>(GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex());
 		}
 	}
 
-	if (!isMinorCiv() && !isBarbarian()) {
-		if (eBuildingType == NO_BUILDING) {
-			CUSTOMLOG("GetSpecificBuildingType for player %s: %s is UNKNOWN!!!", getName(), szBuildingClass);
-		} else {
-			// CUSTOMLOG("GetSpecificBuildingType for player %s: %s is %s", getName(), szBuildingClass, GC.getBuildingInfo(eBuildingType)->GetType());
-		}
+	if (isMajorCiv() && eBuilding == NO_BUILDING)
+	{
+		CUSTOMLOG("GetSpecificBuildingType for player %s: %s is UNKNOWN!!!", getName(), szBuildingClass);
 	}
 
-	return eBuildingType;
+	return eBuilding;
 }
 
 CvPlot* CvPlayer::GetBestCoastalSpawnPlot(CvUnit *pUnit)

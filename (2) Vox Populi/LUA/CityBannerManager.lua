@@ -395,12 +395,16 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.CityHasFranchise:SetHide(true);
 			local FranchiseTT = "";
 			for corporation in GameInfo.Corporations() do
-				if Game.GetCorporationFounder(corporation.ID) ~= -1 and city:IsFranchised(Game.GetCorporationFounder(corporation.ID)) then
-					controls.CityHasFranchise:SetHide( false )
-					if (FranchiseTT ~= "") then
-						FranchiseTT = FranchiseTT .. "[NEWLINE]"
+				local iFounder = Game.GetCorporationFounder(corporation.ID);
+				if iFounder ~= -1 and city:IsFranchised(iFounder) then
+					controls.CityHasFranchise:SetHide(false);
+					local iFranchiseBuilding = Players[iFounder]:GetSpecificBuildingType(corporation.FranchiseBuildingClass);
+					if iFranchiseBuilding ~= -1 then
+						if FranchiseTT ~= "" then
+							FranchiseTT = FranchiseTT .. "[NEWLINE]";
+						end
+						FranchiseTT = FranchiseTT .. "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[iFranchiseBuilding].Description) .. "[ENDCOLOR]: " .. Locale.ConvertTextKey(GameInfo.Buildings[iFranchiseBuilding].Help);
 					end
-					FranchiseTT = FranchiseTT .. "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Description) .. "[ENDCOLOR]: " .. Locale.ConvertTextKey(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Help)
 				end
 			end
 			controls.CityHasFranchise:SetToolTipString(FranchiseTT);
