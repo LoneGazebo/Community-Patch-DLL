@@ -50,6 +50,31 @@ VALUES
 	('UNIT_SHOSHONE_COMANCHE_RIDERS', 'PROMOTION_MOON_STRIKER');
 
 ----------------------------------------------------------
+-- Unique Unit: Yellow Brow (Tercio)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_SHOSHONE', 'UNITCLASS_TERCIO', 'UNIT_YELLOW_BROW');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_SPANISH_TERCIO'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SPANISH_TERCIO') + 2
+WHERE Type = 'UNIT_YELLOW_BROW';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_YELLOW_BROW', 'PROMOTION_BIG_HORSE_DANCE');
+
+----------------------------------------------------------
 -- Unique Improvement: Encampment
 ----------------------------------------------------------
 UPDATE Builds
@@ -104,3 +129,24 @@ VALUES
 	('IMPROVEMENT_VP_ENCAMPMENT', 'TECH_RIFLING', 'YIELD_SCIENCE', 1),
 	('IMPROVEMENT_VP_ENCAMPMENT', 'TECH_ADVANCED_BALLISTICS', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_VP_ENCAMPMENT', 'TECH_ADVANCED_BALLISTICS', 'YIELD_SCIENCE', 1);
+
+----------------------------------------------------------
+-- Unique Building: Buffalo Pound (Well)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_SHOSHONE', 'BUILDINGCLASS_WELL', 'BUILDING_BUFFALO_POUND'),
+	('CIVILIZATION_SHOSHONE', 'BUILDINGCLASS_WATERMILL', NULL);
+
+UPDATE Buildings
+SET
+	PrereqTech = 'TECH_TRAPPING',
+	IsNoRiver = 0
+WHERE Type = 'BUILDING_BUFFALO_POUND';
+
+INSERT INTO Building_YieldChangesPerXTiles
+	(BuildingType, YieldType, Yield, NumRequired)
+VALUES
+	('BUILDING_BUFFALO_POUND', 'YIELD_FOOD', 1, 6),
+	('BUILDING_BUFFALO_POUND', 'YIELD_PRODUCTION', 1, 6);

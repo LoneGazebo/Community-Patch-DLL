@@ -42,15 +42,14 @@ VALUES
 	('CIVILIZATION_HUNS', 'REGION_PLAINS'),
 	('CIVILIZATION_MONGOL', 'REGION_GRASS'),    -- UA wants horses, Ancient UB can utilize Sheep/Cattle/Horses in addition to other bonus resources (historical)
 	('CIVILIZATION_MONGOL', 'REGION_PLAINS'),
-	('CIVILIZATION_SHOSHONE', 'REGION_PLAINS'), -- UI needs flat land, Industiral UU wants horses but not rewarded for expanding aggressively (historical)
-	('CIVILIZATION_SHOSHONE', 'REGION_GRASS'),
 
 	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid
 	(CivilizationType, RegionType)
 VALUES
-	('CIVILIZATION_CHINA', 'REGION_HILLS'), 	-- UI needs flat land
+	('CIVILIZATION_CHINA', 'REGION_HILLS'),     -- UI needs flat land
+	('CIVILIZATION_SHOSHONE', 'REGION_HILLS'),  -- UI needs flat land (historical)
 	('CIVILIZATION_POLAND', 'REGION_JUNGLE'),   -- Medieval UB wants Sheep/Cattle/Horses
 	('CIVILIZATION_POLAND', 'REGION_FOREST');
 
