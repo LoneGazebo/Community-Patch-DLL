@@ -25,6 +25,32 @@ VALUES
 	('UNIT_SONGHAI_MUSLIMCAVALRY', 'PROMOTION_RAIDER');
 
 ----------------------------------------------------------
+-- Unique Unit: Sofa (Crossbowman)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_SONGHAI', 'UNITCLASS_CROSSBOWMAN', 'UNIT_SOFA');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_CROSSBOWMAN'
+			)
+		)
+	),
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CROSSBOWMAN') + 1
+WHERE Type = 'UNIT_SOFA';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_SOFA', 'PROMOTION_MEDIC'),
+	('UNIT_SOFA', 'PROMOTION_FATHER_OF_THE_HORSE');
+
+----------------------------------------------------------
 -- Unique Building: Tabya (Stone Works)
 ----------------------------------------------------------
 UPDATE Civilization_BuildingClassOverrides
@@ -47,3 +73,40 @@ INSERT INTO Building_RiverPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_MUD_PYRAMID_MOSQUE', 'YIELD_PRODUCTION', 1);
+
+----------------------------------------------------------
+-- Unique Building: Gumey (Caravansary)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_SONGHAI', 'BUILDINGCLASS_CARAVANSARY', 'BUILDING_GUMEY');
+
+UPDATE Buildings
+SET
+	TradeRouteLandDistanceModifier = (SELECT TradeRouteLandDistanceModifier FROM Buildings WHERE Type = 'BUILDING_CARAVANSARY') + 25,
+	TradeRouteRecipientBonus = 2,
+	TradeRouteTargetBonus = 2
+WHERE Type = 'BUILDING_GUMEY';
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_CARAVANSARY' AND YieldType = 'YIELD_GOLD') + 1
+WHERE BuildingType = 'BUILDING_GUMEY' AND YieldType = 'YIELD_GOLD';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_GUMEY', 'YIELD_PRODUCTION', 2),
+	('BUILDING_GUMEY', 'YIELD_CULTURE', 2);
+
+INSERT INTO Building_YieldChangesFromPassingTR
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_GUMEY', 'YIELD_PRODUCTION', 2),
+	('BUILDING_GUMEY', 'YIELD_GOLD', 2),
+	('BUILDING_GUMEY', 'YIELD_CULTURE', 2);
+
+INSERT INTO Building_LuxuryYieldChanges
+	(BuildingType, YIeldType, Yield)
+VALUES
+	('BUILDING_GUMEY', 'YIELD_GOLD', 1);
