@@ -37,6 +37,8 @@ VALUES
 	('CIVILIZATION_BRAZIL', 'REGION_FOREST'),
 	('CIVILIZATION_MAYA', 'REGION_JUNGLE'),     -- UI needs jungle/forest (historical)
 	('CIVILIZATION_MAYA', 'REGION_FOREST'),
+	('CIVILIZATION_SIAM', 'REGION_JUNGLE'),     -- UB needs jungle/forest (historical)
+	('CIVILIZATION_SIAM', 'REGION_FOREST'),
 
 	('CIVILIZATION_HUNS', 'REGION_GRASS'),      -- UA wants horses, UI needs flat land (historical)
 	('CIVILIZATION_HUNS', 'REGION_PLAINS'),
