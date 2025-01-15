@@ -3659,24 +3659,24 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 {
 	//maybe there are no interceptors and we just had the fighter for air recon ...
-	if (!pTargetPlot && pTargetPlot->GetInterceptorCount(m_pPlayer->GetID(),NULL,false,true)==0)
+	if (!pTargetPlot && pTargetPlot->GetInterceptorCount(m_pPlayer->GetID(), NULL, false, true) == 0)
 		return;
 
 	// Start by sending possible air sweeps
-	for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
+	for (unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
 
-		if(pUnit && pUnit->canMove())
+		if (pUnit && pUnit->canMove())
 		{
-			if(pUnit->canAirSweep())
+			if (pUnit->canAirSweep())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
 				if (pUnit->isOutOfAttacks())
 					UnitProcessed(m_CurrentAirSweepUnits[iI].GetID());
 			}
 
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
 				strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
@@ -4414,7 +4414,6 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 					continue;
 					
 				//civilian to capture?
-				bool bMoved = false;
 				bool bTargetIsCombat = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true);
 				bool bTargetIsCivilian = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true);
 				bool bTargetIsImprovement = pBestPlot->getImprovementType() != NO_IMPROVEMENT && !pBestPlot->IsImprovementPillaged();
@@ -4427,7 +4426,7 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 				}
 				//move towards the target but don't hang around there
-				//in fact, since we apparently did not attack this turn, we should flee
+				//in fact, since we apparently did not attack this turn, we should continue roaming
 				else if (bTargetIsCombat && plotDistance(*pBestPlot, *pUnit->plot()) > 1)
 				{
 					MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_LAND, 12);
@@ -4445,9 +4444,9 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 					continue;
 
 				//no naval pillaging, it's just too annoying
-				//same logic as above, if we're already at the target we should flee instead of staying
-				bool bTargetIsUnit = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true);
-				if (!bTargetIsUnit || plotDistance(*pBestPlot, *pUnit->plot()) > 1)
+				//same logic as above, if we're already at the target we don't end the turn but move to safety
+				bool bTargetIsCombat = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true);
+				if (!bTargetIsCombat || plotDistance(*pBestPlot, *pUnit->plot()) > 1)
 				{
 					if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
 					{
@@ -4984,7 +4983,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, i
 void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 {
 	// Always use one if available in case we need it for recon
-	int interceptionsOnPlot = max(1,pTarget->GetInterceptorCount(m_pPlayer->GetID(),NULL,false,true));
+	int interceptionsOnPlot = max(1, pTarget->GetInterceptorCount(m_pPlayer->GetID(), NULL, false, true));
 
 	// Loop through all units available to tactical AI this turn
 	m_CurrentAirSweepUnits.clear();
@@ -7992,14 +7991,11 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
+		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
 
 		// unit giving extra strength to an adjacent city?
-		if (pUnit->GetAdjacentCityDefenseMod() > 0 && (pTestPlot->IsAdjacentCity(pUnit->getTeam()) || (pTestPlot->isCity() && pTestPlot->getTeam() == pUnit->getTeam())))
-		{
-			iPlotScore += pUnit->GetAdjacentCityDefenseMod();
-		}
-
-		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
+		if (pUnit->GetAdjacentCityDefenseMod() > 0 && GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(pTestPlot)<=1)
+			iPlotScore++;
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -8018,7 +8014,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 
 		//there is a tendency for fast units to move too far ahead without a chance to withdraw later
 		//so try to catch this case right here, cannot wait until the end of the sim when it's too late
-		if (iOverkillPercent > 300 && iAssumedMovesLeft<3*GC.getMOVE_DENOMINATOR() && unit.iMovesLeft>3*GC.getMOVE_DENOMINATOR())
+		if (iOverkillPercent > 300 && iAssumedMovesLeft<3*GD_INT_GET(MOVE_DENOMINATOR) && unit.iMovesLeft>3*GD_INT_GET(MOVE_DENOMINATOR))
 			return result; //don't do it
 
 		//give a bonus for occupying a citadel even if it's just intermediate for now
@@ -8131,7 +8127,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		if (evalMode == EM_INTERMEDIATE)
 		{
 			//don't do it if we don't have enough movement to move to a safe plot later
-			if (iAssumedMovesLeft<=GC.getMOVE_DENOMINATOR() && !bHaveSimCover && !bHaveRealCover)
+			if (iAssumedMovesLeft<=GD_INT_GET(MOVE_DENOMINATOR) && !bHaveSimCover && !bHaveRealCover)
 				return result;
 		}
 		else
@@ -9065,7 +9061,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		if (pUnit && pUnit->GetCurrHitPoints() < gMinHpForTactsim)
 		{
 			//if we don't have a good use for this damaged unit, then drop it
-			if (gPossibleMoves.front().eAssignmentType == A_MOVE && availableUnits[i].iMovesLeft<3*GC.getMOVE_DENOMINATOR())
+			if (gPossibleMoves.front().eAssignmentType == A_MOVE && availableUnits[i].iMovesLeft<3*GD_INT_GET(MOVE_DENOMINATOR))
 			{
 				iScore = TACTICAL_COMBAT_IMPOSSIBLE_SCORE;
 				iMaxUnitsToKeep--;

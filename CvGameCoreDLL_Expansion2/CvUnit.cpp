@@ -10208,7 +10208,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	//be careful "wasting" movement for slow units
-	if (GetDanger() > GetCurrHitPoints() + GD_INT_GET(PILLAGE_HEAL_AMOUNT) && getMoves() < GC.getMOVE_DENOMINATOR() * 3 && !hasFreePillageMove())
+	if (GetDanger() > GetCurrHitPoints() + GD_INT_GET(PILLAGE_HEAL_AMOUNT) && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
 		return false;
 
 	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)

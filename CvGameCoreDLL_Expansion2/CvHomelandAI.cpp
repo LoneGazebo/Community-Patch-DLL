@@ -2413,7 +2413,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			}
 
 			//if there is an improvement to plunder and we can flee
-			if (tile->iMovesLeft > GC.getMOVE_DENOMINATOR() &&
+			if (tile->iMovesLeft > GD_INT_GET(MOVE_DENOMINATOR) &&
 				pEvalPlot->getRevealedImprovementType(pUnit->getTeam()) != NO_IMPROVEMENT &&
 				pEvalPlot->getResourceType() != NO_RESOURCE &&
 				!pEvalPlot->IsImprovementPillaged() &&
