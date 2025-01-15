@@ -7371,14 +7371,11 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 		gDLL->GameplayFeatureChanged(pDllPlot.get(), eNewValue);
 
-#if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType, -1, -1);
 		}
-#endif
 
 		m_eFeatureType = eNewValue;
-#if defined(MOD_BALANCE_CORE)
 		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
 		{
@@ -7409,7 +7406,6 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 				}
 			}
 		}
-#endif
 		updateYield();
 		updateImpassable();
 
@@ -7470,7 +7466,6 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			}
 		}
 
-#if defined(MOD_PLOTS_EXTENSIONS)
 		if (MOD_PLOTS_EXTENSIONS)
 		{
 			// update adjacent tiles if there is a change for adjacent plot yields
@@ -7483,7 +7478,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 					continue;
 				}
 
-				if (GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eOldFeature) || GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eNewValue))
+				if ((eOldFeature != NO_FEATURE && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eOldFeature)) || (eNewValue != NO_FEATURE && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eNewValue)))
 				{
 					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
 					{
@@ -7496,13 +7491,10 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 				}
 			}
 		}
-#endif
 
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileFeatureChanged, getX(), getY(), getOwner(), eOldFeature, eNewValue);
 		}
-#endif
 	}
 }
 
