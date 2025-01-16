@@ -15381,10 +15381,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 		// Instant Friendship change with all Minors
 		int iMinorFriendshipChange = pBuildingInfo->GetMinorFriendshipChange();
-		if(iMinorFriendshipChange != 0)
+		if(isMajorCiv() && iMinorFriendshipChange != 0)
 		{
 			int iNewValue = 0;
-			//iMinorFriendshipChange += 100;	// Make it a mod
 
 			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
