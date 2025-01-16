@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.18.2) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.18.3) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -31,7 +31,7 @@
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
     <File md5="8338C80D226B371AC67ADF6072052753" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="611263EA9A6139BF3C0A25E5418ACE58" import="0">EUI/NeededText.xml</File>
-    <File md5="F9D68BD229C3231F94D168759C1DC6F4" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="B50D6569728196074C21EEB911F46387" import="1">LUA/CityBannerManager.lua</File>
     <File md5="ADBA6340D1EB08FDDB285979E58B56F2" import="1">LUA/CityBannerManager.xml</File>
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
