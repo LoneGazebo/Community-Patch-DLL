@@ -2994,7 +2994,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	}
 
 	// Give a flat bonus for GPP Rate (200 per 5%)
-	if (pkImprovementInfo->GetGreatPersonRateModifier() != 0)
+	if (pkImprovementInfo && pkImprovementInfo->GetGreatPersonRateModifier() != 0)
 	{
 		iSecondaryScore += pkImprovementInfo->GetGreatPersonRateModifier() * 40;
 	}
