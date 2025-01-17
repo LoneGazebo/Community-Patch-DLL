@@ -6709,6 +6709,10 @@ bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandida
 	if (iPassableNeighbors<3)
 		return false;
 
+	//we don't know the unit, so use a rough estimation ...
+	if (pPlayer->GetPlotDanger(*pCandidate, false) > /*10*/ GD_INT_GET(NEUTRAL_HEAL_RATE))
+		return false;
+
 	return true;
 }
 
@@ -6755,7 +6759,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 		//don't check movement, don't need to heal right now
 		if (pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			if (!pUnit->canHeal(pPlot, true))
+			if (!pUnit->canHeal(pPlot, false))
 				continue;
 
 			//don't mess with (ranged) garrisons if enemies are around
@@ -6793,9 +6797,9 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 
 		//make up a score function
 		//this is difficult, danger does not consider cover from our own units
-		//on the other hand, our covering units might run away ...
-		int iRemainingDanger = iDanger - nFriends * 50 + pUnit->GetCurrHitPoints();
-		int iScore = (iHealRate - iRemainingDanger) * 10;
+		//on the other hand, our covering units might run away ... just assume an even spread
+		int iRemainingDanger = iDanger / (nFriends+1);
+		int iScore = (pUnit->GetCurrHitPoints() + iHealRate - iRemainingDanger) * 10;
 		//is this safe enough?
 		if (iScore > 0)
 		{

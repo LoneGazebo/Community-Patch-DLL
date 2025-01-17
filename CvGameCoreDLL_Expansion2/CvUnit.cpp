@@ -7574,6 +7574,13 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 	if (isBarbarian())
 		return false;
 
+	if (pPlot == NULL)
+		return false;
+
+	//if this is a hypothetical check, hitpoints don't matter
+	if (pPlot == plot() && !IsHurt())
+		return false;
+
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	if (MOD_BALANCE_CORE_MILITARY_RESOURCES && kPlayer.isMajorCiv())
 	{
