@@ -39,8 +39,10 @@
 	<Texture file="Quinquereme_DMG_DIFF.dds"/>
 	<Texture file="Quinquereme_SREF.dds"/>
 	<Texture file="Unit_Environment_Dull.dds"/>
-	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>s
 	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="minoan_galea_sref.dds"/>
+	<Texture file="minoan_galea_diff.dds"/>
 	<TimedTrigger file="FX_Triggers_U_Carthage_Quinquereme.ftsxml"/>
 	<BoneUsage>
 		<Bone name="WORLD_center"/>
