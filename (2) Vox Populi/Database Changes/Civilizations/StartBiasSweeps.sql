@@ -45,6 +45,8 @@ VALUES
 	('CIVILIZATION_MONGOL', 'REGION_GRASS'),    -- UA wants horses, Ancient UB can utilize Sheep/Cattle/Horses in addition to other bonus resources (historical)
 	('CIVILIZATION_MONGOL', 'REGION_PLAINS'),
 
+	('CIVILIZATION_SWEDEN', 'REGION_TUNDRA'),   -- UB wants tundra (historical)
+
 	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid
