@@ -107,6 +107,38 @@ VALUES
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_LIGHTHOUSE'),
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_ARMORY');
 
+INSERT INTO Unit_AITypes
+	(UnitType, UnitAIType)
+VALUES
+	('UNIT_SPANISH_CONQUISTADOR', 'UNITAI_FAST_ATTACK'),
+	('UNIT_SPANISH_CONQUISTADOR', 'UNITAI_SETTLE');
+
+----------------------------------------------------------
+-- Unique Unit: Armada (Corvette)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_SPAIN', 'UNITCLASS_PRIVATEER', 'UNIT_ARMADA');
+
+UPDATE Units
+SET
+	ObsoleteTech = (
+		SELECT ObsoleteTech FROM Units WHERE Type = (
+			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_PRIVATEER'
+			)
+		)
+	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PRIVATEER') + 2
+WHERE Type = 'UNIT_ARMADA';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_ARMADA', 'PROMOTION_SANTA_MARIA'),
+	('UNIT_ARMADA', 'PROMOTION_INVINCIBLE');
+
 ----------------------------------------------------------
 -- Unique Improvement: Hacienda
 ----------------------------------------------------------
@@ -174,3 +206,51 @@ VALUES
 	('IMPROVEMENT_HACIENDA', 'TECH_FERTILIZER', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_HACIENDA', 'TECH_FERTILIZER', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_HACIENDA', 'TECH_FERTILIZER', 'YIELD_GOLD', 1);
+
+----------------------------------------------------------
+-- Unique Building: Bullring (Zoo)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_SPAIN', 'BUILDINGCLASS_THEATRE', 'BUILDING_BULLRING');
+
+DELETE FROM Building_ClassesNeededInCity WHERE BuildingType = 'BUILDING_BULLRING';
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_THEATRE' AND YieldType = 'YIELD_CULTURE') + 2
+WHERE BuildingType = 'BUILDING_BULLRING' AND YieldType = 'YIELD_CULTURE';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BULLRING', 'YIELD_FAITH', 4),
+	('BUILDING_BULLRING', 'YIELD_TOURISM', 4);
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_BULLRING', 'IMPROVEMENT_PASTURE', 'YIELD_CULTURE', 2),
+	('BUILDING_BULLRING', 'IMPROVEMENT_PASTURE', 'YIELD_TOURISM', 2);
+
+UPDATE Building_FeatureYieldChanges
+SET
+	Yield = (
+		SELECT Yield FROM Building_FeatureYieldChanges a
+		WHERE a.BuildingType = 'BUILDING_THEATRE'
+		AND a.FeatureType = Building_FeatureYieldChanges.FeatureType
+		AND a.YieldType = Building_FeatureYieldChanges.YieldType
+	) + 1
+WHERE BuildingType = 'BUILDING_BULLRING';
+
+INSERT INTO Building_YieldFromWLTKD
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BULLRING', 'YIELD_GOLD', 100),
+	('BUILDING_BULLRING', 'YIELD_CULTURE', 100),
+	('BUILDING_BULLRING', 'YIELD_FAITH', 100);
+
+INSERT INTO Building_WLTKDFromProject
+	(BuildingType, ProjectType, Turns)
+VALUES
+	('BUILDING_BULLRING', 'PROJECT_PUBLIC_WORKS', 10);
