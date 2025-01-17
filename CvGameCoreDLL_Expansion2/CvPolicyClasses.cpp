@@ -4960,7 +4960,7 @@ std::vector<BuildingTypes> CvPlayerPolicies::GetFreeBuildingsOnConquest()
 		{
 			CvPolicyEntry *pPolicy = m_pPolicies->GetPolicyEntry(i);
 			BuildingTypes eFreeBuilding = pPolicy->GetFreeBuildingOnConquest();
-			if (eFreeBuilding)
+			if (eFreeBuilding != NO_BUILDING)
 			{
 				freeBuildings.push_back(eFreeBuilding);
 			}

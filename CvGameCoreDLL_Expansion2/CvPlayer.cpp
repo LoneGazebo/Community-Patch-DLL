@@ -4162,20 +4162,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		}
 
 		vector<BuildingTypes> freeConquestBuildings = GetPlayerPolicies()->GetFreeBuildingsOnConquest();
-		for (uint iI = 0; iI < freeConquestBuildings.size(); iI++)
+		for (vector<BuildingTypes>::const_iterator it = freeConquestBuildings.begin(); it != freeConquestBuildings.end(); ++it)
 		{
-			const BuildingTypes eBuilding = freeConquestBuildings[iI];
-			if (eBuilding == NO_BUILDING)
-				continue;
-
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (!pkBuildingInfo)
-				continue;
+			const BuildingTypes eBuilding = *it;
+			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 			// Get the unique building (if any)
 			BuildingTypes eFreeBuilding = pNewCity->GetBuildingTypeFromClass(pkBuildingInfo->GetBuildingClassType());
-
-			pNewCity->SetNumFreeBuilding(eFreeBuilding, 1);
+			if (eFreeBuilding != NO_BUILDING)
+				pNewCity->SetNumFreeBuilding(eFreeBuilding, 1);
 		}
 	}
 

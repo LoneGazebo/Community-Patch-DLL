@@ -5386,7 +5386,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						if (pCapital)
 						{
 							BuildingTypes eBuilding = pCapital->GetBuildingTypeFromClass(eBuildingClass);
-							pCapital->SetNumFreeBuilding(eBuilding, 1, true, false);
+							if (eBuilding != NO_BUILDING)
+								pCapital->SetNumFreeBuilding(eBuilding, 1, true, false);
 						}
 					}
 
