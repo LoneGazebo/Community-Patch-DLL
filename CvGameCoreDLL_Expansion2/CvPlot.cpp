@@ -8545,7 +8545,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ResourceTypes eResource = getResourceType(getTeam()); // can we see the resource?
 					if (eResource != NO_RESOURCE)
 					{
-						if (IsResourceImprovedForOwner(bNewImprovementGiftFromMajor))
+						if (IsResourceImprovedForOwner(bNewImprovementGiftFromMajor) && !isCity())
 						{
 							owningPlayer.addResourcesOnPlotToTotal(this, false);
 							owningPlayer.removeResourcesOnPlotFromUnimproved(this, false);

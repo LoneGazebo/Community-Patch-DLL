@@ -3830,22 +3830,26 @@ void CvPlayerCulture::SetLastTurnCPT(int iValue)
 /// What is our cultural influence now?
 int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 {
-	PRECONDITION(ePlayer >= 0, "Invalid player index");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	ASSERT(ePlayer >= 0, "Invalid player index");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS)
+		return 0;
+
 	return m_aiCulturalInfluence[iIndex];
 }
 
 // What is our cultural influence now?
 void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 {
-	PRECONDITION(ePlayer >= 0, "Invalid player index");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	ASSERT(ePlayer >= 0, "Invalid player index");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS)
+		return;
+
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
 
 	//store off this data
@@ -3883,8 +3887,8 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 {
-	PRECONDITION(ePlayer >= 0, "Invalid player index");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	ASSERT(ePlayer >= 0, "Invalid player index");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -3894,8 +3898,8 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const
 {
-	PRECONDITION(ePlayer >= 0, "Invalid player index");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	ASSERT(ePlayer >= 0, "Invalid player index");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;

@@ -847,7 +847,7 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 							iFranchises++;
 
 							// Free franchise above Popular?
-							if (GetCorporationFreeFranchiseAbovePopular() != 0 && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+							if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
 							{
 								iFreeFranchises += GetCorporationFreeFranchiseAbovePopular();
 							}
@@ -1312,10 +1312,10 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 		// Search all players for Franchises (Autocracy)
 		if (GetCorporationFreeFranchiseAbovePopular() > 0)
 		{
-			for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
+				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
 				{
 					if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
 						continue;
@@ -1692,7 +1692,7 @@ int CvPlayerCorporations::GetFranchiseTourismMod(PlayerTypes ePlayer, bool bJust
 					return iNumFranchises;
 
 				// Free franchise above Popular?
-				if (GetCorporationFreeFranchiseAbovePopular() != 0 && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+				if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
 				{
 					iNumFranchises += GetCorporationFreeFranchiseAbovePopular();
 				}
