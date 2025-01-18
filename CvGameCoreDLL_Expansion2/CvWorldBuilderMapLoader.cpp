@@ -1072,6 +1072,32 @@ bool CvWorldBuilderMapLoader::InitMap()
 		if(kPlotData.GetFeatureType() != CvWorldBuilderMap::PlotMapData::InvalidFeature)
 			pkPlot->setFeatureType((FeatureTypes)kPlotData.GetFeatureType());
 
+		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MAJOR))
+		{
+			if(uiMajorCivsPlaced < kMajorCivs.size())
+			{
+				kMajorCivs[uiMajorCivsPlaced]->setStartingPlot(pkPlot);
+				uiMajorCivsPlaced++;
+			}
+		}
+		else if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MINOR))
+		{
+			if(uiMinorCivsPlaced < kMinorCivs.size())
+			{
+				kMinorCivs[uiMinorCivsPlaced]->setStartingPlot(pkPlot);
+				uiMinorCivsPlaced++;
+			}
+		}
+
+		pkPlot->SetContinentType(kPlotData.GetContinentType());
+	}
+
+	// Rivers rely on both adjacent plots to be initialized, so these need a second loop
+	for(uint i = 0; i < uiPlotCount; ++i)
+	{
+		const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
+		CvPlot* pkPlot = kMap.plotByIndex(i);
+
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::W_OF_RIVER))
 		{
 			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_S))
@@ -1095,25 +1121,6 @@ bool CvWorldBuilderMapLoader::InitMap()
 			else
 				pkPlot->setNEOfRiver(true, FLOWDIRECTION_SOUTHEAST);
 		}
-
-		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MAJOR))
-		{
-			if(uiMajorCivsPlaced < kMajorCivs.size())
-			{
-				kMajorCivs[uiMajorCivsPlaced]->setStartingPlot(pkPlot);
-				uiMajorCivsPlaced++;
-			}
-		}
-		else if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MINOR))
-		{
-			if(uiMinorCivsPlaced < kMinorCivs.size())
-			{
-				kMinorCivs[uiMinorCivsPlaced]->setStartingPlot(pkPlot);
-				uiMinorCivsPlaced++;
-			}
-		}
-
-		pkPlot->SetContinentType(kPlotData.GetContinentType());
 	}
 
 	OutputDebugStringA("Calculating Areas...\n");
