@@ -5283,8 +5283,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			if (pLosingPlayer->getNumResourceAvailable(eResource, false) == 0)
 				continue;
 
-			// Don't bother looking at this Resource if the winning player has it already (unless they can import duplicate resources)
-			if (pWinningPlayer->getNumResourceAvailable(eResource, true) > 0 && !pWinningPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+			if (!pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_RESOURCES, eResource, 1))
 				continue;
 
 			// resource value evaluation from the winner's perspective
@@ -5356,6 +5355,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			{
 				iResourceQuantity = 3;
 			}
+
+			if (!pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
+				continue;
 
 			int iCurrentResourceValue = pWinningPlayer->GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eLosingPlayer, eResource, iResourceQuantity, -1, false, GC.getGame().GetDealDuration(), false, /*bEqualize*/ false);
 
