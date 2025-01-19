@@ -19292,7 +19292,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
 						}
 						// Easy target?
-						else if (bEasyTarget && !IsEasyTarget(GetPrimeLeagueCompetitor()))
+						else if (bEasyTarget && (GetPrimeLeagueCompetitor() == NO_PLAYER || !IsEasyTarget(GetPrimeLeagueCompetitor())))
 						{
 							vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 3 * iAttackMultiplier;
 							vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier;
