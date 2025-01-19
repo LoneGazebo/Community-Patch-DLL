@@ -7069,13 +7069,16 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					if (pLoopPlot == plot())
 						continue;
 
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if (pImprovementInfo && pImprovementInfo->IsNoFollowUp() && !pLoopPlot->IsImprovementPillaged())
+					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 					{
-						// check if the fortification should be pillaged
-						if (iPillageFortificationsChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xae41e82).mix(iCityID).mix(*it).mix(GC.getGame().getGameTurn())) <= iPillageFortificationsChance)
+						CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+						if (pImprovementInfo->IsNoFollowUp() && !pLoopPlot->IsImprovementPillaged())
 						{
-							pLoopPlot->SetImprovementPillaged(true);
+							// check if the fortification should be pillaged
+							if (iPillageFortificationsChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xae41e82).mix(iCityID).mix(*it).mix(GC.getGame().getGameTurn())) <= iPillageFortificationsChance)
+							{
+								pLoopPlot->SetImprovementPillaged(true);
+							}
 						}
 					}
 				}
