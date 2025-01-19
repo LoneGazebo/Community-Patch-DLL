@@ -1580,10 +1580,13 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			}
 		}
 
-		int iLoop = 0;
-		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+		if (GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation() != NO_CORPORATION)
 		{
-			GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromCity(pLoopCity, GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation(), true);
+			int iLoop = 0;
+			for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+			{
+				GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromCity(pLoopCity, GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation(), true);
+			}
 		}
 	}
 	if (GetEffects()->bNoResourceHappiness)
