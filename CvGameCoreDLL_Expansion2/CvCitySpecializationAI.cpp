@@ -335,7 +335,7 @@ void CvCitySpecializationAI::DoTurn()
 		BuildingTypes eOldWonder = m_eNextWonderDesired;
 		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(m_iNextWonderWeight);
 
-		if (eOldWonder != m_eNextWonderDesired)
+		if (eOldWonder != m_eNextWonderDesired && m_eNextWonderDesired != NO_BUILDING)
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
 			if (pkBuildingInfo)
