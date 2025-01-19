@@ -2438,7 +2438,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				if (GET_PLAYER(eUnitOwner).isMajorCiv() && GET_PLAYER(getOwner()).IsVassalOfSomeone())
 				{
 					// Unit was killed inside my territory (or my teammate's territory)
-					if (GET_PLAYER(pPlot->getOwner()).getTeam() == GET_PLAYER(eUnitOwner).getTeam())
+					if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).getTeam() == GET_PLAYER(eUnitOwner).getTeam())
 					{
 						// Loop through all masters and penalize them
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
