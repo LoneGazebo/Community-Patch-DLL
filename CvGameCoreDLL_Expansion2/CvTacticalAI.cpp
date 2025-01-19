@@ -6281,7 +6281,7 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 //see if there is a possible target around the unit
 bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement)
 {
-	if (!pUnit || !pUnit->IsCanAttack() || !pUnit->canMove())
+	if (!pUnit || !pUnit->IsCanAttack() || !pUnit->canMove() || pUnit->isDelayedDeath())
 		return false;
 
 	//for ranged we have a readymade method
