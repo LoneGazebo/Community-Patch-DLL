@@ -1074,7 +1074,7 @@ int CvBuilderTaskingAI::GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot
 	map<int, PlannedRoute>::const_iterator it = m_bestRouteForPlot.find(pPlot->GetPlotIndex());
 
 	if (it == m_bestRouteForPlot.end())
-		return -1;
+		return INT_MAX;
 
 	return GetRouteBuildTime(it->second, pUnit);
 }
