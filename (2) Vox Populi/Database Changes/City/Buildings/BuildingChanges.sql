@@ -665,6 +665,24 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_BANK';
 
+INSERT INTO Helper
+	(BuildingClassType, YieldType, Yield)
+VALUES
+	('BUILDINGCLASS_ARSENALE_DI_VENEZIA', 'YIELD_PRODUCTION', 2),
+	('BUILDINGCLASS_ARSENALE_DI_VENEZIA', 'YIELD_SCIENCE', 2),
+	('BUILDINGCLASS_RIALTO_DISTRICT', 'YIELD_FOOD', 3),
+	('BUILDINGCLASS_RIALTO_DISTRICT', 'YIELD_GOLD', 3),
+	('BUILDINGCLASS_MURANO_GLASSWORKS', 'YIELD_CULTURE', 2),
+	('BUILDINGCLASS_MURANO_GLASSWORKS', 'YIELD_TOURISM', 2);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT a.Type, b.BuildingClassType, b.YieldType, b.Yield
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_BANK';
+
+DELETE FROM Helper;
+
 -- Stock Exchange
 UPDATE Buildings
 SET SpecialistCount = 1
