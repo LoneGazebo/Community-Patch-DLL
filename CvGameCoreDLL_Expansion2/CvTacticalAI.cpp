@@ -2699,7 +2699,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot(), DOMAIN_LAND, INT_MAX))
+				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot(), DOMAIN_LAND, INT_MAX, true))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 						strLogString.Format("%s now at (%d,%d). Moving to empty space near target (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -5595,9 +5595,14 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	//if not possible, try again with more leeway
 	if (iTurns==INT_MAX)
 	{
-		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
-		if (eDomain==pTarget->getDomain())
-			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		if (iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING1)
+		{
+			iFlags &= ~CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+		}
+		else
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
 		iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
 	}
 
@@ -8286,7 +8291,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 
 	//how often can we attack this turn (depending on moves left on the unit)
 	int iMaxAttacks = min(unit.iAttacksLeft, (unit.iMovesLeft + GD_INT_GET(MOVE_DENOMINATOR) - 1) / GD_INT_GET(MOVE_DENOMINATOR));
-	if (iMaxAttacks == 0)
+	if (iMaxAttacks <= 0)
 		return result;
 
 	//check how much damage we could do
@@ -8304,7 +8309,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	{
 		int iMoveCost = unit.iMovesLeft - iAssumedMovesLeft;
 		int iAttackCost = max(iMoveCost, GD_INT_GET(MOVE_DENOMINATOR));
-		result.iRemainingMoves -= min(unit.iMovesLeft, iAttackCost);
+		result.iRemainingMoves = max(0,unit.iMovesLeft - iAttackCost);
 	}
 
 	//don't break formation if there are many enemies around
