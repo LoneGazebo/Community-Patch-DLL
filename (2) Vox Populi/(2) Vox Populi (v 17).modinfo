@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.18.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.18.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -42,19 +42,19 @@
     <File md5="210A2EC9855B2C72A820FE6EEB714E10" import="1">Assets/Community2Art45.dds</File>
     <File md5="80F9749002A26D6E76C475F910701540" import="1">Assets/Community2Art64.dds</File>
     <File md5="70B77A16732A543B57E5C87099310E2E" import="1">Assets/Community2Art80.dds</File>
-    <File md5="2E245366950D9381FFAD0C2ED7B7976E" import="1">Assets/CommunityArt128.dds</File>
+    <File md5="A2FF2B10B235F90E8282A4B51A85CE5F" import="1">Assets/CommunityArt128.dds</File>
     <File md5="26B1113AD41720EF367F01FD0EEE7A4C" import="1">Assets/CommunityArt214.dds</File>
-    <File md5="B6D71E48E2FB68F604E094266080D9A5" import="1">Assets/CommunityArt256.dds</File>
-    <File md5="6ACFD6C34E2D55BFAF1AFB700C8DA3E0" import="1">Assets/CommunityArt45.dds</File>
-    <File md5="A138D225F48B31882B8494332B26F3F5" import="1">Assets/CommunityArt64.dds</File>
-    <File md5="DD9BC69FF6F7FDE5D06FFC1C59609B3C" import="1">Assets/CommunityArt80.dds</File>
-    <File md5="21A4F24886A9D9C80C28D6A4A2B77357" import="1">Assets/CommunityAtlas3_045.dds</File>
-    <File md5="3128526D22BDB879EA6FCAF35748148E" import="1">Assets/CommunityAtlas3_064.dds</File>
-    <File md5="24C0E6FCDE3B225B361B07162DDF37DC" import="1">Assets/CommunityAtlas3_080.dds</File>
-    <File md5="F7C6013CD7D24C478FE17283446BAB2F" import="1">Assets/CommunityAtlas3_128.dds</File>
-    <File md5="4837AF74CE5D6562009965F345CC23CB" import="1">Assets/CommunityAtlas3_256.dds</File>
+    <File md5="5B45576EC190D2DA1D9502BD3C687EB2" import="1">Assets/CommunityArt256.dds</File>
+    <File md5="1EBA66098E0164A7F9F1F2DB5FA45205" import="1">Assets/CommunityArt45.dds</File>
+    <File md5="D23A31D06C5B0E7DA29DB5A5EC97920F" import="1">Assets/CommunityArt64.dds</File>
+    <File md5="24B9ECFED456559260C719071864F5E3" import="1">Assets/CommunityArt80.dds</File>
+    <File md5="310CD49675CE84D914D75571B1B898EB" import="1">Assets/CommunityAtlas3_045.dds</File>
+    <File md5="E5F4BEAF7AB4EC46356C326D5C7E9873" import="1">Assets/CommunityAtlas3_064.dds</File>
+    <File md5="71584A4E780DC2B6C17648B2C1C84E4D" import="1">Assets/CommunityAtlas3_080.dds</File>
+    <File md5="02F45317DC37EBF2731530ADD0F57C84" import="1">Assets/CommunityAtlas3_128.dds</File>
+    <File md5="94840340615E103074354CC92C48FB87" import="1">Assets/CommunityAtlas3_256.dds</File>
     <File md5="316984B4370EA1B11E3759F01CE9A36D" import="1">Assets/DC45_Generic.dds</File>
-    <File md5="F04AFABE13529DFEA950EBADAA514778" import="1">Assets/GW_Flood_Tablet.dds</File>
+    <File md5="0E8F3227E663A4E381BB7373D47BA519" import="1">Assets/GW_Flood_Tablet.dds</File>
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Corporations/civilopediatopbuttonscorporations.dds</File>
     <File md5="4D6C112B1933F1E1D1F028DB5A885635" import="1">Assets/Corporations/CorpAtlas128.dds</File>
     <File md5="85DF7C32D32D396A29656837892B4357" import="1">Assets/Corporations/CorpAtlas256.dds</File>
@@ -86,12 +86,12 @@
     <File md5="201D7E606B978034A64AA403335BD65B" import="1">Assets/Icons/musicianspecialist180.dds</File>
     <File md5="265FE41DC6DE68E914FCDB96989F6EC6" import="1">Assets/Icons/musicianspecialist256.dds</File>
     <File md5="4BBF84C786CFBAD9E1E74B4B9099857A" import="1">Assets/Icons/musicianspecialist512.dds</File>
-    <File md5="33B99D7804B54C24994D76751B37DC37" import="1">Assets/Icons/ProcessAtlas128.dds</File>
-    <File md5="ADF2E503841D29EE33991B69355C75F2" import="1">Assets/Icons/ProcessAtlas256.dds</File>
-    <File md5="B412CED3BC3DDBAA285A1ECF593402B7" import="1">Assets/Icons/ProcessAtlas32.dds</File>
-    <File md5="53F6DF1A79AB1940B25B1807E127D395" import="1">Assets/Icons/ProcessAtlas45.dds</File>
-    <File md5="F5AD786DBA0BDD995A40BE46BC17FC17" import="1">Assets/Icons/ProcessAtlas64.dds</File>
-    <File md5="28FD7BA4146694F3057804E48609F406" import="1">Assets/Icons/ProcessAtlas80.dds</File>
+    <File md5="A54ADE115483B42B21AA0040299DFD47" import="1">Assets/Icons/ProcessAtlas128.dds</File>
+    <File md5="112E9C48FA4D52E7166BBA3E118625FA" import="1">Assets/Icons/ProcessAtlas256.dds</File>
+    <File md5="440ADBF9E7A86E930D2EC09242564885" import="1">Assets/Icons/ProcessAtlas32.dds</File>
+    <File md5="A4B2AD52C85DCDB7FB49D2BD71867FC6" import="1">Assets/Icons/ProcessAtlas45.dds</File>
+    <File md5="5BBFB591C3EB12F6A7908FE0678775DA" import="1">Assets/Icons/ProcessAtlas64.dds</File>
+    <File md5="942CF4D6B29E258A3DCBB1036A7F4694" import="1">Assets/Icons/ProcessAtlas80.dds</File>
     <File md5="019833658D822041DDA179C0F11B81D8" import="1">Assets/Icons/VP_FontIconAtlas.dds</File>
     <File md5="A95038F429AD7FBA71B3A515DB41CAC2" import="1">Assets/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="4128E366F3B47E737F837670C8E0D85E" import="1">Assets/Icons/writerspecialist1024.dds</File>
@@ -106,11 +106,11 @@
     <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Assets/Icons/LockedSpecialistIcons/locked_scientist.dds</File>
     <File md5="CA684194A3C656557B00598D7D705D53" import="1">Assets/Icons/LockedSpecialistIcons/locked_servant.dds</File>
     <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Assets/Icons/LockedSpecialistIcons/locked_writer.dds</File>
-    <File md5="605C727010FE541A5E29D4A05D4A9F9B" import="1">Assets/Icons/ENW_IconAtlas128.dds</File>
-    <File md5="484EE3E48796C3B5A756E91452ECC6D8" import="1">Assets/Icons/ENW_IconAtlas256.dds</File>
-    <File md5="4AD5C5B48E8C105859EE6194870CB30F" import="1">Assets/Icons/ENW_IconAtlas45.dds</File>
-    <File md5="8F29001EDE81F95218F1F1A990532976" import="1">Assets/Icons/ENW_IconAtlas64.dds</File>
-    <File md5="5DCFD3B6B3EC99A3CAA162600EC62006" import="1">Assets/Icons/ENW_IconAtlas80.dds</File>
+    <File md5="6B098E2E66B6F9E84E0566ECAF150010" import="1">Assets/Icons/ENW_IconAtlas128.dds</File>
+    <File md5="A264042ECE62207E4D73CB4CBBE24B48" import="1">Assets/Icons/ENW_IconAtlas256.dds</File>
+    <File md5="210CCFEAF9B421C589C88C6C71325284" import="1">Assets/Icons/ENW_IconAtlas45.dds</File>
+    <File md5="6E623F01A10DE3E3F82DFB2F8B9D7262" import="1">Assets/Icons/ENW_IconAtlas64.dds</File>
+    <File md5="9CA84F5EA2B6554AA51F8B7F74FF4215" import="1">Assets/Icons/ENW_IconAtlas80.dds</File>
     <File md5="BD3366FE1E06E03C2C66C302C55877DB" import="1">Assets/Icons/ENW_UnitFlagAtlas.dds</File>
     <File md5="7FF88EAFDD077EFC9C064D9C25B98940" import="1">Assets/Improvements/Archaeological Dig/hidden_archaeological_dig.fxsxml</File>
     <File md5="D13A8D9E02E5D88BB7D16B143FD24177" import="1">Assets/Improvements/Archaeological Dig/hidden_archaeological_dig.gr2</File>
@@ -141,20 +141,20 @@
     <File md5="1AF2B8A9E582BBDA8105011A3263D6B7" import="1">Assets/Improvements/Encampment/EncampmentBuildIcon45.dds</File>
     <File md5="F36752CB8DECDE180AC8B6A2478FE290" import="1">Assets/Improvements/Encampment/EncampmentBuildIcon64.dds</File>
     <File md5="83E5B07AE2B6DE1AB923C202A8BE0212" import="1">Assets/Improvements/Encampment/SV_Encampment.dds</File>
-    <File md5="C9BF123F78863DDC4BF2ED023C7FF7CE" import="1">Assets/Improvements/Hacienda/hacienda.fxsxml</File>
-    <File md5="BBDF3243D6B2A7CFF6CB49CC4964BB4E" import="1">Assets/Improvements/Hacienda/hacienda.gr2</File>
-    <File md5="CC6AD6FA886D9F9E52BEA94B33EFCEE4" import="1">Assets/Improvements/Hacienda/HaciendaIcons_045.dds</File>
-    <File md5="FD272863A48650EA5C7EDBFC369B401B" import="1">Assets/Improvements/Hacienda/HaciendaIcons_064.dds</File>
-    <File md5="CC00E7B3E7C179EA3112755E26A86BDF" import="1">Assets/Improvements/Hacienda/HaciendaIcons_128.dds</File>
-    <File md5="FB489FFB27E8A1BEEBD9A9A775B95BEC" import="1">Assets/Improvements/Hacienda/HaciendaIcons_256.dds</File>
-    <File md5="B053056BAB519693BEBAACAA6BFB8E73" import="1">Assets/Improvements/Hacienda/hacienda_decal.dds</File>
-    <File md5="1131E374F2B7711547A3E95AA83054D4" import="1">Assets/Improvements/Hacienda/hacienda_diff.dds</File>
-    <File md5="D6560D0D1B0950A7E0A18EF64DB5AE2D" import="1">Assets/Improvements/Hacienda/hacienda_hb.fxsxml</File>
+    <File md5="291B5F5B68DC7663DF1F6C2DDCCD291F" import="1">Assets/Improvements/Hacienda/hacienda.fxsxml</File>
+    <File md5="6D8C341DBFB38B15FE370113D8808DBF" import="1">Assets/Improvements/Hacienda/hacienda.gr2</File>
+    <File md5="1FB531E8C1AD64281C3EF98B722095A9" import="1">Assets/Improvements/Hacienda/HaciendaIcons_045.dds</File>
+    <File md5="20132EDFE2F128C095076BAC27646117" import="1">Assets/Improvements/Hacienda/HaciendaIcons_064.dds</File>
+    <File md5="912D2BE1E90ACDECAC5CD41CC8B97E93" import="1">Assets/Improvements/Hacienda/HaciendaIcons_128.dds</File>
+    <File md5="9FFBB2B1277C8A21C04A41A491785037" import="1">Assets/Improvements/Hacienda/HaciendaIcons_256.dds</File>
+    <File md5="5733CE656051F2DB35188B3BF385605B" import="1">Assets/Improvements/Hacienda/hacienda_decal.dds</File>
+    <File md5="A1B9F5A6712B4B15183732246FD841F9" import="1">Assets/Improvements/Hacienda/hacienda_diff.dds</File>
+    <File md5="FED359E19DA9C0609AE9D17F73F7A95C" import="1">Assets/Improvements/Hacienda/hacienda_hb.fxsxml</File>
     <File md5="5CE3AB8C0187307D009F008D1966B68F" import="1">Assets/Improvements/Hacienda/hacienda_hb.gr2</File>
-    <File md5="BBEE2C1409E976775A4A10BF199019F6" import="1">Assets/Improvements/Hacienda/hacienda_pl.fxsxml</File>
-    <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Assets/Improvements/Hacienda/hacienda_pl.gr2</File>
-    <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Assets/Improvements/Hacienda/hacienda_pl_decal.dds</File>
-    <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Assets/Improvements/Hacienda/hacienda_pl_diff.dds</File>
+    <File md5="AF4D1BBB4A459A6E716BC6FA523BC75F" import="1">Assets/Improvements/Hacienda/hacienda_pl.fxsxml</File>
+    <File md5="55D15A775D06361EFAF66FF81CE03BF8" import="1">Assets/Improvements/Hacienda/hacienda_pl.gr2</File>
+    <File md5="AEDBE80F213F6DAE779FD8D4CE1B4584" import="1">Assets/Improvements/Hacienda/hacienda_pl_decal.dds</File>
+    <File md5="B197F7A007BBCC5B5E1ECDDF41B2F443" import="1">Assets/Improvements/Hacienda/hacienda_pl_diff.dds</File>
     <File md5="74876FB3DFF8395618540F53B0B88D3F" import="1">Assets/Improvements/Inca/MachuPicchu.fxsxml</File>
     <File md5="03685D31568FB3B9A3298B6B756BD119" import="1">Assets/Improvements/Inca/MachuPicchu.gr2</File>
     <File md5="9BB293994C6964F7FFA530C3A9D6F5E2" import="1">Assets/Improvements/Kuna/hb_kuna.fxsxml</File>
@@ -167,18 +167,18 @@
     <File md5="4B5D7AB09229717BD4558C6728D5FD75" import="1">Assets/Improvements/Kuna/pl_kuna.fxsxml</File>
     <File md5="A51DAAC23F2AE707DB1703B5C3BF1B66" import="1">Assets/Improvements/Kuna/SV_Kuna.dds</File>
     <File md5="AC41C06BA721315512F26433220FEDF7" import="1">Assets/Improvements/Ordo/no_gloss.dds</File>
-    <File md5="EADCE73CB913FA10D5D5D38B405E0915" import="1">Assets/Improvements/Ordo/YurtCamp.dds</File>
-    <File md5="F851407CDC18394040E510EC14B20E9D" import="1">Assets/Improvements/Ordo/YurtCamp.fxsxml</File>
-    <File md5="2D918C84A191EED3124CA39255391785" import="1">Assets/Improvements/Ordo/YurtCamp.gr2</File>
-    <File md5="B2A0D9D7D2FF5F6D0D54FB707C624851" import="1">Assets/Improvements/Ordo/YurtCamp_PL.dds</File>
-    <File md5="A4027465D4AC803CC0A53B9B1381383F" import="1">Assets/Improvements/Ordo/YurtCamp_PL.fxsxml</File>
-    <File md5="68931DAC437C89CA76F3C70A2DECD9B2" import="1">Assets/Improvements/Ordo/YurtCamp_PL.gr2</File>
-    <File md5="3D8EA725B0222207C10C3DD2A9EDC1EA" import="1">Assets/Improvements/Ordo/YurtIcons045.dds</File>
-    <File md5="ED9DC0B5ED1ABA39133733D54283BA81" import="1">Assets/Improvements/Ordo/YurtIcons064.dds</File>
-    <File md5="93128D9703C09C5F60A7DB49CF2F897E" import="1">Assets/Improvements/Ordo/YurtIcons256.dds</File>
+    <File md5="7A0E8787E1F0630BB97B05313A2A442A" import="1">Assets/Improvements/Ordo/YurtCamp.dds</File>
+    <File md5="FEBDA215F862F1DC58816A79FF8C7C66" import="1">Assets/Improvements/Ordo/YurtCamp.fxsxml</File>
+    <File md5="DE956B4D2C97A9FB0CA5006E6049AF3B" import="1">Assets/Improvements/Ordo/YurtCamp.gr2</File>
+    <File md5="813A3A5C5EF3441C12E38216E9712AB7" import="1">Assets/Improvements/Ordo/YurtCamp_PL.dds</File>
+    <File md5="224E128476E7E49E163E5EA30FCC8A85" import="1">Assets/Improvements/Ordo/YurtCamp_PL.fxsxml</File>
+    <File md5="C353FFA45854F999855ABC91B01D5BDB" import="1">Assets/Improvements/Ordo/YurtCamp_PL.gr2</File>
+    <File md5="2E9DEFB3D7203FE07852CAEAABCE92AA" import="1">Assets/Improvements/Ordo/YurtIcons045.dds</File>
+    <File md5="C2AAF8FFA39E471385C0B70450A4E82A" import="1">Assets/Improvements/Ordo/YurtIcons064.dds</File>
+    <File md5="82E50FF8EC29E13B322665A4F6765F8E" import="1">Assets/Improvements/Ordo/YurtIcons256.dds</File>
     <File md5="86CC3610A917733B2289FCBFD297034F" import="1">Assets/Improvements/Ordo/Yurt_SV.dds</File>
     <File md5="AD9AE55410CD3B9767649196A4186849" import="1">Assets/Improvements/Siheyuan/fx_triggers_Siheyuan.ftsxml</File>
-    <File md5="AD3B745D1E456CAC93471A4363824901" import="1">Assets/Improvements/Siheyuan/siheyuan.dds</File>
+    <File md5="57A29D094083DFFBC3F677AC15403BE3" import="1">Assets/Improvements/Siheyuan/siheyuan.dds</File>
     <File md5="2635CEA15128C6354F966E373DEC3DDD" import="1">Assets/Improvements/Siheyuan/SIHEYUAN.fxsxml</File>
     <File md5="2E4D1E8AD168DE435E7CFD3F66B479A9" import="1">Assets/Improvements/Siheyuan/Siheyuan045.dds</File>
     <File md5="09FCAFFEB707E582F9256BDA9457FD21" import="1">Assets/Improvements/Siheyuan/Siheyuan064.dds</File>
@@ -188,7 +188,7 @@
     <File md5="45E8AD7BEBBF9B7A6F2B4965FE94A88C" import="1">Assets/Improvements/Siheyuan/siheyuan_neighborhood.gr2</File>
     <File md5="FC1F5D8B0E263D0E121730928FD97A8C" import="1">Assets/Improvements/Siheyuan/siheyuan_neighborhood_HB.gr2</File>
     <File md5="5DE2B777BE0BE2F85A69AFDC96A6F08F" import="1">Assets/Improvements/Siheyuan/siheyuan_neighborhood_PL.gr2</File>
-    <File md5="E1705E44055B7C671F493C462776DD51" import="1">Assets/Improvements/Siheyuan/siheyuan_PL.dds</File>
+    <File md5="F13BCC6D5D0ED1BAA71F2BFE44144504" import="1">Assets/Improvements/Siheyuan/siheyuan_PL.dds</File>
     <File md5="BD759BBE2E44CF91C0047DFDED687B38" import="1">Assets/Improvements/Siheyuan/Siheyuan_PL.fxsxml</File>
     <File md5="D6DE44C6EA84408DC228A0B3381B0E24" import="1">Assets/Improvements/Villa/africanMarket_cm.dds</File>
     <File md5="3E646C723131298F1211F175BB3C1A7D" import="1">Assets/Improvements/Villa/LatifundiumBuildIcons_045.dds</File>
@@ -198,8 +198,8 @@
     <File md5="76981592DB5BAC7A6331D78B5EEACD83" import="1">Assets/Improvements/Villa/LatifundiumIcon_128.dds</File>
     <File md5="E5FEE7B6A91E21344D2A456E9F16BB26" import="1">Assets/Improvements/Villa/LatifundiumIcon_256.dds</File>
     <File md5="6031238F85B0FF9F54515EFAF7603BFB" import="1">Assets/Improvements/Villa/manufactoryRefinery_cm.dds</File>
-    <File md5="7CE68A137960D3BE081750AF68FA2929" import="1">Assets/Improvements/Villa/Mediterranean Villa Ground 2 H.dds</File>
-    <File md5="42B111A134AD8AD491C8D3913F2F8F73" import="1">Assets/Improvements/Villa/Mediterranean Villa Ground 2.dds</File>
+    <File md5="86E9362460FC61A66E75EFD061D96B1D" import="1">Assets/Improvements/Villa/Mediterranean Villa Ground 2 H.dds</File>
+    <File md5="D88EBFF09D1938E5ED457C2DED59DD94" import="1">Assets/Improvements/Villa/Mediterranean Villa Ground 2.dds</File>
     <File md5="7E1C55C873477BBCE6F9BFDA7A61C227" import="1">Assets/Improvements/Villa/Mediterranean Villa HB.gr2</File>
     <File md5="2ABA2C9707463BE6A342B19612515991" import="1">Assets/Improvements/Villa/Mediterranean Villa PL.gr2</File>
     <File md5="5F654393CEE6AFE546DB6AF3C99DF8CD" import="1">Assets/Improvements/Villa/Mediterranean Villa.gr2</File>
@@ -252,10 +252,10 @@
     <File md5="D94FA2099F79AC2F705713062A85962A" import="1">Assets/Promotions/expansion2_promotion16.dds</File>
     <File md5="A417DE16AD20A08203887FEA2F35B55A" import="1">Assets/Promotions/promotion_kris16_exp2.dds</File>
     <File md5="A91B599BEA9A2A79205B5FD813F723AA" import="1">Assets/Promotions/promotions128.dds</File>
-    <File md5="6D1211B291DDDDC8652947F371E73F6C" import="1">Assets/RandomVictory/ConquestVictory.dds</File>
-    <File md5="4817A51709AED34246FFAD14580E2576" import="1">Assets/RandomVictory/CultureVictory.dds</File>
-    <File md5="771DE1F533F034DE4C22DA8C1C553313" import="1">Assets/RandomVictory/DiploVictory.dds</File>
-    <File md5="C225C6C6C353A80ABD8CEFC86E38D2A2" import="1">Assets/RandomVictory/SpaceRaceVictory.dds</File>
+    <File md5="F93E2AA6FAA4587FE395B0A4354655E8" import="1">Assets/RandomVictory/ConquestVictory.dds</File>
+    <File md5="DC7DAF38491EE51E9CCD7230B42DE6C9" import="1">Assets/RandomVictory/CultureVictory.dds</File>
+    <File md5="6B644B1EE8DEC75D0C029052C79BB4EA" import="1">Assets/RandomVictory/DiploVictory.dds</File>
+    <File md5="25951BC0C981EBC448A443215FAD1DBE" import="1">Assets/RandomVictory/SpaceRaceVictory.dds</File>
     <File md5="357711EC5102CCBCF9C89D4EE308188C" import="1">Assets/Resources/Amber/amber.fxsxml</File>
     <File md5="E686E86BC9C843F4CC7EBDAE5CB29805" import="1">Assets/Resources/Amber/amber.gr2</File>
     <File md5="7A575BF68828F0FAB12ECC26C8847511" import="1">Assets/Resources/Amber/amber_diff.dds</File>
@@ -527,7 +527,7 @@
     <File md5="DF444BC0B8CD5C04C08568EF45780F9D" import="1">Assets/Splash/Karlstejn_WonderSplash.dds</File>
     <File md5="FE290EC698E068EF4A2B0746902FD454" import="1">Assets/Splash/MeninGateSplash.dds</File>
     <File md5="A1B4D441370E5E3308EF01AEB7B9F1B1" import="1">Assets/Splash/motherlandsplash.dds</File>
-    <File md5="170A085A064CA2AE4E017B1BACAED45F" import="1">Assets/Splash/Murica_WonderSplash.dds</File>
+    <File md5="34D283DA6A45AE06ED97870DF802B994" import="1">Assets/Splash/Murica_WonderSplash.dds</File>
     <File md5="E66E16AF9904099E3AF7AF1EEDA7E98B" import="1">Assets/Splash/OlympicVillage.dds</File>
     <File md5="3D32F8BB35A07652CE15C197258F2C2F" import="1">Assets/Splash/ProjectTreasureFleet.dds</File>
     <File md5="CC5217FEB19D0A3D7FA3C32048FCA41D" import="1">Assets/Splash/ProjectUN.dds</File>
@@ -653,9 +653,9 @@
     <File md5="3F1AB772E154BEE771CF8B2EBD75F92F" import="1">Assets/Units/Icons/CSDUnits80.dds</File>
     <File md5="2A77DD101BBF5EC2484B39B435BEDE54" import="1">Assets/Units/Icons/cuirassierflag.dds</File>
     <File md5="FCB0E1E7CCCCCA610BEFC1A641E52289" import="1">Assets/Units/Icons/fieldgunflag.dds</File>
-    <File md5="C7E80225CE93AA4DF41B993DEFAB2717" import="1">Assets/Units/Icons/GaleaFlag.dds</File>
+    <File md5="DECC86CD7D51275E22892DF81589A804" import="1">Assets/Units/Icons/GaleaFlag.dds</File>
     <File md5="160AD576F9BC6A24C161937B804A8A52" import="1">Assets/Units/Icons/kommandoflag.dds</File>
-    <File md5="C2E6CD08017B5ECEA11171E99B6C8F8C" import="1">Assets/Units/Icons/khanflag.dds</File>
+    <File md5="7C1CC9FF9F16B2F9397F35FC3B8E46CF" import="1">Assets/Units/Icons/khanflag.dds</File>
     <File md5="7BBC851A821B5B701D7BF787A2A9F160" import="1">Assets/Units/Icons/mercflag.dds</File>
     <File md5="3FB307CE0882613579AC34C7A027F0AA" import="1">Assets/Units/Icons/mountedxbowflag.dds</File>
     <File md5="A9A2D2943937BB599B96076A8A6A5365" import="1">Assets/Units/Icons/sovietflag.dds</File>
@@ -669,16 +669,16 @@
     <File md5="F9EEA2147EF8D89EAB0D1B43356DC7DD" import="1">Assets/Units/Icons/svmerc.dds</File>
     <File md5="ECF0330A1A7E07D92DF38EF02692773B" import="1">Assets/Units/Icons/svmountedxbow.dds</File>
     <File md5="23D9ECF4F5234F22D08EE3F04C699FE2" import="1">Assets/Units/Icons/svsoviet.dds</File>
-    <File md5="6434EC8EB89A8F24BDF2CB792467982A" import="1">Assets/Units/Icons/sv_galea.dds</File>
-    <File md5="82397FA220C5F0111F2C9EF38DE1334E" import="1">Assets/Units/Icons/sv_khan.dds</File>
+    <File md5="7EC8BADCABA5143AA74DB0D9976889E3" import="1">Assets/Units/Icons/sv_galea.dds</File>
+    <File md5="3420D7ABE8FB26661884AC13472FEDED" import="1">Assets/Units/Icons/sv_khan.dds</File>
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Assets/Units/Icons/sv_kommando.dds</File>
     <File md5="D2AC8A9ED3C8177823BA24ED262A60F8" import="1">Assets/Units/Icons/tercio_flag2.dds</File>
     <File md5="A5DE4C137543B0FCA47C8B85927900DF" import="1">Assets/Units/Icons/tercio_flag_white.dds</File>
-    <File md5="960309383A993D8F1692814DED641460" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_045.dds</File>
-    <File md5="F9A2A489A0F5E818E09158A7F486EDBD" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_064.dds</File>
-    <File md5="79F8E0FA202A6FD892ACEA1AE42F4975" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_080.dds</File>
-    <File md5="193AAB1E7B72F88B0D787E8F52B0E455" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_128.dds</File>
-    <File md5="594241FCCB17BCD38E3D98886F204B8E" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_256.dds</File>
+    <File md5="3A6DA258A4B8CA526C5AB37EE3018542" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_045.dds</File>
+    <File md5="2C04EC7AD7D9615AF3180E8DFBB1CF7E" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_064.dds</File>
+    <File md5="7714C133ACE945D189A6FCBECECDAF15" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_080.dds</File>
+    <File md5="35394348699774A3F2774873F0947F0E" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_128.dds</File>
+    <File md5="03FB32BA9BA4623DC35C494B3E9FC12C" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_256.dds</File>
     <File md5="83F9650011E5B2CE961E58A05A6A0F3C" import="1">Assets/Units/LandsknechtFreeCompany/FCompany_Flag_Atlas_032.dds</File>
     <File md5="73DAA769D2261F6617119D8E0A76568B" import="1">Assets/Units/LandsknechtFreeCompany/sv_b_FCompany.dds</File>
     <File md5="2460FE162A5AF92E06CD03EC4ACF949D" import="1">Assets/Units/LandsknechtFreeCompany/Free_Company/free_company/eng_kn.dds</File>
@@ -717,9 +717,9 @@
     <File md5="E35D47160A14C7CB836554C78D7E4C2F" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_a.gr2</File>
     <File md5="A46ECF0ED5D09BF60FB18C2256970125" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.fxsxml</File>
     <File md5="913B1B54EDD19872B5300CB364174863" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.gr2</File>
-    <File md5="2081446C4DAABA2A7BC4D4FEC0BE3837" import="1">Assets/Units/Liburna/minoan_galea.fxsxml</File>
+    <File md5="150CC60562AE7521913813F9602845AF" import="1">Assets/Units/Liburna/minoan_galea.fxsxml</File>
     <File md5="0D89E37C36EA7584ADC0DC626B56BEFE" import="1">Assets/Units/Liburna/minoan_galea.gr2</File>
-    <File md5="EB8C654A210F47BE5AB8632307ED363A" import="1">Assets/Units/Liburna/minoan_galea_diff.dds</File>
+    <File md5="1A5740CB0D32D6F378A5C32A5E0C8701" import="1">Assets/Units/Liburna/minoan_galea_diff.dds</File>
     <File md5="19163A2201643F133CA3C2485A44C93C" import="1">Assets/Units/Liburna/minoan_galea_sref.dds</File>
     <File md5="AF0C8E8F8A6780D0E3E98F7E62906597" import="1">Assets/Units/Merc/AN-94_diff.dds</File>
     <File md5="0B21E2FE884261F66A2265B7D9A2654D" import="1">Assets/Units/Merc/AN-94_sref.dds</File>
@@ -770,10 +770,10 @@
     <File md5="6076E2A768C8F04991D17C1521DF355D" import="1">Assets/Units/MissileDestroyer/Railgun_Cruiser.gr2</File>
     <File md5="06274CF1ACBF2194166F46747F03971F" import="1">Assets/Units/MissileDestroyer/sensordestroyer.dds</File>
     <File md5="FC0407C09AD55C6821EE9EF6FD80BBA5" import="1">Assets/Units/MissileDestroyer/sensordestroyer_gloss.dds</File>
-    <File md5="7A6267EC4F2586FAF9E2D867E55DFE90" import="1">Assets/Units/MissileDestroyer/sv_ENW_advDestroya.dds</File>
-    <File md5="93D9E1ED683705F436439C82F12221E3" import="1">Assets/Units/RocketMissile/SV_RocketMissile.dds</File>
+    <File md5="072F05A89CCE7C184DCD47326E35AC38" import="1">Assets/Units/MissileDestroyer/sv_ENW_advDestroya.dds</File>
+    <File md5="5EBC290B8A27171F9A99237472A5CF9D" import="1">Assets/Units/RocketMissile/SV_RocketMissile.dds</File>
     <File md5="163D6F572EEC531A55D563D4832ABBE5" import="1">Assets/Units/Supercarrier/edited_fx_triggers_carrier.ftsxml</File>
-    <File md5="4C06CBE3CE2403E233C5BD3CD0C06312" import="1">Assets/Units/Supercarrier/SV_Supercarrier.dds</File>
+    <File md5="590EE26B4B70A962D7D2AB7BF0B91612" import="1">Assets/Units/Supercarrier/SV_Supercarrier.dds</File>
     <File md5="E13D81EBD8C486D96C5D697E7892EF8C" import="1">Assets/Units/Supercarrier/USS_Nimitz.fxsxml</File>
     <File md5="963A69CA8D59AB713514176AA624AA18" import="1">Assets/Units/Supercarrier/USS_Nimitz.gr2</File>
     <File md5="ED4A5AB326883371F14E49AA082574D5" import="1">Assets/Units/Supercarrier/USS_Nimitz_diff.dds</File>
