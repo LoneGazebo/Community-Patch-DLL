@@ -26,7 +26,8 @@ WHERE SpecificCivRequired = 1 OR Type IN (
 	'IMPROVEMENT_FORT',
 	-- hidden unique improvements
 	'IMPROVEMENT_POLDER_WATER',
-	'IMPROVEMENT_ORDO'
+	'IMPROVEMENT_ORDO',
+	'IMPROVEMENT_ISIBAYA'
 );
 
 -- United Front
