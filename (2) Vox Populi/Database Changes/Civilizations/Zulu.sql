@@ -37,6 +37,83 @@ VALUES
 	('UNIT_ZULU_IMPI', 'PROMOTION_RANGED_SUPPORT_FIRE');
 
 ----------------------------------------------------------
+-- Unique Unit: Induna (Great General)
+----------------------------------------------------------
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_ZULU', 'UNITCLASS_GREAT_GENERAL', 'UNIT_INDUNA');
+
+UPDATE Units
+SET
+	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_GREAT_GENERAL') + 1,
+	TileXPOnExpend = 30
+WHERE Type = 'UNIT_INDUNA';
+
+----------------------------------------------------------
+-- Unique Improvement: Isibaya
+----------------------------------------------------------
+DELETE FROM Unit_Builds WHERE UnitType = 'UNIT_INDUNA' AND BuildType = 'BUILD_CITADEL';
+
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
+VALUES
+	('UNIT_INDUNA', 'BUILD_ISIBAYA');
+
+INSERT INTO BuildFeatures
+	(BuildType, FeatureType, Remove)
+VALUES
+	('BUILD_ISIBAYA', 'FEATURE_FOREST', 1),
+	('BUILD_ISIBAYA', 'FEATURE_JUNGLE', 1),
+	('BUILD_ISIBAYA', 'FEATURE_MARSH', 1);
+
+UPDATE Improvements
+SET
+	InAdjacentFriendly = 1,
+	BuildableOnResources = 1,
+	ConnectsAllResources = 1,
+	NoTwoAdjacent = 1,
+	CreatedByGreatPerson = 1,
+	CultureBombRadius = 1,
+	MakesPassable = 1,
+	DefenseModifier = 100,
+	NoFollowUp = 1,
+	SpawnsAdjacentResource = 'RESOURCE_COW'
+WHERE Type = 'IMPROVEMENT_ISIBAYA';
+
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_ISIBAYA', 'TERRAIN_GRASS'),
+	('IMPROVEMENT_ISIBAYA', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_ISIBAYA', 'TERRAIN_DESERT'),
+	('IMPROVEMENT_ISIBAYA', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_ISIBAYA', 'TERRAIN_SNOW');
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_ISIBAYA', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_ISIBAYA', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_ISIBAYA', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_ISIBAYA', 'YIELD_CULTURE', 1);
+
+INSERT INTO Improvement_YieldPerXAdjacentImprovement
+	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_FOOD', 1, 1),
+	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_PRODUCTION', 1, 1),
+	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_CULTURE', 1, 1);
+
+INSERT INTO Improvement_TechYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_ISIBAYA', 'TECH_CHEMISTRY', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_ISIBAYA', 'TECH_MILITARY_SCIENCE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_ISIBAYA', 'TECH_STEALTH', 'YIELD_SCIENCE', 4),
+	('IMPROVEMENT_ISIBAYA', 'TECH_ELECTRONICS', 'YIELD_PRODUCTION', 4);
+
+----------------------------------------------------------
 -- Unique Building: Ikanda (Barracks)
 ----------------------------------------------------------
 UPDATE Buildings
@@ -50,3 +127,25 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_IKANDA', 'YIELD_CULTURE', 1);
+
+----------------------------------------------------------
+-- Unique Building: Iziko (Amphitheater)
+----------------------------------------------------------
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_ZULU', 'BUILDINGCLASS_AMPHITHEATER', 'BUILDING_IZIKO');
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_AMPHITHEATER' AND YieldType = 'YIELD_CULTURE') + 1
+WHERE BuildingType = 'BUILDING_IZIKO' AND YieldType = 'YIELD_CULTURE';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_IZIKO', 'YIELD_FAITH', 2);
+
+INSERT INTO Building_YieldFromUnitLevelUpGlobal
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_IZIKO', 'YIELD_CULTURE', 1);
