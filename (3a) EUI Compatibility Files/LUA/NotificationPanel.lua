@@ -753,7 +753,7 @@ function( playerID, cityID, x, y, isWithGold, isWithFaithOrCulture )
 		local city = g_activePlayer:GetCityByID( cityID )
 		--print( "CityTileNotification:", city and city:GetName(), x, y, plot, city and city:GetCityPlotIndex(plot) )
 
-		if plot and city and ( ( plot:GetWorkingCity() and not city:IsPuppet() ) or Game.GetResourceUsageType( plot:GetResourceType( g_activeTeamID ) ) > 0 )
+		if plot and city and ( ( plot:GetWorkingCity() and not city:IsPuppet() ) or (plot:GetResourceType( g_activeTeamID ) ~= -1 and Game.GetResourceUsageType( plot:GetResourceType( g_activeTeamID ) ) > 0 ))
 		-- valid plot, either worked by city which is not a puppet, or has some kind of resource we can use
 		then
 			g_activePlayer:AddNotification( NotificationTypes.NOTIFICATION_CITY_TILE,
