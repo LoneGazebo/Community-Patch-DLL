@@ -11296,6 +11296,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 {
 	static const BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	static const BuildTypes eOrdo = MOD_BALANCE_VP ? (BuildTypes)GC.getInfoTypeForString("BUILD_ORDO") : NO_BUILD;
+	static const BuildTypes eIsibaya = MOD_BALANCE_VP ? (BuildTypes)GC.getInfoTypeForString("BUILD_ISIBAYA") : NO_BUILD;
 
 	//take the assigned moves one by one and try to execute them faithfully. 
 	//may fail if a melee kill unexpectedly happens or does not happen
@@ -11418,6 +11419,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_USE_POWER:
 			if (eOrdo != NO_BUILD && pUnit->canBuild(pUnit->plot(), eOrdo))
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eOrdo);
+			else if (eIsibaya != NO_BUILD && pUnit->canBuild(pUnit->plot(), eIsibaya))
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eIsibaya);
 			else if (pUnit->canBuild(pUnit->plot(), eCitadel))
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eCitadel);
 			else
