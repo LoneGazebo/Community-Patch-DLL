@@ -34707,43 +34707,39 @@ UnitClassTypes CvPlayer::GetUnitClassReplacement(UnitClassTypes eUnitClass) cons
 
 void CvPlayer::SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass)
 {
-	PRECONDITION((int)eReplacedUnitClass >= 0, "eReplacedUnitClass is expected to be non-negative (invalid Index)");
-	PRECONDITION((int)eReplacedUnitClass < GC.getNumUnitClassInfos(), "eReplacedUnitClass is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eReplacedUnitClass > NO_UNITCLASS, "eReplacedUnitClass is expected to be non-negative (invalid Index)");
+	PRECONDITION(eReplacedUnitClass < GC.getNumUnitClassInfos(), "eReplacedUnitClass is expected to be within maximum bounds (invalid Index)");
 
-	PRECONDITION((int)eReplacementUnitClass >= 0, "eReplacementUnitClass is expected to be non-negative (invalid Index)");
-	PRECONDITION((int)eReplacementUnitClass < GC.getNumUnitClassInfos(), "eReplacementUnitClass is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eReplacementUnitClass >= NO_UNITCLASS, "eReplacementUnitClass is expected to be non-negative or NO_UNITCLASS (invalid Index)");
+	PRECONDITION(eReplacementUnitClass < GC.getNumUnitClassInfos(), "eReplacementUnitClass is expected to be within maximum bounds (invalid Index)");
 
-	if (eReplacedUnitClass != NO_UNITCLASS)
+	if (eReplacementUnitClass != NO_UNITCLASS)
 	{
-		if (eReplacementUnitClass != NO_UNITCLASS)
+		// store into memory
+		m_piUnitClassReplacements[eReplacedUnitClass] = eReplacementUnitClass;
+
+		// replace all current units with the replaced class with the replacement class (unless the unit is a unique unit)
+		UnitTypes eReplacedClassDefault = static_cast<UnitTypes>(GC.getUnitClassInfo(eReplacedUnitClass)->getDefaultUnitIndex());
+		UnitTypes eReplacementUnit = static_cast<UnitTypes>(getCivilizationInfo().getCivilizationUnits(eReplacementUnitClass));
+		int iLoop = 0;
+		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			// store into memory
-			m_piUnitClassReplacements[eReplacedUnitClass] = eReplacementUnitClass;
-
-			// replace all current units with the replaced class with the replacement class (unless the unit is a unique unit)
-			UnitTypes eReplacedClassDefault = (UnitTypes)GC.getUnitClassInfo(eReplacedUnitClass)->getDefaultUnitIndex();
-			UnitTypes eReplacementUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((int)eReplacementUnitClass);
-			int iLoop = 0;
-
-			for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			if (pLoopUnit->getUnitClassType() == eReplacedUnitClass && pLoopUnit->getUnitType() == eReplacedClassDefault)
 			{
-				if (pLoopUnit->getUnitClassType() == eReplacedUnitClass && pLoopUnit->getUnitType() == eReplacedClassDefault)
+				CvUnit* pNewUnit = initUnit(eReplacementUnit, pLoopUnit->getX(), pLoopUnit->getY(), NO_UNITAI, REASON_UPGRADE, false, false, 0, 0, NO_CONTRACT, true, pLoopUnit);
+				if (pNewUnit)
 				{
-					CvUnit* pNewUnit = initUnit(eReplacementUnit, pLoopUnit->getX(), pLoopUnit->getY(), NO_UNITAI, REASON_UPGRADE, false, false, 0, 0, NO_CONTRACT, true, pLoopUnit);
-					if (pNewUnit != NULL)
-					{
-						pNewUnit->convert(pLoopUnit, true);
-						pNewUnit->setupGraphical();
-						pLoopUnit->kill(true);
-					}
+					pNewUnit->convert(pLoopUnit, true);
+					pNewUnit->setupGraphical();
+					pLoopUnit->kill(true);
 				}
 			}
 		}
-		else
-		{
-			// erase from memory
-			m_piUnitClassReplacements.erase(eReplacedUnitClass);
-		}
+	}
+	else
+	{
+		// erase from memory
+		m_piUnitClassReplacements.erase(eReplacedUnitClass);
 	}
 }
 
