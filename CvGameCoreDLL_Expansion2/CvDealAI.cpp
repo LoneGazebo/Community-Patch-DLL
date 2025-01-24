@@ -7759,7 +7759,6 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 				}
 				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
 				{
-					pDeal->AddMapTrade(eThem);
 					pDeal->AddMapTrade(eMyPlayer);
 					return;
 				}
