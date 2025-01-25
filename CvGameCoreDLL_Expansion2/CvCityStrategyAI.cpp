@@ -3923,7 +3923,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				std::pair<YieldTypes, YieldTypes> eYieldPair = it2->first;
 				if (eYieldPair.second == eYield)
 				{
-					iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist) * pCity->getYieldRate(eYieldPair.first, false) * it2->second / 100;
+					iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist) * kPlayer.GetEmpireYieldRate(eYieldPair.first, true) * it2->second / 100;
 				}
 			}
 		}
