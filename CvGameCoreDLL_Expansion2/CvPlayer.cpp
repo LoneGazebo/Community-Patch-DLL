@@ -26593,7 +26593,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					changeInstantYieldValue(eYield, iValue);
 				}
-				LogInstantYield(eYield, iValue, iType, pLoopCity);
+				if (GC.getLogging())
+				{
+					LogInstantYield(eYield, iValue, iType, pLoopCity);
+				}
 			}
 		}
 		if(!citynameString.empty() && !cityyieldString.empty())
