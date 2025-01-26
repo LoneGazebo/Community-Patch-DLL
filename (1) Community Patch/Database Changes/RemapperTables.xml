@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Lists the database tables for which IDs should be remapped. This should include all tables that have a corresponding *Type and *Info class in the DLL -->
+	<Table name="Remapper">
+		<Column name="name" type="text"/>
+	</Table>
+</GameData>

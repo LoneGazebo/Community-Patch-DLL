@@ -472,6 +472,8 @@
     <File md5="6B975FD7A73D13D2047CD451319B8166" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="278A7080850F3EE5132BF2C53E6C6419" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
+    <File md5="092443120E9092190F0918A133E7A29C" import="0">Database Changes/Remapper.sql</File>
+    <File md5="7A1E5B44F3E56F5B7F7241657E8E54E9" import="0">Database Changes/RemapperTables.xml</File>
     <File md5="562464DBD6C401985B683E03E4BDC294" import="0">Database Changes/WorldTableChanges.sql</File>
     <File md5="8EEF6C86D04BE170F9E61257581A893C" import="0">Database Changes/Achievements/CoreNewAchievements.xml</File>
     <File md5="2AFD3DBF43DEB9AC1D801786266A9D84" import="0">Database Changes/Achievements/NewAchievementTables.xml</File>
@@ -634,6 +636,7 @@
     <OnModActivated>
       <UpdateDatabase>Database Changes\CommunityTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\NewEnumTables.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\RemapperTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Achievements\NewAchievementTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Buildings\NewBuildingTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Projects\NewProjectTables.xml</UpdateDatabase>
@@ -782,6 +785,7 @@
       <UpdateDatabase>Database Changes\Text\en_US\WorldMap\CoreImprovementTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\DatabaseIndexes.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreTriggers.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Remapper.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
