@@ -3512,16 +3512,16 @@ int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
 /// Change to yield during golden ages
 int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangesPerLocalTheme ? m_piYieldChangesPerLocalTheme[i] : -1;
 }
 
 /// Instant yields from gifting a unit
 int CvBuildingEntry::GetYieldFromUnitGiftGlobal(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromUnitGiftGlobal ? m_piYieldFromUnitGiftGlobal[i] : -1;
 }
 
@@ -3721,8 +3721,8 @@ int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 /// Instant yield granted when an international trade route ends
 int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromInternationalTREnd[i];
 }
 
@@ -3757,24 +3757,24 @@ int* CvBuildingEntry::GetYieldFromInternalArray() const
 /// Does this Building grant yields when a b'ak'tun ends?
 int CvBuildingEntry::GetYieldFromLongCount(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromLongCount[i];
 }
 
 /// Does this Building grant yields when a Great Writer is born?
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithWriterBulb(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGPBirthScaledWithWriterBulb[i];
 }
 
 /// Does this Building grant yields when a Great Artist is born?
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithArtistBulb(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGPBirthScaledWithArtistBulb[i];
 }
 
@@ -3787,13 +3787,13 @@ map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> CvBuildingEntry::G
 /// Instant yield when a Great Person is born based on the yield output of the city
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
-	CvAssertMsg(eYieldIn >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eYieldOut >= 0, "eYieldOut expected to be >= 0");
-	CvAssertMsg(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	PRECONDITION(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	PRECONDITION(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
 
 	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
 	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -3889,8 +3889,8 @@ int* CvBuildingEntry::GetYieldFromSpyDefenseOrIDArray() const
 
 int CvBuildingEntry::GetYieldChangesPerCityStrengthTimes100(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangesPerCityStrengthTimes100 ? m_piYieldChangesPerCityStrengthTimes100[i] : -1;
 }
 
