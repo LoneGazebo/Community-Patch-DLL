@@ -8945,9 +8945,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
 				int iLoop = 0;
-				for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 				{
-					if (pLoopUnit && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->IsCombatUnit() || pLoopUnit->IsCanAttackRanged())
 					{
 						pLoopUnit->changeExperienceTimes100(iNumXP * 100);
 					}
