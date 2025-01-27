@@ -141,15 +141,17 @@ function Locale.GetSupportedSpokenLanguages() end
 --- @return nil | string  # localized string for the hot key
 function Locale.GetHotKeyDescription(key, ctrl, alt, shift) end
 
---- <b> CTD on called </b>
---- @deprecated 
+--- Checks if specified string is ASCII
+--- <b> CTD on called with non-string argument </b>
+--- @param str string
 --- @return boolean
-function Locale.IsASCII() end
+function Locale.IsASCII(str) end
 
---- <b>  CTD on called </b>
---- @deprecated 
+--- Checks if specified string is UTF8
+--- <b>  CTD on called with non-string argument </b>
+--- @param str string
 --- @return boolean
-function Locale.IsUTF8() end
+function Locale.IsUTF8(str) end
 
 --- ```lua 
 --- -- Example
