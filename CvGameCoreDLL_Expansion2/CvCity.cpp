@@ -19339,12 +19339,12 @@ void CvCity::ChangeSpySecurityModifierPerXPop(int iChange)
 
 fraction CvCity::GetDefensePerWonder() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_fDefensePerWonder;
 }
 void CvCity::ChangeDefensePerWonder(fraction fChange)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	if (fChange != 0)
 	{
 		m_fDefensePerWonder = m_fDefensePerWonder + fChange;
@@ -24132,7 +24132,7 @@ void CvCity::ChangeYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex, int iCha
 int CvCity::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling[eIndex];
 }
@@ -24140,7 +24140,7 @@ int CvCity::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex) co
 void CvCity::ChangeYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
@@ -24213,7 +24213,7 @@ int CvCity::GetYieldFromGoldenAgeStart(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromGoldenAgeStart(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
@@ -24263,7 +24263,7 @@ int CvCity::GetYieldChangePerGoldenAgeCap(YieldTypes eIndex) const
 void CvCity::ChangeYieldChangePerGoldenAgeCap(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
@@ -24288,7 +24288,7 @@ int CvCity::GetYieldFromPreviousGoldenAges(YieldTypes eIndex) const
 void CvCity::ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
@@ -24330,9 +24330,9 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 /// Extra yield from themed buildings
 int CvCity::GetYieldChangesPerLocalTheme(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldChangesPerLocalTheme[eIndex];
 }
 
@@ -24340,14 +24340,14 @@ int CvCity::GetYieldChangesPerLocalTheme(YieldTypes eIndex) const
 /// Extra yield from themed buildings
 void CvCity::ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldChangesPerLocalTheme[eIndex] = m_aiYieldChangesPerLocalTheme[eIndex] + iChange;
-		CvAssert(GetYieldChangesPerLocalTheme(eIndex) >= 0);
+		ASSERT(GetYieldChangesPerLocalTheme(eIndex) >= 0);
 		ResetGreatWorkYieldCache();
 	}
 }
@@ -24357,9 +24357,9 @@ void CvCity::ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange)
 /// Instant yields from gifting units
 int CvCity::GetYieldFromUnitGiftGlobal(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromUnitGiftGlobal[eIndex];
 }
 
@@ -24367,14 +24367,14 @@ int CvCity::GetYieldFromUnitGiftGlobal(YieldTypes eIndex) const
 /// Instant yields from gifting units
 void CvCity::ChangeYieldFromUnitGiftGlobal(YieldTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldFromUnitGiftGlobal[eIndex] = m_aiYieldFromUnitGiftGlobal[eIndex] + iChange;
-		CvAssert(GetYieldFromUnitGiftGlobal(eIndex) >= 0);
+		ASSERT(GetYieldFromUnitGiftGlobal(eIndex) >= 0, "YieldFromUnitGiftGlobal expected to be >= 0");
 		if (GetYieldFromUnitGiftGlobal(eIndex) > 0)
 		{
 			GET_PLAYER(getOwner()).setInstantYieldsFromUnitGift(true);
@@ -24807,9 +24807,9 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 /// Extra yield from building
 int CvCity::GetYieldFromInternationalTREnd(YieldTypes eIndex1) const
 {
-	VALIDATE_OBJECT
-		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromInternationalTREnd[eIndex1];
 }
@@ -24818,13 +24818,13 @@ int CvCity::GetYieldFromInternationalTREnd(YieldTypes eIndex1) const
 /// Extra yield from building
 void CvCity::ChangeYieldFromInternationalTREnd(YieldTypes eIndex1, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromInternationalTREnd[eIndex1] = m_aiYieldFromInternationalTREnd[eIndex1] + iChange;
-		CvAssert(GetYieldFromInternationalTREnd(eIndex1) >= 0);
+		ASSERT(GetYieldFromInternationalTREnd(eIndex1) >= 0, "YieldFromInternationalTREnd expected to be >= 0");
 	}
 }
 
@@ -24908,9 +24908,9 @@ void CvCity::ChangeYieldFromProcessModifier(YieldTypes eIndex1, int iChange)
 /// Extra yield when a b'ak'tun ends
 int CvCity::GetYieldFromLongCount(YieldTypes eIndex1) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromLongCount[eIndex1];
 }
@@ -24919,13 +24919,13 @@ int CvCity::GetYieldFromLongCount(YieldTypes eIndex1) const
 /// Extra yield when a b'ak'tun ends
 void CvCity::ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromLongCount[eIndex1] = m_aiYieldFromLongCount[eIndex1] + iChange;
-		CvAssert(GetYieldFromLongCount(eIndex1) >= 0);
+		ASSERT(GetYieldFromLongCount(eIndex1) >= 0, "YieldFromLongCount expected to be >= 0");
 	}
 }
 
@@ -24933,9 +24933,9 @@ void CvCity::ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange)
 /// Extra yield when a Great Writer is born
 int CvCity::GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1];
 }
@@ -24944,13 +24944,13 @@ int CvCity::GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const
 /// Extra yield when a Great Writer is born
 void CvCity::ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithWriterBulb[eIndex1] + iChange;
-		CvAssert(GetYieldFromGPBirthScaledWithWriterBulb(eIndex1) >= 0);
+		ASSERT(GetYieldFromGPBirthScaledWithWriterBulb(eIndex1) >= 0, "YieldFromGPBirthScaledWithWriterBulb expected to be >= 0");
 	}
 }
 
@@ -24958,9 +24958,9 @@ void CvCity::ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int 
 /// Extra yield when a Great Artist is born
 int CvCity::GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1];
 }
@@ -24969,13 +24969,13 @@ int CvCity::GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const
 /// Extra yield when a Great Artist is born
 void CvCity::ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex1 >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
 		m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] = m_aiYieldFromGPBirthScaledWithArtistBulb[eIndex1] + iChange;
-		CvAssert(GetYieldFromGPBirthScaledWithArtistBulb(eIndex1) >= 0);
+		ASSERT(GetYieldFromGPBirthScaledWithArtistBulb(eIndex1) >= 0, "YieldFromGPBirthScaledWithArtistBulb expected to be >= 0");
 	}
 }
 
@@ -24989,13 +24989,13 @@ map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> CvCity::GetYi
 /// Instant yield when a Great Person is born based on the yield output of the city
 int CvCity::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
-	CvAssertMsg(eYieldIn >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eYieldOut >= 0, "eYieldOut expected to be >= 0");
-	CvAssertMsg(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	PRECONDITION(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	PRECONDITION(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
 
 	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
 	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -25014,13 +25014,13 @@ int CvCity::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPer
 /// Instant yield when a Great Person is born based on the yield output of the city
 void CvCity::ChangeYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, std::pair<YieldTypes, YieldTypes> eYieldPair, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
-	CvAssertMsg(eYieldPair.first >= 0, "eYieldIn expected to be >= 0");
-	CvAssertMsg(eYieldPair.first < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eYieldPair.second >= 0, "eYieldOut expected to be >= 0");
-	CvAssertMsg(eYieldPair.second < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	PRECONDITION(eYieldPair.first >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eYieldPair.first < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYieldPair.second >= 0, "eYieldOut expected to be >= 0");
+	PRECONDITION(eYieldPair.second < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -25215,9 +25215,9 @@ void CvCity::ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange)
 /// Extra yield per city strength
 int CvCity::GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldChangesPerCityStrengthTimes100[eIndex];
 }
 
@@ -25225,14 +25225,14 @@ int CvCity::GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const
 /// Extra yield per city strength
 void CvCity::ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiYieldChangesPerCityStrengthTimes100[eIndex] = m_aiYieldChangesPerCityStrengthTimes100[eIndex] + iChange;
-		CvAssert(GetYieldChangesPerCityStrengthTimes100(eIndex) >= 0);
+		ASSERT(GetYieldChangesPerCityStrengthTimes100(eIndex) >= 0, "YieldChangesPerCityStrengthTimes100 expected to be >= 0");
 	}
 }
 #endif
@@ -26200,11 +26200,11 @@ std::map<int, std::map<int, int>> CvCity::GetTechEnhancedYieldsMap() const
 }
 int CvCity::GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
-	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
-	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	PRECONDITION(eTech >= 0, "eTech expected to be >= 0");
+	PRECONDITION(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	std::map<int, std::map<int, int>>::const_iterator it = m_miTechEnhancedYields.find((int)eTech);
 	if (it != m_miTechEnhancedYields.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -26221,19 +26221,19 @@ int CvCity::GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const
 }
 bool CvCity::TechEnhancesAnyYield(TechTypes eTech) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
-	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+	VALIDATE_OBJECT();
+	PRECONDITION(eTech >= 0, "eTech expected to be >= 0");
+	PRECONDITION(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
 
 	return m_miTechEnhancedYields.find((int)eTech) != m_miTechEnhancedYields.end();
 }
 void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eTech >= 0, "eTech expected to be >= 0");
-	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
+	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eTech >= 0, "eTech expected to be >= 0");
+	PRECONDITION(eTech < GC.getNumTechInfos(), "eTech expected to be < getNumTechInfos()");
 
 	if (iChange != 0)
 	{
@@ -26244,7 +26244,7 @@ void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iC
 		}
 
 		m_miTechEnhancedYields[eTech][eYield] += iChange;
-		CvAssertMsg(m_miTechEnhancedYields[eTech][eYield] >= 0, "negative value in m_miTechEnhancedYields");
+		ASSERT(m_miTechEnhancedYields[eTech][eYield] >= 0, "negative value in m_miTechEnhancedYields");
 		if (m_miTechEnhancedYields[eTech][eYield] == 0)
 		{
 			m_miTechEnhancedYields[eTech].erase(eYield);
@@ -26265,11 +26265,11 @@ std::map<pair<GreatPersonTypes, EraTypes>, int> CvCity::GetGreatPersonPointFromC
 }
 int CvCity::GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eGreatPerson >= 0, "eGreatPerson expected to be >= 0");
-	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
-	CvAssertMsg(eEra >= 0, "eEra expected to be >= 0");
-	CvAssertMsg(eEra < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+	VALIDATE_OBJECT();
+	PRECONDITION(eGreatPerson >= 0, "eGreatPerson expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	PRECONDITION(eEra >= 0, "eEra expected to be >= 0");
+	PRECONDITION(eEra < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
 
 	std::map<pair<GreatPersonTypes, EraTypes>, int>::const_iterator it = m_miGreatPersonPointFromConstruction.find(std::make_pair(eGreatPerson, eEra));
 	if (it != m_miGreatPersonPointFromConstruction.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -26281,16 +26281,16 @@ int CvCity::GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, E
 }
 void CvCity::ChangeGreatPersonPointFromConstruction(pair<GreatPersonTypes, EraTypes> pGreatPersonEra, int iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(pGreatPersonEra.first >= 0, "eGreatPerson expected to be >= 0");
-	CvAssertMsg(pGreatPersonEra.first < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
-	CvAssertMsg(pGreatPersonEra.second >= 0, "eEra expected to be >= 0");
-	CvAssertMsg(pGreatPersonEra.second < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
+	VALIDATE_OBJECT();
+	PRECONDITION(pGreatPersonEra.first >= 0, "eGreatPerson expected to be >= 0");
+	PRECONDITION(pGreatPersonEra.first < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be < getNumGreatPersonInfos");
+	PRECONDITION(pGreatPersonEra.second >= 0, "eEra expected to be >= 0");
+	PRECONDITION(pGreatPersonEra.second < GC.getNumEraInfos(), "eEra expected to be < getNumEraInfos");
 
 	if (iChange != 0)
 	{
 		m_miGreatPersonPointFromConstruction[pGreatPersonEra] += iChange;
-		CvAssertMsg(m_miGreatPersonPointFromConstruction[pGreatPersonEra] >= 0, "negative value in m_miTechEnhancedYields");
+		ASSERT(m_miGreatPersonPointFromConstruction[pGreatPersonEra] >= 0, "negative value in m_miTechEnhancedYields");
 		if (m_miGreatPersonPointFromConstruction[pGreatPersonEra] == 0)
 		{
 			m_miGreatPersonPointFromConstruction.erase(pGreatPersonEra);
@@ -32540,7 +32540,7 @@ void CvCity::changeCityBuildingRangeStrikeModifier(int iValue)
 
 int CvCity::getGarrisonRangedAttackModifier() const
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	return m_iGarrisonRangedAttackModifier;
 }
 void CvCity::changeGarrisonRangedAttackModifier(int iValue)
