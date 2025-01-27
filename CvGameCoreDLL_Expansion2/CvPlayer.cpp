@@ -38566,12 +38566,10 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 
 	if(isUnitLimitPerCity(eIndex))
 	{
-		ASSERT(getUnitClassCount(eIndex) <= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()), "getUnitInstancePerCity is expected to be less than maximum bound of UnitInstancePerCity (invalid index)");
 		return ((getUnitClassCount(eIndex) + iExtra) >= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()));
 	}
 	else if(isNationalUnitClass(eIndex))
 	{
-		ASSERT(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
 		return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
 	}
 	else
