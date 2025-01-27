@@ -31342,15 +31342,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsRangedFlankAttack() && !IsRangedFlankAttack() && IsCanAttackRanged())
 	// Envelopment: Only available to Skirmishers (Mounted Ranged)
-	// This is really strong, but if my ranged attacks exceed 1 range, I can't use this as effectively.
+	// It gets even stronger with range > 1 (potential of +6 flank instead of +5), but it isn't normally available
 	{
 		iExtra = (iFlavorOffense + iFlavorMobile);
 		iExtra *= 2;
 		iExtra *= max(1, baseMoves(false));
-		if (canMoveAfterAttacking())
+		if (canMoveAfterAttacking() || GetRange() > 1)
 			iExtra *= 5;
-		if (GetRange() > 1)
-			iExtra /= 10;
 		iValue += iExtra;
 	}
 
