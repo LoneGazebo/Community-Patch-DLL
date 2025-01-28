@@ -6379,7 +6379,7 @@ CvString CvLeague::GetMemberKnowledgeDetails(PlayerTypes eMember, PlayerTypes eO
 
 CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && eObserver != NO_PLAYER && !GET_PLAYER(eObserver).isObserver()))
 	{
 		ASSERT(false, "Attempting to get detail string for a player that is not a league member.");
 		return "";

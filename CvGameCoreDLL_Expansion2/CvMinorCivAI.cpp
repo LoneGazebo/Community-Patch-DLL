@@ -12173,14 +12173,7 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 /// Update Best Relations Resource Bonus
 void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly)
 {
-	if (eNewAlly == eOldAlly)
-		return; //nothing to do
-
-	PlayerTypes TechTestPlayer = NO_PLAYER;
-	if (eNewAlly != NO_PLAYER)
-		TechTestPlayer = eNewAlly;
-	else if (eOldAlly != NO_PLAYER)
-		TechTestPlayer = eOldAlly;
+	// this function can be called with eNewAlly == eOldAlly when techs are updated
 
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -12189,25 +12182,22 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo == NULL)
 			continue;
-		const CvPlayer * pPlayer = &GET_PLAYER(TechTestPlayer);
-		if (TechTestPlayer != NO_PLAYER && pPlayer && !pPlayer->IsResourceRevealed(eResource))
-			continue;
 
 		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 
 		if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
 			bool bNeedsUpdate = true;
-			if (eOldAlly == eNewAlly)
+			if (eOldAlly == eNewAlly && eOldAlly != NO_PLAYER)
 			{
 				int iResourceQuantityNew = GetPlayer()->getNumResourceTotal(eResource);
-				if (iResourceQuantityNew == 0)
+				if (iResourceQuantityNew == 0 || !GET_PLAYER(eOldAlly).IsResourceRevealed(eResource))
 					bNeedsUpdate = false;
 			}
 			
 			if (bNeedsUpdate)
 			{
-				// Someone is losing the bonus :(
+				// Someone is losing the bonus
 				if (eOldAlly != NO_PLAYER)
 				{
 					int iResourceQuantity = GetPlayer()->getResourceExport(eResource);
@@ -12219,9 +12209,12 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 					}
 				}
 
-				// Someone new is getting the bonus :D
+				// Someone new is getting the bonus
 				if (eNewAlly != NO_PLAYER)
 				{
+					if (!GET_PLAYER(eNewAlly).IsResourceRevealed(eResource))
+						continue;
+
 					int iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
 
 					if (iResourceQuantity > 0)
