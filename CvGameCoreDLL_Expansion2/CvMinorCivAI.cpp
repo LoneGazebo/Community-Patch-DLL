@@ -12807,7 +12807,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 
 	// No old ally and now allies, OR our friendship is now higher than a previous ally
 	if((eOldAlly == NO_PLAYER && bNowAllies)
-	        || ((eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajorTimes100(ePlayer) > GetEffectiveFriendshipWithMajorTimes100(eOldAlly)) && !bHasOtherPermanentAlly))
+	        || ((eOldAlly != NO_PLAYER && iNewFriendshipTimes100 > GetEffectiveFriendshipWithMajorTimes100(eOldAlly)) && !bHasOtherPermanentAlly))
 	{
 		bAdd = true;
 		bAlliesChange = true;

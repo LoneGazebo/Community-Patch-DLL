@@ -12162,7 +12162,7 @@ bool CvUnit::trade()
 			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 			{
-				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer);
+				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(eLoopPlayer);
 				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, viOriginalInfluence[iPlayerLoop], iFriendship);
 			}
 		}
