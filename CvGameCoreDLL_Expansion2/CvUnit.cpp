@@ -12093,7 +12093,7 @@ bool CvUnit::trade()
 					viOriginalInfluence[iPlayerLoop] = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(eLoopPlayer);
 
 					// only reduce influence, but don't update ally status here. it could lead to unintended war declarations by the minor civ if their ally changes temporarily while looping through the players
-					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iInfluence, false, /*bUpdateStatus*/ false);
+					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -min(iInfluence, max(0, GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer))), false, /*bUpdateStatus*/ false);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 					if (pNotifications)
