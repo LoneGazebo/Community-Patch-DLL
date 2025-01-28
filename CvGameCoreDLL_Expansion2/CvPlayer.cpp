@@ -45425,25 +45425,19 @@ CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eP
 {
 	int iBestProduction = 0;
 	CvCity* pBestProductionCity = NULL;
-	// Look at all of our Cities to see which is the best.
-	int iLoopCity = 0;
-	for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+
+	if (eBuilding != NO_BUILDING)
 	{
-		if (pLoopCity->IsPuppet())
-			continue;
-
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if (!pkBuildingInfo)
-			return NULL;
-
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
-		if (!pkBuildingClassInfo)
-			return NULL;
-
-		int iProduction = 0;
-
-		if (eBuilding != NO_BUILDING)
+		// Look at all of our Cities to see which is the best.
+		int iLoopCity = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
+			if (pLoopCity->IsPuppet())
+				continue;
+
+			int iProduction = 0;
 			//limited buildings need to be controlled against.
 			if (pkBuildingClassInfo->getMaxGlobalInstances() == 1 || pkBuildingClassInfo->getMaxPlayerInstances() == 1 || pkBuildingClassInfo->getMaxTeamInstances() == 1)
 			{
@@ -45454,13 +45448,23 @@ CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eP
 			{
 				iProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
 			}
-		}
-		else if (eProject != NO_PROJECT)
-		{
-			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-			if (!pkProjectInfo)
-				return NULL;
 
+			iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			if (iProduction > iBestProduction)
+			{
+				iBestProduction = iProduction;
+				pBestProductionCity = pLoopCity;
+			}
+		}
+	}
+	else if (eProject != NO_PROJECT)
+	{
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+
+		// Look at all of our Cities to see which is the best.
+		int iLoopCity = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+		{
 			int iProduction = 0;
 			//limited projects need to be controlled against.
 			if (pkProjectInfo->GetMaxGlobalInstances() == 1 || pkProjectInfo->GetMaxTeamInstances() == 1)
@@ -45472,13 +45476,13 @@ CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eP
 			{
 				iProduction += pLoopCity->getProjectProduction(eProject) * 100;
 			}
-		}
 
-		iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
-		if (iProduction > iBestProduction)
-		{
-			iBestProduction = iProduction;
-			pBestProductionCity = pLoopCity;
+			iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			if (iProduction > iBestProduction)
+			{
+				iBestProduction = iProduction;
+				pBestProductionCity = pLoopCity;
+			}
 		}
 	}
 	return pBestProductionCity != NULL ? pBestProductionCity : getCapitalCity();
