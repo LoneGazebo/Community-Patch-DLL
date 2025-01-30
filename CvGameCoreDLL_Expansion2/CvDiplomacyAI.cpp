@@ -3515,9 +3515,11 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 				}
 			}
 
+			bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
+
 			if (eSurfaceApproach == CIV_APPROACH_HOSTILE)
 			{
-				if (IsLiberator(ePlayer, false, true) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
+				if (IsLiberator(ePlayer, false, true) || bRecentLiberation)
 				{
 					eSurfaceApproach = CIV_APPROACH_GUARDED;
 				}
@@ -3527,6 +3529,31 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 				if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 				{
 					eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+				}
+				else
+				{
+					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+					if (pLeague)
+					{
+						for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+						{
+							PlayerTypes eProposer = it->GetProposerDecision()->GetProposer();
+							if (eProposer != NO_PLAYER && GetPlayer()->GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
+							{
+								PlayerTypes eTarget = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+								if (GET_PLAYER(eTarget).getTeam() == GetTeam() && GET_PLAYER(eProposer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+								{
+									eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+									break;
+								}
+								else if (GET_PLAYER(eProposer).getTeam() == GetTeam() && GET_PLAYER(eTarget).getTeam() == GET_PLAYER(ePlayer).getTeam() && !IsLiberator(ePlayer, false, true) && !bRecentLiberation)
+								{
+									eSurfaceApproach = GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+									break;
+								}
+							}
+						}
+					}
 				}
 			}
 
@@ -3747,9 +3774,11 @@ CivApproachTypes CvDiplomacyAI::GetHighestValueApproach(PlayerTypes ePlayer, boo
 
 	if (bIncludeOverrides)
 	{
+		bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
+
 		if (eBestApproach == CIV_APPROACH_WAR || eBestApproach == CIV_APPROACH_HOSTILE)
 		{
-			if (WasResurrectedBy(ePlayer) || (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0))
+			if (WasResurrectedBy(ePlayer) || bRecentLiberation)
 			{
 				eBestApproach = CIV_APPROACH_GUARDED;
 			}
@@ -3763,6 +3792,29 @@ CivApproachTypes CvDiplomacyAI::GetHighestValueApproach(PlayerTypes ePlayer, boo
 			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 			{
 				eBestApproach = (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY) ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+			}
+			// Is there a current sanction proposal in either direction?
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague)
+			{
+				for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+				{
+					PlayerTypes eProposer = it->GetProposerDecision()->GetProposer();
+					if (eProposer != NO_PLAYER && GetPlayer()->GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
+					{
+						PlayerTypes eTarget = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+						if (GET_PLAYER(eTarget).getTeam() == GetTeam() && GET_PLAYER(eProposer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+						{
+							eBestApproach = (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY) ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+							break;
+						}
+						else if (GET_PLAYER(eProposer).getTeam() == GetTeam() && GET_PLAYER(eTarget).getTeam() == GET_PLAYER(ePlayer).getTeam() && !IsLiberator(ePlayer, false, true) && !bRecentLiberation)
+						{
+							eBestApproach = (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY) ? CIV_APPROACH_GUARDED : CIV_APPROACH_NEUTRAL;
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -15585,6 +15637,26 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 	}
+	bool bSanctioningUsNow = false;
+	bool bSanctioningThemNow = false;
+	PlayerTypes eOtherPlayerTheyAreSanctioning = NO_PLAYER;
+	if (pLeague)
+	{
+		for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+		{
+			PlayerTypes eProposer = it->GetProposerDecision()->GetProposer();
+			if (eProposer != NO_PLAYER && GetPlayer()->GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
+			{
+				PlayerTypes eTarget = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+				if (GET_PLAYER(eTarget).getTeam() == GetTeam() && GET_PLAYER(eProposer).getTeam() == eTeam)
+					bSanctioningUsNow = true;
+				else if (GET_PLAYER(eProposer).getTeam() == GetTeam() && GET_PLAYER(eTarget).getTeam() == eTeam)
+					bSanctioningThemNow = true;
+				else if (GET_PLAYER(eProposer).getTeam() == eTeam)
+					eOtherPlayerTheyAreSanctioning = eTarget;
+			}
+		}
+	}
 
 	// Previous approach
 	bool bFirstUpdate = GET_TEAM(eMyTeam).GetTurnsSinceMeetingTeam(eTeam) == 0;
@@ -15630,7 +15702,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			bApplyDeception = true;
 	}
 	// Also only apply it if it'd be worth our time
-	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy || bEverCapturedKeyCity)
+	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy || bEverCapturedKeyCity || bSanctioningUsNow || bSanctioningThemNow || HasEverSanctionedUs(ePlayer))
 		bApplyDeception = false;
 
 	////////////////////////////////////
@@ -15984,6 +16056,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	bool bLiberatedCapital = false;
 	bool bLiberatedHolyCity = false;
+	bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
 
 	if (!bEverCapturedKeyCity && !bUntrustworthy && !IsAtWar(ePlayer))
 	{
@@ -16132,6 +16205,38 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2;
 		vApproachScores[CIV_APPROACH_FRIENDLY] = 0;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		bProvokedUs = true;
+	}
+
+	////////////////////////////////////
+	// SANCTIONS
+	////////////////////////////////////
+
+	// We tried to sanction them RECENTLY - stick with it, unless they are liberating us
+	if ((pTheirDiplo->HasTriedToSanctionUs(eMyPlayer) || bSanctioningThemNow) && !IsLiberator(ePlayer, false, true) && !bRecentLiberation)
+	{
+		vApproachScores[CIV_APPROACH_WAR] += (bSanctioningThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer)) ? 0 : vApproachBias[CIV_APPROACH_WAR] * 4;
+		vApproachScores[CIV_APPROACH_HOSTILE] += (bSanctioningThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer)) ? vApproachBias[CIV_APPROACH_HOSTILE] * 4 : vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+		vApproachScores[CIV_APPROACH_GUARDED] += (bSanctioningThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer)) ? vApproachBias[CIV_APPROACH_GUARDED] * 4 : vApproachBias[CIV_APPROACH_GUARDED] * 2;
+		vApproachScores[CIV_APPROACH_FRIENDLY] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+
+		if (bEasyTarget)
+		{
+			vApproachScores[CIV_APPROACH_WAR] += (bSanctioningThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer)) ? 0 : vApproachBias[CIV_APPROACH_WAR] * 4;
+			vApproachScores[CIV_APPROACH_HOSTILE] += (bSanctioningThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer)) ? vApproachBias[CIV_APPROACH_HOSTILE] * 4 : vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+		}
+	}
+
+	// They tried to sanction us RECENTLY
+	if (HasTriedToSanctionUs(ePlayer) || bSanctioningUsNow)
+	{
+		vApproachScores[CIV_APPROACH_WAR] += (bSanctioningUsNow || bCloseToWorldConquest || pTheirDiplo->IsEndgameAggressiveTo(eMyPlayer)) ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 2;
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+		vApproachScores[CIV_APPROACH_GUARDED] += (bSanctioningUsNow && !bCloseToWorldConquest && !pTheirDiplo->IsEndgameAggressiveTo(eMyPlayer)) ? vApproachBias[CIV_APPROACH_GUARDED] * 2 : vApproachBias[CIV_APPROACH_GUARDED] * 5;
+		vApproachScores[CIV_APPROACH_FRIENDLY] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		vApproachScores[CIV_APPROACH_AFRAID] = 0;
 		bProvokedUs = true;
 	}
 
@@ -16478,20 +16583,20 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Is this loop player our biggest competitor? We should like this guy!
 			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
-				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 4;
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkAgainstWillingness() / 4;
 			}
 			// Is this loop player our most valuable DOF or DP? We hate this other guy!
 			if (GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer)
 			{
 				if (IsDoFAccepted(eLoopPlayer) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
 				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty() / 4;
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty() / 4;
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 4;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetWorkWithWillingness() / 4;
 				}
 				else
 				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDoFWillingness() / 8;
-					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDoFWillingness() / 8;
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 8;
+					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() / 8;
 				}
 			}
 		}
@@ -16501,20 +16606,43 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Is this loop player our biggest competitor? We should like this guy!
 			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
-				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 2;
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkAgainstWillingness() / 2;
 			}
 			// Is this loop player our most valuable DOF or DP? We hate this other guy!
 			else if (GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer)
 			{
 				if (IsDoFAccepted(eLoopPlayer) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
 				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty() / 2;
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty() / 2;
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 2;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetWorkWithWillingness() / 2;
 				}
 				else
 				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDoFWillingness() / 4;
-					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDoFWillingness() / 2;
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 4;
+					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() / 4;
+				}
+			}
+		}
+		// Has this guy proposed to sanction the other guy?
+		if (!bStrategic && eOtherPlayerTheyAreSanctioning == eLoopPlayer)
+		{
+			// Is this loop player our biggest competitor? We should like this guy!
+			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
+			{
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetWorkAgainstWillingness() / 2;
+			}
+			// Is this loop player our most valuable DOF or DP? We hate this other guy!
+			else if (GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer)
+			{
+				if (IsDoFAccepted(eLoopPlayer) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
+				{
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 2;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetWorkWithWillingness() / 2;
+				}
+				else
+				{
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetWorkWithWillingness() / 4;
+					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * GetWorkWithWillingness() / 4;
 				}
 			}
 		}
@@ -20668,17 +20796,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (pLeague && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
 		// Did they participate in sanctioning us or vice versa?
-		if (HasEverSanctionedUs(ePlayer) || HasTriedToSanctionUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer) || pTheirDiplo->HasTriedToSanctionUs(eMyPlayer))
+		if (HasEverSanctionedUs(ePlayer) || HasTriedToSanctionUs(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
-
-			// Clearly deception isn't working...
-			if (HasEverSanctionedUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer))
-				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] /= 2;
 		}
+		else if ((pTheirDiplo->HasEverSanctionedUs(eMyPlayer) || pTheirDiplo->HasTriedToSanctionUs(eMyPlayer)) && !IsLiberator(ePlayer, false, true) && !bRecentLiberation)
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] /= 2;
+		}
+		// No? Then let's not totally turn our backs on them if we have a good opinion.
 		else if (!IsLiberator(ePlayer, false, false) && GetCoopWarAgreementScore(ePlayer) <= 0 && GetDoFType(ePlayer) != DOF_TYPE_BATTLE_BROTHERS && !HasTriedToUnsanctionUs(ePlayer) && !HasEverUnsanctionedUs(ePlayer))
 		{
-			// Let's not totally turn our backs on them if we have a good opinion.
 			switch (GetCivOpinion(ePlayer))
 			{
 			case CIV_OPINION_ALLY:
@@ -21072,8 +21202,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// LIBERATOR - Don't be HOSTILE to a player who's liberating us!
 	////////////////////////////////////
 
-	bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
-
 	if (IsLiberator(ePlayer, false, true) || bRecentLiberation)
 	{
 		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
@@ -21090,7 +21218,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// NO FRIENDLY - Don't be friendly if we hate them!
 	////////////////////////////////////
 
-	bool bNoFriendlyObvious = IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy || pTheirDiplo->IsRecentDemandAccepted(eMyPlayer);
+	bool bNoFriendlyObvious = IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy || pTheirDiplo->IsRecentDemandAccepted(eMyPlayer) || bSanctioningUsNow || (bSanctioningThemNow && !IsLiberator(ePlayer, false, true) && !bRecentLiberation);
 	bool bNoFriendly = bNoFriendlyObvious ? true : bProvokedUs && bWantsOpportunityAttack && (bEasyTarget || (GetMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_STRONG && bGoodAttackTarget));
 
 	if (bStrategic && bNoFriendly)
@@ -27282,6 +27410,51 @@ void CvDiplomacyAI::DoUpdateDemands()
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->IsVassalOfSomeone())
 		return;
 
+	// Look at the World Congress sanctions situation before we begin
+	bool bOnlyVassalTargets = false;
+	vector<PlayerTypes> vSanctionTargets;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague)
+	{
+		for (ActiveResolutionList::iterator it = pLeague->m_vActiveResolutions.begin(); it != pLeague->m_vActiveResolutions.end(); ++it)
+		{
+			// Can't make demands if sanctioned, except with vassals
+			if (it->GetEffects()->bEmbargoPlayer && (PlayerTypes)it->GetProposerDecision()->GetDecision() == GetID())
+			{
+				if (GetPlayer()->GetNumVassals() == 0)
+					return;
+
+				bOnlyVassalTargets = true;
+			}
+		}
+		if (!bOnlyVassalTargets)
+		{
+			for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); ++it)
+			{
+				if (it->GetEffects()->bEmbargoPlayer)
+				{
+					PlayerTypes eTarget = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+					// If we're being targeted with sanctions, don't bother with demands unless we have vassals - we have bigger fish to fry + the deal will be cancelled if the resolution passes
+					if (eTarget == GetID())
+					{
+						if (GetPlayer()->GetNumVassals() == 0)
+						{
+							SetDemandTargetPlayer(NO_PLAYER);
+							return;
+						}
+						else
+						{
+							bOnlyVassalTargets = true;
+							break;
+						}
+					}
+					else
+						vSanctionTargets.push_back(eTarget);
+				}
+			}
+		}
+	}
+
 	CvWeightedVector<PlayerTypes> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
 	int iWarCount = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, false);
@@ -27307,6 +27480,16 @@ void CvDiplomacyAI::DoUpdateDemands()
 		int iTooSoonTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN) + /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND);
 		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < max(iTooSoonTurns, 10))
 			continue;
+
+		// Don't make demands if sanctions between us could be a problem (excluding master-vassal demands)
+		if (!IsMaster(ePlayer))
+		{
+			if (bOnlyVassalTargets)
+				continue;
+
+			if (std::find(vSanctionTargets.begin(), vSanctionTargets.end(), ePlayer) != vSanctionTargets.end())
+				continue;
+		}
 
 		// Must be a valid demand target
 		// This checks a bunch of invalidating conditions; if something that's supposed to be checked here turns up below, it'll trigger an UNREACHABLE() crash
