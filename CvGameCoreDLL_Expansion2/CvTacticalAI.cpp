@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
 const int TACTSIM_MAX_UNITS = 15; //we have limited storage and time ...
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(5000);
+CvTactPosStorage gTactPosStorage(6000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gCities, gNewlyVisiblePlots;

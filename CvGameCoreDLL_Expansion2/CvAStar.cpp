@@ -47,6 +47,7 @@ int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
 int giLastStartIndex = 0;
 int giLastDestIndex = 0;
+int giLastStartSlice = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -415,19 +416,21 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	saiRuntimeHistogram[iBin]++;
 
 	CvUnit* pUnit = m_sData.iUnitID > 0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
+
 #if defined(VPDEBUG)
-	if (timer.GetDeltaInSeconds() > 0.2 && m_sData.ePath == PT_UNIT_MOVEMENT)
+	int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
+	if ( timer.GetDeltaInSeconds()>0.1 && m_sData.ePath==PT_UNIT_MOVEMENT && HasValidDestination() )
 	{
-		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
 		int iDestIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
-		if (iStartIndex == giLastStartIndex && iDestIndex == giLastDestIndex && iStartIndex > 0 && iDestIndex > 0)
+		if (iStartIndex == giLastStartIndex && iDestIndex == giLastDestIndex && iStartIndex > 0 && iDestIndex > 0 && giLastStartSlice==GC.getGame().getTurnSlice())
 		{
+			// Add debug breakpoint here for investigation during development
 			OutputDebugString("Repeated pathfinding start\n");
-			// Add debug break point here for investigation during development
-			ASSERT_DEBUG(false && "Repeated pathfinding detected - investigate call path");
+			ASSERT_DEBUG(false, "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
 		giLastDestIndex = iDestIndex;
+		giLastStartSlice = GC.getGame().getTurnSlice();
 
 		int iNumPlots = GC.getMap().numPlots();
 
@@ -437,7 +440,6 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 			m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_sData.iFlags, m_iTestedNodes, m_iProcessedNodes, m_iRounds,
 			(100 * m_iProcessedNodes) / iNumPlots, timer.GetDeltaInSeconds() * 1000);
 		OutputDebugString( msg.c_str() );
-
 	}
 #endif
 

@@ -2294,10 +2294,15 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 		if (pPlot)
 		{
+			// Pillage both before and after, if it's a good idea
+			if (pUnit->shouldPillage(pUnit->plot()))
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
 			ExecuteMoveToTarget(pUnit, pPlot, 0, true);
+
 			if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-			
+
 			return true; //done for this turn
 		}
 	}
@@ -2536,61 +2541,58 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		if (!pBestPlot)
 			pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
 
-		//verify that we don't move into danger ...
-		if (pBestPlot)
+		if (pBestPlot && pBestPlot != pUnit->plot())
 		{
 			//this  must be the same moveflags as above so we can reuse the path next turn
 			if (pUnit->GeneratePath(pBestPlot, iMoveFlags))
 			{
+				//verify that we don't move into danger ...
 				CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 				if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
 				{
 					//move to safety instead
 					pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				}
+
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d",
+						strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+
+				//again same flags
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+				//possibly movement was aborted because we ran into enemies, in that case flee ...
+				if (pUnit->canMove())
+					ExecuteMovesToSafestPlot(pUnit);
+
+				//done
+				UnitProcessed(pUnit->GetID());
+				return true;
 			}
-			else
-				pBestPlot = 0;
 		}
 	}
-
-	if(pBestPlot && pBestPlot != pUnit->plot())
+	
+	//no target
+	if (GC.getLogging() && GC.getAILogging())
 	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			CvString strTemp = pUnit->getUnitInfo().GetDescription();
-			strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d",
-				strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-			LogHomelandMessage(strLogString);
-		}
-
-		//again same flags
-		CvPlot* pOldPlot = pUnit->plot();
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlot);
-		bool bStuck = (pUnit->plot() == pOldPlot);
-
-		//continue if can still move
-		return bStuck || !pUnit->canMove();
+		CvString strLogString;
+		CvString strTemp = pUnit->getUnitInfo().GetDescription();
+		strLogString.Format("%s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+		LogHomelandMessage(strLogString);
 	}
-	else //no target
-	{
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			CvString strTemp = pUnit->getUnitInfo().GetDescription();
-			strLogString.Format("%s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-			LogHomelandMessage(strLogString);
-		}
 
-		if (pUnit->isHuman())
-			pUnit->SetAutomateType(NO_AUTOMATE);
+	if (pUnit->isHuman())
+		pUnit->SetAutomateType(NO_AUTOMATE);
 
-		//in case it was non-native scout, reset the unit AI
-		pUnit->AI_setUnitAIType(pUnit->getUnitInfo().GetDefaultUnitAIType());
-		ExecuteMovesToSafestPlot(pUnit);
-		return true;
-	}
+	//in case it was non-native scout, reset the unit AI
+	pUnit->AI_setUnitAIType(pUnit->getUnitInfo().GetDefaultUnitAIType());
+	ExecuteMovesToSafestPlot(pUnit);
+	return true; //nothing left to do
 }
 
 // Higher weight means better directive

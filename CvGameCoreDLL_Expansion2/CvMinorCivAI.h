@@ -604,7 +604,7 @@ public:
 	int GetFriendshipLevelWithMajor(PlayerTypes ePlayer);
 	int GetFriendshipNeededForNextLevel(PlayerTypes ePlayer);
 
-	void DoFriendshipChangeEffects(const PlayerTypes ePlayer, const int iOldFriendshipTimes100, const int iNewFriendshipTimes100, const bool bFromQuest = false, const bool bIgnoreMinorDeath = false);
+	void DoFriendshipChangeEffects(const PlayerTypes ePlayer, const int iOldFriendshipTimes100, const int iNewFriendshipTimes100, const bool bFromQuest = false, const bool bAliveStatusChanged = false);
 
 	bool IsFriendshipAboveFriendsThreshold(PlayerTypes ePlayer, int iFriendship) const;
 	int GetFriendsThreshold(PlayerTypes ePlayer) const;
