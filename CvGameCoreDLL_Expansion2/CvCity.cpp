@@ -33092,7 +33092,7 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 		return false;
 
 	//unit strength doesn't matter if the city is low on hitpoints
-	if (isInDangerOfFalling())
+	if (isInDangerOfFalling(true))
 		return true;
 
 	//cannot use the tactical zone here, because it's not specific to a certain enemy
@@ -33132,7 +33132,7 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCombatUnit())
+			if (pUnit->IsCombatUnit() || pUnit->IsCanAttackRanged())
 			{
 				if (pUnit->getTeam() == getTeam())
 				{
@@ -33169,6 +33169,13 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 						}
 					}
 				}
+			}
+			else if (pUnit->canNuke())
+			{
+				// Regardless of comparative unit power, a city is in danger if an enemy nuke is in a bordering city.
+				std::map<PlayerTypes, int>::iterator vectorIndexFinder = vectorIndices.find(pUnit->getOwner());
+				if (vectorIndexFinder != vectorIndices.end())
+					return true;
 			}
 			if (pUnit->GetGreatGeneralCount() > 0)
 			{

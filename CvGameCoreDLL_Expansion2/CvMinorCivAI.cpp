@@ -6642,21 +6642,18 @@ bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTy
 				}
 			}
 		}
-		if (MOD_BALANCE_VP)
+		// Find City & Find City-State can overlap - don't allow this to occur at all in VP, or for the same quest giver in Community Patch
+		if (eQuest == MINOR_CIV_QUEST_FIND_CITY && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
 		{
-			// Find City & Find City-State can overlap - don't allow this to occur
-			if (eQuest == MINOR_CIV_QUEST_FIND_CITY && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
-			{
-				CvPlot* pCityPlot = GC.getMap().plot(iData1, iData2);
-				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
-					return true;
-			}
-			if (eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY))
-			{
-				CvPlot* pCityPlot = GC.getMap().plot(GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY), GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, MINOR_CIV_QUEST_FIND_CITY));
-				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)iData1)
-					return true;
-			}
+			CvPlot* pCityPlot = GC.getMap().plot(iData1, iData2);
+			if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
+				return MOD_BALANCE_VP || eMinor == GetPlayer()->GetID();
+		}
+		if (eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY))
+		{
+			CvPlot* pCityPlot = GC.getMap().plot(GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY), GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, MINOR_CIV_QUEST_FIND_CITY));
+			if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)iData1)
+				return MOD_BALANCE_VP || eMinor == GetPlayer()->GetID();
 		}
 	}
 

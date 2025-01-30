@@ -12195,10 +12195,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 
 				iDecayValue *= iDecayModifier;
 				iDecayValue /= 100;
-
-				iDecayValue = min(iDecayValue, -100); // Make sure it decays by at least -1 every turn
-
-				ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, iDecayValue); 
+				ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, min(iDecayValue, -100)); // Make sure it decays by at least -1 every turn
 			}
 
 			ThreatTypes eThreatType = THREAT_NONE;
