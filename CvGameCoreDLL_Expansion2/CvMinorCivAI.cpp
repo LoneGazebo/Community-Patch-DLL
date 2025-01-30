@@ -12332,7 +12332,10 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 	{
 		if (eNewAlly != GetPermanentAlly())
 		{
-			m_pPlayer->GetDiplomacyAI()->LogMinorStatusChange(eNewAlly, "cannot set a new ally because of PermanentAlly status");
+			if(eNewAlly != NO_PLAYER)
+			{
+				GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "cannot become new ally because of PermanentAlly status");
+			}
 			return false;
 		}
 		else if (m_eAlly != GetPermanentAlly())
