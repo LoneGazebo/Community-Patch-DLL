@@ -8820,6 +8820,42 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
+		// Update city yields from buildings that scale with era
+		int iEraScalingChange = max(1, (int)eNewValue) - max(1, (int)m_eCurrentEra);
+		if (iEraScalingChange != 0)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				ePlayer = (PlayerTypes)iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+				if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+				{
+					int iLoop = 0;
+					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					{
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							YieldTypes eYield = (YieldTypes)iI;
+							int iYieldChangesEraScalingTimes100 = 0;
+							for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
+							{
+								BuildingTypes eLoopBuilding = (BuildingTypes)iJ;
+								CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+								iYieldChangesEraScalingTimes100 += pLoopCity->GetCityBuildings()->GetNumRealBuilding(eLoopBuilding) * pkLoopBuilding->GetYieldChangeEraScalingTimes100(eYield);
+							}
+							// subtract the old era-scaling yields and add new ones
+							int iYieldDifference = (iYieldChangesEraScalingTimes100 * max(1, (int)eNewValue) / 100) - (iYieldChangesEraScalingTimes100 * max(1, (int)m_eCurrentEra) / 100);
+							if (iYieldDifference != 0)
+							{
+								pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldDifference);
+								pLoopCity->UpdateCityYields(eYield);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		m_eCurrentEra = eNewValue;
 
 		if(GC.getGame().getActiveTeam() != NO_TEAM)
@@ -8904,6 +8940,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
+
 		// Update Yields from Annexed City-States (Rome UA)
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
