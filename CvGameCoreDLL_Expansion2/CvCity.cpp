@@ -14657,6 +14657,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				
 			}
 
+
+			if (pBuildingInfo->GetYieldChangePerMonopoly(eYield) > 0)
+			{
+				ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetYieldChangePerMonopoly(eYield)* GET_PLAYER(getOwner()).GetNumGlobalMonopolies() * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromVictory(eYield) > 0))
 			{
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
@@ -23856,6 +23862,7 @@ void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
+			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -26343,6 +26350,7 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiYieldRateModifier[eIndex] += iChange;
+		UpdateCityYields(eIndex);
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
 	}
 }
