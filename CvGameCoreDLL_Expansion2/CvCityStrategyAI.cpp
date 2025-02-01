@@ -3573,6 +3573,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += (pkBuildingInfo->GetThemingYieldBonus(eYield) * 5);
 	}
 
+	if (pkBuildingInfo->GetYieldChangePerMonopoly(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * kPlayer.GetNumGlobalMonopolies();
+	}
+
 	if (pCity->GetEventBuildingClassCityYield(pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
 	{
 		iFlatYield += (pCity->GetEventBuildingClassCityYield(pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
