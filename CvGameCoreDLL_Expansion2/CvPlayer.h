@@ -2102,6 +2102,7 @@ public:
 	//cache these because we need them a lot
 	int GetCombatAttackBonusFromMonopolies() const;
 	int GetCombatDefenseBonusFromMonopolies() const;
+	int GetNumGlobalMonopolies() const;
 	void UpdateMonopolyCache();
 	void UpdatePlotBlockades();
 

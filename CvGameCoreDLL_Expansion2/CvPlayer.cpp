@@ -37392,8 +37392,15 @@ int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 	return iQuantityMod;
 }
 
+int CvPlayer::GetNumGlobalMonopolies() const
+{
+	return m_vResourcesWGlobalMonopoly.size();
+}
+
 void CvPlayer::UpdateMonopolyCache()
 {
+	int iNumGlobalMonopoliesBefore = m_vResourcesWGlobalMonopoly.size();
+
 	m_vResourcesWStrategicMonopoly.clear();
 	m_vResourcesWGlobalMonopoly.clear();
 	m_iCombatAttackBonusFromMonopolies = 0;
@@ -37408,6 +37415,28 @@ void CvPlayer::UpdateMonopolyCache()
 			m_vResourcesWGlobalMonopoly.push_back((ResourceTypes)iResourceLoop);
 		if (m_pabHasStrategicMonopoly[iResourceLoop])
 			m_vResourcesWStrategicMonopoly.push_back((ResourceTypes)iResourceLoop);
+	}
+
+	// if the number of global monopolies has changed, update city yields
+	if (iNumGlobalMonopoliesBefore != m_vResourcesWGlobalMonopoly.size())
+	{
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				int iCityYieldPerMonopoly = 0;
+				for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
+				{
+					BuildingTypes eLoopBuilding = (BuildingTypes)iJ;
+					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+					iCityYieldPerMonopoly += pLoopCity->GetCityBuildings()->GetNumRealBuilding(eLoopBuilding) * pkLoopBuilding->GetYieldChangePerMonopoly(eYield);
+				}
+				// subtract the old value and add the new one
+				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iCityYieldPerMonopoly * (m_vResourcesWGlobalMonopoly.size() - iNumGlobalMonopoliesBefore));
+			}
+		}
 	}
 
 	// Strategic monopoly of resources
