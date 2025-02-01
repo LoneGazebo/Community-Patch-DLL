@@ -564,6 +564,7 @@ public:
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
+	int GetYieldChangeEraScalingTimes100(int i) const;
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1084,6 +1085,7 @@ private:
 	map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 #endif
 	int* m_piYieldChange;
+	int* m_piYieldChangeEraScalingTimes100;
 	int* m_piYieldChangePerPop;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_piYieldChangePerPopInEmpire;

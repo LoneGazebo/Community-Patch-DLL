@@ -3483,6 +3483,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
+	if (pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iEra / 100;
+	}
 	if (pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0)
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
