@@ -1835,19 +1835,32 @@ const CvReligion* CvGameReligions::GetReligion(ReligionTypes eReligion, PlayerTy
 	if(eReligion == NO_RELIGION)
 		return NULL;
 
-	ReligionList::const_iterator it;
-	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	//caching for performance (but only for real religions, not pantheons)
+	size_t pos = (size_t)eReligion;
+	if (m_religionIndex.size() > pos && m_religionIndex[pos] != -1)
+		return &m_CurrentReligions[m_religionIndex[pos]];
+
+	int iIndex = 0;
+	for(ReligionList::const_iterator it = m_CurrentReligions.begin(); 
+		it != m_CurrentReligions.end(); 
+		it++, iIndex++)
 	{
 		// If talking about a pantheon, make sure to match the player
 		if(it->m_eReligion == eReligion && it->m_eReligion == RELIGION_PANTHEON)
 		{
 			if(it->m_eFounder == ePlayer)
 			{
+				//do not cache pantheons, too complex
 				return &(*it);
 			}
 		}
 		else if(it->m_eReligion == eReligion)
 		{
+			//cache update
+			if (m_religionIndex.size() <= pos)
+				m_religionIndex.resize(pos + 1, -1);
+			m_religionIndex[pos] = iIndex;
+
 			return &(*it);
 		}
 	}

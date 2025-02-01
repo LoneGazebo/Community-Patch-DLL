@@ -16106,9 +16106,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 
 		// Great General nearby
 		if (!IsIgnoreGreatGeneralBenefit())
-		{
 			iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
-		}
 
 		// Reverse Great General nearby
 		iModifier += GetReverseGreatGeneralModifier(pMyPlot);
@@ -16830,18 +16828,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 			// Great General nearby
 			if (!IsIgnoreGreatGeneralBenefit())
-			{
 				iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
-			}
 
 			// Reverse Great General nearby
 			iModifier += GetReverseGreatGeneralModifier(pMyPlot);
 
 			// NearbyUnit gives a Combat Modifier?
 			if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
-			{
 				iModifier += GetGiveCombatModToUnit(pMyPlot);
-			}
 		}
 
 		// Improvement with combat bonus (from trait) nearby

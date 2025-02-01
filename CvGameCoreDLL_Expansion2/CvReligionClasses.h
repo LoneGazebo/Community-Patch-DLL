@@ -262,6 +262,7 @@ public:
 	void LogReligionMessage(CvString& strMsg);
 
 	ReligionList m_CurrentReligions;
+	mutable vector<int> m_religionIndex; //for faster lookup, not serialized
 
 private:
 

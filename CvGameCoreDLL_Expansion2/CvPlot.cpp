@@ -4806,29 +4806,26 @@ bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityM
 /// Is this a plot that's friendly to our team? (owned by us or someone we have Open Borders with)
 bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 {
-	// No friendly territory for barbs!
-	if(ePlayer==NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
-	{
-		return false;
-	}
-
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	TeamTypes ePlotOwner = getTeam();
-
 	// Nobody owns this plot
-	if(ePlotOwner == NO_TEAM)
-	{
+	if (ePlotOwner == NO_TEAM)
 		return false;
-	}
+
+	// Special cases
+	if (ePlayer == NO_PLAYER || ePlayer==BARBARIAN_PLAYER)
+		return false;
 
 	// Our territory
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	if(ePlotOwner == eTeam)
-	{
 		return true;
-	}
+
+	// Major's territory we have OB with
+	if (GET_TEAM(ePlotOwner).IsAllowsOpenBordersToTeam(eTeam))
+		return true;
 
 	// City State's territory we've earned OB with
-	if(!GET_PLAYER(ePlayer).isMinorCiv())
+	if(!GET_TEAM(eTeam).isMinorCiv())
 	{
 		if(GET_TEAM(ePlotOwner).isMinorCiv())
 		{
@@ -4839,12 +4836,6 @@ bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
 				return true;
 			}
 		}
-	}
-
-	// Major's territory we have OB with
-	if(GET_TEAM(ePlotOwner).IsAllowsOpenBordersToTeam(eTeam))
-	{
-		return true;
 	}
 
 	return false;
