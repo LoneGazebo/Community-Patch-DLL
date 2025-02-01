@@ -161,7 +161,7 @@ INSERT INTO Building_YieldFromSpyDefenseOrID
 VALUES
 	('BUILDING_DOELEN', 'YIELD_CULTURE', 50);
 
-INSERT INTO Building_YieldChangesFromMonopoly
+INSERT INTO Building_YieldChangesPerMonopoly
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_DOELEN', 'YIELD_GOLD', 1),
