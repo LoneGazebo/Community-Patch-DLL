@@ -469,6 +469,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetYieldPerPopTimes100);
 	Method(GetYieldPerPopInEmpireTimes100);
 
+	Method(GetYieldFromYieldPerBuildingTimes100);
+
 	Method(GetBaseYieldRateModifier);
 	Method(GetYieldRate);
 	Method(GetYieldRateTimes100);
@@ -4410,6 +4412,25 @@ int CvLuaCity::lGetYieldPerPopInEmpireTimes100(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetYieldPerPopInEmpireTimes100);
 }
 #endif
+
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetYieldFromYieldPerBuildingTimes100(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	if (eIndex == YIELD_CULTURE || eIndex == YIELD_FAITH)
+	{
+		// these yields don't support decimal values
+		const int iResult = (pkCity->GetYieldPerBuilding(eIndex) * pkCity->GetCityBuildings()->GetNumBuildings()).Truncate() * 100;
+		lua_pushinteger(L, iResult);
+	}
+	else
+	{
+		const int iResult = (pkCity->GetYieldPerBuilding(eIndex) * pkCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
+		lua_pushinteger(L, iResult);
+	}
+	return 1;
+}
 
 //------------------------------------------------------------------------------
 //int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0);

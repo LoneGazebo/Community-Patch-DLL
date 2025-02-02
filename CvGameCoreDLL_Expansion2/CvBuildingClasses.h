@@ -565,6 +565,7 @@ public:
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangeEraScalingTimes100(int i) const;
+	fraction GetYieldChangePerBuilding(int i) const;
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1087,6 +1088,7 @@ private:
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangeEraScalingTimes100;
+	fraction* m_pfYieldChangePerBuilding;
 	int* m_piYieldChangePerPop;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_piYieldChangePerPopInEmpire;

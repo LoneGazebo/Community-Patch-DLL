@@ -273,6 +273,7 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromReligion()
 	, m_aiYieldRateModifier()
 	, m_aiYieldPerPop()
+	, m_afYieldPerBuilding()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
 	, m_miTechEnhancedYields()
@@ -1448,6 +1449,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
+	m_afYieldPerBuilding.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
 	m_aiYieldPerPopInEmpire.clear();
 #endif
@@ -1530,6 +1532,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiStaticCityYield[iI] = 0;
 #endif
 		m_aiYieldPerPop[iI] = 0;
+		m_afYieldPerBuilding[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
 		m_aiPowerYieldRateModifier[iI] = 0;
@@ -13461,6 +13464,7 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
+	iBaseProduction += (GetYieldPerBuilding(YIELD_PRODUCTION) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
 	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
 	{
@@ -13510,6 +13514,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
 	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
+	iBaseProduction += (GetYieldPerBuilding(YIELD_PRODUCTION) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
 	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
 	{
@@ -14904,6 +14909,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
 			ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()) * iChange / 100);
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
+			ChangeYieldPerBuilding(eYield, pBuildingInfo->GetYieldChangePerBuilding(eYield) * fraction(iChange));
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
@@ -17778,6 +17784,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetBaseYieldRateFromSpecialists(YIELD_CULTURE);
 	iCulturePerTurn += (GetYieldPerPopTimes100(YIELD_CULTURE) * getPopulation()) / 100;
 	iCulturePerTurn += (GetYieldPerPopInEmpireTimes100(YIELD_CULTURE) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
+	iCulturePerTurn += (GetYieldPerBuilding(YIELD_CULTURE) * GetCityBuildings()->GetNumBuildings()).Truncate();
 
 	if (IsRouteToCapitalConnected())
 	{
@@ -18034,6 +18041,7 @@ int CvCity::GetFaithPerTurn(bool bStatic) const
 	iFaith += GetBaseYieldRateFromSpecialists(YIELD_FAITH);
 	iFaith += (GetYieldPerPopTimes100(YIELD_FAITH) * getPopulation()) / 100;
 	iFaith += (GetYieldPerPopInEmpireTimes100(YIELD_FAITH) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
+	iFaith += (GetYieldPerBuilding(YIELD_FAITH) * GetCityBuildings()->GetNumBuildings()).Truncate();
 
 	if (IsRouteToCapitalConnected())
 	{
@@ -23629,6 +23637,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	int iBaseYield = getBaseYieldRate(eIndex) * 100;
 	iBaseYield += (GetYieldPerPopTimes100(eIndex) * getPopulation());
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
+	iBaseYield += (GetYieldPerBuilding(eIndex) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
 	// Yield from Industrial City Connections
 	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
@@ -26170,6 +26179,28 @@ void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 		m_aiYieldPerPop[eIndex] = m_aiYieldPerPop[eIndex] + iChange;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield for each building
+fraction CvCity::GetYieldPerBuilding(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_afYieldPerBuilding[eIndex];
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield for each building
+void CvCity::ChangeYieldPerBuilding(YieldTypes eIndex, fraction iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+		m_afYieldPerBuilding[eIndex] = m_afYieldPerBuilding[eIndex] + iChange;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -32076,6 +32107,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
 	visitor(city.m_aiYieldPerPop);
+	visitor(city.m_afYieldPerBuilding);
 	visitor(city.m_aiYieldPerReligion);
 	visitor(city.m_aiPowerYieldRateModifier);
 	visitor(city.m_aiResourceYieldRateModifier);
