@@ -33172,7 +33172,11 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 			}
 			else if (pUnit->canNuke())
 			{
-				// Regardless of comparative unit power, a city is in danger if an enemy nuke is in a bordering city.
+				// Is there a high chance of total interception?
+				if (pUnit->GetNukeDamageLevel() == 1 && getNukeInterceptionChance() >= 75)
+					continue;
+
+				// Regardless of comparative unit power, a city is in danger if an enemy nuke is nearby.
 				std::map<PlayerTypes, int>::iterator vectorIndexFinder = vectorIndices.find(pUnit->getOwner());
 				if (vectorIndexFinder != vectorIndices.end())
 					return true;

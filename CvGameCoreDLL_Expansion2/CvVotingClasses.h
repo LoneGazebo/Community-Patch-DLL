@@ -249,7 +249,7 @@ public:
 	bool IsTie();
 	std::vector<int> GetTopVotedChoices(int iNumTopChoices);
 	int GetVotesCast();
-	int GetVotesCastForChoice(int iChoice);
+	int GetVotesCastForChoice(int iChoice, PlayerTypes eVoter = NO_PLAYER);
 	int GetVotesMarginOfTopChoice();
 	int GetVotesCastByPlayer(PlayerTypes ePlayer);
 	int GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost, int& iPercentOfPlayerVotes);
@@ -612,6 +612,10 @@ public:
 	// Update Diplo AI when a proposal is made
 	void DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes eProposer, int iProposerChoice);
 	void DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eProposer);
+
+	// Update Diplo AI for other players when sanctions are enacted or repealed (also called for the proposer when the proposal is made)
+	void DoEnactSanctionsDiplomacy(PlayerTypes eTarget, PlayerTypes eObserver, PlayerTypes eVoter, bool bPassed, bool bVotedToPass, bool bAIWantedToPass, bool bAIWantedToFail);
+	void DoRepealSanctionsDiplomacy(PlayerTypes eTarget, PlayerTypes eObserver, PlayerTypes eVoter, bool bPassed, bool bVotedToPass, bool bAIWantedToPass, bool bAIWantedToFail);
 
 	// Host
 	bool HasHostMember() const;
@@ -1030,9 +1034,9 @@ private:
 	void AllocateVotes(CvLeague* pLeague);
 	void FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderationList& considerations);
 	void FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderationList& considerations);
-	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false, bool bProposingToEnact = false);
 	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
-	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf = true);
+	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf = true, bool bProposingToEnact = false);
 	int ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	// Proposing
