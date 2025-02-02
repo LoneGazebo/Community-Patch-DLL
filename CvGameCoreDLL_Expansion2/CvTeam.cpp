@@ -2352,7 +2352,10 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		CvPlayer& kPlayer = GET_PLAYER(*it);
 		if (kPlayer.isAlive())
 		{
-			kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
+			if (kPlayer.isMajorCiv())
+			{
+				kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
+			}
 			kPlayer.GetMilitaryAI()->LogPeace(eTeam); // This is not quite correct, but it'll work well enough for AI testing
 		}
 	}
@@ -2362,7 +2365,10 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		CvPlayer& kPlayer = GET_PLAYER(*it);
 		if (kPlayer.isAlive())
 		{
-			kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
+			if (kPlayer.isMajorCiv())
+			{
+				kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
+			}
 			kPlayer.GetMilitaryAI()->LogPeace(GetID()); // This is not quite correct, but it'll work well enough for AI testing
 		}
 	}
@@ -5706,48 +5712,6 @@ void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
 	}
 }
 
-
-//	--------------------------------------------------------------------------------
-void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
-{
-	CvCity* pLoopCity = NULL;
-	int iLoop = 0;
-
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eIndex);
-	if(thisBuildingEntry == NULL)
-		return;
-
-	if(iChange != 0)
-	{
-		for(int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
-
-			if(kPlayer.isAlive())
-			{
-				if(kPlayer.getTeam() == GetID())
-				{
-					for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex) > 0)
-						{
-							for(int k = 0; k < NUM_YIELD_TYPES; k++)
-							{
-								int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
-								pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), iEnhancedYield * iChange);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvTeam::getTerrainTradeCount(TerrainTypes eIndex) const
 {
@@ -7931,10 +7895,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			{
 				changeObsoleteBuildingCount(((BuildingTypes)iI), iChange);
 			}
-			if(pBuildingEntry->GetEnhancedYieldTech() == eTech)
-			{
-				enhanceBuilding(((BuildingTypes)iI), iChange);
-			}
 
 			if (pBuildingEntry->GetPrereqAndTech() == eTech && isWorldWonderClass(pBuildingEntry->GetBuildingClassInfo()))
 			{
@@ -8143,6 +8103,22 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 				{
 					pLoopCity->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+				}
+			}
+
+			// Tech enhanced yields from buildings
+			{
+				int iLoop = 0;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+				{
+					if (pLoopCity->TechEnhancesAnyYield(eTech))
+					{
+						for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+						{
+							pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)iJ), pLoopCity->GetTechEnhancedYields(eTech, (YieldTypes)iJ) * iChange);
+						}
+					}
 				}
 			}
 

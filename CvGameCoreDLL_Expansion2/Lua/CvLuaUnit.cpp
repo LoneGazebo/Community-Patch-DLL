@@ -354,6 +354,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetDefenseModifier);
 	Method(GetRangedDefenseModifier);
 	Method(GetRangedAttackModifier);
+	Method(GetGarrisonRangedAttackModifier);
 	Method(CityAttackModifier);
 	Method(CityDefenseModifier);
 	Method(HillsAttackModifier);
@@ -2440,7 +2441,7 @@ int CvLuaUnit::lGetUnitCombatType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const UnitCombatTypes eResult = (UnitCombatTypes)pkUnit->getUnitCombatType();
+	const UnitCombatTypes eResult = pkUnit->getUnitCombatType();
 	lua_pushinteger(L, eResult);
 	return 1;
 }
@@ -4008,6 +4009,22 @@ int CvLuaUnit::lGetRangedAttackModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->GetRangedAttackModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GarrisonRangedAttackModifier();
+int CvLuaUnit::lGetGarrisonRangedAttackModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	int iResult = 0;
+	CvPlot* pPlot = pkUnit->plot();
+	if (pPlot && pPlot->isCity())
+	{
+		CvCity* pCity = pPlot->getPlotCity();
+		iResult = pCity->getGarrisonRangedAttackModifier();
+	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }

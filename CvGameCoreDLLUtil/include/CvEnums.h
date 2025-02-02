@@ -1820,6 +1820,19 @@ enum OPEN_ENUM UnitCombatTypes
 	NO_UNITCOMBAT = -1,
 };
 
+inline FDataStream& operator<<(FDataStream& saveTo, const UnitCombatTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, UnitCombatTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<UnitCombatTypes>(v);
+	return loadFrom;
+}
+
 enum CLOSED_ENUM UnitAITypes
 {
 	NO_UNITAI = -1,
@@ -3654,6 +3667,8 @@ enum CLOSED_ENUM InstantYieldType
 	INSTANT_YIELD_TYPE_CITY_DAMAGE              = 54,
 	INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN		= 55,
 	INSTANT_YIELD_TYPE_GOLDEN_AGE_START			= 56,
+	INSTANT_YIELD_TYPE_UNIT_GIFT				= 57,
+	INSTANT_YIELD_TYPE_BAKTUN_END				= 58,
 
 	NUM_INSTANT_YIELD_TYPES ENUM_META_VALUE
 };

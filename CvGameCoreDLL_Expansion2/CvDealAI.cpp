@@ -3166,10 +3166,21 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
 					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
-					// They shouldn't ask us to vote on things that have to do with us personally.
-					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
+					if (eTargetPlayer != NO_PLAYER)
 					{
-						return INT_MAX;
+						// They shouldn't ask us to vote on things that have to do with us personally.
+						if (GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
+							return INT_MAX;
+
+						// Don't be bribed against unsanctioning a friend, that would be highly exploitable!
+						if (iVoteChoice == LeagueHelpers::CHOICE_NO && GetPlayer()->GetLeagueAI()->IsSanctionProposal(pProposal, eTargetPlayer))
+						{
+							CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
+							if (pDiplo->GetCivApproach(eTargetPlayer) > CIV_APPROACH_DECEPTIVE && (pDiplo->IsFriendOrAlly(eTargetPlayer)
+								|| pDiplo->IsLiberator(eTargetPlayer, false, false)
+								|| pDiplo->GetGlobalCoopWarWithState(eTargetPlayer) >= COOP_WAR_STATE_PREPARING))
+								return INT_MAX;
+						}
 					}
 				}
 			}
@@ -3203,10 +3214,21 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 					{
 						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
-						// They shouldn't ask us to vote on things that have to do with us personally.
-						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
+						if (eTargetPlayer != NO_PLAYER)
 						{
-							return INT_MAX;
+							// They shouldn't ask us to vote on things that have to do with us personally.
+							if (GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
+								return INT_MAX;
+
+							// Don't be bribed into sanctioning a friend, that would be highly exploitable!
+							if (iVoteChoice == LeagueHelpers::CHOICE_YES && GetPlayer()->GetLeagueAI()->IsSanctionProposal(pProposal, eTargetPlayer))
+							{
+								CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
+								if (pDiplo->GetCivApproach(eTargetPlayer) > CIV_APPROACH_DECEPTIVE && (pDiplo->IsFriendOrAlly(eTargetPlayer)
+									|| pDiplo->IsLiberator(eTargetPlayer, false, false)
+									|| pDiplo->GetGlobalCoopWarWithState(eTargetPlayer) >= COOP_WAR_STATE_PREPARING))
+									return INT_MAX;
+							}
 						}
 					}
 				}
@@ -3289,10 +3311,19 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
 					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
-					//we don't ask them about things that involve themselves!
-					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+					if (eTargetPlayer != NO_PLAYER)
 					{
-						return INT_MAX;
+						// We don't ask them about things that involve themselves!
+						if (GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+							return INT_MAX;
+
+						// Don't try to bribe them against unsanctioning their friend.
+						if (iVoteChoice == LeagueHelpers::CHOICE_NO && GetPlayer()->GetLeagueAI()->IsSanctionProposal(pProposal, eTargetPlayer))
+						{
+							CvDiplomacyAI* pDiplo = GET_PLAYER(eOtherPlayer).GetDiplomacyAI();
+							if (pDiplo->IsFriendOrAlly(eTargetPlayer) || pDiplo->IsLiberator(eTargetPlayer, false, false))
+								return INT_MAX;
+						}
 					}
 				}
 			}
@@ -3330,10 +3361,19 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 					{
 						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
-						//we don't ask them about things that involve themselves!
-						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+						if (eTargetPlayer != NO_PLAYER)
 						{
-							return INT_MAX;
+							// We don't ask them about things that involve themselves!
+							if (GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+								return INT_MAX;
+
+							// Don't try to bribe them to sanction their friend.
+							if (iVoteChoice == LeagueHelpers::CHOICE_YES && GetPlayer()->GetLeagueAI()->IsSanctionProposal(pProposal, eTargetPlayer))
+							{
+								CvDiplomacyAI* pDiplo = GET_PLAYER(eOtherPlayer).GetDiplomacyAI();
+								if (pDiplo->IsFriendOrAlly(eTargetPlayer) || pDiplo->IsLiberator(eTargetPlayer, false, false))
+									return INT_MAX;
+							}
 						}
 					}
 				}
@@ -7759,7 +7799,6 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 				}
 				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
 				{
-					pDeal->AddMapTrade(eThem);
 					pDeal->AddMapTrade(eMyPlayer);
 					return;
 				}

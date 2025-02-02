@@ -416,7 +416,7 @@ function PopulateDomination()
 		
 		local pActivePlayer = Players[Game.GetActivePlayer()];
 		local pActiveTeam = Teams[pActivePlayer:GetTeam()];
-		local iDomWinner = math.max(math.min(math.ceil(OriginalCapitalSize*GameDefines["VICTORY_DOMINATION_CONTROL_PERCENT"] / 100), OriginalCapitalSize), 2);
+		local iDomWinner = math.max(math.min(math.floor(OriginalCapitalSize*GameDefines["VICTORY_DOMINATION_CONTROL_PERCENT"] / 100), OriginalCapitalSize), 2);
 		
 		if (iLeadingTeam == -1) then
 			if (bAnyoneLostControlOfCapital) then

@@ -27,6 +27,8 @@ public:
 	static int GetBarbSpawnerCounter(CvPlot* pPlot);
 	static void SetBarbSpawnerCounter(CvPlot* pPlot, int iNewValue);
 	static void ChangeBarbSpawnerCounter(CvPlot* pPlot, int iChange);
+	static bool IsBarbSpawnerAttacked(CvPlot* pPlot);
+	static void SetBarbSpawnerAttacked(CvPlot* pPlot, bool bValue);
 	static void DoBarbSpawnerAttacked(CvPlot* pPlot);
 	static bool ShouldSpawnBarbFromCity(CvPlot* pPlot);
 	static bool ShouldSpawnBarbFromCamp(CvPlot* pPlot);
@@ -51,6 +53,7 @@ public:
 
 private:
 	static UnitTypes GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes ePreferredUnitAI, PlayerTypes eUniqueUnitPlayer, vector<ResourceTypes>& vValidResources, bool bAllowRanged, CvSeeder additionalSeed);
+	static bool* m_abBarbSpawnerAttacked;
 	static short* m_aiBarbSpawnerCounter;
 	static short* m_aiBarbSpawnerNumUnitsSpawned;
 };

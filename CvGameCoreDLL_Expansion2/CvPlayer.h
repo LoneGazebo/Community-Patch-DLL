@@ -592,6 +592,8 @@ public:
 	int GetEmpireSizeModifierReductionGlobal() const;
 	void ChangeEmpireSizeModifierReductionGlobal(int iChange);
 
+	int GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const;
+
 	int GetDistressFlatReductionGlobal() const;
 	void ChangeDistressFlatReductionGlobal(int iChange);
 
@@ -680,11 +682,11 @@ public:
 
 	int GetExtraHappinessPerCity() const;
 	void ChangeExtraHappinessPerCity(int iChange);
-	int GetExtraHappinessPerXPolicies() const;
-	void ChangeExtraHappinessPerXPolicies(int iChange);
+	fraction GetExtraHappinessPolicies() const;
+	void ChangeExtraHappinessPolicies(fraction iChange);
 
-	int GetExtraHappinessPerXPoliciesFromPolicies() const;
-	void ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange);
+	fraction GetExtraHappinessPoliciesFromPolicies() const;
+	void ChangeExtraHappinessPoliciesFromPolicies(fraction iChange);
 
 	int GetHappinessPerXGreatWorks() const;
 	void ChangeHappinessPerXGreatWorks(int iChange);
@@ -2015,7 +2017,7 @@ public:
 	int GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
 	void SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn);
 
-	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false);
+	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false, bool bNoCommonFoeBonus = false);
 
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
@@ -2891,6 +2893,9 @@ public:
 	void setUnlockedGrowthAnywhereThisTurn(bool bValue);
 	bool unlockedGrowthAnywhereThisTurn() const;
 
+	void setInstantYieldsFromUnitGift(bool bValue);
+	bool isInstantYieldsFromUnitGift() const;
+
 	bool IsEarlyExpansionPhase() const;
 	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
@@ -3049,8 +3054,8 @@ protected:
 	int m_iBarbarianCombatBonus;
 	int m_iAlwaysSeeBarbCampsCount;
 	int m_iHappinessPerCity;
-	int m_iHappinessPerXPolicies;
-	int m_iExtraHappinessPerXPoliciesFromPolicies;
+	fraction m_fHappinessPolicies;
+	fraction m_fExtraHappinessPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
 	int m_iSpySecurityModifier;
@@ -3446,6 +3451,7 @@ protected:
 	uint m_uiStartTime;  // XXX save these?
 
 	bool m_bHasUUPeriod;
+	bool m_bInstantYieldsFromUnitGift;
 	bool m_bNoNewWars;
 	bool m_bTerribleShapeForWar;
 	bool m_bHasBetrayedMinorCiv;
@@ -3913,8 +3919,8 @@ SYNC_ARCHIVE_VAR(int, m_iUnitUpgradeCostMod)
 SYNC_ARCHIVE_VAR(int, m_iBarbarianCombatBonus)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysSeeBarbCampsCount)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerCity)
-SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
-SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
+SYNC_ARCHIVE_VAR(fraction, m_fHappinessPolicies)
+SYNC_ARCHIVE_VAR(fraction, m_fExtraHappinessPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
@@ -4258,6 +4264,7 @@ SYNC_ARCHIVE_VAR(int, m_iCachedCurrentWarValue)
 SYNC_ARCHIVE_VAR(vector<int>, m_viCoreCitiesForSpaceshipProduction)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
+SYNC_ARCHIVE_VAR(bool, m_bInstantYieldsFromUnitGift)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
 SYNC_ARCHIVE_VAR(bool, m_bTerribleShapeForWar)
 SYNC_ARCHIVE_VAR(bool, m_bHasBetrayedMinorCiv)

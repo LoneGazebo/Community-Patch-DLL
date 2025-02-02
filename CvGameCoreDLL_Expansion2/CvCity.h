@@ -743,6 +743,9 @@ public:
 	int GetSpySecurityModifierPerXPop() const;
 	void ChangeSpySecurityModifierPerXPop(int iChange);
 
+	fraction GetDefensePerWonder() const;
+	void ChangeDefensePerWonder(fraction fChange);
+
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
 	void ChangeConversionModifier(int iChange);
@@ -930,6 +933,13 @@ public:
 
 	bool IsIgnoreCityForHappiness() const;
 	void SetIgnoreCityForHappiness(bool bValue);
+
+	int GetExperiencePerGoldenAge() const;
+	void ChangeExperiencePerGoldenAge(int iChange);
+	int GetExperiencePerGoldenAgeCap() const;
+	void ChangeExperiencePerGoldenAgeCap(int iChange);
+	int GetExperienceFromPreviousGoldenAges() const;
+	void ChangeExperienceFromPreviousGoldenAges(int iChange);
 
 	BuildingTypes ChooseFreeCultureBuilding() const;
 	BuildingTypes ChooseFreeFoodBuilding() const;
@@ -1141,6 +1151,12 @@ public:
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
+	int GetYieldChangesPerLocalTheme(YieldTypes eIndex) const;
+	void ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromUnitGiftGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromUnitGiftGlobal(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromWLTKD(YieldTypes eIndex) const;
 	void ChangeYieldFromWLTKD(YieldTypes eIndex, int iChange);
 
@@ -1161,6 +1177,9 @@ public:
 
 	int GetYieldFromSpyRigElection(YieldTypes eIndex) const;
 	void ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange);
+
+	int GetYieldChangesPerCityStrengthTimes100(YieldTypes eIndex) const;
+	void ChangeYieldChangesPerCityStrengthTimes100(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
@@ -1202,6 +1221,9 @@ public:
 	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iValue);
 
+	int GetYieldFromInternationalTREnd(YieldTypes eIndex1) const;
+	void ChangeYieldFromInternationalTREnd(YieldTypes eIndex1, int iChange);
+
 	int GetYieldFromInternalTREnd(YieldTypes eIndex1) const;
 	void ChangeYieldFromInternalTREnd(YieldTypes eIndex, int iChange);
 
@@ -1211,11 +1233,25 @@ public:
 	int GetYieldFromProcessModifier(YieldTypes eIndex1) const;
 	void ChangeYieldFromProcessModifier(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromLongCount(YieldTypes eIndex1) const;
+	void ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange);
+
+
 	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
 
-	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
+	int GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const;
+	void ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange);
+
+	int GetYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1) const;
+	void ChangeYieldFromGPBirthScaledWithArtistBulb(YieldTypes eIndex1, int iChange);
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> GetYieldFromGPBirthScaledWithPerTurnYieldMap() const;
+	int GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const;
+	void ChangeYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, std::pair<YieldTypes, YieldTypes> eYieldPair, int iChange);
+
 	int GetSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist) const;
+	void ChangeSpecialistRateModifierFromBuildings(SpecialistTypes eSpecialist, int iChange);
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1353,6 +1389,15 @@ public:
 	int GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
 #endif
+
+	std::map<int, std::map<int, int>> GetTechEnhancedYieldsMap() const;
+	int GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const;
+	bool TechEnhancesAnyYield(TechTypes eTech) const;
+	void ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange);
+
+	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstructionMap() const;
+	int GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
+	void ChangeGreatPersonPointFromConstruction(pair<GreatPersonTypes, EraTypes> pGreatPersonEra, int iChange);
 
 	int GetYieldPerReligionTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange);
@@ -1495,6 +1540,9 @@ public:
 
 	int getCityBuildingRangeStrikeModifier() const;
 	void changeCityBuildingRangeStrikeModifier(int iValue);
+
+	int getGarrisonRangedAttackModifier() const;
+	void changeGarrisonRangedAttackModifier(int iValue);
 
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
@@ -1854,6 +1902,7 @@ protected:
 	int m_iCityBuildingBombardRange;
 	int m_iCityIndirectFire;
 	int m_iCityBuildingRangeStrikeModifier;
+	int m_iGarrisonRangedAttackModifier;
 #endif
 	int m_iCultureRateModifier;
 	int m_iNumWorldWonders;
@@ -1922,6 +1971,7 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iSpySecurityModifierPerXPop;
 	int m_iNumPreviousSpyMissions;
+	fraction m_fDefensePerWonder;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
@@ -1981,6 +2031,8 @@ protected:
 	std::vector<int> m_aiYieldChangePerGoldenAgeCap;
 	std::vector<int> m_aiYieldFromPreviousGoldenAges;
 	std::vector<int> m_aiGoldenAgeYieldMod;
+	std::vector<int> m_aiYieldChangesPerLocalTheme;
+	std::vector<int> m_aiYieldFromUnitGiftGlobal;
 	std::vector<int> m_aiYieldFromWLTKD;
 	std::vector<int> m_aiYieldFromConstruction;
 	std::vector<int> m_aiYieldFromTech;
@@ -1997,8 +2049,13 @@ protected:
 	std::vector<int> m_aiYieldPerAlly;
 	std::vector<int> m_aiYieldPerFriend;
 	std::vector<int> m_aiYieldFromInternalTREnd;
+	std::vector<int> m_aiYieldFromInternationalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
 	std::vector<int> m_aiYieldFromProcessModifier;
+	std::vector<int> m_aiYieldFromLongCount;
+	std::vector<int> m_aiYieldFromGPBirthScaledWithWriterBulb;
+	std::vector<int> m_aiYieldFromGPBirthScaledWithArtistBulb;
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 	std::vector<int> m_aiSpecialistRateModifierFromBuildings;
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
@@ -2006,6 +2063,7 @@ protected:
 	std::vector<int> m_aiYieldFromSpyIdentify;
 	std::vector<int> m_aiYieldFromSpyDefenseOrID;
 	std::vector<int> m_aiYieldFromSpyRigElection;
+	std::vector<int> m_aiYieldChangesPerCityStrengthTimes100;
 	std::vector<int> m_aiNumTimesOwned;
 	std::vector<int> m_aiStaticCityYield;
 	int m_iTradePriorityLand;
@@ -2027,6 +2085,9 @@ protected:
 	int m_iDeepWaterTileDamage;
 	int m_iNumNearbyMountains;
 	int m_iLocalUnhappinessMod;
+	int m_iExperiencePerGoldenAge;
+	int m_iExperiencePerGoldenAgeCap;
+	int m_iExperienceFromPreviousGoldenAges;
 	bool m_bNoWarmonger;
 	int m_iNoStarvationNonSpecialist;
 	int m_iEmpireSizeModifierReduction;
@@ -2068,6 +2129,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
+	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	std::vector<int> m_aiYieldPerReligion;
 	std::vector<int> m_aiPowerYieldRateModifier;
 	std::vector<int> m_aiResourceYieldRateModifier;
@@ -2272,6 +2335,7 @@ SYNC_ARCHIVE_VAR(int, m_iAdditionalFood)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
 SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingRangeStrikeModifier)
+SYNC_ARCHIVE_VAR(int, m_iGarrisonRangedAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iCultureRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumWorldWonders)
 SYNC_ARCHIVE_VAR(int, m_iNumTeamWonders)
@@ -2332,6 +2396,7 @@ SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifierPerXPop)
 SYNC_ARCHIVE_VAR(int, m_iNumPreviousSpyMissions)
+SYNC_ARCHIVE_VAR(fraction, m_fDefensePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
 SYNC_ARCHIVE_VAR(bool, m_bDrafted)
@@ -2383,6 +2448,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAge)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangePerGoldenAgeCap)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangesPerLocalTheme)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitGiftGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWLTKD)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
@@ -2399,8 +2466,13 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternationalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromProcessModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromLongCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithWriterBulb)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromGPBirthScaledWithArtistBulb)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<GreatPersonTypes, std::map<std::pair<YieldTypes, YieldTypes>, int>>), m_miYieldFromGPBirthScaledWithPerTurnYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifierFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
@@ -2408,6 +2480,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefense)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyIdentify)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefenseOrID)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyRigElection)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangesPerCityStrengthTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesOwned)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticCityYield)
 SYNC_ARCHIVE_VAR(int, m_iTradePriorityLand)
@@ -2429,6 +2502,9 @@ SYNC_ARCHIVE_VAR(int, m_iBorderObstacleWater)
 SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
 SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
 SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
+SYNC_ARCHIVE_VAR(int, m_iExperiencePerGoldenAge)
+SYNC_ARCHIVE_VAR(int, m_iExperiencePerGoldenAgeCap)
+SYNC_ARCHIVE_VAR(int, m_iExperienceFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
 SYNC_ARCHIVE_VAR(int, m_iNoStarvationNonSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
@@ -2462,6 +2538,8 @@ SYNC_ARCHIVE_VAR(int, m_iResourceDiversityModifier)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDamagePermyriad)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miTechEnhancedYields)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)

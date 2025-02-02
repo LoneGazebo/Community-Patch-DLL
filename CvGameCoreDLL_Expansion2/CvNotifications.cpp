@@ -974,7 +974,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED:
 	case NOTIFICATION_SPY_KILLED_A_SPY:
 	{
-		ASSERT(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		ASSERT(notification.m_iGameDataIndex >= -1, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0 && notification.m_iExtraGameData == -1)
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes)notification.m_iGameDataIndex;

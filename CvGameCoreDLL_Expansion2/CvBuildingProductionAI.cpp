@@ -258,6 +258,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding && !bIgnoreSituational)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
+			iValue += (m_pCity->GetDefensePerWonder() * 10).Truncate();
 
 			// Adjust weight for this wonder down based on number of other players currently working on it
 			int iNumOthersConstructing = 0;
@@ -562,7 +563,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		bGoodforHappiness = true;
 	}
 
-	if (pkBuildingInfo->GetHappinessPerXPolicies() > 0 && kPlayer.GetExtraHappinessPerXPolicies() == 0)
+	if (pkBuildingInfo->GetHappinessPerXPolicies() > 0)
 	{
 		iBonus += iHappinessValue * kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() / pkBuildingInfo->GetHappinessPerXPolicies();
 		bGoodforHappiness = true;
@@ -700,6 +701,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetDefenseModifier() / 25);
 	}
+	if (pkBuildingInfo->GetDefensePerXWonder() > 0)
+	{
+		iDefense += (100 * m_pCity->getNumWorldWonders() / pkBuildingInfo->GetDefensePerXWonder() / 25);
+	}
 	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
 	{
 		iDefense += 25 * pkBuildingInfo->CityRangedStrikeRange();
@@ -711,6 +716,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->CityRangedStrikeModifier() > 0)
 	{
 		iDefense += pkBuildingInfo->CityRangedStrikeModifier();
+	}
+	if (pkBuildingInfo->GetGarrisonRangedAttackModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->GetGarrisonRangedAttackModifier();
 	}
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{

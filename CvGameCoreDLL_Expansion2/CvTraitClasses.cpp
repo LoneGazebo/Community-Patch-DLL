@@ -6923,6 +6923,7 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 	if(m_iBaktunPreviousTurn + 1 == m_iBaktun)
 	{
 		bRtnValue = true;
+		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_BAKTUN_END);
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
 		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)
@@ -7207,6 +7208,12 @@ void CvPlayerTraits::ComputeMayaDate()
 		fDays = fDays - ((float)m_iWinal * DAYS_IN_WINAL);
 		m_iKin = (int)fDays;
 	}
+}
+
+int CvPlayerTraits::GetCurrentBaktun() const
+{
+	ASSERT(IsUsingMayaCalendar());
+	return m_iBaktun;
 }
 
 /// At the end of which calendar cycle was this unit chosen as a special bonus (0 if none)?

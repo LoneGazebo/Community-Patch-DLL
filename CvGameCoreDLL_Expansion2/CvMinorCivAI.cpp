@@ -6642,21 +6642,18 @@ bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTy
 				}
 			}
 		}
-		if (MOD_BALANCE_VP)
+		// Find City & Find City-State can overlap - don't allow this to occur at all in VP, or for the same quest giver in Community Patch
+		if (eQuest == MINOR_CIV_QUEST_FIND_CITY && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
 		{
-			// Find City & Find City-State can overlap - don't allow this to occur
-			if (eQuest == MINOR_CIV_QUEST_FIND_CITY && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
-			{
-				CvPlot* pCityPlot = GC.getMap().plot(iData1, iData2);
-				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
-					return true;
-			}
-			if (eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY))
-			{
-				CvPlot* pCityPlot = GC.getMap().plot(GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY), GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, MINOR_CIV_QUEST_FIND_CITY));
-				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)iData1)
-					return true;
-			}
+			CvPlot* pCityPlot = GC.getMap().plot(iData1, iData2);
+			if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
+				return MOD_BALANCE_VP || eMinor == GetPlayer()->GetID();
+		}
+		if (eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY))
+		{
+			CvPlot* pCityPlot = GC.getMap().plot(GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY), GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, MINOR_CIV_QUEST_FIND_CITY));
+			if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)iData1)
+				return MOD_BALANCE_VP || eMinor == GetPlayer()->GetID();
 		}
 	}
 
@@ -12173,14 +12170,7 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 /// Update Best Relations Resource Bonus
 void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly)
 {
-	if (eNewAlly == eOldAlly)
-		return; //nothing to do
-
-	PlayerTypes TechTestPlayer = NO_PLAYER;
-	if (eNewAlly != NO_PLAYER)
-		TechTestPlayer = eNewAlly;
-	else if (eOldAlly != NO_PLAYER)
-		TechTestPlayer = eOldAlly;
+	// this function can be called with eNewAlly == eOldAlly when techs are updated
 
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -12189,25 +12179,22 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo == NULL)
 			continue;
-		const CvPlayer * pPlayer = &GET_PLAYER(TechTestPlayer);
-		if (TechTestPlayer != NO_PLAYER && pPlayer && !pPlayer->IsResourceRevealed(eResource))
-			continue;
 
 		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 
 		if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
 			bool bNeedsUpdate = true;
-			if (eOldAlly == eNewAlly)
+			if (eOldAlly == eNewAlly && eOldAlly != NO_PLAYER)
 			{
 				int iResourceQuantityNew = GetPlayer()->getNumResourceTotal(eResource);
-				if (iResourceQuantityNew == 0)
+				if (iResourceQuantityNew == 0 || !GET_PLAYER(eOldAlly).IsResourceRevealed(eResource))
 					bNeedsUpdate = false;
 			}
 			
 			if (bNeedsUpdate)
 			{
-				// Someone is losing the bonus :(
+				// Someone is losing the bonus
 				if (eOldAlly != NO_PLAYER)
 				{
 					int iResourceQuantity = GetPlayer()->getResourceExport(eResource);
@@ -12219,9 +12206,12 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 					}
 				}
 
-				// Someone new is getting the bonus :D
+				// Someone new is getting the bonus
 				if (eNewAlly != NO_PLAYER)
 				{
+					if (!GET_PLAYER(eNewAlly).IsResourceRevealed(eResource))
+						continue;
+
 					int iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
 
 					if (iResourceQuantity > 0)
@@ -12342,7 +12332,10 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 	{
 		if (eNewAlly != GetPermanentAlly())
 		{
-			m_pPlayer->GetDiplomacyAI()->LogMinorStatusChange(eNewAlly, "cannot set a new ally because of PermanentAlly status");
+			if(eNewAlly != NO_PLAYER)
+			{
+				GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "cannot become new ally because of PermanentAlly status");
+			}
 			return false;
 		}
 		else if (m_eAlly != GetPermanentAlly())
@@ -12814,7 +12807,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 
 	// No old ally and now allies, OR our friendship is now higher than a previous ally
 	if((eOldAlly == NO_PLAYER && bNowAllies)
-	        || ((eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajorTimes100(ePlayer) > GetEffectiveFriendshipWithMajorTimes100(eOldAlly)) && !bHasOtherPermanentAlly))
+	        || ((eOldAlly != NO_PLAYER && iNewFriendshipTimes100 > GetEffectiveFriendshipWithMajorTimes100(eOldAlly)) && !bHasOtherPermanentAlly))
 	{
 		bAdd = true;
 		bAlliesChange = true;
@@ -17422,6 +17415,7 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 	if (pGiftUnit == NULL) return;
 
 	ChangeNumUnitsGifted(eFromPlayer, 1);
+	GET_PLAYER(eFromPlayer).doInstantYield(INSTANT_YIELD_TYPE_UNIT_GIFT);
 
 	// Influence
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);

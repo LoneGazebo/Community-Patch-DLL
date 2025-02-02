@@ -343,8 +343,6 @@ public:
 	bool isObsoleteBuilding(BuildingTypes eIndex) const;
 	void changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange);
 
-	void enhanceBuilding(BuildingTypes eIndex, int iChange);
-
 	int getTerrainTradeCount(TerrainTypes eIndex) const;
 	bool isTerrainTrade(TerrainTypes eIndex) const;
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);

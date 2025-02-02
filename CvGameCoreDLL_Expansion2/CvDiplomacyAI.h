@@ -2156,6 +2156,7 @@ namespace CvDiplomacyAIHelpers
 	int GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver);
 	bool BackstabbedPlayer(PlayerTypes eBackstabber, PlayerTypes eVictim, bool bIncludeDoFEnd);
 	bool IgnoresBackstabbing(PlayerTypes eObserver, PlayerTypes eVictim, bool bCheckCurrent = false);
+	bool ProposedSanctionsBlockingDiplomacy(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

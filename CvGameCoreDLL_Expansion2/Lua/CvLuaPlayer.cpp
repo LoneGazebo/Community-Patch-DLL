@@ -97,6 +97,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsAITeammateOfHuman);
 	Method(IsBarbarian);
 	Method(GetName);
+	Method(GetBuildingTechEnhancedYields);
 	Method(GetNameKey);
 	Method(GetNickName);
 	Method(GetCivilizationDescription);
@@ -2178,6 +2179,34 @@ int CvLuaPlayer::lGetCivilizationAdjectiveKey(lua_State* L)
 int CvLuaPlayer::lIsWhiteFlag(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::isWhiteFlag);
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetBuildingTechEnhancedYields(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+	YieldTypes eYield = (YieldTypes)lua_tointeger(L, 3);
+
+	int iResult = 0;
+	if (!pBuildingInfo->GetTechEnhancedYields().empty())
+	{
+		map<int, std::map<int, int>> mTechEnhancedYields = pBuildingInfo->GetTechEnhancedYields();
+		map<int, std::map<int, int>>::iterator it;
+		for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
+		{
+			if (GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
+			{
+				std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+				if (it2 != (it->second).end())
+				{
+					iResult += it2->second;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //wstring GetStateReligionName();

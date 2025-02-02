@@ -1392,13 +1392,13 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 			return -1; //forbidden
 
 		//extra cost for ending the turn on various types of undesirable plots
+		int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns, finder->HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
+		if (iEndTurnCost < 0)
+			return -1; //don't get killed
+
+		//important to not add the extra cost for the requested destination
 		if (!bIsPathDest)
 		{
-			//important to not add the extra cost for the requested destination
-			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns, finder->HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
-			if (iEndTurnCost < 0)
-				return -1;
-
 			iCost += iEndTurnCost;
 		}
 		else

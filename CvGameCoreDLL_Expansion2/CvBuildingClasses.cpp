@@ -35,8 +35,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iFreeStartEra(NO_ERA),
 	m_iMaxStartEra(NO_ERA),
 	m_iObsoleteTech(NO_TECH),
-	m_iEnhancedYieldTech(NO_TECH),
-	m_iTechEnhancedTourism(0),
 	m_iGoldMaintenance(0),
 	m_iMutuallyExclusiveGroup(0),
 	m_iReplacementBuildingClass(NO_BUILDINGCLASS),
@@ -130,6 +128,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCityRangedStrikeRange(0),
 	m_iCityIndirectFire(0),
 	m_iRangedStrikeModifier(0),
+	m_iGarrisonRangedAttackModifier(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -212,8 +211,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iIlliteracyFlatReductionGlobal(0),
 	m_iBoredomFlatReductionGlobal(0),
 	m_iReligiousUnrestFlatReductionGlobal(0),
+	m_iExperiencePerGoldenAge(0),
+	m_iExperiencePerGoldenAgeCap(0),
 	m_iInstantReligionPressure(0),
 	m_iBasePressureModGlobal(0),
+	m_iDefensePerXWonder(0),
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
 	m_bTeamShare(false),
@@ -331,6 +333,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChangePerGoldenAge(NULL),
 	m_piYieldChangePerGoldenAgeCap(NULL),
 	m_piGoldenAgeYieldMod(NULL),
+	m_piYieldChangesPerLocalTheme(NULL),
+	m_piYieldFromUnitGiftGlobal(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
@@ -339,12 +343,17 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromSpyIdentify(NULL),
 	m_piYieldFromSpyDefenseOrID(NULL),
 	m_piYieldFromSpyRigElection(NULL),
+	m_piYieldChangesPerCityStrengthTimes100(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromInternalTREnd(NULL),
+	m_piYieldFromInternationalTREnd(NULL),
 	m_piYieldFromInternal(NULL),
 	m_piYieldFromProcessModifier(NULL),
-
+	m_piYieldFromLongCount(NULL),
+	m_piYieldFromGPBirthScaledWithWriterBulb(NULL),
+	m_piYieldFromGPBirthScaledWithArtistBulb(NULL),
+	m_miYieldFromGPBirthScaledWithPerTurnYield(),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthEraScaling(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
@@ -368,7 +377,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
 	m_piGlobalYieldModifier(NULL),
-	m_piTechEnhancedYieldChange(NULL),
 	m_piUnitCombatFreeExperience(NULL),
 	m_piUnitCombatProductionModifiers(NULL),
 	m_piUnitCombatProductionModifiersGlobal(NULL),
@@ -414,6 +422,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiFeatureYieldChange(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal(),
+	m_miTechEnhancedYields(),
+	m_miGreatPersonPointFromConstruction(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
 	m_ppaiSpecialistYieldChangeLocal(NULL),
@@ -479,6 +489,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAge);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAgeCap);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerLocalTheme);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitGiftGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
@@ -487,13 +499,19 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyIdentify);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyDefenseOrID);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyRigElection);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerCityStrengthTimes100);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChangeLocal);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
+	SAFE_DELETE_ARRAY(m_piYieldFromInternationalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
 	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
+	SAFE_DELETE_ARRAY(m_piYieldFromLongCount);
+	SAFE_DELETE_ARRAY(m_piYieldFromGPBirthScaledWithWriterBulb);
+	SAFE_DELETE_ARRAY(m_piYieldFromGPBirthScaledWithArtistBulb);
+	m_miYieldFromGPBirthScaledWithPerTurnYield.clear();
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
@@ -517,7 +535,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGlobalYieldModifier);
-	SAFE_DELETE_ARRAY(m_piTechEnhancedYieldChange);
 	SAFE_DELETE_ARRAY(m_piUnitCombatFreeExperience);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
@@ -568,6 +585,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal.clear();
+	m_miTechEnhancedYields.clear();
+	m_miGreatPersonPointFromConstruction.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChangeLocal);
@@ -723,6 +742,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityRangedStrikeRange = kResults.GetInt("CityRangedStrikeRange");
 	m_iCityIndirectFire = kResults.GetInt("CityIndirectFire");
 	m_iRangedStrikeModifier = kResults.GetInt("RangedStrikeModifier");
+	m_iGarrisonRangedAttackModifier = kResults.GetInt("GarrisonRangedAttackModifier");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -861,11 +881,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("ObsoleteTech");
 	m_iObsoleteTech = GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("EnhancedYieldTech");
-	m_iEnhancedYieldTech = GC.getInfoTypeForString(szTextVal, true);
-
-	m_iTechEnhancedTourism = kResults.GetInt("TechEnhancedTourism");
-
 	szTextVal = kResults.GetText("FreeBuilding");
 	m_iFreeBuildingClass = GC.getInfoTypeForString(szTextVal, true);
 
@@ -959,9 +974,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
 	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
 	m_iReligiousUnrestFlatReductionGlobal = kResults.GetInt("ReligiousUnrestFlatReductionGlobal");
-
+	
 	m_iInstantReligionPressure = kResults.GetInt("InstantReligiousPressure");
+	m_iExperiencePerGoldenAge = kResults.GetInt("ExperiencePerGoldenAge");
+	m_iExperiencePerGoldenAgeCap = kResults.GetInt("ExperiencePerGoldenAgeCap");
+
 	m_iBasePressureModGlobal = kResults.GetInt("BasePressureModifierGlobal");
+	m_iDefensePerXWonder = kResults.GetInt("DefensePerXWonder");
 
 	//Arrays
 	const char* szBuildingType = GetType();
@@ -989,6 +1008,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChangePerGoldenAge, "Building_YieldChangesPerGoldenAge", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap");
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangesPerLocalTheme, "Building_YieldChangesPerLocalTheme", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitGiftGlobal, "Building_YieldFromUnitGiftGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
@@ -997,13 +1018,43 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromSpyIdentify, "Building_YieldFromSpyIdentify", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyDefenseOrID, "Building_YieldFromSpyDefenseOrID", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyRigElection, "Building_YieldFromSpyRigElection", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangesPerCityStrengthTimes100, "Building_YieldChangesPerCityStrengthTimes100", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChangeLocal, "Building_GreatWorkYieldChangesLocal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromInternationalTREnd, "Building_YieldFromInternationalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromLongCount, "Building_YieldFromLongCount", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromGPBirthScaledWithWriterBulb, "Building_YieldFromGPBirthScaledWithWriterBulb", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromGPBirthScaledWithArtistBulb, "Building_YieldFromGPBirthScaledWithArtistBulb", "BuildingType", szBuildingType);
+	{
+		std::string strKey("Building_YieldFromGPBirthScaledWithPerTurnYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, YieldsIn.ID as YieldInID, YieldsOut.ID as YieldOutID, Value from Building_YieldFromGPBirthScaledWithPerTurnYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields as YieldsIn on YieldsIn.Type = YieldIn inner join Yields as YieldsOut on YieldsOut.Type = YieldOut where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iYieldIn = pResults->GetInt(1);
+			const int iYieldOut= pResults->GetInt(2);
+			const int iYield = pResults->GetInt(3);
+
+			m_miYieldFromGPBirthScaledWithPerTurnYield[(GreatPersonTypes)iGreatPerson][std::make_pair((YieldTypes)iYieldIn, (YieldTypes)iYieldOut)] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>>(m_miYieldFromGPBirthScaledWithPerTurnYield).swap(m_miYieldFromGPBirthScaledWithPerTurnYield);
+	}
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
 	kUtility.SetYields(m_piYieldFromBirthEraScaling, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Building_YieldFromBirthRetroactive", "BuildingType", szBuildingType);
@@ -1022,7 +1073,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldModifier, "Building_YieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piAreaYieldModifier, "Building_AreaYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGlobalYieldModifier, "Building_GlobalYieldModifiers", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	kUtility.SetYields(m_piInstantYield, "Building_InstantYield", "BuildingType", szBuildingType);
 #endif
@@ -1202,6 +1252,78 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
+	}
+
+	// Building_TechEnhancedYieldChanges
+	// Table structure (BuildingType, YieldType, Yield, TechType)
+	// The building produces additional yields per turn once the corresponding technology has been researched
+	{
+		// In vanilla, this table didn't have the column TechType, the technology was stored in Buildings.EnhancedYieldTech instead.
+		// That means that a building couldn't get additional yields for more than one tech.
+		// To keep compatibility with existing mods the new column TechType is nullable, if it is empty, Buildings.EnhancedYieldTech is used as fallback value.
+		// In vanilla, the column Buildings.TechEnhancedTourism can also be used together with Buildings.EnhancedYieldTech to give tourism once a particular tech is researched, this is now also processed here
+		std::string strKey("Building_TechEnhancedYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select coalesce(Technologies.ID, -1) as TechID, Yields.ID as YieldID, Yield from Building_TechEnhancedYieldChanges left join Technologies on Technologies.Type = TechType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		szTextVal = kResults.GetText("EnhancedYieldTech");
+		int iFallbackTech = GC.getInfoTypeForString(szTextVal, true);
+
+		while (pResults->Step())
+		{
+			const int iTech = pResults->GetInt(0) >= 0 ? pResults->GetInt(0) : iFallbackTech;
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			if (iTech >= 0)
+			{
+				m_miTechEnhancedYields[iTech][iYieldType] += iYield;
+			}
+		}
+
+		int iTechEnhancedTourism = kResults.GetInt("TechEnhancedTourism");
+		if (iTechEnhancedTourism > 0 && iFallbackTech >= 0)
+		{
+			m_miTechEnhancedYields[iFallbackTech][YIELD_TOURISM] += iTechEnhancedTourism;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
+	}
+
+	// Building_GreatPersonPointFromConstruction
+	// Table structure (BuildingType, GreatPersonType, EraType, Value)
+	// The building gives GPP to the specified GreatPersonType whenever a building unlocked in EraType or later is constructed. The number of GPP is (BuildingCost) * Value / 100
+	{
+		std::string strKey("Building_GreatPersonPointFromConstruction");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Eras.ID as EraID, Value from Building_GreatPersonPointFromConstruction inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Eras on Eras.Type = EraType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iEra = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_miGreatPersonPointFromConstruction[std::make_pair((GreatPersonTypes)iGreatPerson, (EraTypes)iEra)] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<pair<GreatPersonTypes, EraTypes>, int>(m_miGreatPersonPointFromConstruction).swap(m_miGreatPersonPointFromConstruction);
 	}
 
 	//Building_YieldChangesPerPopInEmpire
@@ -1744,18 +1866,6 @@ int CvBuildingEntry::GetMaxStartEra() const
 int CvBuildingEntry::GetObsoleteTech() const
 {
 	return m_iObsoleteTech;
-}
-
-/// Tech that improves the yield from this building
-int CvBuildingEntry::GetEnhancedYieldTech() const
-{
-	return m_iEnhancedYieldTech;
-}
-
-/// ... or provides tourism from this building
-int CvBuildingEntry::GetTechEnhancedTourism() const
-{
-	return m_iTechEnhancedTourism;
 }
 
 /// How much GPT does this Building cost?
@@ -2421,6 +2531,11 @@ int CvBuildingEntry::CityIndirectFire() const
 {
 	return m_iCityIndirectFire;
 }
+/// Modifier to the ranged attack strength of garrison in cities with this building.
+int CvBuildingEntry::GetGarrisonRangedAttackModifier() const
+{
+	return m_iGarrisonRangedAttackModifier;
+}
 /// Does this Building allow us to Range Strike?
 int CvBuildingEntry::CityRangedStrikeModifier() const
 {
@@ -3065,10 +3180,6 @@ bool CvBuildingEntry::IsScienceBuilding() const
 	{
 		bRtnValue = true;
 	}
-	else if(GetTechEnhancedYieldChange(YIELD_SCIENCE) > 0)
-	{
-		bRtnValue = true;
-	}
 	else if(GetYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		bRtnValue = true;
@@ -3177,10 +3288,25 @@ int CvBuildingEntry::GetReligiousUnrestFlatReductionGlobal() const
 	return m_iReligiousUnrestFlatReductionGlobal;
 }
 
+int CvBuildingEntry::GetExperiencePerGoldenAge() const
+{
+	return m_iExperiencePerGoldenAge;
+}
+
+int CvBuildingEntry::GetExperiencePerGoldenAgeCap() const
+{
+	return m_iExperiencePerGoldenAgeCap;
+}
+
 /// Instant Boost of religious pressure in the city when built
 int CvBuildingEntry::GetInstantReligionPressure() const
 {
 	return m_iInstantReligionPressure;
+}
+
+int CvBuildingEntry::GetDefensePerXWonder() const
+{
+	return m_iDefensePerXWonder;
 }
 
 int CvBuildingEntry::GetBasePressureModGlobal() const
@@ -3384,6 +3510,22 @@ int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
 }
 
 /// Change to yield during golden ages
+int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldChangesPerLocalTheme ? m_piYieldChangesPerLocalTheme[i] : -1;
+}
+
+/// Instant yields from gifting a unit
+int CvBuildingEntry::GetYieldFromUnitGiftGlobal(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitGiftGlobal ? m_piYieldFromUnitGiftGlobal[i] : -1;
+}
+
+/// Change to yield during golden ages
 int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3576,7 +3718,15 @@ int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 	return m_piYieldFromFaithPurchase;
 }
 
-/// Does this Policy grant yields from constructing buildings?
+/// Instant yield granted when an international trade route ends
+int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromInternationalTREnd[i];
+}
+
+/// Instant yield granted when an international trade route ends
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3604,7 +3754,62 @@ int* CvBuildingEntry::GetYieldFromInternalArray() const
 }
 
 
-/// Does this Policy grant yields from constructing buildings?
+/// Does this Building grant yields when a b'ak'tun ends?
+int CvBuildingEntry::GetYieldFromLongCount(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromLongCount[i];
+}
+
+/// Does this Building grant yields when a Great Writer is born?
+int CvBuildingEntry::GetYieldFromGPBirthScaledWithWriterBulb(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromGPBirthScaledWithWriterBulb[i];
+}
+
+/// Does this Building grant yields when a Great Artist is born?
+int CvBuildingEntry::GetYieldFromGPBirthScaledWithArtistBulb(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromGPBirthScaledWithArtistBulb[i];
+}
+
+/// Does this Building grant yields from other yields when a Great Person is born?
+map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYieldMap() const
+{
+	return m_miYieldFromGPBirthScaledWithPerTurnYield;
+}
+//	--------------------------------------------------------------------------------
+/// Instant yield when a Great Person is born based on the yield output of the city
+int CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	PRECONDITION(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	PRECONDITION(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
+	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		map<std::pair<YieldTypes, YieldTypes>, int> miYieldMap = it->second;
+		map<std::pair<YieldTypes, YieldTypes>, int>::const_iterator it2 = miYieldMap.find(std::make_pair(eYieldIn, eYieldOut));
+		if (it2 != miYieldMap.end())
+		{
+			return it2->second;
+		}
+	}
+
+	return 0;
+}
+
+/// Does this Building grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromProcessModifier(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3682,6 +3887,13 @@ int* CvBuildingEntry::GetYieldFromSpyDefenseOrIDArray() const
 	return m_piYieldFromSpyDefenseOrID;
 }
 
+int CvBuildingEntry::GetYieldChangesPerCityStrengthTimes100(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldChangesPerCityStrengthTimes100 ? m_piYieldChangesPerCityStrengthTimes100[i] : -1;
+}
+
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyRigElection(int i) const
 {
@@ -3689,6 +3901,7 @@ int CvBuildingEntry::GetYieldFromSpyRigElection(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyRigElection ? m_piYieldFromSpyRigElection[i] : -1;
 }
+
 /// Array of yield changes
 int* CvBuildingEntry::GetYieldFromSpyRigElectionArray() const
 {
@@ -3806,20 +4019,6 @@ int CvBuildingEntry::GetGlobalYieldModifier(int i) const
 int* CvBuildingEntry::GetGlobalYieldModifierArray() const
 {
 	return m_piGlobalYieldModifier;
-}
-
-/// Change to yield based on earning a tech
-int CvBuildingEntry::GetTechEnhancedYieldChange(int i) const
-{
-	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piTechEnhancedYieldChange ? m_piTechEnhancedYieldChange[i] : -1;
-}
-
-/// Array of yield changes based on earning a tech
-int* CvBuildingEntry::GetTechEnhancedYieldChangeArray() const
-{
-	return m_piTechEnhancedYieldChange;
 }
 
 /// Sea plot yield changes by type
@@ -4323,6 +4522,16 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 	return 0;
 }
 #endif
+
+std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
+{
+	return m_miTechEnhancedYields;
+}
+
+std::map<pair<GreatPersonTypes, EraTypes>, int> CvBuildingEntry::GetGreatPersonPointFromConstruction() const
+{
+	return m_miGreatPersonPointFromConstruction;
+}
 
 /// Change to Feature yield by type
 int CvBuildingEntry::GetFeatureYieldChange(int i, int j) const
@@ -6080,6 +6289,8 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			}
 		}
 	}
+
+	iThemingBonusTotal += m_pCity->GetYieldChangesPerLocalTheme(eYield) * GetTotalNumThemedBuildings();
 	
 	//No works? Abort!
 	if(iRealWorkCount <= 0)

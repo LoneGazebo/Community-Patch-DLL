@@ -875,7 +875,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
+	const UnitCombatTypes unitCombatType = getUnitCombatType();
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
@@ -1188,11 +1188,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvCity* pCity = plot()->getEffectiveOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, this);
 		}
 		else if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity());
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity(), false, true, false, NO_YIELD, this);
 		}
 		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}
@@ -12162,7 +12162,7 @@ bool CvUnit::trade()
 			PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iPlayerLoop);
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 			{
-				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopPlayer);
+				int iFriendship = GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(eLoopPlayer);
 				GET_PLAYER(eMinor).GetMinorCivAI()->DoFriendshipChangeEffects(eLoopPlayer, viOriginalInfluence[iPlayerLoop], iFriendship);
 			}
 		}
@@ -14517,7 +14517,7 @@ UnitTypes CvUnit::getCaptureUnitType(PlayerTypes eCapturingPlayer) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getUnitCombatType() const
+UnitCombatTypes CvUnit::getUnitCombatType() const
 {
 	VALIDATE_OBJECT();
 	return m_eCombatType;
@@ -14526,10 +14526,7 @@ int CvUnit::getUnitCombatType() const
 void CvUnit::setUnitCombatType(UnitCombatTypes eCombat)
 {
 	VALIDATE_OBJECT();
-	if(getUnitCombatType() != eCombat)
-	{
-		m_eCombatType = eCombat;
-	}
+	m_eCombatType = eCombat;
 }
 
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)
@@ -16304,13 +16301,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
 
 		// Unit Combat type Modifier
-		UnitCombatTypes combatType = (UnitCombatTypes)pOtherUnit->getUnitCombatType();
+		UnitCombatTypes combatType = pOtherUnit->getUnitCombatType();
 		if(combatType != NO_UNITCOMBAT)
 		{
 			int iTempModifier = unitCombatModifier(combatType);
 
 			//hack: mounted units can have secondary combat class
-			UnitCombatTypes mountedCombat = (UnitCombatTypes)2; //hardcoded
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 			if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
 				iTempModifier += unitCombatModifier(mountedCombat);
 
@@ -17240,6 +17237,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
+		if (pMyPlot->isCity())
+		{
+			CvCity* pMyCity = pMyPlot->getPlotCity();
+			iModifier += pMyCity->getGarrisonRangedAttackModifier();
+		}
 	}
 	else
 	{
@@ -28221,20 +28223,17 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 				return false;
 			}
 
-#if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
-				// if the defender is a sub
-				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pDefender->getInvisibleType() == 0) {
-					// if the plot is ice, unless the attacker is also a sub, return false
-					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0) {
-						return false;
-					}
+			// if the defender is a sub
+			if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pDefender->getInvisibleType() == 0)
+			{
+				// if the plot is ice, unless the attacker is also a sub, return false
+				if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0)
+					return false;
 
-					// if the attacker is an archer type unit, return false
-					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)) {
-						return false;
-					}
-				}
-#endif
+				// if the attacker is an archer type unit, return false
+				if (getUnitCombatType() == GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
+					return false;
+			}
 		}
 		// We don't need to be at war (yet) with a Unit here, so let's try to find one
 		else
@@ -28253,23 +28252,17 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 				if (!pLoopUnit)
 					continue;
 
-#if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
 				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pLoopUnit->getInvisibleType() == 0)
 				{
 					// if the plot is ice, unless the attacker is also a sub, ignore them
 					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0)
-					{
 						continue;
-					}
 
 					// if the attacker is an archer type unit, ignore them
-					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
-					{
+					if (getUnitCombatType() == GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
 						continue;
-					}
 				}
-#endif
 
 				if(!pLoopUnit) continue;
 
@@ -31349,15 +31342,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsRangedFlankAttack() && !IsRangedFlankAttack() && IsCanAttackRanged())
 	// Envelopment: Only available to Skirmishers (Mounted Ranged)
-	// This is really strong, but if my ranged attacks exceed 1 range, I can't use this as effectively.
+	// It gets even stronger with range > 1 (potential of +6 flank instead of +5), but it isn't normally available
 	{
 		iExtra = (iFlavorOffense + iFlavorMobile);
 		iExtra *= 2;
 		iExtra *= max(1, baseMoves(false));
-		if (canMoveAfterAttacking())
+		if (canMoveAfterAttacking() || GetRange() > 1)
 			iExtra *= 5;
-		if (GetRange() > 1)
-			iExtra /= 10;
 		iValue += iExtra;
 	}
 

@@ -122,8 +122,6 @@ public:
 	int GetFreeStartEra() const;
 	int GetMaxStartEra() const;
 	int GetObsoleteTech() const;
-	int GetEnhancedYieldTech() const;
-	int GetTechEnhancedTourism() const;
 	int GetGoldMaintenance() const;
 	int GetMutuallyExclusiveGroup() const;
 	int GetReplacementBuildingClass() const;
@@ -267,6 +265,7 @@ public:
 	int GetCitySupplyFlatGlobal() const;
 	int CityRangedStrikeRange() const;
 	int CityIndirectFire() const;
+	int GetGarrisonRangedAttackModifier() const;
 	int CityRangedStrikeModifier() const;
 #endif
 	int GetHappinessPerCity() const;
@@ -421,6 +420,9 @@ public:
 	int GetBoredomFlatReductionGlobal() const;
 	int GetReligiousUnrestFlatReductionGlobal() const;
 
+	int GetExperiencePerGoldenAge() const;
+	int GetExperiencePerGoldenAgeCap() const;
+
 	// Accessor Functions (Arrays)
 	int GetGrowthExtraYield(int i) const;
 	int* GetGrowthExtraYieldArray() const;
@@ -467,6 +469,10 @@ public:
 
 	int GetYieldChangePerGoldenAgeCap(int i) const;
 	int* GetYieldChangePerGoldenAgeCapArray() const;
+
+	int GetYieldChangesPerLocalTheme(int i) const;
+
+	int GetYieldFromUnitGiftGlobal(int i) const;
 
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
@@ -516,11 +522,21 @@ public:
 	int GetYieldFromFaithPurchase(int i) const;
 	int* GetYieldFromFaithPurchaseArray() const;
 
+	int GetYieldFromInternationalTREnd(int i) const;
+
 	int GetYieldFromInternalTREnd(int i) const;
 	int* GetYieldFromInternalTREndArray() const;
 
 	int GetYieldFromInternal(int i) const;
 	int* GetYieldFromInternalArray() const;
+
+	int GetYieldFromLongCount(int i) const;
+
+	int GetYieldFromGPBirthScaledWithWriterBulb(int i) const;
+	int GetYieldFromGPBirthScaledWithArtistBulb(int i) const;
+
+	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>> GetYieldFromGPBirthScaledWithPerTurnYieldMap() const;
+	int GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const;
 
 	int GetYieldFromProcessModifier(int i) const;
 	int* GetYieldFromProcessModifierArray() const;
@@ -539,6 +555,8 @@ public:
 
 	int GetYieldFromSpyDefenseOrID(int i) const;
 	int* GetYieldFromSpyDefenseOrIDArray() const;
+
+	int GetYieldChangesPerCityStrengthTimes100(int i) const;
 
 	int GetYieldFromSpyRigElection(int i) const;
 	int* GetYieldFromSpyRigElectionArray() const;
@@ -561,8 +579,6 @@ public:
 	int* GetAreaYieldModifierArray() const;
 	int GetGlobalYieldModifier(int i) const;
 	int* GetGlobalYieldModifierArray() const;
-	int GetTechEnhancedYieldChange(int i) const;
-	int* GetTechEnhancedYieldChangeArray() const;
 	int GetSeaPlotYieldChange(int i) const;
 	int* GetSeaPlotYieldChangeArray() const;
 	int GetRiverPlotYieldChange(int i) const;
@@ -637,13 +653,15 @@ public:
 
 	int GetInstantReligionPressure() const;
 #endif
-
+	int GetDefensePerXWonder() const;
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
 	int* GetFeatureYieldChangeArray(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
+	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstruction() const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -699,8 +717,6 @@ private:
 	int m_iFreeStartEra;
 	int m_iMaxStartEra;
 	int m_iObsoleteTech;
-	int m_iEnhancedYieldTech;
-	int m_iTechEnhancedTourism;
 	int m_iGoldMaintenance;
 	int m_iMutuallyExclusiveGroup;
 	int m_iReplacementBuildingClass;
@@ -814,6 +830,7 @@ private:
 	int m_iCityRangedStrikeRange;
 	int m_iCityIndirectFire;
 	int m_iRangedStrikeModifier;
+	int m_iGarrisonRangedAttackModifier;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;
@@ -898,6 +915,8 @@ private:
 	int m_iIlliteracyFlatReductionGlobal;
 	int m_iBoredomFlatReductionGlobal;
 	int m_iReligiousUnrestFlatReductionGlobal;
+	int m_iExperiencePerGoldenAge;
+	int m_iExperiencePerGoldenAgeCap;
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
 
@@ -992,6 +1011,7 @@ private:
 
 	int m_iInstantReligionPressure;
 	int m_iBasePressureModGlobal;
+	int m_iDefensePerXWonder;
 
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
@@ -1030,6 +1050,8 @@ private:
 	int* m_piYieldChangePerGoldenAge;
 	int* m_piYieldChangePerGoldenAgeCap;
 	int* m_piGoldenAgeYieldMod;
+	int* m_piYieldChangesPerLocalTheme;
+	int* m_piYieldFromUnitGiftGlobal;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
@@ -1038,6 +1060,7 @@ private:
 	int* m_piYieldFromSpyIdentify;
 	int* m_piYieldFromSpyDefenseOrID;
 	int* m_piYieldFromSpyRigElection;
+	int* m_piYieldChangesPerCityStrengthTimes100;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;
@@ -1052,8 +1075,13 @@ private:
 	int* m_piYieldFromPurchaseGlobal;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;
+	int* m_piYieldFromInternationalTREnd;
 	int* m_piYieldFromInternal;
 	int* m_piYieldFromProcessModifier;
+	int* m_piYieldFromLongCount;
+	int* m_piYieldFromGPBirthScaledWithWriterBulb;
+	int* m_piYieldFromGPBirthScaledWithArtistBulb;
+	map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
@@ -1066,7 +1094,6 @@ private:
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
 	int* m_piGlobalYieldModifier;
-	int* m_piTechEnhancedYieldChange;
 	int* m_piUnitCombatFreeExperience;
 	int* m_piUnitCombatProductionModifiers;
 	int* m_piUnitCombatProductionModifiersGlobal;
@@ -1111,6 +1138,8 @@ private:
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
+	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;
