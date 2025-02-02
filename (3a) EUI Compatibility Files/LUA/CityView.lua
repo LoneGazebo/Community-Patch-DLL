@@ -985,7 +985,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				--END
 			end
 			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
-			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
+			cityYieldRate = city:GetYieldFromYieldPerBuildingTimes100(yieldID) / 100 + city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
 			if yieldID == YieldTypes.YIELD_PRODUCTION and city:IsIndustrialConnectedToCapital() then
 				cityYieldRate = cityYieldRate + city:GetConnectionGoldTimes100() / 100
 			end
@@ -1025,6 +1025,11 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			buildingYieldPerPopInEmpire = 0
 			for row in GameInfo.Building_YieldChangesPerPopInEmpire( thisBuildingAndYieldTypes ) do
 				buildingYieldPerPopInEmpire = buildingYieldPerPopInEmpire + (row.Yield or 0)
+			end
+			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
+			-- Yield from buildings
+			for row in GameInfo.Building_YieldChangesPerXBuilding( thisBuildingAndYieldTypes ) do
+				buildingYieldRate = buildingYieldRate + city:GetNumBuildings() * (row.Yield or 0) / (row.NumRequired or 1);
 			end
 			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
 			-- Events

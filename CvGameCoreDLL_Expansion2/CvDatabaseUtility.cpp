@@ -352,6 +352,52 @@ bool CvDatabaseUtility::SetYields(int*& pYieldsArray,
 	                            "YieldType", szFilterColumn, szFilterValue, "Yield", 0, 0, szAdditionalCondition);
 }
 //------------------------------------------------------------------------------
+bool CvDatabaseUtility::SetFractionYields(fraction*& pYieldsArray,
+	const char* szTableName,
+	const char* szFilterColumn,
+	const char* szFilterValue,
+	const char* szDenominatorColumn)
+{
+	InitializeArray(pYieldsArray, "Yields");
+
+	std::string strKey = "_SFY_";
+	strKey.append(szTableName);
+	strKey.append(szFilterColumn);
+	strKey.append(szFilterValue);
+	strKey.append(szDenominatorColumn);
+
+	Database::Results* pResults = GetResults(strKey);
+	if (pResults == NULL)
+	{
+		char szSQL[512];
+		sprintf_s(szSQL, "select Yields.ID, Yield, %s from %s inner join Yields on Yields.Type = YieldType where %s = ?", szDenominatorColumn, szTableName, szFilterColumn);
+		pResults = PrepareResults(strKey, szSQL);
+		
+		if (pResults == NULL)
+			return false;
+	}
+
+	if (!pResults->Bind(1, szFilterValue, false))
+	{
+		CvAssertMsg(false, GetErrorMessage());
+		return false;
+	}
+
+	while (pResults->Step())
+	{
+		const int YieldID = pResults->GetInt(0);
+		const int yield = pResults->GetInt(1);
+		const int iNumRequired = pResults->GetInt(2);
+		CvAssertFmt(iNumRequired != 0, "%s mustn't be 0 in table %s", szDenominatorColumn, szTableName); // todo: PRECONDITION
+
+		pYieldsArray[YieldID] = pYieldsArray[YieldID] + fraction(yield, iNumRequired);
+	}
+
+	pResults->Reset();
+
+	return true;
+}
+//------------------------------------------------------------------------------
 int CvDatabaseUtility::MaxRows(const char* szTableName)
 {
 	char szSQL[256] = {0};

@@ -33,6 +33,7 @@ public:
 
 	//!Allocates an array to count and zero's memory.
 	void InitializeArray(int*& pArray, const size_t count, int iDefault = 0);
+	void InitializeArray(fraction*& pArray, const size_t count, fraction fDefault = 0);
 	void InitializeArray(bool*& pArray, const size_t count, bool bDefault = false);
 	void InitializeArray(float*& pArray, const size_t count, float fDefault = 0.0f);
 	void Initialize2DArray(int**& ppArray, const size_t iCount1, const size_t iCount2, int iDefault = 0);
@@ -98,6 +99,8 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	//	True on success.
 	bool SetYields(int*& pYieldsArray, const char* szTableName, const char* szFilterColumn, const char* szFilterValue, const char* szAdditionalCondition = "");
 
+	bool SetFractionYields(fraction*& pYieldsArray, const char* szTableName, const char* szFilterColumn, const char* szFilterValue, const char* szDenominatorColumn);
+
 	//! Retrieves the maximum number of a given column for a given table.
 	int MaxRows(const char* szTableName);
 
@@ -125,6 +128,14 @@ inline void CvDatabaseUtility::InitializeArray(int*& pArray, const size_t count,
 		for(size_t i = 0; i < count; ++i)
 			pArray[i] = iDefault;
 	}
+}
+//------------------------------------------------------------------------------
+inline void CvDatabaseUtility::InitializeArray(fraction*& pArray, const size_t count, fraction fDefault)
+{
+	CvAssertMsg(count > 0, "Initializing array to 0 or less items.");
+	pArray = FNEW(fraction[count], c_eCiv5GameplayDLL, 0);
+	for (size_t i = 0; i < count; ++i)
+		pArray[i] = fDefault;
 }
 //------------------------------------------------------------------------------
 inline void CvDatabaseUtility::InitializeArray(bool*& pArray, const size_t count, bool bDefault)
