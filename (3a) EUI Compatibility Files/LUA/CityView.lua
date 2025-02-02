@@ -319,7 +319,8 @@ end
 
 local function StringFormatNeatFloat(x)
 	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
-	return string.format("%.1f", x);
+	if math.floor(math.abs(x) * 10) == math.abs(x * 10) then return string.format("%.1f", x); end
+	return string.format("%.2f", x);
 end
 
 -------------------------------------------------
