@@ -2352,7 +2352,10 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		CvPlayer& kPlayer = GET_PLAYER(*it);
 		if (kPlayer.isAlive())
 		{
-			kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
+			if (kPlayer.isMajorCiv())
+			{
+				kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
+			}
 			kPlayer.GetMilitaryAI()->LogPeace(eTeam); // This is not quite correct, but it'll work well enough for AI testing
 		}
 	}
@@ -2362,7 +2365,10 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		CvPlayer& kPlayer = GET_PLAYER(*it);
 		if (kPlayer.isAlive())
 		{
-			kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
+			if (kPlayer.isMajorCiv())
+			{
+				kPlayer.GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
+			}
 			kPlayer.GetMilitaryAI()->LogPeace(GetID()); // This is not quite correct, but it'll work well enough for AI testing
 		}
 	}
