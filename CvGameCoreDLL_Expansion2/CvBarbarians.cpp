@@ -13,6 +13,7 @@
 #include "CvSpanSerialization.h"
 
 //static 
+bool* CvBarbarians::m_abBarbSpawnerAttacked = NULL;
 short* CvBarbarians::m_aiBarbSpawnerCounter = NULL;
 short* CvBarbarians::m_aiBarbSpawnerNumUnitsSpawned = NULL;
 
@@ -23,6 +24,10 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 
 	if (iWorldNumPlots > 0)
 	{
+		if (m_abBarbSpawnerAttacked == NULL)
+		{
+			m_abBarbSpawnerAttacked = FNEW(bool[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
+		}
 		if (m_aiBarbSpawnerCounter == NULL)
 		{
 			m_aiBarbSpawnerCounter = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
@@ -35,6 +40,7 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 		// Default values
 		for (int iI = 0; iI < iWorldNumPlots; ++iI)
 		{
+			m_abBarbSpawnerAttacked[iI] = false;
 			m_aiBarbSpawnerCounter[iI] = -1;
 			m_aiBarbSpawnerNumUnitsSpawned[iI] = -1;
 		}
@@ -45,6 +51,10 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 /// Uninit
 void CvBarbarians::Uninit()
 {
+	if (m_abBarbSpawnerAttacked != NULL)
+	{
+		SAFE_DELETE_ARRAY(m_abBarbSpawnerAttacked);
+	}
 	if (m_aiBarbSpawnerCounter != NULL)
 	{
 		SAFE_DELETE_ARRAY(m_aiBarbSpawnerCounter);
@@ -65,6 +75,7 @@ void CvBarbarians::Serialize(Visitor& visitor)
 	const int iWorldNumPlots = GC.getMap().numPlots();
 	if (bLoading)
 		MapInit(iWorldNumPlots);	// Map will have been initialized/unserialized by now so this is ok.
+	visitor(MakeConstSpan(m_abBarbSpawnerAttacked, iWorldNumPlots));
 	visitor(MakeConstSpan(m_aiBarbSpawnerCounter, iWorldNumPlots));
 	visitor(MakeConstSpan(m_aiBarbSpawnerNumUnitsSpawned, iWorldNumPlots));
 }
@@ -103,9 +114,27 @@ void CvBarbarians::ChangeBarbSpawnerCounter(CvPlot* pPlot, int iChange)
 	SetBarbSpawnerCounter(pPlot, GetBarbSpawnerCounter(pPlot) + iChange);
 }
 
+bool CvBarbarians::IsBarbSpawnerAttacked(CvPlot* pPlot)
+{
+	if (pPlot)
+		return m_abBarbSpawnerAttacked[pPlot->GetPlotIndex()];
+
+	return false;
+}
+
+void CvBarbarians::SetBarbSpawnerAttacked(CvPlot* pPlot, bool bValue)
+{
+	if (pPlot)
+		m_abBarbSpawnerAttacked[pPlot->GetPlotIndex()] = bValue;
+}
+
 void CvBarbarians::DoBarbSpawnerAttacked(CvPlot* pPlot)
 {
 	if (!pPlot)
+		return;
+
+	// In VP, only the first attack per turn reduces the spawn counter
+	if (MOD_BALANCE_VP && IsBarbSpawnerAttacked(pPlot))
 		return;
 
 	int iNewValue = GetBarbSpawnerCounter(pPlot);
@@ -121,6 +150,7 @@ void CvBarbarians::DoBarbSpawnerAttacked(CvPlot* pPlot)
 	}
 
 	SetBarbSpawnerCounter(pPlot, std::max(iNewValue, 0));
+	SetBarbSpawnerAttacked(pPlot, true);
 }
 
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
@@ -258,6 +288,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 		return;
 
 	int iCooldownTimer = /*15*/ GD_INT_GET(BARBARIAN_CAMP_CLEARED_MIN_TURNS_TO_RESPAWN);
+	SetBarbSpawnerAttacked(pPlot, false);
 	SetBarbSpawnerCounter(pPlot, (iCooldownTimer * -1) - 1);
 	SetBarbSpawnerNumUnitsSpawned(pPlot, -1);
 
@@ -343,6 +374,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 void CvBarbarians::DoBarbCityCleared(CvPlot* pPlot)
 {
 	int iCooldownTimer = /*15*/ GD_INT_GET(BARBARIAN_CAMP_CLEARED_MIN_TURNS_TO_RESPAWN);
+	SetBarbSpawnerAttacked(pPlot, false);
 	SetBarbSpawnerCounter(pPlot, (iCooldownTimer * -1) - 1);
 	SetBarbSpawnerNumUnitsSpawned(pPlot, -1);
 }
@@ -629,6 +661,7 @@ void CvBarbarians::DoCamps()
 		// Existing Barbarian camp here
 		if (eImprovement == eCamp)
 		{
+			SetBarbSpawnerAttacked(pLoopPlot, false);
 			if (GetBarbSpawnerCounter(pLoopPlot) > 0)
 				ChangeBarbSpawnerCounter(pLoopPlot, -1);
 
@@ -659,6 +692,7 @@ void CvBarbarians::DoCamps()
 			// Barbarian city?
 			if (pLoopPlot->getOwner() == BARBARIAN_PLAYER)
 			{
+				SetBarbSpawnerAttacked(pLoopPlot, false);
 				if (GetBarbSpawnerCounter(pLoopPlot) > 0)
 					ChangeBarbSpawnerCounter(pLoopPlot, -1);
 
