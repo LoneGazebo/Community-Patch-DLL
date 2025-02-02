@@ -1212,6 +1212,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
 			<Text>{1_Num} {2_IconString} from City-States</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA">
+			<Text>{1_Num} {2_IconString} from Number of Buildings</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
 			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connection</Text>
 		</Row>

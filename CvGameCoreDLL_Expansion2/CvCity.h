@@ -1384,6 +1384,9 @@ public:
 	int GetYieldPerPopTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange);
 
+	fraction GetYieldPerBuilding(YieldTypes eIndex) const;
+	void ChangeYieldPerBuilding(YieldTypes eIndex, fraction iChange);
+
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
@@ -2122,6 +2125,7 @@ protected:
 #endif
 	std::vector<int> m_aiYieldRateModifier;
 	std::vector<int> m_aiYieldPerPop;
+	std::vector<fraction> m_afYieldPerBuilding;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
@@ -2537,6 +2541,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miT
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
+SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afYieldPerBuilding)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPowerYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceYieldRateModifier)
