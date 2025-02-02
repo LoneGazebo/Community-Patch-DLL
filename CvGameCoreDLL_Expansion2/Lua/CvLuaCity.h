@@ -460,6 +460,8 @@ protected:
 	static int lGetYieldPerPopTimes100(lua_State* L);
 	static int lGetYieldPerPopInEmpireTimes100(lua_State* L);
 
+	static int lGetYieldFromYieldPerBuildingTimes100(lua_State* L);
+
 	static int lGetBaseYieldRateModifier(lua_State* L);
 	static int lGetYieldRate(lua_State* L);
 	static int lGetYieldRateTimes100(lua_State* L);

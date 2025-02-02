@@ -886,6 +886,7 @@ function GetProductionTooltip(pCity)
 		
 		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
 	end
+	iBaseProductionPT = iBaseProductionPT + pCity:GetYieldFromYieldPerBuildingTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
 	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_PRODUCTION);
 	if (iYieldPerPopInEmpire ~= 0) then
 		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
@@ -1029,6 +1030,18 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION", iYieldPerPopInEmpire);
+		end
+		
+		-- Base Yield per Building
+		local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_CULTURE) / 100
+		if (iYieldFromBuildingsExtra ~= 0) then
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
 		end
 
 		-- Base Yield from Misc
@@ -1264,6 +1277,13 @@ function GetFaithTooltip(pCity)
 			
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EMPIRE_POP", iYieldPerPopInEmpire));
 		end
+		
+		-- Base Yield per Building
+		local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_FAITH) / 100
+		if (iYieldFromBuildingsExtra ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, GameInfo.Yields[YieldTypes.YIELD_FAITH].IconString));
+		end
+		
 		-- Faith from Specialists
 		local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH);
 		if (iYieldFromSpecialists ~= 0) then
@@ -1445,6 +1465,8 @@ function GetYieldTooltipHelper(pCity, iYieldType, strIcon)
 		iBaseYield = iBaseYield + iYieldPerPop;
 	end
 
+	iBaseYield = iBaseYield + pCity:GetYieldFromYieldPerBuildingTimes100( iYieldType ) / 100;
+	
 	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(iYieldType);
 	if (iYieldPerPopInEmpire ~= 0) then
 		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
@@ -1562,6 +1584,13 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		iYieldFromPopInEmpire = iYieldFromPopInEmpire / 100;
 		
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA", iYieldFromPopInEmpire, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+	
+	-- Base Yield per Building
+	local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100( iYieldType ) / 100;
+	if (iYieldFromBuildingsExtra ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 	
