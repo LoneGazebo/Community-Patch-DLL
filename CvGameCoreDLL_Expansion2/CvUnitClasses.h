@@ -222,6 +222,7 @@ public:
 	int GetBuildingProductionModifier(BuildingTypes eBuilding) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldOnCompletion(YieldTypes eYield) const;
 	int GetProductionTraits(int i) const;
 	int GetFlavorValue(int i) const;
 	bool GetUpgradeUnitClass(int i) const;
@@ -441,6 +442,7 @@ private:
 	int* m_piProductionModifierBuildings;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldOnCompletion;
 
 	bool* m_pbUpgradeUnitClass;
 	bool* m_pbUnitAIType;
