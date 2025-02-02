@@ -1897,6 +1897,9 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 	-- Base Yield from Population
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_POP_EXTRA", city:GetYieldPerPopTimes100( yieldID ) * city:GetPopulation() / 100, yieldIconString )
+	
+	-- Base Yield per Buildings
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", city:GetYieldFromYieldPerBuildingTimes100( yieldID ) / 100, yieldIconString )
 
 	-- Base Yield from Religion
 	if gk_mode then
@@ -2010,6 +2013,7 @@ local function GetYieldTooltipHelper( city, yieldID, yieldIconString )
 		
 		iBaseYield = iBaseYield + iYieldPerPop;
 	end
+	iBaseYield = iBaseYield + city:GetYieldFromYieldPerBuildingTimes100( yieldID ) / 100;
 	local iYieldPerPopInEmpire = city:GetYieldPerPopInEmpireTimes100(yieldID);
 	if (iYieldPerPopInEmpire ~= 0) then
 		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[city:GetOwner()]:GetTotalPopulation();
@@ -2198,6 +2202,7 @@ local function GetProductionTooltip( city )
 		
 		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
 	end
+	iBaseProductionPT = iBaseProductionPT + city:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 	local iYieldPerPopInEmpire = city:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_PRODUCTION);
 	if (iYieldPerPopInEmpire ~= 0) then
 		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[city:GetOwner()]:GetTotalPopulation();
@@ -2310,6 +2315,9 @@ local function GetCultureTooltip( city )
 	
 	-- Culture from Alliances
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CS_ALLIANCE", cultureFromCSAlliance )
+	
+	-- Culture per Building
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", city:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_CULTURE) / 100, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 -- END CBP
 	
 	-- Culture from Religion
@@ -2584,6 +2592,9 @@ local function GetFaithTooltip( city )
 	
 		-- Yield Increase from CS Alliance
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
+		
+		-- Yield Increase per Building
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", city:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_FAITH) / 100, GameInfo.Yields[YieldTypes.YIELD_FAITH].IconString)
 	
 		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
 				
