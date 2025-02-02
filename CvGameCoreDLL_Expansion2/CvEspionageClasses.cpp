@@ -9294,9 +9294,16 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 					int iVotesNeededToWin = max(1, GC.getGame().GetVotesNeededForDiploVictory());
 					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
-						PlayerTypes eTargetPlayer = (PlayerTypes)ui;
-						// progress is calculated as the maximum of the percentage of allied city-states and the percentage of votes needed for domination victory
-						aiDiploProgressPercent[ui] = max(100 * aiNumAllies[ui] / iAliveMinorCivs, 100 * (pLeague->GetSpentVotesForMember(eTargetPlayer) + pLeague->GetRemainingVotesForMember(eTargetPlayer)) / iVotesNeededToWin);
+						PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
+						if (GET_PLAYER(eTargetPlayer).isAlive())
+						{
+							// progress is calculated as the maximum of the percentage of allied city-states and the percentage of votes needed for domination victory
+							aiDiploProgressPercent[ui] = max(100 * aiNumAllies[ui] / iAliveMinorCivs, 100 * (pLeague->GetSpentVotesForMember(eTargetPlayer) + pLeague->GetRemainingVotesForMember(eTargetPlayer)) / iVotesNeededToWin);
+						}
+						else
+						{
+							aiDiploProgressPercent[ui] = 0;
+						}
 					}
 
 					// do we already have enough votes?
