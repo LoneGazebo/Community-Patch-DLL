@@ -4645,14 +4645,6 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 {
 	if (iChange > 0)
 	{
-		// If we're at war, this means nothing.
-		if (IsAtWar(ePlayer))
-			return;
-
-		// Capitulated vassals don't care, but they do get a bonus in ChangeVassalProtectValue() if the damage to the foe was done near them.
-		if (!GetPlayer()->isHuman() && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
-			return;
-
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iScaledAmount);
 	}
@@ -4684,9 +4676,8 @@ int CvDiplomacyAI::GetRecentAssistValue(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 {
 	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
-	ASSERT(NotMe(ePlayer), "Setting RecentTradeValue for self");
-	ASSERT(iValue >= 0 || !IsTeammate(ePlayer), "Setting RecentTradeValue to a negative value for a teammate");
-	m_aiAssistValue[ePlayer] = range(iValue, GetMaxRecentFailedAssistValue(), GetMaxRecentAssistValue());
+	ASSERT(NotMe(ePlayer), "Setting RecentAssistValue for self");
+	m_aiAssistValue[ePlayer] = range(iValue, IsTeammate(ePlayer) ? 0 : GetMaxRecentFailedAssistValue(), GetMaxRecentAssistValue());
 }
 
 void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay)
@@ -5045,7 +5036,7 @@ void CvDiplomacyAI::ChangeCivilianKillerValue(PlayerTypes ePlayer, int iChange)
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetCivilianKillerValue(ePlayer, GetCivilianKillerValue(ePlayer) + iScaledAmount);
 	}
-	else
+	else if (!IsTeammate(ePlayer))
 	{
 		SetCivilianKillerValue(ePlayer, GetCivilianKillerValue(ePlayer) + iChange);
 	}
@@ -9089,7 +9080,7 @@ void CvDiplomacyAI::ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange, b
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetVassalProtectValue(ePlayer, GetVassalProtectValue(ePlayer) + iScaledAmount);
 	}
-	else
+	else if (!IsTeammate(ePlayer))
 	{
 		// Decay cannot cause value to go past 0!
 		int iCurrentValue = GetVassalProtectValue(ePlayer);

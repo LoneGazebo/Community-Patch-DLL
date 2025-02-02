@@ -35221,7 +35221,7 @@ void CvPlayer::SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn)
 }
 
 /// Apply the effects of war damage between players
-void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange)
+void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange, bool bNoCommonFoeBonus)
 {
 	if (isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
 	{
@@ -35230,6 +35230,59 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 		{
 			ChangeMilitaryRating(iAmount); // rating up for winner (us)
 			GET_PLAYER(ePlayer).ChangeMilitaryRating(-iAmount); // rating down for loser (them)
+		}
+
+		// Apply Common Foe diplo bonus
+		if (!bNoCommonFoeBonus)
+		{
+			// Loop through all the other major civs that we've met
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+				if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || !GetDiplomacyAI()->IsHasMet(eLoopPlayer) || !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer, true))
+					continue;
+
+				// No common foe bonus is awarded while at war.
+				if (pDiplo->IsAtWar(ePlayer))
+					continue;
+
+				// Capitulated vassals don't care, but they do get a bonus in CvDiplomacyAI::ChangeVassalProtectValue() if the damage to the foe was done near them.
+				if (!GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->IsVassal(ePlayer) && !pDiplo->IsVoluntaryVassalage(ePlayer))
+					continue;
+
+				// Are they at war with me too? Then they're happy that this player damaged us!
+				if (IsAtWarWith(eLoopPlayer))
+				{
+					// How much they're happy about it depends on how strong we are compared to them.
+					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(GetID()))
+					{
+					case STRENGTH_IMMENSE:
+						iAmount *= 300;
+						break;
+					case STRENGTH_POWERFUL:
+						iAmount *= 200;
+						break;
+					case STRENGTH_STRONG:
+						iAmount *= 150;
+						break;
+					case STRENGTH_AVERAGE:
+						iAmount *= 100;
+						break;
+					case STRENGTH_POOR:
+						iAmount *= 75;
+						break;
+					case STRENGTH_WEAK:
+						iAmount *= 50;
+						break;
+					default:
+						iAmount *= 25;
+						break;
+					}
+
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iAmount/100);
+				}
+			}
 		}
 
 		// Apply War Weariness
@@ -35259,52 +35312,6 @@ void CvPlayer::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 void CvPlayer::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 {
 	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
-
-	if (iChange > 0 && isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		// Loop through all the other major civs that we've met
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if (eLoopPlayer == ePlayer)
-				continue;
-
-			if (GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
-			{
-				// Are they at war with me too? Then they're happy that this player damaged us!
-				if (IsAtWarWith(eLoopPlayer))
-				{
-					// How much they're happy about it depends on how strong we are compared to them.
-					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(GetID()))
-					{
-					case STRENGTH_IMMENSE:
-						iChange *= 300;
-						break;
-					case STRENGTH_POWERFUL:
-						iChange *= 200;
-						break;
-					case STRENGTH_STRONG:
-						iChange *= 150;
-						break;
-					case STRENGTH_AVERAGE:
-						iChange *= 100;
-						break;
-					case STRENGTH_POOR:
-						iChange *= 75;
-						break;
-					case STRENGTH_WEAK:
-						iChange *= 50;
-						break;
-					default:
-						iChange *= 25;
-						break;
-					}
-
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange/100);
-				}
-			}
-		}
-	}
 }
 
 /// Every turn we're at peace war damage goes down a bit

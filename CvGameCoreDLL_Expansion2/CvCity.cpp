@@ -19955,7 +19955,7 @@ bool CvCity::DoRazingTurn()
 			iRazeValue += getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
 			iRazeValue /= max(1, GetRazingTurns() / 2); // Divide by half the number of turns left until the city is destroyed
 
-			GET_PLAYER(getOwner()).ApplyWarDamage(eFormerOwner, iRazeValue, true);
+			GET_PLAYER(getOwner()).ApplyWarDamage(eFormerOwner, iRazeValue, true, true);
 
 			// Diplomacy penalty for razing cities
 			if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())

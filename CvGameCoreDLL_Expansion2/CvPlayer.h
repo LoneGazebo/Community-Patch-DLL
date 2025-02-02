@@ -2017,7 +2017,7 @@ public:
 	int GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
 	void SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn);
 
-	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false);
+	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false, bool bNoCommonFoeBonus = false);
 
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
