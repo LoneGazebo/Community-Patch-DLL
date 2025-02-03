@@ -46775,7 +46775,7 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 		// Increase the penalty if we are giving them something and we're also bankrupt
 		else if (GetPlayer()->GetTreasury()->GetGold() == 0 && GetPlayer()->getAvgGoldRate() <= 0)
 		{
-			iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
+			iOpinionWeight *= /*300*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
 			iOpinionWeight /= 100;
 		}
 		// If we're giving them something and going bankrupt soon, increase the penalty gradually
@@ -46784,7 +46784,7 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 			int iTurnsToBankruptcy = GetPlayer()->getTurnsToBankruptcy(0);
 			if (iTurnsToBankruptcy == 0)
 			{
-				iOpinionWeight *= /*200*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
+				iOpinionWeight *= /*300*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER);
 				iOpinionWeight /= 100;
 			}
 			else if (iTurnsToBankruptcy < /*20*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS))
