@@ -9460,6 +9460,7 @@ void CvDiplomacyAI::DoUpdateConquestStats()
 				if (eLoopTeam == eTeam)
 					continue;
 
+				// Killed them?
 				if (!GET_PLAYER(*it).isAlive() && GET_TEAM(eLoopTeam).GetKilledByTeam() == eTeam)
 				{
 					if (GET_PLAYER(*it).isMajorCiv())
@@ -9471,10 +9472,12 @@ void CvDiplomacyAI::DoUpdateConquestStats()
 						iNumMinorsConquered++;
 					}
 				}
-				else if (GET_PLAYER(*it).isMajorCiv() && GET_TEAM(eLoopTeam).IsVassal(eTeam))
+				// Forcibly vassalized them?
+				else if (GET_PLAYER(*it).isMajorCiv() && GET_TEAM(eLoopTeam).IsVassal(eTeam) && !GET_TEAM(eLoopTeam).IsVoluntaryVassal(eTeam))
 				{
 					iNumMajorsConquered++;
 				}
+				// Captured their original capital?
 				else if (GET_PLAYER(*it).IsHasLostCapital())
 				{
 					CvPlot *pOriginalCapitalPlot = GC.getMap().plot(GET_PLAYER(*it).GetOriginalCapitalX(), GET_PLAYER(*it).GetOriginalCapitalY());
@@ -18950,13 +18953,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
-
-			if (bEasyTarget)
-			{
-				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
-			}
 		}
-		else if (bEasyTarget)
+		if (bEasyTarget)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 		}
