@@ -1433,6 +1433,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
+	// Add a boost to score proportional to instant yield gains when the unit is completed
+	int iInstantYieldImportanceScale = 1; // Relative importance of instant yields obtained to score bonus
+	int iInstantYieldBonus = 0;
+
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		const YieldTypes eYield = static_cast<YieldTypes>(iI);
+		if (eYield != NO_YIELD)
+		{
+			int iYieldAmountOnComplete = GC.getUnitInfo(eUnit)->GetYieldOnCompletion(eYield);
+			if (iYieldAmountOnComplete > 0)
+			{
+				iInstantYieldBonus += (iYieldAmountOnComplete * iInstantYieldImportanceScale);
+			}
+		}
+	}
+
+	iBonus += iInstantYieldBonus;
+
 	//Make sure that free units are given some kind of value.
 	if (bFree && iBonus <= iTempWeight)
 	{

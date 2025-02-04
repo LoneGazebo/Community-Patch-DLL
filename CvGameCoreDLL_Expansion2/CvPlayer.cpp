@@ -25965,7 +25965,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				case INSTANT_YIELD_TYPE_U_PROD:
 				{
-					if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
+					if (pUnit && eYield == ePassYield)
+					{
+						iValue += iPassYield;
+					}
+					else if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
 					{
 						int iBonus = iPassYield;
 						iBonus *= pLoopCity->GetYieldFromUnitProduction(eYield);
@@ -25979,7 +25983,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(iPassYield != 0)
 					{
-						if (pCity)
+						if (pUnit && eYield == ePassYield)
+						{
+							iValue += iPassYield;
+						}
+						else if (pCity)
 						{
 							iValue += ((iPassYield * pLoopCity->GetYieldFromPurchase(eYield)) / 100);
 						}
@@ -26214,18 +26222,25 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
 				{
-					if (pReligion)
+					if (pUnit && eYield == ePassYield)
 					{
-						int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity, true);
+						iValue += iPassYield;
+					}
+					else
+					{
+						if (pReligion)
+						{
+							int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity, true);
+							iTempVal *= iPassYield;
+							iTempVal /= 100;
+							iValue += iTempVal;
+						}
+
+						int iTempVal = pLoopCity->GetYieldFromFaithPurchase(eYield);
 						iTempVal *= iPassYield;
 						iTempVal /= 100;
 						iValue += iTempVal;
 					}
-
-					int iTempVal = pLoopCity->GetYieldFromFaithPurchase(eYield);
-					iTempVal *= iPassYield;
-					iTempVal /= 100;
-					iValue += iTempVal;
 
 					break;
 				}

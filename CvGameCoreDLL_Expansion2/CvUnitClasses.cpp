@@ -486,6 +486,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByValue(m_piProductionModifierBuildings, "Buildings", "Unit_ProductionModifierBuildings", "BuildingType", "UnitType", szUnitType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_piYieldFromKills, "Yields", "Unit_YieldFromKills", "YieldType", "UnitType", szUnitType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldFromBarbarianKills, "Yields", "Unit_YieldFromBarbarianKills", "YieldType", "UnitType", szUnitType, "Yield");
+	kUtility.PopulateArrayByValue(m_piYieldOnCompletion, "Yields", "Unit_YieldOnCompletion", "YieldType", "UnitType", szUnitType, "Yield");
 	kUtility.PopulateArrayByExistence(m_pbFreePromotions, "UnitPromotions", "Unit_FreePromotions", "PromotionType", "UnitType", szUnitType);
 
 	kUtility.PopulateArrayByExistence(m_pbUpgradeUnitClass, "UnitClasses", "Unit_ClassUpgrades", "UnitClassType", "UnitType", szUnitType);
@@ -1497,6 +1498,14 @@ int CvUnitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromBarbarianKills[(int)eYield];
+}
+
+/// How many yields of type eYield does a city get for completing this unit?
+int CvUnitEntry::GetYieldOnCompletion(YieldTypes eYield) const
+{
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
+	return m_piYieldOnCompletion[(int)eYield];
 }
 
 /// Boost in production for leader with this trait

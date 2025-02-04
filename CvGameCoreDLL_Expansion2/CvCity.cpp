@@ -29895,6 +29895,8 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (eReason == REASON_TRAIN || eReason == REASON_BUY || eReason == REASON_FAITH_BUY)
 		kOwner.changeUnitsBuiltCount(eUnitType, 1);
 
+	doUnitCompletionYields(pUnit, eReason);
+
 	return pUnit;
 }
 
@@ -31740,6 +31742,42 @@ void CvCity::doMeltdown()
 					break;
 				}
 			}
+		}
+	}
+}
+
+//  --------------------------------------------------------------------------------
+// Handles logic for Unit_YieldOnCompletion table, awarding instant yields for
+// relevant units completed in this city
+void CvCity::doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason)
+{
+	ASSERT(pUnit, "pUnit passed into doUnitCompletionYields was NULL");
+	if (!(eReason == REASON_TRAIN || eReason == REASON_BUY || eReason == REASON_FAITH_BUY))
+	{
+		return;
+	}
+	
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		int iYieldQuantityOnCompletion = pUnit->getUnitInfo().GetYieldOnCompletion((YieldTypes)iYieldLoop);
+		if (iYieldQuantityOnCompletion > 0)
+		{
+			// Look up instant yield type based on unit creation reason
+			InstantYieldType eIYieldType = INSTANT_YIELD_TYPE_INSTANT;
+			switch (eReason) {
+			case REASON_TRAIN:
+				eIYieldType = INSTANT_YIELD_TYPE_U_PROD;
+				break;
+			case REASON_BUY:
+				eIYieldType = INSTANT_YIELD_TYPE_PURCHASE;
+				break;
+			case REASON_FAITH_BUY:
+				eIYieldType = INSTANT_YIELD_TYPE_FAITH_PURCHASE;
+				break;
+			}
+
+			GET_PLAYER(getOwner()).doInstantYield(eIYieldType, false, NO_GREATPERSON, NO_BUILDING, iYieldQuantityOnCompletion, 
+				false, NO_PLAYER, NULL, false, this, false, true, false, (YieldTypes)iYieldLoop, pUnit, NO_TERRAIN, NULL, NULL, NULL);
 		}
 	}
 }
