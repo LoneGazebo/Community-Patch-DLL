@@ -6605,7 +6605,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 
 					// Remove credit for building Landmark if player took it from the minor
-					if (eImprovement == eLandmarkImprovement && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam() && eOldOwner == GetLandmarkCreditMinor())
+					if (eImprovement == eLandmarkImprovement && eOldOwner == GetLandmarkCreditMinor() && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam())
 						SetLandmarkCreditMinor(NO_PLAYER);
 				}
 
