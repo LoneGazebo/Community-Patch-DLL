@@ -958,7 +958,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			PRECONDITION(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
-			m_piGarrisonYield[iYieldID] = iYield;
+			m_piFortificationYield[iYieldID] = iYield;
 		}
 	}
 
