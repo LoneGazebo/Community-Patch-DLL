@@ -2566,6 +2566,8 @@ void CvCity::doTurn()
 	{
 		DoResistanceTurn();
 
+		UpdateCityYieldFromYield();
+
 		bool bWeGrew = false;
 		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
 		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
@@ -17838,22 +17840,6 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
 	iCulturePerTurn += GetBaseYieldRateFromMisc(YIELD_CULTURE);
 
-	//Update Yields from yields ... need to sidestep constness
-	CvCity* pThisCity = const_cast<CvCity*>(this);
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eIndex2 = (YieldTypes)iI;
-		if (eIndex2 == NO_YIELD)
-			continue;
-		if (YIELD_CULTURE == eIndex2)
-			continue;
-
-		pThisCity->UpdateCityYieldFromYield(YIELD_CULTURE, eIndex2, iCulturePerTurn);
-
-		//NOTE! We flip it here, because we want the OUT yield
-		iCulturePerTurn += GetRealYieldFromYield(eIndex2, YIELD_CULTURE);
-	}
-
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iCulturePerTurn += GetYieldFromHappiness(YIELD_CULTURE);
@@ -18082,22 +18068,6 @@ int CvCity::GetFaithPerTurn(bool bStatic) const
 	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 	iFaith += GetYieldChangeFromCorporationFranchises(YIELD_FAITH);
 	iFaith += GetEventCityYield(YIELD_FAITH);
-
-	//Update Yields from yields ... need to sidestep constness
-	CvCity* pThisCity = const_cast<CvCity*>(this);
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eIndex2 = (YieldTypes)iI;
-		if (eIndex2 == NO_YIELD)
-			continue;
-		if (YIELD_FAITH == eIndex2)
-			continue;
-
-		pThisCity->UpdateCityYieldFromYield(YIELD_FAITH, eIndex2, iFaith);
-
-		//NOTE! We flip it here, because we want the OUT yield
-		iFaith += GetRealYieldFromYield(eIndex2, YIELD_FAITH);
-	}
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
@@ -23661,65 +23631,99 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	return iModifiedYield;
 }
 
-void CvCity::UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield)
+void CvCity::UpdateCityYieldFromYield()
 {
-	if (iModifiedYield > 0)
+	int iNumYieldType = GC.getNUM_YIELD_TYPES();
+	for (int iI = 0; iI < iNumYieldType; iI++)
 	{
-		int iYieldVal = GetBuildingYieldFromYield(eIndex1, eIndex2);
-		if (iYieldVal > 0)
+		YieldTypes eYieldIn = static_cast<YieldTypes>(iI);
+		int iYieldIn = getBaseYieldRate(eYieldIn, true);
+		for (int iJ = 0; iJ < iNumYieldType; iJ++)
 		{
-			int iBonusYield = (iModifiedYield * iYieldVal / 100);
-			if (iBonusYield > 0)
-			{
-				SetRealYieldFromYield(eIndex1, eIndex2, iBonusYield);
-			}
-			else
-			{
-				SetRealYieldFromYield(eIndex1, eIndex2, 0);
-			}
-		}
-		else
-		{
-			SetRealYieldFromYield(eIndex1, eIndex2, 0);
+			YieldTypes eYieldOut = static_cast<YieldTypes>(iJ);
+			int iYieldOut = iYieldIn * GetBuildingYieldFromYield(eYieldIn, eYieldOut) / 100;
+			SetRealYieldFromYield(eYieldIn, eYieldOut, iYieldOut);
 		}
 	}
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getBaseYieldRate(YieldTypes eIndex) const
+//	TODO: Still missing GetYieldPerPopTimes100 (TXT_KEY_YIELD_FROM_POP), GetYieldPerPopInEmpireTimes100 (TXT_KEY_YIELD_FROM_EMPIRE_POP),
+//	GetConnectionGoldTimes100 (TXT_KEY_YIELD_FROM_CONNECTION or TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION depending on connection type),
+//	GetTradeValuesAtCityTimes100 (TXT_KEY_YIELD_FROM_TRADE_ROUTES)
+//	Put all of them before misc.
+int CvCity::getBaseYieldRate(const YieldTypes eYield, CvString* tooltipSink) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	ASSERT_DEBUG(eYield > NO_YIELD, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iValue = 0;
-	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
-	iValue += GetBaseYieldRateFromTerrain(eIndex);
-	iValue += GetBaseYieldRateFromBuildings(eIndex);
-	iValue += GetBaseYieldRateFromSpecialists(eIndex);
-	iValue += GetBaseYieldRateFromMisc(eIndex);
-	iValue += GetBaseYieldRateFromReligion(eIndex);
-#if defined(MOD_BALANCE_CORE)
-	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
-	iValue += GetBaseYieldRateFromCSFriendship(eIndex);
-	iValue += GetYieldFromMinors(eIndex);
-	iValue += GetYieldPerTurnFromTraits(eIndex);
-	iValue += GetYieldChangeFromCorporationFranchises(eIndex);
-	iValue += GetEventCityYield(eIndex);
-#endif
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
+	int iYield = 0;
+
+	int iTempYield = GetBaseYieldRateFromGreatWorks(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromTerrain(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromBuildings(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_BUILDINGS", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromSpecialists(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_SPECIALISTS", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromReligion(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_RELIGION", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromCSAlliance(eYield) + GetBaseYieldRateFromCSFriendship(eYield) + GetYieldFromMinors(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CS_ALLIANCE", iTempYield, szIconString);
+
+	iTempYield = GetYieldPerTurnFromTraits(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
+
+	iTempYield = GetYieldChangeFromCorporationFranchises(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CORPORATIONS", iTempYield, szIconString);
+
+	iTempYield = GetEventCityYield(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_EVENTS", iTempYield, szIconString);
 
 	if (IsRouteToCapitalConnected())
 	{
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		int iEra = kOwner.GetCurrentEra();
 		if (iEra <= 0)
 			iEra = 1;
-		iValue += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(eIndex);
-		iValue += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(eIndex) * iEra;
+		iTempYield = kOwner.GetYieldChangeTradeRoute(eYield) + kOwner.GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra;
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CONNECTION", iTempYield, szIconString);
 	}
 
-	if (GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
+	if (kOwner.IsLeagueArt() && eYield == YIELD_SCIENCE)
 	{
-		iValue += GetBaseScienceFromArt();
+		iTempYield = GetBaseScienceFromArt();
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield);
 	}
 
 	if (MOD_YIELD_MODIFIER_FROM_UNITS)
@@ -23727,50 +23731,59 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eIndex);
-			if (iTempVal != 0)
-			{
-				iValue += iTempVal;
-			}
+			iTempYield = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYield);
+			iYield += iTempYield;
+			if (tooltipSink)
+				GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_UNITS", iTempYield, szIconString);
 		}
 	}
 
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if (eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	ReligionTypes eMajorityReligion = GetCityReligions()->GetReligiousMajority();
+	if (eMajorityReligion > RELIGION_PANTHEON && kOwner.GetReligions()->GetStateReligion() == eMajorityReligion)
 	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
-		{
-			iValue += GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
-		}
+		iTempYield = kOwner.getReligionYieldRateModifier(eYield);
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PIETY", iTempYield, szIconString);
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	//Update Yields from yields ... need to sidestep constness
-	CvCity* pThisCity = const_cast<CvCity*>(this);
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	iTempYield = GetBaseYieldRateFromMisc(eYield) + GetYieldFromHappiness(eYield) + GetYieldFromHealth(eYield)
+		+ GetYieldFromCrime(eYield) + GetYieldFromDevelopment(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
+
+	return iYield;
+}
+
+int CvCity::GetPostModifierYieldRate(const YieldTypes eYield, CvString* tooltipSink) const
+{
+	// TODO: add ASSERTS here
+	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
+	int iYield = 0;
+
+	int iTempYield = GetBaseYieldRateFromProcess(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PROCESS", iTempYield, szIconString);
+
+	iTempYield = GetTotalYieldFromYield(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CITY_YIELDS", iTempYield, szIconString);
+
+	return iYield;
+}
+
+int CvCity::GetTotalYieldFromYield(YieldTypes eYield) const
+{
+	int iYield = 0;
+	int iNumYieldTypes = GC.getNUM_YIELD_TYPES();
+	for (int iI = 0; iI < iNumYieldTypes; iI++)
 	{
-		YieldTypes eIndex2 = (YieldTypes)iI;
-		if (eIndex2 == NO_YIELD)
-			continue;
-		if (eIndex == eIndex2)
-			continue;
-
-		pThisCity->UpdateCityYieldFromYield(eIndex, eIndex2, iValue);
-
-		//NOTE! We flip it here, because we want the OUT yield
-		iValue += GetRealYieldFromYield(eIndex2, eIndex);
+		iYield += GetRealYieldFromYield(static_cast<YieldTypes>(iI), eYield);
 	}
-
-	iValue += GetYieldFromHappiness(eIndex);
-	iValue += GetYieldFromHealth(eIndex);
-	if (eIndex != YIELD_JFD_CRIME)
-	{
-		iValue += GetYieldFromCrime(eIndex);
-		iValue += GetYieldFromDevelopment(eIndex);
-	}
-#endif
-
-	return iValue;
+	return iYield;
 }
 
 /// Where is our Science coming from?

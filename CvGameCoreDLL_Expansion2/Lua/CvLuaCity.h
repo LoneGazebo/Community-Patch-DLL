@@ -432,6 +432,7 @@ protected:
 	static int lGetLakePlotYield(lua_State* L);
 
 	static int lGetBaseYieldRate(lua_State* L);
+	static int lGetPostModifierYieldRate(lua_State* L);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	LUAAPIEXTN(GetBaseYieldRateFromGreatWorks, int, iYield);

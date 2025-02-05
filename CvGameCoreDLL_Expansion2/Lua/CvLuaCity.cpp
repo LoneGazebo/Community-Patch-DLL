@@ -438,6 +438,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetLakePlotYield);
 
 	Method(GetBaseYieldRate);
+	Method(GetPostModifierYieldRate);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	Method(GetBaseYieldRateFromGreatWorks);
@@ -4272,15 +4273,50 @@ int CvLuaCity::lGetLakePlotYield(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getBaseYieldRate(YieldTypes eIndex);
+//int getBaseYieldRate(YieldTypes eIndex, bool bTooltip);
 int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 {
-	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = pkCity->getBaseYieldRate(eIndex);
-
-	lua_pushinteger(L, iResult);
-	return 1;
+	CvCity* pCity = GetInstance(L);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
+	const bool bTooltip = luaL_optbool(L, 3, false);
+	int iResult;
+	if (bTooltip)
+	{
+		CvString tooltip;
+		iResult = pCity->getBaseYieldRate(eYield, &tooltip);
+		lua_pushinteger(L, iResult);
+		lua_pushstring(L, tooltip.c_str());
+		return 2;
+	}
+	else
+	{
+		iResult = pCity->getBaseYieldRate(eYield);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+}
+//------------------------------------------------------------------------------
+//int getPostModifierYieldRate(YieldTypes eIndex, bool bTooltip);
+int CvLuaCity::lGetPostModifierYieldRate(lua_State* L)
+{
+	CvCity* pCity = GetInstance(L);
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
+	const bool bTooltip = luaL_optbool(L, 3, false);
+	int iResult;
+	if (bTooltip)
+	{
+		CvString tooltip;
+		iResult = pCity->GetPostModifierYieldRate(eYield, &tooltip);
+		lua_pushinteger(L, iResult);
+		lua_pushstring(L, tooltip.c_str());
+		return 2;
+	}
+	else
+	{
+		iResult = pCity->GetPostModifierYieldRate(eYield);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
 }
 //-------------------------------------------------------------------------
 int CvLuaCity::lGetYieldPerTurnFromMinors(lua_State* L)
@@ -5640,12 +5676,14 @@ int CvLuaCity::lHasOffice(lua_State* L)
 }
 int CvLuaCity::lGetYieldChangeTradeRoute(lua_State* L)
 {
-	CvCity* pkCity = GetInstance(L);
+	CvCity* pCity = GetInstance(L);
 	int iResult = 0;
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	if(pkCity->IsRouteToCapitalConnected())
+	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
+	if (pCity->IsRouteToCapitalConnected())
 	{
-		iResult = GET_PLAYER(pkCity->getOwner()).GetYieldChangeTradeRoute(eIndex);
+		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+		int iEra = max(1, static_cast<int>(kPlayer.GetCurrentEra()));
+		iResult = kPlayer.GetYieldChangeTradeRoute(eYield) + kPlayer.GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra;
 	}
 
 	lua_pushinteger(L, iResult);
