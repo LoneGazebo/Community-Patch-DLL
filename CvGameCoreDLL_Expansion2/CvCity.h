@@ -1076,10 +1076,10 @@ public:
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
 
 	// Base Yield
-	int getBaseYieldRate(YieldTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE)
-	void UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield);
-#endif
+	int getBaseYieldRate(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
+	int GetPostModifierYieldRate(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
+	void UpdateCityYieldFromYield();
+	int GetTotalYieldFromYield(YieldTypes eYield) const;
 
 	int GetBaseScienceFromArt() const;
 

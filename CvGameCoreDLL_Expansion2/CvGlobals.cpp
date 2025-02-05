@@ -7391,9 +7391,12 @@ bool CvGlobals::getDatabaseValue(const char* szName, CvString& strValue, bool bR
 	return bSuccess;
 }
 
-int CvGlobals::getNUM_YIELD_TYPES() const
+int CvGlobals::getNUM_YIELD_TYPES(bool bOnlyBasic) const
 {
-	return NUM_YIELD_TYPES;
+	if (bOnlyBasic)
+		return YIELD_GOLDEN_AGE_POINTS + 1;
+
+	return MOD_BALANCE_CORE_JFD ? NUM_YIELD_TYPES : (MOD_BALANCE_CORE_YIELDS ? YIELD_CULTURE_LOCAL + 1 : YIELD_GOLDEN_AGE_POINTS + 1);
 }
 
 int CvGlobals::getNUM_CONTROL_TYPES() const

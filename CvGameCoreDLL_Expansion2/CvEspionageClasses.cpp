@@ -8715,12 +8715,11 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 				}
 			}
 		}
-		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
+
+		int iNumYieldTypes = GC.getNUM_YIELD_TYPES(true);
+		for (int iYield = 0; iYield < iNumYieldTypes; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
-			// Simplification - errata yields not worth considering.
-			if (eYield > YIELD_GOLDEN_AGE_POINTS)
-				break;
 
 			int iSiphonYield = pkMissionInfo->getYieldSiphon(eYield);
 			if (iSiphonYield <= 0)
