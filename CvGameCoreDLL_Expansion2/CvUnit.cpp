@@ -24068,7 +24068,14 @@ void CvUnit::DoFinishBuildIfSafe()
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
 				return;
 
-			CvUnitMission::ContinueMission(this);
+			if (GetActivityType() == ACTIVITY_MISSION)
+			{
+				CvUnitMission::ContinueMission(this);
+			}
+			else
+			{
+				CvUnitMission::StartMission(this);
+			}
 		}
 	}
 }
