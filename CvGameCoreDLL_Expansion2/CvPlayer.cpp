@@ -3017,6 +3017,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	if (eOldOwner == GetID())
 		return pCity;
 
+	// make sure the player is alive
+	setAlive(true);
+
 	// Is this the capital?
 	bool bCapital = pCity->isCapital();
 	bool bOriginalCapital = pCity->IsOriginalCapitalForPlayer(eOldOwner);
@@ -4025,9 +4028,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	CvCity* pNewCity = initCity(iCityX, iCityY, !bConquest, false, NO_RELIGION, strName.c_str());
 	if (!pNewCity)
 		return NULL;
-
-	// Verify that this player is alive, in case this function was triggered from LUA while the player was dead
-	verifyAlive();
 
 	iNumCities++;
 
