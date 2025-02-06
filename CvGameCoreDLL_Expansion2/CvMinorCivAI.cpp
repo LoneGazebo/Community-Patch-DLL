@@ -12330,7 +12330,7 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 
 	if (GetPermanentAlly() != NO_PLAYER)
 	{
-		if (eNewAlly != GetPermanentAlly())
+		if (eNewAlly != GetPermanentAlly() && eNewAlly != NO_PLAYER)
 		{
 			if(eNewAlly != NO_PLAYER)
 			{
