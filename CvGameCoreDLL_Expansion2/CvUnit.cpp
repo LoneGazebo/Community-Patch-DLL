@@ -5170,7 +5170,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		else
 		{
 			//just a failsafe, aircraft do range attacks when moving and move by rebasing ...
-			if (!canRebaseAt(plot.getX(),plot.getY()))
+			if (!canRebaseAt(plot.getX(),plot.getY(), true))
 			{
 				return false;
 			}
@@ -9796,7 +9796,7 @@ bool CvUnit::sellExoticGoods()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebase(bool bForced) const
+bool CvUnit::canRebase(bool bIgnoreMovementPoints) const
 {
 	// Must be an air unit
 	if(getDomainType() != DOMAIN_AIR)
@@ -9811,7 +9811,7 @@ bool CvUnit::canRebase(bool bForced) const
 	}
 
 	// Must have movement points left this turn
-	if (!bForced && getMoves() <= 0)
+	if (!bIgnoreMovementPoints && getMoves() <= 0)
 	{
 		return false;
 	}
@@ -9828,10 +9828,10 @@ int CvUnit::getRebaseRange() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
+bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bIgnoreMovementPoints) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
-	if (!canRebase(bForced))
+	if (!canRebase(bIgnoreMovementPoints))
 	{
 		return false;
 	}
@@ -15360,11 +15360,12 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = *it;
-		pLoopUnit->PushMission(
+		gDLL->sendPushMission(pLoopUnit->GetID(),
 			CvTypes::getMISSION_MOVE_TO(),
 			pDestPlot->getX(),
 			pDestPlot->getY(),
-			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT);
+			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT,
+			false);
 	}
 
 	// Now that we have all the units to move and tiles for them, send the move missions
@@ -15383,11 +15384,12 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 			targetPlot = pDestPlot;
 		}
 
-		pLoopUnit->PushMission(
+		gDLL->sendPushMission(pLoopUnit->GetID(),
 			CvTypes::getMISSION_MOVE_TO(),
 			targetPlot->getX(),
 			targetPlot->getY(),
-			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT);
+			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT,
+			false);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -15454,11 +15456,11 @@ void CvUnit::TryEndSquadMovement()
 		{
 			if (canSentry(plot()))
 			{
-				PushMission(CvTypes::getMISSION_ALERT());
+				gDLL->sendPushMission(GetID(), CvTypes::getMISSION_ALERT(), 0, 0, 0, false);
 			}
 			else
 			{
-				PushMission(CvTypes::getMISSION_SLEEP());
+				gDLL->sendPushMission(GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
 			}
 		}
 	}

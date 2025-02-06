@@ -2018,8 +2018,8 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
 void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
-	if (m_pCity->IsPuppet() || m_pCity->IsResistance())
-		// no need to do this for puppets or cities being razed
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->IsResistance())
+		// no need to do this for non-Venice puppets or cities being razed
 		return;
 
 	int iCount = 0;
