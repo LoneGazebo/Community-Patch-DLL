@@ -212,8 +212,8 @@ int CvProjectEntry::GetVictoryDelayPercent() const
 /// Find value of flavors associated with this building
 int CvProjectEntry::GetFlavorValue(int i) const
 {
-	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFlavorTypes() && m_piFlavorValue)
 	{
@@ -352,8 +352,8 @@ void CvProjectEntry::SetCreateSound(const char* szVal)
 /// Resources consumed to construct
 int CvProjectEntry::GetResourceQuantityRequirement(int i) const
 {
-	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumResourceInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumResourceInfos() && m_piResourceQuantityRequirements)
 	{
@@ -366,8 +366,8 @@ int CvProjectEntry::GetResourceQuantityRequirement(int i) const
 /// Maximum number of these needed for victory condition
 int CvProjectEntry::GetVictoryThreshold(int i) const
 {
-	PRECONDITION(i < GC.getNumVictoryInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumVictoryInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumVictoryInfos() && m_piVictoryThreshold)
 	{
@@ -380,8 +380,8 @@ int CvProjectEntry::GetVictoryThreshold(int i) const
 /// Minimum number of these needed for victory condition
 int CvProjectEntry::GetVictoryMinThreshold(int i) const
 {
-	PRECONDITION(i < GC.getNumVictoryInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumVictoryInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumVictoryInfos())
 	{
@@ -399,8 +399,8 @@ int CvProjectEntry::GetVictoryMinThreshold(int i) const
 /// Other projects required before this one can be built
 int CvProjectEntry::GetProjectsNeeded(int i) const
 {
-	PRECONDITION(i < GC.getNumProjectInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumProjectInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumProjectInfos() && m_piProjectsNeeded)
 	{

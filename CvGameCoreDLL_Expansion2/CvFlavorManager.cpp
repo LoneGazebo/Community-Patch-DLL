@@ -86,8 +86,8 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 /// LatestFlavorValue Accessor Function
 int CvFlavorRecipient::GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNegative)
 {
-	PRECONDITION(eFlavor > -1, "Out of bounds.");
-	PRECONDITION(eFlavor < GC.getNumFlavorTypes(), "Out of bounds.");
+	ASSERT(eFlavor > -1, "Out of bounds.");
+	ASSERT(eFlavor < GC.getNumFlavorTypes(), "Out of bounds.");
 
 	if(m_piLatestFlavorValues[eFlavor] < 0 && !bAllowNegative)
 	{

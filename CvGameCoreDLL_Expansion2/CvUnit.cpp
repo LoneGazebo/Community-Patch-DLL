@@ -6163,7 +6163,7 @@ void CvUnit::gift(bool bTestTransport)
 		}
 	}
 
-	PRECONDITION(plot()->getOwner() != NO_PLAYER, "plot()->getOwner() is not expected to be equal with NO_PLAYER");
+	ASSERT(plot()->getOwner() != NO_PLAYER, "plot()->getOwner() is not expected to be equal with NO_PLAYER");
 	pGiftUnit = GET_PLAYER(plot()->getOwner()).initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), REASON_GIFT, false, false);
 
 	ASSERT(pGiftUnit != NULL, "GiftUnit is not assigned a valid value");
@@ -7901,7 +7901,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	{
 		iBaseHeal = ((100 + iBaseHealMod) / 100) * iBaseHeal;
 	}
-	PRECONDITION(iBaseHeal >= 0, "Base healing rate not expected to be negative!");
+	ASSERT(iBaseHeal >= 0, "Base healing rate not expected to be negative!");
 
 	int iTotalHeal = iBaseHeal + iExtraHeal;
 #if defined(MOD_BALANCE_CORE)
@@ -13347,7 +13347,7 @@ bool CvUnit::blastTourism()
 bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
+	ASSERT(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
 
 	if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
 		return false;
@@ -19348,8 +19348,8 @@ int CvUnit::roughDefenseModifier() const
 int CvUnit::terrainAttackModifier(TerrainTypes eTerrain) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return (getExtraTerrainAttackPercent(eTerrain));
 }
 
@@ -19358,8 +19358,8 @@ int CvUnit::terrainAttackModifier(TerrainTypes eTerrain) const
 int CvUnit::terrainDefenseModifier(TerrainTypes eTerrain) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
-	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	ASSERT(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return (getExtraTerrainDefensePercent(eTerrain));
 }
 
@@ -19368,8 +19368,8 @@ int CvUnit::terrainDefenseModifier(TerrainTypes eTerrain) const
 int CvUnit::featureAttackModifier(FeatureTypes eFeature) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	PRECONDITION(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	return (getExtraFeatureAttackPercent(eFeature));
 }
 
@@ -19377,8 +19377,8 @@ int CvUnit::featureAttackModifier(FeatureTypes eFeature) const
 int CvUnit::featureDefenseModifier(FeatureTypes eFeature) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	PRECONDITION(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	ASSERT(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	return (getExtraFeatureDefensePercent(eFeature));
 }
 
@@ -19386,8 +19386,8 @@ int CvUnit::featureDefenseModifier(FeatureTypes eFeature) const
 int CvUnit::unitClassAttackModifier(UnitClassTypes eUnitClass) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
-	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
+	ASSERT(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
 	return getUnitClassAttackMod(eUnitClass);
 }
 
@@ -19396,8 +19396,8 @@ int CvUnit::unitClassAttackModifier(UnitClassTypes eUnitClass) const
 int CvUnit::unitClassDefenseModifier(UnitClassTypes eUnitClass) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
-	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
+	ASSERT(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
 	return getUnitClassDefenseMod(eUnitClass);
 }
 
@@ -19406,8 +19406,8 @@ int CvUnit::unitClassDefenseModifier(UnitClassTypes eUnitClass) const
 int CvUnit::unitCombatModifier(UnitCombatTypes eUnitCombat) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eUnitCombat >= 0, "eUnitCombat is expected to be non-negative (invalid Index)");
-	PRECONDITION(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eUnitCombat is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eUnitCombat >= 0, "eUnitCombat is expected to be non-negative (invalid Index)");
+	ASSERT(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eUnitCombat is expected to be within maximum bounds (invalid Index)");
 	return (getExtraUnitCombatModifier(eUnitCombat));
 }
 
@@ -19416,8 +19416,8 @@ int CvUnit::unitCombatModifier(UnitCombatTypes eUnitCombat) const
 int CvUnit::domainModifier(DomainTypes eDomain) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eDomain >= 0, "eDomain is expected to be non-negative (invalid Index)");
-	PRECONDITION(eDomain < NUM_DOMAIN_TYPES, "eDomain is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eDomain >= 0, "eDomain is expected to be non-negative (invalid Index)");
+	ASSERT(eDomain < NUM_DOMAIN_TYPES, "eDomain is expected to be within maximum bounds (invalid Index)");
 	return (getExtraDomainModifier(eDomain));
 }
 
@@ -19425,64 +19425,64 @@ int CvUnit::domainModifier(DomainTypes eDomain) const
 int CvUnit::GetYieldModifier(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_YieldModifier[eYield];
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::SetYieldModifier(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_YieldModifier[eYield] = (m_YieldModifier[eYield] + iValue);
 }
 
 int CvUnit::GetYieldChange(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_YieldChange[eYield];
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::SetYieldChange(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_YieldChange[eYield] = (m_YieldChange[eYield] + iValue);
 }
 // Similar to above code but is only for combat units and scales per the units combat strength : yield is placed on the plot itself
 int CvUnit::GetGarrisonYieldChange(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_iGarrisonYieldChange[eYield];
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::SetGarrisonYieldChange(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_iGarrisonYieldChange[eYield] = (m_iGarrisonYieldChange[eYield] + iValue);
 }
 
 int CvUnit::GetFortificationYieldChange(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_iFortificationYieldChange[eYield];
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::SetFortificationYieldChange(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_iFortificationYieldChange[eYield] = (m_iFortificationYieldChange[eYield] + iValue);
 }
 
@@ -25272,8 +25272,8 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
 int CvUnit::getExtraDomainModifier(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_extraDomainModifiers[eIndex];
 }
 
@@ -25282,8 +25282,8 @@ int CvUnit::getExtraDomainModifier(DomainTypes eIndex) const
 void CvUnit::changeExtraDomainModifier(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_extraDomainModifiers[eIndex] = (m_extraDomainModifiers[eIndex] + iChange);
 }
 
@@ -25292,8 +25292,8 @@ void CvUnit::changeExtraDomainModifier(DomainTypes eIndex, int iChange)
 int CvUnit::getExtraDomainAttack(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_extraDomainAttacks[eIndex];
 }
 
@@ -25302,8 +25302,8 @@ int CvUnit::getExtraDomainAttack(DomainTypes eIndex) const
 void CvUnit::changeExtraDomainAttack(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_extraDomainAttacks[eIndex] = (m_extraDomainAttacks[eIndex] + iChange);
 }
 
@@ -25312,8 +25312,8 @@ void CvUnit::changeExtraDomainAttack(DomainTypes eIndex, int iChange)
 int CvUnit::getExtraDomainDefense(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_extraDomainDefenses[eIndex];
 }
 
@@ -25322,8 +25322,8 @@ int CvUnit::getExtraDomainDefense(DomainTypes eIndex) const
 void CvUnit::changeExtraDomainDefense(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_extraDomainDefenses[eIndex] = (m_extraDomainDefenses[eIndex] + iChange);
 }
 
@@ -25524,8 +25524,8 @@ void CvUnit::SetGAPBlastStrength(int iValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionEverObtained(PromotionTypes eIndex, bool bValue)
 {
-	PRECONDITION(eIndex >= 0);
-	PRECONDITION(eIndex < GC.getNumPromotionInfos());
+	ASSERT(eIndex >= 0);
+	ASSERT(eIndex < GC.getNumPromotionInfos());
 
 	m_abPromotionEverObtained[eIndex] =  bValue;
 }
@@ -26010,15 +26010,15 @@ void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(ePlayer >= 0, "ePlayer expected to be >= 0");
-	PRECONDITION(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(ePlayer >= 0, "ePlayer expected to be >= 0");
+	ASSERT(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	m_aiNumTimesAttackedThisTurn[ePlayer] =  m_aiNumTimesAttackedThisTurn[ePlayer] + iValue;
 }
 int CvUnit::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(ePlayer >= 0, "eIndex expected to be >= 0");
-	PRECONDITION(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	ASSERT(ePlayer >= 0, "eIndex expected to be >= 0");
+	ASSERT(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiNumTimesAttackedThisTurn[ePlayer];
 }
 #endif
@@ -26327,8 +26327,8 @@ void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 int CvUnit::getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_iCombatModPerAdjacentUnitCombatModifier[eIndex];
 }
 
@@ -26337,8 +26337,8 @@ int CvUnit::getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) co
 void CvUnit::changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_iCombatModPerAdjacentUnitCombatModifier[eIndex] =  m_iCombatModPerAdjacentUnitCombatModifier[eIndex] + iChange;
 }
 
@@ -26346,8 +26346,8 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex
 int CvUnit::getCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex];
 }
 
@@ -26356,8 +26356,8 @@ int CvUnit::getCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) c
 void CvUnit::changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] =  m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] + iChange;
 }
 
@@ -26365,8 +26365,8 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eInde
 int CvUnit::getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex];
 }
 
@@ -26375,8 +26375,8 @@ int CvUnit::getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) 
 void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] =  m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] + iChange;
 }
 
@@ -26384,8 +26384,8 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eInd
 int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_yieldFromScouting[eIndex];
 }
 
@@ -26394,8 +26394,8 @@ int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
 void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -26407,8 +26407,8 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 int CvUnit::getYieldFromKills(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_yieldFromKills[eIndex];
 }
 
@@ -26417,8 +26417,8 @@ int CvUnit::getYieldFromKills(YieldTypes eIndex) const
 void CvUnit::changeYieldFromKills(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -26430,8 +26430,8 @@ void CvUnit::changeYieldFromKills(YieldTypes eIndex, int iChange)
 int CvUnit::getYieldFromBarbarianKills(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_yieldFromBarbarianKills[eIndex];
 }
 
@@ -26440,8 +26440,8 @@ int CvUnit::getYieldFromBarbarianKills(YieldTypes eIndex) const
 void CvUnit::changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -26453,8 +26453,8 @@ void CvUnit::changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange)
 int CvUnit::getExtraUnitCombatModifier(UnitCombatTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_extraUnitCombatModifier[eIndex];
 }
 
@@ -26463,8 +26463,8 @@ int CvUnit::getExtraUnitCombatModifier(UnitCombatTypes eIndex) const
 void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_extraUnitCombatModifier[eIndex] =  m_extraUnitCombatModifier[eIndex] + iChange;
 }
 
@@ -26473,8 +26473,8 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 int CvUnit::getUnitClassModifier(UnitClassTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_unitClassModifier[eIndex];
 }
 
@@ -26483,15 +26483,15 @@ int CvUnit::getUnitClassModifier(UnitClassTypes eIndex) const
 void CvUnit::changeUnitClassModifier(UnitClassTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_unitClassModifier[eIndex] =  m_unitClassModifier[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
 std::pair<int, int> CvUnit::getYieldFromPillage(YieldTypes eYield) const {
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
-	PRECONDITION(eYield > NO_YIELD, "Yield index out of bounds");
+	ASSERT(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	ASSERT(eYield > NO_YIELD, "Yield index out of bounds");
 
 	const std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
 	if (it != m_yieldFromPillage.end())
@@ -26504,8 +26504,8 @@ std::pair<int, int> CvUnit::getYieldFromPillage(YieldTypes eYield) const {
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> change) {
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
-	PRECONDITION(eYield > NO_YIELD, "Yield index out of bounds");
+	ASSERT(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	ASSERT(eYield > NO_YIELD, "Yield index out of bounds");
 
 	if ((change.first != 0 || change.second != 0) && eYield > NO_YIELD && eYield < NUM_YIELD_TYPES)
 	{
@@ -26532,8 +26532,8 @@ void CvUnit::changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> chang
 bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	ASSERT(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
 
 	CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 	if(pkPromotionInfo == NULL)
@@ -28792,7 +28792,7 @@ ActivityTypes CvUnit::GetActivityType() const
 void CvUnit::SetActivityType(ActivityTypes eNewValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(getOwner() != NO_PLAYER);
+	ASSERT(getOwner() != NO_PLAYER);
 	ActivityTypes eOldActivity = GetActivityType();
 
 	if(eOldActivity != eNewValue)
@@ -28831,7 +28831,7 @@ bool CvUnit::IsAutomated() const
 void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(getOwner() != NO_PLAYER);
+	ASSERT(getOwner() != NO_PLAYER);
 
 	if(GetAutomateType() != eNewValue)
 	{
@@ -29678,7 +29678,7 @@ bool CvUnit::UnitBuild(BuildTypes eBuild)
 		}
 	}
 
-	PRECONDITION(atPlot(*pPlot), "Unit is expected to be at pPlot");
+	ASSERT(atPlot(*pPlot), "Unit is expected to be at pPlot");
 
 	// Don't check for Gold cost here (2nd false) because this function is called from continueMission... we spend the Gold then check to see if we can Build
 	if(canBuild(pPlot, eBuild, false, false))

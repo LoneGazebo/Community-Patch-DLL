@@ -56,8 +56,8 @@ bool CvEmphasisEntry::IsGreatPeople() const
 // What is the yield change for this yield type?
 int CvEmphasisEntry::GetYieldChange(int i) const
 {
-	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	return m_piYieldModifiers ? m_piYieldModifiers[i] : -1;
 }
 
@@ -163,8 +163,8 @@ bool CvCityEmphases::IsEmphasizeAvoidGrowth()
 /// What is this city's yield boost due to emphasis?
 int CvCityEmphases::GetEmphasizeYieldCount(YieldTypes eIndex)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	if(eIndex >= 0 && eIndex < NUM_YIELD_TYPES)
 		return m_aiEmphasizeYieldCount[eIndex];
 	return 0; // default set during "reset"
@@ -179,9 +179,9 @@ bool CvCityEmphases::IsEmphasizeYield(YieldTypes eIndex)
 /// Is this emphasis turned on?
 bool CvCityEmphases::IsEmphasize(EmphasizeTypes eIndex)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(m_pbEmphasize.valid(), "m_pbEmphasize is expected to be valid");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(m_pbEmphasize.valid(), "m_pbEmphasize is expected to be valid");
 
 	return m_pbEmphasize[eIndex];
 }
@@ -189,8 +189,8 @@ bool CvCityEmphases::IsEmphasize(EmphasizeTypes eIndex)
 /// Turn on this emphasis
 void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(IsEmphasize(eIndex) != bNewValue)
 	{

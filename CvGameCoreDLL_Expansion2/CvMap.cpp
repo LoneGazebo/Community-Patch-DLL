@@ -1453,15 +1453,15 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResources(ResourceTypes eIndex)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResource[eIndex];
 }
 //	--------------------------------------------------------------------------------
 void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResource[eIndex] = (m_paiNumResource[eIndex] + iChange);
 	ASSERT(getNumResources(eIndex) >= 0);
 }
@@ -1469,8 +1469,8 @@ void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 void CvMap::setNumResources(ResourceTypes eIndex)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 	int iResourceQuantity = 0;
 	if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -1495,8 +1495,8 @@ void CvMap::setNumResources(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceOnLand[eIndex];
 }
 
@@ -1504,8 +1504,8 @@ int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvMap::changeNumResourcesOnLand(ResourceTypes eIndex, int iChange)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResourceOnLand[eIndex] = (m_paiNumResourceOnLand[eIndex] + iChange);
 	ASSERT(getNumResourcesOnLand(eIndex) >= 0);
 }

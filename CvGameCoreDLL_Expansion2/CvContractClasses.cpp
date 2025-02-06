@@ -116,14 +116,14 @@ int CvContractEntry::GetTurns() const
 }
 int CvContractEntry::GetYieldCost(YieldTypes eYield) const
 {
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(eYield > -1, "Index out of bounds");
+	ASSERT(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT(eYield > -1, "Index out of bounds");
 	return m_piYieldCost ? m_piYieldCost[eYield] : -1;
 }
 int CvContractEntry::GetFlavorValue(FlavorTypes eFlavor) const
 {
-	PRECONDITION(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
-	PRECONDITION(eFlavor > -1, "Index out of bounds");
+	ASSERT(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT(eFlavor > -1, "Index out of bounds");
 	return m_piFlavor ? m_piFlavor[eFlavor] : -1;
 }
 

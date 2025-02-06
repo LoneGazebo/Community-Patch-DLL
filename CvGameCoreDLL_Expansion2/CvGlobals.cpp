@@ -3053,12 +3053,12 @@ int* CvGlobals::getRingFromLinearOffset()
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
-	PRECONDITION(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) return -1;
 
-	PRECONDITION(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	PRECONDITION(j > -1, "Index out of bounds");
+	ASSERT(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT(j > -1, "Index out of bounds");
 	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) return -1;
 
 	return m_aaiRingPlotIndex[i][j];
@@ -3071,8 +3071,8 @@ DirectionTypes* CvGlobals::getTurnLeftDirection()
 
 DirectionTypes CvGlobals::getTurnLeftDirection(int i)
 {
-	PRECONDITION(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -3086,8 +3086,8 @@ DirectionTypes* CvGlobals::getTurnRightDirection()
 
 DirectionTypes CvGlobals::getTurnRightDirection(int i)
 {
-	PRECONDITION(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -4187,8 +4187,8 @@ std::vector<CvActionInfo*>& CvGlobals::getActionInfo()
 
 CvActionInfo* CvGlobals::getActionInfo(int i)
 {
-	PRECONDITION(i < getNumActionInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < getNumActionInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	if(i > -1 && i < (int)m_paActionInfo.size())
 		return m_paActionInfo[i];
 	else
@@ -4252,8 +4252,8 @@ std::vector<CvAutomateInfo*>& CvGlobals::getAutomateInfo()
 
 CvAutomateInfo* CvGlobals::getAutomateInfo(int iAutomateNum)
 {
-	PRECONDITION(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
-	PRECONDITION(iAutomateNum > -1, "Index out of bounds");
+	ASSERT(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
+	ASSERT(iAutomateNum > -1, "Index out of bounds");
 	if(iAutomateNum > -1 && iAutomateNum < (int)m_paAutomateInfo.size())
 		return m_paAutomateInfo[iAutomateNum];
 	else
@@ -4905,8 +4905,8 @@ CvString*& CvGlobals::getFootstepAudioTags()
 
 CvString& CvGlobals::getFootstepAudioTags(int i)
 {
-//	PRECONDITION(i < getNumFootstepAudioTags(), "Index out of bounds")
-	PRECONDITION(i > -1, "Index out of bounds");
+//	ASSERT(i < getNumFootstepAudioTags(), "Index out of bounds")
+	ASSERT(i > -1, "Index out of bounds");
 	return m_paszFootstepAudioTags[i];
 }
 

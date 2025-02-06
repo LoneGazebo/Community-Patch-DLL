@@ -71,8 +71,8 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 /// Delete the army
 void CvArmyAI::Kill()
 {
-	PRECONDITION(GetOwner() != NO_PLAYER);
-	PRECONDITION(GetID() != -1, "GetID() is not expected to be equal with -1");
+	ASSERT(GetOwner() != NO_PLAYER);
+	ASSERT(GetID() != -1, "GetID() is not expected to be equal with -1");
 
 	ReleaseAllUnits();
 

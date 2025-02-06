@@ -5815,7 +5815,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 /// GetIntrigueMessage - Getting the intrigue message in another text format for the intrigue message display
 Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 {
-	PRECONDITION(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
+	ASSERT(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
 	if(uiIndex >= m_aIntrigueNotificationMessages.size())
 	{
 		return "";

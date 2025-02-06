@@ -17,8 +17,8 @@ int **CvGoodyHuts::m_aaiPlayerGoodyHutResults = NULL;
 /// New Goody Hut Result from a Player
 void CvGoodyHuts::DoPlayerReceivedGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	PRECONDITION(ePlayer >= 0);
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
+	ASSERT(ePlayer >= 0);
+	ASSERT(ePlayer < MAX_MAJOR_CIVS);
 	ASSERT(eGoody >= 0);
 	//	ASSERT(eGoody < DB.count("GoodyHuts"));
 
@@ -43,8 +43,8 @@ bool CvGoodyHuts::IsCanPlayerReceiveGoody(PlayerTypes ePlayer, GoodyTypes eGoody
 /// Have we gotten this type of Goody lately? (in the last 3 Goodies, defined by NUM_GOODIES_REMEMBERED)
 bool CvGoodyHuts::IsHasPlayerReceivedGoodyLately(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	PRECONDITION(ePlayer >= 0);
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
+	ASSERT(ePlayer >= 0);
+	ASSERT(ePlayer < MAX_MAJOR_CIVS);
 	ASSERT(eGoody >= 0);
 	//	ASSERT(eGoody < DB.count("GoodyHuts"));
 
