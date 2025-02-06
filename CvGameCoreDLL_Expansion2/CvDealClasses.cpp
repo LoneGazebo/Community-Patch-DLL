@@ -667,8 +667,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if (iData1 != -1 && IsCityTrade(ePlayer, iData1, iData2))
 					return false;
 
-				// If trading with AI, can't trade more than one city per player at a time
-				if (!bHumanToHuman && ContainsItemType(TRADE_ITEM_CITIES, ePlayer))
+				// If trading with AI, can't trade more than one city per player at a time, unless this is a peace deal
+				if (!bHumanToHuman && !bPeaceDeal && ContainsItemType(TRADE_ITEM_CITIES, ePlayer))
 					return false;
 			}
 			break;
