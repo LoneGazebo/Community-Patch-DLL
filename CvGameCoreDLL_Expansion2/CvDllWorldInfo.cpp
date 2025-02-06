@@ -14,7 +14,7 @@ CvDllWorldInfo::CvDllWorldInfo(CvWorldInfo* pWorldInfo)
 	: m_pWorldInfo(pWorldInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT(pWorldInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT_DEBUG(pWorldInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllWorldInfo::~CvDllWorldInfo()

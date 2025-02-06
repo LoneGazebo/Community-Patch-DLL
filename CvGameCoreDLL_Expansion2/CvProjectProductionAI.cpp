@@ -100,7 +100,7 @@ int CvProjectProductionAI::GetWeight(ProjectTypes eProject)
 /// Recommend highest-weighted Project
 ProjectTypes CvProjectProductionAI::RecommendProject()
 {
-	ASSERT(m_pCity);
+	ASSERT_DEBUG(m_pCity);
 	if(!m_pCity)
 		return NO_PROJECT;
 
@@ -372,7 +372,7 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		CvString strDesc;
 		CvString strLogName;
 
-		ASSERT(m_pCity);
+		ASSERT_DEBUG(m_pCity);
 		if(!m_pCity) return;
 
 		// Find the name of this civ and city
@@ -382,7 +382,7 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		// Open the log file
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
-		ASSERT(pLog);
+		ASSERT_DEBUG(pLog);
 		if(!pLog) return;
 
 		// Get the leading info for this line

@@ -30,10 +30,10 @@ CvTechAI::~CvTechAI(void)
 /// Clear out AI local variables
 void CvTechAI::Reset()
 {
-	ASSERT(m_pCurrentTechs != NULL, "Tech AI init failure: player tech data is NULL");
+	ASSERT_DEBUG(m_pCurrentTechs != NULL, "Tech AI init failure: player tech data is NULL");
 	if(m_pCurrentTechs != NULL)
 	{
-		ASSERT(m_pCurrentTechs->GetTechs() != NULL, "Tech AI init failure: no tech data");
+		ASSERT_DEBUG(m_pCurrentTechs->GetTechs() != NULL, "Tech AI init failure: no tech data");
 
 		m_TechAIWeights.clear();
 
@@ -255,8 +255,8 @@ float CvTechAI::GetTechRatio()
 		}
 	}
 
-	ASSERT(iPlayerIndexInList != -1, "Could not find player in list");
-	ASSERT(aLeaderWithNumTechs.size() >= 2, "Only one player in the game? Huh?");
+	ASSERT_DEBUG(iPlayerIndexInList != -1, "Could not find player in list");
+	ASSERT_DEBUG(aLeaderWithNumTechs.size() >= 2, "Only one player in the game? Huh?");
 	float fTechPositionRatio = 0.0f;
 	if(aLeaderWithNumTechs.size() >= 2)
 	{

@@ -13,7 +13,7 @@ CvDllPlayerColorInfo::CvDllPlayerColorInfo(CvPlayerColorInfo* pPlayerColorInfo)
 	: m_pPlayerColorInfo(pPlayerColorInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT(pPlayerColorInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT_DEBUG(pPlayerColorInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllPlayerColorInfo::~CvDllPlayerColorInfo()

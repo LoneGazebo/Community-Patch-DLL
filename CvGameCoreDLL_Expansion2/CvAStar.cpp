@@ -424,7 +424,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		{
 			OutputDebugString("Repeated pathfinding start\n");
 			// Add debug break point here for investigation during development
-			ASSERT(false && "Repeated pathfinding detected - investigate call path");
+			ASSERT_DEBUG(false && "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
 		giLastDestIndex = iDestIndex;

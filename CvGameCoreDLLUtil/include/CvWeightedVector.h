@@ -68,26 +68,26 @@ public:
 	/// Accessor for element
 	const T& GetElement (unsigned int iIndex) const
 	{
-		ASSERT(iIndex < m_items.size());
+		ASSERT_DEBUG(iIndex < m_items.size());
 		return m_items[iIndex].m_Element;
 	};
 
 	/// Accessor for element
 	void SetElement (unsigned int iIndex, const T& iValue)
 	{
-		ASSERT(iIndex < m_items.size());
+		ASSERT_DEBUG(iIndex < m_items.size());
 		m_items[iIndex].m_Element = iValue;
 	};
 
 	/// Accessors for weight
 	int GetWeight (unsigned int iIndex) const
 	{
-		ASSERT(iIndex < m_items.size());
+		ASSERT_DEBUG(iIndex < m_items.size());
 		return m_items[iIndex].m_iWeight;
 	}
 	void SetWeight (unsigned int iIndex, int iWeight)
 	{
-		ASSERT(iWeight >= 0);
+		ASSERT_DEBUG(iWeight >= 0);
 		m_items[iIndex].m_iWeight = iWeight;
 	}
 	void IncreaseWeight (unsigned int iIndex, int iWeight)
@@ -104,7 +104,7 @@ public:
 		{
 			WeightedElement elem = m_items[i];
 			rtnValue += elem.m_iWeight;
-			ASSERT(rtnValue >= 0);
+			ASSERT_DEBUG(rtnValue >= 0);
 		}
 
 		return rtnValue;
@@ -113,7 +113,7 @@ public:
 	/// Add an item to the end of the vector
 	unsigned int push_back (const T& element, int iWeight)
 	{
-		ASSERT(iWeight >= 0);
+		ASSERT_DEBUG(iWeight >= 0);
 		m_items.push_back(WeightedElement(element,iWeight));
 		return m_items.size();
 	};
@@ -238,7 +238,7 @@ public:
 	/// Pick an element from the top iNumChoices
 	T ChooseFromTopChoices(int iNumChoices, CvSeeder seed)
 	{
-		ASSERT(iNumChoices > 0);
+		ASSERT_DEBUG(iNumChoices > 0);
 
 		// the easy case
 		if (iNumChoices == 1)

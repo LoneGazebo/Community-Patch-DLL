@@ -158,7 +158,7 @@ FDataStream& operator<<(FDataStream& kStream, const BuildingGreatWork& readFrom)
 void checkBattleUnitType(BattleUnitTypes unitType)
 {
 	DEBUG_VARIABLE(unitType);
-	ASSERT((unitType >= 0) && (unitType < BATTLE_UNIT_COUNT), "Invalid battle unit type.");
+	ASSERT_DEBUG((unitType >= 0) && (unitType < BATTLE_UNIT_COUNT), "Invalid battle unit type.");
 }
 
 //------------------------------------------------------------------------------------------------
@@ -524,7 +524,7 @@ int CvCombatInfo::getMaxDamageMemberCount()
 
 void CvCombatInfo::setDamageMemberCount(int iDamageMemberCount)
 {
-	ASSERT(iDamageMemberCount >=0 && iDamageMemberCount <= MAX_DAMAGE_MEMBER_COUNT, "Invalid damage member count!");
+	ASSERT_DEBUG(iDamageMemberCount >=0 && iDamageMemberCount <= MAX_DAMAGE_MEMBER_COUNT, "Invalid damage member count!");
 	m_iDamageMemberCount = std::min(iDamageMemberCount, (int)MAX_DAMAGE_MEMBER_COUNT);
 }
 
@@ -638,7 +638,7 @@ void CvAirMissionDefinition::setDamage(BattleUnitTypes unitType, int damage)
 bool CvAirMissionDefinition::isDead(BattleUnitTypes unitType) const
 {
 	checkBattleUnitType(unitType);
-	ASSERT(getUnit(unitType) != NULL, "[Jason] Invalid battle unit type.");
+	ASSERT_DEBUG(getUnit(unitType) != NULL, "[Jason] Invalid battle unit type.");
 	return getDamage(unitType) >= getUnit(unitType)->GetMaxHitPoints();
 }
 

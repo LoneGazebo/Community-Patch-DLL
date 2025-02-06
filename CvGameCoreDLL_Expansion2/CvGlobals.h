@@ -672,7 +672,7 @@ public:
 	}
 	CvString&  getFlavorTypes(FlavorTypes e)
 	{
-		ASSERT(e > -1); /*ASSERT(e < GC.getNumFlavorTypes())*/;
+		ASSERT_DEBUG(e > -1); /*ASSERT_DEBUG(e < GC.getNumFlavorTypes())*/;
 		return m_paszFlavorTypes[e];
 	}
 
