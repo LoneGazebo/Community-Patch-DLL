@@ -8455,6 +8455,44 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 			}
+			if (eBuilder != NO_PLAYER)
+			{
+				if (newImprovementEntry.GetGrantsVision() > 0)
+				{
+					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
+				}
+				if (!isOwned() && newImprovementEntry.IsNewOwner())
+				{
+					int iBestCityID = -1;
+					int iBestCityDistance = -1;
+					int iDistance = 0;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if (pPlot)
+						{
+							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+							if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+							{
+								iBestCityID = pLoopCity->GetID();
+								iBestCityDistance = iDistance;
+							}
+						}
+					}
+					setOwner(eBuilder, iBestCityID);
+					owningPlayerID = eBuilder;
+				}
+				// Maintenance
+				// If plot is unowned, and the improvement can be built outside of borders, the builder is responsible for the improvement
+				// If improvement is not usually allowed to be built outside of borders, then no one is responsible
+				if (newImprovementEntry.IsOutsideBorders())
+				{
+					SetPlayerResponsibleForImprovement(eBuilder);
+				}
+			}
 			if(isOwned())
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
@@ -8501,11 +8539,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_PLAYER(eBuilder).changeSiphonLuxuryCount(owningPlayerID, newImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
 						GET_PLAYER(owningPlayerID).GetMinorCivAI()->SetSiphoned(eBuilder, true);
 					}
-				}
-				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
-				{
-					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (newImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -8584,43 +8617,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					SetImprovementEmbassy(true);
 				else
 					SetImprovementEmbassy(false);
-			}
-			else if (eBuilder != NO_PLAYER)
-			{
-				if (newImprovementEntry.GetGrantsVision() > 0)
-				{
-					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
-				}
-				if (newImprovementEntry.IsNewOwner())
-				{
-					int iBestCityID = -1;
-					int iBestCityDistance = -1;
-					int iDistance = 0;
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-					for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
-					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
-						{
-							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
-							if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
-							{
-								iBestCityID = pLoopCity->GetID();
-								iBestCityDistance = iDistance;
-							}
-						}
-					}
-					setOwner(eBuilder, iBestCityID);
-				}
-				// Maintenance
-				// If plot is unowned, and the improvement can be built outside of borders, the builder is responsible for the improvement
-				// If improvement is not usually allowed to be built outside of borders, then no one is responsible
-				if (newImprovementEntry.IsOutsideBorders())
-				{
-					SetPlayerResponsibleForImprovement(eBuilder);
-				}
 			}
 			if (eBuilder != NO_PLAYER)
 			{

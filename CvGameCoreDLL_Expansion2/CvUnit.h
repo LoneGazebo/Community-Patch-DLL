@@ -458,8 +458,8 @@ public:
 	bool sellExoticGoods();
 
 	int getRebaseRange() const;
-	bool canRebase(bool bForced = false) const;
-	bool canRebaseAt(int iXDest, int iYDest, bool bForced = false) const;
+	bool canRebase(bool bIgnoreMovementPoints = false) const;
+	bool canRebaseAt(int iXDest, int iYDest, bool bIgnoreMovementPoints = false) const;
 	bool rebase(int iX, int iY, bool bForced = false);
 
 	bool canPillage(const CvPlot* pPlot) const;
