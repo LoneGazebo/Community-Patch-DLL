@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(4.18.4) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4.19) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="140" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="141" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -36,13 +36,13 @@
     <File md5="00BC0516FD02C73C6FB45C07708607F0" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="4FF2C3858ADD42E1185E68D7C38B55D3" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="2002A9F042A0F8DE22A9EA97271E5E78" import="1">LUA/CityView.lua</File>
+    <File md5="1AFE805BA778B011AD7454B3DCA52CC2" import="1">LUA/CityView.lua</File>
     <File md5="F5FCDE73448EC1391CE1C06B10630AAD" import="1">LUA/CityView.xml</File>
     <File md5="D25BC7DE8ED5F24CD827D75E5B498069" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
     <File md5="A2BE6F77C58D6709F4BD747AFBBF20FE" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="A2B969313128F59C21D62072E578BF8B" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="126313F0FA6707C80EDD32965D93E78F" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="2DBCB1D09BC585A25935F60FBF864244" import="1">LUA/LeaderHeadRoot.lua</File>
@@ -60,7 +60,7 @@
     <File md5="B878A95C1F755D948A777A49B8B1AE64" import="1">LUA/TradeLogic.lua</File>
     <File md5="5738A482B99003FA399AAC45F0CFFDDB" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="21E0E39F999E9075547F7B1E8AD27609" import="1">LUA/UnitPanel.lua</File>
+    <File md5="653BE4F97AEE09795508B07D6026FFBB" import="1">LUA/UnitPanel.lua</File>
     <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>
     <File md5="BAEAE4CE4E8B8BEAA2267E1E89EB6D2E" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="C5086E6289D8DC365D343C7BE312D802" import="1">LUA/YieldIconManager.lua</File>

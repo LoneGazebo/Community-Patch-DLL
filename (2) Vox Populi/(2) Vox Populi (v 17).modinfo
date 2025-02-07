@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.18.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.19) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="140" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="141" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -48,7 +48,7 @@
     <File md5="1EBA66098E0164A7F9F1F2DB5FA45205" import="1">Assets/CommunityArt45.dds</File>
     <File md5="D23A31D06C5B0E7DA29DB5A5EC97920F" import="1">Assets/CommunityArt64.dds</File>
     <File md5="24B9ECFED456559260C719071864F5E3" import="1">Assets/CommunityArt80.dds</File>
-    <File md5="310CD49675CE84D914D75571B1B898EB" import="1">Assets/CommunityAtlas3_045.dds</File>
+    <File md5="E163BBB68CF938D17874F277621BA472" import="1">Assets/CommunityAtlas3_045.dds</File>
     <File md5="E5F4BEAF7AB4EC46356C326D5C7E9873" import="1">Assets/CommunityAtlas3_064.dds</File>
     <File md5="71584A4E780DC2B6C17648B2C1C84E4D" import="1">Assets/CommunityAtlas3_080.dds</File>
     <File md5="02F45317DC37EBF2731530ADD0F57C84" import="1">Assets/CommunityAtlas3_128.dds</File>
@@ -674,7 +674,7 @@
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Assets/Units/Icons/sv_kommando.dds</File>
     <File md5="D2AC8A9ED3C8177823BA24ED262A60F8" import="1">Assets/Units/Icons/tercio_flag2.dds</File>
     <File md5="A5DE4C137543B0FCA47C8B85927900DF" import="1">Assets/Units/Icons/tercio_flag_white.dds</File>
-    <File md5="3A6DA258A4B8CA526C5AB37EE3018542" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_045.dds</File>
+    <File md5="C318EE3B4257BF39BC0F20B00F03FB5B" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_045.dds</File>
     <File md5="2C04EC7AD7D9615AF3180E8DFBB1CF7E" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_064.dds</File>
     <File md5="7714C133ACE945D189A6FCBECECDAF15" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_080.dds</File>
     <File md5="35394348699774A3F2774873F0947F0E" import="1">Assets/Units/LandsknechtFreeCompany/FCOMPANY_ATLAS_128.dds</File>
@@ -803,7 +803,7 @@
     <File md5="BD9B995CADF4C24C8DB41AD7FE7CB22F" import="1">Core Files/Overrides/ChooseTradeUnitNewHome.xml</File>
     <File md5="2CF206FA965AF40CCAAC04AE36992C6B" import="1">Core Files/Overrides/CityList.lua</File>
     <File md5="46FF699BA0B84969AF9316F8781E6F69" import="1">Core Files/Overrides/CityList.xml</File>
-    <File md5="61D9EE058FF0F4E8AF0F94F966379E62" import="1">Core Files/Overrides/CivilopediaScreen.lua</File>
+    <File md5="04C19C3F43F4E7D4920F9BF49022C5A9" import="1">Core Files/Overrides/CivilopediaScreen.lua</File>
     <File md5="EC307CE7F176123AAC216D1EF034D81F" import="1">Core Files/Overrides/CivilopediaScreen.xml</File>
     <File md5="19D27A286BE08991203D572F3A44F609" import="1">Core Files/Overrides/CultureOverview.lua</File>
     <File md5="59B55903600F841BA2DB42F0CA3BB3BE" import="1">Core Files/Overrides/CultureOverview.xml</File>
@@ -844,7 +844,7 @@
     <File md5="AADB27C95BCDB004A504407B49686D9C" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="721C4142F9A38E92D58532486E244098" import="1">Core Files/Overrides/TradeRouteOverview.lua</File>
     <File md5="AB738F4C7D7411D8A21F9D9EC84F7570" import="1">Core Files/Overrides/TradeRouteOverview.xml</File>
-    <File md5="CFA2A54EA543B36705BB5EE520E27B79" import="1">Core Files/Overrides/VictoryProgress.lua</File>
+    <File md5="AEA980B3239B6BFBF869A42E10BA171A" import="1">Core Files/Overrides/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/Overrides/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">Core Files/Overrides/WhosWinningPopup.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
@@ -990,7 +990,7 @@
     <File md5="344E6082F6D4416FA1623E001C131408" import="0">Database Changes/Text/en_US/Beliefs/BeliefTextChanges.sql</File>
     <File md5="0ADB7168A1DAA2588EFB142AAA3A6DF0" import="0">Database Changes/Text/en_US/Beliefs/NewBeliefText.xml</File>
     <File md5="7669CB44D3D375C562861D8129F13407" import="0">Database Changes/Text/en_US/City/BuildingTextChanges.sql</File>
-    <File md5="F84904E1F6282FF89D4369B320AC4927" import="0">Database Changes/Text/en_US/City/NewBuildingText.xml</File>
+    <File md5="564B99C23959CE6878F42EEC5A0EEC66" import="0">Database Changes/Text/en_US/City/NewBuildingText.xml</File>
     <File md5="4F6F1F2ED3F7659DBC5C6621701F1987" import="0">Database Changes/Text/en_US/City/NewGreatWorkText.xml</File>
     <File md5="7FA3131749B2713CE6A883C63134F9C9" import="0">Database Changes/Text/en_US/City/NewProcessText.xml</File>
     <File md5="DF25F72D6D7BD09B19EA6DB786B264B1" import="0">Database Changes/Text/en_US/City/NewProjectText.xml</File>
@@ -998,7 +998,7 @@
     <File md5="1C7DE8D3EFB10BFAFDCF7E3804E3CECB" import="0">Database Changes/Text/en_US/City/ProcessTextChanges.sql</File>
     <File md5="0238F4CE191069DD34CA219B95347542" import="0">Database Changes/Text/en_US/City/ProjectTextChanges.sql</File>
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
-    <File md5="B44108D78488756430E2D5DADAE9865F" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
+    <File md5="F8E7DC7074B58DA7E8E8CDBBA995603D" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
     <File md5="D04E59ACC5DA029CB239C9CAE527D032" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
     <File md5="6242A64A4216553635253631DF3402D2" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="88A6DC1F381DA4C735BF04687D2CAB4D" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
@@ -1093,7 +1093,7 @@
     <File md5="F090F96830E5AD2EDE4B644F0A7118F9" import="1">LUA/DiploList.lua</File>
     <File md5="67F4F6A874C0519432E97C82B8E999A0" import="1">LUA/HappinessInfo.lua</File>
     <File md5="EB1DABE644906CD1AA3312C36CE166AE" import="1">LUA/HappinessInfo.xml</File>
-    <File md5="CB69EB95C7C92C4BD3D4D2B52248EF3F" import="1">LUA/InfoTooltipInclude.lua</File>
+    <File md5="71CED1579E68EE39041B73D2A5473534" import="1">LUA/InfoTooltipInclude.lua</File>
     <File md5="5405DE4A7B50B83FE1C6D87E82F44ABC" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F78BC96D218E6401821E6A8E5422E199" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="34AC93D11F3AEE31F5FE062307A7FC2B" import="1">LUA/NotificationPanel.lua</File>
