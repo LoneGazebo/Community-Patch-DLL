@@ -12482,7 +12482,7 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 	return true;
 }
 
-void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressDirectNotification)
+void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressNotificationForNewAlly)
 {
 	// Maybe we're not displaying notifications at all
 	if (IsDisableNotifications())
@@ -12525,7 +12525,7 @@ void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTy
 	// *******************************************
 	// NOTIFICATIONS FOR DIRECTLY AFFECTED PLAYERS
 	// *******************************************
-	if (!bSuppressDirectNotification)
+	if (!bSuppressNotificationForNewAlly)
 	{
 		if (eNewAlly != NO_PLAYER)
 		{
@@ -12533,12 +12533,12 @@ void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTy
 			if (notifStrings.first != "")
 				AddNotification(notifStrings.first, notifStrings.second, eNewAlly);
 		}
-		if (eOldAlly != NO_PLAYER)
-		{
-			pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(eOldAlly, false, false, true, eOldAlly, eNewAlly);
-			if (notifStrings.first != "")
-				AddNotification(notifStrings.first, notifStrings.second, eOldAlly);
-		}
+	}
+	if (eOldAlly != NO_PLAYER)
+	{
+		pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(eOldAlly, false, false, true, eOldAlly, eNewAlly);
+		if (notifStrings.first != "")
+			AddNotification(notifStrings.first, notifStrings.second, eOldAlly);
 	}
 
 	// *******************************************
@@ -12754,12 +12754,9 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 
 	PlayerTypes eOldAlly = GetAlly();
 
-	bool bAdd = false;
 	bool bFriendsChange = false;
-	bool bAlliesChange = false;
 	bool bWasFriends = IsFriends(ePlayer);
 	bool bNowFriends = IsFriendshipAboveFriendsThreshold(ePlayer, iNewFriendship);
-	bool bNowAllies = IsFriendshipAboveAlliesThreshold(ePlayer, iNewFriendship);
 
 	// If we are Friends now, mark that we've been Friends at least once this game
 	if (bNowFriends)
@@ -12768,14 +12765,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 	// Add Friends Bonus
 	if (!bWasFriends && bNowFriends)
 	{
-		bAdd = true;
 		bFriendsChange = true;
 		SetFriends(ePlayer, true);
 	}
 	// Remove Friends bonus
 	else if (bWasFriends && !bNowFriends)
 	{
-		bAdd = false;
 		bFriendsChange = true;
 		SetFriends(ePlayer, false);
 
@@ -12797,62 +12792,61 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 		}
 	}
 
+	// check if the ally status has changed
+	bool bAboveAllyThreshold = IsFriendshipAboveAlliesThreshold(ePlayer, iNewFriendship) && !m_pPlayer->GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer);
+	bool bWasAllies = eOldAlly == ePlayer;
+	PlayerTypes eNewAlly = eOldAlly;
+
 	// Resolve Allies status with sphere of influence or open door
-	bool bHasOtherPermanentAlly = false;
 	if (IsNoAlly() || (GetPermanentAlly() != NO_PLAYER && GetPermanentAlly() != ePlayer))
 	{
-		bNowAllies = false;
-		bHasOtherPermanentAlly = true;
+		eNewAlly = IsNoAlly() ? NO_PLAYER : GetPermanentAlly();
 	}
-
-	// No old ally and now allies, OR our friendship is now higher than a previous ally
-	if((eOldAlly == NO_PLAYER && bNowAllies)
-	        || ((eOldAlly != NO_PLAYER && iNewFriendshipTimes100 > GetEffectiveFriendshipWithMajorTimes100(eOldAlly)) && !bHasOtherPermanentAlly))
+	else
 	{
-		bAdd = true;
-		bAlliesChange = true;
-	}
-	// Remove Allies bonus
-	else if (eOldAlly == ePlayer && (!bNowAllies || bHasOtherPermanentAlly))
-	{
-		bAdd = false;
-		bAlliesChange = true;
-	}
-	// we are ally and our influence has decreased. check if this has caused any other player to surpass us
-	else if (eOldAlly == ePlayer && iNewFriendshipTimes100 < iOldFriendshipTimes100 && GetPermanentAlly() != ePlayer)
-	{
-		int iMaxFriendship = GetEffectiveFriendshipWithMajorTimes100(eOldAlly);
-		PlayerTypes eNewAlly = eOldAlly;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		// above ally threshold and no old ally, OR our friendship is now higher than the friendship of the previous ally
+		if (bAboveAllyThreshold && (eOldAlly == NO_PLAYER
+			|| (!bWasAllies && iNewFriendshipTimes100 > GetEffectiveFriendshipWithMajorTimes100(eOldAlly))))
 		{
-			PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+			eNewAlly = ePlayer;
+		}
 
-			if (!GET_PLAYER(ePlayerLoop).isAlive() || !IsHasMetPlayer(ePlayerLoop))
-				continue;
-
-			if (GetEffectiveFriendshipWithMajorTimes100(ePlayerLoop) > iMaxFriendship)
+		// we were ally and are not above the ally threshold anymore? Remove Allies bonus
+		if (bWasAllies && !bAboveAllyThreshold)
+		{
+			eNewAlly = NO_PLAYER;
+		}
+		// we were ally and our influence has decreased. check if this has caused any other player to surpass us
+		else if (bWasAllies && iNewFriendshipTimes100 < iOldFriendshipTimes100 && GetPermanentAlly() != ePlayer)
+		{
+			int iMaxFriendship = GetEffectiveFriendshipWithMajorTimes100(eOldAlly);
+			PlayerTypes eNewAlly = eOldAlly;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				iMaxFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayerLoop);
-				eNewAlly = ePlayerLoop;
+				PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+
+				if (!GET_PLAYER(ePlayerLoop).isAlive() || !IsHasMetPlayer(ePlayerLoop))
+					continue;
+
+				if (GetEffectiveFriendshipWithMajorTimes100(ePlayerLoop) > iMaxFriendship)
+				{
+					iMaxFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayerLoop);
+					eNewAlly = ePlayerLoop;
+				}
 			}
 		}
-		if (eNewAlly != eOldAlly)
-		{
-			// apply changed ally status
-			DoFriendshipChangeEffects(eNewAlly, GetEffectiveFriendshipWithMajorTimes100(eNewAlly), GetEffectiveFriendshipWithMajorTimes100(eNewAlly));
-
-			// already handled!
-			bAlliesChange = false;
-			bNowAllies = false;
-		}
 	}
+
+	bool bNowAllies = eNewAlly == ePlayer;
+	bool bAlliesChange = (bWasAllies && !bNowAllies) || (!bWasAllies && bNowAllies);
 
 	if (MOD_EVENTS_MINORS)
 	{
 		if (bFriendsChange)
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, bNowFriends, iOldFriendship, iNewFriendship);
 		if (bAlliesChange)
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, bNowAllies, iOldFriendship, iNewFriendship);
+
 	}
 
 	//friends change is simple, it's non-exclusive
@@ -12860,12 +12854,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 	{
 		//ignore potential ally change for now
 		//directly update the bonus yields
-		DoSetBonus(ePlayer, bAdd, bFriendsChange, false);
+		DoSetBonus(ePlayer, bNowFriends, bFriendsChange, false);
 
 		//show a notification to ePlayer unless we have another notification for ally change coming
 		if (!bAlliesChange && !bFromQuest)
 		{
-			pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bAdd, bFriendsChange, false, NO_PLAYER, NO_PLAYER);
+			pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bNowFriends, bFriendsChange, false, NO_PLAYER, NO_PLAYER);
 			if (notifStrings.first != "")
 			{
 				AddNotification(notifStrings.first, notifStrings.second, ePlayer);
@@ -12877,7 +12871,19 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 	if (bAlliesChange)
 	{
 		//this handles bonus changes for the new and old allies internally!
-		SetAlly(bAdd ? ePlayer : NO_PLAYER, bFromQuest);
+		if (bNowAllies)
+		{
+			SetAlly(ePlayer, bFromQuest);
+		}
+		else if (eNewAlly == NO_PLAYER)
+		{
+			SetAlly(NO_PLAYER, bFromQuest);
+		}
+		else
+		{
+			// another player is now ally? the ally change is handled in DoFriendshipChangeEffects for the new ally
+			DoFriendshipChangeEffects(eNewAlly, GetEffectiveFriendshipWithMajorTimes100(eNewAlly), GetEffectiveFriendshipWithMajorTimes100(eNewAlly));
+		}
 	}
 }
 

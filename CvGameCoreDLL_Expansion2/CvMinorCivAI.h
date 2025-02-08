@@ -864,7 +864,7 @@ public:
 private:
 	//return true if an actual change occurred
 	bool SetAllyInternal(PlayerTypes eNewAlly);
-	void ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressDirectNotification);
+	void ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTypes eNewAlly, bool bSuppressNotificationForNewAlly);
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange, bool bAllyChange);
 
 	CvPlayer* m_pPlayer;
