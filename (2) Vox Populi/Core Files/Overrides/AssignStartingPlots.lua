@@ -1938,8 +1938,8 @@ function AssignStartingPlots:GenerateRegions(args)
 
 			if not fertility_value_tie then -- No ties, so no need of special handling for ties.
 				for loop = end_of_interim_table, end_of_interim_table - iNumRelevantAreas + 1, -1 do
-					for loop2, areaID in ipairs(area_IDs) do
-						if interim_table[loop] == area_fert[area_IDs[loop2]] then
+					for _, areaID in pairs(area_IDs) do
+						if interim_table[loop] == area_fert[areaID] and area_landmass[areaID] then
 							table.insert(best_areas, areaID);
 							break;
 						end
