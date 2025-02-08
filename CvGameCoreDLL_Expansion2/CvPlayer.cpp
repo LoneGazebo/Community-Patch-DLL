@@ -35269,33 +35269,35 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 				// Are they at war with me too? Then they're happy that this player damaged us!
 				if (IsAtWarWith(eLoopPlayer))
 				{
+					int iBonus = iAmount;
+
 					// How much they're happy about it depends on how strong we are compared to them.
 					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(GetID()))
 					{
 					case STRENGTH_IMMENSE:
-						iAmount *= 300;
+						iBonus *= 300;
 						break;
 					case STRENGTH_POWERFUL:
-						iAmount *= 200;
+						iBonus *= 200;
 						break;
 					case STRENGTH_STRONG:
-						iAmount *= 150;
+						iBonus *= 150;
 						break;
 					case STRENGTH_AVERAGE:
-						iAmount *= 100;
+						iBonus *= 100;
 						break;
 					case STRENGTH_POOR:
-						iAmount *= 75;
+						iBonus *= 75;
 						break;
 					case STRENGTH_WEAK:
-						iAmount *= 50;
+						iBonus *= 50;
 						break;
 					default:
-						iAmount *= 25;
+						iBonus *= 25;
 						break;
 					}
 
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iAmount/100);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iBonus/100);
 				}
 			}
 		}
@@ -47243,7 +47245,7 @@ bool CvPlayer::IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, co
 		return false;
 
 	// Capital needs to be coastal to receive ships
-	if (pUnitInfo->GetDomainType() == DOMAIN_SEA && !pMasterCity->isCoastal())
+	if (pUnitInfo->GetDomainType() == DOMAIN_SEA && !pMasterCity->isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 		return false;
 
 	return true;
