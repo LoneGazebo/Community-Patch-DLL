@@ -1,0 +1,9 @@
+--- @meta
+
+--- @enum MultiplayerLobbyMode
+MultiplayerLobbyMode = {
+	LOBBYMODE_STANDARD_INTERNET = 0,
+	LOBBYMODE_STANDARD_LAN = 1,
+	LOBBYMODE_PITBOSS_INTERNET = 2,
+	LOBBYMODE_PITBOSS_LAN = 3,
+}

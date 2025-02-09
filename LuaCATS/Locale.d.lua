@@ -98,16 +98,16 @@ function Locale.ToNumber(num, format) end
 --- @class SpokenLanguage: Language
 --- @field Path string
 
---- ```lua 
+--- ```lua
 --- -- Example
---- Locale.GetCurrentLanguage() -- { Type = 'en_US', DisplayName = 'English' } 
+--- Locale.GetCurrentLanguage() -- { Type = 'en_US', DisplayName = 'English' }
 --- ```
 --- @return { Type: string, DisplayName: string }
 function Locale.GetCurrentLanguage() end
 
---- ```lua 
+--- ```lua
 --- -- Example
---- Locale.GetCurrentSpokenLanguage() -- { Type = 'en_US', Path = 'English', DisplayName = 'English' } 
+--- Locale.GetCurrentSpokenLanguage() -- { Type = 'en_US', Path = 'English', DisplayName = 'English' }
 --- ```
 --- @return SpokenLanguage
 function Locale.GetCurrentSpokenLanguage() end
@@ -153,7 +153,7 @@ function Locale.IsASCII(str) end
 --- @return boolean
 function Locale.IsUTF8(str) end
 
---- ```lua 
+--- ```lua
 --- -- Example
 --- Locale.ConvertPosixTimeToString(0) -- "1970-01-01 01:00"
 --- ```
@@ -161,7 +161,7 @@ function Locale.IsUTF8(str) end
 --- @return string
 function Locale.ConvertPosixTimeToString(time) end
 
---- ```lua 
+--- ```lua
 --- -- Example
 --- Locale.IsNilOrEmpty('') -- true
 --- Locale.IsNilOrEmpty(nil) -- true
@@ -173,7 +173,7 @@ function Locale.IsNilOrEmpty(str) end
 
 --- Checks if `str` consists of whitespaces or is `nil`.
 --- <b> Do not use this function to check strings like `"[NEWLINE]"`, `"[SPACE]"` etc. </b>
---- ```lua 
+--- ```lua
 --- -- Example
 --- Locale.IsNilOrWhitespace('') -- true
 --- Locale.IsNilOrWhitespace(nil) -- true
@@ -195,10 +195,10 @@ function Locale.IsNilOrWhitespace(str) end
 function Locale.Substring(str, startIndex, endIndex) end
 
 --- Converts `num` to curreny string depending on current language.
---- ```lua 
+--- ```lua
 --- -- Example
 --- -- if current language is en_US
---- Locale.ToCurrency(123) -- '$123.00' 
+--- Locale.ToCurrency(123) -- '$123.00'
 --- Locale.ToCurrency(123.256) -- '$123.26'
 --- -- if current language is pl_PL
 --- Locale.ToCurrency(123) -- '123,00 zł'
@@ -208,7 +208,7 @@ function Locale.Substring(str, startIndex, endIndex) end
 function Locale.ToCurrency(num) end
 
 --- Converts `num` to ordinal string depending on current language
---- ```lua 
+--- ```lua
 --- -- Example
 --- -- if current language is en_US
 --- Locale.ToOrdinal(1) -- "1ˢᵗ"
@@ -224,7 +224,7 @@ function Locale.ToCurrency(num) end
 function Locale.ToOrdinal(num) end
 
 --- Convers `num` to percent, where `1` is `"100%"`. Expect different result depending on current language
---- ```lua 
+--- ```lua
 --- -- Example
 --- -- if current language is en_US
 --- Locale.ToPercent(1) -- "100%"
@@ -246,15 +246,15 @@ function Locale.ToPercent(num) end
 --- Locale.ToSpellout(1) -- "one"
 --- Locale.ToSpellout(-555.12) -- "minus five hundred fifty-five point one two"
 --- Locale.ToSpellout(5/0) -- "eighteen quadrillion..." very long number, looks like something like max number
---- -- if current language is pl_PL 
+--- -- if current language is pl_PL
 --- Locale.ToSpellout(555) -- "pięćset pięćdziesiąt pięć"
 --- ```
 --- @param num number
 --- @return string
 function Locale.ToSpellout(num) end
 
---- Converts specified `num` to roman numeral string. 
---- It is limited by some maximum number after which 
+--- Converts specified `num` to roman numeral string.
+--- It is limited by some maximum number after which
 --- just converts number to current language representation
 --- ```lua
 --- -- Example
@@ -268,10 +268,10 @@ function Locale.ToRomanNumeral(num) end
 
 --- Unknown behaviour
 --- @deprecated
---- @param ... any
+--- @param ... unknown
 function Locale.LocalSystemCPToUTF8(...) end
 
 --- Unknown behaviour
 --- @deprecated
---- @param ... any
+--- @param ... unknown
 function Locale.UTF8ToLocalSystemCP(...) end

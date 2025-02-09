@@ -2,7 +2,7 @@
 
 *Files from this directory should not be included in `VFS`.*
 
-Purpose of this files is like with `.h` files, but just to add type safety and documentation to lua code in Civ5. If you touch some files or have some knowledge about builtin globals or any custom functionality please add type declarations using `LuaCATS` anotations here or within touched code. This will simplify further Civ5 mods development, and reduce the amount of bugs.
+Purpose of this files is like with `.h` or `.d.ts` files, but just to add type safety and documentation to lua code in Civ5. If you touch some files or have some knowledge about builtin globals or any custom functionality please add type declarations using `LuaCATS` anotations here or within touched code. This will simplify further Civ5 mods development, and reduce the amount of bugs.
 
 # How it works
 ![Alt text](LuaCATS-Example.gif)
