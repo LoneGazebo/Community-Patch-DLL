@@ -18,12 +18,12 @@ VALUES
 	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 30);
 
 ----------------------------------------------------------
--- Unique Unit: Bandeirantes (Explorer)
+-- Unique Unit: Bandeirante (Explorer)
 ----------------------------------------------------------
 INSERT INTO Civilization_UnitClassOverrides
 	(CivilizationType, UnitClassType, UnitType)
 VALUES
-	('CIVILIZATION_BRAZIL', 'UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES');
+	('CIVILIZATION_BRAZIL', 'UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTE');
 
 UPDATE Units
 SET
@@ -37,26 +37,26 @@ SET
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 3,
 	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_EXPLORER') + 1,
 	WorkRate = 100
-WHERE Type = 'UNIT_BANDEIRANTES';
+WHERE Type = 'UNIT_BANDEIRANTE';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_BANDEIRANTES', 'PROMOTION_SURVIVALISM_3'),
-	('UNIT_BANDEIRANTES', 'PROMOTION_RECON_BANDEIRANTES');
+	('UNIT_BANDEIRANTE', 'PROMOTION_SURVIVALISM_3'),
+	('UNIT_BANDEIRANTE', 'PROMOTION_FLAG_BEARER');
 
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)
 VALUES
-	('UNIT_BANDEIRANTES', 'BUILD_MINE'),
-	('UNIT_BANDEIRANTES', 'BUILD_QUARRY'),
-	('UNIT_BANDEIRANTES', 'BUILD_FORT'),
-	('UNIT_BANDEIRANTES', 'BUILD_BRAZILWOOD_CAMP');
+	('UNIT_BANDEIRANTE', 'BUILD_MINE'),
+	('UNIT_BANDEIRANTE', 'BUILD_QUARRY'),
+	('UNIT_BANDEIRANTE', 'BUILD_FORT'),
+	('UNIT_BANDEIRANTE', 'BUILD_BRAZILWOOD_CAMP');
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)
 VALUES
-	('UNIT_BANDEIRANTES', 'UNITAI_WORKER');
+	('UNIT_BANDEIRANTE', 'UNITAI_WORKER');
 
 ----------------------------------------------------------
 -- Unique Improvement: Brazilwood Camp

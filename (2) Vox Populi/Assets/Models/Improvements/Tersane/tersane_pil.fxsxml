@@ -1,0 +1,8 @@
+<Asset>
+  <Mesh file="tersane_pil.gr2" source="Max" />
+  <Texture file="Feitoria_DIFF_PIL.dds" source="Max" />
+  <Texture file="Feitoria_Decal_Diff_PIL.dds" source="Max" />
+  <Texture file="Feitoria_Decal_H.dds" source="Max" />
+  <Texture file="Feitoria_SREF.dds" source="Max" />
+  <Texture file="Sunlight_Africa_Terrain.dds" source="Max" />
+</Asset>

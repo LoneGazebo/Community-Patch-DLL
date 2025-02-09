@@ -475,7 +475,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Database Changes\Units\GreatPeople\NewGreatPeople.xml</FileName>
+        <FileName>Database Changes\Units\GreatPeople\CoreNewGreatPeople.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -1031,11 +1031,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\FontIcons\CultureLocal.dds">
+    <Content Include="Assets\FontIcons\CommunityFontIconAtlas.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\FontIcons\CultureLocal.ggxml">
+    <Content Include="Assets\FontIcons\CommunityFontIconAtlas.ggxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3171,7 +3171,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Database Changes\Units\GreatPeople\NewGreatPeople.xml">
+    <Content Include="Database Changes\Units\GreatPeople\CoreNewGreatPeople.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -8,9 +8,9 @@
 		</Row>
 		<!-- Unique art for Inca mountain city-->
 		<Row>
-			<Type>ART_DEF_IMPROVEMENT_JFD_MACHU</Type>
+			<Type>ART_DEF_IMPROVEMENT_MOUNTAIN_CITY</Type>
 			<LandmarkType>Improvement</LandmarkType>
-			<FriendlyName>Inca City</FriendlyName>
+			<FriendlyName>Mountain City</FriendlyName>
 		</Row>
 		<!-- Unique Improvements -->
 		<Row>
@@ -19,7 +19,7 @@
 			<FriendlyName>Eki</FriendlyName>
 		</Row>
 		<Row>
-			<Type>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</Type>
+			<Type>ART_DEF_IMPROVEMENT_HACIENDA</Type>
 			<LandmarkType>Improvement</LandmarkType>
 			<FriendlyName>Hacienda</FriendlyName>
 		</Row>
@@ -39,9 +39,49 @@
 			<FriendlyName>Villa</FriendlyName>
 		</Row>
 		<Row>
-			<Type>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</Type>
+			<Type>ART_DEF_IMPROVEMENT_ORDO</Type>
 			<LandmarkType>Improvement</LandmarkType>
 			<FriendlyName>Ordo</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_OPPIDUM</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Oppidum</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Monolithic Church</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_CHATEAU_NEW</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Chateau</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_KAMPONG</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Kampong</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_TERSANE</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Tersane</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_CHARBAGH</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Charbagh</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_ISIBAYA</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Isibaya</FriendlyName>
+		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_APLEKTON</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Aplekton</FriendlyName>
 		</Row>
 	</ArtDefine_LandmarkTypes>
 	<ArtDefine_Landmarks>
@@ -66,7 +106,7 @@
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>UnderConstruction</State>
 			<Scale>1.2</Scale>
-			<LayoutHandler>RANDOM</LayoutHandler>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>Embassy.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
@@ -75,7 +115,7 @@
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Constructed</State>
 			<Scale>1.2</Scale>
-			<LayoutHandler>RANDOM</LayoutHandler>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>Embassy.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
@@ -84,13 +124,13 @@
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Pillaged</State>
 			<Scale>1.2</Scale>
-			<LayoutHandler>RANDOM</LayoutHandler>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>Embassy.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<!-- Unique art for Inca mountain city -->
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_JFD_MACHU</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_MOUNTAIN_CITY</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Constructed</State>
 			<Scale>1.0</Scale>
@@ -127,7 +167,7 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_HACIENDA</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>UnderConstruction</State>
 			<Scale>0.8</Scale>
@@ -136,7 +176,7 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_HACIENDA</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Constructed</State>
 			<Scale>0.8</Scale>
@@ -145,7 +185,7 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_HACIENDA</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Pillaged</State>
 			<Scale>0.8</Scale>
@@ -235,7 +275,7 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ORDO</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>UnderConstruction</State>
 			<Scale>0.57</Scale>
@@ -244,7 +284,7 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ORDO</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Constructed</State>
 			<Scale>0.57</Scale>
@@ -253,12 +293,235 @@
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
-			<ImprovementType>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</ImprovementType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ORDO</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Pillaged</State>
 			<Scale>0.57</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>YurtCamp_PL.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_OPPIDUM</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.0018</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>castro_hb.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_OPPIDUM</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.0018</Scale>
+			<LayoutHandler>RANDOM</LayoutHandler>
+			<Model>castro_01.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_OPPIDUM</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.0018</Scale>
+			<LayoutHandler>RANDOM</LayoutHandler>
+			<Model>castro_02.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_OPPIDUM</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.0018</Scale>
+			<LayoutHandler>RANDOM</LayoutHandler>
+			<Model>castro_03.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_OPPIDUM</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.0018</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>castro_pl.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Lalibela_HB.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Lalibela_B.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Lalibela_PL.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.2</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>schloss_hb.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.2</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>schloss.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.2</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>schloss_pl.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_KAMPONG</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.6</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Water Village HB.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_KAMPONG</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.6</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Water Village B.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_KAMPONG</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.6</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Water Village PL.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_TERSANE</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>1.2</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>tersane.fxsxml</Model>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_TERSANE</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>1.2</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>tersane_pil.fxsxml</Model>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHARBAGH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>persian_garden_1_hb.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHARBAGH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>persian_garden_1_cn.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_CHARBAGH</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>persian_garden_1_pl.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ISIBAYA</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.8</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>iya_hb.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ISIBAYA</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.8</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>iya.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_ISIBAYA</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.6</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>iya_pl.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_APLEKTON</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Aplekton_b_build.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_APLEKTON</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Aplekton_b.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_APLEKTON</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>0.75</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Aplekton_b_pl.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 	</ArtDefine_Landmarks>
@@ -280,9 +543,9 @@
 			<Asset>SV_Encampment.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</StrategicViewType>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_HACIENDA</StrategicViewType>
 			<TileType>Improvement</TileType>
-			<Asset>HaciendaIcons_128.dds</Asset>
+			<Asset>SV_Hacienda.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_IMPROVEMENT_KUNA</StrategicViewType>
@@ -292,17 +555,57 @@
 		<Row>
 			<StrategicViewType>ART_DEF_IMPROVEMENT_SIHEYUAN</StrategicViewType>
 			<TileType>Improvement</TileType>
-			<Asset>Siheyuan128.dds</Asset>
+			<Asset>SV_Siheyuan.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_IMPROVEMENT_VILLA</StrategicViewType>
 			<TileType>Improvement</TileType>
-			<Asset>LatifundiumIcon_128.dds</Asset>
+			<Asset>SV_Villa.dds</Asset>
 		</Row>
 		<Row>
-			<StrategicViewType>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</StrategicViewType>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_ORDO</StrategicViewType>
 			<TileType>Improvement</TileType>
-			<Asset>Yurt_SV.dds</Asset>
+			<Asset>SV_Ordo.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_OPPIDUM</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Oppidum.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_MonolithicChurch.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Chateau_New.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_KAMPONG</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Kampong.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_TERSANE</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Tersane.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_CHARBAGH</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Charbagh.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_ISIBAYA</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Isibaya.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_APLEKTON</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Aplekton.dds</Asset>
 		</Row>
 	</ArtDefine_StrategicView>
 </GameData>

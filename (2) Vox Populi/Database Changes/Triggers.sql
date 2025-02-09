@@ -28,10 +28,10 @@ WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	INSERT INTO Trait_BuildsUnitClasses
 		(TraitType, UnitClassType, BuildType)
-	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_POLYNESIAN_BOATS'
+	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM Trait_BuildsUnitClasses
-		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS'
+		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
 	);
 END;
 
@@ -42,10 +42,10 @@ WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN') AND OLD.CombatCl
 BEGIN
 	INSERT INTO Trait_BuildsUnitClasses
 		(TraitType, UnitClassType, BuildType)
-	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_POLYNESIAN_BOATS'
+	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM Trait_BuildsUnitClasses
-		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS'
+		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
 	);
 END;
 
@@ -55,7 +55,7 @@ AFTER UPDATE OF Class, CombatClass ON Units
 WHEN (OLD.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN') AND NEW.CombatClass NOT IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	DELETE FROM Trait_BuildsUnitClasses
-	WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS'
+	WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
 	AND NOT EXISTS (
 		SELECT 1 FROM Units WHERE Class = OLD.Class AND CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN')
 	);
@@ -66,7 +66,7 @@ AFTER DELETE ON Units
 WHEN (OLD.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	DELETE FROM Trait_BuildsUnitClasses
-	WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS'
+	WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
 	AND NOT EXISTS (
 		SELECT 1 FROM Units WHERE Class = OLD.Class AND CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN')
 	);
@@ -83,7 +83,7 @@ BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 		(ImprovementType, ResourceType, YieldType, Yield)
 	SELECT
-		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
 END;
 
 CREATE TRIGGER VP_HaciendaCompatibility_Strategic
@@ -93,7 +93,7 @@ BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 		(ImprovementType, ResourceType, YieldType, Yield)
 	SELECT
-		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
 END;
 
 CREATE TRIGGER VP_HaciendaCompatibility_Luxury
@@ -103,5 +103,5 @@ BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 		(ImprovementType, ResourceType, YieldType, Yield)
 	SELECT
-		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;

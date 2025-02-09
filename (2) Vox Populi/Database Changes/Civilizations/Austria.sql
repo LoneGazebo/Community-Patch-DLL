@@ -31,27 +31,3 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_AUSTRIAN_HUSSAR', 'PROMOTION_LIGHTNING_WARFARE');
-
-----------------------------------------------------------
--- Unique Building: Coffee House (Grocer)
-----------------------------------------------------------
-UPDATE Civilization_BuildingClassOverrides
-SET BuildingClassType = 'BUILDINGCLASS_GROCER'
-WHERE BuildingType = 'BUILDING_COFFEE_HOUSE';
-
-UPDATE Buildings
-SET
-	GreatPeopleRateModifier = 33,
-	SpecialistType = 'SPECIALIST_MERCHANT',
-	SpecialistCount = 1
-WHERE Type = 'BUILDING_COFFEE_HOUSE';
-
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_COFFEE_HOUSE', 'YIELD_FOOD', 3);
-
-INSERT INTO Building_YieldFromYieldPercent
-	(BuildingType, YieldIn, YieldOut, Value)
-VALUES
-	('BUILDING_COFFEE_HOUSE', 'YIELD_CULTURE', 'YIELD_SCIENCE', 10);

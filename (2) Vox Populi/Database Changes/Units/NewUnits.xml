@@ -54,26 +54,26 @@
 		</Row>
 		<!-- Slinger -->
 		<Row>
-			<Type>UNITCLASS_VP_SLINGER</Type>
-			<Description>TXT_KEY_UNIT_VP_SLINGER</Description>
-			<DefaultUnit>UNIT_VP_SLINGER</DefaultUnit>
+			<Type>UNITCLASS_SLINGER</Type>
+			<Description>TXT_KEY_UNIT_INCAN_SLINGER</Description>
+			<DefaultUnit>UNIT_INCAN_SLINGER</DefaultUnit>
 		</Row>
 		<!-- Skirmisher -->
 		<Row>
-			<Type>UNITCLASS_HORSE_ARCHER</Type>
-			<Description>TXT_KEY_UNIT_HUN_HORSE_ARCHER</Description>
+			<Type>UNITCLASS_SKIRMISHER</Type>
+			<Description>TXT_KEY_UNIT_MONGOL_KESHIK</Description>
 			<DefaultUnit>UNIT_MONGOLIAN_KESHIK</DefaultUnit>
 		</Row>
 		<!-- Heavy Skirmisher -->
 		<Row>
-			<Type>UNITCLASS_MOUNTED_BOWMAN</Type>
-			<Description>TXT_KEY_DESC_MOUNTED_BOWMAN</Description>
-			<DefaultUnit>UNIT_MOUNTED_BOWMAN</DefaultUnit>
+			<Type>UNITCLASS_HEAVY_SKIRMISHER</Type>
+			<Description>TXT_KEY_UNIT_HEAVY_SKIRMISHER</Description>
+			<DefaultUnit>UNIT_HEAVY_SKIRMISHER</DefaultUnit>
 		</Row>
 		<!-- Cuirassier -->
 		<Row>
 			<Type>UNITCLASS_CUIRASSIER</Type>
-			<Description>TXT_KEY_DESC_CUIRASSIER</Description>
+			<Description>TXT_KEY_UNIT_CUIRASSIER</Description>
 			<DefaultUnit>UNIT_CUIRASSIER</DefaultUnit>
 		</Row>
 		<!-- Field Gun -->
@@ -100,23 +100,17 @@
 			<Description>TXT_KEY_UNIT_COMMANDO</Description>
 			<DefaultUnit>UNIT_COMMANDO</DefaultUnit>
 		</Row>
-		<!-- War Elephant -->
+		<!-- Fleet Destroyer -->
 		<Row>
-			<Type>UNITCLASS_ELEPHANT_RIDER</Type>
-			<Description>TXT_KEY_UNIT_ELEPHANT_RIDER</Description>
-			<DefaultUnit>UNIT_CARTHAGINIAN_FOREST_ELEPHANT</DefaultUnit>
-		</Row>
-		<!-- Destroyer -->
-		<Row>
-			<Type>UNITCLASS_EARLY_DESTROYER</Type>
-			<Description>TXT_KEY_UNIT_EARLY_DESTROYER</Description>
-			<DefaultUnit>UNIT_EARLY_DESTROYER</DefaultUnit>
+			<Type>UNITCLASS_FLEET_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_FLEET_DESTROYER</Description>
+			<DefaultUnit>UNIT_FLEET_DESTROYER</DefaultUnit>
 		</Row>
 		<!-- Sensor Combat Ship -->
 		<Row>
-			<Type>UNITCLASS_MISSILE_DESTROYER</Type>
-			<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
-			<DefaultUnit>UNIT_MISSILE_DESTROYER</DefaultUnit>
+			<Type>UNITCLASS_SENSOR_COMBAT_SHIP</Type>
+			<Description>TXT_KEY_UNIT_SENSOR_COMBAT_SHIP</Description>
+			<DefaultUnit>UNIT_SENSOR_COMBAT_SHIP</DefaultUnit>
 		</Row>
 		<!-- Liburna -->
 		<Row>
@@ -127,7 +121,7 @@
 		<!-- Cruiser -->
 		<Row>
 			<Type>UNITCLASS_CRUISER</Type>
-			<Description>TXT_KEY_DESC_CRUISER</Description>
+			<Description>TXT_KEY_UNIT_CRUISER</Description>
 			<DefaultUnit>UNIT_CRUISER</DefaultUnit>
 		</Row>
 		<!-- Dreadnought -->
@@ -197,19 +191,19 @@
 		<!-- Policy-unlocked units -->
 		<!-- Free Company -->
 		<Row>
-			<Type>UNITCLASS_FCOMPANY</Type>
-			<Description>TXT_KEY_UNIT_FCOMPANY</Description>
-			<DefaultUnit>UNIT_FCOMPANY</DefaultUnit>
+			<Type>UNITCLASS_FREE_COMPANY</Type>
+			<Description>TXT_KEY_UNIT_FREE_COMPANY</Description>
+			<DefaultUnit>UNIT_FREE_COMPANY</DefaultUnit>
 		</Row>
-		<!-- Mercenaries -->
+		<!-- Mercenary -->
 		<Row>
-			<Type>UNITCLASS_GUERILLA</Type>
-			<Description>TXT_KEY_UNIT_GUERILLA</Description>
-			<DefaultUnit>UNIT_GUERILLA</DefaultUnit>
+			<Type>UNITCLASS_MERCENARY</Type>
+			<Description>TXT_KEY_UNIT_MERCENARY</Description>
+			<DefaultUnit>UNIT_MERCENARY</DefaultUnit>
 		</Row>
 		<!-- T-34 -->
 		<Row>
-			<Type>UNITCLASS_PANZER</Type>
+			<Type>UNITCLASS_T34</Type>
 			<Description>TXT_KEY_UNIT_GERMAN_PANZER</Description>
 			<DefaultUnit>UNIT_GERMAN_PANZER</DefaultUnit>
 		</Row>
@@ -227,19 +221,43 @@
 		</Row>
 		<!-- Siege Tower -->
 		<Row>
-			<Type>UNITCLASS_ASSYRIAN_SIEGE_TOWER</Type>
+			<Type>UNITCLASS_SIEGE_TOWER</Type>
 			<Description>TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER</Description>
 			<DefaultUnit>NONE</DefaultUnit>
 			<MaxPlayerInstances>2</MaxPlayerInstances>
 		</Row>
+		<!-- Iron Chariot -->
+		<Row>
+			<Type>UNITCLASS_IRON_CHARIOT</Type>
+			<Description>TXT_KEY_UNIT_IRON_CHARIOT</Description>
+			<DefaultUnit>NONE</DefaultUnit>
+		</Row>
+		<!-- Asamu -->
+		<Row>
+			<Type>UNITCLASS_ASAMU</Type>
+			<Description>TXT_KEY_UNIT_ASAMU</Description>
+			<DefaultUnit>NONE</DefaultUnit>
+		</Row>
+		<!-- Great Bombard -->
+		<Row>
+			<Type>UNITCLASS_GREAT_BOMBARD</Type>
+			<Description>TXT_KEY_UNIT_GREAT_BOMBARD</Description>
+			<DefaultUnit>NONE</DefaultUnit>
+		</Row>
+		<!-- Fusta -->
+		<Row>
+			<Type>UNITCLASS_FUSTA</Type>
+			<Description>TXT_KEY_UNIT_FUSTA</Description>
+			<DefaultUnit>NONE</DefaultUnit>
+		</Row>
 		<!-- Former Unique Units, now CS gifts -->
 		<Row>
-			<Type>UNITCLASS_BRAZILIAN_PRACINHA</Type>
+			<Type>UNITCLASS_PRACINHA</Type>
 			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
 			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_SKI_INFANTRY</Type>
+			<Type>UNITCLASS_NORWEGIAN_SKI_INFANTRY</Type>
 			<Description>TXT_KEY_UNIT_DANISH_SKI_INFANTRY</Description>
 			<DefaultUnit>UNIT_DANISH_SKI_INFANTRY</DefaultUnit>
 		</Row>
@@ -249,93 +267,50 @@
 			<DefaultUnit>UNIT_ENGLISH_LONGBOWMAN</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_COMPANIONCAVALRY</Type>
+			<Type>UNITCLASS_COMPANION_CAVALRY</Type>
 			<Description>TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY</Description>
 			<DefaultUnit>UNIT_GREEK_COMPANIONCAVALRY</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_HUNNIC_BATTERING_RAM</Type>
+			<Type>UNITCLASS_BATTERING_RAM</Type>
 			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
 			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_KOREAN_TURTLE_SHIP</Type>
-			<Description>TXT_KEY_CIV5_KOREA_TURTLESHIP_HEADING</Description>
-			<DefaultUnit>UNIT_KOREAN_TURTLE_SHIP</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_SIPAHI</Type>
 			<Description>TXT_KEY_UNIT_OTTOMAN_SIPAHI</Description>
 			<DefaultUnit>UNIT_OTTOMAN_SIPAHI</DefaultUnit>
 		</Row>
-		<Row>
-			<Type>UNITCLASS_BALLISTA</Type>
-			<Description>TXT_KEY_UNIT_ROMAN_BALLISTA</Description>
-			<DefaultUnit>UNIT_ROMAN_BALLISTA</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_SWEDISH_HAKKAPELIITTA</Type>
-			<Description>TXT_KEY_UNIT_SWEDISH_HAKKAPELIITTA</Description>
-			<DefaultUnit>UNIT_SWEDISH_HAKKAPELIITTA</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_VENETIAN_GALLEASS</Type>
-			<Description>TXT_KEY_UNIT_VENETIAN_GALLEASS</Description>
-			<DefaultUnit>UNIT_VENETIAN_GALLEASS</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_BYZANTINE_DROMON</Type>
-			<Description>TXT_KEY_UNIT_BYZANTINE_DROMON</Description>
-			<DefaultUnit>UNIT_BYZANTINE_DROMON</DefaultUnit>
-		</Row>
 	</UnitClasses>
 	<Units>
-		<!-- Slinger -->
-		<Row>
-			<Type>UNIT_VP_SLINGER</Type>
-			<Description>TXT_KEY_UNIT_VP_SLINGER</Description>
-			<Civilopedia>TXT_KEY_UNIT_VP_SLINGER_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_VP_SLINGER_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_VP_SLINGER_HELP</Help>
-			<Domain>DOMAIN_LAND</Domain>
-			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
-			<Class>UNITCLASS_VP_SLINGER</Class>
-			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
-			<ObsoleteTech>TECH_CALENDAR</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_VP_SLINGER</UnitArtInfo>
-			<UnitFlagAtlas>SLINGER_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>63</PortraitIndex>
-		</Row>
 		<!-- Heavy Skirmisher -->
 		<Row>
-			<Type>UNIT_MOUNTED_BOWMAN</Type>
-			<Description>TXT_KEY_DESC_MOUNTED_BOWMAN</Description>
-			<Civilopedia>TXT_KEY_CIV5_MOUNTED_BOWMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_CIV5_MOUNTED_BOWMAN_STRATEGY</Strategy>
-			<Help>TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP</Help>
+			<Type>UNIT_HEAVY_SKIRMISHER</Type>
+			<Description>TXT_KEY_UNIT_HEAVY_SKIRMISHER</Description>
+			<Civilopedia>TXT_KEY_UNIT_HEAVY_SKIRMISHER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_HEAVY_SKIRMISHER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HEAVY_SKIRMISHER_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
 			<IsMounted>true</IsMounted>
-			<Class>UNITCLASS_MOUNTED_BOWMAN</Class>
+			<Class>UNITCLASS_HEAVY_SKIRMISHER</Class>
 			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
 			<MoveRate>QUADRUPED</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_HEAVY_SKIRMISH</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_HEAVY_SKIRMISHER</UnitArtInfo>
 			<UnitFlagAtlas>GENGHIS_UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>30</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<!-- Cuirassier -->
 		<Row>
 			<Type>UNIT_CUIRASSIER</Type>
-			<Description>TXT_KEY_DESC_CUIRASSIER</Description>
-			<Civilopedia>TXT_KEY_CIV5_CUIRASSIER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_CIV5_CUIRASSIER_STRATEGY</Strategy>
-			<Help>TXT_KEY_CIV5_CUIRASSIER_HELP</Help>
+			<Description>TXT_KEY_UNIT_CUIRASSIER</Description>
+			<Civilopedia>TXT_KEY_UNIT_CUIRASSIER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_CUIRASSIER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_CUIRASSIER_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
 			<IsMounted>true</IsMounted>
@@ -345,18 +320,18 @@
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<MoveRate>QUADRUPED</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_CUIRASSIER</UnitArtInfo>
-			<UnitFlagAtlas>CUIRASSIER_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>29</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>14</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<!-- Field Gun -->
 		<Row>
 			<Type>UNIT_FIELD_GUN</Type>
-			<Description>TXT_KEY_DESC_FIELD_GUN</Description>
-			<Civilopedia>TXT_KEY_CIV5_FIELD_GUN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_CIV5_FIELD_GUN_STRATEGY</Strategy>
-			<Help>TXT_KEY_CIV5_FIELD_GUN_HELP</Help>
+			<Description>TXT_KEY_UNIT_FIELD_GUN</Description>
+			<Civilopedia>TXT_KEY_UNIT_FIELD_GUN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_FIELD_GUN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_FIELD_GUN_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
 			<Class>UNITCLASS_FIELD_GUN</Class>
@@ -365,37 +340,37 @@
 			<ObsoleteTech>TECH_BALLISTICS</ObsoleteTech>
 			<MoveRate>ARTILLERY</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_FIELD_GUN</UnitArtInfo>
-			<UnitFlagAtlas>FIELD_GUN_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
-			<PortraitIndex>7</PortraitIndex>
+			<UnitFlagAtlas>CIVIL_WAR_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>2</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 		</Row>
 		<!-- Explorer -->
 		<Row>
 			<Type>UNIT_EXPLORER</Type>
-			<Description>TXT_KEY_UNIT_EXPLORER_CBP</Description>
-			<Civilopedia>TXT_KEY_CIV5_EXPLORER_TEXT_CBP</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_EXPLORER_CBP</Help>
+			<Description>TXT_KEY_UNIT_EXPLORER</Description>
+			<Civilopedia>TXT_KEY_UNIT_EXPLORER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_EXPLORER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_EXPLORER_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Class>UNITCLASS_EXPLORER</Class>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<PrereqTech>TECH_COMPASS</PrereqTech>
 			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_EXPLORER_CBP</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_VP_EXPLORER</UnitArtInfo>
 			<UnitFlagAtlas>EXPANSION2_UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>5</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>58</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
 		</Row>
 		<!-- Commando -->
 		<Row>
 			<Type>UNIT_COMMANDO</Type>
 			<Description>TXT_KEY_UNIT_COMMANDO</Description>
-			<Civilopedia>TXT_KEY_CIV5_COMMANDO_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_COMMANDO_STRATEGY_CBP</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_COMMANDO_CBP</Help>
+			<Civilopedia>TXT_KEY_UNIT_COMMANDO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_COMMANDO_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_COMMANDO_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Class>UNITCLASS_COMMANDO</Class>
@@ -403,10 +378,10 @@
 			<PrereqTech>TECH_RAILROAD</PrereqTech>
 			<ObsoleteTech>TECH_FLIGHT</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_COMMANDO</UnitArtInfo>
-			<UnitFlagAtlas>UNIT_COMMANDO_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
-			<PortraitIndex>16</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>15</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<!-- Galley -->
 		<Row>
@@ -414,66 +389,64 @@
 			<Description>TXT_KEY_UNIT_GALLEY</Description>
 			<Civilopedia>TXT_KEY_UNIT_GALLEY_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_GALLEY_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_GALLEY_HELP</Help>
+			<Help>TXT_KEY_UNIT_VP_GALLEY_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
 			<Class>UNITCLASS_GALLEY</Class>
 			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
-			<PrereqTech>TECH_SAILING</PrereqTech>
-			<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 			<MoveRate>WOODEN_BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_VP_GALLEY</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>23</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
-			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>24</PortraitIndex>
 		</Row>
-		<!-- Destroyer -->
+		<!-- Fleet Destroyer -->
 		<Row>
-			<Type>UNIT_EARLY_DESTROYER</Type>
-			<Description>TXT_KEY_UNIT_EARLY_DESTROYER</Description>
-			<Civilopedia>TXT_KEY_UNIT_EARLY_DESTROYER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EARLY_DESTROYER_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_EARLY_DESTROYER_HELP</Help>
+			<Type>UNIT_FLEET_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_FLEET_DESTROYER</Description>
+			<Civilopedia>TXT_KEY_UNIT_FLEET_DESTROYER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_FLEET_DESTROYER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_FLEET_DESTROYER_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
-			<Class>UNITCLASS_EARLY_DESTROYER</Class>
+			<Class>UNITCLASS_FLEET_DESTROYER</Class>
 			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
-			<PrereqTech>TECH_RADIO</PrereqTech>
-			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
+			<PrereqTech>TECH_NUCLEAR_FISSION</PrereqTech>
+			<ObsoleteTech>TECH_STEALTH</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_EARLY_DESTROYER</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>1</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>1</PortraitIndex>
+			<UnitArtInfo>ART_DEF_UNIT_FLEET_DESTROYER</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>67</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_2</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
 		</Row>
 		<!-- Sensor Combat Ship -->
 		<Row>
-			<Type>UNIT_MISSILE_DESTROYER</Type>
-			<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
-			<Civilopedia>TXT_KEY_UNIT_MISSILE_DESTROYER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MISSILE_DESTROYER_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_MISSILE_DESTROYER_HELP</Help>
+			<Type>UNIT_SENSOR_COMBAT_SHIP</Type>
+			<Description>TXT_KEY_UNIT_SENSOR_COMBAT_SHIP</Description>
+			<Civilopedia>TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SENSOR_COMBAT_SHIP_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
-			<Class>UNITCLASS_MISSILE_DESTROYER</Class>
+			<Class>UNITCLASS_SENSOR_COMBAT_SHIP</Class>
 			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
 			<PrereqTech>TECH_STEALTH</PrereqTech>
 			<SpecialCargo>SPECIALUNIT_MISSILE</SpecialCargo>
 			<DomainCargo>DOMAIN_AIR</DomainCargo>
 			<MoveRate>BOAT</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_MISSILE_DESTROYER</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>6</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>9</PortraitIndex>
+			<UnitArtInfo>ART_DEF_UNIT_SENSOR_COMBAT_SHIP</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>31</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>31</PortraitIndex>
 		</Row>
 		<!-- Liburna -->
 		<Row>
 			<Type>UNIT_LIBURNA</Type>
 			<Description>TXT_KEY_UNIT_LIBURNA</Description>
-			<Civilopedia>TXT_KEY_UNIT_LIBURNA_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_LIBURNA_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_LIBURNA_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_LIBURNA_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
@@ -483,19 +456,19 @@
 			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<ObsoleteTech>TECH_GUILDS</ObsoleteTech>
 			<MoveRate>WOODEN_BOAT</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_VP_LIBURNA</UnitArtInfo>
-			<UnitFlagAtlas>LEMBOS_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
-			<PortraitIndex>15</PortraitIndex>
+			<UnitArtInfo>ART_DEF_UNIT_LIBURNA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>25</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>25</PortraitIndex>
 		</Row>
 		<!-- Cruiser -->
 		<Row>
 			<Type>UNIT_CRUISER</Type>
-			<Description>TXT_KEY_DESC_CRUISER</Description>
-			<Civilopedia>TXT_KEY_CIV5_CRUISER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_CIV5_CRUISER_STRATEGY</Strategy>
-			<Help>TXT_KEY_CIV5_CRUISER_HELP</Help>
+			<Description>TXT_KEY_UNIT_CRUISER</Description>
+			<Civilopedia>TXT_KEY_UNIT_CRUISER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_CRUISER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_CRUISER_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
 			<Class>UNITCLASS_CRUISER</Class>
@@ -504,16 +477,16 @@
 			<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_CRUISER</UnitArtInfo>
-			<UnitFlagAtlas>CRUISER_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>11</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>27</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>27</PortraitIndex>
 		</Row>
 		<!-- Dreadnought -->
 		<Row>
 			<Type>UNIT_DREADNOUGHT</Type>
 			<Description>TXT_KEY_UNIT_DREADNOUGHT</Description>
-			<Civilopedia>TXT_KEY_UNIT_DREADNOUGHT_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_DREADNOUGHT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_DREADNOUGHT_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_DREADNOUGHT_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
@@ -524,16 +497,16 @@
 			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_DREADNOUGHT</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>2</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>2</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>29</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>29</PortraitIndex>
 		</Row>
 		<!-- Attack Submarine -->
 		<Row>
 			<Type>UNIT_ATTACK_SUBMARINE</Type>
 			<Description>TXT_KEY_UNIT_ATTACK_SUBMARINE</Description>
-			<Civilopedia>TXT_KEY_UNIT_ATTACK_SUBMARINE_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_ATTACK_SUBMARINE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ATTACK_SUBMARINE_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_ATTACK_SUBMARINE_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
@@ -547,16 +520,16 @@
 			<DomainCargo>DOMAIN_AIR</DomainCargo>
 			<MoveRate>SUB</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_ATTACK_SUBMARINE</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>30</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>30</PortraitIndex>
 		</Row>
 		<!-- Supercarrier -->
 		<Row>
 			<Type>UNIT_SUPERCARRIER</Type>
 			<Description>TXT_KEY_UNIT_SUPERCARRIER</Description>
-			<Civilopedia>TXT_KEY_UNIT_SUPERCARRIER_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_SUPERCARRIER_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_SUPERCARRIER_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_SUPERCARRIER_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
@@ -568,16 +541,16 @@
 			<DomainCargo>DOMAIN_AIR</DomainCargo>
 			<MoveRate>BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_SUPERCARRIER</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>5</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>5</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>32</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>32</PortraitIndex>
 		</Row>
 		<!-- Rocket Missile -->
 		<Row>
 			<Type>UNIT_ROCKET_MISSILE</Type>
 			<Description>TXT_KEY_UNIT_ROCKET_MISSILE</Description>
-			<Civilopedia>TXT_KEY_UNIT_ROCKET_MISSILE_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_ROCKET_MISSILE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ROCKET_MISSILE_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_ROCKET_MISSILE_HELP</Help>
 			<Domain>DOMAIN_AIR</Domain>
@@ -589,18 +562,18 @@
 			<Suicide>true</Suicide>
 			<MoveRate>AIR_REBASE</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_ROCKET_MISSILE</UnitArtInfo>
-			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
-			<UnitFlagIconOffset>4</UnitFlagIconOffset>
-			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
-			<PortraitIndex>4</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>33</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>33</PortraitIndex>
 		</Row>
 		<!-- Pioneer -->
 		<Row>
 			<Type>UNIT_PIONEER</Type>
 			<Description>TXT_KEY_UNIT_PIONEER</Description>
-			<Civilopedia>TXT_KEY_CIV5_PIONEER_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_PIONEER_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_PIONEER_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_PIONEER</Help>
+			<Help>TXT_KEY_UNIT_PIONEER_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
 			<Class>UNITCLASS_PIONEER</Class>
@@ -615,16 +588,16 @@
 			<UnitArtInfo>ART_DEF_UNIT_PIONEER</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
 		</Row>
 		<!-- Colonist -->
 		<Row>
 			<Type>UNIT_COLONIST</Type>
 			<Description>TXT_KEY_UNIT_COLONIST</Description>
-			<Civilopedia>TXT_KEY_CIV5_COLONIST_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_COLONIST_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_COLONIST_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_COLONIST</Help>
+			<Help>TXT_KEY_UNIT_COLONIST_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
 			<Class>UNITCLASS_COLONIST</Class>
@@ -645,9 +618,9 @@
 		<Row>
 			<Type>UNIT_EMISSARY</Type>
 			<Description>TXT_KEY_UNIT_EMISSARY</Description>
-			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_EMISSARY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_EMISSARY_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_EMISSARY</Help>
+			<Help>TXT_KEY_UNIT_EMISSARY_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Class>UNITCLASS_EMISSARY</Class>
@@ -656,17 +629,17 @@
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_EMISSARY</UnitArtInfo>
-			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>16</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_ENVOY</Type>
 			<Description>TXT_KEY_UNIT_ENVOY</Description>
-			<Civilopedia>TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_ENVOY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ENVOY_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_ENVOY</Help>
+			<Help>TXT_KEY_UNIT_ENVOY_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Class>UNITCLASS_ENVOY</Class>
@@ -675,17 +648,17 @@
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_INDUSTRIALIZATION</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_ENVOY</UnitArtInfo>
-			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>15</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_DIPLOMAT</Type>
 			<Description>TXT_KEY_UNIT_DIPLOMAT</Description>
-			<Civilopedia>TXT_KEY_CIV5_INDUSTRIAL_DIPLOMAT_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_DIPLOMAT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_DIPLOMAT_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_DIPLOMAT</Help>
+			<Help>TXT_KEY_UNIT_DIPLOMAT_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Class>UNITCLASS_DIPLOMAT</Class>
@@ -694,17 +667,17 @@
 			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
 			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_DIPLOMAT</UnitArtInfo>
-			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_AMBASSADOR</Type>
 			<Description>TXT_KEY_UNIT_AMBASSADOR</Description>
-			<Civilopedia>TXT_KEY_CIV5_MODERN_AMBASSADOR_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_AMBASSADOR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_AMBASSADOR_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_AMBASSADOR</Help>
+			<Help>TXT_KEY_UNIT_AMBASSADOR_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
 			<Class>UNITCLASS_AMBASSADOR</Class>
@@ -712,16 +685,16 @@
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 			<UnitArtInfo>ART_DEF_UNIT_AMBASSADOR</UnitArtInfo>
-			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>10</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
 		</Row>
 		<!-- Great People -->
 		<Row>
 			<Type>UNIT_GREAT_DIPLOMAT</Type>
 			<Description>TXT_KEY_UNIT_GREAT_DIPLOMAT</Description>
-			<Civilopedia>TXT_KEY_CIV5_GREAT_DIPLOMAT_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_GREAT_DIPLOMAT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY</Strategy>
 			<Domain>DOMAIN_LAND</Domain>
 			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
@@ -731,12 +704,88 @@
 			<NumInfPerEra>15</NumInfPerEra>
 			<RestingPointChange>30</RestingPointChange>
 			<WorkRate>1</WorkRate>
+			<MoveRate>GREAT_PERSON</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_GREAT_DIPLOMAT</UnitArtInfo>
 			<UnitArtInfoEraVariation>true</UnitArtInfoEraVariation>
-			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>4</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
+		</Row>
+		<!-- Unique Units -->
+		<Row>
+			<Type>UNIT_IRON_CHARIOT</Type>
+			<Description>TXT_KEY_UNIT_IRON_CHARIOT</Description>
+			<Civilopedia>TXT_KEY_UNIT_IRON_CHARIOT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_IRON_CHARIOT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_IRON_CHARIOT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Class>UNITCLASS_IRON_CHARIOT</Class>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
+			<MoveRate>WHEELED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_IRON_CHARIOT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
 			<UnitFlagIconOffset>1</UnitFlagIconOffset>
-			<IconAtlas>CSD_ATLAS</IconAtlas>
-			<PortraitIndex>17</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_ASAMU</Type>
+			<Description>TXT_KEY_UNIT_ASAMU</Description>
+			<Civilopedia>TXT_KEY_UNIT_ASAMU_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ASAMU_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_ASAMU_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
+			<Class>UNITCLASS_ASAMU</Class>
+			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<PrereqTech>TECH_POTTERY</PrereqTech>
+			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_ASAMU</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>6</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_GREAT_BOMBARD</Type>
+			<Description>TXT_KEY_UNIT_GREAT_BOMBARD</Description>
+			<Civilopedia>TXT_KEY_UNIT_GREAT_BOMBARD_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_GREAT_BOMBARD_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_GREAT_BOMBARD_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<Class>UNITCLASS_GREAT_BOMBARD</Class>
+			<DefaultUnitAI>UNITAI_CITY_BOMBARD</DefaultUnitAI>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<ObsoleteTech>TECH_BALLISTICS</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_GREAT_BOMBARD</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>37</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>37</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_FUSTA</Type>
+			<Description>TXT_KEY_UNIT_FUSTA</Description>
+			<Civilopedia>TXT_KEY_UNIT_FUSTA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_FUSTA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_FUSTA_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_FUSTA</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<ObsoleteTech>TECH_DYNAMITE</ObsoleteTech>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_FUSTA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>40</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>40</PortraitIndex>
 		</Row>
 		<!--
 			NOTE for new Unique Units that are replacements:
@@ -746,22 +795,705 @@
 			DO NOT modify these entries for balance changes.
 		-->
 		<Row>
-			<Type>UNIT_BANDEIRANTES</Type>
-			<Description>TXT_KEY_UNIT_BANDEIRANTES</Description>
-			<Civilopedia>TXT_KEY_UNIT_BANDEIRANTES_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_BANDEIRANTES_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_BANDEIRANTES_HELP</Help>
+			<Type>UNIT_MONITOR</Type>
+			<Description>TXT_KEY_UNIT_MONITOR</Description>
+			<Civilopedia>TXT_KEY_UNIT_MONITOR_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_MONITOR_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_MONITOR_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_IRONCLAD</Class>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_MONITOR</UnitArtInfo>
+			<UnitFlagAtlas>CIVIL_WAR_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>3</UnitFlagIconOffset>
+			<IconAtlas>CIVIL_WAR_UNIT_ATLAS</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_HASHEMITE_RAIDER</Type>
+			<Description>TXT_KEY_UNIT_HASHEMITE_RAIDER</Description>
+			<Civilopedia>TXT_KEY_UNIT_HASHEMITE_RAIDER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_HASHEMITE_RAIDER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HASHEMITE_RAIDER_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Class>UNITCLASS_ANTI_TANK_GUN</Class>
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+			<PrereqTech>TECH_COMBINED_ARMS</PrereqTech>
+			<MoveRate>WHEELED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_HASHEMITE_RAIDER</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_GRENZER</Type>
+			<Description>TXT_KEY_UNIT_GRENZER</Description>
+			<Civilopedia>TXT_KEY_UNIT_GRENZER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_GRENZER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_GRENZER_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Class>UNITCLASS_RIFLEMAN</Class>
+			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_GRENZER</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>2</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_OTOMI</Type>
+			<Description>TXT_KEY_UNIT_OTOMI</Description>
+			<Civilopedia>TXT_KEY_UNIT_OTOMI_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_OTOMI_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_OTOMI_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_WARRIOR</Class>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_OTOMI</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>29</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>29</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_SABUM_KIBITUM</Type>
+			<Description>TXT_KEY_UNIT_SABUM_KIBITUM</Description>
+			<Civilopedia>TXT_KEY_UNIT_SABUM_KIBITUM_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SABUM_KIBITUM_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SABUM_KIBITUM_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_SPEARMAN</Class>
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_SABUM_KIBITUM</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>3</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_BANDEIRANTE</Type>
+			<Description>TXT_KEY_UNIT_BANDEIRANTE</Description>
+			<Civilopedia>TXT_KEY_UNIT_BANDEIRANTE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_BANDEIRANTE_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_BANDEIRANTE_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Class>UNITCLASS_EXPLORER</Class>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<PrereqTech>TECH_COMPASS</PrereqTech>
 			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_BANDEIRANTES</UnitArtInfo>
-			<UnitFlagAtlas>BANDEIRANTES_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<UnitArtInfo>ART_DEF_UNIT_BANDEIRANTE</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>4</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>4</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_AMAZONAS</Type>
+			<Description>TXT_KEY_UNIT_AMAZONAS</Description>
+			<Civilopedia>TXT_KEY_UNIT_AMAZONAS_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_AMAZONAS_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_AMAZONAS_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_IRONCLAD</Class>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_AMAZONAS</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>5</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_SCYTHED_CHARIOT</Type>
+			<Description>TXT_KEY_UNIT_SCYTHED_CHARIOT</Description>
+			<Civilopedia>TXT_KEY_UNIT_SCYTHED_CHARIOT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SCYTHED_CHARIOT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SCYTHED_CHARIOT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_SKIRMISHER</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<MoveRate>WHEELED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_SCYTHED_CHARIOT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>30</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>30</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_TREASURE_SHIP</Type>
+			<Description>TXT_KEY_UNIT_TREASURE_SHIP</Description>
+			<Civilopedia>TXT_KEY_UNIT_TREASURE_SHIP_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_TREASURE_SHIP_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_TREASURE_SHIP_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_FRIGATE</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<ObsoleteTech>TECH_ELECTRONICS</ObsoleteTech>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_TREASURE_SHIP</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>7</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_LONGSHIP</Type>
+			<Description>TXT_KEY_UNIT_LONGSHIP</Description>
+			<Civilopedia>TXT_KEY_UNIT_LONGSHIP_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_LONGSHIP_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_LONGSHIP_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_CARAVEL</Class>
+			<DefaultUnitAI>UNITAI_EXPLORE_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_LONGSHIP</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>8</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_MAMLUK</Type>
+			<Description>TXT_KEY_UNIT_MAMLUK</Description>
+			<Civilopedia>TXT_KEY_UNIT_MAMLUK_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_MAMLUK_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_MAMLUK_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Class>UNITCLASS_LANCER</Class>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<ObsoleteTech>TECH_COMBINED_ARMS</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_MAMLUK</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>9</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_REDCOAT</Type>
+			<Description>TXT_KEY_UNIT_REDCOAT</Description>
+			<Civilopedia>TXT_KEY_UNIT_REDCOAT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_REDCOAT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_REDCOAT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Class>UNITCLASS_RIFLEMAN</Class>
+			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_REDCOAT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>10</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_CHEWA</Type>
+			<Description>TXT_KEY_UNIT_CHEWA</Description>
+			<Civilopedia>TXT_KEY_UNIT_CHEWA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_CHEWA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_CHEWA_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_LONGSWORDSMAN</Class>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_STEEL</PrereqTech>
+			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_CHEWA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>11</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_OROMO_CAVALRY</Type>
+			<Description>TXT_KEY_UNIT_OROMO_CAVALRY</Description>
+			<Civilopedia>TXT_KEY_UNIT_OROMO_CAVALRY_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_OROMO_CAVALRY_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_OROMO_CAVALRY_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<IsMounted>true</IsMounted>
+			<Class>UNITCLASS_CUIRASSIER</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_OROMO_CAVALRY</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>12</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_SPAD</Type>
+			<Description>TXT_KEY_UNIT_SPAD</Description>
+			<Civilopedia>TXT_KEY_UNIT_SPAD_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SPAD_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SPAD_HELP</Help>
+			<Domain>DOMAIN_AIR</Domain>
+			<CombatClass>UNITCOMBAT_FIGHTER</CombatClass>
+			<Class>UNITCLASS_TRIPLANE</Class>
+			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<ObsoleteTech>TECH_RADAR</ObsoleteTech>
+			<AirInterceptRange>5</AirInterceptRange>
+			<MoveRate>AIR_REBASE</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_SPAD</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>13</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_KRUPP_GUN</Type>
+			<Description>TXT_KEY_UNIT_KRUPP_GUN</Description>
+			<Civilopedia>TXT_KEY_UNIT_KRUPP_GUN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_KRUPP_GUN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_KRUPP_GUN_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<Class>UNITCLASS_ARTILLERY</Class>
+			<DefaultUnitAI>UNITAI_CITY_BOMBARD</DefaultUnitAI>
+			<PrereqTech>TECH_DYNAMITE</PrereqTech>
+			<MoveRate>ARTILLERY</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_KRUPP_GUN</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>14</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_KLEPHT</Type>
+			<Description>TXT_KEY_UNIT_KLEPHT</Description>
+			<Civilopedia>TXT_KEY_UNIT_KLEPHT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_KLEPHT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_KLEPHT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<Class>UNITCLASS_COMMANDO</Class>
+			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
+			<PrereqTech>TECH_RAILROAD</PrereqTech>
+			<ObsoleteTech>TECH_FLIGHT</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_KLEPHT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>15</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_TARKHAN</Type>
+			<Description>TXT_KEY_UNIT_TARKHAN</Description>
+			<Civilopedia>TXT_KEY_UNIT_TARKHAN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_TARKHAN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_TARKHAN_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Class>UNITCLASS_HORSEMAN</Class>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_TARKHAN</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>31</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>31</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_WARAKAQ</Type>
+			<Description>TXT_KEY_UNIT_WARAKAQ</Description>
+			<Civilopedia>TXT_KEY_UNIT_WARAKAQ_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_WARAKAQ_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_WARAKAQ_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_SLINGER</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
+			<ObsoleteTech>TECH_CONSTRUCTION</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_U_INCAN_SLINGER</UnitArtInfo>
+			<UnitFlagAtlas>DLC02_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
+			<IconAtlas>DLC02_UNIT_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_INTI_MACEMAN</Type>
+			<Description>TXT_KEY_UNIT_INTI_MACEMAN</Description>
+			<Civilopedia>TXT_KEY_UNIT_INTI_MACEMAN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_INTI_MACEMAN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_INTI_MACEMAN_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_LONGSWORDSMAN</Class>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_STEEL</PrereqTech>
+			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_INTI_MACEMAN</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>32</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>32</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_DHANURDHARA</Type>
+			<Description>TXT_KEY_UNIT_DHANURDHARA</Description>
+			<Civilopedia>TXT_KEY_UNIT_DHANURDHARA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_DHANURDHARA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_DHANURDHARA_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_ARCHER</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
+			<ObsoleteTech>TECH_CONSTRUCTION</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_DHANURDHARA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>16</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_DJONG</Type>
+			<Description>TXT_KEY_UNIT_DJONG</Description>
+			<Civilopedia>TXT_KEY_UNIT_DJONG_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_DJONG_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_DJONG_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_GALLEASS</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<ObsoleteTech>TECH_NAVIGATION</ObsoleteTech>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_DJONG</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>17</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>17</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_PROWLER</Type>
+			<Description>TXT_KEY_UNIT_PROWLER</Description>
+			<Civilopedia>TXT_KEY_UNIT_PROWLER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_PROWLER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_PROWLER_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_CROSSBOWMAN</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<ObsoleteTech>TECH_INDUSTRIALIZATION</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_PROWLER</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>34</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>34</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_TADODAHO</Type>
+			<Description>TXT_KEY_UNIT_TADODAHO</Description>
+			<Civilopedia>TXT_KEY_UNIT_TADODAHO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_TADODAHO_STRATEGY</Strategy>
+			<Domain>DOMAIN_LAND</Domain>
+			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
+			<Special>SPECIALUNIT_PEOPLE</Special>
+			<DefaultUnitAI>UNITAI_DIPLOMAT</DefaultUnitAI>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
+			<NumInfPerEra>15</NumInfPerEra>
+			<RestingPointChange>30</RestingPointChange>
+			<WorkRate>1</WorkRate>
+			<MoveRate>GREAT_PERSON</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_TADODAHO</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>33</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>33</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_YAMATO</Type>
+			<Description>TXT_KEY_UNIT_YAMATO</Description>
+			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_YAMATO_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_YAMATO_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_BATTLESHIP</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>18</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_HOLKAN</Type>
+			<Description>TXT_KEY_UNIT_HOLKAN</Description>
+			<Civilopedia>TXT_KEY_UNIT_HOLKAN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_HOLKAN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HOLKAN_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_RECON</CombatClass>
+			<Class>UNITCLASS_PATHFINDER</Class>
+			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
+			<ObsoleteTech>TECH_SCIENTIFIC_THEORY</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_HOLKAN</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>35</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>35</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_BLACK_TUG</Type>
+			<Description>TXT_KEY_UNIT_BLACK_TUG</Description>
+			<Civilopedia>TXT_KEY_UNIT_BLACK_TUG_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_BLACK_TUG_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_BLACK_TUG_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Class>UNITCLASS_KNIGHT</Class>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_BLACK_TUG</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>19</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>19</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_CORSAIR</Type>
+			<Description>TXT_KEY_UNIT_CORSAIR</Description>
+			<Civilopedia>TXT_KEY_UNIT_CORSAIR_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_CORSAIR_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_CORSAIR_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_PRIVATEER</Class>
+			<DefaultUnitAI>UNITAI_PIRATE_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_CORSAIR</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>20</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_GOEDENDAG</Type>
+			<Description>TXT_KEY_UNIT_GOEDENDAG</Description>
+			<Civilopedia>TXT_KEY_UNIT_GOEDENDAG_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_GOEDENDAG_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_GOEDENDAG_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_PIKEMAN</Class>
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_GOEDENDAG</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>36</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>36</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_QIZILBASH</Type>
+			<Description>TXT_KEY_UNIT_QIZILBASH</Description>
+			<Civilopedia>TXT_KEY_UNIT_QIZILBASH_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_QIZILBASH_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_QIZILBASH_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Class>UNITCLASS_LANCER</Class>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<ObsoleteTech>TECH_COMBINED_ARMS</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_QIZILBASH</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>21</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>21</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_PANCERNY</Type>
+			<Description>TXT_KEY_UNIT_PANCERNY</Description>
+			<Civilopedia>TXT_KEY_UNIT_PANCERNY_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_PANCERNY_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_PANCERNY_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<IsMounted>true</IsMounted>
+			<Class>UNITCLASS_HEAVY_SKIRMISHER</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_PHYSICS</PrereqTech>
+			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
+			<MoveRate>QUADRUPED</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_PANCERNY</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>22</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>22</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_VAKA_NUI</Type>
+			<Description>TXT_KEY_UNIT_VAKA_NUI</Description>
+			<Civilopedia>TXT_KEY_UNIT_VAKA_NUI_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_VAKA_NUI_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_VAKA_NUI_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_GALLEY</Class>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_VAKA_NUI</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>23</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>23</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_CACADOR</Type>
+			<Description>TXT_KEY_UNIT_CACADOR</Description>
+			<Civilopedia>TXT_KEY_UNIT_CACADOR_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_CACADOR_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_CACADOR_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_GATLINGGUN</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<UnitArtInfo>ART_DEF_UNIT_CACADOR</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>24</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>24</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_LICORNE</Type>
+			<Description>TXT_KEY_UNIT_LICORNE</Description>
+			<Civilopedia>TXT_KEY_UNIT_LICORNE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_LICORNE_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_LICORNE_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<Class>UNITCLASS_FIELD_GUN</Class>
+			<DefaultUnitAI>UNITAI_CITY_BOMBARD</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_BALLISTICS</ObsoleteTech>
+			<MoveRate>ARTILLERY</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_LICORNE</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>25</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>25</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_YELLOW_BROW</Type>
+			<Description>TXT_KEY_UNIT_YELLOW_BROW</Description>
+			<Civilopedia>TXT_KEY_UNIT_YELLOW_BROW_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_YELLOW_BROW_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_YELLOW_BROW_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
+			<Class>UNITCLASS_TERCIO</Class>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_YELLOW_BROW</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>38</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>38</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_SUEA_MOP</Type>
+			<Description>TXT_KEY_UNIT_SUEA_MOP</Description>
+			<Civilopedia>TXT_KEY_UNIT_SUEA_MOP_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SUEA_MOP_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SUEA_MOP_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<Class>UNITCLASS_FIELD_GUN</Class>
+			<DefaultUnitAI>UNITAI_CITY_BOMBARD</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_BALLISTICS</ObsoleteTech>
+			<MoveRate>ARTILLERY</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_SUEA_MOP</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>26</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>26</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_SOFA</Type>
+			<Description>TXT_KEY_UNIT_SOFA</Description>
+			<Civilopedia>TXT_KEY_UNIT_SOFA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SOFA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SOFA_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
+			<Class>UNITCLASS_CROSSBOWMAN</Class>
+			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<ObsoleteTech>TECH_INDUSTRIALIZATION</ObsoleteTech>
+			<UnitArtInfo>ART_DEF_UNIT_SOFA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>27</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>27</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_ARMADA</Type>
+			<Description>TXT_KEY_UNIT_ARMADA</Description>
+			<Civilopedia>TXT_KEY_UNIT_ARMADA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ARMADA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_ARMADA_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_PRIVATEER</Class>
+			<DefaultUnitAI>UNITAI_PIRATE_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_ARMADA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>28</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>28</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_SPAIN_INQUISITOR</Type>
@@ -785,15 +1517,35 @@
 			<PortraitIndex>17</PortraitIndex>
 			<ShowInPedia>false</ShowInPedia>
 		</Row>
+		<Row>
+			<Type>UNIT_INDUNA</Type>
+			<Description>TXT_KEY_UNIT_INDUNA</Description>
+			<Civilopedia>TXT_KEY_UNIT_INDUNA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_INDUNA_STRATEGY</Strategy>
+			<Domain>DOMAIN_LAND</Domain>
+			<Class>UNITCLASS_GREAT_GENERAL</Class>
+			<Special>SPECIALUNIT_PEOPLE</Special>
+			<DefaultUnitAI>UNITAI_GENERAL</DefaultUnitAI>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH</CivilianAttackPriority>
+			<WorkRate>1</WorkRate>
+			<MoveRate>GREAT_PERSON</MoveRate>
+			<DontShowYields>true</DontShowYields>
+			<UnitArtInfo>ART_DEF_UNIT_INDUNA</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>39</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>39</PortraitIndex>
+		</Row>
 		<!-- NOTE for new Policy-unlocked Units:
 			These are inserted based on vanilla properties of the assumed base unit (except those to be swept, and text + art)
 			UnitChanges.sql will modify both base unit and policy unit at the same time,
 			and PolicyUnitChanges.sql will change the unit class and add the unique properties.
-			DO NOT modify these entries for balance changes. -->
+			DO NOT modify these entries for balance changes.
+		-->
 		<!-- Free Company: Pikeman -->
 		<Row>
-			<Type>UNIT_FCOMPANY</Type>
-			<Description>TXT_KEY_UNIT_FCOMPANY</Description>
+			<Type>UNIT_FREE_COMPANY</Type>
+			<Description>TXT_KEY_UNIT_FREE_COMPANY</Description>
 			<Civilopedia>TXT_KEY_CIV5_FCOMPANY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_FCOMPANY_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_FCOMPANY</Help>
@@ -804,15 +1556,15 @@
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_FCOMPANY</UnitArtInfo>
-			<UnitFlagAtlas>FCOMPANY_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>9</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
 		</Row>
-		<!-- Mercenaries: Infantry -->
+		<!-- Mercenary: Infantry -->
 		<Row>
-			<Type>UNIT_GUERILLA</Type>
-			<Description>TXT_KEY_UNIT_GUERILLA</Description>
+			<Type>UNIT_MERCENARY</Type>
+			<Description>TXT_KEY_UNIT_MERCENARY</Description>
 			<Civilopedia>TXT_KEY_CIV5_GUERILLA_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_GUERILLA_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_GUERILLA</Help>
@@ -823,20 +1575,15 @@
 			<PrereqTech>TECH_PLASTIC</PrereqTech>
 			<ObsoleteTech>TECH_MOBILE_TACTICS</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_MERC</UnitArtInfo>
-			<UnitFlagAtlas>MERC_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>52</PortraitIndex>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_2</UnitFlagAtlas>
+			<UnitFlagIconOffset>19</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>19</PortraitIndex>
 		</Row>
 	</Units>
 	<UnitGameplay2DScripts>
 		<Row>
-			<UnitType>UNIT_VP_SLINGER</UnitType>
-			<SelectionSound>AS2D_SELECT_ARCHER</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_ARCHER</FirstSelectionSound>
-		</Row>
-		<Row>
-			<UnitType>UNIT_MOUNTED_BOWMAN</UnitType>
+			<UnitType>UNIT_HEAVY_SKIRMISHER</UnitType>
 			<SelectionSound>AS2D_SELECT_CAVALRY</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_CAVALRY</FirstSelectionSound>
 		</Row>
@@ -857,8 +1604,8 @@
 		</Row>
 		<Row>
 			<UnitType>UNIT_COMMANDO</UnitType>
-			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
 		</Row>
 		<Row>
 			<UnitType>UNIT_VP_GALLEY</UnitType>
@@ -866,12 +1613,12 @@
 			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
 		</Row>
 		<Row>
-			<UnitType>UNIT_EARLY_DESTROYER</UnitType>
+			<UnitType>UNIT_FLEET_DESTROYER</UnitType>
 			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
 		</Row>
 		<Row>
-			<UnitType>UNIT_MISSILE_DESTROYER</UnitType>
+			<UnitType>UNIT_SENSOR_COMBAT_SHIP</UnitType>
 			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
 		</Row>
@@ -916,12 +1663,12 @@
 			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
 		</Row>
 		<Row>
-			<UnitType>UNIT_FCOMPANY</UnitType>
+			<UnitType>UNIT_FREE_COMPANY</UnitType>
 			<SelectionSound>AS2D_SELECT_PIKEMAN</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_PIKEMAN</FirstSelectionSound>
 		</Row>
 		<Row>
-			<UnitType>UNIT_GUERILLA</UnitType>
+			<UnitType>UNIT_MERCENARY</UnitType>
 			<SelectionSound>AS2D_SELECT_INFANTRY</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_INFANTRY</FirstSelectionSound>
 		</Row>
@@ -951,14 +1698,224 @@
 			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
 		</Row>
 		<Row>
-			<UnitType>UNIT_BANDEIRANTES</UnitType>
+			<UnitType>UNIT_IRON_CHARIOT</UnitType>
+			<SelectionSound>AS2D_SELECT_CHARIOT_ARCHER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CHARIOT_ARCHER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ASAMU</UnitType>
+			<SelectionSound>AS2D_SELECT_SETTLER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_BOMBARD</UnitType>
+			<SelectionSound>AS2D_SELECT_CANNON</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CANNON</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_FUSTA</UnitType>
+			<SelectionSound>AS2D_SELECT_CARAVEL</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CARAVEL</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MONITOR</UnitType>
+			<SelectionSound>AS2D_SELECT_IRONCLAD</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_IRONCLAD</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_HASHEMITE_RAIDER</UnitType>
+			<SelectionSound>AS2D_SELECT_CAVALRY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CAVALRY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GRENZER</UnitType>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_OTOMI</UnitType>
+			<SelectionSound>AS2D_SELECT_AZTEC_JAGUAR</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_AZTEC_JAGUAR</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SABUM_KIBITUM</UnitType>
+			<SelectionSound>AS2D_SELECT_PIKEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_PIKEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BANDEIRANTE</UnitType>
 			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_AMAZONAS</UnitType>
+			<SelectionSound>AS2D_SELECT_IRONCLAD</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_IRONCLAD</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SCYTHED_CHARIOT</UnitType>
+			<SelectionSound>AS2D_SELECT_CHARIOT_ARCHER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CHARIOT_ARCHER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_TREASURE_SHIP</UnitType>
+			<SelectionSound>AS2D_SELECT_FRIGATE</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_FRIGATE</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_LONGSHIP</UnitType>
+			<SelectionSound>AS2D_SELECT_CARAVEL</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CARAVEL</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MAMLUK</UnitType>
+			<SelectionSound>AS2D_SELECT_HORSEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_HORSEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_REDCOAT</UnitType>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CHEWA</UnitType>
+			<SelectionSound>AS2D_SELECT_LONGSWORDSMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_LONGSWORDSMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_OROMO_CAVALRY</UnitType>
+			<SelectionSound>AS2D_SELECT_CAVALRY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CAVALRY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SPAD</UnitType>
+			<SelectionSound>AS2D_SELECT_FIGHTER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_FIGHTER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_KRUPP_GUN</UnitType>
+			<SelectionSound>AS2D_SELECT_ARTILLERY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_ARTILLERY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_KLEPHT</UnitType>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_TARKHAN</UnitType>
+			<SelectionSound>AS2D_SELECT_HORSEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_HORSEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_WARAKAQ</UnitType>
+			<SelectionSound>AS2D_SELECT_ARCHER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_ARCHER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_INTI_MACEMAN</UnitType>
+			<SelectionSound>AS2D_SELECT_LONGSWORDSMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_LONGSWORDSMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_DHANURDHARA</UnitType>
+			<SelectionSound>AS2D_SELECT_ARCHER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_ARCHER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_DJONG</UnitType>
+			<SelectionSound>AS2D_SELECT_TRIREME</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_PROWLER</UnitType>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_TADODAHO</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_YAMATO</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_HOLKAN</UnitType>
+			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BLACK_TUG</UnitType>
+			<SelectionSound>AS2D_SELECT_KNIGHT</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_KNIGHT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CORSAIR</UnitType>
+			<SelectionSound>AS2D_SELECT_FRIGATE</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_FRIGATE</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GOEDENDAG</UnitType>
+			<SelectionSound>AS2D_SELECT_PIKEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_PIKEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_QIZILBASH</UnitType>
+			<SelectionSound>AS2D_SELECT_HORSEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_HORSEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_PANCERNY</UnitType>
+			<SelectionSound>AS2D_SELECT_CAVALRY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CAVALRY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_VAKA_NUI</UnitType>
+			<SelectionSound>AS2D_SELECT_TRIREME</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CACADOR</UnitType>
+			<SelectionSound>AS2D_SELECT_MUSKETMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_MUSKETMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_LICORNE</UnitType>
+			<SelectionSound>AS2D_SELECT_ARTILLERY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_ARTILLERY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_YELLOW_BROW</UnitType>
+			<SelectionSound>AS2D_SELECT_PIKEMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_PIKEMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SUEA_MOP</UnitType>
+			<SelectionSound>AS2D_SELECT_ARTILLERY</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_ARTILLERY</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SOFA</UnitType>
+			<SelectionSound>AS2D_SELECT_CROSSBOWMAN</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CROSSBOWMAN</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ARMADA</UnitType>
+			<SelectionSound>AS2D_SELECT_FRIGATE</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_FRIGATE</FirstSelectionSound>
 		</Row>
 		<Row>
 			<UnitType>UNIT_SPAIN_INQUISITOR</UnitType>
 			<SelectionSound>AS2D_SELECT_SETTLER</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
+		</Row>
+		<Row> 
+			<UnitType>UNIT_INDUNA</UnitType> 
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound> 
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound> 
 		</Row>
 	</UnitGameplay2DScripts>
 </GameData>

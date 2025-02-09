@@ -13,7 +13,7 @@ WHERE Type = 'LEAGUE_SPECIAL_SESSION_LEADERSHIP_COUNCIL';
 -- Requires both building United Nations and passing World Ideology to trigger Hegemony vote
 UPDATE LeagueSpecialSessions
 SET
-	BuildingTrigger = 'BUILDING_UN',
+	BuildingTrigger = 'BUILDING_UNITED_NATIONS',
 	TriggerResolution = 'RESOLUTION_WORLD_IDEOLOGY',
 	EraTrigger = 'ERA_MODERN'
 WHERE Type = 'LEAGUE_SPECIAL_SESSION_START_UNITED_NATIONS';

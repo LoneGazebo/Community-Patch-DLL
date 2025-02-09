@@ -67,20 +67,20 @@ local GPFontIconList = {
 
 
 local FaithFontIconList = {
-	RELIGION_PANTHEON = "[ICON_ITP_PANTHEON]",
-	UNITCLASS_PROPHET = "[ICON_ITP_RELIGION]",
+	RELIGION_PANTHEON = "[ICON_PANTHEON_TP]",
+	UNITCLASS_PROPHET = "[ICON_PROPHET_TP]",
 	UNITCLASS_MISSIONARY = " [ICON_MISSIONARY]",
 	UNITCLASS_INQUISITOR = "[ICON_INQUISITOR]",
-	UNITCLASS_COMBAT = "[ICON_ITP_RELIGIOUS_UNIT]",
-	UNITCLASS_ENGINEER = "[ICON_ITP_RELIGIOUS_ENGINEER]",
-	UNITCLASS_GREAT_GENERAL = "[ICON_ITP_RELIGIOUS_GENERAL]",
-	UNITCLASS_SCIENTIST = "[ICON_ITP_RELIGIOUS_SCIENTIST]",
-	UNITCLASS_MERCHANT = "[ICON_ITP_RELIGIOUS_MERCHANT]",
-	UNITCLASS_ARTIST = "[ICON_ITP_RELIGIOUS_ARTIST]",
-	UNITCLASS_MUSICIAN = "[ICON_ITP_RELIGIOUS_MUSICIAN]",
-	UNITCLASS_WRITER = "[ICON_ITP_RELIGIOUS_WRITER]",
-	UNITCLASS_GREAT_ADMIRAL = "[ICON_ITP_RELIGIOUS_ADMIRAL]",
-	UNITCLASS_GREAT_DIPLOMAT = "[ICON_ITP_RELIGIOUS_DIPLOMAT]",
+	UNITCLASS_COMBAT = "[ICON_STRENGTH_TP]",
+	UNITCLASS_ENGINEER = "[ICON_GREAT_ENGINEER_GRAY]",
+	UNITCLASS_GREAT_GENERAL = "[ICON_GREAT_GENERAL_GRAY]",
+	UNITCLASS_SCIENTIST = "[ICON_GREAT_SCIENTIST_GRAY]",
+	UNITCLASS_MERCHANT = "[ICON_GREAT_MERCHANT_GRAY]",
+	UNITCLASS_ARTIST = "[ICON_GREAT_ARTIST_GRAY]",
+	UNITCLASS_MUSICIAN = "[ICON_GREAT_MUSICIAN_GRAY]",
+	UNITCLASS_WRITER = "[ICON_GREAT_WRITER_GRAY]",
+	UNITCLASS_GREAT_ADMIRAL = "[ICON_GREAT_ADMIRAL_GRAY]",
+	UNITCLASS_GREAT_DIPLOMAT = "[ICON_DIPLOMAT_GRAY]",
 }
 
 local civ5_mode = InStrategicView ~= nil
@@ -536,9 +536,9 @@ local function UpdateTopPanelNow()
 				if percent >= 75 then --ecstatic
 					happinessText = "[ICON_HAPPINESS_1][COLOR_FONT_GREEN]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 75 and percent > 60 then -- content
-					happinessText = "[ICON_ITP_HAPPINESS_CONTENT][COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
+					happinessText = "[ICON_HAPPINESS_CONTENT][COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
 				elseif percent <= 60 and percent >= 50 then -- swing vote
-					happinessText = "[ICON_ITP_HAPPINESS_NEUTRAL][COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
+					happinessText = "[ICON_HAPPINESS_NEUTRAL][COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 50 and percent >= 35 then  -- unhappy
 					happinessText = "[ICON_HAPPINESS_3][COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 35 and percent >= 20 then  -- very unhappy
@@ -553,13 +553,13 @@ local function UpdateTopPanelNow()
 				if percent >= 75 then --ecstatic
 					percentString = "[ICON_CITIZEN] [COLOR_FONT_GREEN]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 75 and percent > 60 then -- content
-					percentString = "[ICON_ITP_CITIZEN_CONTENT] [COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
+					percentString = "[ICON_CITIZEN_CONTENT] [COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
 				elseif percent <= 60 and percent >= 50 then -- swing vote
-					percentString = "[ICON_ITP_CITIZEN_NEUTRAL] [COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
+					percentString = "[ICON_CITIZEN_NEUTRAL] [COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 50 and percent >= 35 then  -- unhappy
-					percentString = "[ICON_ITP_CITIZEN_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+					percentString = "[ICON_CITIZEN_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 35 and percent >= 20 then  -- very unhappy
-					percentString = "[ICON_ITP_CITIZEN_VERY_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+					percentString = "[ICON_CITIZEN_VERY_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
 				else -- 20<= winter palace vibes
 					percentString = "[ICON_RESISTANCE] [COLOR_RED]"..L(percent).."%[ENDCOLOR]"
 				end
@@ -690,7 +690,7 @@ local function UpdateTopPanelNow()
 					Controls.FaithIcon:SetOffsetVal(-7,-17)
 					Controls.FaithTurns:SetOffsetVal(-12,9)
 					if faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_BUILDING then
-						Controls.FaithIcon:SetText("[ICON_ITP_RELIGIOUS_BUILDING]")
+						Controls.FaithIcon:SetText("[ICON_RELIGIOUS_BUILDING]")
 					elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_UNIT or faithTarget == GameInfo.Units.UNIT_PROPHET then
 						if FaithFontIconList[faithTarget.Class] ~= nil then
 							Controls.FaithIcon:SetText(FaithFontIconList[faithTarget.Class])
@@ -700,7 +700,7 @@ local function UpdateTopPanelNow()
 							Controls.FaithTurns:SetOffsetVal(0,9)
 						end
 					else
-						Controls.FaithIcon:SetText("[ICON_ITP_PANTHEON]")
+						Controls.FaithIcon:SetText("[ICON_PANTHEON_TP]")
 					end
 				else
 					Controls.FaithIcon:SetHide(true)

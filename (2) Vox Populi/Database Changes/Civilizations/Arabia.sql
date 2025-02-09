@@ -20,19 +20,19 @@ VALUES
 ----------------------------------------------------------
 -- Unique Unit: Camel Archer (Heavy Skirmisher)
 ----------------------------------------------------------
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_MOUNTED_BOWMAN' WHERE UnitType = 'UNIT_ARABIAN_CAMELARCHER';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_HEAVY_SKIRMISHER' WHERE UnitType = 'UNIT_ARABIAN_CAMELARCHER';
 
 UPDATE Units
 SET
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
-				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_MOUNTED_BOWMAN'
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_HEAVY_SKIRMISHER'
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_MOUNTED_BOWMAN') + 2,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_MOUNTED_BOWMAN') + 2
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HEAVY_SKIRMISHER') + 2,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_HEAVY_SKIRMISHER') + 2
 WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 
 DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_ARABIAN_CAMELARCHER';
