@@ -1540,15 +1540,17 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 				return FALSE;
 		}
 	}
+	else if (finder->HaveFlag(CvUnit::MOVEFLAG_VISIBLE_ONLY))
+		return FALSE;
 
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
 		// if we can't enter the plot even temporarily, that's it. 
 		// if we can enter, there's another check in PathCost once we know whether we need to stay here
-		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
+		if (!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
-		if(!kToNodeCacheData.bCanEnterTerritoryIntermediate)
+		if (!kToNodeCacheData.bCanEnterTerritoryIntermediate)
 			return FALSE;
 
 		//do not use DestinationReached() here, approximate destination won't do (also we don't use MOVEFLAG_DESTINATION in pathfinder)
@@ -1558,40 +1560,40 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		if (kToNodeCacheData.bIsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
 			return FALSE;
 
-		if(pCacheData->CanEverEmbark())
+		if (pCacheData->CanEverEmbark())
 		{
 			//don't embark if forbidden - but move along if already on water plot
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && !kFromNodeCacheData.bIsNonNativeDomain)
 				return FALSE;
 
 			//embark required and possible?
-			if(!kFromNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam)
+			if (!kFromNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam)
 			{
 				if (!pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+				if (pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam, DOMAIN_SEA) > 0)
 					return FALSE;
 			}
 
 			//disembark required and possible?
-			if(kFromNodeCacheData.bIsNonNativeDomain && !kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam)
-			{ 
+			if (kFromNodeCacheData.bIsNonNativeDomain && !kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam)
+			{
 				if (!pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
 					return FALSE;
 			}
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY )
+		if (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY)
 		{
-			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
+			if (pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
 		}
 
 		//ocean allowed?
-		if ( (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->isDeepWater() )
+		if ((kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->isDeepWater())
 		{
 			return FALSE;
 		}

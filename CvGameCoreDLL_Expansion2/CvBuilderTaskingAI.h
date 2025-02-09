@@ -21,13 +21,14 @@ struct BuilderDirective
 {
 	enum CLOSED_ENUM BuilderDirectiveType
 	{
-	    BUILD_IMPROVEMENT_ON_RESOURCE, // enabling a special resource
-	    BUILD_IMPROVEMENT,			   // improving a tile
-	    BUILD_ROUTE,				   // build a route on a tile
-	    REPAIR,						   // repairing a pillaged route or improvement
-	    CHOP,						   // remove a feature to improve production
-	    REMOVE_ROAD,				   // remove a road from a plot
-	    NUM_DIRECTIVES ENUM_META_VALUE
+		BUILD_IMPROVEMENT_ON_RESOURCE, // enabling a special resource
+		BUILD_IMPROVEMENT,			   // improving a tile
+		BUILD_ROUTE,				   // build a route on a tile
+		REPAIR,						   // repairing a pillaged route or improvement
+		REMOVE_FEATURE,				   // remove a feature to improve production
+		REMOVE_ROAD,				   // remove a road from a plot
+		KEEP_IMPROVEMENT,			   // will not actually be executed but needed for planning
+		NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
 	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_sX(-1), m_sY(-1), m_iScore(-1), m_iPotentialBonusScore(-1), m_iScorePenalty(-1) {}
