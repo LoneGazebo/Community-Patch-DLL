@@ -33,7 +33,7 @@ WHERE Type = 'UNIT_ZULU_IMPI';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_ZULU_IMPI', 'PROMOTION_KNOCKOUT'),
+	('UNIT_ZULU_IMPI', 'PROMOTION_FASIMBA'),
 	('UNIT_ZULU_IMPI', 'PROMOTION_RANGED_SUPPORT_FIRE');
 
 ----------------------------------------------------------

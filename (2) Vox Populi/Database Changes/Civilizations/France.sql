@@ -44,7 +44,18 @@ VALUES
 ----------------------------------------------------------
 -- Unique Improvement: Chateau
 ----------------------------------------------------------
-UPDATE Improvements SET NoFollowUp = 1 WHERE Type = 'IMPROVEMENT_CHATEAU';
+UPDATE Builds
+SET
+	IconAtlas = 'BUILD_ATLAS_VP',
+	IconIndex = 2
+WHERE Type = 'BUILD_CHATEAU';
+
+UPDATE Improvements
+SET
+	NoFollowUp = 1,
+	IconAtlas = 'IMPROVEMENT_ATLAS_VP',
+	PortraitIndex = 2
+WHERE Type = 'IMPROVEMENT_CHATEAU';
 
 UPDATE Improvement_Yields
 SET Yield = 3

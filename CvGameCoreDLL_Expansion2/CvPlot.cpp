@@ -7927,7 +7927,7 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 #if defined(MOD_BALANCE_CORE)
 		if(isMountain())
 		{
-			ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_JFD_MACHU_PICCHU");
+			ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MOUNTAIN_CITY");
 			setImprovementType(eMachuPichu);
 		}
 #endif

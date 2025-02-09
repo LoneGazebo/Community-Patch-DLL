@@ -21,7 +21,7 @@ WHERE MinorCivGift = 1;
 -------------------------------------
 UPDATE Units
 SET
-	Class = 'UNITCLASS_HUNNIC_BATTERING_RAM',
+	Class = 'UNITCLASS_BATTERING_RAM',
 	ObsoleteTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_SPANISH_TERCIO'),
 	Combat = 17,
 	BaseSightRange = 1,
@@ -54,7 +54,7 @@ VALUES
 -------------------------------------
 UPDATE Units
 SET
-	Class = 'UNITCLASS_SKI_INFANTRY',
+	Class = 'UNITCLASS_NORWEGIAN_SKI_INFANTRY',
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_RIFLEMAN') + 2
 WHERE Type = 'UNIT_DANISH_SKI_INFANTRY';
 
@@ -67,14 +67,14 @@ VALUES
 -- Pracinha
 -------------------------------------
 UPDATE Units
-SET Class = 'UNITCLASS_BRAZILIAN_PRACINHA'
+SET Class = 'UNITCLASS_PRACINHA'
 WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_SURVIVALISM_1'),
-	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_MANY_GOLDEN_AGE_POINTS');
+	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_PRIDE_OF_THE_NATION');
 
 -------------------------------------
 -- Longbowman
@@ -96,7 +96,7 @@ VALUES
 -------------------------------------
 UPDATE Units
 SET
-	Class = 'UNITCLASS_COMPANIONCAVALRY',
+	Class = 'UNITCLASS_COMPANION_CAVALRY',
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HORSEMAN') + 3,
 	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_HORSEMAN') + 1
 WHERE Type = 'UNIT_GREEK_COMPANIONCAVALRY';
@@ -120,87 +120,5 @@ WHERE Type = 'UNIT_OTTOMAN_SIPAHI';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_SHOCK_4'),
-	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_FLANK_ATTACK_BONUS_STRONG');
-
--------------------------------------
--- Hakkapeliitta
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_SWEDISH_HAKKAPELIITTA',
-	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_LANCER') + 1
-WHERE Type = 'UNIT_SWEDISH_HAKKAPELIITTA';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_SWEDISH_HAKKAPELIITTA', 'PROMOTION_SCOUT_CAVALRY'),
-	('UNIT_SWEDISH_HAKKAPELIITTA', 'PROMOTION_HAKKAA_PAALLE');
-
--------------------------------------
--- Ballista
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_BALLISTA',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CATAPULT') + 3,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CATAPULT') + 1,
-	BaseSightRange = (SELECT BaseSightRange FROM Units WHERE Type = 'UNIT_CATAPULT') + 1
-WHERE Type = 'UNIT_ROMAN_BALLISTA';
-
-DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ROMAN_BALLISTA' AND PromotionType = 'PROMOTION_SIEGE_INACCURACY';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_ROMAN_BALLISTA', 'PROMOTION_FIELD_1');
-
--------------------------------------
--- Turtle Ship
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_KOREAN_TURTLE_SHIP',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CARAVEL') + 7
-WHERE Type = 'UNIT_KOREAN_TURTLE_SHIP';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_KOREAN_TURTLE_SHIP', 'PROMOTION_TARGETING_4'),
-	('UNIT_KOREAN_TURTLE_SHIP', 'PROMOTION_OCEAN_HALF_MOVES');
-
--- Not suitable for exploration
-DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_KOREAN_TURTLE_SHIP' AND UnitAIType = 'UNITAI_EXPLORE_SEA';
-
--------------------------------------
--- Dromon
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_BYZANTINE_DROMON',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_LIBURNA') + 3,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_LIBURNA') + 2
-WHERE Type = 'UNIT_BYZANTINE_DROMON';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_BYZANTINE_DROMON', 'PROMOTION_TARGETING_1'),
-	('UNIT_BYZANTINE_DROMON', 'PROMOTION_SPLASH_1');
-
--------------------------------------
--- Great Galleass
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_VENETIAN_GALLEASS',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_GALLEASS') + 6,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_GALLEASS') + 3
-WHERE Type = 'UNIT_VENETIAN_GALLEASS';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_VENETIAN_GALLEASS', 'PROMOTION_BOMBARDMENT_1');
+	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_OVERRUN'),
+	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_HEAVY_FLANKING');

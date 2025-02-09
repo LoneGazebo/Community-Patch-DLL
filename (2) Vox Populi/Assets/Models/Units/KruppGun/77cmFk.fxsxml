@@ -1,0 +1,68 @@
+<Asset>
+	<Mesh file="77cmFk.gr2"/>
+	<Animation file="Cannon_IdleA.gr2" ec="1000"/>
+	<Animation file="Cannon_FidgetA.gr2" ec="1040"/>
+	<Animation file="Cannon_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="Cannon_IdleB.gr2" ec="2000"/>
+	<Animation file="Cannon_FidgetB.gr2" ec="2040"/>
+	<Animation file="Cannon_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="Cannon_Fortify.gr2" ec="1500"/>
+	<Animation file="Cannon_Fortify_Idle.gr2" ec="1520, 1620, 1450"/>
+	<Animation file="Cannon_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="Cannon_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="Cannon_Fortify_Idle_Trans_IdleA.gr2" ec="1580, 1640"/>
+	<Animation file="Cannon_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="Cannon_Run.gr2" ec="1400, 1120"/>
+	<Animation file="Cannon_Stop_Run.gr2" ec="1440, 1140"/>
+	<Animation file="Cannon_Stop_Run_IdleB.gr2" ec="2440"/>
+	<Animation file="Cannon_AttackA.gr2" ec="1100"/>
+	<Animation file="Cannon_AttackB.gr2" ec="2100"/>
+	<Animation file="Cannon_AttackCity.gr2" ec="1160"/>
+	<Animation file="Cannon_Bombardment.gr2" ec="1180"/>
+	<Animation file="Cannon_Victory.gr2" ec="1800"/>
+	<Animation file="Cannon_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Cannon_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Cannon_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Cannon_DeathA.gr2" ec="1200"/>
+	<Animation file="Cannon_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="Cannon_DeathB.gr2" ec="2200"/>
+	<Animation file="Cannon_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="77mm_DIFF.dds"/>
+	<Texture file="77mm_SREF.dds"/>
+	<Texture file="77cmFk_Crew_DIFF.dds"/>
+	<Texture file="77cmFk_Crew_SREF.dds"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<TimedTrigger file="FX_Triggers_Cannon.ftsxml"/>
+	<StateMachine file="1_OMNI_STATE_01.fsmxml"/>
+	<AnimGraph file="SHUFFLE_STOP_GRAPH.dge"/>
+	<AnimGraph file="START_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_LOOP.dge"/>
+	<AnimGraph file="MELEE_ATTACKS.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="DEATH_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_TO_SHUFFLE_RUN_CHARGE.dge"/>
+	<BoneUsage>
+		<Bone name="Driver_Cannon"/>
+		<Bone name="Bone_CannonBarrel"/>
+	</BoneUsage>
+</Asset>
+

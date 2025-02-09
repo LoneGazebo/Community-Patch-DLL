@@ -52,7 +52,7 @@ WHERE Type = 'POLICY_PATRIOTIC_WAR';
 INSERT INTO Policy_UnitClassReplacements
 	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
 VALUES
-	('POLICY_PATRIOTIC_WAR', 'UNITCLASS_TANK', 'UNITCLASS_PANZER');
+	('POLICY_PATRIOTIC_WAR', 'UNITCLASS_TANK', 'UNITCLASS_T34');
 
 -- Double Agents
 UPDATE Policies
@@ -178,7 +178,7 @@ WHERE SpecificCivRequired = 1 OR Type IN (
 	'IMPROVEMENT_WELL',
 	-- hidden unique improvements
 	'IMPROVEMENT_POLDER_WATER',
-	'IMPROVEMENT_MONGOLIA_ORDO'
+	'IMPROVEMENT_ORDO'
 );
 
 -- Dictatorship of the Proletariat (now Cultural Revolution)
