@@ -170,7 +170,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_2</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_BARRAGE_1</PromotionPrereqOr3>
-			<PromotionPrereqOr4>PROMOTION_WOODLAND_TRAILBLAZER_2</PromotionPrereqOr4>
+			<PromotionPrereqOr4>PROMOTION_TRAILBLAZER_2</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr5>
 			<PediaType>PEDIA_HEAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MEDIC</PediaEntry>
@@ -304,8 +304,8 @@
 			<Help>TXT_KEY_PROMOTION_LOGISTICS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr3>PROMOTION_FIELD_3</PromotionPrereqOr3>
-			<PromotionPrereqOr2>PROMOTION_TARGETING_4</PromotionPrereqOr2>
-			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_4</PromotionPrereqOr4>
+			<PromotionPrereqOr2>PROMOTION_INDOMITABLE</PromotionPrereqOr2>
+			<PromotionPrereqOr4>PROMOTION_BROADSIDE</PromotionPrereqOr4>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOGISTICS</PediaEntry>
 		</Replace>
@@ -503,7 +503,7 @@
 			<Type>PROMOTION_SCOUTING_1</Type>
 			<Description>TXT_KEY_PROMOTION_SCOUTING_1</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUTING_1_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_TRAILBLAZER_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_2</PromotionPrereqOr2>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SCOUTING_1</PediaEntry>
@@ -1210,13 +1210,6 @@
 			<Help>TXT_KEY_PROMOTION_MOHAWK_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_MOHAWK</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_JAGUAR</Type>
-			<Description>TXT_KEY_PROMOTION_JAGUAR</Description>
-			<Help>TXT_KEY_PROMOTION_JAGUAR_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_JAGUAR</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_FOREIGN_LANDS</Type>

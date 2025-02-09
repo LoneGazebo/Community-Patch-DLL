@@ -24,7 +24,7 @@
 			<Text>[NEWLINE] [ICON_BULLET]Advanced Spy Missions are disabled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_POINTS_TT">
-			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}</Text>
+			<Text>Your Current [ICON_SPY_POINT] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_SPY_POINT] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_SPY_POINT] Spy Points. Some Buildings and Policies also provide [ICON_SPY_POINT] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_SPY_POINT] Spy Points ever accumulated: {3_NumTotal}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
 			<Text>[NEWLINE] [ICON_BULLET] No Technologies to steal.</Text>
@@ -287,7 +287,7 @@
 			<Text>Enable [ICON_INFLUENCE] Quest Influence Rewards</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO">
-			<Text>Disable [ICON_VP_NOINFLUENCE] Quest Influence Rewards</Text>
+			<Text>Disable [ICON_NOINFLUENCE] Quest Influence Rewards</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
 			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well as the non-influence yields of all active personal quests from the City-States. The quests will then be canceled.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
@@ -1285,7 +1285,7 @@
 			<Text>Office of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_TT2">
-			<Text>A completed [ICON_INTERNATIONAL_TRADE] Trade Route from or to [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will attempt to establish a [ICON_VP_FRANCHISE] [COLOR_POSITIVE_TEXT]Franchise[ENDCOLOR] in foreign cities.</Text>
+			<Text>A completed [ICON_INTERNATIONAL_TRADE] Trade Route from or to [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will attempt to establish a [ICON_FRANCHISE] [COLOR_POSITIVE_TEXT]Franchise[ENDCOLOR] in foreign cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED">
 			<Text>A conquered [COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR] City-State will provide you gifts of [ICON_CULTURE] Culture, allowing you to obtain Social Policies more quickly.</Text>

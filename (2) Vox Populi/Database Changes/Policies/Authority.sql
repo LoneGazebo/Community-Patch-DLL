@@ -121,7 +121,7 @@ VALUES
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
 VALUES
-	('POLICY_MILITARY_CASTE', 'PROMOTION_KILL_HEAL');
+	('POLICY_MILITARY_CASTE', 'PROMOTION_ENDURANCE');
 
 -- Professional Army (Now Honor)
 DELETE FROM Policy_BuildingClassProductionModifiers
@@ -138,7 +138,7 @@ WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
 VALUES
-	('POLICY_PROFESSIONAL_ARMY', 'PROMOTION_HONOR_BONUS');
+	('POLICY_PROFESSIONAL_ARMY', 'PROMOTION_CONSCRIPTION');
 
 -- Finisher
 UPDATE Policies SET GoldFromKills = 0 WHERE Type = 'POLICY_HONOR_FINISHER';

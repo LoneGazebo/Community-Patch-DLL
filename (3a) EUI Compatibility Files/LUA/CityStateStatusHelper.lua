@@ -730,7 +730,7 @@ if gk_mode then
 			-- CBP
 			-- Denied Quest Influence
 			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
-				sIconTextOther = sIconTextOther .. "[ICON_VP_NOINFLUENCE]"
+				sIconTextOther = sIconTextOther .. "[ICON_NOINFLUENCE]"
 			end
 			
 			-- Married
@@ -964,7 +964,7 @@ if gk_mode then
 			-- CBP
 			-- Denied Quest Influence
 			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
-				table_insert(tTooltipOther,"[ICON_VP_NOINFLUENCE] " .. L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
+				table_insert(tTooltipOther,"[ICON_NOINFLUENCE] " .. L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
 			end
 
 			-- Married

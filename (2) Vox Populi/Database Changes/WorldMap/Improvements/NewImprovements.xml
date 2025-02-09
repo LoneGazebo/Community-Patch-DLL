@@ -4,7 +4,7 @@
 		<Row>
 			<Type>IMPROVEMENT_EMBASSY</Type>
 			<Description>TXT_KEY_IMPROVEMENT_EMBASSY</Description>
-			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_EMBASSY_TEXT</Civilopedia>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_EMBASSY</ArtDefineTag>
 			<OnlyCityStateTerritory>true</OnlyCityStateTerritory>
 			<IsEmbassy>true</IsEmbassy>
@@ -13,20 +13,148 @@
 			<CreatedByGreatPerson>true</CreatedByGreatPerson>
 			<BuildableOnResources>true</BuildableOnResources>
 			<ConnectsAllResources>true</ConnectsAllResources>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>TERRAIN_IMPROVEMENT_EMBASSY</IconAtlas>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
 		</Row>
 		<!-- Inca mountain city -->
 		<Row>
-			<Type>IMPROVEMENT_JFD_MACHU_PICCHU</Type>
-			<Description>TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU</Description>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_JFD_MACHU</ArtDefineTag>
+			<Type>IMPROVEMENT_MOUNTAIN_CITY</Type>
+			<Description>TXT_KEY_IMPROVEMENT_MOUNTAIN_CITY</Description>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_MOUNTAIN_CITY</ArtDefineTag>
 			<GraphicalOnly>true</GraphicalOnly>
 		</Row>
 		<!--
 			Unique Improvements
 			Basic properties only. Gameplay properties should be added in respective Civilization sql files.
 		-->
+		<Row>
+			<Type>IMPROVEMENT_APLEKTON</Type>
+			<Description>TXT_KEY_IMPROVEMENT_APLEKTON</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_APLEKTON_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_APLEKTON_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_APLEKTON</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_BYZANTIUM</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_CHARBAGH</Type>
+			<Description>TXT_KEY_IMPROVEMENT_CHARBAGH</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_CHARBAGH_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_CHARBAGH_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_CHARBAGH</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_PERSIA</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_EKI</Type>
+			<Description>TXT_KEY_IMPROVEMENT_EKI</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_EKI_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_EKI_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_EKI</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_HUNS</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_VP_ENCAMPMENT</Type>
+			<Description>TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_TIPIS</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_SHOSHONE</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_HACIENDA</Type>
+			<Description>TXT_KEY_IMPROVEMENT_HACIENDA</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_HACIENDA_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_HACIENDA_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_HACIENDA</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_SPAIN</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_ISIBAYA</Type>
+			<Description>TXT_KEY_IMPROVEMENT_ISIBAYA</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_ISIBAYA_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_ISIBAYA_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_ISIBAYA</ArtDefineTag>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_KAMPONG</Type>
+			<Description>TXT_KEY_IMPROVEMENT_KAMPONG</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_KAMPONG_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_KAMPONG_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_KAMPONG</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_INDONESIA</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_KUNA</Type>
+			<Description>TXT_KEY_IMPROVEMENT_KUNA</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_KUNA_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_KUNA_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_KUNA</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_MAYA</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_MONOLITHIC_CHURCH</Type>
+			<Description>TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_MONOLITHIC_CHURCH</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_ETHIOPIA</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_OBELISK</Type>
+			<Description>TXT_KEY_IMPROVEMENT_OBELISK</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_OBELISK_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_OBELISK_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_MONOLITH_AFRI</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_EGYPT</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_OPPIDUM</Type>
+			<Description>TXT_KEY_IMPROVEMENT_OPPIDUM</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_OPPIDUM_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_OPPIDUM_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_OPPIDUM</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>IMPROVEMENT_ORDO</Type>
+			<Description>TXT_KEY_IMPROVEMENT_ORDO</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_ORDO_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_ORDO_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_ORDO</ArtDefineTag>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
+		</Row>
 		<Row>
 			<Type>IMPROVEMENT_SIHEYUAN</Type>
 			<Description>TXT_KEY_IMPROVEMENT_SIHEYUAN</Description>
@@ -35,30 +163,30 @@
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_SIHEYUAN</ArtDefineTag>
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_CHINA</CivilizationType>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>IMPROVEMENT_SIHEYUAN_ATLAS</IconAtlas>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>IMPROVEMENT_EKI</Type>
-			<Description>TXT_KEY_IMPROVEMENT_EKI</Description>
-			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT</Civilopedia>
-			<Help>TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP</Help>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_EKI</ArtDefineTag>
+			<Type>IMPROVEMENT_TERSANE</Type>
+			<Description>TXT_KEY_IMPROVEMENT_TERSANE</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_TERSANE_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_TERSANE_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_TERSANE</ArtDefineTag>
 			<SpecificCivRequired>true</SpecificCivRequired>
-			<CivilizationType>CIVILIZATION_HUNS</CivilizationType>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>TERRAIN_IMPROVEMENT_EKI</IconAtlas>
+			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>IMPROVEMENT_KUNA</Type>
-			<Description>TXT_KEY_IMPROVEMENT_KUNA</Description>
-			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT</Civilopedia>
-			<Help>TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP</Help>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_KUNA</ArtDefineTag>
+			<Type>IMPROVEMENT_VILLA</Type>
+			<Description>TXT_KEY_IMPROVEMENT_VILLA</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLA_TEXT</Civilopedia>
+			<Help>TXT_KEY_IMPROVEMENT_VILLA_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_VILLA</ArtDefineTag>
 			<SpecificCivRequired>true</SpecificCivRequired>
-			<CivilizationType>CIVILIZATION_MAYA</CivilizationType>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>TERRAIN_IMPROVEMENT_KUNA</IconAtlas>
+			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
+			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_POLDER_WATER</Type>
@@ -66,40 +194,9 @@
 			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_POLDER_TEXT</Civilopedia>
 			<Help>TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_POLDER</ArtDefineTag>
-			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>EXPANSION_TERRAIN_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 			<GraphicalOnly>true</GraphicalOnly>
-		</Row>
-		<Row>
-			<Type>IMPROVEMENT_MONGOLIA_ORDO</Type>
-			<Description>TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO</Description>
-			<Civilopedia>TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_TEXT</Civilopedia>
-			<Help>TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP</Help>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_MONGOLIA_ORDO</ArtDefineTag>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>MONGOLIA_ORDO_ATLAS</IconAtlas>
-		</Row>
-		<Row>
-			<Type>IMPROVEMENT_SPAIN_HACIENDA</Type>
-			<Description>TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA</Description>
-			<Civilopedia>TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_TEXT</Civilopedia>
-			<Help>TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_HELP</Help>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_SPAIN_HACIENDA</ArtDefineTag>
-			<SpecificCivRequired>true</SpecificCivRequired>
-			<CivilizationType>CIVILIZATION_SPAIN</CivilizationType>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>IMPROVEMENT_SPAIN_ATLAS</IconAtlas>
-		</Row>
-		<Row>
-			<Type>IMPROVEMENT_ENCAMPMENT_SHOSHONE</Type>
-			<Description>TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE</Description>
-			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_TEXT</Civilopedia>
-			<Help>TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP</Help>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_TIPIS</ArtDefineTag>
-			<SpecificCivRequired>true</SpecificCivRequired>
-			<CivilizationType>CIVILIZATION_SHOSHONE</CivilizationType>
-			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</IconAtlas>
 		</Row>
 	</Improvements>
 </GameData>

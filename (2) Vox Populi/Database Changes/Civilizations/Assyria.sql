@@ -10,7 +10,7 @@ VALUES
 -- Unique Unit: Siege Tower
 ----------------------------------------------------------
 UPDATE Civilization_UnitClassOverrides
-SET UnitClassType = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER'
+SET UnitClassType = 'UNITCLASS_SIEGE_TOWER'
 WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
 UPDATE Units

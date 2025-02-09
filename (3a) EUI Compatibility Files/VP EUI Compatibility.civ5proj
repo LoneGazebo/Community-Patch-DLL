@@ -41,11 +41,6 @@
         <Type>UpdateDatabase</Type>
         <FileName>ImprovedTopPanel/Text.xml</FileName>
       </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>ImprovedTopPanel/FontIconsITP.xml</FileName>
-      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -250,18 +245,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\YieldIconManager.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="ImprovedTopPanel/FontIconsITP.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="ImprovedTopPanel/FontIconsITP.ggxml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="ImprovedTopPanel/FontIconsITP.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

@@ -32,25 +32,25 @@ VALUES
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_GREECE', 'BUILDINGCLASS_AMPHITHEATER', 'BUILDING_ODEON');
+	('CIVILIZATION_GREECE', 'BUILDINGCLASS_AMPHITHEATER', 'BUILDING_GYMNASION');
 
-UPDATE Buildings SET Defense = 300 WHERE Type = 'BUILDING_ODEON';
+UPDATE Buildings SET Defense = 300 WHERE Type = 'BUILDING_GYMNASION';
 
 UPDATE Building_YieldChanges
 SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_AMPHITHEATER' AND YieldType = 'YIELD_CULTURE') + 1
-WHERE BuildingType = 'BUILDING_ODEON' AND YieldType = 'YIELD_CULTURE';
+WHERE BuildingType = 'BUILDING_GYMNASION' AND YieldType = 'YIELD_CULTURE';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ODEON', 'YIELD_TOURISM', 3);
+	('BUILDING_GYMNASION', 'YIELD_TOURISM', 3);
 
 INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_ODEON', 'YIELD_CULTURE_LOCAL', 5, 1);
+	('BUILDING_GYMNASION', 'YIELD_CULTURE_LOCAL', 5, 1);
 
 INSERT INTO Building_YieldFromVictory
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ODEON', 'YIELD_CULTURE', 25);
+	('BUILDING_GYMNASION', 'YIELD_CULTURE', 25);

@@ -8,8 +8,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_COFFEE</ArtDefineTag>
 			<IconString>[ICON_RES_COFFEE]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -21,8 +21,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_TEA</ArtDefineTag>
 			<IconString>[ICON_RES_TEA]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -34,8 +34,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_TOBACCO</ArtDefineTag>
 			<IconString>[ICON_RES_TOBACCO]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -47,8 +47,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_AMBER</ArtDefineTag>
 			<IconString>[ICON_RES_AMBER]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>4</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Hills>true</Hills>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -61,8 +61,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_JADE</ArtDefineTag>
 			<IconString>[ICON_RES_JADE]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Hills>true</Hills>
 			<LandResource>true</LandResource>
 			<RockResource>true</RockResource>
@@ -74,8 +74,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_OLIVE</ArtDefineTag>
 			<IconString>[ICON_RES_OLIVE]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -87,8 +87,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_PERFUME</ArtDefineTag>
 			<IconString>[ICON_RES_PERFUME]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
@@ -100,8 +100,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_CORAL</ArtDefineTag>
 			<IconString>[ICON_RES_CORAL]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>8</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<SeaResource>true</SeaResource>
 			<AnimalResource>true</AnimalResource>
 		</Row>
@@ -112,8 +112,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_LAPIS</ArtDefineTag>
 			<IconString>[ICON_RES_LAPIS]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>9</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Hills>true</Hills>
 			<LandResource>true</LandResource>
 			<RockResource>true</RockResource>
@@ -127,8 +127,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_ALL</ArtDefineTag>
 			<IconString>[ICON_RES_GLASS]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>10</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<!-- Brazil -->
 		<Row>
@@ -139,8 +139,8 @@
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_ALL</ArtDefineTag>
 			<IconString>[ICON_RES_BRAZILWOOD]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
 			<Hills>true</Hills>
 			<LandResource>true</LandResource>
@@ -154,10 +154,9 @@
 			<ResourceClassType>RESOURCECLASS_BONUS</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_MAIZE</ArtDefineTag>
 			<IconString>[ICON_RES_MAIZE]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>12</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
-			<Normalize>true</Normalize>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
 		</Row>
@@ -168,10 +167,23 @@
 			<ResourceClassType>RESOURCECLASS_BONUS</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_RICE</ArtDefineTag>
 			<IconString>[ICON_RES_RICE]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
-			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 			<Flatlands>true</Flatlands>
-			<Normalize>true</Normalize>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
+		</Row>
+		<Row>
+			<Type>RESOURCE_FIGS</Type>
+			<Description>TXT_KEY_RESOURCE_FIGS</Description>
+			<Civilopedia>TXT_KEY_RESOURCE_FIGS_TEXT</Civilopedia>
+			<ResourceClassType>RESOURCECLASS_BONUS</ResourceClassType>
+			<ArtDefineTag>ART_DEF_RESOURCE_FIGS</ArtDefineTag>
+			<IconString>[ICON_RES_FIGS]</IconString>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
+			<Flatlands>true</Flatlands>
+			<Hills>true</Hills>
 			<LandResource>true</LandResource>
 			<PlantResource>true</PlantResource>
 		</Row>
@@ -184,8 +196,8 @@
 			<ResourceClassType>RESOURCECLASS_RUSH</ResourceClassType>
 			<ArtDefineTag>ART_DEF_RESOURCE_FUR</ArtDefineTag>
 			<IconString>[ICON_RES_PAPER]</IconString>
-			<PortraitIndex>1</PortraitIndex>
-			<IconAtlas>CSD_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
 			<TechReveal>TECH_WRITING</TechReveal>
 			<TechObsolete>TECH_AGRICULTURE</TechObsolete>
 		</Row>

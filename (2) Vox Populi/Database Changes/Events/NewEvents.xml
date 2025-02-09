@@ -536,7 +536,7 @@
 			<Description>TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1</Description>
 			<Help>TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1_HELP</Help>
 			<Expires>true</Expires>
-			<EventPromotion>PROMOTION_MORALE_EVENT</EventPromotion>
+			<EventPromotion>PROMOTION_FERVOR</EventPromotion>
 			<PlayerHappiness>5</PlayerHappiness>
 			<RequiresWar>true</RequiresWar>
 		</Row>

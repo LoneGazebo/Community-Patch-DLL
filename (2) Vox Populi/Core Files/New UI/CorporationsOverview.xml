@@ -10,7 +10,7 @@
 			<Stack ID="RowStack" Anchor="L,T" StackGrowth="Right" Padding="13">
 				<Box ID="NameBox" Offset="0,0" Anchor="R,C" Size="340,180" Color="White.0">
 					<Button Anchor="L,T" Offset="0,0" Size="128,128" ID="PortraitButton">
-						<Image Anchor="L,T" Offset="0,0" Texture="CorpAtlas128.dds" Size="128.128" ID="CorporationPortrait"/>
+						<Image Anchor="L,T" Offset="0,0" Texture="VPCorporationAtlas_128.dds" Size="128.128" ID="CorporationPortrait"/>
 						<Box Size="64,64" Anchor="R,B" Offset="0,2" Color="0,0,0,0" ID="CorporationFounderBox">
 							<Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 							<Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
@@ -230,7 +230,7 @@
 					<Box Color="0,0,0,0" Size="956,128">
 						<Box ID="YourCorporationNameBox" Offset="0,0" Anchor="L,T" Size="956,128" Color="White.0">
 							<Button Anchor="L,T" Offset="0,0" Size="128,128" ID="YourCorporationButton">
-								<Image Anchor="L,T" Offset="0,0" Texture="CorpAtlas128.dds" Size="128.128" ID="YourCorporationPortrait"/>
+								<Image Anchor="L,T" Offset="0,0" Texture="VPCorporationAtlas_128.dds" Size="128.128" ID="YourCorporationPortrait"/>
 							</Button>
 							<Label Anchor="L,T" Offset="124,40" String="CorpName" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="YourCorporationName"/>
 							<Label Anchor="L,T" Offset="124,64" String="CorpName" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="YourCorporationHQ"/>
@@ -243,13 +243,13 @@
 							<Button Anchor="L,T" Size="80,80" Offset="440,28" Color="0,0,0,0" ID="YourCorporationOfficeBox">
 								<Label Anchor="C,T" Offset="0,-16" Font="TwCenMT18" WrapWidth="880" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_CPO_OFFICE:upper}"/>
 								<Image Anchor="C,C" Offset="0,0" Size="80,80" Texture="assets\UI\Art\Notification\NotificationFrameBase.dds">
-									<Image Anchor="C,C" Offset="0,0" Texture="CorpAtlas80.dds" Size="80.80" ID="OfficePortrait"/>
+									<Image Anchor="C,C" Offset="0,0" Texture="VPCorporationAtlas_080.dds" Size="80.80" ID="OfficePortrait"/>
 								</Image>
 							</Button>
 							<Button Anchor="L,T" Size="80,80" Offset="540,28" Color="0,0,0,0" ID="YourCorporationFranchiseBox">
 								<Label Anchor="C,T" Offset="0,-16" Font="TwCenMT18" WrapWidth="880" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_CPO_FRANCHISE:upper}"/>
 								<Image Anchor="C,C" Offset="0,0" Size="80,80" Texture="assets\UI\Art\Notification\NotificationFrameBase.dds">
-									<Image Anchor="C,C" Offset="0,0" Texture="CorpAtlas80.dds" Size="80.80" ID="FranchisePortrait"/>
+									<Image Anchor="C,C" Offset="0,0" Texture="VPCorporationAtlas_080.dds" Size="80.80" ID="FranchisePortrait"/>
 								</Image>
 							</Button>
 						</Box>

@@ -5,7 +5,7 @@
 			<Text>Trader Sid's, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_HELP">
-			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation and land trading.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% [ICON_CARAVAN] Land Trade Route Range.[NEWLINE][ICON_BULLET]+3 [ICON_GOLD] Gold from {TXT_KEY_BUILDING_CARAVANSARY} and {TXT_KEY_BUILDING_MARKET} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation and land trading.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% [ICON_CARAVAN] Land Trade Route Range.[NEWLINE][ICON_BULLET]+3 [ICON_GOLD] Gold from {TXT_KEY_BUILDING_CARAVANSARY} and {TXT_KEY_BUILDING_MARKET} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS">
 			<Text>[ICON_RES_SPICES] Cinnamon, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Franchise.</Text>
@@ -20,22 +20,22 @@
 			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS">
+		<Row Tag="TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS">
 			<Text>Centaurus Extractors, Inc.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP">
-			<Text>Provides benefits geared toward maritime [ICON_PRODUCTION] Production and coastal Cities.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% [ICON_CARGO_SHIP] Sea Trade Route Range.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production from {TXT_KEY_BUILDING_HARBOR} and {TXT_KEY_BUILDING_SEAPORT} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+		<Row Tag="TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS_HELP">
+			<Text>Provides benefits geared toward maritime [ICON_PRODUCTION] Production and coastal Cities.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% [ICON_CARGO_SHIP] Sea Trade Route Range.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production from {TXT_KEY_BUILDING_HARBOR} and {TXT_KEY_BUILDING_SEAPORT} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CENTAURUS_EXTRACTORS">
 			<Text>[ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory, and [ICON_RES_CORAL] Coral provide +1 [ICON_PRODUCTION] Production in all Cities with a Centaurus Extractors Franchise.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_LANDSEA_EXTRACTORS">
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_CENTAURUS_EXTRACTORS">
 			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise, and +1 [ICON_PRODUCTION] Production on all Sea Tiles near the City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS">
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CENTAURUS_EXTRACTORS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from Cities with a Centaurus Extractors Office to Cities with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science to the origin City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
+		<Row Tag="TXT_KEY_CORPORATION_CENTAURUS_EXTRACTORS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
@@ -43,7 +43,7 @@
 			<Text>Hexxon Refinery, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_HELP">
-			<Text>Provides bonuses that enhance your ability to wage late-game [ICON_WAR] warfare and amass Strategic Resources.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_ALUMINUM] Aluminum, or [ICON_RES_URANIUM] Uranium to build.[NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production from {TXT_KEY_BUILDING_COAL_PLANT}, {TXT_KEY_BUILDING_TIDAL_PLANT}, {TXT_KEY_BUILDING_HYDRO_PLANT}, {TXT_KEY_BUILDING_NUCLEAR_PLANT}, {TXT_KEY_BUILDING_WIND_PLANT}, and {TXT_KEY_BUILDING_SOLAR_PLANT} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides bonuses that enhance your ability to wage late-game [ICON_WAR] warfare and amass Strategic Resources.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_ALUMINUM] Aluminum, or [ICON_RES_URANIUM] Uranium to build.[NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production from {TXT_KEY_BUILDING_REFINERY}, {TXT_KEY_BUILDING_TIDAL_PLANT}, {TXT_KEY_BUILDING_HYDRO_PLANT}, {TXT_KEY_BUILDING_NUCLEAR_PLANT}, {TXT_KEY_BUILDING_WIND_PLANT}, and {TXT_KEY_BUILDING_SOLAR_PLANT} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
 			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, [ICON_RES_BRAZILWOOD] Brazilwood, [ICON_RES_PERFUME] Perfume, and [ICON_RES_GLASS] Glass provide +1 [ICON_PRODUCTION] Production in all Cities with a Hexxon Refineries Franchise.</Text>
@@ -62,7 +62,7 @@
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and cultural Specialists.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from [ICON_VP_WRITER] Writers, [ICON_VP_ARTIST] Artists, and [ICON_VP_MUSICIAN] Musicians.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from {TXT_KEY_BUILDING_MUSEUM} and {TXT_KEY_BUILDING_OPERA_HOUSE} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and cultural Specialists.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from [ICON_WRITER] Writers, [ICON_ARTIST] Artists, and [ICON_MUSICIAN] Musicians.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from {TXT_KEY_BUILDING_MUSEUM} and {TXT_KEY_BUILDING_OPERA_HOUSE} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, and [ICON_RES_LAPIS] Lapis Lazuli provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>
@@ -81,7 +81,7 @@
 			<Text>Firaxite Materials, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_HELP">
-			<Text>Provides benefits geared toward [ICON_RESEARCH] Science innovation and infrastructural development.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]Trade Units cannot be plundered.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from {TXT_KEY_BUILDING_FACTORY} and {TXT_KEY_BUILDING_UNIVERSITY} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_RESEARCH] Science innovation and infrastructural development.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]Trade Units cannot be plundered.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from {TXT_KEY_BUILDING_FACTORY} and {TXT_KEY_BUILDING_UNIVERSITY} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS">
 			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_JADE] Jade, and [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Franchise.</Text>
@@ -100,7 +100,7 @@
 			<Text>TwoKay Foods, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS_HELP">
-			<Text>Provides benefits geared toward [ICON_FOOD] Food generation and City growth.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]Trade Units reveal Fog of War.[NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food from {TXT_KEY_BUILDING_GROCER}, {TXT_KEY_BUILDING_HOSPITAL}, and {TXT_KEY_BUILDING_STOCKYARD} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_FOOD] Food generation and City growth.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]Trade Units reveal Fog of War.[NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food from {TXT_KEY_BUILDING_GROCER}, {TXT_KEY_BUILDING_HOSPITAL}, and {TXT_KEY_BUILDING_AGRIBUSINESS} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TWOKAY_FOODS">
 			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffee, and [ICON_RES_TEA] Tea provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Franchise.</Text>
@@ -119,7 +119,7 @@
 			<Text>Civilized Jewelers, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_HELP">
-			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% Trade Unit movement speed.[NEWLINE][ICON_BULLET]+4 [ICON_GOLDEN_AGE] Golden Age Points from {TXT_KEY_BUILDING_MINT} and {TXT_KEY_BUILDING_BANK} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_VP_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+100% Trade Unit movement speed.[NEWLINE][ICON_BULLET]+4 [ICON_GOLDEN_AGE] Golden Age Points from {TXT_KEY_BUILDING_MINT} and {TXT_KEY_BUILDING_BANK} in all Cities.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS">
 			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry, and [ICON_RES_AMBER] Amber provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Franchise.</Text>

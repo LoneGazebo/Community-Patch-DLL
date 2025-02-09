@@ -39,7 +39,7 @@ SET MilitarySupport = 1, MilitaryProduction = 1
 WHERE CombatClass IN (
 	SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1
 ) OR Class IN (
-	'UNITCLASS_ASSYRIAN_SIEGE_TOWER',
+	'UNITCLASS_SIEGE_TOWER',
 	'UNITCLASS_ROCKET_MISSILE',
 	'UNITCLASS_GUIDED_MISSILE',
 	'UNITCLASS_ATOMIC_BOMB',
@@ -119,7 +119,7 @@ WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1 AND 
 AND PurchaseOnly = 0;
 
 -- Siege Tower and Archaeologist can also be faith purchased
-UPDATE Units SET RequiresFaithPurchaseEnabled = 1 WHERE Class IN ('UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'UNITCLASS_ARCHAEOLOGIST');
+UPDATE Units SET RequiresFaithPurchaseEnabled = 1 WHERE Class IN ('UNITCLASS_SIEGE_TOWER', 'UNITCLASS_ARCHAEOLOGIST');
 
 -----------------------------------------------------------------
 -- Minimum size of adjacent water body to train this unit

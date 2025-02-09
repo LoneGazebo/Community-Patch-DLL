@@ -2141,7 +2141,7 @@ local function UpdateCityViewNow()
 		-- Blockaded ? / Sapped ?
 		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 		if (city:GetSappedTurns() > 0) then
-			Controls.CityIsBlockaded:SetText("[ICON_VP_SAPPED]")
+			Controls.CityIsBlockaded:SetText("[ICON_SAPPED]")
 			Controls.CityIsBlockaded:LocalizeAndSetToolTip("TXT_KEY_CITY_SAPPED", city:GetSappedTurns())
 		else
 			Controls.CityIsBlockaded:SetText("[ICON_BLOCKADED]")

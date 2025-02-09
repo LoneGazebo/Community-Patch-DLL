@@ -2,59 +2,59 @@
 <GameData>
 	<Language_en_US>
 		<!-- America -->
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL">
+		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL">
 			<Text>Independence Hall</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_HELP">
+		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
 			<Text>+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +10% [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost of adopting new Policies reduced by 5%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.[NEWLINE][NEWLINE]Contains 2 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_CULTURE] Culture and +3 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_STRATEGY">
-			<Text>Unique American replacement for the {TXT_KEY_BUILDING_HERMITAGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_HERMITAGE}, {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL} reduces the cost of future policies, is easier to theme, and unlocks the ability for America to build 1 of 3 unique wonders in the Industrial Era.</Text>
+		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_STRATEGY">
+			<Text>Unique American replacement for the {TXT_KEY_BUILDING_HERMITAGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_HERMITAGE}, {TXT_KEY_BUILDING_INDEPENDENCE_HALL} reduces the cost of future policies, is easier to theme, and unlocks the ability for America to build 1 of 3 unique wonders in the Industrial Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL">
 			<Text>National Treasures</Text>
 		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP">
+		<Row Tag="TXT_KEY_INDEPENDENCE_HALL_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Art from your Civilization.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_MOMA">
-			<Text>Smithsonian Institute</Text>
+		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION">
+			<Text>Smithsonian Institution</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION_TEXT">
 			<Text>The Smithsonian Institution, originally established in 1846 as the United States National Museum is a group of museums and research centers administered by the Government of the United States. Lovingly called "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge; funding comes from the Institution's endowment, private, corporate, and government contributions, membership dues, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all Museums and Research Labs. +2 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MUSEUM} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science to all Landmarks and +1 [ICON_RESEARCH] to all [ICON_GREAT_WORK] Great Works on Empire.</Text>
+		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION_HELP">
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all Museums and Research Labs. +2 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MUSEUM} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science to all Landmarks and +1 [ICON_RESEARCH] to all [ICON_GREAT_WORK] Great Works on Empire.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL}. It gives major empire-wide bonuses towards [ICON_RESEARCH] Science and [ICON_CULTURE] Culture generation, boosting the power of Museums, Research Labs, World Wonders, Landmarks, and Great Works.[NEWLINE][NEWLINE]Build this if you want to focus on technological and cultural advancement.</Text>
+		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION_STRATEGY">
+			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_RESEARCH] Science and [ICON_CULTURE] Culture generation, boosting the power of Museums, Research Labs, World Wonders, Landmarks, and Great Works.[NEWLINE][NEWLINE]Build this if you want to focus on technological and cultural advancement.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT">
+		<Row Tag="TXT_KEY_BUILDING_WEST_POINT">
 			<Text>West Point</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Arsenals. +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MILITARY_ACADEMY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units and Naval Ranged Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR] Promotion.</Text>
+		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_HELP">
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Arsenals. +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MILITARY_ACADEMY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units and Naval Ranged Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR] Promotion.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_WESTPOINT_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_TEXT">
 			<Text>The United States Military Academy, informally known as West Point, is the oldest service academy, educating cadets to become commissioned officers for the United States Army. The academy is notable for producing some of the most renowned generals in modern history in addition to numerous heads of state, both foreign and domestic. The campus is the oldest continuously operating American army post, originally built as a river fort to overlook and control shipping along the Hudson River. As a result, the campus is a national landmark, dotted with numerous monuments and statues representing its long and storied history.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science generation, boosting the power of Military Academies, Arsenals, World Wonders, siege units, and naval ranged units.[NEWLINE][NEWLINE]Build this if you want to focus on military power.</Text>
+		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_STRATEGY">
+			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science generation, boosting the power of Military Academies, Arsenals, World Wonders, siege units, and naval ranged units.[NEWLINE][NEWLINE]Build this if you want to focus on military power.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL">
+		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL">
 			<Text>Slater Mill</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL} in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all Factories and Stock Exchanges. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_FACTORY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]Grants 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route, and all [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
+		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all Factories and Stock Exchanges. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_FACTORY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]Grants 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route, and all [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_SLATERMILL_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_TEXT">
 			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_GOLD] Gold generation, boosting the power of Factories, Stock Exchanges, and World Wonders; grants an additional [ICON_INTERNATIONAL_TRADE] Trade Route; and reduces the time for [ICON_INTERNATIONAL_TRADE] Trade Routes to complete, increasing the rate of [ICON_TOURISM] tourism generation and [ICON_VP_FRANCHISE] franchise establishment.[NEWLINE][NEWLINE]Build this if you want to focus on infrastructure.</Text>
+		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_STRATEGY">
+			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_GOLD] Gold generation, boosting the power of Factories, Stock Exchanges, and World Wonders; grants an additional [ICON_INTERNATIONAL_TRADE] Trade Route; and reduces the time for [ICON_INTERNATIONAL_TRADE] Trade Routes to complete, increasing the rate of [ICON_TOURISM] tourism generation and [ICON_FRANCHISE] franchise establishment.[NEWLINE][NEWLINE]Build this if you want to focus on infrastructure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_AMERICA_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"My country 'tis of thee,[NEWLINE]Sweet land of liberty.[NEWLINE][TAB][TAB] - Samuel F. Smith[NEWLINE][TAB]</Text>
@@ -69,38 +69,38 @@
 		</Row>
 
 		<!-- Brazil -->
-		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES">
-			<Text>Bandeirantes</Text>
+		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE">
+			<Text>Bandeirante</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_TEXT">
+		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_TEXT">
 			<Text>The Bandeirantes ("those who carry the flag") were 17th-century Portuguese settlers in Brazil and fortune hunters. They led expeditions called bandeiras ("flags") which penetrated the interior of Brazil far south and west of the Tordesillas Line of 1494, which officially divided the Castilian or later Spanish (west) domain from the Portuguese (east) domain in South America. Though they originally aimed to capture and force Indigenous Americans into slavery, the bandeirantes later began to focus their expeditions on finding gold, silver, and diamond mines. As they ventured into unmapped regions in search of profit and adventure, they expanded the effective borders of the Brazilian colony.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_STRATEGY">
-			<Text>The {TXT_KEY_UNIT_BANDEIRANTES} is the Brazilian unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. The {TXT_KEY_UNIT_BANDEIRANTES} is faster and generates [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP} slightly faster than Workers. Use these units to explore and generate valuable yields for your frontier cities.</Text>
+		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_STRATEGY">
+			<Text>The {TXT_KEY_UNIT_BANDEIRANTE} is the Brazilian unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. The {TXT_KEY_UNIT_BANDEIRANTE} is faster and generates [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP} slightly faster than Workers. Use these units to explore and generate valuable yields for your frontier cities.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_HELP">
+		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_HELP">
 			<Text>Unique Brazilian {TXT_KEY_UNIT_EXPLORER} that can construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP}; and generate [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when revealing tiles with this unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SURVIVALISM_3}[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- Byzantium -->
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
+		<Row Tag="TXT_KEY_BUILDING_TETRACONCH">
 			<Text>Tetraconch</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BASILICA_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_TEXT">
 			<Text>Over many centuries, Byzantine architecture gradually drifted away from older Roman forms. Byzantine-style buildings are often noted for their high domes and intricate mosaic work, and far greater use of stone and brick construction. The tetraconch churches, meaning "four shells" in Greek, represent the highest achievement of Byzantine architecture. The floorplan of these buildings incorporates four domed apses, giving the building the shape of a cross, with the central space capped by a high dome. The form was widely used in mausoleums and baptisteries and informed later Ottoman and Renaissance architectural traditions that followed.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_STRATEGY">
-			<Text>Unique Byzantine replacement for the {TXT_KEY_BUILDING_TEMPLE}. In addition to the {TXT_KEY_BUILDING_TEMPLE}'s bonuses, {TXT_KEY_BUILDING_BASILICA_DESC} does not require [ICON_GOLD] Gold maintenance, boosts the City's [ICON_PEACE] Faith output based on the number of [ICON_CITIZEN] Citizens in the City, and boosts the Religious Pressure towards cities connected by Trade Routes.[NEWLINE][NEWLINE]This building provides a rare source of scaling [ICON_PEACE] Faith income, which synergizes very well with the Byzantine Unique Ability.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_STRATEGY">
+			<Text>Unique Byzantine replacement for the {TXT_KEY_BUILDING_TEMPLE}. In addition to the {TXT_KEY_BUILDING_TEMPLE}'s bonuses, {TXT_KEY_BUILDING_TETRACONCH} does not require [ICON_GOLD] Gold maintenance, boosts the City's [ICON_PEACE] Faith output based on the number of [ICON_CITIZEN] Citizens in the City, and boosts the Religious Pressure towards cities connected by Trade Routes.[NEWLINE][NEWLINE]This building provides a rare source of scaling [ICON_PEACE] Faith income, which synergizes very well with the Byzantine Unique Ability.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_HELP">
-			<Text>+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in the City. +25% Religious Pressure, and an additional +100% towards Cities connected by Trade Routes.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_HELP">
+			<Text>+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in the City. +25% Religious Pressure, and an additional +100% towards Cities connected by Trade Routes.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GW_MUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<!-- Carthage -->
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON">
 			<Text>Great Cothon</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_PEDIA">
+		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_TEXT">
 			<Text>A cothon is an artificial, protected inner harbor such as that in Carthage during the Punic Wars around 200 BC. The cothon at Carthage was divided into a rectangular merchant harbor followed by an inner protected harbor reserved for military use only. This inner harbor was circular and surrounded by an outer ring of structures divided into a series of docking bays for ship maintenance, along with an island structure at its centre that also housed navy ships. Each individual docking bay featured a raised slipway. Above the raised docking bays was a second level consisting of warehouses where oars and rigging were kept along with supplies such as wood and canvas. On the island structure there existed a raised 'cabin' where the admiral in command could observe the whole harbor along with the surrounding sea. Altogether the inner docking complex could house up to 220 ships. The entire harbor was protected by an outer wall and the main entrance could be closed off with iron chains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
@@ -112,7 +112,7 @@
 
 		<!-- Celts -->
 		<Row Tag="TXT_KEY_BUILDING_CEILIDH_HALL_HELP">
-			<Text>+150 [ICON_CULTURE] Culture when completed, and starts 15 turns of "We Love the King Day" in the City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.</Text>
+			<Text>+150 [ICON_CULTURE] Culture when completed, and starts 15 turns of "We Love the King Day" in the City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GW_MUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.</Text>
 		</Row>
 
 		<!-- China -->
@@ -136,31 +136,31 @@
 		</Row>
 
 		<!-- Denmark -->
-		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
+		<Row Tag="TXT_KEY_BUILDING_RUNESTONE">
 			<Text>Runestone</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_PEDIA">
+		<Row Tag="TXT_KEY_BUILDING_RUNESTONE_TEXT">
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
+		<Row Tag="TXT_KEY_BUILDING_RUNESTONE_HELP">
 			<Text>When a Unit [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR] pillages a Tile, gain 30 [ICON_CULTURE] Culture in this City, scaling with Era.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production towards Melee, Gunpowder, and Naval Melee Units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Runestones.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>Unique Danish replacement for the {TXT_KEY_BUILDING_LIGHTHOUSE}. In addition to the {TXT_KEY_BUILDING_LIGHTHOUSE}'s bonuses, {TXT_KEY_BUILDING_JELLING_STONES} produces [ICON_CULTURE] Culture when units from this City pillage tiles (Roads and Railroads do not count), generates more [ICON_FOOD] Food from ocean tiles, and increases [ICON_PRODUCTION] Production of melee land and naval units. Unlike the {TXT_KEY_BUILDING_LIGHTHOUSE}, the {TXT_KEY_BUILDING_JELLING_STONES} can be built in a non-coastal city.</Text>
+		<Row Tag="TXT_KEY_BUILDING_RUNESTONE_STRATEGY">
+			<Text>Unique Danish replacement for the {TXT_KEY_BUILDING_LIGHTHOUSE}. In addition to the {TXT_KEY_BUILDING_LIGHTHOUSE}'s bonuses, {TXT_KEY_BUILDING_RUNESTONE} produces [ICON_CULTURE] Culture when units from this City pillage tiles (Roads and Railroads do not count), generates more [ICON_FOOD] Food from ocean tiles, and increases [ICON_PRODUCTION] Production of melee land and naval units. Unlike the {TXT_KEY_BUILDING_LIGHTHOUSE}, the {TXT_KEY_BUILDING_RUNESTONE} can be built in a non-coastal city.</Text>
 		</Row>
 
 		<!-- England -->
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER">
 			<Text>White Tower</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WHITE_TOWER_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_TEXT">
 			<Text>The White Tower is the old keep at the Tower of London. It was built by William the Conqueror during the early 1080s, and was later extended. The White Tower was the castle's strongest defensive point, and originally housed the king and his representatives. Throughout its long history, the Tower has been many things to England: A symbol of tyranny, a treasury, a menagerie, a mint, a palace and a prison. Today, the Tower of London is a vast museum which boasts, amongst its many treasures, the Crown Jewels of the English Monarchy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_HELP">
-			<Text>Provides 2 [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}.[NEWLINE][NEWLINE]+40 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you identify, capture, or kill a foreign [ICON_SPY] Spy or when you perform a Spy Mission, and +25 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you successfully rig an election in a [ICON_CITY_STATE] City-State or construct a Building in this City, scaling with Era.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact, and comes with a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_VP_GREATART] Great Work of Art.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture to all Constabularies, Castles, and Armories.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>Provides 2 [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}.[NEWLINE][NEWLINE]+40 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you identify, capture, or kill a foreign [ICON_SPY] Spy or when you perform a Spy Mission, and +25 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you successfully rig an election in a [ICON_CITY_STATE] City-State or construct a Building in this City, scaling with Era.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact, and comes with a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GW_ART] Great Work of Art.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture to all Constabularies, Castles, and Armories.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY">
-			<Text>Unique English replacement for the {TXT_KEY_BUILDING_IRONWORKS}. In addition to the bonuses of the {TXT_KEY_BUILDING_IRONWORKS}, the {TXT_KEY_BUILDING_WHITE_TOWER} boosts Constabularies, Castles, and Armories; provides [ICON_GOLD] Gold and [ICON_RESEARCH] Science for both offensive and defensive Spy actions; and contains a free [ICON_VP_GREATART] Great Work of Art.</Text>
+			<Text>Unique English replacement for the {TXT_KEY_BUILDING_IRONWORKS}. In addition to the bonuses of the {TXT_KEY_BUILDING_IRONWORKS}, the {TXT_KEY_BUILDING_WHITE_TOWER} boosts Constabularies, Castles, and Armories; provides [ICON_GOLD] Gold and [ICON_RESEARCH] Science for both offensive and defensive Spy actions; and contains a free [ICON_GW_ART] Great Work of Art.</Text>
 		</Row>
 
 		<!-- Ethiopia -->
@@ -169,17 +169,17 @@
 		</Row>
 
 		<!-- Greece -->
-		<Row Tag="TXT_KEY_BUILDING_ODEON">
+		<Row Tag="TXT_KEY_BUILDING_GYMNASION">
 			<Text>Acropolis</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
 			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City.[NEWLINE][NEWLINE]+5 [ICON_CULTURE_LOCAL] Border Growth when a Unit defeats an Enemy Unit in battle; also +25 [ICON_CULTURE] Culture if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], both scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 2 slots for [ICON_VP_GREATWRITING] Great Works of Writing. +2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
+			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City.[NEWLINE][NEWLINE]+5 [ICON_CULTURE_LOCAL] Border Growth when a Unit defeats an Enemy Unit in battle; also +25 [ICON_CULTURE] Culture if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], both scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 2 slots for [ICON_GW_WRITING] Great Works of Writing. +2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
-			<Text>Unique Greek replacement for the {TXT_KEY_BUILDING_AMPHITHEATER}. In addition to the {TXT_KEY_BUILDING_AMPHITHEATER}'s bonuses, {TXT_KEY_BUILDING_ODEON} increases [ICON_STRENGTH] Defensive Strength and produces [ICON_CULTURE] Culture and [ICON_CULTURE_LOCAL] Border Growth Points when your unit defeats an enemy unit.</Text>
+		<Row Tag="TXT_KEY_BUILDING_GYMNASION_STRATEGY">
+			<Text>Unique Greek replacement for the {TXT_KEY_BUILDING_AMPHITHEATER}. In addition to the {TXT_KEY_BUILDING_AMPHITHEATER}'s bonuses, {TXT_KEY_BUILDING_GYMNASION} increases [ICON_STRENGTH] Defensive Strength and produces [ICON_CULTURE] Culture and [ICON_CULTURE_LOCAL] Border Growth Points when your unit defeats an enemy unit.</Text>
 		</Row>
 
 		<!-- Huns -->
@@ -187,10 +187,10 @@
 			<Text>Eki</Text>
 			<Gender>neuter:an</Gender>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT">
-			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
+		<Row Tag="TXT_KEY_IMPROVEMENT_EKI_TEXT">
+			<Text>{TXT_KEY_IMPROVEMENT_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP">
+		<Row Tag="TXT_KEY_IMPROVEMENT_EKI_HELP">
 			<Text>Can only be built on flat land tiles without access to Fresh Water. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory. When completed, claims the tile beneath it if built in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI">
@@ -204,6 +204,18 @@
 		</Row>
 
 		<!-- Inca -->
+		<Row Tag="TXT_KEY_UNIT_WARAKAQ">
+			<Text>Warak'aq</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_WARAKAQ_TEXT">
+			<Text>The Inca warriors were renowned slingers. Their projectile of choice was a rounded stone. While a sling does not have the range or stopping power of a bow and arrow, slings are remarkably small and light weapons, and infantry warriors could easily carry them without becoming encumbered. And as is written in the Old Testament, a trained slinger can kill even the largest opponent with but a single stone...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_WARAKAQ_STRATEGY">
+			<Text>The {TXT_KEY_UNIT_WARAKAQ} is the Incan unique unit, replacing the {TXT_KEY_UNIT_INCAN_SLINGER}. It has superior range and can daze enemy units which lowers their [ICON_STRENGTH] Combat Strength for a long time.[NEWLINE][NEWLINE]Use it to harass your foes and take down Barbarian camps quickly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_WARAKAQ_HELP">
+			<Text>Unique Incan {TXT_KEY_UNIT_INCAN_SLINGER} that has increased [ICON_RANGE_STRENGTH] Attack Range, ignores enemy [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR], and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILD_TERRACE_FARM_HELP">
 			<Text>+1 [ICON_FOOD] Food for every {TXT_KEY_IMPROVEMENT_TERRACE_FARM} or Mountain adjacent to this {TXT_KEY_IMPROVEMENT_TERRACE_FARM}. +1 [ICON_FOOD] Food to adjacent Farms.</Text>
 		</Row>
@@ -212,24 +224,24 @@
 		</Row>
 
 		<!-- India -->
-		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
+		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR">
 			<Text>Harappan Reservoir</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_TEXT">
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
+		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_HELP">
 			<Text>20% of [ICON_FOOD] Food is carried over, and 25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production after a new [ICON_CITIZEN] Citizen is born. +2 [ICON_FOOD] Food from Lakes and Oases, and +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from Farms worked by this City.[NEWLINE][NEWLINE]+1% [ICON_FOOD] Food for each Follower of this City's Majority [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
-			<Text>Unique Indian replacement for the {TXT_KEY_BUILDING_AQUEDUCT}. In addition to the {TXT_KEY_BUILDING_AQUEDUCT}'s bonuses, {TXT_KEY_BUILDING_INDUS_CANAL} keeps more [ICON_FOOD] Food on [ICON_CITIZEN] population growth; boosts Farms; and increases the city's [ICON_FOOD] Food generation depending on the number of followers of this city's majority [ICON_RELIGION] religion.</Text>
+		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_STRATEGY">
+			<Text>Unique Indian replacement for the {TXT_KEY_BUILDING_AQUEDUCT}. In addition to the {TXT_KEY_BUILDING_AQUEDUCT}'s bonuses, {TXT_KEY_BUILDING_HARAPPAN_RESERVOIR} keeps more [ICON_FOOD] Food on [ICON_CITIZEN] population growth; boosts Farms; and increases the city's [ICON_FOOD] Food generation depending on the number of followers of this city's majority [ICON_RELIGION] religion.</Text>
 		</Row>
 
 		<!-- Japan -->
 		<Row Tag="TXT_KEY_BUILDING_DOJO">
 			<Text>Dojo</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_DOJO_TEXT">
 			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dojos were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dojo only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dojo because of its close martial arts roots.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
@@ -243,7 +255,7 @@
 		<Row Tag="TXT_KEY_BUILDING_SEOWON">
 			<Text>Seowon</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SEOWON_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_SEOWON_TEXT">
 			<Text>Seowon were the most common educational institution of Korea during the mid- to late-Joseon Dynasty. They were private institutions combining the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
@@ -257,10 +269,10 @@
 		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA">
 			<Text>Kuna</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT">
-			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP}[NEWLINE][NEWLINE]'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!</Text>
+		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA_TEXT">
+			<Text>{TXT_KEY_IMPROVEMENT_KUNA_HELP}[NEWLINE][NEWLINE]'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP">
+		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA_HELP">
 			<Text>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA">
@@ -274,32 +286,32 @@
 		</Row>
 
 		<!-- Mongolia -->
-		<Row Tag="TXT_KEY_BUILDING_YURT">
+		<Row Tag="TXT_KEY_BUILDING_GER">
 			<Text>Ger</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_YURT_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_GER_TEXT">
 			<Text>A yurt, called a 'Ger' by Mongolians, is a portable, bent dwelling structure traditionally used by nomads in the steppes of Central Asia as their home. The structure comprises a crown or compression wheel, usually steam bent, supported by roof ribs which are bent down at the end where they meet the lattice wall (again, steam bent). The top of the wall is prevented from spreading by means of a tension band which opposes the force of the roof ribs. The structure is usually covered by layers of fabric and sheep's wool felt for insulation and weatherproofing. The traditional decoration within a yurt is primarily pattern based. These patterns are generally not according to taste, but are derived from sacred ornaments with certain symbolism. Symbols representing strength are among the most common, including the khas (swastika) and four powerful beasts (lion, tiger, garuda and dragon), as well as stylized representations of the five elements (fire, water, earth, metal, and wood), considered to be the fundamental, unchanging elements of the cosmos. Such patterns are commonly used in the home with the belief that they will bring strength and offer protection.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
+		<Row Tag="TXT_KEY_BUILDING_GER_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production from Camps and Pastures. +40% [ICON_CULTURE_LOCAL] Border Growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the {TXT_KEY_BUILDING_LODGE}. In addition to the {TXT_KEY_BUILDING_LODGE}'s bonuses, {TXT_KEY_BUILDING_YURT} generates [ICON_PEACE] Faith; boosts pastures; provides [ICON_PRODUCTION] Production when borders expand; and makes borders expand faster.</Text>
+		<Row Tag="TXT_KEY_BUILDING_GER_STRATEGY">
+			<Text>Unique Mongolian replacement for the {TXT_KEY_BUILDING_SMOKEHOUSE}. In addition to the {TXT_KEY_BUILDING_SMOKEHOUSE}'s bonuses, {TXT_KEY_BUILDING_GER} generates [ICON_PEACE] Faith; boosts pastures; provides [ICON_PRODUCTION] Production when borders expand; and makes borders expand faster.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO">
+		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO">
 			<Text>Ordo</Text>
 			<Gender>neuter:an</Gender>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_TEXT">
-			<Text>{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP}[NEWLINE][NEWLINE]Simply translated, "ordo" means "palace tent." However, an ordo was something much more than just a simple tent - it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.[NEWLINE][NEWLINE]You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Culture borders will also expand to surround the Ordo on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Unlike the Citadel, any enemy unit which ends its turn next to an Ordo takes no damage.</Text>
+		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO_TEXT">
+			<Text>{TXT_KEY_IMPROVEMENT_ORDO_HELP}[NEWLINE][NEWLINE]Simply translated, "ordo" means "palace tent." However, an ordo was something much more than just a simple tent - it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.[NEWLINE][NEWLINE]You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Culture borders will also expand to surround the Ordo on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Unlike the Citadel, any enemy unit which ends its turn next to an Ordo takes no damage.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP">
+		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO_HELP">
 			<Text>Unique Mongolian Great Person Tile Improvement, replacing the {TXT_KEY_IMPROVEMENT_CITADEL}. Can only be constructed by a {TXT_KEY_UNIT_MONGOL_KHAN}.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Units moving onto an Ordo have all their [ICON_MOVES] Movement restored. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO">
-			<Text>Construct an [LINK=IMPROVEMENT_MONGOLIA_ORDO]Ordo[\LINK]</Text>
+		<Row Tag="TXT_KEY_BUILD_ORDO">
+			<Text>Construct an [LINK=IMPROVEMENT_ORDO]Ordo[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_HELP">
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_ORDO">
 			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Culture borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Restores [ICON_MOVES] Movement for any Unit moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 
@@ -318,17 +330,17 @@
 		</Row>
 
 		<!-- Ottoman -->
-		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP">
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY">
 			<Text>Siege Foundry</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SIEGE_WORKSHOP_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY_TEXT">
 			<Text>A foundry is a factory that produces metal castings. Metals are cast into shapes by melting them into a liquid, pouring the metal in a mold, and removing the mold material or casting after the metal has solidified as it cools. The most common metals processed are aluminium and cast iron. However, other metals, such as bronze, brass, steel, magnesium, and zinc, are also used to produce castings in foundries. In this process, parts of desired shapes and sizes can be formed. In the context of war, foundries were essential to the production of cannonry and other essential siege equipment.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP">
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production from Mines worked by this City. +50% [ICON_PRODUCTION] Production towards Siege units, and all Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VOLLEY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]When you construct a Military Unit in this City, gain [ICON_RESEARCH] Science equal to 20% of the Unit's [ICON_PRODUCTION] Production cost.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
-			<Text>Unique Ottoman replacement for the {TXT_KEY_BUILDING_FORGE}. In addition to the {TXT_KEY_BUILDING_FORGE}'s bonuses, {TXT_KEY_BUILDING_SIEGE_WORKSHOP} generates [ICON_RESEARCH] Science from producing military units, produces Siege units more quickly, and grants them the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VOLLEY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Use these abilities to build a massive force of artillery to take down enemies' walls and conquer their lands!</Text>
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY_STRATEGY">
+			<Text>Unique Ottoman replacement for the {TXT_KEY_BUILDING_FORGE}. In addition to the {TXT_KEY_BUILDING_FORGE}'s bonuses, {TXT_KEY_BUILDING_SIEGE_FOUNDRY} generates [ICON_RESEARCH] Science from producing military units, produces Siege units more quickly, and grants them the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VOLLEY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Use these abilities to build a massive force of artillery to take down enemies' walls and conquer their lands!</Text>
 		</Row>
 
 		<!-- Rome -->
@@ -346,23 +358,23 @@
 		</Row>
 
 		<!-- Shoshone -->
-		<Row Tag="TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE">
+		<Row Tag="TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT">
 			<Text>Encampment</Text>
 			<Gender>neuter:an</Gender>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_TEXT">
-			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP}[NEWLINE][NEWLINE]A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.</Text>
+		<Row Tag="TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT_TEXT">
+			<Text>{TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT_HELP}[NEWLINE][NEWLINE]A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP">
+		<Row Tag="TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT_HELP">
 			<Text>Can only be built on flat land tiles, and cannot be adjacent to another Encampment.[NEWLINE][NEWLINE]+15% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 5 damage (damage does not stack with other improvements).[NEWLINE][NEWLINE]If within 2 tiles of an Encampment in Shoshone territory, all Shoshone units gain +20% [ICON_STRENGTH] Combat Strength.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE">
-			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT_SHOSHONE]Encampment[\LINK]</Text>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT">
+			<Text>Construct an [LINK=IMPROVEMENT_VP_ENCAMPMENT]Encampment[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_HELP">
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_HELP">
 			<Text>+15% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. +20% [ICON_STRENGTH] Combat Strength to any nearby Shoshone Units within a 2-tile radius. Any enemy unit which ends its turn next to the Encampment takes 5 damage.[NEWLINE][NEWLINE]Can only be built on flat land tiles, and cannot be adjacent to another Encampment.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_REC">
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_REC">
 			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture. Removes any feature on the tile.[NEWLINE]Provides a combat bonus for nearby Shoshone units and a defensive bonus for own units on the tile, and lightly damages adjacent enemy units.</Text>
 		</Row>
 
@@ -373,22 +385,22 @@
 		<Row Tag="TXT_KEY_UNIT_HELP_SPAIN_INQUISITOR">
 			<Text>{TXT_KEY_UNIT_HELP_INQUISITOR}[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Nobody expects the Spanish Inquisition![ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA">
+		<Row Tag="TXT_KEY_IMPROVEMENT_HACIENDA">
 			<Text>Hacienda</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_TEXT">
-			<Text>{TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_HELP}[NEWLINE][NEWLINE]Haciendas are colonial estates constructed by the Spanish for the administration and extraction of resources from their native subjects. Haciendas were based on grants of property and enterprise, rather than the strict grant of indigenous labor as described by the older Encomienda system. Haciendas were generally large estates, but the nature of the work varied from plantations, to mining, to factories.[NEWLINE][NEWLINE]The owner of a Hacienda was called a Hacendado, but the wealthy landowners rarely visited their holdings and preferred to live in nearby cities. Day-to-day operations of a Hacienda were the responsibility of hired managers. Some unusually large and profitable Haciendas were the property of the Roman Catholic Church, exacerbating tension between native laborers and their Christian taskmasters.[NEWLINE][NEWLINE]The Hacienda system was abolished in most countries after the dissolution of the Spanish Empire, but with mixed results. Efforts to break apart the large estates into individual holdings for subsistence farmers led to crushing poverty in some South American nations. In contrast, Latin American and Filipino Haciendas were mostly left intact, but without the same legal standing or permissions of their colonial past.</Text>
+		<Row Tag="TXT_KEY_IMPROVEMENT_HACIENDA_TEXT">
+			<Text>{TXT_KEY_IMPROVEMENT_HACIENDA_HELP}[NEWLINE][NEWLINE]Haciendas are colonial estates constructed by the Spanish for the administration and extraction of resources from their native subjects. Haciendas were based on grants of property and enterprise, rather than the strict grant of indigenous labor as described by the older Encomienda system. Haciendas were generally large estates, but the nature of the work varied from plantations, to mining, to factories.[NEWLINE][NEWLINE]The owner of a Hacienda was called a Hacendado, but the wealthy landowners rarely visited their holdings and preferred to live in nearby cities. Day-to-day operations of a Hacienda were the responsibility of hired managers. Some unusually large and profitable Haciendas were the property of the Roman Catholic Church, exacerbating tension between native laborers and their Christian taskmasters.[NEWLINE][NEWLINE]The Hacienda system was abolished in most countries after the dissolution of the Spanish Empire, but with mixed results. Efforts to break apart the large estates into individual holdings for subsistence farmers led to crushing poverty in some South American nations. In contrast, Latin American and Filipino Haciendas were mostly left intact, but without the same legal standing or permissions of their colonial past.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_HELP">
+		<Row Tag="TXT_KEY_IMPROVEMENT_HACIENDA_HELP">
 			<Text>Cannot be built adjacent to another Hacienda. Gains additional yields for each adjacent Resource:[NEWLINE]+3 [ICON_FOOD] Food from Bonus Resources[NEWLINE]+3 [ICON_PRODUCTION] Production from Strategic Resources[NEWLINE]+3 [ICON_GOLD] Gold from Luxury Resources</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA">
-			<Text>Construct a [LINK=IMPROVEMENT_SPAIN_HACIENDA]Hacienda[\LINK]</Text>
+		<Row Tag="TXT_KEY_BUILD_HACIENDA">
+			<Text>Construct a [LINK=IMPROVEMENT_HACIENDA]Hacienda[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_HELP">
+		<Row Tag="TXT_KEY_BUILD_HACIENDA_HELP">
 			<Text>+3 [ICON_Food] Food for each adjacent Bonus Resource, +3 [ICON_PRODUCTION] Production for each adjacent Strategic Resource, and +3 [ICON_GOLD] Gold for each adjacent Luxury Resource. Cannot be built adjacent to another Hacienda.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_REC">
+		<Row Tag="TXT_KEY_BUILD_HACIENDA_REC">
 			<Text>It will increase [ICON_CULTURE] Culture. Removes any feature on the tile.[NEWLINE]Provides additional [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production if adjacent to bonus, strategic and luxury resources respectively.</Text>
 		</Row>
 
@@ -400,7 +412,7 @@
 			<Text>Swedish state schools are funded by tax money. This goes for both primary and secondary school (Swedish: grundskola), high school (Swedish: gymnasium) and universities. When studying at a university, however, you might have to pay for accommodation and literature. There are private schools as well who also receive funding from the government, but they may charge a fee from the parents.[NEWLINE][NEWLINE]Compulsory education starts at seven years of age, with an optional year in förskola (pre-school). The Swedish primary school is split into three parts; Lågstadiet – “the low stage”, which covers grades 1 to 3. This is where you learn the basics of the three main subjects – in Swedish called kärnämnen – Swedish, English and mathematics. It also includes some natural science. Mellanstadiet – “the middle stage”, which covers grades 4 to 6, introduces the children to more detailed subjects. Woodwork and needlework, social and domestic science, and even a second, foreign language in grade 6, a B-språk (B-language). The languages available are usually French, Spanish or German depending on the school. Högstadiet, “the high stage”, is the last stage of the compulsory education, between grades 7 and 9. This is when studies get more in-depth and are taken to an international level.[NEWLINE][NEWLINE]Swedish children take national exams at grades 3, 6 and 9. Children at grade 3 take these exams in two of the three main subjects: Swedish and mathematics. In grade 5 the exams extend to the third main subject, English, and in grade 9 the exams also extend to natural science, foreign languages, and one of the four subjects in "Samhällsorientering" (geography, history, religious studies, and civics). They first receive grades in grade 6. The grading system is letter-based, ranging from A-F, where F is the lowest grade and A is the highest. F means "not approved", while all other ratings above F mean "approved". There are only objectives for E, C and A; D means the person has met most (but not all) objectives for C, while B means the person has met most objectives for A. When applying to gymnasium (high schools) or universities, a meritvärde (“meritous point value”) is calculated. E is worth 10 points, D 12.5 points, C 15 points, and so on. Children not being approved in Swedish, English and mathematics will have to study at a special high school program called the “individual program”. Once they are approved, they may apply to an ordinary high school program. Swedes study at high school for three years, between the ages of 16 and 18.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_STRATEGY">
-			<Text>Unique Swedish replacement for the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}. In addition to the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}'s bonuses, {TXT_KEY_BUILDING_SKOLA} produces much more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and has two [ICON_VP_SCIENTIST] Scientist slots instead of one. It is also cheaper and costs less [ICON_GOLD] Gold maintenance.</Text>
+			<Text>Unique Swedish replacement for the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}. In addition to the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}'s bonuses, {TXT_KEY_BUILDING_SKOLA} produces much more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and has two [ICON_SCIENTIST] Scientist slots instead of one. It is also cheaper and costs less [ICON_GOLD] Gold maintenance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
 			<Text>+3 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
@@ -410,19 +422,19 @@
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO">
 			<Text>Piazza San Marco</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_PIAZZA_SAN_MARCO_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_TEXT">
 			<Text>Piazza San Marco (often known in English as St Mark's Square), is the principal public square of Venice, Italy, where it is generally known just as "the Piazza" (la Piazza). All other urban spaces in the city (except the Piazzetta and the Piazzale Roma) are called "campi" (fields). The Piazzetta (the 'little Piazza') is an extension of the Piazza towards the lagoon in its south east corner (see plan). The two spaces together form the social, religious and political centre of Venice and are commonly considered together.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_STRATEGY">
-			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_SPY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT_DESC} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
+			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Can only be built in the [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]+33% [ICON_GREAT_PEOPLE] Great People generation in this city. Receive 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a Policy, scaling with Era. +5 [ICON_WAR] Military Supply. +10 [ICON_SPY] City Security.[NEWLINE][NEWLINE]Reduces the purchase cooldown of Civilian Units by 3 turns and removes the purchase cooldown of Military Units in this City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Unlocks access to [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MURANO_GLASSWORKS}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_VENETIAN_ARSENALE}[ENDCOLOR], and [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_RIALTO_DISTRICT}[ENDCOLOR] once [COLOR_CYAN]{TXT_KEY_TECH_GUILDS_TITLE}[ENDCOLOR] is researched.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>Can only be built in the [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]+33% [ICON_GREAT_PEOPLE] Great People generation in this city. Receive 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a Policy, scaling with Era. +5 [ICON_WAR] Military Supply. +10 [ICON_CITY_SECURITY] City Security.[NEWLINE][NEWLINE]Reduces the purchase cooldown of Civilian Units by 3 turns and removes the purchase cooldown of Military Units in this City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Unlocks access to [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MURANO_GLASSWORKS}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA}[ENDCOLOR], and [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_RIALTO_DISTRICT}[ENDCOLOR] once [COLOR_CYAN]{TXT_KEY_TECH_GUILDS_TITLE}[ENDCOLOR] is researched.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT">
 			<Text>Rialto District</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_RIALTO_DISTRICT_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_TEXT">
 			<Text>The Rialto is and has been for many centuries the financial and commercial centre of Venice. It is an area of the San Polo sestiere of Venice, Italy, also known for its markets and for the Rialto Bridge across the Grand Canal. The area was settled by the ninth century, when a small area in the middle of the Realtine Islands on either side of the Rio Businiacus was known as the Rivoaltus, or "high bank". Eventually the Businiacus became known as the Grand Canal, and the district the Rialto, referring only to the area on the left bank.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_STRATEGY">
@@ -431,22 +443,22 @@
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_HELP">
 			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]Cost of [ICON_GOLD] Gold purchases in all Cities reduced by 10% (15% in [ICON_CAPITAL] Capital). +1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in your Empire. +1 [ICON_INTERNATIONAL_TRADE] Trade Route. +1 [ICON_DIPLOMAT] Delegate in the World Congress for every 200 [ICON_GOLD] Gold Per Turn produced (caps at 25% of all [ICON_CITY_STATE] City-States ever alive).[NEWLINE][NEWLINE]Incoming [ICON_ARROW_LEFT] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for [ICON_ARROW_RIGHT] Trade Route owner.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE">
+		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA">
 			<Text>Arsenale di Venezia</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_VENETIAN_ARSENALE_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_TEXT">
 			<Text>The Venetian Arsenal is a complex of former shipyards and armories clustered together in the city of Venice in northern Italy. Owned by the state, the Arsenal was responsible for the bulk of the Venetian republic's naval power during the middle part of the second millennium AD. It was one of the earliest large-scale industrial enterprises in history.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE_STRATEGY">
+		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_STRATEGY">
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. This building boosts [ICON_PRODUCTION] Production and Internal [ICON_INTERNATIONAL_TRADE] Trade Routes; increases [ICON_STRENGTH] City Strength and [ICON_SILVER_FIST] Military Supply from population; and buffs the [ICON_STRENGTH] Combat Strength and [ICON_MOVES] Movement of all naval units.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]+10% [ICON_STRENGTH] Defense Strength and [ICON_SILVER_FIST] Military Supply from Population in all Cities (15% in [ICON_CAPITAL] Capital).[NEWLINE][NEWLINE]Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]All Naval Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ARSENALE}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_HELP">
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]+10% [ICON_STRENGTH] Defense Strength and [ICON_SILVER_FIST] Military Supply from Population in all Cities (15% in [ICON_CAPITAL] Capital).[NEWLINE][NEWLINE]Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]All Naval Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS">
 			<Text>Murano Glassworks</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_MURANO_GLASSWORKS_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_TEXT">
 			<Text>Murano's reputation as a center for glassmaking was born when the Venetian Republic, fearing fire and the destruction of the city’s mostly wooden buildings, ordered glassmakers to move their foundries to Murano in 1291. Murano glass is still associated with Venetian glass. Murano's glassmakers were soon numbered among the island’s most prominent citizens. By the fourteenth century, glassmakers were allowed to wear swords, enjoyed immunity from prosecution by the Venetian state and found their daughters married into Venice’s most affluent families. While benefiting from certain statutory privileges, glassmakers were forbidden to leave the Republic. However, many of them took the risks associated with migration and established glass furnaces in surrounding cities and farther afield, even in England and the Netherlands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_STRATEGY">
@@ -458,7 +470,7 @@
 		<Row Tag="TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS">
 			<Text>Murano Masterpiece Collection</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP">
+		<Row Tag="TXT_KEY_MURANO_GLASSWORKS_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure both Great Works were created by the Building Owner.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_CATTARO">

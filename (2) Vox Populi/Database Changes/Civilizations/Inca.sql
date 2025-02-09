@@ -16,28 +16,28 @@ VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '1');
 
 ----------------------------------------------------------
--- Unique Unit: Waraq'Ak (Slinger)
+-- Unique Unit: Warak'aq (Slinger)
 ----------------------------------------------------------
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_VP_SLINGER' WHERE UnitType = 'UNIT_INCAN_SLINGER';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_SLINGER' WHERE UnitType = 'UNIT_WARAKAQ';
 
 UPDATE Units
 SET
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
-				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_VP_SLINGER'
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_INCAN_SLINGER'
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_VP_SLINGER') + 1,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_VP_SLINGER') + 1,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_INCAN_SLINGER') + 1,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_INCAN_SLINGER') + 1,
 	"Range" = 2
-WHERE Type = 'UNIT_INCAN_SLINGER';
+WHERE Type = 'UNIT_WARAKAQ';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_INCAN_SLINGER', 'PROMOTION_SLINGER');
+	('UNIT_WARAKAQ', 'PROMOTION_CONCUSSIVE_HIT');
 
 ----------------------------------------------------------
 -- Unique Improvement: Pata-Pata
