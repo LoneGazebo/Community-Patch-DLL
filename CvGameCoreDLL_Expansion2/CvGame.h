@@ -141,6 +141,7 @@ public:
 	bool isTeamGame() const;
 
 	void ReviveActivePlayer();
+	PlayerTypes getFirstAlivePlayer() const;
 
 	int getNumHumanPlayers();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);

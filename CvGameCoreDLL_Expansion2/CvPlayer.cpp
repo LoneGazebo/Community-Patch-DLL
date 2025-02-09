@@ -32746,9 +32746,9 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
 
 void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default is true (CvPlayer.h)
 {
-	//in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
+	//in single player mode create autosaves after the first player's (human) turn for easier reproduction of observed AI problems
 	//also they will have the correct year in the name! hooray
-	if(!GC.getGame().isNetworkMultiPlayer() && m_eID==0 && !bNewValue)
+	if(!GC.getGame().isNetworkMultiPlayer() && m_eID==GC.getGame().getFirstAlivePlayer() && !bNewValue)
 		gDLL->AutoSave(false, true);
 
 	if(isTurnActive() != bNewValue)

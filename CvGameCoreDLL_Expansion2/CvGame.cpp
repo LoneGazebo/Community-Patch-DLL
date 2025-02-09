@@ -4585,6 +4585,17 @@ void CvGame::ReviveActivePlayer()
 	}
 }
 
+PlayerTypes CvGame::getFirstAlivePlayer() const
+{
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMajorLoop).isAlive())
+			return (PlayerTypes)iMajorLoop;
+	}
+
+	return NO_PLAYER;
+}
+
 //	--------------------------------------------------------------------------------
 int CvGame::getNumHumanPlayers()
 {
