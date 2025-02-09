@@ -605,8 +605,8 @@ public:
 
 	inline int getVisibilityCount(TeamTypes eTeam) const
 	{
-		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 		//With delayed visibility, return the hacked visibility count so plots which were once visible this turn stay that way
 		return MOD_CORE_DELAYED_VISIBILITY ? m_aiVisibilityCountThisTurnMax[eTeam] : m_aiVisibilityCount[eTeam];
@@ -635,15 +635,15 @@ public:
 	{
 		if(bDebug && GC.getGame().isDebugMode())
 			return true;
-		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 		return m_bfRevealed.GetBit(eTeam);
 	}
 
 	bool isRevealed(TeamTypes eTeam) const
 	{
-		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 		return m_bfRevealed.GetBit(eTeam);
 	}
 

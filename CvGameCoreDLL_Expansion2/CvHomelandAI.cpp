@@ -4554,7 +4554,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 							break;
 						}
 
-						ASSERT(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
+						ASSERT_DEBUG(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
 						if (eSelectedBuildType != NO_BUILD)
 						{
 							pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, false, false, MISSIONAI_BUILD, pTargetPlot);
@@ -6078,7 +6078,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 		CvPlot* pPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 		if(pPlot)
 		{
-			ASSERT(!pUnit->atPlot(*pPlot));
+			ASSERT_DEBUG(!pUnit->atPlot(*pPlot));
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;

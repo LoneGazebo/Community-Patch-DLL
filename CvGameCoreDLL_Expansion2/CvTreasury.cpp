@@ -154,7 +154,7 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 	{
 		if(iNewValue < 0)
 		{
-			ASSERT(false, "GAMEPLAY: Player is being set to a negative Gold value.");
+			ASSERT_DEBUG(false, "GAMEPLAY: Player is being set to a negative Gold value.");
 		}
 
 		m_iGold = max(0,iNewValue);
@@ -733,7 +733,7 @@ void CvTreasury::ChangeBaseImprovementGoldMaintenance(int iChange)
 /// Average change in gold balance over N turns
 int CvTreasury::AverageIncome100(int iTurns)
 {
-	ASSERT(iTurns > 0, "Invalid number of turns parameter");
+	ASSERT_DEBUG(iTurns > 0, "Invalid number of turns parameter");
 
 	if(m_GoldChangeForTurnTimes100.size() > 0)
 	{

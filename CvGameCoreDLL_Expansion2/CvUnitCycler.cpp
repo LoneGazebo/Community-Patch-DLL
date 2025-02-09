@@ -100,7 +100,7 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 			}
 		}
 
-		ASSERT(pBestUnit, "Didn't find a unit to add to cycle list.");
+		ASSERT_DEBUG(pBestUnit, "Didn't find a unit to add to cycle list.");
 
 		if (pBestUnit)
 		{
@@ -199,7 +199,7 @@ CvUnit* CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 	while (true)
 	{
 		CvUnit* pLoopUnit = m_pkPlayer->getUnit(pUnitNode->m_data);
-		ASSERT(pLoopUnit, "LoopUnit is not assigned a valid value");
+		ASSERT_DEBUG(pLoopUnit, "LoopUnit is not assigned a valid value");
 
 		if (pLoopUnit && pLoopUnit->ReadyToSelect())
 		{

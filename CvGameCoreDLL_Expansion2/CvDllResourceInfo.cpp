@@ -13,7 +13,7 @@ CvDllResourceInfo::CvDllResourceInfo(CvResourceInfo* pResourceInfo)
 	: m_pResourceInfo(pResourceInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT(pResourceInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT_DEBUG(pResourceInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllResourceInfo::~CvDllResourceInfo()

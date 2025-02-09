@@ -14,7 +14,7 @@ CvDllVictoryInfo::CvDllVictoryInfo(CvVictoryInfo* pVictoryInfo)
 	: m_pVictoryInfo(pVictoryInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT(pVictoryInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT_DEBUG(pVictoryInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllVictoryInfo::~CvDllVictoryInfo()

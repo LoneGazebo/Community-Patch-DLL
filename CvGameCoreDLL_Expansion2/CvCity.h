@@ -2287,6 +2287,7 @@ protected:
 	void doProcess();
 	void doDecay();
 	void doMeltdown();
+	void doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason);
 	bool doCheckProduction();
 	bool CrosscheckYieldsFromMinors();
 

@@ -239,7 +239,7 @@ VALUES
 	('OPINION_WEIGHT_MADE_DEMAND_OF_US', 20),
 	('OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT', 10), -- any after the first; must be a lesser penalty or equal to the initial value
 	('OPINION_WEIGHT_MADE_DEMAND_YOU_NO_TAKE_DIVISOR', 200), -- decreases opinion weight if AI is not currently giving anything
-	('OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER', 200), -- increases opinion weight if AI is currently giving something AND is bankrupt (or will be soon)
+	('OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER', 300), -- increases opinion weight if AI is currently giving something AND is bankrupt (or will be soon)
 	('OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS', 20), -- max turns for AI "soon" bankruptcy multiplier (penalty gradually increases as turns to bankruptcy decrease)
 
 --	//////////////////////////////////////

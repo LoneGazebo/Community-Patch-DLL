@@ -72,8 +72,8 @@ bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvD
 /// What Flavors will be added by adopting this Strategy?
 int CvCitySpecializationXMLEntry::GetFlavorValue(int i) const
 {
-	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
@@ -827,7 +827,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 			}
 			else
 			{
-				ASSERT(false, "Code does not support > 1 specialization for yields other than production.");
+				ASSERT_DEBUG(false, "Code does not support > 1 specialization for yields other than production.");
 			}
 		}
 		else

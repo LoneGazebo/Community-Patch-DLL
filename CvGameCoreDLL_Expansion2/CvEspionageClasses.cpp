@@ -828,7 +828,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		break;
 	case SPY_STATE_TRAVELLING:
 		// spy is traveling to location
-		ASSERT(pCity, "pCity not defined. What?");
+		ASSERT_DEBUG(pCity, "pCity not defined. What?");
 		if(!pCity)
 		{
 			return;
@@ -915,7 +915,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		break;
 	case SPY_STATE_SURVEILLANCE:
 		// only used in Community Patch, not in VP
-		ASSERT(pCity, "pCity not defined. What?");
+		ASSERT_DEBUG(pCity, "pCity not defined. What?");
 		if(!pCity)
 		{
 			return;
@@ -998,7 +998,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		}
 		break;
 	case SPY_STATE_GATHERING_INTEL:
-		ASSERT(pCity, "pCity not defined. What?");
+		ASSERT_DEBUG(pCity, "pCity not defined. What?");
 		if(!pCity)
 		{
 			return;
@@ -1126,14 +1126,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 
 				CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
-				ASSERT(pDefendingPlayerEspionage, "Defending player espionage is null");
+				ASSERT_DEBUG(pDefendingPlayerEspionage, "Defending player espionage is null");
 				if (pDefendingPlayerEspionage)
 				{
 					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer]);
 				}
 
 				CvDiplomacyAI* pDefendingPlayerDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
-				ASSERT(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
+				ASSERT_DEBUG(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
 				if (pDefendingPlayerDiploAI)
 				{
 					if (pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED || pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_KILLED)
@@ -1160,14 +1160,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 
 					CvEspionageAI* pEspionageAI = m_pPlayer->GetEspionageAI();
-					ASSERT(pEspionageAI, "pEspionageAI is null");
+					ASSERT_DEBUG(pEspionageAI, "pEspionageAI is null");
 					if (pEspionageAI)
 					{
 						pEspionageAI->m_aiTurnLastSpyDied[eCityOwner] = GC.getGame().getGameTurn();
 						pEspionageAI->m_aiNumSpiesDied[eCityOwner]++;
 					}
 					CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-					ASSERT(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+					ASSERT_DEBUG(pDefenderEspionageAI, "pDefenderEspionageAI is null");
 					if (pDefenderEspionageAI)
 					{
 						pDefenderEspionageAI->m_aiTurnLastSpyKilled[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
@@ -1184,7 +1184,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
 					if (pDefendingPlayerEspionage)
 					{
-						ASSERT(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
+						ASSERT_DEBUG(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
 						if (iDefendingSpy >= 0)
 						{
 							pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
@@ -1235,7 +1235,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					if (pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
 					{
 						CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-						ASSERT(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+						ASSERT_DEBUG(pDefenderEspionageAI, "pDefenderEspionageAI is null");
 						if (pDefenderEspionageAI)
 						{
 							pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
@@ -1250,7 +1250,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 
 					// this check was added because m_aiNumTechsToStealList was getting out of whack somehow and this is a check to prevent the UI from going haywire
-					ASSERT(m_aiNumTechsToStealList[iCityOwner] > 0, "m_aiNumTechsToStealList[iCityOwner] <= 0, which shouldn't happen after you succeed at stealing");
+					ASSERT_DEBUG(m_aiNumTechsToStealList[iCityOwner] > 0, "m_aiNumTechsToStealList[iCityOwner] <= 0, which shouldn't happen after you succeed at stealing");
 					if (m_aiNumTechsToStealList[iCityOwner] > 0)
 					{
 						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
@@ -1328,7 +1328,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		}
 		break;
 	case SPY_STATE_MAKING_INTRODUCTIONS:
-		ASSERT(pCity, "pCity not defined. What?");
+		ASSERT_DEBUG(pCity, "pCity not defined. What?");
 		if(!pCity)
 		{
 			return;
@@ -1590,9 +1590,9 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 	CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
 	CvDiplomacyAI* pDefendingPlayerDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
 	CvEspionageAI* pEspionageAI = m_pPlayer->GetEspionageAI();
-	ASSERT(pEspionageAI, "pEspionageAI is null");
+	ASSERT_DEBUG(pEspionageAI, "pEspionageAI is null");
 	CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-	ASSERT(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+	ASSERT_DEBUG(pDefenderEspionageAI, "pDefenderEspionageAI is null");
 
 
 
@@ -1994,13 +1994,13 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		pCityEspionage = pCity->GetCityEspionage();
 	}
 
-	ASSERT(pCity, "Spy needs to be in city to uncover intrigue");
+	ASSERT_DEBUG(pCity, "Spy needs to be in city to uncover intrigue");
 	if(!pCity)
 	{
 		return;
 	}
 
-	ASSERT(ePlayer != eCityOwner, "Uncover intrigue should not occur when a spy is in their own city");
+	ASSERT_DEBUG(ePlayer != eCityOwner, "Uncover intrigue should not occur when a spy is in their own city");
 	if(ePlayer == eCityOwner)
 	{
 		return;
@@ -2144,7 +2144,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			else if (eBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-				ASSERT(pBuildingInfo, "pBuildingInfo is null");
+				ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 				if (pBuildingInfo)
 				{
 					if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
@@ -2170,7 +2170,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	}
 
 	CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
-	ASSERT(pTargetDiploAI, "pTargetDiploAI is null");
+	ASSERT_DEBUG(pTargetDiploAI, "pTargetDiploAI is null");
 	if(!pTargetDiploAI)
 	{
 		return;
@@ -2299,13 +2299,13 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 		pCityEspionage = pCity->GetCityEspionage();
 	}
 
-	ASSERT(pCity, "Spy needs to be in city to uncover intrigue");
+	ASSERT_DEBUG(pCity, "Spy needs to be in city to uncover intrigue");
 	if (!pCity)
 	{
 		return;
 	}
 
-	ASSERT(ePlayer != eCityOwner, "Uncover intrigue should not occur when a spy is in their own city");
+	ASSERT_DEBUG(ePlayer != eCityOwner, "Uncover intrigue should not occur when a spy is in their own city");
 	if (ePlayer == eCityOwner)
 	{
 		return;
@@ -2328,7 +2328,7 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 		else if (eBuilding != NO_BUILDING)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			ASSERT(pBuildingInfo, "pBuildingInfo is null");
+			ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 			if (pBuildingInfo)
 			{
 				if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
@@ -2420,7 +2420,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 
 	// deception!
 	CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eOtherPlayer).GetDiplomacyAI();
-	ASSERT(pTargetDiploAI, "pTargetDiploAI is null");
+	ASSERT_DEBUG(pTargetDiploAI, "pTargetDiploAI is null");
 	if(!pTargetDiploAI)
 	{
 		return;
@@ -2479,7 +2479,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	else if (eBuilding != NO_BUILDING)
 	{
 		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-		ASSERT(pBuildingInfo, "pBuildingInfo is null");
+		ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 		if (pBuildingInfo)
 		{
 			if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
@@ -2617,7 +2617,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 /// IsSpyInCity - Checks to see if spy is in a city
 bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2628,7 +2628,7 @@ bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
 
 CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return NULL;
@@ -2640,12 +2640,12 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 	}
 
 	CvPlot* pCityPlot = GC.getMap().plot(m_aSpyList[uiSpyIndex].m_iCityX, m_aSpyList[uiSpyIndex].m_iCityY);
-	ASSERT(pCityPlot, "pCityPlot is null. This should have been caught above");
+	ASSERT_DEBUG(pCityPlot, "pCityPlot is null. This should have been caught above");
 	CvCity* pCity = NULL;
 	if(pCityPlot)
 	{
 		pCity = pCityPlot->getPlotCity();
-		ASSERT(pCity, "Spy is pointing to empty city, what's up with that");
+		ASSERT_DEBUG(pCity, "Spy is pointing to empty city, what's up with that");
 	}
 
 	return pCity;
@@ -2653,7 +2653,7 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 
 CvEspionageSpy* CvPlayerEspionage::GetSpyByID(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return NULL;
@@ -2666,7 +2666,7 @@ CvEspionageSpy* CvPlayerEspionage::GetSpyByID(uint uiSpyIndex)
 
 int CvPlayerEspionage::GetSpyIndexInCity(CvCity* pCity)
 {
-	ASSERT(pCity, "pCity is null. Can't do much with this");
+	ASSERT_DEBUG(pCity, "pCity is null. Can't do much with this");
 	if(!pCity)
 	{
 		return -1;
@@ -2686,7 +2686,7 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 	}
 
 	CvPlot* pPlot = pCity->plot();
-	ASSERT(pPlot, "No plot() for pCity");
+	ASSERT_DEBUG(pPlot, "No plot() for pCity");
 	if(!pPlot)
 	{
 		return false;
@@ -2717,7 +2717,7 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 /// CanMoveSpyTo - May a spy move into this city
 bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2761,7 +2761,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 
 	// check to see if there is someone already there
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	ASSERT(pCityEspionage, "pCityEspionage is null");
+	ASSERT_DEBUG(pCityEspionage, "pCityEspionage is null");
 	if(!pCityEspionage)
 	{
 		return false;
@@ -2796,7 +2796,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 /// MoveSpyTo - Move a spy into this city
 bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2819,7 +2819,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 
 		if(!ExtractSpyFromCity(uiSpyIndex))
 		{
-			ASSERT(false, "Failed to extract spy");
+			ASSERT_DEBUG(false, "Failed to extract spy");
 			return false;
 		}
 	}
@@ -2827,7 +2827,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 	if(pCity)
 	{
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-		ASSERT(pCityEspionage, "Could not get CvCityEspionage from pCity");
+		ASSERT_DEBUG(pCityEspionage, "Could not get CvCityEspionage from pCity");
 		if(!pCityEspionage)
 		{
 			return false;
@@ -2851,7 +2851,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 ///  GetNumTurnsSpyMovementBlocked - Get number of remaining turns for which the spy can't move or change missions
 int CvPlayerEspionage::GetNumTurnsSpyMovementBlocked(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -1;
@@ -2866,7 +2866,7 @@ int CvPlayerEspionage::GetNumTurnsSpyMovementBlocked(uint uiSpyIndex)
 ///  GetNumTurnsSpyActiveMissionsBlocked - Get number of remaining turns for which the spy can't perform active missions
 int CvPlayerEspionage::GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -1;
@@ -2881,7 +2881,7 @@ int CvPlayerEspionage::GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex)
 /// RemoveSpyFromCity - Remove a spy from this city
 bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2899,14 +2899,14 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	int iCityY = pSpy->m_iCityY;
 
 	CvPlot* pPlot = GC.getMap().plot(iCityX, iCityY);
-	ASSERT(pPlot, "Spy coordinates did not point to plot");
+	ASSERT_DEBUG(pPlot, "Spy coordinates did not point to plot");
 	if (!pPlot)
 	{
 		return false;
 	}
 
 	CvCity* pCity = pPlot->getPlotCity();
-	ASSERT(pCity, "No city in plot pointed to by spy");
+	ASSERT_DEBUG(pCity, "No city in plot pointed to by spy");
 	if (!pCity)
 	{
 		return false;
@@ -3018,7 +3018,7 @@ void CvPlayerEspionage::UpdateSpies()
 /// UpdateCity - This is called when a city builds a defensive building that will effect the rate of espionage generated
 void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 {
-	ASSERT(pCity, "pCity is null");
+	ASSERT_DEBUG(pCity, "pCity is null");
 	if(pCity == NULL)
 	{
 		return;
@@ -3033,7 +3033,7 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 	}
 
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	ASSERT(pCityEspionage, "pCityEspionage is null");
+	ASSERT_DEBUG(pCityEspionage, "pCityEspionage is null");
 	if(pCityEspionage == NULL)
 	{
 		return;
@@ -3046,7 +3046,7 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 /// CalcPerTurn - How much the spy will do at this task per turn
 int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck)
 {
-	ASSERT(pCity, "pCity is null");
+	ASSERT_DEBUG(pCity, "pCity is null");
 	switch(iSpyState)
 	{
 	case SPY_STATE_TRAVELLING:
@@ -3144,7 +3144,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	break;
 	}
 
-	ASSERT(false, "CalcPerTurn cannot handle that iSpyState");
+	ASSERT_DEBUG(false, "CalcPerTurn cannot handle that iSpyState");
 	return -1;
 }
 
@@ -3152,8 +3152,8 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck)
 {
 	DEBUG_VARIABLE(iSpyIndex);
-	ASSERT(pCity, "pCity is null");
-	ASSERT(iSpyIndex >= 0, "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(pCity, "pCity is null");
+	ASSERT_DEBUG(iSpyIndex >= 0, "iSpyIndex is out of bounds");
 
 	switch (iSpyState)
 	{
@@ -3212,8 +3212,8 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 		if(pCity)
 		{
 			PlayerTypes ePlayer = pCity->getOwner();
-			ASSERT(!GET_PLAYER(ePlayer).isMinorCiv(), "Can't spy on a minor civ");
-			ASSERT(!GET_PLAYER(ePlayer).isBarbarian(), "Can't spy on barbarians");
+			ASSERT_DEBUG(!GET_PLAYER(ePlayer).isMinorCiv(), "Can't spy on a minor civ");
+			ASSERT_DEBUG(!GET_PLAYER(ePlayer).isBarbarian(), "Can't spy on barbarians");
 			if(GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 			{
 				return -1;
@@ -3275,7 +3275,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 	break;
 	}
 
-	ASSERT(false, "CalcRequired cannot handle that iSpyState");
+	ASSERT_DEBUG(false, "CalcRequired cannot handle that iSpyState");
 	return -1;
 }
 
@@ -3415,7 +3415,7 @@ const char* CvPlayerEspionage::GetSpyRankName(int iRank) const
 /// HasEstablishedSurveillance - Has the spy established surveillance in their city
 bool CvPlayerEspionage::HasEstablishedSurveillance(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3446,7 +3446,7 @@ bool CvPlayerEspionage::HasEstablishedSurveillance(uint uiSpyIndex)
 /// HasEstablishedSurveillanceInCity - Has any spy established espionage in this city?
 bool CvPlayerEspionage::HasEstablishedSurveillanceInCity(CvCity* pCity)
 {
-	ASSERT(pCity, "pCity is null");
+	ASSERT_DEBUG(pCity, "pCity is null");
 	if(!pCity)
 	{
 		return false;
@@ -3478,13 +3478,13 @@ bool CvPlayerEspionage::IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer)
 		}
 
 		CvPlot* pPlot = GC.getMap().plot(m_aSpyList[uiSpy].m_iCityX, m_aSpyList[uiSpy].m_iCityY);
-		ASSERT(pPlot, "Spy coordinates did not point to plot");
+		ASSERT_DEBUG(pPlot, "Spy coordinates did not point to plot");
 		if(!pPlot)
 		{
 			continue;
 		}
 		CvCity* pCity = pPlot->getPlotCity();
-		ASSERT(pCity, "There is not a city at the specified plot");
+		ASSERT_DEBUG(pCity, "There is not a city at the specified plot");
 		if(!pCity)
 		{
 			continue;
@@ -3512,13 +3512,13 @@ int CvPlayerEspionage::GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer)
 			}
 
 			CvPlot* pPlot = GC.getMap().plot(m_aSpyList[uiSpy].m_iCityX, m_aSpyList[uiSpy].m_iCityY);
-			ASSERT(pPlot, "Spy coordinates did not point to plot");
+			ASSERT_DEBUG(pPlot, "Spy coordinates did not point to plot");
 			if (!pPlot)
 			{
 				continue;
 			}
 			CvCity* pCity = pPlot->getPlotCity();
-			ASSERT(pCity, "There is not a city at the specified plot");
+			ASSERT_DEBUG(pCity, "There is not a city at the specified plot");
 			if (!pCity)
 			{
 				continue;
@@ -3551,7 +3551,7 @@ int CvPlayerEspionage::GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer)
 
 bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3562,7 +3562,7 @@ bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
 
 bool CvPlayerEspionage::IsSchmoozing (uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3582,13 +3582,13 @@ bool CvPlayerEspionage::IsAnySchmoozing (CvCity* pCity)
 		}
 
 		CvPlot* pPlot = GC.getMap().plot(m_aSpyList[uiSpy].m_iCityX, m_aSpyList[uiSpy].m_iCityY);
-		ASSERT(pPlot, "Spy coordinates did not point to plot");
+		ASSERT_DEBUG(pPlot, "Spy coordinates did not point to plot");
 		if(!pPlot)
 		{
 			return false;
 		}
 		CvCity* pPlotCity = pPlot->getPlotCity();
-		ASSERT(pPlotCity, "There is not a city at the specified plot");
+		ASSERT_DEBUG(pPlotCity, "There is not a city at the specified plot");
 		if(!pPlotCity)
 		{
 			return false;
@@ -3604,7 +3604,7 @@ bool CvPlayerEspionage::IsAnySchmoozing (CvCity* pCity)
 /// CanStageCoup - Can a spy currently stage a coup at a city-state?
 bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3622,7 +3622,7 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 	}
 
 	CvCity* pCity = GetCityWithSpy(uiSpyIndex);
-	ASSERT(pCity, "pCity is null!");
+	ASSERT_DEBUG(pCity, "pCity is null!");
 	if(!pCity)
 	{
 		return false;
@@ -3694,7 +3694,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex, bool bIgnoreEnemy
 	}
 
 	CvCity* pCity = GetCityWithSpy(uiSpyIndex);
-	ASSERT(pCity, "No city");
+	ASSERT_DEBUG(pCity, "No city");
 	if(!pCity)
 	{
 		return 0;
@@ -3712,21 +3712,21 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 	}
 
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	ASSERT(pCityEspionage, "No city espionage");
+	ASSERT_DEBUG(pCityEspionage, "No city espionage");
 	if (!pCityEspionage)
 	{
 		return 0;
 	}
 
 	PlayerTypes eCityOwner = pCity->getOwner();
-	ASSERT(GET_PLAYER(eCityOwner).isMinorCiv(), "Owner is not a minor civ");
+	ASSERT_DEBUG(GET_PLAYER(eCityOwner).isMinorCiv(), "Owner is not a minor civ");
 	if (!GET_PLAYER(eCityOwner).isMinorCiv())
 	{
 		return 0;
 	}
 
 	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
-	ASSERT(pMinorCivAI, "pMinorCivAI is null");
+	ASSERT_DEBUG(pMinorCivAI, "pMinorCivAI is null");
 	if (!pMinorCivAI)
 	{
 		return 0;
@@ -3820,7 +3820,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	}
 
 	CvCity* pCity = GetCityWithSpy(uiSpyIndex);
-	ASSERT(pCity, "Spy isn't in a city.");
+	ASSERT_DEBUG(pCity, "Spy isn't in a city.");
 	if(!pCity)
 	{
 		return false;
@@ -3836,7 +3836,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
 
 	PlayerTypes ePreviousAlly = pMinorCivAI->GetAlly();
-	ASSERT(ePreviousAlly != NO_PLAYER, "City state has no ally. Something's going wrong");
+	ASSERT_DEBUG(ePreviousAlly != NO_PLAYER, "City state has no ally. Something's going wrong");
 	if(ePreviousAlly == NO_PLAYER)
 	{
 		return false;
@@ -4079,7 +4079,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 /// GetTurnsUntilStateComplete - How many turns until this spy's current state is resolved?
 int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4098,7 +4098,7 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 	case SPY_STATE_MAKING_INTRODUCTIONS:
 	case SPY_STATE_GATHERING_INTEL:
 		pCity = GetCityWithSpy(uiSpyIndex);
-		ASSERT(pCity, "GetCityWithSpy returned null. Has the wrong task");
+		ASSERT_DEBUG(pCity, "GetCityWithSpy returned null. Has the wrong task");
 		if (!pCity)
 		{
 			return -1;
@@ -4141,7 +4141,7 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 /// GetNetworkPointsStored - How many network points have been collected by the spy on his current mission?
 int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4167,7 +4167,7 @@ int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 /// GetNetworkPointsStored - What is the highest amount of network points the spy has ever had collected during his current stay?
 int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4194,7 +4194,7 @@ int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 /// GetNetworkPointsPerTurn - How many network points have been collected by the spy on its current mission?
 int CvPlayerEspionage::GetNetworkPointsPerTurn(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4221,7 +4221,7 @@ int CvPlayerEspionage::GetNetworkPointsPerTurn(uint uiSpyIndex)
 /// GetPercentOfStateComplete - What percentage of this spy's current state is complete?
 int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 {
-	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT_DEBUG(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4255,7 +4255,7 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 			else
 			{
 				pCityEspionage = pCity->GetCityEspionage();
-				ASSERT(pCityEspionage->GetGoal(ePlayer) != 0, "Trying to div by zero!");
+				ASSERT_DEBUG(pCityEspionage->GetGoal(ePlayer) != 0, "Trying to div by zero!");
 				if (pCityEspionage->GetGoal(ePlayer) != 0)
 				{
 					return (pCityEspionage->GetAmount(ePlayer) * 100) / pCityEspionage->GetGoal(ePlayer);
@@ -4401,7 +4401,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 	if (ePlayer > MAX_MAJOR_CIVS)
 		return;
 
-	ASSERT((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	ASSERT_DEBUG((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{
 		return;
@@ -4440,7 +4440,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
 bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 {
-	ASSERT((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	ASSERT_DEBUG((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{
 		return false;
@@ -4460,7 +4460,7 @@ bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 /// GetNumTechsToSteal - How many techs you can steal from a given player
 int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 {
-	ASSERT((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
+	ASSERT_DEBUG((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
 	{
 		return -1;
@@ -4470,7 +4470,7 @@ int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 }
 int CvPlayerEspionage::GetNumSpyActionsDone(PlayerTypes ePlayer)
 {
-	ASSERT((uint)ePlayer < m_aiNumSpyActionsDone.size(), "ePlayer out of bounds");
+	ASSERT_DEBUG((uint)ePlayer < m_aiNumSpyActionsDone.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aiNumSpyActionsDone.size())
 	{
 		return -1;
@@ -4575,14 +4575,14 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		CvPlot* pPlot = GC.getMap().plot(m_aSpyNotificationMessages[ui].m_iCityX, m_aSpyNotificationMessages[ui].m_iCityY);
 		CvCity* pCity = NULL;
 		CvCityEspionage* pCityEspionage = NULL;
-		ASSERT(pPlot, "Could not find plot location for SpyNotificationMessages");
+		ASSERT_DEBUG(pPlot, "Could not find plot location for SpyNotificationMessages");
 		if(pPlot)
 		{
 			pCity = pPlot->getPlotCity();
-			ASSERT(pCity, "Plot does not contain a city");
+			ASSERT_DEBUG(pCity, "Plot does not contain a city");
 			if(pCity)
 			{
-				ASSERT(pCity->getOwner() == m_pPlayer->GetID(), "City does not belong to player. This is very strange");
+				ASSERT_DEBUG(pCity->getOwner() == m_pPlayer->GetID(), "City does not belong to player. This is very strange");
 				pCityEspionage = pCity->GetCityEspionage();
 			}
 		}
@@ -4648,7 +4648,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					// notify defending player that they killed a spy
 				{
 					int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()];
-					ASSERT(iDefendingSpy >= 0, "iDefendingSpy value is out of bounds");
+					ASSERT_DEBUG(iDefendingSpy >= 0, "iDefendingSpy value is out of bounds");
 					if (iDefendingSpy >= 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_KILLED_A_SPY_S");
@@ -4906,7 +4906,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 	if (bShowNotification)
 	{
 		CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-		ASSERT(pNotifications, "No notifications found. This is wrong!");
+		ASSERT_DEBUG(pNotifications, "No notifications found. This is wrong!");
 		if(!pNotifications)
 		{
 			return;
@@ -4933,7 +4933,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_YOU");
 					strNotification << strDiscoveringSpyRank;
 					strNotification << strDiscoveringSpyName;
-					ASSERT(pCity, "City should be defined but is null");
+					ASSERT_DEBUG(pCity, "City should be defined but is null");
 					if(pCity)
 					{
 						strNotification << pCity->getNameKey();
@@ -4962,7 +4962,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_UNKNOWN");
 					strNotification << strDiscoveringSpyRank;
 					strNotification << strDiscoveringSpyName;
-					ASSERT(pCity, "City should be defined but is null");
+					ASSERT_DEBUG(pCity, "City should be defined but is null");
 					if(pCity)
 					{
 						strNotification << pCity->getNameKey();
@@ -5000,7 +5000,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_KNOWN");
 					strNotification << strDiscoveringSpyRank;
 					strNotification << strDiscoveringSpyName;
-					ASSERT(pCity, "City should be defined but is null");
+					ASSERT_DEBUG(pCity, "City should be defined but is null");
 					if(pCity)
 					{
 						strNotification << pCity->getNameKey();
@@ -5670,7 +5670,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
+					ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 					if (pBuildingInfo)
 					{
 						strSummary << pBuildingInfo->GetTextKey();
@@ -5679,7 +5679,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eProject != NO_PROJECT)
 				{
 					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
-					ASSERT(pProjectInfo, "pProjectInfo is null");
+					ASSERT_DEBUG(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo)
 					{
 						strSummary << pProjectInfo->GetTextKey();
@@ -5701,7 +5701,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
+					ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 					if (pBuildingInfo)
 					{
 						strNotification << pBuildingInfo->GetTextKey();
@@ -5710,7 +5710,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eProject != NO_PROJECT)
 				{
 					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
-					ASSERT(pProjectInfo, "pProjectInfo is null");
+					ASSERT_DEBUG(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo)
 					{
 						strNotification << pProjectInfo->GetTextKey();
@@ -5740,7 +5740,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
+					ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 					if (pBuildingInfo)
 					{
 						strSummary << pBuildingInfo->GetTextKey();
@@ -5749,7 +5749,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eProject != NO_PROJECT)
 				{
 					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
-					ASSERT(pProjectInfo, "pProjectInfo is null");
+					ASSERT_DEBUG(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo)
 					{
 						strSummary << pProjectInfo->GetTextKey();
@@ -5758,7 +5758,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eUnit != NO_UNIT)
 				{
 					CvUnitEntry* pUnitInfo = GC.getUnitInfo(kMessage.m_eUnit);
-					ASSERT(pUnitInfo, "pUnitInfo is null");
+					ASSERT_DEBUG(pUnitInfo, "pUnitInfo is null");
 					if (pUnitInfo)
 					{
 						strSummary << pUnitInfo->GetTextKey();
@@ -5780,7 +5780,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				if (kMessage.m_eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
+					ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 					if (pBuildingInfo)
 					{
 						strNotification << pBuildingInfo->GetTextKey();
@@ -5789,7 +5789,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eProject != NO_PROJECT)
 				{
 					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
-					ASSERT(pProjectInfo, "pProjectInfo is null");
+					ASSERT_DEBUG(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo)
 					{
 						strNotification << pProjectInfo->GetTextKey();
@@ -5798,7 +5798,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				else if (kMessage.m_eUnit != NO_UNIT)
 				{
 					CvUnitEntry* pUnitInfo = GC.getUnitInfo(kMessage.m_eUnit);
-					ASSERT(pUnitInfo, "pUnitInfo is null");
+					ASSERT_DEBUG(pUnitInfo, "pUnitInfo is null");
 					if (pUnitInfo)
 					{
 						strNotification << pUnitInfo->GetTextKey();
@@ -5815,7 +5815,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 /// GetIntrigueMessage - Getting the intrigue message in another text format for the intrigue message display
 Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 {
-	PRECONDITION(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
+	ASSERT_DEBUG(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
 	if(uiIndex >= m_aIntrigueNotificationMessages.size())
 	{
 		return "";
@@ -6258,7 +6258,7 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 		if (m_aIntrigueNotificationMessages[uiIndex].m_eBuilding != NO_BUILDING)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(m_aIntrigueNotificationMessages[uiIndex].m_eBuilding);
-			ASSERT(pBuildingInfo, "pBuildingInfo is null");
+			ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 			if (pBuildingInfo)
 			{
 				strResult << pBuildingInfo->GetTextKey();
@@ -6267,7 +6267,7 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 		else if (m_aIntrigueNotificationMessages[uiIndex].m_eProject != NO_PROJECT)
 		{
 			CvProjectEntry* pProjectInfo = GC.getProjectInfo(m_aIntrigueNotificationMessages[uiIndex].m_eProject);
-			ASSERT(pProjectInfo, "pProjectInfo is null");
+			ASSERT_DEBUG(pProjectInfo, "pProjectInfo is null");
 			if (pProjectInfo)
 			{
 				strResult << pProjectInfo->GetTextKey();
@@ -6276,7 +6276,7 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 		else if (m_aIntrigueNotificationMessages[uiIndex].m_eUnit != NO_UNIT)
 		{
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(m_aIntrigueNotificationMessages[uiIndex].m_eUnit);
-			ASSERT(pUnitInfo, "pUnitInfo is null");
+			ASSERT_DEBUG(pUnitInfo, "pUnitInfo is null");
 			if (pUnitInfo)
 			{
 				strResult << pUnitInfo->GetTextKey();
@@ -6830,9 +6830,9 @@ void CvCityEspionage::Reset(void)
 /// SetActivity - setting the values that get processed
 void CvCityEspionage::SetActivity(PlayerTypes ePlayer, int iAmount, int iRate, int iGoal)
 {
-	ASSERT(m_aiAmount[ePlayer] == -1, "Amount has not been reset");
-	ASSERT(m_aiRate[ePlayer] == -1, "Rate has not been reset");
-	ASSERT(m_aiGoal[ePlayer] == -1, "Goal has not been reset");
+	ASSERT_DEBUG(m_aiAmount[ePlayer] == -1, "Amount has not been reset");
+	ASSERT_DEBUG(m_aiRate[ePlayer] == -1, "Rate has not been reset");
+	ASSERT_DEBUG(m_aiGoal[ePlayer] == -1, "Goal has not been reset");
 	m_aiAmount[ePlayer] = iAmount;
 	m_aiMaxAmount[ePlayer] = iAmount;
 	m_aiRate[ePlayer] = iRate;
@@ -6842,9 +6842,9 @@ void CvCityEspionage::SetActivity(PlayerTypes ePlayer, int iAmount, int iRate, i
 /// Process - move one step of the rate into the amount
 void CvCityEspionage::Process(PlayerTypes ePlayer)
 {
-	ASSERT(m_aiAmount[ePlayer] != -1, "Amount has not been set");
-	ASSERT(m_aiRate[ePlayer] != -1, "Rate has not been set");
-	ASSERT(MOD_BALANCE_VP || m_aiGoal[ePlayer] != -1, "Goal has not been set");
+	ASSERT_DEBUG(m_aiAmount[ePlayer] != -1, "Amount has not been set");
+	ASSERT_DEBUG(m_aiRate[ePlayer] != -1, "Rate has not been set");
+	ASSERT_DEBUG(MOD_BALANCE_VP || m_aiGoal[ePlayer] != -1, "Goal has not been set");
 	ChangeAmount(ePlayer, GetRate(ePlayer));
 	SetMaxAmount(ePlayer, max(GetMaxAmount(ePlayer), GetAmount(ePlayer)));
 }
@@ -6910,9 +6910,9 @@ void CvCityEspionage::SetNextPassiveBonus(PlayerTypes ePlayer, int iValue)
 /// HasReachedGoal - is the amount >= the goal
 bool CvCityEspionage::HasReachedGoal(PlayerTypes ePlayer)
 {
-	ASSERT(m_aiAmount[ePlayer] != -1, "Amount has not been set");
-	ASSERT(m_aiRate[ePlayer] != -1, "Rate has not been set");
-	ASSERT(m_aiGoal[ePlayer] != -1, "Goal has not been set");
+	ASSERT_DEBUG(m_aiAmount[ePlayer] != -1, "Amount has not been set");
+	ASSERT_DEBUG(m_aiRate[ePlayer] != -1, "Rate has not been set");
+	ASSERT_DEBUG(m_aiGoal[ePlayer] != -1, "Goal has not been set");
 	return GetAmount(ePlayer) >= GetGoal(ePlayer);
 }
 
@@ -7297,14 +7297,14 @@ int CvCityEspionage::GetSpyResult(PlayerTypes eSpyOwner)
 
 void CvCityEspionage::SetPendingEvents(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT(iValue >= 0);
+	ASSERT_DEBUG(iValue >= 0);
 	m_aiPendingEventsForPlayer[ePlayer] = iValue;
 }
 
 void CvCityEspionage::ChangePendingEvents(PlayerTypes ePlayer, int iChange)
 {
 	m_aiPendingEventsForPlayer[ePlayer] += iChange;
-	ASSERT(m_aiPendingEventsForPlayer[ePlayer] >= 0);
+	ASSERT_DEBUG(m_aiPendingEventsForPlayer[ePlayer] >= 0);
 }
 
 int CvCityEspionage::GetPendingEvents(PlayerTypes ePlayer) const
@@ -7728,7 +7728,7 @@ struct PlayerAndTechTurnEval
 {
 	bool operator()(PlayerAndTechTurn const& a, PlayerAndTechTurn const& b) const
 	{
-		ASSERT(g_eSortPlayer != NO_PLAYER, "g_eSortPlayer not defined when sort was called");
+		ASSERT_DEBUG(g_eSortPlayer != NO_PLAYER, "g_eSortPlayer not defined when sort was called");
 		if(a.iOutOfTechTurn < b.iOutOfTechTurn) return true;
 		if(a.iOutOfTechTurn > b.iOutOfTechTurn) return false;
 		if(a.iLargestProgress > b.iLargestProgress) return true;
@@ -8213,7 +8213,7 @@ void CvEspionageAI::StealTechnology()
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 		{
 			// steal a tech
-			ASSERT(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
+			ASSERT_DEBUG(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
 			TeamTypes eTeam = m_pPlayer->getTeam();
 			TechTypes eStolenTech = pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer][0];
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
@@ -8585,7 +8585,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
+					ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null");
 					if (pBuildingInfo)
 					{
 						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
@@ -9040,7 +9040,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
-			ASSERT(pCityPlot, "City plot is null!");
+			ASSERT_DEBUG(pCityPlot, "City plot is null!");
 			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(), false, false))
 				continue;
 
@@ -9294,9 +9294,16 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 					int iVotesNeededToWin = max(1, GC.getGame().GetVotesNeededForDiploVictory());
 					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
-						PlayerTypes eTargetPlayer = (PlayerTypes)ui;
-						// progress is calculated as the maximum of the percentage of allied city-states and the percentage of votes needed for domination victory
-						aiDiploProgressPercent[ui] = max(100 * aiNumAllies[ui] / iAliveMinorCivs, 100 * (pLeague->GetSpentVotesForMember(eTargetPlayer) + pLeague->GetRemainingVotesForMember(eTargetPlayer)) / iVotesNeededToWin);
+						PlayerTypes eTargetPlayer = static_cast<PlayerTypes>(ui);
+						if (GET_PLAYER(eTargetPlayer).isAlive())
+						{
+							// progress is calculated as the maximum of the percentage of allied city-states and the percentage of votes needed for domination victory
+							aiDiploProgressPercent[ui] = max(100 * aiNumAllies[ui] / iAliveMinorCivs, 100 * (pLeague->GetSpentVotesForMember(eTargetPlayer) + pLeague->GetRemainingVotesForMember(eTargetPlayer)) / iVotesNeededToWin);
+						}
+						else
+						{
+							aiDiploProgressPercent[ui] = 0;
+						}
 					}
 
 					// do we already have enough votes?

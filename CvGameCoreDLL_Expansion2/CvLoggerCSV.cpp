@@ -15,7 +15,7 @@ void  CvLoggerCSV::WriteCSVLog(const char* strLogName, const char* strHeader)
 
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-		ASSERT(pLog != NULL);
+		ASSERT_DEBUG(pLog != NULL);
 
 		pLog->Msg(strHeader);
 
@@ -23,13 +23,13 @@ void  CvLoggerCSV::WriteCSVLog(const char* strLogName, const char* strHeader)
 
 	void  CvLoggerCSV::DeleteCSV(const char* strLogName)
 	{
-		ASSERT(strLogName != NULL);
+		ASSERT_DEBUG(strLogName != NULL);
 
 		FILogFile *pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-		ASSERT(pLog != NULL);
+		ASSERT_DEBUG(pLog != NULL);
 
 		LOGFILEMGR.DeleteLog(pLog);
 

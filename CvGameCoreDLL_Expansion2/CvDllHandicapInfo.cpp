@@ -13,7 +13,7 @@ CvDllHandicapInfo::CvDllHandicapInfo(CvHandicapInfo* pHandicapInfo)
 	: m_pHandicapInfo(pHandicapInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT(pHandicapInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT_DEBUG(pHandicapInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllHandicapInfo::~CvDllHandicapInfo()

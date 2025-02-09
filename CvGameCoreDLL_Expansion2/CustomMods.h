@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v140 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 140)
+#define MOD_DLL_NAME "Community Patch v141 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 141)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -1215,11 +1215,11 @@ void CheckSentinel(uint);
 
 #define MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion;
 #define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion; (stream) << 0xDEADBEEF;
-#define MOD_SERIALIZE_WRITE(stream, member) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
-#define MOD_SERIALIZE_WRITE_AUTO(stream, member) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
-#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapper<type>(size, member)
-#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapperConst<type>(size, member)
-#define MOD_SERIALIZE_WRITE_HASH(stream, member, type, size, obj) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); CvInfosSerializationHelper::WriteHashedDataArray<obj, type>(stream, member, size)
+#define MOD_SERIALIZE_WRITE(stream, member) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_AUTO(stream, member) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapper<type>(size, member)
+#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapperConst<type>(size, member)
+#define MOD_SERIALIZE_WRITE_HASH(stream, member, type, size, obj) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); CvInfosSerializationHelper::WriteHashedDataArray<obj, type>(stream, member, size)
 #else
 #define MOD_SERIALIZE_INIT_READ(stream) __noop
 #define MOD_SERIALIZE_READ(version, stream, member, def) __noop

@@ -859,7 +859,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_OF_US, 20),
 	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT, 10),
 	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_YOU_NO_TAKE_DIVISOR, 200),
-	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER, 200),
+	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER, 300),
 	GD_INT_INIT(OPINION_WEIGHT_MADE_DEMAND_BANKRUPT_MULTIPLIER_TURNS, 20),
 	GD_INT_INIT(OPINION_WEIGHT_RETURNED_CIVILIAN, -10),
 	GD_INT_INIT(OPINION_WEIGHT_RETURNED_CIVILIAN_SUBSEQUENT, -5),
@@ -2696,7 +2696,7 @@ void CvGlobals::init()
 		DIRECTION_WEST,			// DIRECTION_NORTHWEST
 	};
 
-	ASSERT(gDLL != NULL, "Civ app needs to set gDLL");
+	ASSERT_DEBUG(gDLL != NULL, "Civ app needs to set gDLL");
 	m_asyncRand = FNEW(CvRandom("UiRng"), c_eCiv5GameplayDLL, 0);
 
 	gDLL->InitGlobals();	// some globals need to be allocated outside the dll
@@ -2917,8 +2917,8 @@ std::vector<CvInterfaceModeInfo*>& CvGlobals::getInterfaceModeInfo()
 
 CvInterfaceModeInfo* CvGlobals::getInterfaceModeInfo(InterfaceModeTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < NUM_INTERFACEMODE_TYPES);
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < NUM_INTERFACEMODE_TYPES);
 	if(e > -1 && e < (int)m_paInterfaceModeInfo.size())
 		return m_paInterfaceModeInfo[e];
 	else
@@ -3053,12 +3053,12 @@ int* CvGlobals::getRingFromLinearOffset()
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
-	PRECONDITION(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) return -1;
 
-	PRECONDITION(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
-	PRECONDITION(j > -1, "Index out of bounds");
+	ASSERT_DEBUG(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
+	ASSERT_DEBUG(j > -1, "Index out of bounds");
 	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) return -1;
 
 	return m_aaiRingPlotIndex[i][j];
@@ -3071,8 +3071,8 @@ DirectionTypes* CvGlobals::getTurnLeftDirection()
 
 DirectionTypes CvGlobals::getTurnLeftDirection(int i)
 {
-	PRECONDITION(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -3086,8 +3086,8 @@ DirectionTypes* CvGlobals::getTurnRightDirection()
 
 DirectionTypes CvGlobals::getTurnRightDirection(int i)
 {
-	PRECONDITION(i < NUM_DIRECTION_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < NUM_DIRECTION_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 
 	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
 
@@ -3121,8 +3121,8 @@ std::vector<CvColorInfo*>& CvGlobals::GetColorInfo()
 
 CvColorInfo* CvGlobals::GetColorInfo(ColorTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GetNumColorInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GetNumColorInfos());
 	if(e > -1 && e < (int)m_paColorInfo.size())
 		return m_paColorInfo[e];
 	else
@@ -3142,8 +3142,8 @@ std::vector<CvPlayerColorInfo*>& CvGlobals::GetPlayerColorInfo()
 
 CvPlayerColorInfo* CvGlobals::GetPlayerColorInfo(PlayerColorTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GetNumPlayerColorInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GetNumPlayerColorInfos());
 	if(e > -1 && e < (int)m_paPlayerColorInfo.size())
 		return m_paPlayerColorInfo[e];
 	else
@@ -3162,8 +3162,8 @@ std::vector<CvEntityEventInfo*>& CvGlobals::getEntityEventInfo()
 
 CvEntityEventInfo* CvGlobals::getEntityEventInfo(EntityEventTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumEntityEventInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumEntityEventInfos());
 	if(e > -1 && e < (int)m_paEntityEventInfo.size())
 		return m_paEntityEventInfo[e];
 	else
@@ -3182,8 +3182,8 @@ std::vector<CvMultiUnitFormationInfo*>& CvGlobals::getMultiUnitFormationInfo()
 
 CvMultiUnitFormationInfo* CvGlobals::getMultiUnitFormationInfo(int i)
 {
-	ASSERT(i > -1);
-	ASSERT(i < GC.getNumMultiUnitFormationInfos());
+	ASSERT_DEBUG(i > -1);
+	ASSERT_DEBUG(i < GC.getNumMultiUnitFormationInfos());
 	if(i > -1 && i < (int)m_paMultiUnitFormationInfo.size())
 		return m_paMultiUnitFormationInfo[i];
 	else
@@ -3202,8 +3202,8 @@ std::vector<CvPlotInfo*>& CvGlobals::getPlotInfo()
 
 CvPlotInfo* CvGlobals::getPlotInfo(PlotTypes ePlotNum)
 {
-	ASSERT(ePlotNum > -1);
-	ASSERT(ePlotNum < GC.getNumPlotInfos());
+	ASSERT_DEBUG(ePlotNum > -1);
+	ASSERT_DEBUG(ePlotNum < GC.getNumPlotInfos());
 	if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size())
 		return m_paPlotInfo[ePlotNum];
 	else
@@ -3222,8 +3222,8 @@ std::vector<CvGreatPersonInfo*>& CvGlobals::getGreatPersonInfo()
 
 CvGreatPersonInfo* CvGlobals::getGreatPersonInfo(GreatPersonTypes eGreatPersonNum)
 {
-	ASSERT(eGreatPersonNum > -1);
-	ASSERT(eGreatPersonNum < GC.getNumGreatPersonInfos());
+	ASSERT_DEBUG(eGreatPersonNum > -1);
+	ASSERT_DEBUG(eGreatPersonNum < GC.getNumGreatPersonInfos());
 	if (eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size())
 		return m_paGreatPersonInfo[eGreatPersonNum];
 	else
@@ -3242,8 +3242,8 @@ std::vector<CvTerrainInfo*>& CvGlobals::getTerrainInfo()
 
 CvTerrainInfo* CvGlobals::getTerrainInfo(TerrainTypes eTerrainNum)
 {
-	ASSERT(eTerrainNum > -1);
-	ASSERT(eTerrainNum < GC.getNumTerrainInfos());
+	ASSERT_DEBUG(eTerrainNum > -1);
+	ASSERT_DEBUG(eTerrainNum < GC.getNumTerrainInfos());
 	if(eTerrainNum > -1 && eTerrainNum < (int)m_paTerrainInfo.size())
 		return m_paTerrainInfo[eTerrainNum];
 	else
@@ -3262,8 +3262,8 @@ std::vector<CvResourceClassInfo*>& CvGlobals::getResourceClassInfo()
 
 CvResourceClassInfo* CvGlobals::getResourceClassInfo(ResourceClassTypes eResourceNum)
 {
-	ASSERT(eResourceNum > -1);
-	ASSERT(eResourceNum < GC.getNumResourceClassInfos());
+	ASSERT_DEBUG(eResourceNum > -1);
+	ASSERT_DEBUG(eResourceNum < GC.getNumResourceClassInfos());
 	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceClassInfo.size())
 		return m_paResourceClassInfo[eResourceNum];
 	else
@@ -3283,8 +3283,8 @@ std::vector<CvResourceInfo*>& CvGlobals::getResourceInfo()
 
 CvResourceInfo* CvGlobals::getResourceInfo(ResourceTypes eResourceNum)
 {
-	ASSERT(eResourceNum > -1);
-	ASSERT(eResourceNum < GC.getNumResourceInfos());
+	ASSERT_DEBUG(eResourceNum > -1);
+	ASSERT_DEBUG(eResourceNum < GC.getNumResourceInfos());
 	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceInfo.size())
 		return m_paResourceInfo[eResourceNum];
 	else
@@ -3303,8 +3303,8 @@ std::vector<CvFeatureInfo*>& CvGlobals::getFeatureInfo()
 
 CvFeatureInfo* CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
 {
-	ASSERT(eFeatureNum > -1);
-	ASSERT(eFeatureNum < GC.getNumFeatureInfos());
+	ASSERT_DEBUG(eFeatureNum > -1);
+	ASSERT_DEBUG(eFeatureNum < GC.getNumFeatureInfos());
 	if(eFeatureNum > -1 && eFeatureNum < (int)m_paFeatureInfo.size())
 		return m_paFeatureInfo[eFeatureNum];
 	else
@@ -3333,8 +3333,8 @@ std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()
 
 CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
 {
-	ASSERT(eCivilizationNum > -1);
-	ASSERT(eCivilizationNum < GC.getNumCivilizationInfos());
+	ASSERT_DEBUG(eCivilizationNum > -1);
+	ASSERT_DEBUG(eCivilizationNum < GC.getNumCivilizationInfos());
 	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size())
 		return m_paCivilizationInfo[eCivilizationNum];
 	else
@@ -3343,7 +3343,7 @@ CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizati
 
 CivilizationTypes CvGlobals::getCivilizationInfoIndex(const char* pszType)
 {
-	ASSERT(pszType != NULL);
+	ASSERT_DEBUG(pszType != NULL);
 	if(pszType != NULL)
 	{
 		int iIndex = 0;
@@ -3385,8 +3385,8 @@ std::vector<CvMinorCivInfo*>& CvGlobals::getMinorCivInfo()
 
 CvMinorCivInfo* CvGlobals::getMinorCivInfo(MinorCivTypes eMinorCivNum)
 {
-	ASSERT(eMinorCivNum > -1);
-	ASSERT(eMinorCivNum < GC.getNumMinorCivInfos());
+	ASSERT_DEBUG(eMinorCivNum > -1);
+	ASSERT_DEBUG(eMinorCivNum < GC.getNumMinorCivInfos());
 	if(eMinorCivNum > -1 && eMinorCivNum < (int)m_paMinorCivInfo.size())
 		return m_paMinorCivInfo[eMinorCivNum];
 	else
@@ -3405,8 +3405,8 @@ std::vector<CvLeaderHeadInfo*>& CvGlobals::getLeaderHeadInfo()
 
 CvLeaderHeadInfo* CvGlobals::getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum)
 {
-	ASSERT(eLeaderHeadNum > -1);
-	ASSERT(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
+	ASSERT_DEBUG(eLeaderHeadNum > -1);
+	ASSERT_DEBUG(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
 	if(eLeaderHeadNum > -1 && eLeaderHeadNum < (int)m_paLeaderHeadInfo.size())
 		return m_paLeaderHeadInfo[eLeaderHeadNum];
 	else
@@ -3425,8 +3425,8 @@ std::vector<CvUnitEntry*>& CvGlobals::getUnitInfo()
 
 CvUnitEntry* CvGlobals::getUnitInfo(UnitTypes eUnitNum)
 {
-	ASSERT(eUnitNum > -1);
-	ASSERT(eUnitNum < GC.getNumUnitInfos());
+	ASSERT_DEBUG(eUnitNum > -1);
+	ASSERT_DEBUG(eUnitNum < GC.getNumUnitInfos());
 	if(eUnitNum > -1 && eUnitNum < GC.getNumUnitInfos())
 		return m_pUnits->GetUnitEntries()[eUnitNum];
 	else
@@ -3450,8 +3450,8 @@ std::vector<CvSpecialUnitInfo*>& CvGlobals::getSpecialUnitInfo()
 
 CvSpecialUnitInfo* CvGlobals::getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNum)
 {
-	ASSERT(eSpecialUnitNum > -1);
-	ASSERT(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
+	ASSERT_DEBUG(eSpecialUnitNum > -1);
+	ASSERT_DEBUG(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
 	if(eSpecialUnitNum > -1 && eSpecialUnitNum < (int)m_paSpecialUnitInfo.size())
 		return m_paSpecialUnitInfo[eSpecialUnitNum];
 	else
@@ -3470,8 +3470,8 @@ std::vector<CvVoteSourceInfo*>& CvGlobals::getVoteSourceInfo()
 
 CvVoteSourceInfo* CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumVoteSourceInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumVoteSourceInfos());
 	if(e > -1 && e < (int)m_paVoteSourceInfo.size())
 		return m_paVoteSourceInfo[e];
 	else
@@ -3491,8 +3491,8 @@ std::vector<CvModEventInfo*>& CvGlobals::getEventInfo()
 
 CvModEventInfo* CvGlobals::getEventInfo(EventTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumEventInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumEventInfos());
 	if(e > -1 && e < (int)m_paEventInfo.size())
 		return m_paEventInfo[e];
 	else
@@ -3511,8 +3511,8 @@ std::vector<CvModEventChoiceInfo*>& CvGlobals::getEventChoiceInfo()
 
 CvModEventChoiceInfo* CvGlobals::getEventChoiceInfo(EventChoiceTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumEventChoiceInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumEventChoiceInfos());
 	if(e > -1 && e < (int)m_paEventChoiceInfo.size())
 		return m_paEventChoiceInfo[e];
 	else
@@ -3530,8 +3530,8 @@ std::vector<CvModCityEventInfo*>& CvGlobals::getCityEventInfo()
 
 CvModCityEventInfo* CvGlobals::getCityEventInfo(CityEventTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumCityEventInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumCityEventInfos());
 	if(e > -1 && e < (int)m_paCityEventInfo.size())
 		return m_paCityEventInfo[e];
 	else
@@ -3550,8 +3550,8 @@ std::vector<CvModEventCityChoiceInfo*>& CvGlobals::getCityEventChoiceInfo()
 
 CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumCityEventChoiceInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumCityEventChoiceInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
 		return m_paCityEventChoiceInfo[e];
 	else
@@ -3570,8 +3570,8 @@ std::vector<CvEventLinkingInfo*>& CvGlobals::getEventLinkingInfo()
 
 CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumEventLinkingInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumEventLinkingInfos());
 	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
 		return m_paEventLinkingInfo[e];
 	else
@@ -3590,8 +3590,8 @@ std::vector<CvEventChoiceLinkingInfo*>& CvGlobals::getEventChoiceLinkingInfo()
 
 CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumEventChoiceLinkingInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
 		return m_paEventChoiceLinkingInfo[e];
 	else
@@ -3610,8 +3610,8 @@ std::vector<CvCityEventLinkingInfo*>& CvGlobals::getCityEventLinkingInfo()
 
 CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumCityEventLinkingInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumCityEventLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
 		return m_paCityEventLinkingInfo[e];
 	else
@@ -3630,8 +3630,8 @@ std::vector<CvCityEventChoiceLinkingInfo*>& CvGlobals::getCityEventChoiceLinking
 
 CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEventChoiceTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumCityEventChoiceLinkingInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumCityEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
 		return m_paCityEventChoiceLinkingInfo[e];
 	else
@@ -3651,8 +3651,8 @@ std::vector<CvBaseInfo*>& CvGlobals::getUnitCombatClassInfo()
 
 CvBaseInfo* CvGlobals::getUnitCombatClassInfo(UnitCombatTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumUnitCombatClassInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumUnitCombatClassInfos());
 	if(e > -1 && e < (int)m_paUnitCombatClassInfo.size())
 		return m_paUnitCombatClassInfo[e];
 	else
@@ -3666,8 +3666,8 @@ std::vector<CvBaseInfo*>& CvGlobals::getUnitAIInfo()
 
 CvBaseInfo* CvGlobals::getUnitAIInfo(UnitAITypes eUnitAINum)
 {
-	ASSERT(eUnitAINum >= 0);
-	ASSERT(eUnitAINum < NUM_UNITAI_TYPES);
+	ASSERT_DEBUG(eUnitAINum >= 0);
+	ASSERT_DEBUG(eUnitAINum < NUM_UNITAI_TYPES);
 	if(eUnitAINum > -1 && eUnitAINum < (int)m_paUnitAIInfos.size())
 		return m_paUnitAIInfos[eUnitAINum];
 	else
@@ -3686,8 +3686,8 @@ std::vector<CvGameOptionInfo*>& CvGlobals::getGameOptionInfo()
 
 CvGameOptionInfo* CvGlobals::getGameOptionInfo(GameOptionTypes eGameOptionNum)
 {
-	ASSERT(eGameOptionNum >= 0);
-	ASSERT(eGameOptionNum < GC.getNumGameOptionInfos());
+	ASSERT_DEBUG(eGameOptionNum >= 0);
+	ASSERT_DEBUG(eGameOptionNum < GC.getNumGameOptionInfos());
 	if(eGameOptionNum > -1 && eGameOptionNum < (int)m_paGameOptionInfos.size())
 		return m_paGameOptionInfos[eGameOptionNum];
 	else
@@ -3706,8 +3706,8 @@ std::vector<CvMPOptionInfo*>& CvGlobals::getMPOptionInfo()
 
 CvMPOptionInfo* CvGlobals::getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum)
 {
-	ASSERT(eMPOptionNum >= 0);
-	ASSERT(eMPOptionNum < GC.getNumMPOptionInfos());
+	ASSERT_DEBUG(eMPOptionNum >= 0);
+	ASSERT_DEBUG(eMPOptionNum < GC.getNumMPOptionInfos());
 	if(eMPOptionNum > -1 && eMPOptionNum < (int)m_paMPOptionInfos.size())
 		return m_paMPOptionInfos[eMPOptionNum];
 	else
@@ -3721,7 +3721,7 @@ std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
 
 CvPlayerOptionInfo* CvGlobals::getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum)
 {
-	ASSERT(ePlayerOptionNum >= 0);
+	ASSERT_DEBUG(ePlayerOptionNum >= 0);
 	if(ePlayerOptionNum > -1 && ePlayerOptionNum < (int)m_paPlayerOptionInfos.size())
 		return m_paPlayerOptionInfos[ePlayerOptionNum];
 	else
@@ -3735,8 +3735,8 @@ std::vector<CvYieldInfo*>& CvGlobals::getYieldInfo()
 
 CvYieldInfo* CvGlobals::getYieldInfo(YieldTypes eYieldNum)
 {
-	ASSERT(eYieldNum > -1);
-	ASSERT(eYieldNum < NUM_YIELD_TYPES);
+	ASSERT_DEBUG(eYieldNum > -1);
+	ASSERT_DEBUG(eYieldNum < NUM_YIELD_TYPES);
 	if(eYieldNum > -1 && eYieldNum < (int)m_paYieldInfo.size())
 		return m_paYieldInfo[eYieldNum];
 	else
@@ -3755,8 +3755,8 @@ std::vector<CvRouteInfo*>& CvGlobals::getRouteInfo()
 
 CvRouteInfo* CvGlobals::getRouteInfo(RouteTypes eRouteNum)
 {
-	ASSERT(eRouteNum > -1);
-	ASSERT(eRouteNum < GC.getNumRouteInfos());
+	ASSERT_DEBUG(eRouteNum > -1);
+	ASSERT_DEBUG(eRouteNum < GC.getNumRouteInfos());
 	if(eRouteNum > -1 && eRouteNum < (int)m_paRouteInfo.size())
 		return m_paRouteInfo[eRouteNum];
 	else
@@ -3775,8 +3775,8 @@ std::vector<CvImprovementEntry*>& CvGlobals::getImprovementInfo()
 
 CvImprovementEntry* CvGlobals::getImprovementInfo(ImprovementTypes eImprovementNum)
 {
-	ASSERT(eImprovementNum > -1);
-	ASSERT(eImprovementNum < GC.getNumImprovementInfos());
+	ASSERT_DEBUG(eImprovementNum > -1);
+	ASSERT_DEBUG(eImprovementNum < GC.getNumImprovementInfos());
 	if(eImprovementNum > -1 && eImprovementNum < GC.getNumImprovementInfos())
 		return m_pImprovements->GetImprovementEntries()[eImprovementNum];
 	else
@@ -3800,8 +3800,8 @@ std::vector<CvBuildInfo*>& CvGlobals::getBuildInfo()
 
 CvBuildInfo* CvGlobals::getBuildInfo(BuildTypes eBuildNum)
 {
-	ASSERT(eBuildNum > -1);
-	ASSERT(eBuildNum < GC.getNumBuildInfos());
+	ASSERT_DEBUG(eBuildNum > -1);
+	ASSERT_DEBUG(eBuildNum < GC.getNumBuildInfos());
 	if(eBuildNum > -1 && eBuildNum < (int)m_paBuildInfo.size())
 		return m_paBuildInfo[eBuildNum];
 	else
@@ -3820,8 +3820,8 @@ std::vector<CvHandicapInfo*>& CvGlobals::getHandicapInfo()
 
 CvHandicapInfo* CvGlobals::getHandicapInfo(HandicapTypes eHandicapNum)
 {
-	ASSERT(eHandicapNum > -1);
-	ASSERT(eHandicapNum < GC.getNumHandicapInfos());
+	ASSERT_DEBUG(eHandicapNum > -1);
+	ASSERT_DEBUG(eHandicapNum < GC.getNumHandicapInfos());
 	if(eHandicapNum > -1 && eHandicapNum < (int)m_paHandicapInfo.size())
 		return m_paHandicapInfo[eHandicapNum];
 	else
@@ -3840,8 +3840,8 @@ std::vector<CvGameSpeedInfo*>& CvGlobals::getGameSpeedInfo()
 
 CvGameSpeedInfo* CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
 {
-	ASSERT(eGameSpeedNum > -1);
-	ASSERT(eGameSpeedNum < GC.getNumGameSpeedInfos());
+	ASSERT_DEBUG(eGameSpeedNum > -1);
+	ASSERT_DEBUG(eGameSpeedNum < GC.getNumGameSpeedInfos());
 	if(eGameSpeedNum > -1 && eGameSpeedNum < (int)m_paGameSpeedInfo.size())
 		return m_paGameSpeedInfo[eGameSpeedNum];
 	else
@@ -3861,8 +3861,8 @@ std::vector<CvDiploModifierInfo*>& CvGlobals::getDiploModifierInfo()
 
 CvDiploModifierInfo* CvGlobals::getDiploModifierInfo(DiploModifierTypes eDiploModifierNum)
 {
-	ASSERT(eDiploModifierNum > -1);
-	ASSERT(eDiploModifierNum < GC.getNumDiploModifierInfos());
+	ASSERT_DEBUG(eDiploModifierNum > -1);
+	ASSERT_DEBUG(eDiploModifierNum < GC.getNumDiploModifierInfos());
 	if(eDiploModifierNum > -1 && eDiploModifierNum < (int)m_paDiploModifierInfo.size())
 		return m_paDiploModifierInfo[eDiploModifierNum];
 	else
@@ -3883,8 +3883,8 @@ std::vector<CvProcessInfo*>& CvGlobals::getProcessInfo()
 
 CvProcessInfo* CvGlobals::getProcessInfo(ProcessTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumProcessInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumProcessInfos());
 	if(e > -1 && e < (int)m_paProcessInfo.size())
 		return m_paProcessInfo[e];
 	else
@@ -3903,8 +3903,8 @@ std::vector<CvVoteInfo*>& CvGlobals::getVoteInfo()
 
 CvVoteInfo* CvGlobals::getVoteInfo(VoteTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumVoteInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumVoteInfos());
 	if(e > -1 && e < (int)m_paVoteInfo.size())
 		return m_paVoteInfo[e];
 	else
@@ -3923,8 +3923,8 @@ std::vector<CvProjectEntry*>& CvGlobals::getProjectInfo()
 
 CvProjectEntry* CvGlobals::getProjectInfo(ProjectTypes e)
 {
-	ASSERT(e > -1);
-	ASSERT(e < GC.getNumProjectInfos());
+	ASSERT_DEBUG(e > -1);
+	ASSERT_DEBUG(e < GC.getNumProjectInfos());
 	if(e > -1 && e < GC.getNumProjectInfos())
 		return m_pProjects->GetProjectEntries()[e];
 	else
@@ -3948,8 +3948,8 @@ std::vector<CvBuildingClassInfo*>& CvGlobals::getBuildingClassInfo()
 
 CvBuildingClassInfo* CvGlobals::getBuildingClassInfo(BuildingClassTypes eBuildingClassNum)
 {
-	ASSERT(eBuildingClassNum > -1);
-	ASSERT(eBuildingClassNum < GC.getNumBuildingClassInfos());
+	ASSERT_DEBUG(eBuildingClassNum > -1);
+	ASSERT_DEBUG(eBuildingClassNum < GC.getNumBuildingClassInfos());
 	if(eBuildingClassNum > -1 && eBuildingClassNum < (int)m_paBuildingClassInfo.size())
 		return m_paBuildingClassInfo[eBuildingClassNum];
 	else
@@ -3968,8 +3968,8 @@ std::vector<CvBuildingEntry*>& CvGlobals::getBuildingInfo()
 
 CvBuildingEntry* CvGlobals::getBuildingInfo(BuildingTypes eBuildingNum)
 {
-	ASSERT(eBuildingNum > -1);
-	ASSERT(eBuildingNum < GC.getNumBuildingInfos());
+	ASSERT_DEBUG(eBuildingNum > -1);
+	ASSERT_DEBUG(eBuildingNum < GC.getNumBuildingInfos());
 	if(eBuildingNum > -1 && eBuildingNum < GC.getNumBuildingInfos())
 		return m_pBuildings->GetBuildingEntries()[eBuildingNum];
 	else
@@ -4167,8 +4167,8 @@ std::vector<CvUnitClassInfo*>& CvGlobals::getUnitClassInfo()
 
 CvUnitClassInfo* CvGlobals::getUnitClassInfo(UnitClassTypes eUnitClassNum)
 {
-	ASSERT(eUnitClassNum > -1);
-	ASSERT(eUnitClassNum < GC.getNumUnitClassInfos());
+	ASSERT_DEBUG(eUnitClassNum > -1);
+	ASSERT_DEBUG(eUnitClassNum < GC.getNumUnitClassInfos());
 	if(eUnitClassNum > -1 && eUnitClassNum < (int)m_paUnitClassInfo.size())
 		return m_paUnitClassInfo[eUnitClassNum];
 	else
@@ -4187,8 +4187,8 @@ std::vector<CvActionInfo*>& CvGlobals::getActionInfo()
 
 CvActionInfo* CvGlobals::getActionInfo(int i)
 {
-	PRECONDITION(i < getNumActionInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < getNumActionInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	if(i > -1 && i < (int)m_paActionInfo.size())
 		return m_paActionInfo[i];
 	else
@@ -4202,8 +4202,8 @@ std::vector<CvMissionInfo*>& CvGlobals::getMissionInfo()
 
 CvMissionInfo* CvGlobals::getMissionInfo(MissionTypes eMissionNum)
 {
-	ASSERT(eMissionNum > -1);
-	ASSERT(static_cast<unsigned int>(eMissionNum) < CvTypes::getNUM_MISSION_TYPES());
+	ASSERT_DEBUG(eMissionNum > -1);
+	ASSERT_DEBUG(static_cast<unsigned int>(eMissionNum) < CvTypes::getNUM_MISSION_TYPES());
 	if(eMissionNum > -1 && eMissionNum < (int)m_paMissionInfo.size())
 		return m_paMissionInfo[eMissionNum];
 	else
@@ -4217,8 +4217,8 @@ std::vector<CvControlInfo*>& CvGlobals::getControlInfo()
 
 CvControlInfo* CvGlobals::getControlInfo(ControlTypes eControlNum)
 {
-	ASSERT(eControlNum > -1);
-	ASSERT(eControlNum < NUM_CONTROL_TYPES);
+	ASSERT_DEBUG(eControlNum > -1);
+	ASSERT_DEBUG(eControlNum < NUM_CONTROL_TYPES);
 	if(eControlNum > -1 && eControlNum < (int)m_paControlInfo.size())
 		return m_paControlInfo[eControlNum];
 	else
@@ -4232,8 +4232,8 @@ std::vector<CvCommandInfo*>& CvGlobals::getCommandInfo()
 
 CvCommandInfo* CvGlobals::getCommandInfo(CommandTypes eCommandNum)
 {
-	ASSERT(eCommandNum > -1);
-	ASSERT(eCommandNum < NUM_COMMAND_TYPES);
+	ASSERT_DEBUG(eCommandNum > -1);
+	ASSERT_DEBUG(eCommandNum < NUM_COMMAND_TYPES);
 	if(eCommandNum > -1 && eCommandNum < (int)m_paCommandInfo.size())
 		return m_paCommandInfo[eCommandNum];
 	else
@@ -4252,8 +4252,8 @@ std::vector<CvAutomateInfo*>& CvGlobals::getAutomateInfo()
 
 CvAutomateInfo* CvGlobals::getAutomateInfo(int iAutomateNum)
 {
-	PRECONDITION(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
-	PRECONDITION(iAutomateNum > -1, "Index out of bounds");
+	ASSERT_DEBUG(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
+	ASSERT_DEBUG(iAutomateNum > -1, "Index out of bounds");
 	if(iAutomateNum > -1 && iAutomateNum < (int)m_paAutomateInfo.size())
 		return m_paAutomateInfo[iAutomateNum];
 	else
@@ -4272,8 +4272,8 @@ std::vector<CvPromotionEntry*>& CvGlobals::getPromotionInfo()
 
 CvPromotionEntry* CvGlobals::getPromotionInfo(PromotionTypes ePromotionNum)
 {
-	ASSERT(ePromotionNum > -1);
-	ASSERT(ePromotionNum < GC.getNumPromotionInfos());
+	ASSERT_DEBUG(ePromotionNum > -1);
+	ASSERT_DEBUG(ePromotionNum < GC.getNumPromotionInfos());
 	if(ePromotionNum > -1 && ePromotionNum < GC.getNumPromotionInfos())
 		return m_pPromotions->GetPromotionEntries()[ePromotionNum];
 	else
@@ -4297,8 +4297,8 @@ std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()
 
 CvSpecialistInfo* CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
 {
-	ASSERT(eSpecialistNum > -1);
-	ASSERT(eSpecialistNum < GC.getNumSpecialistInfos());
+	ASSERT_DEBUG(eSpecialistNum > -1);
+	ASSERT_DEBUG(eSpecialistNum < GC.getNumSpecialistInfos());
 	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size())
 		return m_paSpecialistInfo[eSpecialistNum];
 	else
@@ -4342,8 +4342,8 @@ std::vector<CvCitySpecializationXMLEntry*>& CvGlobals::getCitySpecializationInfo
 
 CvCitySpecializationXMLEntry* CvGlobals::getCitySpecializationInfo(CitySpecializationTypes eCitySpecialization)
 {
-	ASSERT(eCitySpecialization > -1);
-	ASSERT(eCitySpecialization < GC.getNumCitySpecializationInfos());
+	ASSERT_DEBUG(eCitySpecialization > -1);
+	ASSERT_DEBUG(eCitySpecialization < GC.getNumCitySpecializationInfos());
 	if(eCitySpecialization > -1 && eCitySpecialization < GC.getNumCitySpecializationInfos())
 		return m_pCitySpecializations->GetCitySpecializationEntries()[eCitySpecialization];
 	else
@@ -4411,8 +4411,8 @@ std::vector<CvAICityStrategyEntry*>& CvGlobals::getAICityStrategyInfo()
 
 CvAICityStrategyEntry* CvGlobals::getAICityStrategyInfo(AICityStrategyTypes eAICityStrategyNum)
 {
-	ASSERT(eAICityStrategyNum > -1);
-	ASSERT(eAICityStrategyNum < GC.getNumAICityStrategyInfos());
+	ASSERT_DEBUG(eAICityStrategyNum > -1);
+	ASSERT_DEBUG(eAICityStrategyNum < GC.getNumAICityStrategyInfos());
 	return m_pAICityStrategies->GetAICityStrategyEntries()[eAICityStrategyNum];
 }
 
@@ -4433,8 +4433,8 @@ std::vector<CvPolicyEntry*>& CvGlobals::getPolicyInfo()
 
 CvPolicyEntry* CvGlobals::getPolicyInfo(PolicyTypes ePolicyNum)
 {
-	ASSERT(ePolicyNum > -1);
-	ASSERT(ePolicyNum < GC.getNumPolicyInfos());
+	ASSERT_DEBUG(ePolicyNum > -1);
+	ASSERT_DEBUG(ePolicyNum < GC.getNumPolicyInfos());
 	return m_pPolicies->GetPolicyEntries()[ePolicyNum];
 }
 
@@ -4455,8 +4455,8 @@ std::vector<CvPolicyBranchEntry*>& CvGlobals::getPolicyBranchInfo()
 
 CvPolicyBranchEntry* CvGlobals::getPolicyBranchInfo(PolicyBranchTypes ePolicyBranchNum)
 {
-	ASSERT(ePolicyBranchNum > -1);
-	ASSERT(ePolicyBranchNum < GC.getNumPolicyBranchInfos());
+	ASSERT_DEBUG(ePolicyBranchNum > -1);
+	ASSERT_DEBUG(ePolicyBranchNum < GC.getNumPolicyBranchInfos());
 	return m_pPolicies->GetPolicyBranchEntries()[ePolicyBranchNum];
 }
 
@@ -4472,8 +4472,8 @@ std::vector<CvEmphasisEntry*>& CvGlobals::getEmphasisInfo()
 
 CvEmphasisEntry* CvGlobals::getEmphasisInfo(EmphasizeTypes eEmphasisNum)
 {
-	ASSERT(eEmphasisNum > -1);
-	ASSERT(eEmphasisNum < GC.getNumEmphasisInfos());
+	ASSERT_DEBUG(eEmphasisNum > -1);
+	ASSERT_DEBUG(eEmphasisNum < GC.getNumEmphasisInfos());
 	return m_pEmphases->GetEmphasisEntries()[eEmphasisNum];
 }
 
@@ -4494,8 +4494,8 @@ std::vector<CvTraitEntry*>& CvGlobals::getTraitInfo()
 
 CvTraitEntry* CvGlobals::getTraitInfo(TraitTypes eTraitNum)
 {
-	ASSERT(eTraitNum > -1);
-	ASSERT(eTraitNum < GC.getNumTraitInfos());
+	ASSERT_DEBUG(eTraitNum > -1);
+	ASSERT_DEBUG(eTraitNum < GC.getNumTraitInfos());
 	return m_pTraits->GetTraitEntries()[eTraitNum];
 }
 
@@ -4516,8 +4516,8 @@ std::vector<CvReligionEntry*>& CvGlobals::getReligionInfo()
 
 CvReligionEntry* CvGlobals::getReligionInfo(ReligionTypes eReligionNum)
 {
-	ASSERT(eReligionNum > -1);
-	ASSERT(eReligionNum < GC.getNumReligionInfos());
+	ASSERT_DEBUG(eReligionNum > -1);
+	ASSERT_DEBUG(eReligionNum < GC.getNumReligionInfos());
 	return m_pReligions->GetReligionEntries()[eReligionNum];
 }
 
@@ -4538,8 +4538,8 @@ std::vector<CvBeliefEntry*>& CvGlobals::getBeliefInfo()
 
 CvBeliefEntry* CvGlobals::getBeliefInfo(BeliefTypes eBeliefNum)
 {
-	ASSERT(eBeliefNum > -1);
-	ASSERT(eBeliefNum < GC.getNumBeliefInfos());
+	ASSERT_DEBUG(eBeliefNum > -1);
+	ASSERT_DEBUG(eBeliefNum < GC.getNumBeliefInfos());
 	return m_pBeliefs->GetBeliefEntries()[eBeliefNum];
 }
 
@@ -4561,8 +4561,8 @@ std::vector<CvCorporationEntry*>& CvGlobals::getCorporationInfo()
 
 CvCorporationEntry* CvGlobals::getCorporationInfo(CorporationTypes eCorporationNum)
 {
-	ASSERT(eCorporationNum > -1);
-	ASSERT(eCorporationNum < GC.getNumCorporationInfos());
+	ASSERT_DEBUG(eCorporationNum > -1);
+	ASSERT_DEBUG(eCorporationNum < GC.getNumCorporationInfos());
 	return m_pCorporations->GetCorporationEntries()[eCorporationNum];
 }
 
@@ -4583,8 +4583,8 @@ std::vector<CvContractEntry*>& CvGlobals::getContractInfo()
 
 CvContractEntry* CvGlobals::getContractInfo(ContractTypes eContract)
 {
-	ASSERT(eContract > -1);
-	ASSERT(eContract < GC.getNumContractInfos());
+	ASSERT_DEBUG(eContract > -1);
+	ASSERT_DEBUG(eContract < GC.getNumContractInfos());
 	return m_paContractInfo[eContract];
 }
 
@@ -4606,8 +4606,8 @@ std::vector<CvSpyPassiveBonusEntry*>& CvGlobals::getSpyPassiveBonusInfo()
 
 _Ret_maybenull_ CvSpyPassiveBonusEntry* CvGlobals::getSpyPassiveBonusInfo(SpyPassiveBonusTypes eSpyPassiveBonusNum)
 {
-	ASSERT(eSpyPassiveBonusNum > -1);
-	ASSERT(eSpyPassiveBonusNum < GC.getNumSpyPassiveBonusInfos());
+	ASSERT_DEBUG(eSpyPassiveBonusNum > -1);
+	ASSERT_DEBUG(eSpyPassiveBonusNum < GC.getNumSpyPassiveBonusInfos());
 	return m_pSpyPassiveBonuses->GetSpyPassiveBonusEntries()[eSpyPassiveBonusNum];
 }
 
@@ -4628,8 +4628,8 @@ std::vector<CvSpyPassiveBonusDiplomatEntry*>& CvGlobals::getSpyPassiveBonusDiplo
 
 _Ret_maybenull_ CvSpyPassiveBonusDiplomatEntry* CvGlobals::getSpyPassiveBonusDiplomatInfo(SpyPassiveBonusDiplomatTypes eSpyPassiveBonusDiplomatNum)
 {
-	ASSERT(eSpyPassiveBonusDiplomatNum > -1);
-	ASSERT(eSpyPassiveBonusDiplomatNum < GC.getNumSpyPassiveBonusDiplomatInfos());
+	ASSERT_DEBUG(eSpyPassiveBonusDiplomatNum > -1);
+	ASSERT_DEBUG(eSpyPassiveBonusDiplomatNum < GC.getNumSpyPassiveBonusDiplomatInfos());
 	return m_pSpyPassiveBonusesDiplomat->GetSpyPassiveBonusDiplomatEntries()[eSpyPassiveBonusDiplomatNum];
 }
 
@@ -4650,8 +4650,8 @@ std::vector<CvLeagueSpecialSessionEntry*>& CvGlobals::getLeagueSpecialSessionInf
 
 _Ret_maybenull_ CvLeagueSpecialSessionEntry* CvGlobals::getLeagueSpecialSessionInfo(LeagueSpecialSessionTypes eLeagueSpecialSessionNum)
 {
-	ASSERT(eLeagueSpecialSessionNum > -1);
-	ASSERT(eLeagueSpecialSessionNum < GC.getNumLeagueSpecialSessionInfos());
+	ASSERT_DEBUG(eLeagueSpecialSessionNum > -1);
+	ASSERT_DEBUG(eLeagueSpecialSessionNum < GC.getNumLeagueSpecialSessionInfos());
 	return m_pLeagueSpecialSessions->GetLeagueSpecialSessionEntries()[eLeagueSpecialSessionNum];
 }
 
@@ -4672,8 +4672,8 @@ std::vector<CvLeagueNameEntry*>& CvGlobals::getLeagueNameInfo()
 
 CvLeagueNameEntry* CvGlobals::getLeagueNameInfo(LeagueNameTypes eLeagueNameNum)
 {
-	ASSERT(eLeagueNameNum > -1);
-	ASSERT(eLeagueNameNum < GC.getNumLeagueNameInfos());
+	ASSERT_DEBUG(eLeagueNameNum > -1);
+	ASSERT_DEBUG(eLeagueNameNum < GC.getNumLeagueNameInfos());
 	return m_pLeagueNames->GetLeagueNameEntries()[eLeagueNameNum];
 }
 
@@ -4694,8 +4694,8 @@ std::vector<CvLeagueProjectEntry*>& CvGlobals::getLeagueProjectInfo()
 
 CvLeagueProjectEntry* CvGlobals::getLeagueProjectInfo(LeagueProjectTypes eLeagueProjectNum)
 {
-	ASSERT(eLeagueProjectNum > -1);
-	ASSERT(eLeagueProjectNum < GC.getNumLeagueProjectInfos());
+	ASSERT_DEBUG(eLeagueProjectNum > -1);
+	ASSERT_DEBUG(eLeagueProjectNum < GC.getNumLeagueProjectInfos());
 	return m_pLeagueProjects->GetLeagueProjectEntries()[eLeagueProjectNum];
 }
 
@@ -4716,8 +4716,8 @@ std::vector<CvLeagueProjectRewardEntry*>& CvGlobals::getLeagueProjectRewardInfo(
 
 CvLeagueProjectRewardEntry* CvGlobals::getLeagueProjectRewardInfo(LeagueProjectRewardTypes eLeagueProjectRewardNum)
 {
-	ASSERT(eLeagueProjectRewardNum > -1);
-	ASSERT(eLeagueProjectRewardNum < GC.getNumLeagueProjectRewardInfos());
+	ASSERT_DEBUG(eLeagueProjectRewardNum > -1);
+	ASSERT_DEBUG(eLeagueProjectRewardNum < GC.getNumLeagueProjectRewardInfos());
 	return m_pLeagueProjectRewards->GetLeagueProjectRewardEntries()[eLeagueProjectRewardNum];
 }
 
@@ -4761,8 +4761,8 @@ std::vector<CvTechEntry*>& CvGlobals::getTechInfo()
 
 CvTechEntry* CvGlobals::getTechInfo(TechTypes eTechNum)
 {
-	ASSERT(eTechNum > -1);
-	ASSERT(eTechNum < GC.getNumTechInfos());
+	ASSERT_DEBUG(eTechNum > -1);
+	ASSERT_DEBUG(eTechNum < GC.getNumTechInfos());
 	return m_pTechs->GetTechEntries()[eTechNum];
 }
 
@@ -4783,8 +4783,8 @@ std::vector<CvEraInfo*>& CvGlobals::getEraInfo()
 
 CvEraInfo* CvGlobals::getEraInfo(EraTypes eEraNum)
 {
-	ASSERT(eEraNum > -1);
-	ASSERT(eEraNum < GC.getNumEraInfos());
+	ASSERT_DEBUG(eEraNum > -1);
+	ASSERT_DEBUG(eEraNum < GC.getNumEraInfos());
 	return m_aEraInfo[eEraNum];
 }
 
@@ -4800,8 +4800,8 @@ std::vector<CvHurryInfo*>& CvGlobals::getHurryInfo()
 
 CvHurryInfo* CvGlobals::getHurryInfo(HurryTypes eHurryNum)
 {
-	ASSERT(eHurryNum > -1);
-	ASSERT(eHurryNum < GC.getNumHurryInfos());
+	ASSERT_DEBUG(eHurryNum > -1);
+	ASSERT_DEBUG(eHurryNum < GC.getNumHurryInfos());
 	return m_paHurryInfo[eHurryNum];
 }
 
@@ -4817,8 +4817,8 @@ std::vector<CvVictoryInfo*>& CvGlobals::getVictoryInfo()
 
 CvVictoryInfo* CvGlobals::getVictoryInfo(VictoryTypes eVictoryNum)
 {
-	ASSERT(eVictoryNum > -1);
-	ASSERT(eVictoryNum < GC.getNumVictoryInfos());
+	ASSERT_DEBUG(eVictoryNum > -1);
+	ASSERT_DEBUG(eVictoryNum < GC.getNumVictoryInfos());
 	return m_paVictoryInfo[eVictoryNum];
 }
 
@@ -4834,8 +4834,8 @@ std::vector<CvSmallAwardInfo*>& CvGlobals::getSmallAwardInfo()	// For Moose - XM
 
 CvSmallAwardInfo* CvGlobals::getSmallAwardInfo(SmallAwardTypes eSmallAwardNum)
 {
-	ASSERT(eSmallAwardNum > -1);
-	ASSERT(eSmallAwardNum < GC.getNumSmallAwardInfos());
+	ASSERT_DEBUG(eSmallAwardNum > -1);
+	ASSERT_DEBUG(eSmallAwardNum < GC.getNumSmallAwardInfos());
 	return m_paSmallAwardInfo[eSmallAwardNum];
 }
 
@@ -4852,8 +4852,8 @@ std::vector<CvDomainInfo*>& CvGlobals::getUnitDomainInfo()
 
 CvDomainInfo* CvGlobals::getUnitDomainInfo(DomainTypes eDomainNum)
 {
-	ASSERT(eDomainNum > -1);
-	ASSERT(eDomainNum < GC.getNumUnitDomainInfos());
+	ASSERT_DEBUG(eDomainNum > -1);
+	ASSERT_DEBUG(eDomainNum < GC.getNumUnitDomainInfos());
 	return m_paUnitDomainInfo[eDomainNum];
 }
 
@@ -4885,8 +4885,8 @@ std::vector<CvAchievementInfo*>& CvGlobals::getAchievementInfo()
 
 CvAchievementInfo* CvGlobals::getAchievementInfo(EAchievement eAchievementNum)
 {
-	ASSERT(eAchievementNum > -1);
-	ASSERT(eAchievementNum < GC.getNumAchievementInfos());
+	ASSERT_DEBUG(eAchievementNum > -1);
+	ASSERT_DEBUG(eAchievementNum < GC.getNumAchievementInfos());
 	if(eAchievementNum > -1 && eAchievementNum < GC.getNumAchievementInfos())
 		return m_pAchievements->GetAchievementEntries()[eAchievementNum];
 	else
@@ -4905,8 +4905,8 @@ CvString*& CvGlobals::getFootstepAudioTags()
 
 CvString& CvGlobals::getFootstepAudioTags(int i)
 {
-//	PRECONDITION(i < getNumFootstepAudioTags(), "Index out of bounds")
-	PRECONDITION(i > -1, "Index out of bounds");
+//	ASSERT_DEBUG(i < getNumFootstepAudioTags(), "Index out of bounds")
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_paszFootstepAudioTags[i];
 }
 
@@ -7319,7 +7319,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, int& iValue, bool bReportEr
 
 	if(bReportErrors)
 	{
-		ASSERT(bSuccess, "Integer Define Value not found for %s", szName);
+		ASSERT_DEBUG(bSuccess, "Integer Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7341,7 +7341,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, float& fValue, bool bReport
 
 	if(bReportErrors)
 	{
-		ASSERT(bSuccess, "Float Define Value not found for %s", szName);
+		ASSERT_DEBUG(bSuccess, "Float Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7363,7 +7363,7 @@ bool CvGlobals::getDatabaseValue(const char* szName, CvString& strValue, bool bR
 
 	if(bReportErrors)
 	{
-		ASSERT(bSuccess, "String Define Value not found for %s", szName);
+		ASSERT_DEBUG(bSuccess, "String Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
@@ -7462,7 +7462,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 {
 	if(!hideAssert)
 	{
-		ASSERT(szType, "null info type string");
+		ASSERT_DEBUG(szType, "null info type string");
 	}
 
 	if(szType == NULL)
@@ -7482,7 +7482,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 		//
 		CvString strError;
 		strError.Format("Info type %s not found.", szType);
-		ASSERT(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, strError.c_str());
+		ASSERT_DEBUG(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, strError.c_str());
 //		gDLL->logMsg("xml.log", szError);
 	}
 
@@ -7491,16 +7491,16 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 
 void CvGlobals::setInfoTypeFromString(const char* szType, int idx)
 {
-	ASSERT(szType, "null info type string");
+	ASSERT_DEBUG(szType, "null info type string");
 	uint uiHash = FString::Hash(szType);
 #ifdef _DEBUG
 	InfosMap::const_iterator it = m_infosMap.find(szType);
 	int iExisting = (it!=m_infosMap.end()) ? it->second : -1;
-	ASSERT(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
+	ASSERT_DEBUG(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
 
 	InfosHashMap::const_iterator ith = m_infosHashMap.find(uiHash);
 	iExisting = (ith!=m_infosHashMap.end()) ? ith->second : -1;
-	ASSERT(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
+	ASSERT_DEBUG(iExisting==-1 || iExisting==idx || strcmp(szType ? szType : "", "ERROR")==0, CvString::format("xml info type entry %s already exists", szType).c_str());
 #endif
 	m_infosMap[szType] = idx;
 	m_infosHashMap[uiHash] = idx;
@@ -7524,7 +7524,7 @@ int CvGlobals::getInfoTypeForHash(uint uiHash, bool hideAssert) const
 
 	if(!hideAssert)
 	{
-		ASSERT(uiHash==0, "Could not find resource hash");
+		ASSERT_DEBUG(uiHash==0, "Could not find resource hash");
 	}
 
 	return -1;

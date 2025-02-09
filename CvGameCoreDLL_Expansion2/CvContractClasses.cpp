@@ -116,14 +116,14 @@ int CvContractEntry::GetTurns() const
 }
 int CvContractEntry::GetYieldCost(YieldTypes eYield) const
 {
-	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(eYield > -1, "Index out of bounds");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(eYield > -1, "Index out of bounds");
 	return m_piYieldCost ? m_piYieldCost[eYield] : -1;
 }
 int CvContractEntry::GetFlavorValue(FlavorTypes eFlavor) const
 {
-	PRECONDITION(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
-	PRECONDITION(eFlavor > -1, "Index out of bounds");
+	ASSERT_DEBUG(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
+	ASSERT_DEBUG(eFlavor > -1, "Index out of bounds");
 	return m_piFlavor ? m_piFlavor[eFlavor] : -1;
 }
 
@@ -525,7 +525,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 
 							// Init unit
 							pUnit = m_pPlayer->initUnit(eUnit, pBestCity->getX(), pBestCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), REASON_DEFAULT, false, true, 0, 0, eContract);
-							ASSERT(pUnit);
+							ASSERT_DEBUG(pUnit);
 							if (pUnit)
 							{
 								if (!pUnit->jumpToNearestValidPlotWithinRange(5))

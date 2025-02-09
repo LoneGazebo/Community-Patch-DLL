@@ -2161,14 +2161,16 @@ function()-- control )
 			tipControlTable.UnitActionHotKey:SetText()
 			-- Yield from this improvement
 			local toolTip = table()
-			for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-				local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner(), false )
-				--plot:CalculateYield( yieldID ) - plot:CalculateNatureYield( yieldID, g_activeTeamID )
+			if plot:GetOwner() >= 0 then
+				for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
+					local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner(), false )
+					--plot:CalculateYield( yieldID ) - plot:CalculateNatureYield( yieldID, g_activeTeamID )
 
-				if yieldChange > 0 then
-					toolTip:insert( "[COLOR_POSITIVE_TEXT]+" .. L( g_yieldString[yieldID], yieldChange) )
-				elseif  yieldChange < 0 then
-					toolTip:insert( "[COLOR_NEGATIVE_TEXT]" .. L( g_yieldString[yieldID], yieldChange) )
+					if yieldChange > 0 then
+						toolTip:insert( "[COLOR_POSITIVE_TEXT]+" .. L( g_yieldString[yieldID], yieldChange) )
+					elseif  yieldChange < 0 then
+						toolTip:insert( "[COLOR_NEGATIVE_TEXT]" .. L( g_yieldString[yieldID], yieldChange) )
+					end
 				end
 			end
 			tipControlTable.UnitActionHelp:SetText( toolTip:concat("[NEWLINE]") )

@@ -2147,7 +2147,7 @@ int CvLuaGame::lGetAdvisorCounsel(lua_State* L)
 			// close out previous table
 			if(eCurrentAdvisorType != NUM_ADVISOR_TYPES)
 			{
-				ASSERT(bTableOpen, "Table should be open");
+				ASSERT_DEBUG(bTableOpen, "Table should be open");
 				lua_rawseti(L, iTopLevelLua, eCurrentAdvisorType);
 				bTableOpen = false;
 			}
@@ -2159,14 +2159,14 @@ int CvLuaGame::lGetAdvisorCounsel(lua_State* L)
 				break;
 			}
 			eCurrentAdvisorType = eNextAdvisorType;
-			ASSERT(!bTableOpen, "table should be open");
+			ASSERT_DEBUG(!bTableOpen, "table should be open");
 			lua_createtable(L, 0, 0);
 			bTableOpen = true;
 			iAdvisorTableLevel = lua_gettop(L);
 			iAdvisorIndex = 0;
 		}
 
-		ASSERT(bTableOpen, "Table should be open");
+		ASSERT_DEBUG(bTableOpen, "Table should be open");
 		lua_pushstring(L, GC.getGame().GetAdvisorCounsel()->m_aCounsel[ui].m_strTxtKey);
 		lua_rawseti(L, iAdvisorTableLevel, iAdvisorIndex);
 		iAdvisorIndex++;
