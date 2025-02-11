@@ -79,6 +79,10 @@ function UI.CopyLastAutoSave(arg0) end
 function UI.CtrlKeyDown() end
 
 --- TODO docs
+--- @return boolean
+function UI.DebugFlag() end
+
+--- TODO docs
 --- @param ... unknown
 function UI.DebugKeyHandler(...) end
 
@@ -560,3 +564,14 @@ function UI.incTurnTimerSemaphore() end
 
 --- TODO docs
 function UI.interruptTurnTimer() end
+
+--- Checks if current game is loaded from save file.
+--- @return boolean
+function UI.IsLoadedGame() end
+
+--- TODO docs
+function UI.RequestMinimapBroadcast() end
+
+--- TODO docs
+--- @return boolean
+function UI.CheckForCommandLineInvitation() end
