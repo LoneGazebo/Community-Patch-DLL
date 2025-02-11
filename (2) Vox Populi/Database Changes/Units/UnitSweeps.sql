@@ -130,10 +130,9 @@ SET MinAreaSize = (
 	WHERE Name = 'MIN_WATER_SIZE_FOR_OCEAN'
 ) WHERE CombatClass IN (
 	SELECT Type FROM UnitCombatInfos WHERE IsNaval = 1
-) OR CombatClass IN (
-	'UNITCOMBAT_WORKBOAT',
-	'UNITCOMBAT_CARGO'
-);
+) OR CombatClass = 'UNITCOMBAT_WORKBOAT';
+
+UPDATE Units SET MinAreaSize = 3 WHERE CombatClass = 'UNITCOMBAT_CARGO';
 
 -----------------------------------------------------------------
 -- Number of air slots this unit takes

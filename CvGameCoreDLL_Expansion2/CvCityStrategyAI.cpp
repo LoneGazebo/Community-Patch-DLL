@@ -3420,7 +3420,34 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 	if (!GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
 		return false;
 
-	return pCity->getPopulation() >= 5;
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if(pkBuildingInfo)
+		{
+			// Has this Building
+			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				// Does it grant a diplomatic production bonus?
+				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURT_SCRIBE"))
+				{
+					//Let's make sure the city is robust before we start this.
+					if(pCity->getPopulation() >= 5)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	if (pCity->isCapital() && pCity->getPopulation() >= 5)
+	{
+		//Need diplomats?
+		return true;
+	}
+	return false;
 }
 
 //Tests to help AI build buildings it needs.

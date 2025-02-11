@@ -1667,9 +1667,9 @@ CivPanel
 			<Label ID="Master" Anchor="C,C" Offset="21,-3" String="[ICON_OCCUPIED]" />
 			<Label ID="Vassal" Anchor="C,C" Offset="21,-3" String="[ICON_PUPPET]" />
 			<Label ID="TheirBordersClosed" Anchor="C,C" Offset="-22,-18" Font="TwCenMT16" FontStyle="Stroke" Color0="255,0,0,255" Color1="Black,155" String=">" />
-			<Label ID="OurBordersClosed" Anchor="C,C" Offset="-22,-4" Font="TwCenMT16" FontStyle="Stroke" Color0="255,0,0,255" Color1="Black,155" String="<" />
+			<Label ID="OurBordersClosed" Anchor="C,C" Offset="-22,-4" Font="TwCenMT16" FontStyle="Stroke" Color0="255,0,0,255" Color1="Black,155" String="&lt;" />
 			<Label ID="TheirBordersOpen" Anchor="C,C" Offset="-22,-18" Font="TwCenMT16" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155" String=">" />
-			<Label ID="OurBordersOpen" Anchor="C,C" Offset="-22,-4" Font="TwCenMT16" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155" String="<" />
+			<Label ID="OurBordersOpen" Anchor="C,C" Offset="-22,-4" Font="TwCenMT16" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155" String="&lt;" />
 			<Label ID="ActivePlayer" Anchor="C,C" Offset="-21,-17" String="[ICON_CAPITAL]" />
 			<Label ID="TeamIcon" Anchor="C,C" Offset="21,18" String="[ICON_TEAM_1]" />
 			<Label ID="War" Anchor="C,C" Offset="-21,17" String="[ICON_WAR]" />
