@@ -1984,8 +1984,10 @@ WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
-VALUES
-	('BUILDING_CIRCUS_MAXIMUS', 'RESOURCE_HORSE', 2);
+SELECT
+	Type, 'RESOURCE_HORSE', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 INSERT INTO Helper
 	(YieldType)

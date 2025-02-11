@@ -40,7 +40,6 @@
 		<Row Class="2" Name="UI_DISPLAY_PRECISE_MOVEMENT_POINTS" Value="0"/>
 
 		<!-- Changes in Milae's Alternative Difficulty Mod -->
-		<!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
 		<Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
 
 		<!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->

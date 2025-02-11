@@ -38,15 +38,6 @@
 		<Column name="Value" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- Yield change on specified improvements when empire enters a golden age. Increased yields cap at YieldCap if not NULL. -->
-	<Table name="Trait_ImprovementYieldChangesFromGoldenAge">
-		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
-		<Column name="Yield" type="integer" notnull="true"/>
-		<Column name="YieldCap" type="integer"/>
-	</Table>
-
 	<!-- Yields on non-lake water tiles -->
 	<Table name="Trait_SeaPlotYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
@@ -86,6 +77,14 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield change on specified resources when empire enters a golden age. Increased yields cap at YieldCap if not NULL. -->
+	<Table name="Trait_ResourceYieldChangesFromGoldenAge">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="YieldCap" type="integer"/>
 	</Table>
 	<!-- Yields on all luxury resources -->
 	<Table name="Trait_LuxuryYieldChanges">

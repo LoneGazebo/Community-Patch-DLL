@@ -228,7 +228,23 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- BUILDING: Allows you to define a hurruy modifier for local hurries in a city. -->
+	<!-- BUILDING: Allows you to define a building to grant yields for every X instances of an improvement inside the borders of the city where it is built -->
+	<Table name="Building_YieldPerXImprovementLocal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="NumRequired" type="integer" notnull="true"/>
+	</Table>
+	<!-- BUILDING: Allows you to define a building to grant yields for every X instances of an improvement in the empire's borders -->
+	<Table name="Building_YieldPerXImprovementGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="NumRequired" type="integer" notnull="true"/>
+	</Table>
+	<!-- BUILDING: Allows you to define a hurry modifier for local hurries in a city. -->
 	<Table name="Building_HurryModifiersLocal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="HurryType" type="text" reference="HurryInfos(Type)" notnull="true"/>
@@ -490,7 +506,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the city when any unit gift from the player reaches the target city state -->
+	<!-- Instant yields to the city when any unit gift from the player reaches the target city state, scaling with era -->
 	<Table name="Building_YieldFromUnitGiftGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
@@ -504,6 +520,12 @@
 	</Table>
 	<!-- Instant yields to the city at the start of every b'ak'tun, scaling with era -->
 	<Table name="Building_YieldFromLongCount">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield boost to the building, scaling with era -->
+	<Table name="Building_YieldChangesEraScalingTimes100">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
@@ -592,7 +614,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields (of YieldOut) to the city when a specified great person spawns there, equal to Value% of YieldIn per turn -->
+	<!-- Instant yields (of YieldOut) to the city when a specified great person spawns there, equal to Value% of YieldIn (empire-wide) per turn -->
 	<Table name="Building_YieldFromGPBirthScaledWithPerTurnYield">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
