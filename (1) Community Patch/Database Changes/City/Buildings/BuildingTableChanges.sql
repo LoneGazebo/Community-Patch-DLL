@@ -53,10 +53,6 @@ ALTER TABLE Buildings ADD LocalPopRequired integer DEFAULT 0;
 -- Adds population instantly to city.
 ALTER TABLE Buildings ADD PopulationChange integer DEFAULT 0;
 
--- Newly trained units in this city gain additional experience for every golden age started after contruction of the building
-ALTER TABLE Buildings ADD ExperiencePerGoldenAge integer DEFAULT 0;
-ALTER TABLE Buildings ADD ExperiencePerGoldenAgeCap integer DEFAULT 0;
-
 -- Movement speed penalty (like Great Wall) for land plots worked by a City.
 ALTER TABLE Buildings ADD BorderObstacleCity boolean DEFAULT 0;
 
@@ -291,6 +287,10 @@ ALTER TABLE Buildings ADD GlobalCityWorkingChange integer DEFAULT 0;
 
 -- Modifier for GP rate per active marriage with city state (not at war)
 ALTER TABLE Buildings ADD GPRateModifierPerMarriage integer DEFAULT 0;
+
+-- Extra experience for units trained in this city every time the empire enters a golden age after this building is built
+ALTER TABLE Buildings ADD ExperiencePerGoldenAge integer DEFAULT 0;
+ALTER TABLE Buildings ADD ExperiencePerGoldenAgeCap integer DEFAULT 0;
 
 -- Modifier for GP rate per completed great work theme
 ALTER TABLE Buildings ADD GPRateModifierPerLocalTheme integer DEFAULT 0;
