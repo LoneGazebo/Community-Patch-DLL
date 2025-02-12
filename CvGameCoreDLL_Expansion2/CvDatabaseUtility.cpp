@@ -379,7 +379,7 @@ bool CvDatabaseUtility::SetFractionYields(fraction*& pYieldsArray,
 
 	if (!pResults->Bind(1, szFilterValue, false))
 	{
-		CvAssertMsg(false, GetErrorMessage());
+		ASSERT_DEBUG(false, GetErrorMessage());
 		return false;
 	}
 
@@ -388,7 +388,7 @@ bool CvDatabaseUtility::SetFractionYields(fraction*& pYieldsArray,
 		const int YieldID = pResults->GetInt(0);
 		const int yield = pResults->GetInt(1);
 		const int iNumRequired = pResults->GetInt(2);
-		CvAssertFmt(iNumRequired != 0, "%s mustn't be 0 in table %s", szDenominatorColumn, szTableName); // todo: PRECONDITION
+		PRECONDITION(iNumRequired != 0, "%s mustn't be 0 in table %s", szDenominatorColumn, szTableName);
 
 		pYieldsArray[YieldID] = pYieldsArray[YieldID] + fraction(yield, iNumRequired);
 	}
