@@ -3936,16 +3936,16 @@ int* CvBuildingEntry::GetYieldChangeArray() const
 /// Change to yield per turn, scaling with era
 int CvBuildingEntry::GetYieldChangeEraScalingTimes100(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piYieldChangeEraScalingTimes100[i];
 }
 
 /// Change to yield per turn per non-dummy building in the city
 fraction CvBuildingEntry::GetYieldChangePerBuilding(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_pfYieldChangePerBuilding[i];
 }
 
@@ -4332,8 +4332,8 @@ int CvBuildingEntry::GetResourceQuantityPerXFranchises(int i) const
 }
 int CvBuildingEntry::GetYieldChangePerMonopoly(int i) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piYieldChangePerMonopoly[i];
 }
 int CvBuildingEntry::GetYieldPerFranchise(int i) const
