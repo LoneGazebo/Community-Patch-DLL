@@ -26182,9 +26182,9 @@ void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 /// Extra yield for each building
 fraction CvCity::GetYieldPerBuilding(YieldTypes eIndex) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_afYieldPerBuilding[eIndex];
 }
@@ -26192,9 +26192,9 @@ fraction CvCity::GetYieldPerBuilding(YieldTypes eIndex) const
 /// Extra yield for each building
 void CvCity::ChangeYieldPerBuilding(YieldTypes eIndex, fraction iChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 		m_afYieldPerBuilding[eIndex] = m_afYieldPerBuilding[eIndex] + iChange;
