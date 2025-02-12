@@ -15,7 +15,7 @@
 class FDataStream;
 
 //for tactical combat
-enum eAggressionLevel { AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
+enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
 extern const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 
 // STL "find_if" predicate
@@ -206,8 +206,7 @@ public:
 		m_iZoneID = -1;
 		m_pUnit = NULL;
 		m_iAuxData = 0;
-		m_eLastAggLvl = AL_LOW;
-		m_vLastUnits.clear();
+		m_eLastAggLvl = AL_NONE;
 	};
 	inline bool operator<(const CvTacticalTarget& target) const
 	{
@@ -251,14 +250,10 @@ public:
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer) const;
 	bool IsTargetValidInThisDomain(DomainTypes eDomain) const;
 
+	//if we already tried with a high agg level, no point in trying again with a lower level
+	//chance that we have more units for an attack later in the turn is also slim
 	void SetLastAggLevel(eAggressionLevel lvl) { m_eLastAggLvl = lvl; }
-	void SetLastAttackUnits(const CTacticalUnitArray& units);
-
-	//this is a bit hackish, we have two dimensions, aggression level and units
-	//they are not independent. high-prio / many unit attacks come first
-	//within the same aggression level we use the units to avoid repetition
 	eAggressionLevel GetLastAggLevel() const { return m_eLastAggLvl; }
-	bool UnitsAreSameAsLastTime(const CTacticalUnitArray& units) const;
 
 	inline CvUnit* GetUnitPtr() const
 	{
@@ -290,7 +285,6 @@ private:
 	int m_iAuxData;
 	int m_iZoneID;
 	eAggressionLevel m_eLastAggLvl;
-	UnitIdContainer m_vLastUnits;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -313,8 +307,6 @@ struct CvFocusArea
 
 FDataStream& operator<<(FDataStream&, const CvFocusArea&);
 FDataStream& operator>>(FDataStream&, CvFocusArea&);
-
-typedef vector<CvTacticalTarget> TacticalList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalAI
@@ -361,7 +353,7 @@ public:
 	void LogTacticalMessage(const CvString& strMsg);
 
 	// Other people want to know this too
-	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
+	const vector<CvTacticalTarget>& GetTacticalTargets() const { return m_AllTargets; }
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap() { return &m_tacticalMap; }
 
 	// Operational AI support functions
@@ -386,7 +378,6 @@ private:
 	// Routines to manage identifying and implementing tactical moves
 	void ExecuteCaptureCityMoves();
 	void PlotGrabGoodyMoves();
-	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, eAggressionLevel aggLvl=AL_MEDIUM);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
@@ -429,19 +420,14 @@ private:
 	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
-	void IdentifyPriorityTargets();
-	void IdentifyPriorityBarbarianTargets();
-	void IdentifyPriorityTargetsByType();
 	void UpdateTargetScores();
 	void SortTargetListAndDropUselessTargets();
 	void DumpTacticalTargets();
 
 	void ClearCurrentMoveUnits(AITacticalMove eNewMove);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
-	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_LOW);
-	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_LOW);
-	CvTacticalTarget* GetFirstUnitTarget();
-	CvTacticalTarget* GetNextUnitTarget();
+	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel threshold = AL_BRAVEHEART);
+	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel threshold = AL_BRAVEHEART);
 
 	// Routines to execute a mission
 	void ExecuteBarbarianCampMove(CvPlot* pTargetPlot);
@@ -465,8 +451,7 @@ private:
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirPatrolMoves();
 	void ExecuteAirSweepMoves();
-	bool ExecuteAttritionAttacks(CvTacticalTarget& kTarget);
-	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
+	bool ExecuteDestroyEnemyUnits(CvTacticalTarget& kTarget, eAggressionLevel aggLvl = AL_MEDIUM);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets);
 
@@ -494,9 +479,7 @@ private:
 	CvPlot* FindBestBarbarianSeaTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
 	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffensive);
-	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
-	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);
 
 	// Logging functions
 	CvString GetLogFileName(const CvString& playerName) const;
@@ -511,9 +494,9 @@ private:
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 
 	// Lists of targets for the turn
-	TacticalList m_AllTargets;
-	TacticalList m_ZoneTargets;
-	TacticalList m_NavalBlockadePoints;
+	vector<CvTacticalTarget> m_AllTargets;
+	vector<CvTacticalTarget*> m_ZoneTargets; //pointers only!
+	vector<CvTacticalTarget> m_NavalBlockadePoints;
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;

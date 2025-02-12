@@ -153,7 +153,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		}
 
 		//select strategically important points
-		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
+		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_ENEMY_CITADEL)
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 

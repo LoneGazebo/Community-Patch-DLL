@@ -6284,7 +6284,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 	}
 
 	//check current targets during wartime
-	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
+	const vector<CvTacticalTarget>& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
 		if (iRange > 0)
@@ -6297,16 +6297,10 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 		// Is the target of an appropriate type?
 		switch (allTargets[iI].GetTargetType())
 		{
-		case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-			iBaseScore += 12;
-			break;
-		case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
+		case AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT:
 			iBaseScore += 8;
 			break;
-		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-			iBaseScore += 4;
-			break;
-		case AI_TACTICAL_TARGET_CITY:
+		case AI_TACTICAL_TARGET_ENEMY_CITY:
 			{
 				//for nukes we want only cities, but ones we haven't recently nuked. for conventional air force cities are optional
 				CvPlot* pTargetPlot = GC.getMap().plot(allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY());

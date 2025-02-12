@@ -15407,42 +15407,29 @@ bool CvPlot::IsEnemyUnitAdjacent(TeamTypes eMyTeam) const
 	return false;
 }
 
-vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const
+vector<CvUnit*> CvPlot::GetAdjacentFriendlyCombatUnits(TeamTypes eMyTeam, int iRange, DomainTypes eDomain) const
 {
 	vector<CvUnit*> result;
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	int iMaxDistance = min(5,iRange);
+	for (int iJ = RING1_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
 	{
-		CvPlot *pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL && !pLoopPlot->isCity()) //ignore units in cities
+		CvPlot* pLoopPlot = iterateRingPlots(this, iJ);
+		if(pLoopPlot)
 		{
-			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
+			const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+			while (pUnitNode != NULL)
 			{
 				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
-				if(pLoopUnit)
+				if (pLoopUnit && pLoopUnit->IsCanAttack() && pLoopUnit->getTeam()==eMyTeam)
 				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
-					{
-						TeamTypes eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								result.push_back(pLoopUnit);
-							}
-						}
-					}
+					//this check skips air units ...
+					if (eDomain==NO_DOMAIN || pLoopUnit->getDomainType() == eDomain)
+						result.push_back(pLoopUnit);
 				}
 			}
+
 		}
 	}
 
