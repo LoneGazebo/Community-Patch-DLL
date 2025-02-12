@@ -820,7 +820,6 @@ protected:
 
 class CvTacticalPosition
 {
-
 protected:
 	//for final sorting (does not include intermediate moves)
 	int iTotalScore;
@@ -843,7 +842,8 @@ protected:
 	PlotIndexContainer enemyPlots; //plot indices for enemy units, to be checked for potential attacks
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
-	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
+	int movePlotUpdateFlagA; //zero for nothing to do, unit id for a specific unit, -1 for all units
+	int movePlotUpdateFlagB; //zero for nothing to do, unit id for a specific unit, -1 for all units
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -878,6 +878,14 @@ protected:
 		int iUnitID;
 		PrMatchingUnit(int iID) : iUnitID(iID) {}
 		bool operator()(const SUnitStats& other) { return iUnitID == other.iUnitID; }
+	};
+
+	enum AddAssignmentResult
+	{
+		RESULT_NOOP,
+		RESULT_ADDED,
+		RESULT_ADDED_W_VIS_CHANGE,
+		RESULT_NOT_ADDED
 	};
 
 public:
@@ -957,7 +965,7 @@ public:
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isAttackablePlot(int iPlotIndex) const;
-	bool addAssignment(const STacticalAssignment& newAssignment);
+	AddAssignmentResult addAssignment(const STacticalAssignment& newAssignment);
 	bool isUnique(int levelsToCheck=2) const;
 	void setFirstInterestingAssignment(size_t i);
 	size_t getFirstInterestingAssignment() const;

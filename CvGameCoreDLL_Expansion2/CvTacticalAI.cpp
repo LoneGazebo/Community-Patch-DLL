@@ -9232,9 +9232,15 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		//important, hook it up to the parent so we can access the history
 		addChild(pNewChild);
 
-		bool isConsistent = pNewChild->addAssignment(gMovesToAdd[i].a) && pNewChild->addAssignment(gMovesToAdd[i].b);
+		AddAssignmentResult a = pNewChild->addAssignment(gMovesToAdd[i].a);
+		AddAssignmentResult b = pNewChild->addAssignment(gMovesToAdd[i].b);
+
+		//cannot add a RESTART in the middle of a combo move for consistency, so add afterwards
+		if (a==RESULT_ADDED_W_VIS_CHANGE || b==RESULT_ADDED_W_VIS_CHANGE)
+			pNewChild->assignedMoves.push_back(STacticalAssignment(-1, -1, gMovesToAdd[i].a.iUnitID, 0, gMovesToAdd[i].a.eMoveType, 0, A_RESTART));
 
 		//try to detect duplicates ...
+		bool isConsistent = (a != RESULT_NOT_ADDED && b != RESULT_NOT_ADDED);
 		if (isConsistent && pNewChild->isUnique(TACTSIM_UNIQUENESS_CHECK_GENERATIONS))
 		{
 			//do we need to keep working on this one?
@@ -9283,19 +9289,20 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 //lazy update of move plots
 void CvTacticalPosition::updateMovePlotsIfRequired()
 {
-	if (movePlotUpdateFlag==-1)
+	if (movePlotUpdateFlagA==-1 && movePlotUpdateFlagB==-1)
 	{
 		for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 			updateMoveAndAttackPlotsForUnit(*itUnit);
 	}
-	else if (movePlotUpdateFlag>0)
+	else
 	{
 		for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
-			if (itUnit->iUnitID == movePlotUpdateFlag)
+			if (itUnit->iUnitID == movePlotUpdateFlagA || itUnit->iUnitID == movePlotUpdateFlagB)
 				updateMoveAndAttackPlotsForUnit(*itUnit);
 	}
 
-	movePlotUpdateFlag = 0;
+	movePlotUpdateFlagA = 0;
+	movePlotUpdateFlagB = 0;
 }
 
 bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
@@ -9376,10 +9383,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 
 		//if the unit is blocked but has movement left and can flee, let's assume that is ok
 		if (unit.eLastAssignment == A_BLOCKED && unit.iMovesLeft>0)
-			continue;
-
-		//if we have a restart pending, that can also be ok if we're not planning to stay
-		if (lastAssignmentIsAfterRestart(unit.iUnitID))
 			continue;
 
 		//make sure we don't leave a unit in an impossible position
@@ -9748,7 +9751,8 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	parentPosition = NULL;
 	iGeneration = 0;
 	iID = 1; //zero doesn't work here
-	movePlotUpdateFlag = 0;
+	movePlotUpdateFlagA = 0;
+	movePlotUpdateFlagB = 0;
 
 	childPositions.clear();
 	tactPlotLookup.clear();
@@ -9773,7 +9777,8 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
-	movePlotUpdateFlag = parent.movePlotUpdateFlag;
+	movePlotUpdateFlagA = parent.movePlotUpdateFlagA;
+	movePlotUpdateFlagB = parent.movePlotUpdateFlagB;
 	iGeneration = parent.iGeneration + 1;
 
 	//clever scheme to encode the tree structure into IDs
@@ -10111,11 +10116,11 @@ STacticalAssignment * CvTacticalPosition::getLatestAssignmentMutable(int iUnitID
 	return NULL;
 }
 
-bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
+CvTacticalPosition::AddAssignmentResult CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 {
 	//empty assignment, nothing to do, consider this a good case
 	if (newAssignment.iUnitID == 0)
-		return true;
+		return RESULT_NOOP;
 
 	//if we killed an enemy ZOC will change
 	bool bRecomputeAllMoves = false;
@@ -10124,16 +10129,16 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	
 	vector<SUnitStats>::iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(newAssignment.iUnitID));
 	if (itUnit == availableUnits.end() || itUnit->iPlotIndex != newAssignment.iFromPlotIndex)
-		return false;
+		return RESULT_NOT_ADDED;
 
 	//tactical plots are only touched for "real" moves. blocked units may be on invalid plots.
 	//a unit may also start out on an invalid plot (eg. too far away)
 	if (newAssignment.eAssignmentType != A_BLOCKED && itUnit->eLastAssignment != A_INITIAL)
 	{
 		if (!getTactPlotMutable(newAssignment.iToPlotIndex).isValid())
-			return false;
+			return RESULT_NOT_ADDED;
 		if (!getTactPlotMutable(newAssignment.iFromPlotIndex).isValid())
-			return false;
+			return RESULT_NOT_ADDED;
 	}
 
 	//i know what you did last summer!
@@ -10153,8 +10158,6 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		break;
 	case A_MOVE_FORCED:
 	case A_MOVE_SWAP_REVERSE:
-		bAffectsScore = false;
-		//fall through!
 	case A_MOVE:
 	case A_MOVE_SWAP:
 	case A_CAPTURE:
@@ -10262,18 +10265,25 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		UNREACHABLE();
 	}
 
-	//we don't update the moves plots lazily because it takes a while and we don't know yet if we will ever follow up on this position
+	//we update the moveplots lazily because it takes a while and we don't know yet if we will ever follow up on this position
 	if (bRecomputeAllMoves)
 	{
-		movePlotUpdateFlag = -1; //need to update all
+		movePlotUpdateFlagA = -1;
+		movePlotUpdateFlagB = -1;
 	}
 	else if (itUnit->iMovesLeft>0 && !bEndOfSim)
 	{
 		//make sure we don't regress to a "lower" level
-		if (movePlotUpdateFlag==0) 
-			movePlotUpdateFlag = itUnit->iUnitID; //need to update only this one
-		else if (movePlotUpdateFlag>0)
-			movePlotUpdateFlag = -1; //need to update multiple units, simply do all
+		if (movePlotUpdateFlagA==0) 
+			movePlotUpdateFlagA = itUnit->iUnitID; //need to update only this one
+		else if (movePlotUpdateFlagB==0)
+			movePlotUpdateFlagB = itUnit->iUnitID; //need to update this one as well
+		else
+		{
+			//need to update more than 2 units, simply do all
+			movePlotUpdateFlagA = -1;
+			movePlotUpdateFlagB = -1;
+		}
 	}
 
 	//forced moves don't even affect the score
@@ -10307,10 +10317,10 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//any new enemies in sight or borders changed?
 	bool bCityCapture = (newAssignment.eAssignmentType == A_MELEEKILL && GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->isCity());
 	bool bRestartRequired = (visibilityResult.second > 0) || bCityCapture;
-	if (bRestartRequired && availableUnits.size()>0)
-		assignedMoves.push_back(STacticalAssignment( -1, -1, newAssignment.iUnitID, 0, newAssignment.eMoveType, 0, A_RESTART));
+	if (bRestartRequired && availableUnits.size() > 0)
+		return RESULT_ADDED_W_VIS_CHANGE;
 
-	return true;
+	return RESULT_ADDED;
 }
 
 bool STacticalAssignment::operator==(const STacticalAssignment& rhs) const
@@ -10689,7 +10699,9 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	//we will update the importance later, use 0 for now
 	availableUnits.push_back( SUnitStats( pUnit, 0, eStrategy ) );
 
-	movePlotUpdateFlag = -1; //lazy update of move plots later
+	//lazy update of move plots later
+	movePlotUpdateFlagA = -1; 
+	movePlotUpdateFlagB = -1;
 
 #if defined(MOD_CORE_DEBUGGING)
 	if (GC.getLogging() && GC.getAILogging() && MOD_CORE_DEBUGGING)
@@ -11201,25 +11213,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				iStartingUnits << " starting units, " <<
 				current->getAvailableUnits().size() << " remaining units";
 				CUSTOMLOG(ss.str().c_str());
-
-			//too risky ...
-			/*
-			//see if we can just take an unfinished position to salvage the situation
-			if (completedPositions.empty())
-			{
-				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
-				for (size_t i = 0; i < openPositionsHeap.size(); i++)
-				{
-					int iDummy;
-					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false),iDummy)
-						completedPositions.push_back(openPositionsHeap[i]);
-				}
-
-				//want at least 3, don't trust the results if we have less
-				if (completedPositions.size() < 3)
-					completedPositions.clear();
-			}
-			*/
 			break;
 		}
 	}
