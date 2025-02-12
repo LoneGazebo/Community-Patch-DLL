@@ -1282,7 +1282,7 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 		targets[i].pTarget->SetLastAggLevel(aggLvl);
 
 		//return true if target was killed
-		if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
+		if (ExecuteAttackWithCities(pDefender))
 			continue;
 
 		//don't repeat ourselves
@@ -3775,7 +3775,7 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 	return false;
 }
 
-bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
+bool CvTacticalAI::ExecuteAttackWithCities(CvUnit* pDefender)
 {
 	// Start by applying damage from city bombards
 	for (unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
@@ -3790,31 +3790,6 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 			if (pDefender->GetCurrHitPoints() < 1)
 				return true;
 		}
-
-		//special handling for ranged garrisons as they are ignored by tactical AI
-		//note: melee garrisons are handled in PlotGarrisonMoves()
-		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if (pGarrison)
-		{
-			if (pGarrison->shouldHeal(true))
-			{
-				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
-				pGarrison->SetTurnProcessed(true);
-			}
-			else
-			{
-				//may have multiple attacks ...
-				while (pGarrison->canRangeStrikeAt(pDefender->getX(), pDefender->getY()))
-					pGarrison->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
-
-				//if we have attacks left, we can try again in PlotGarrisonMoves() with other target
-				if (pGarrison->isOutOfAttacks())
-					pGarrison->SetTurnProcessed(true);
-			}
-		}
-
-		if (pDefender->GetCurrHitPoints() < 1)
-			return true;
 	}
 
 	//not killed
@@ -4714,7 +4689,7 @@ bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 
 		// If this is a unit target we might also be able to hit it with a city
 		bool bCityCanAttack = FindCitiesWithinStrikingDistance(pTargetPlot);
-		if (bCityCanAttack && ExecuteAttackWithCitiesAndGarrisons(pDefender))
+		if (bCityCanAttack && ExecuteAttackWithCities(pDefender))
 			return true;
 
 		// Make attacks - this includes melee attacks but only very safe ones
@@ -5273,17 +5248,8 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iAttackStrength = 0;
-
 		if (pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pLoopCity->isMadeAttack())
 			iAttackStrength += pLoopCity->getStrengthValue(true);
-
-		//garrison may have a larger range than the city ...
-		if (pLoopCity->HasGarrison())
-		{
-			CvUnit* pGarrison = pLoopCity->GetGarrisonedUnit();
-			if (pGarrison->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
-				iAttackStrength += pGarrison->GetBaseRangedCombatStrength();
-		}
 
 		if (iAttackStrength>0)
 		{
@@ -5296,7 +5262,6 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveCities.begin(), m_CurrentMoveCities.end());
-
 	return !m_CurrentMoveCities.empty();
 }
 
@@ -7940,14 +7905,6 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	const CvPlot* pTestPlot = testPlot.getPlot();
 	const CvUnit* pUnit = unit.pUnit;
 
-	//can we put a combat unit here?
-	if (testPlot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
-	{
-		//double check - the blocking flag is not 100% reliable in cities
-		if (!pTestPlot->isCoastalCityOrPassableImprovement(assumedPosition.getPlayer(),true,true) || pUnit->plot()!=pTestPlot)
-			return result;
-	}
-
 	//different contributions
 	int iDangerScore = 0;
 	int iPlotScore = 0;
@@ -8037,7 +7994,8 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 		//give a bonus for occupying a citadel even if it's just intermediate for now
 		//but we want our units to take turns soaking damage, so we have to incentivise moving in.
 		//bonus should be larger than 60 to override the difference between firstline/secondline base score.
-		if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3)
+		bool bIsFrontlineCitadelOrCity = (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) || testPlot.getPlot()->isCity()) && testPlot.getEnemyDistance() < 3;
+		if (bIsFrontlineCitadelOrCity)
 		{
 			if (pUnit->GetRange()>1 || testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, unit.iPlotIndex) == 0 || testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) > 0)
 	 			iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS;
@@ -8201,14 +8159,6 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		default:
 			iScore = 23; //embarked units don't care about getting close to enemies
 			break;
-		}
-
-		//can we put a combat unit here?
-		if (testPlot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
-		{
-			//double check - the blocking flag is not 100% reliable in cities
-			if (!pTestPlot->isCoastalCityOrPassableImprovement(assumedPosition.getPlayer(), true, true) || pUnit->plot() != pTestPlot)
-				return result;
 		}
 
 		if (evalMode!=EM_INTERMEDIATE)
@@ -8997,7 +8947,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				continue;
 
 			//make sure we have a chance to execute this move ... so skip it if there is an unmoveable block
-			if (IsCombatUnit(unit) && (testPlot.isCombatEndTurn() || testPlot.isBlockedByNonSimUnit()))
+			if (IsCombatUnit(unit) && testPlot.isCombatEndTurn())
 				continue;
 
 			//how much damage could we do with our next moves?
@@ -9254,8 +9204,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 							gMovesToAdd.push_back(SComboMove());
 							//add the move to make space
 							gMovesToAdd.back().addMove(gOverAllChoices[j]);
-							//mark that this is a forced move so we're allowed to move back later
-							gMovesToAdd.back().a.eAssignmentType = A_MOVE_FORCED; //this one will actually move both units
+							//mark that this is a forced move so we're allowed to move again later
+							gMovesToAdd.back().a.eAssignmentType = A_MOVE_FORCED;
 							//now we can do the original move
 							gMovesToAdd.back().addMove(gOverAllChoices[i]);
 							break;
@@ -9984,7 +9934,8 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			}
 
 			//last (expensive) check, need to have a tact plot for each reachable plot
-			if (getTactPlot(it->iPlotIndex).isValid())
+			const CvTacticalPlot& plot = getTactPlot(it->iPlotIndex);
+			if (plot.isValid() && !plot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
 				reachablePlotsPruned.insertNoIndex(*it);
 		}
 
@@ -11385,8 +11336,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case A_MOVE_SWAP_REVERSE:
 			//nothing to do, this is just a dummy which always occurs after MOVE_SWAP for bookkeeping
-			bPrecondition = true;
-			bPostcondition = true;
+			bPrecondition = (pUnit->plot() == pToPlot);
+			bPostcondition = (pUnit->plot() == pToPlot);
 			break;
 		case A_RANGEATTACK:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present

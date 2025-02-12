@@ -452,7 +452,7 @@ private:
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
-	bool ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender);
+	bool ExecuteAttackWithCities(CvUnit* pDefender);
 	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
