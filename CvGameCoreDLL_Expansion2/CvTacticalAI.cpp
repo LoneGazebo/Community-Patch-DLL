@@ -7711,9 +7711,10 @@ int ScorePlotForVisibility(const CvUnit* pUnit, const CvTacticalPlot& testPlot)
 	return iVisiblityScore;
 }
 
-int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iNumAttacks, const CvTacticalPosition& assumedPosition)
+int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iNumAttacks, const CvTacticalPosition& assumedPosition, int& iKillOrNearKillId)
 {
 	int iBestAttackScore = 0;
+	iKillOrNearKillId = -1;
 
 	//check how much damage we can do to the enemies around this plot
 	//works for both melee and ranged
@@ -7741,6 +7742,8 @@ int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& test
 			{
 				//if we can attack this turn
 				temp.iScore += 100;
+				//let's say we can kill only one ...
+				iKillOrNearKillId = temp.iKillOrNearKillId;
 			}
 			else if (targetPlot.isEnemyCity() && targetPlot.getPlot()->getPlotCity()->isInDangerOfFalling() && !pUnit->IsCanAttackRanged())
 			{
@@ -8977,8 +8980,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 				//how much damage could we do with our next moves?
 				//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
-				int iMaxAttacks = NumAttacksForUnit(it->iMovesLeft, unit.iAttacksLeft);
-				int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, *this);
+				int iDummy = -1; //will be ignored since we don't do the attack this turn
+				int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, pUnit->getNumAttacks(), *this, iDummy);
 				//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
 
 				moveToPlot.eAssignmentType = A_FINISH_TEMP;
@@ -8997,20 +9000,22 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			if (IsCombatUnit(unit) && (testPlot.isCombatEndTurn() || testPlot.isBlockedByNonSimUnit()))
 				continue;
 
-			//may be invalid
-			if (moveToPlot.iRemainingMoves == 0 && !canProbablyEndTurnAfterThisAssignment(moveToPlot))
-				continue;
-
 			//how much damage could we do with our next moves?
 			//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
 			int iMaxAttacks = NumAttacksForUnit(it->iMovesLeft, unit.iAttacksLeft);
-			int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, *this);
+			int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, *this, moveToPlot.iKillOrNearKillId);
 			//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
 
-			//score functions are biased so that only scores > 0 are interesting moves
-			//still allow mildly negative moves here, maybe we want to do combo moves later!
-			moveToPlot.iScore += iDamageScore*10;
-			gPossibleMoves.push_back(moveToPlot);
+			//may not be able to end the turn ...
+			if ((moveToPlot.iRemainingMoves > GC.getMOVE_DENOMINATOR() && pUnit->canMoveAfterAttacking()) || canProbablyEndTurnAfterThisAssignment(moveToPlot))
+			{
+				//score functions are biased so that only scores > 0 are interesting moves
+				//still allow mildly negative moves here, maybe we want to do combo moves later!
+				moveToPlot.iScore += iDamageScore * 10;
+				//undo the hypothetical kill
+				moveToPlot.iKillOrNearKillId = -1;
+				gPossibleMoves.push_back(moveToPlot);
+			}
 		}
 	}
 
@@ -9932,7 +9937,9 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 			//note that if the unit is far away, it won't have any good plots and will be considered blocked
-			if (plotDistance(*pPlot, *pTargetPlot) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+			//this is just a rough check, we check the existance of a corresponding tact plot below
+			//+2 is due to the "maneuver space" around each enemy
+			if (plotDistance(*pPlot, *pTargetPlot) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE+2)
 				continue;
 
 			if (unit.eMoveStrategy == MS_EMBARKED)
@@ -9976,7 +9983,9 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 					gSafePlotCount[unit.iUnitID]++;
 			}
 
-			reachablePlotsPruned.insertNoIndex(*it);
+			//last (expensive) check, need to have a tact plot for each reachable plot
+			if (getTactPlot(it->iPlotIndex).isValid())
+				reachablePlotsPruned.insertNoIndex(*it);
 		}
 
 		reachablePlotsPruned.createIndex();
@@ -10799,7 +10808,7 @@ bool CvTacticalPosition::canProbablyEndTurnAfterThisAssignment(const STacticalAs
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(iEndPlotIndex);
 	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
-	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(assignment.iUnitID);
+	const CvUnit* pUnit = unit->pUnit;
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return false;
 
@@ -11113,30 +11122,45 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//create the tactical plots around the target (up to distance 5)
 	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
 	//some units may have their initial plots outside of this range but that's ok, we'll fix it later
+	vector<CvPlot*> enemyPlots;
 	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget, i);
 		if (pPlot && pPlot->isVisible(ourTeam))
+		{
 			initialPosition->addTacticalPlot(pPlot, ourUnits);
+			//need this for later
+			if (pPlot->isEnemyUnit(initialPosition->getPlayer(), true, false))
+				enemyPlots.push_back(pPlot);
+		}
+	}
+
+	//second pass, ensure we have space to maneuver around our enemies
+	//this might reveal new enemies but there has to be a line somewhere ...
+	for (size_t j = 0; j < enemyPlots.size(); j++)
+	{
+		for (int i = RING0_PLOTS; i < RING_PLOTS[2]; i++)
+		{
+			CvPlot* pPlot = iterateRingPlots(enemyPlots[j], i);
+			if (pPlot && pPlot->isVisible(ourTeam))
+				initialPosition->addTacticalPlot(pPlot, ourUnits);
+		}
 	}
 
 	//do this once before we start adding units
 	initialPosition->countEnemiesAndCheckVisibility();
 
-	//second pass, now that we know which units will be used, add them to the initial position
+	//third pass, now that we know which units will be used, add them to the initial position
 	for(vector<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
 		if (initialPosition->addAvailableUnit(pUnit))
 		{
 			//make sure we know the immediate surroundings of every unit
-			for (int j = 0; j < RING2_PLOTS; j++)
+			for (int j = 0; j < RING1_PLOTS; j++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-				if (!pPlot)
-					continue;
-				//there was a strange bug where the plot containing the unit or adjacent plots are not visible? wtf
-				if (j<RING1_PLOTS || pPlot->isVisible(ourTeam))
+				if (pPlot)
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
