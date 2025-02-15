@@ -484,6 +484,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Unit_ResourceQuantityRequirements", "ResourceType", "UnitType", szUnitType, "Cost");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityExpended, "Resources", "Unit_ResourceQuantityExpended", "ResourceType", "UnitType", szUnitType, "Amount");
 	kUtility.PopulateArrayByValue(m_piProductionModifierBuildings, "Buildings", "Unit_ProductionModifierBuildings", "BuildingType", "UnitType", szUnitType, "ProductionModifier");
+	kUtility.PopulateArrayByValue(m_piYieldOnBountyToKiller, "Yields", "Unit_Bounties", "YieldType", "UnitType", szUnitType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldFromKills, "Yields", "Unit_YieldFromKills", "YieldType", "UnitType", szUnitType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldFromBarbarianKills, "Yields", "Unit_YieldFromBarbarianKills", "YieldType", "UnitType", szUnitType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldOnCompletion, "Yields", "Unit_YieldOnCompletion", "YieldType", "UnitType", szUnitType, "Yield");
@@ -1482,6 +1483,14 @@ int CvUnitEntry::GetBuildingProductionModifier(BuildingTypes eBuilding) const
 	ASSERT_DEBUG((int)eBuilding < GC.getNumBuildingInfos(), "Building type out of bounds");
 	ASSERT_DEBUG((int)eBuilding > -1, "Index out of bounds");
 	return m_piProductionModifierBuildings[(int)eBuilding];
+}
+
+// How many yields of type eYield does this units killer get as a county?
+int CvUnitEntry::GetYieldOnBountyToKiller(YieldTypes eYield) const
+{
+	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	return m_piYieldOnBountyToKiller[(int)eYield];
 }
 
 /// Do we get one of our yields from defeating an enemy?
