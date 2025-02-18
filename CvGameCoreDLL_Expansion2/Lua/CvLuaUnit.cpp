@@ -2014,11 +2014,7 @@ int CvLuaUnit::lGetHurryProduction(lua_State* L)
 //int GetTradeGold();
 int CvLuaUnit::lGetTradeGold(lua_State* L)
 {
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getTradeGold();
-	lua_pushinteger(L, iResult);
-	return 1;
+	return BasicLuaMethod(L, &CvUnit::GetGoldBlastStrength);
 }
 //------------------------------------------------------------------------------
 //int GetTradeInfluence(CyPlot* pPlot);
