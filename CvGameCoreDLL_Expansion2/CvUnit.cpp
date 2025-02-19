@@ -13103,14 +13103,10 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlastTourism()
 {
-	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	if (!pPlayer)
+	if (getOwner() == NO_PLAYER)
 		return 0;
 
-	if (!canBlastTourism(plot()))
-	{
-		return 0;
-	}
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 
 	// Get base multiplier from unit
 	int iMultiplier = getUnitInfo().GetOneShotTourism();

@@ -2014,11 +2014,7 @@ int CvLuaUnit::lGetHurryProduction(lua_State* L)
 //int GetTradeGold();
 int CvLuaUnit::lGetTradeGold(lua_State* L)
 {
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getTradeGold();
-	lua_pushinteger(L, iResult);
-	return 1;
+	return BasicLuaMethod(L, &CvUnit::GetGoldBlastStrength);
 }
 //------------------------------------------------------------------------------
 //int GetTradeInfluence(CyPlot* pPlot);
@@ -2161,49 +2157,24 @@ int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 //int GetBlastTourism()
 int CvLuaUnit::lGetBlastTourism(lua_State* L)
 {
-	CvUnit* pkUnit = GetInstance(L);
-	int iResult = 0;
-	if (pkUnit)
+	CvUnit* pUnit = GetInstance(L);
+	int iResult = pUnit->GetTourismBlastStrength();
+
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && iResult > 0)
 	{
-		iResult = pkUnit->getBlastTourism();
-
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
+		CvPlot* pPlot = pUnit->plot();
+		if (pPlot && pUnit->canBlastTourism(pPlot))
 		{
-			CvPlot* pPlot = pkUnit->plot();
-			if (pPlot && pkUnit->canBlastTourism(pPlot))
+			CvCity* pCapital = GET_PLAYER(pUnit->getOwner()).getCapitalCity();
+			PlayerTypes eOtherPlayer = pPlot->getOwner();
+
+			// Player to player modifier
+			if (pCapital)
 			{
-				CvPlayer& kUnitOwner = GET_PLAYER(pkUnit->getOwner());
-				PlayerTypes eOtherPlayer = pPlot->getOwner();
-				
-
-				// below logic based on CvPlayerCulture::ChangeInfluenceOn()
-				if (eOtherPlayer != NO_PLAYER)
-				{
-					// gamespeed modifier
-					iResult = iResult * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
-
-					// player to player modifier (eg religion, open borders, ideology)
-					if (kUnitOwner.getCapitalCity())
-					{
-						int iModifier = kUnitOwner.getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
-						if (iModifier != 0)
-						{
-							iResult = iResult * (100 + iModifier) / 100;
-						}
-					}
-
-					// IsNoOpenTrade trait modifier (half tourism if trait owner does not send a trade route to the unit owner)
-					CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-					if (eOtherPlayer != pkUnit->getOwner() && kOtherPlayer.isMajorCiv() && kOtherPlayer.GetPlayerTraits()->IsNoOpenTrade())
-					{
-						if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, pkUnit->getOwner(), true))
-							iResult /= 2;
-					}
-				}
+				int iModifier = pCapital->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
+				iResult = iResult * (100 + iModifier) / 100;
 			}
 		}
-#endif
 	}
 	
 	lua_pushinteger(L, iResult);

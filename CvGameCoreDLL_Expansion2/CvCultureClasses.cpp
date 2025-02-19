@@ -3866,28 +3866,24 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 
 int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers /* = false */, bool bModifyForGameSpeed /* = true */)
 {
-    int iInfluence = iBaseInfluence;
-    
-    if (bModifyForGameSpeed) {
-        iInfluence = iInfluence * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
-    }
-    
-    if (bApplyModifiers && m_pPlayer->getCapitalCity()) {
-        int iModifier = m_pPlayer->getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
-        if (iModifier != 0) {
-            iInfluence = iInfluence * (100 + iModifier) / 100;
-        }
-    }
-
-	if (eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	int iInfluence = iBaseInfluence;
+	
+	if (bModifyForGameSpeed)
 	{
-		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true))
-			iInfluence /= 2;
+		iInfluence = iInfluence * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
 	}
-    
-    if (iInfluence != 0) {
+
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
+	if (bApplyModifiers && pCapital)
+	{
+		int iModifier = pCapital->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
+		iInfluence = iInfluence * (100 + iModifier) / 100;
+	}
+
+	if (iInfluence != 0)
+	{
 		ChangeInfluenceOn(eOtherPlayer, iInfluence);
-    }
+	}
 
 	return iInfluence;
  }
