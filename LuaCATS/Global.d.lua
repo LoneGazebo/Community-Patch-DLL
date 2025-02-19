@@ -5,6 +5,17 @@
 --- for more information
 --- @see require
 --- @param filename string # Filename to load, or regex to load files
---- @param useRegex? boolean # 
+--- @param useRegex? boolean #
 --- @return nil | string[]
 function include(filename, useRegex) end
+
+--- TODO docs
+--- @param vector2 { x: number, y: number }
+--- @return integer #
+function ToHexFromGrid(vector2) end
+
+--- TODO docs
+--- @param x integer
+--- @param y integer
+--- @return integer, integer #
+function ToGridFromHex(x, y) end

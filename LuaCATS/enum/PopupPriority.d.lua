@@ -1,0 +1,4 @@
+--- @meta
+
+--- @enum PopupPriority
+PopupPriority = {}
