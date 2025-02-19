@@ -220,6 +220,7 @@ public:
 	int GetResourceQuantityRequirement(int i) const;
 	int GetResourceQuantityExpended(int i) const;
 	int GetBuildingProductionModifier(BuildingTypes eBuilding) const;
+	int GetYieldOnBountyToKiller(YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldOnCompletion(YieldTypes eYield) const;
@@ -440,6 +441,7 @@ private:
 	int* m_piProductionTraits;
 	int* m_piFlavorValue;
 	int* m_piProductionModifierBuildings;
+	int* m_piYieldOnBountyToKiller;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
 	int* m_piYieldOnCompletion;

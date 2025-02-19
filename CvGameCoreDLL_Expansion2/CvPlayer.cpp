@@ -25911,6 +25911,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							if (iKillYield > 0)
 								iValue += iKillYield;
 						}
+					
+						// Apply any bounty that may exist for killing the unit
+						iValue += pkKilledUnitInfo->GetYieldOnBountyToKiller(eYield);
 					}
 					int iTempYield = pLoopCity->GetYieldFromVictory(eYield);
 					if (bEraScale)
