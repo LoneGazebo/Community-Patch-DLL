@@ -685,7 +685,7 @@ CvPlayer::CvPlayer() :
 	, m_aiReligionYieldRateModifier()
 	, m_aiGoldenAgeYieldMod()
 	, m_aiNumAnnexedCityStates()
-	, m_aiYieldFromNonSpecialistCitizens()
+	, m_aiYieldFromNonSpecialistCitizensTimes100()
 	, m_aiYieldModifierFromGreatWorks()
 	, m_aiYieldModifierFromActiveSpies()
 	, m_aiYieldFromDelegateCount()
@@ -1850,8 +1850,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiNumAnnexedCityStates.clear();
 	m_aiNumAnnexedCityStates.resize(NUM_MINOR_CIV_TRAIT_TYPES, 0);
 
-	m_aiYieldFromNonSpecialistCitizens.clear();
-	m_aiYieldFromNonSpecialistCitizens.resize(NUM_YIELD_TYPES, 0);
+	m_aiYieldFromNonSpecialistCitizensTimes100.clear();
+	m_aiYieldFromNonSpecialistCitizensTimes100.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldModifierFromGreatWorks.clear();
 	m_aiYieldModifierFromGreatWorks.resize(NUM_YIELD_TYPES, 0);
@@ -5096,7 +5096,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				//Production is king, and also our base value.
-				int iCombatClassValue = (pLoopCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
+				int iCombatClassValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
 
 				//Also get our XP boosts local to this city.
 				iCombatClassValue += pLoopCity->getFreeExperience();
@@ -5155,7 +5155,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				//Production is king, and also our base value.
-				int iDomainValue = (pLoopCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
+				int iDomainValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
 
 				//Also get our XP boosts local to this city.
 				iDomainValue += pLoopCity->getFreeExperience();
@@ -11342,9 +11342,9 @@ void CvPlayer::findNewCapital()
 		{
 			int iValue = pLoopCity->getPopulation() * 4;
 
-			int iYieldValueTimes100 = pLoopCity->getYieldRateTimes100(YIELD_FOOD, false);
-			iYieldValueTimes100 += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * 3;
-			iYieldValueTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GOLD, false) * 2;
+			int iYieldValueTimes100 = pLoopCity->getFoodPerTurnBeforeConsumptionTimes100();
+			iYieldValueTimes100 += pLoopCity->getRawProductionPerTurnTimes100() * 3;
+			iYieldValueTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GOLD) * 2;
 			iValue += iYieldValueTimes100 / 100;
 
 			if (iValue > iBestValue)
@@ -16183,7 +16183,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iTotalYield += pLoopCity->getYieldRateTimes100(eYield, false);
+		iTotalYield += pLoopCity->getYieldRateTimes100(eYield);
 	}
 
 	//average accumulated instant yields over elapsed turns
@@ -16706,7 +16706,7 @@ int CvPlayer::GetAverageProductionTimes100() const
 	// Collect production from each city
 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		viCityProduction.push_back(pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false));
+		viCityProduction.push_back(pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION));
 	}
 	int iNumCities = max((int)viCityProduction.size(), 1);
 	// Sort production from lowest to highest
@@ -19898,7 +19898,7 @@ int CvPlayer::GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const
 		int iLoop = 0;
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			iResult += pLoopCity->getYieldRate(eYield, false, bStatic);
+			iResult += pLoopCity->getYieldRateTimes100(eYield, false, false, bStatic) / 100;
 		}
 		return iResult;
 	}
@@ -24058,7 +24058,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			iGreatGeneralPoints += pLoopCity->getYieldRate(YIELD_GREAT_GENERAL_POINTS, false);
+			iGreatGeneralPoints += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS) / 100;
 
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -24144,7 +24144,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			iGreatAdmiralPoints += pLoopCity->getYieldRate(YIELD_GREAT_ADMIRAL_POINTS, false);
+			iGreatAdmiralPoints += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS) / 100;
 
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -24297,7 +24297,7 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	int iTourismFromCities = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iGAPoints += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
+		iGAPoints += pLoopCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS) / 100;
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
 		{
 			iTourismFromCities += pLoopCity->GetBaseTourism();
@@ -25378,19 +25378,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						if(eYield == YIELD_CULTURE)
 						{
-							iCurrentYield = pLoopCity->getJONSCulturePerTurn();
+							iCurrentYield = pLoopCity->getJONSCulturePerTurn() * 100;
 						}
 						else if (eYield == YIELD_FAITH)
 						{
-							iCurrentYield = pLoopCity->GetFaithPerTurn();
+							iCurrentYield = pLoopCity->GetFaithPerTurn() * 100;
 						}
 						else
 						{
-							iCurrentYield = pLoopCity->getYieldRate(eYield, false);
+							iCurrentYield = pLoopCity->getYieldRateTimes100(eYield);
 						}
 						if(iCurrentYield != 0)
 						{
-							iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * max(1, iPassYield));
+							iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 10000) * max(1, iPassYield));
 							if(iValue <= 0 && pLoopCity->GetGrowthExtraYield(eYield) > 0)
 							{
 								iValue = 1;
@@ -32007,10 +32007,10 @@ int CvPlayer::calculateProductionMight() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iMight += pLoopCity->getRawProductionDifference(/*bIgnoreFood*/ true, /*bOverflow*/ false);
+		iMight += pLoopCity->getRawProductionPerTurnTimes100();
 	}
 
-	return iMight;
+	return iMight / 100;
 }
 
 int CvPlayer::getCombatExperienceTimes100() const
@@ -34101,7 +34101,7 @@ int CvPlayer::GetSciencePerTurnFromPassiveSpyBonusesTimes100() const
 			if (pCity)
 			{
 				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-				iResult += pCity->getYieldRateTimes100(YIELD_SCIENCE, false) * pCityEspionage->GetSciencePassivePerTurn(m_eID) / 100;
+				iResult += pCity->getYieldRateTimes100(YIELD_SCIENCE) * pCityEspionage->GetSciencePassivePerTurn(m_eID) / 100;
 			}
 		}
 	}
@@ -34138,21 +34138,21 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 	}
 }
 
-int CvPlayer::getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const
+int CvPlayer::getYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex)	const
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldFromNonSpecialistCitizens[eIndex];
+	return m_aiYieldFromNonSpecialistCitizensTimes100[eIndex];
 }
 
-void CvPlayer::changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange)
+void CvPlayer::changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, int iChange)
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromNonSpecialistCitizens[eIndex] += iChange;
+		m_aiYieldFromNonSpecialistCitizensTimes100[eIndex] += iChange;
 
 		invalidateYieldRankCache(eIndex);
 
@@ -41929,7 +41929,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeLitYieldBonus(eYield, pkPolicyInfo->GetLitYieldChanges(iI) * iChange);
 		changeFilmYieldBonus(eYield, pkPolicyInfo->GetFilmYieldChanges(iI) * iChange);
 		changeRelicYieldBonus(eYield, pkPolicyInfo->GetRelicYieldChanges(iI) * iChange);
-		changeYieldFromNonSpecialistCitizens(eYield, pkPolicyInfo->GetYieldFromNonSpecialistCitizens(iI) * iChange);
+		changeYieldFromNonSpecialistCitizensTimes100(eYield, pkPolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(iI) * iChange);
 		changeYieldModifierFromGreatWorks(eYield, pkPolicyInfo->GetYieldModifierFromGreatWorks(iI) * iChange);
 		changeYieldModifierFromActiveSpies(eYield, pkPolicyInfo->GetYieldModifierFromActiveSpies(iI) * iChange);
 		changeYieldFromDelegateCount(eYield, pkPolicyInfo->GetYieldFromDelegateCount(iI) * iChange);
@@ -43179,7 +43179,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiReligionYieldRateModifier);
 	visitor(player.m_aiGoldenAgeYieldMod);
 	visitor(player.m_aiNumAnnexedCityStates);
-	visitor(player.m_aiYieldFromNonSpecialistCitizens);
+	visitor(player.m_aiYieldFromNonSpecialistCitizensTimes100);
 	visitor(player.m_aiYieldModifierFromGreatWorks);
 	visitor(player.m_aiYieldModifierFromActiveSpies);
 	visitor(player.m_aiYieldFromDelegateCount);
@@ -45596,11 +45596,11 @@ bool CvPlayer::isCapitalCompetitive()
 
 		if (iPlayer == GetID())
 		{
-			iOurThreshold = kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+			iOurThreshold = kPlayer.getCapitalCity()->getRawProductionPerTurnTimes100() / kPlayer.getCapitalCity()->getPopulation();
 		}
 		else
 		{
-			iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION, false) / kPlayer.getCapitalCity()->getPopulation();
+			iSum += kPlayer.getCapitalCity()->getRawProductionPerTurnTimes100() / kPlayer.getCapitalCity()->getPopulation();
 			iCount++;
 		}
 	}
@@ -45641,7 +45641,7 @@ CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eP
 				iProduction += pLoopCity->GetCityBuildings()->GetBuildingProductionTimes100(eBuilding);
 			}
 
-			iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iProduction += pLoopCity->getRawProductionPerTurnTimes100();
 			if (iProduction > iBestProduction)
 			{
 				iBestProduction = iProduction;
@@ -45669,7 +45669,7 @@ CvCity* CvPlayer::GetBestProductionCity(BuildingTypes eBuilding, ProjectTypes eP
 				iProduction += pLoopCity->getProjectProduction(eProject) * 100;
 			}
 
-			iProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iProduction += pLoopCity->getRawProductionPerTurnTimes100();
 			if (iProduction > iBestProduction)
 			{
 				iBestProduction = iProduction;
@@ -45702,7 +45702,7 @@ bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, Project
 			{
 				iOurProduction += pLoopCity->getProjectProduction(eProject) * 100;
 			}
-			iOurProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iOurProduction += pLoopCity->getRawProductionPerTurnTimes100();
 		}
 		else
 		{
@@ -45714,7 +45714,7 @@ bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, Project
 			{
 				iSumProduction += pLoopCity->getProjectProduction(eProject) * 100;
 			}
-			iSumProduction += pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false, true);
+			iSumProduction += pLoopCity->getRawProductionPerTurnTimes100();
 			iNumCities++;
 		}
 	}
@@ -45903,7 +45903,7 @@ void CvPlayer::DoUpdateCoreCitiesForSpaceshipProduction()
 			continue;
 
 		// How much production per turn would the city generate if it were building a spaceship part?
-		int iWeight = pLoopCity->getProductionDifference(0, 0, pLoopCity->getProductionModifier(eSpaceshipUnit), false, false);
+		int iWeight = pLoopCity->getProductionPerTurnForUnitTimes100(eSpaceshipUnit);
 		if (pLoopCity->isCapital())
 		{
 			iWeight *= 2;

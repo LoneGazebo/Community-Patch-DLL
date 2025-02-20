@@ -1369,7 +1369,7 @@ void CvEconomicAI::LogCityMonitor()
 	int iLoopCity = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity))
 	{
-		vector<int> aiCityYields(NUM_YIELD_TYPES, 0);
+		vector<float> afCityYields(NUM_YIELD_TYPES, 0);
 		vector<int> aiSpecialistsYields(NUM_YIELD_TYPES, 0);
 
 		CvString strHeader = "";
@@ -1391,32 +1391,32 @@ void CvEconomicAI::LogCityMonitor()
 		//	total yields
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			aiCityYields[ui] = pLoopCity->getYieldRate((YieldTypes)ui, false);
+			afCityYields[ui] = (float)pLoopCity->getYieldRateTimes100((YieldTypes)ui) / 100;
 			switch(ui)
 			{
 			case YIELD_FOOD:
-				AppendToLog(strHeader, strLog, "food", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "food", afCityYields[ui]);
 				break;
 			case YIELD_PRODUCTION:
-				AppendToLog(strHeader, strLog, "production", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "production", afCityYields[ui]);
 				break;
 			case YIELD_SCIENCE:
-				AppendToLog(strHeader, strLog, "science", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "science", afCityYields[ui]);
 				break;
 			case YIELD_GOLD:
-				AppendToLog(strHeader, strLog, "city gold", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "city gold", afCityYields[ui]);
 				break;
 			case YIELD_CULTURE:
-				AppendToLog(strHeader, strLog, "culture", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "culture", afCityYields[ui]);
 				break;
 			case YIELD_FAITH:
-				AppendToLog(strHeader, strLog, "faith", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "faith", afCityYields[ui]);
 				break;
 			case YIELD_TOURISM:
-				AppendToLog(strHeader, strLog, "tourism", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "tourism", afCityYields[ui]);
 				break;
 			case YIELD_GOLDEN_AGE_POINTS:
-				AppendToLog(strHeader, strLog, "goldenage", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "goldenage", afCityYields[ui]);
 				break;
 			}
 		}
@@ -1427,7 +1427,7 @@ void CvEconomicAI::LogCityMonitor()
 			float fRatio = 0.0f;
 			if(pLoopCity->getPopulation() > 0)
 			{
-				fRatio = aiCityYields[ui] / (float)pLoopCity->getPopulation();
+				fRatio = afCityYields[ui] / pLoopCity->getPopulation();
 			}
 
 			switch(ui)
@@ -1496,9 +1496,9 @@ void CvEconomicAI::LogCityMonitor()
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
 			float fRatio = 0.0f;
-			if(aiCityYields[ui] > 0)
+			if(afCityYields[ui] > 0)
 			{
-				fRatio = aiSpecialistsYields[ui] / (float)aiCityYields[ui];
+				fRatio = aiSpecialistsYields[ui] / afCityYields[ui];
 			}
 			switch(ui)
 			{

@@ -212,7 +212,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//Yield value.
 	
 	//Base value of production.
-	int iProduction = m_pCity->getYieldRate(YIELD_PRODUCTION, false);
+	int iProduction = m_pCity->getRawProductionPerTurnTimes100() / 100;
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
@@ -288,7 +288,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					if (m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
 						return 0;
 
-					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 					if (iExcessFoodTimes100 < 0)
 					{
 						iModifier += 30;

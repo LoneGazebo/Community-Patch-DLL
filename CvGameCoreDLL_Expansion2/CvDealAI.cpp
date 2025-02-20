@@ -1503,8 +1503,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetGrowthBoon();
 
 					// Do we have any WLTKD modifiers at the city level?
-					int iCityModifier = iPlayerModifier; // Add the player modifier for each city
-					iCityModifier += pLoopCity->GetYieldFromWLTKD(eYield);
+					int iCityModifier = pLoopCity->GetYieldFromWLTKD(eYield);
 					if (pReligion)
 						iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
 
@@ -1512,7 +1511,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					if (eYield == YIELD_SCIENCE || eYield == YIELD_CULTURE || eYield == YIELD_FAITH)
 						iYieldValue = 2;
 
-					iYieldBonuses += iYieldValue * pLoopCity->getBaseYieldRate(eYield) * (iPlayerModifier + iCityModifier) / 100;
+					iYieldBonuses += iYieldValue * pLoopCity->getBaseYieldRateTimes100(eYield) * (iPlayerModifier + iCityModifier) / 10000;
 				}
 			}
 			int iWLTKDLength = (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2);
