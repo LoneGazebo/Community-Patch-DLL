@@ -157,7 +157,7 @@ int CvDllCity::GetStrengthValue(bool bForRangeStrike) const
 //------------------------------------------------------------------------------
 int CvDllCity::FoodDifference(bool) const
 {
-	return m_pCity->foodDifference();
+	return m_pCity->getYieldRateTimes100(YIELD_FOOD) / 100;
 }
 //------------------------------------------------------------------------------
 int CvDllCity::GetFoodTurnsLeft() const
@@ -168,7 +168,7 @@ int CvDllCity::GetFoodTurnsLeft() const
 int CvDllCity::GetYieldRate(int eIndex) const
 {
 	if(eIndex >= -1 && eIndex < NUM_YIELD_TYPES)
-		return m_pCity->getYieldRate(static_cast<YieldTypes>(eIndex), false);
+		return m_pCity->getYieldRateTimes100(static_cast<YieldTypes>(eIndex)) / 100;
 	else
 		return 0;
 }

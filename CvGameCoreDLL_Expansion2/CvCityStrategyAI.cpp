@@ -653,11 +653,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
-		int iYieldTimes100 = m_pCity->getYieldRateTimes100(eYield, false);
-
-		//consider excess food only
-		if (eYield == YIELD_FOOD)
-			iYieldTimes100 -= (m_pCity->foodConsumptionTimes100());
+		int iYieldTimes100 = m_pCity->getYieldRateTimes100(eYield);
 		
 		int iYieldPerPop100 = iYieldTimes100 / max(1, m_pCity->getPopulation());
 		int iExpectedYield100 = iI <= YIELD_FAITH ? (int)expectedYieldPerPop100[iI] : 100;
@@ -867,21 +863,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	}
 
 	// Loop through adding available processes
-	//I cannot use the yield rate since it adds in set process yield, which is what I am trying to set...
-	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
-	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
-#if defined(MOD_BALANCE_CORE)
-	iBaseYield += (GetCity()->GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(GetCity()->getOwner()).getTotalPopulation());
-	iBaseYield += (GetCity()->GetYieldPerBuilding(YIELD_PRODUCTION) * GetCity()->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
-	if (MOD_BALANCE_VP && GetCity()->IsIndustrialRouteToCapitalConnected())
-	{
-		iBaseYield += GetCity()->GetConnectionGoldTimes100();
-	}
-#endif
-	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
-	iModifiedYield /= 10000;
+	int iBaseProduction = GetCity()->getRawProductionPerTurnTimes100();
 
-	if (iModifiedYield >= 5 || m_BuildablesPrecheck.size() <= 0)
+	if (iBaseProduction >= 500 || m_BuildablesPrecheck.size() <= 0)
 	{
 		for (int iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
 		{
@@ -3070,7 +3054,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 	int iLoop = 0;
 	int iNumBetterScienceCities = 0;
 	int iNumOtherCities = 0;
-	int iCityScienceOutput = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+	int iCityScienceOutput = pCity->getYieldRateTimes100(YIELD_SCIENCE);
 
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
@@ -3081,7 +3065,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 			continue;
 		}
 
-		if (pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false) > iCityScienceOutput)
+		if (pLoopCity->getYieldRateTimes100(YIELD_SCIENCE) > iCityScienceOutput)
 		{
 			iNumBetterScienceCities++;
 		}
@@ -3364,7 +3348,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedCultureBuilding(CvCity *pCity
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity)
 {
 	int iTourismValue = 0;
-	iTourismValue += pCity->getYieldRate(YIELD_CULTURE, false);
+	iTourismValue += pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
 	iTourismValue += pCity->GetBaseTourism() / 100;
 
 	return iTourismValue > 10;
@@ -3498,7 +3482,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 	int iEra = kPlayer.GetCurrentEra();
 
-	int iYieldRate = max(1, pCity->getYieldRate(eYield, false));
+	int iYieldRate = max(1, pCity->getYieldRateTimes100(eYield) / 100);
 
 	iFlatYield = 0; //return this by reference
 	int iModifier = 0;
@@ -4125,7 +4109,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//we want these as early as possible!
 		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
 
-		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
 		{
 			iInstant += kPlayer.GetCapitalGrowthMod();
@@ -4138,7 +4122,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//we want these as early as possible!
 		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
 
-		iInstant += (iEra * pkBuildingInfo->GetYieldFromBirthEraScaling(eYield)) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		iInstant += (iEra * pkBuildingInfo->GetYieldFromBirthEraScaling(eYield)) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
 		{
 			iInstant += kPlayer.GetCapitalGrowthMod();
@@ -4151,7 +4135,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//we want these as early as possible!
 		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
 
-		iInstant += (iEra * pkBuildingInfo->GetGPPOnCitizenBirth()) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		iInstant += (iEra * pkBuildingInfo->GetGPPOnCitizenBirth()) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
 		{
 			iInstant += kPlayer.GetCapitalGrowthMod();
@@ -4829,7 +4813,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if (pCity != NULL && (pkBuildingInfo->GetLandmarksTourismPercent() > 0 || pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0))
 	{
-		int iTest = pCity->getYieldRate(YIELD_CULTURE, false);
+		int iTest = pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
 
 		iTourismValue += (iTest / max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
 	}
@@ -5303,10 +5287,10 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist())
 	{
 		iValue += 10 * pCity->getPopulation();
-		if (pCity->foodDifferenceTimes100(false) < 0)
+		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
 		{
 			// higher value if we are starving
-			iValue += (-2) * pCity->foodDifferenceTimes100(false);
+			iValue += (-2) * pCity->getYieldRateTimes100(YIELD_FOOD);
 		}
 	}
 
@@ -5408,7 +5392,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	}
     if(kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding) > 0)
     {
-		iValue += pCity->getProductionModifier(eBuilding) + kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
+		iValue += kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
     }
 	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{

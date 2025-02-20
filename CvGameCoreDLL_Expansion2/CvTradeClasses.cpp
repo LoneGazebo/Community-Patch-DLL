@@ -6539,7 +6539,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		//Choose cities with high production
 		//AI cheats here, because they can directly check the target city's production
 		//Multiply with 2 for a bit more weight here
-		iScore += pToCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
+		iScore += pToCity->getBaseYieldRateTimes100(YIELD_PRODUCTION) * 2 * iSiphonPercent / 10000;
 	}
 
 	// Account for danger along the path
@@ -6801,7 +6801,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		case TRADE_CONNECTION_FOOD:
 		{
-			iScore = ((pOriginCity->getBaseYieldRate(YIELD_FOOD) + pOriginCity->getPopulation()) - (pDestCity->getBaseYieldRate(YIELD_FOOD) + pDestCity->getPopulation()));
+			iScore = ((pOriginCity->getBaseYieldRateTimes100(YIELD_FOOD) + pOriginCity->getPopulation()) - (pDestCity->getBaseYieldRateTimes100(YIELD_FOOD) + pDestCity->getPopulation())) / 100;
 			if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
 				iScore *= 20;
 			break;
@@ -6809,7 +6809,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		case TRADE_CONNECTION_PRODUCTION:
 		case TRADE_CONNECTION_WONDER_RESOURCE:
 		{
-			iScore = (pOriginCity->getBaseYieldRate(YIELD_PRODUCTION) - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
+			iScore = (pOriginCity->getBaseYieldRateTimes100(YIELD_PRODUCTION) - pDestCity->getBaseYieldRateTimes100(YIELD_PRODUCTION)) / 100;
 			if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				iScore *= 20;
 			BuildingTypes eBuilding = pDestCity->getProductionBuilding();
@@ -6856,7 +6856,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 
 		//Choose cities with high production
 		//Multiply with 2 for a bit more weight here
-		iScore += pDestCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
+		iScore += pDestCity->getBaseYieldRateTimes100(YIELD_PRODUCTION) * 2 * iSiphonPercent / 10000;
 	}
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
@@ -7244,13 +7244,13 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		int iCityLoop = 0;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			iAvgFood += pCity->getBaseYieldRate(YIELD_FOOD);
+			iAvgFood += pCity->getBaseYieldRateTimes100(YIELD_FOOD);
 		}
 		iAvgFood /= m_pPlayer->getNumCities();
 
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pCity->getBaseYieldRate(YIELD_FOOD) < iAvgFood)
+			if (pCity->getBaseYieldRateTimes100(YIELD_FOOD) < iAvgFood)
 			{
 				apFoodTargetCities.push_back(pCity);
 			}
@@ -7310,13 +7310,13 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		int iAvgProd = 0;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			iAvgProd += pCity->getBaseYieldRate(YIELD_PRODUCTION);
+			iAvgProd += pCity->getBaseYieldRateTimes100(YIELD_PRODUCTION);
 		}
 		iAvgProd /= m_pPlayer->getNumCities();
 
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pCity->getBaseYieldRate(YIELD_PRODUCTION) < iAvgProd)
+			if (pCity->getBaseYieldRateTimes100(YIELD_PRODUCTION) < iAvgProd)
 				apProductionTargetCities.push_back(pCity);
 		}
 	}

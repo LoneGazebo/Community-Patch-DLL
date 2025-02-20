@@ -723,6 +723,7 @@ public:
 	void SetEverRightClickMoved(bool bValue);
 	bool IsCombatWarned() const;
 	void SetCombatWarned(bool bValue);
+	void BuildYieldTimes100HelpText(CvString* toolTipSink, const char* strTextKey, int iYieldTimes100, const char* strExtraKey, bool bIgnoreZero = true) const;
 	// end Tutorial stuff
 
 	CvAdvisorCounsel* GetAdvisorCounsel();

@@ -409,7 +409,6 @@ public:
 	int getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreInvestment = false) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
 	int getProductionTurnsLeft() const;
-	int getUnitTotalProductionTurns(UnitTypes eUnit) const;
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
@@ -438,30 +437,21 @@ public:
 	int GetPurchaseCost(ProjectTypes eProject);
 	int GetPurchaseCostFromProduction(int iProduction);
 
-	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const;
+	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iProductionDifference, bool bIncludeOverflow) const;
 	void setProduction(int iNewValue);
 	void changeProduction(int iChange);
 	void setProductionTimes100(int iNewValue);
 	void changeProductionTimes100(int iChange);
 
-	int getProductionModifier(_In_opt_ CvString* toolTipSink = NULL) const;
+	int getCurrentProductionModifier(_In_opt_ CvString* toolTipSink = NULL) const;
 	int getGeneralProductionModifiers(_In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(UnitTypes eUnit, _In_opt_ CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
 	int getProductionModifier(BuildingTypes eBuilding, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProjectTypes eProject, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProcessTypes eProcess, _In_opt_ CvString* toolTipSink = NULL) const;
 
-	int getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow) const;
-	int getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow) const;
-	int getRawProductionDifference(bool bIgnoreFood, bool bOverflow) const;
-	int getProductionDifferenceTimes100(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow) const;
-	int getCurrentProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow) const;
-	int getRawProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow) const;
-	int getExtraProductionDifference(int iExtra) const;
-	int GetFoodProduction(int iExcessFood) const;
-#if defined(MOD_BALANCE_CORE)
+	int getTotalOverflowProductionTimes100() const;
 	int GetFoodProductionTimes100(int iExcessFoodTimes100) const;
-#endif
 
 	SPlotStats getPlotStats() const;
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
@@ -531,12 +521,9 @@ public:
 	void SetIgnoredForExpansionBickering(PlayerTypes ePlayer, bool bValue);
 	bool IsIgnoredForExpansionBickering(PlayerTypes ePlayer) const;
 #endif
-	int foodConsumptionNonSpecialistTimes100() const;
-	int foodConsumptionSpecialistTimes100() const;
-	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0, bool bAssumeNoReductionForNonSpecialists = false) const;
-	int foodDifference(bool bJustCheckingStarve = false) const;
-	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
+	int getFoodConsumptionNonSpecialistTimes100() const;
+	int getFoodConsumptionSpecialistTimes100() const;
+	int getFoodConsumptionTimes100(bool bIgnoreProcess = false, bool bAssumeNoReductionForNonSpecialists = false) const;
 	int growthThreshold() const;
 
 	int getGrowthMods(CvString* toolTipSink = NULL, int iAssumedLocalHappinessChange = 0) const;
@@ -1050,13 +1037,6 @@ public:
 	int GetSpecialReligionYields(YieldTypes eIndex) const;
 	void SetSpecialReligionYields(YieldTypes eIndex, int iChange);
 
-	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
-
-	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
-	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
-
-	int getBasicYieldRateTimes100(YieldTypes eIndex) const;
-
 #if defined(MOD_BALANCE_CORE)
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleOwner);
@@ -1075,11 +1055,26 @@ public:
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
 
-	// Base Yield
-	int getBaseYieldRate(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
-	int GetPostModifierYieldRate(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
+	// Yield calculations
+	int getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
+	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
+
+	int GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink = NULL) const;
+
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreProcess = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
+
+	int getFoodPerTurnBeforeConsumptionTimes100(bool bIgnoreProcess = false) const;
+
+	int getProductionPerTurnForUnitTimes100(UnitTypes eUnit) const;
+	int getProductionPerTurnForBuildingTimes100(BuildingTypes eBuilding) const;
+	int getProductionPerTurnForProjectTimes100(ProjectTypes eProject) const;
+	int getProductionPerTurnForProcessTimes100(ProcessTypes eProcess) const;
+	int getRawProductionPerTurnTimes100() const;
+
+
 	void UpdateCityYieldFromYield();
-	int GetTotalYieldFromYield(YieldTypes eYield) const;
+	int GetTotalYieldFromYieldTimes100(YieldTypes eYield) const;
 
 	int GetBaseScienceFromArt() const;
 
@@ -1098,7 +1093,7 @@ public:
 	int GetBaseYieldRateFromMisc(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange);
 
-	int GetBaseYieldRateFromProcess(YieldTypes eIndex) const;
+	int GetBaseYieldRateFromProcessTimes100(YieldTypes eIndex) const;
 
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);
@@ -1237,8 +1232,8 @@ public:
 	void ChangeYieldFromLongCount(YieldTypes eIndex1, int iChange);
 
 
-	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
-	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
+	int GetRealYieldFromYieldTimes100(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void SetRealYieldFromYieldTimes100(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
 
 	int GetYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1) const;
 	void ChangeYieldFromGPBirthScaledWithWriterBulb(YieldTypes eIndex1, int iChange);
@@ -1388,10 +1383,9 @@ public:
 	fraction GetYieldPerBuilding(YieldTypes eIndex) const;
 	void ChangeYieldPerBuilding(YieldTypes eIndex, fraction iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
-#endif
+	int GetYieldFromIndustrialCityConnection(YieldTypes eIndex) const;
 
 	std::map<int, std::map<int, int>> GetTechEnhancedYieldsMap() const;
 	int GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const;
@@ -2294,11 +2288,6 @@ protected:
 	void doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason);
 	bool doCheckProduction();
 	bool CrosscheckYieldsFromMinors();
-
-	int getExtraProductionDifference(int iExtra, UnitTypes eUnit) const;
-	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const;
-	int getExtraProductionDifference(int iExtra, ProjectTypes eProject) const;
-	int getExtraProductionDifference(int iExtra, int iModifier) const;
 
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;

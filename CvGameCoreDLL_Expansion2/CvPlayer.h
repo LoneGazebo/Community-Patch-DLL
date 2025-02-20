@@ -1799,8 +1799,8 @@ public:
 	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
 	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
 
-	int getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const;
-	void changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange);
+	int getYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex)	const;
+	void changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, int iChange);
 
 	int getYieldModifierFromGreatWorks(YieldTypes eIndex)	const;
 	void changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange);
@@ -3517,7 +3517,7 @@ protected:
 	std::vector<SPlayerActiveEspionageEvent> m_vActiveEspionageEventsList;
 	std::vector<int> m_aiIncomingEspionageYields;
 	std::vector<int> m_aiOutgoingEspionageYields;
-	std::vector<int> m_aiYieldFromNonSpecialistCitizens;
+	std::vector<int> m_aiYieldFromNonSpecialistCitizensTimes100;
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
@@ -4323,7 +4323,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumAnnexedCityStates)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiOutgoingEspionageYields)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizens)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizensTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)

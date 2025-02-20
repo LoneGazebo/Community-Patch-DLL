@@ -336,7 +336,7 @@ function GetScoreFromMode(iPlayer, iMode)
 		local iTotalCities = 0;
 		
 		for pLoopCity in pPlayer:Cities() do
-			iTotalFoodSurplus = iTotalFoodSurplus + pLoopCity:FoodDifference();
+			iTotalFoodSurplus = iTotalFoodSurplus + (pLoopCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100);
 			iTotalCities = iTotalCities + 1;
 		end
 		
@@ -351,11 +351,8 @@ function GetScoreFromMode(iPlayer, iMode)
 		local iTotalProduction = 0;
 		local iTotalCities = 0;
 		
-		local bIgnoreFood = true;
-		local bOverflow = false;
-		
 		for pLoopCity in pPlayer:Cities() do
-			iTotalProduction = iTotalProduction + pLoopCity:GetCurrentProductionDifference(bIgnoreFood, bOverflow);
+			iTotalProduction = iTotalProduction + (pLoopCity:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100);
 			iTotalCities = iTotalCities + 1;
 		end
 		

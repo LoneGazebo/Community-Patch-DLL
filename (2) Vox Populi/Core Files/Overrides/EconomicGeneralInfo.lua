@@ -137,7 +137,7 @@ function UpdateDisplay()
 			
 			local iCurrentFood = pCity:GetFood();
 			local iFoodNeeded = pCity:GrowthThreshold();
-			local iFoodPerTurn = pCity:FoodDifference();
+			local iFoodPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
 			local iCurrentFoodPlusThisTurn = iCurrentFood + iFoodPerTurn;
 			
 			local fGrowthProgressPercent = iCurrentFood / iFoodNeeded;
@@ -154,10 +154,10 @@ function UpdateDisplay()
 		if(instance.CityGrowth) then
 			local cityGrowth = pCity:GetFoodTurnsLeft();
 			
-			if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
+			if (pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) == 0) then
 				cityGrowth = "-";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
-			elseif pCity:FoodDifferenceTimes100() < 0 then
+			elseif pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) < 0 then
 				cityGrowth = "[COLOR_WARNING_TEXT]-[ENDCOLOR]";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STARVING_TT",localizedCityName ));
 			else
@@ -167,28 +167,25 @@ function UpdateDisplay()
 			instance.CityGrowth:SetText(cityGrowth);
 		end
 		
-		sortEntry.Food = pCity:FoodDifference();
+		sortEntry.Food = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
         instance.Food:SetText( sortEntry.Food );
-       
-		local productionYield = pCity:GetYieldRate( YieldTypes.YIELD_PRODUCTION );
-		local totalProductionPerTurn = math.floor(productionYield + (productionYield * (pCity:GetProductionModifier() / 100)));
-       
-		sortEntry.Production = totalProductionPerTurn;
+        
+		sortEntry.Production =pCity:GetYieldRateTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
         instance.Production:SetText( sortEntry.Production );
         
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 			instance.ScienceBox:SetHide(true);
         else
-			sortEntry.Science = pCity:GetYieldRate( YieldTypes.YIELD_SCIENCE );
+			sortEntry.Science = pCity:GetYieldRateTimes100( YieldTypes.YIELD_SCIENCE ) / 100;
 			instance.Science:SetText( sortEntry.Science );
 			instance.ScienceBox:SetHide(false);
         end
         
-        sortEntry.Gold = pCity:GetYieldRate( YieldTypes.YIELD_GOLD );
+        sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
         instance.Gold:SetText( sortEntry.Gold );
         
-        sortEntry.Culture = pCity:GetJONSCulturePerTurn();
+        sortEntry.Culture = pCity:GetJONSCulturePerTurn()
         instance.Culture:SetText( sortEntry.Culture );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
@@ -611,9 +608,6 @@ function ProductionDetails( city, instance )
 		local iCurrentProduction = city:GetProduction();
 		local iProductionNeeded = city:GetProductionNeeded();
 		local iProductionPerTurn = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-		if (city:IsFoodProduction()) then
-			iProductionPerTurn = iProductionPerTurn + city:GetYieldRate(YieldTypes.YIELD_FOOD) - city:FoodConsumption(true);
-		end
 		local iCurrentProductionPlusThisTurn = iCurrentProduction + iProductionPerTurn;
 		
 		local fProductionProgressPercent = iCurrentProduction / iProductionNeeded;
@@ -631,7 +625,7 @@ function ProductionDetails( city, instance )
 		local buildGrowth = "-";
 		
 		if (city:IsProduction() and not city:IsProductionProcess()) then
-			if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+			if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 				buildGrowth = city:GetProductionTurnsLeft();
 			end
 		end
