@@ -37,6 +37,9 @@
 	<Texture file="Trireme_SREF_LightDMG.dds"/>
 	<Texture file="minoan_galea_sref.dds"/>
 	<Texture file="minoan_galea_diff.dds"/>
+	<Texture file="Quinquereme_DIFF.dds"/>
+	<Texture file="Quinquereme_DMG_DIFF.dds"/>
+	<Texture file="Quinquereme_SREF.dds"/>
 	<Texture file="Unit_Environment_Dull.dds"/>
 	<Texture file="Unit_Environment_Sharp.dds"/>
 	<Texture file="Unit_Irradiance.dds"/>
