@@ -471,7 +471,7 @@ YieldAndGPPList CvCityCitizens::GetPlotYields(CvPlot* pPlot, SPrecomputedExpensi
 		//base yield plus combo bonuses. 
 		int iYield100 = pPlot->getYield(eYield) * 100;
 
-		iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizens(eYield);
+		iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizensTimes100(eYield);
 		iYield100 += GetBonusPlotValue(pPlot, eYield, cache);
 
 		// modifiers 
@@ -842,7 +842,7 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		// laborers get non-specialist bonus yields:
 		if (eSpecialist == GD_INT_GET(DEFAULT_SPECIALIST))
 		{
-			iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizens(eYield);
+			iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizensTimes100(eYield);
 		}
 		//Culture is treated differently, sadly.
 		if (eYield == YIELD_CULTURE)
@@ -1257,13 +1257,13 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 
 			int iNetFoodNow = cache.iFoodRateTimes100 - cache.iFoodConsumptionTimes100;
 			// food consumption also depends on how many specialists are worked
-			int iNetFoodThen = iNetFoodNow + iYield100 - iNumSpecialistsAdded * (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
+			int iNetFoodThen = iNetFoodNow + iYield100 - iNumSpecialistsAdded * (m_pCity->getFoodConsumptionSpecialistTimes100() - m_pCity->getFoodConsumptionNonSpecialistTimes100());
 			if (m_pCity->IsNoStarvationNonSpecialist())
 			{
 				// if non-specialists can't cause starvation, the calculation is more complicated. we have to recalculate current and future food consumption by non-specialists manually
 				// iNetFoodThen = iNetFoodNow + (Change in Food Rate) - (Change in Food Consumption)
 				// with (Change in Food Consumption) = (Future Food Consumption Non-Specialists) - (Current Food Consumption Non-Specialists) + (Change in Food Consumption Specialists)
-				iNetFoodThen = iNetFoodNow + iYield100 - (min(cache.iFoodRateTimes100 + iYield100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 - iNumSpecialistsAdded * m_pCity->foodConsumptionNonSpecialistTimes100()) - min(cache.iFoodRateTimes100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100) + iNumSpecialistsAdded * m_pCity->foodConsumptionSpecialistTimes100());
+				iNetFoodThen = iNetFoodNow + iYield100 - (min(cache.iFoodRateTimes100 + iYield100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 - iNumSpecialistsAdded * m_pCity->getFoodConsumptionNonSpecialistTimes100()) - min(cache.iFoodRateTimes100, cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100) + iNumSpecialistsAdded * m_pCity->getFoodConsumptionSpecialistTimes100());
 			}
 
 			// special case of building a settler: all excess food is converted into production
@@ -1591,7 +1591,7 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 		if (pLog)
 		{
 			const char* logStr = (bAdd ? "now working" : "no longer working");
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 			CvString strOutBuf;
 			strOutBuf.Format("%s plot %d:%d, current net food %d", logStr, tileChange.plot->getX(), tileChange.plot->getY(), iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1606,7 +1606,7 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 			if (pLog)
 			{
 				const char* logStr = (bAdd ? "now working" : "no longer working");
-				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 				CvString strOutBuf;
 				strOutBuf.Format("%s laborer, current net food % d", logStr, iExcessFoodTimes100);
 				pLog->Msg(strOutBuf);
@@ -1651,7 +1651,7 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 			if (pLog)
 			{
 				const char* logStr = (bAdd ? "now working" : "no longer working");
-				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 				CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(tileChange.specialist);
 				CvString strOutBuf;
 				strOutBuf.Format("%s %s, current net food %d", logStr, pSpecialistInfo->GetDescription(), iExcessFoodTimes100);
@@ -1695,9 +1695,6 @@ void CvCityCitizens::DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowG
 	{
 		ChangeNumDefaultSpecialists(-1, CvCity::YIELD_UPDATE_NONE);
 	}
-
-	// do a single update, but treat player happiness as constant
-	m_pCity->UpdateAllNonPlotYields(false);
 
 	// Now put all of the unallocated guys back
 	int iNumToAssign = GetNumUnassignedCitizens();
@@ -1752,7 +1749,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		if (pLog)
 		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 			CvString strOutBuf;
 			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1766,7 +1763,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		if (pLog)
 		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 			CvString strOutBuf;
 			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -1781,7 +1778,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 		if (pLog)
 		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 			CvString strOutBuf;
 			strOutBuf.Format("now working laborer, current net food %d", iExcessFoodTimes100);
 			pLog->Msg(strOutBuf);
@@ -2052,7 +2049,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 	while (iCount < max(5, m_pCity->getPopulation() / 2))
 	{
 		//now the real check. unassigning a tile might cause the valuation of the other tiles to change, so we have to consider combinations
-		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
+		int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 		bool bStarving = iNetFood100 < 0;
 		bool bBelowGrowthThreshold = iNetFood100 < GetExcessFoodThreshold100();
 		bool bInDebt = gCachedNumbers.iNetGold < 0;
@@ -2244,14 +2241,14 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	DoInitialAssigment(false, false, bLogging);
 
 	// are we below the growth threshold? retry the initial assigment with higher food valuation
-	if (m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100() < GetExcessFoodThreshold100())
+	if (m_pCity->getYieldRateTimes100(YIELD_FOOD) < GetExcessFoodThreshold100())
 	{
 		if (pLog)
 			pLog->Msg("==== repeating initial allocation with higher emphasis on food");
 		DoInitialAssigment(false, true, bLogging);
 	}
 	// are we starving? 
-	if (m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100() < 0)
+	if (m_pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
 	{
 		if (pLog)
 			pLog->Msg("==== repeating initial allocation with even higher emphasis on food");
@@ -3710,10 +3707,12 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+	pCity->UpdateAllNonPlotYields(false);
+
 	iGrowthMod = pCity->getGrowthMods();
-	iFoodRateTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false);
-	iFoodConsumptionTimes100 = pCity->foodConsumptionTimes100();
-	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 = pCity->foodConsumptionTimes100(false, 0, true);
+	iFoodRateTimes100 = pCity->getFoodPerTurnBeforeConsumptionTimes100();
+	iFoodConsumptionTimes100 = pCity->getFoodConsumptionTimes100();
+	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100 = pCity->getFoodConsumptionTimes100(false, true);
 
 	if (MOD_BALANCE_VP)
 	{
@@ -3819,9 +3818,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 	{
 		// the smallest possible increase in yield rate that would reduce unhappiness from the respective need by 1
 		// (see the calculations in GetDistress etc.)
-		iBasicNeedsRateChangeForReducedDistress = iDistress > 0 ? (int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false))) : INT_MAX;
-		iGoldRateChangeForReducedPoverty = iPoverty > 0 ? (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false)) : INT_MAX;
-		iScienceRateChangeForReducedIlliteracy = iIlliteracy > 0 ? (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false)) : INT_MAX;
+		iBasicNeedsRateChangeForReducedDistress = iDistress > 0 ? (int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - pCity->GetDistressRaw(false) + 1) - (pCity->getFoodPerTurnBeforeConsumptionTimes100() + pCity->getYieldRateTimes100(YIELD_PRODUCTION))) : INT_MAX;
+		iGoldRateChangeForReducedPoverty = iPoverty > 0 ? (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - pCity->GetPovertyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_GOLD)) : INT_MAX;
+		iScienceRateChangeForReducedIlliteracy = iIlliteracy > 0 ? (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - pCity->GetIlliteracyRaw(false) + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE)) : INT_MAX;
 		iCultureRateChangeForReducedBoredom = iBoredom > 0 ? (int)(pCity->GetCultureMedian(false, 0) * (pCity->getPopulation() - pCity->GetBoredomRaw(false) + 1) - pCity->getJONSCulturePerTurn(false) * 100) : INT_MAX;
 
 		// the smallest possible decrease in yield rate that would increase unhappiness from the respective need by 1
@@ -3833,18 +3832,19 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 		if (iDistress < iLimit)
 		{
 			// for additional distress to count, it must get us over the flat reduction threshold
-			int iNewDistressRaw = max(pCity->GetDistressRaw(false) + 1, pCity->GetDistressFlatReduction() + kPlayer.GetDistressFlatReductionGlobal() + 1);
-			iBasicNeedsRateChangeForIncreasedDistress =(int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - iNewDistressRaw + 1) - (pCity->getYieldRateTimes100(YIELD_FOOD, false, false) + pCity->getYieldRateTimes100(YIELD_PRODUCTION, false, false)));
+			int iNewDistressRaw = max(pCity->GetDistressRaw(false) + 1,
+				pCity->GetDistressFlatReduction() + kPlayer.GetDistressFlatReductionGlobal() + 1);
+			iBasicNeedsRateChangeForIncreasedDistress =(int)(pCity->GetBasicNeedsMedian(false, 0) * (pCity->getPopulation() - iNewDistressRaw + 1) - (pCity->getFoodPerTurnBeforeConsumptionTimes100() + pCity->getYieldRateTimes100(YIELD_PRODUCTION)));
 		}
 		if (iPoverty < iLimit)
 		{
 			int iNewPovertyRaw = max(pCity->GetPovertyRaw(false) + 1, pCity->GetPovertyFlatReduction() + kPlayer.GetPovertyFlatReductionGlobal() + 1);
-			iGoldRateChangeForIncreasedPoverty = (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - iNewPovertyRaw + 1) - pCity->getYieldRateTimes100(YIELD_GOLD, false, false));
+			iGoldRateChangeForIncreasedPoverty = (int)(pCity->GetGoldMedian(false, 0) * (pCity->getPopulation() - iNewPovertyRaw + 1) - pCity->getYieldRateTimes100(YIELD_GOLD));
 		}
 		if (iIlliteracy < iLimit)
 		{
 			int iNewIlliteracyRaw = max(pCity->GetIlliteracyRaw(false) + 1, pCity->GetIlliteracyFlatReduction() + kPlayer.GetIlliteracyFlatReductionGlobal() + 1);
-			iScienceRateChangeForIncreasedIlliteracy = (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - iNewIlliteracyRaw + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE, false, false));
+			iScienceRateChangeForIncreasedIlliteracy = (int)(pCity->GetScienceMedian(false, 0) * (pCity->getPopulation() - iNewIlliteracyRaw + 1) - pCity->getYieldRateTimes100(YIELD_SCIENCE));
 		}
 		if (iBoredom < iLimit)
 		{

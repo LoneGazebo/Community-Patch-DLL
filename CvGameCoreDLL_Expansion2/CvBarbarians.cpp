@@ -422,7 +422,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	int iYield = GC.getGame().randRangeInclusive(1, 10, pCity->plot()->GetPseudoRandomSeed().mix(pUnit->plot()->GetPlotIndex()).mix(iDamageTaken).mix(iRemainingHP));
 	if (iYield <= 2)
 	{
-		int iGold = std::min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, iRemainingHP);
+		int iGold = std::min(pCity->getYieldRateTimes100(YIELD_GOLD) * iTheftTurns / 100, iRemainingHP);
 		if (iGold > 0)
 		{
 			pUnit->changeDamage(iDamageTaken);
@@ -448,7 +448,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	}
 	else if (iYield <= 4)
 	{
-		int iCulture = std::min(pCity->getJONSCulturePerTurn() * iTheftTurns, iRemainingHP);
+		int iCulture = std::min(pCity->getYieldRateTimes100(YIELD_CULTURE) * iTheftTurns / 100, iRemainingHP);
 		if (iCulture > 0)
 		{
 			pUnit->changeDamage(iDamageTaken);
@@ -477,7 +477,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 		int iScience = 0;
 		if (eCurrentTech != NO_TECH)
 		{
-			iScience = std::min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, iRemainingHP);
+			iScience = std::min(pCity->getYieldRateTimes100(YIELD_SCIENCE) * iTheftTurns / 100, iRemainingHP);
 			if (iScience > 0)
 			{
 				pUnit->changeDamage(iDamageTaken);
@@ -504,7 +504,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	}
 	else if (iYield <= 8)
 	{
-		int iFood = std::min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, iRemainingHP);
+		int iFood = std::min(pCity->getYieldRateTimes100(YIELD_FOOD) * iTheftTurns / 100, iRemainingHP);
 		if (iFood > 0)
 		{
 			pUnit->changeDamage(iDamageTaken);
@@ -532,7 +532,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	{
 		if (pCity->getProduction() > 0 && pCity->getProductionTurnsLeft() >= 2 && pCity->getProductionTurnsLeft() != INT_MAX)
 		{
-			int iProduction = std::min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, iRemainingHP);
+			int iProduction = std::min(pCity->getYieldRateTimes100(YIELD_PRODUCTION) * iTheftTurns / 100, iRemainingHP);
 			if (iProduction > 0)
 			{
 				pUnit->changeDamage(iDamageTaken);

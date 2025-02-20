@@ -731,14 +731,14 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 	if (GC.getGame().GetIndustrialRoute() == eRoute)
 	{
 		int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
-		int iProductionYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
+		int iBaseProductionYieldTimes100 = pCity->getBaseYieldRateTimes100(YIELD_PRODUCTION);
 		int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
 
-		iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
+		iConnectionValue += (iBaseProductionYieldTimes100 * iProductionYieldRateModifierTimes100) / 100;
 
 		if (MOD_BALANCE_VP)
 		{
-			int iGoldYieldTimes100 = pCity->getBasicYieldRateTimes100(YIELD_GOLD);
+			int iBaseGoldYieldTimes100 = pCity->getBaseYieldRateTimes100(YIELD_GOLD);
 			int iGoldYieldRateModifierTimes100 = 0;
 
 			// Target city would get a flat production bonus from the Industrial City Connection
@@ -762,9 +762,8 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 				iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
 				iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
 
-				// Assumes current modifiers are 0%, should do some proper calculations that account for bonuses being additive rather than multiplicative
-				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifierTimes100 * iProductionYieldBaseModifierTimes100) / 10000;
-				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifierTimes100 * iGoldYieldBaseModifierTimes100) / 10000;
+				iConnectionValue += (iBaseProductionYieldTimes100 * iProductionYieldRateModifierTimes100) / 100;
+				iConnectionValue += (iBaseGoldYieldTimes100 * iGoldYieldRateModifierTimes100) / 100;
 			}
 		}
 	}

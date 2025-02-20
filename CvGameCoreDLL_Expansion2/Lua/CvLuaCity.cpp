@@ -153,7 +153,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetYieldModifierTooltip);
 	Method(GetProductionModifier);
-
+	Method(GetYieldRateTooltip);
+	Method(GetTotalOverflowProductionTimes100);
 	Method(GetCurrentProductionDifference);
 	Method(GetRawProductionDifference);
 	Method(GetCurrentProductionDifferenceTimes100);
@@ -161,9 +162,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionModifier);
 	Method(GetBuildingProductionModifier);
 	Method(GetProjectProductionModifier);
-
-	Method(GetExtraProductionDifference);
-
 	Method(GetResourceYieldRateModifier);
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
@@ -183,6 +181,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsAddsFreshWater);
 	Method(FoodConsumptionSpecialistTimes100);
 
+	Method(GetFoodConsumptionTimes100);
 	Method(FoodConsumption);
 	Method(FoodDifference);
 	Method(FoodDifferenceTimes100);
@@ -438,7 +437,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetLakePlotYield);
 
 	Method(GetBaseYieldRate);
-	Method(GetPostModifierYieldRate);
+	Method(GetBaseYieldRateTimes100);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	Method(GetBaseYieldRateFromGreatWorks);
@@ -462,7 +461,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
 
-	Method(GetYieldFromCityYield);
+	Method(GetYieldFromCityYieldTimes100);
 
 	Method(GetBaseYieldRateFromReligion);
 	Method(ChangeBaseYieldRateFromReligion);
@@ -2071,35 +2070,22 @@ int CvLuaCity::lChangeProduction(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::changeProduction);
 }
 //------------------------------------------------------------------------------
+// LEGACY FUNCTION, no longer functional
 int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
+{
+	CvString toolTip = "";
+	lua_pushstring(L, toolTip.c_str());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetYieldRateTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 
 	// City Yield Rate Modifier
-	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
-
-	// City Production Modifier
-	if(eYield == YIELD_PRODUCTION)
-	{
-		pkCity->getProductionModifier(&toolTip);
-	}
-
-	// Trade Yield Modifier
-	// This is actually added after all modifiers, except for Food (added after Consumption) and Culture (added to Base)
-	//pkCity->GetTradeYieldModifier(eYield, &toolTip);
-
-	// City Food Modifier
-	if(eYield == YIELD_FOOD)
-	{	
-		int iExcessNoMod = pkCity->foodDifference(true);
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
-		GC.getGame().BuildProdModHelpText(&toolTip, iExcessNoMod >= 0 ? "TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE" : "TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE", iExcessNoMod);
-		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(false, &toolTip);
-	}
-
+	pkCity->getYieldRateTimes100(eYield, false, false, false, &toolTip);
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
 }
@@ -2108,34 +2094,62 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 int CvLuaCity::lGetProductionModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getProductionModifier();
+	const int iResult = pkCity->getCurrentProductionModifier();
 
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetCurrentProductionDifference(bool bIgnoreFood, bool bOverflow);
+// LEGACY METHOD, use `getYieldRateTimes100(YIELD_PRODUCTION) [+pkCity->getTotalOverflowProductionTimes100()]` instead
+
 int CvLuaCity::lGetCurrentProductionDifference(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getCurrentProductionDifference);
+	CvCity* pkCity = GetInstance(L);
+	const bool bIgnoreFood = lua_toboolean(L, 2);
+	const bool bOverflow = lua_toboolean(L, 3);
+	int iResult = pkCity->getYieldRateTimes100(YIELD_PRODUCTION) / 100;
+	if (bOverflow)
+		iResult += pkCity->getTotalOverflowProductionTimes100() / 100;
+
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetRawProductionDifference(bool bIgnoreFood, bool bOverflow);
+// LEGACY METHOD, use getRawProductionDifferenceTimes100 instead
 int CvLuaCity::lGetRawProductionDifference(lua_State *L)
 {
-	return BasicLuaMethod(L, &CvCity::getRawProductionDifference);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getRawProductionPerTurnTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTotalOverflowProductionTimes100();
+int CvLuaCity::lGetTotalOverflowProductionTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getTotalOverflowProductionTimes100);
 }
 //------------------------------------------------------------------------------
 //int GetCurrentProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow);
+// LEGACY METHOD, use `getYieldRateTimes100(YIELD_PRODUCTION) [+pkCity->getTotalOverflowProductionTimes100()]` instead
 int CvLuaCity::lGetCurrentProductionDifferenceTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getCurrentProductionDifferenceTimes100);
+	CvCity* pkCity = GetInstance(L);
+	const bool bIgnoreFood = lua_toboolean(L, 2);
+	const bool bOverflow = lua_toboolean(L, 3);
+	int iResult = pkCity->getYieldRateTimes100(YIELD_PRODUCTION);
+	if (bOverflow)
+		iResult += pkCity->getTotalOverflowProductionTimes100();
+
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetRawProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow);
 int CvLuaCity::lGetRawProductionDifferenceTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getRawProductionDifferenceTimes100);
+	return BasicLuaMethod(L, &CvCity::getRawProductionPerTurnTimes100);
 }
 //------------------------------------------------------------------------------
 //int getUnitProductionModifier(UnitTypes iUnit);
@@ -2175,12 +2189,6 @@ int CvLuaCity::lGetProjectProductionModifier(lua_State* L)
 
 	lua_pushinteger(L, iResult);
 	return 1;
-}
-//------------------------------------------------------------------------------
-//int getExtraProductionDifference(int iExtra);
-int CvLuaCity::lGetExtraProductionDifference(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::getExtraProductionDifference);
 }
 //------------------------------------------------------------------------------
 //int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource);
@@ -2287,26 +2295,39 @@ int CvLuaCity::lIsAddsFreshWater(lua_State* L)
 //int foodConsumptionSpecialistTimes100();
 int CvLuaCity::lFoodConsumptionSpecialistTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::foodConsumptionSpecialistTimes100);
+	return BasicLuaMethod(L, &CvCity::getFoodConsumptionSpecialistTimes100);
 }
 //------------------------------------------------------------------------------
-//int foodConsumption(bool bNoAngry, int iExtra);
+//int getFoodConsumptionTimes100();
+int CvLuaCity::lGetFoodConsumptionTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getFoodConsumptionTimes100);
+}
+//------------------------------------------------------------------------------
+// LEGACY method, use `GetFoodConsumptionTimes100() / 100` instead
 int CvLuaCity::lFoodConsumption(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::foodConsumption);
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->getFoodConsumptionTimes100() / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
 }
-//------------------------------------------------------------------------------
 //int foodDifference(bool bBottom);
+//LEGACY METHOD, use `getYieldRateTimes100(YIELD_FOOD)` instead
 int CvLuaCity::lFoodDifference(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::foodDifference);
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->getYieldRateTimes100(YIELD_FOOD) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int foodDifferenceTimes100(bool bBottom);
+//LEGACY METHOD, use `getYieldRateTimes100(YIELD_FOOD)` instead
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->foodDifferenceTimes100(false,NULL);
+	const int iResult = pkCity->getYieldRateTimes100(YIELD_FOOD);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4272,51 +4293,29 @@ int CvLuaCity::lGetLakePlotYield(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
 //------------------------------------------------------------------------------
 //int getBaseYieldRate(YieldTypes eIndex, bool bTooltip);
+//LEGACY METHOD, use GetBaseYieldRateTimes100 instead
 int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
-	const bool bTooltip = luaL_optbool(L, 3, false);
 	int iResult;
-	if (bTooltip)
-	{
-		CvString tooltip;
-		iResult = pCity->getBaseYieldRate(eYield, &tooltip);
-		lua_pushinteger(L, iResult);
-		lua_pushstring(L, tooltip.c_str());
-		return 2;
-	}
-	else
-	{
-		iResult = pCity->getBaseYieldRate(eYield);
-		lua_pushinteger(L, iResult);
-		return 1;
-	}
+	iResult = pCity->getBaseYieldRateTimes100(eYield) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
-//int getPostModifierYieldRate(YieldTypes eIndex, bool bTooltip);
-int CvLuaCity::lGetPostModifierYieldRate(lua_State* L)
+//int getBaseYieldRateTimes100(YieldTypes eIndex, bool bTooltip);
+int CvLuaCity::lGetBaseYieldRateTimes100(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
-	const bool bTooltip = luaL_optbool(L, 3, false);
 	int iResult;
-	if (bTooltip)
-	{
-		CvString tooltip;
-		iResult = pCity->GetPostModifierYieldRate(eYield, &tooltip);
-		lua_pushinteger(L, iResult);
-		lua_pushstring(L, tooltip.c_str());
-		return 2;
-	}
-	else
-	{
-		iResult = pCity->GetPostModifierYieldRate(eYield);
-		lua_pushinteger(L, iResult);
-		return 1;
-	}
+	iResult = pCity->getBaseYieldRateTimes100(eYield);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //-------------------------------------------------------------------------
 int CvLuaCity::lGetYieldPerTurnFromMinors(lua_State* L)
@@ -4384,9 +4383,11 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
 // Base yield rate from active conversion process
+// LEGACY METHOD, do not use
 int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+	lua_pushinteger(L, 0);
+	return 1;
 }
 //	Base yield rate from trade routes established with this city
 int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
@@ -4403,7 +4404,7 @@ int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);
 }
 //------------------------------------------------------------------------------
-int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
+int CvLuaCity::lGetYieldFromCityYieldTimes100(lua_State* L)
 {
 	int iResult = 0;
 	CvCity* pkCity = GetInstance(L);
@@ -4420,7 +4421,7 @@ int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
 			continue;
 		}
 		//NOTE! We flip it here, because we want the OUT yield
-		iResult += pkCity->GetRealYieldFromYield(eIndex2, eIndex1);
+		iResult += pkCity->GetRealYieldFromYieldTimes100(eIndex2, eIndex1);
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -4469,25 +4470,25 @@ int CvLuaCity::lGetYieldFromYieldPerBuildingTimes100(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0);
+//int getBaseYieldRateModifier(YieldTypes eIndex);
 int CvLuaCity::lGetBaseYieldRateModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iExtra = luaL_optint(L, 3, 0);
-	const int iResult = pkCity->getBaseYieldRateModifier(eIndex, iExtra);
+	const int iResult = pkCity->getBaseYieldRateModifier(eIndex);
 
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //int getYieldRate(YieldTypes eIndex);
+//LEGACY METHOD, use getYieldRateTimes100 instead
 int CvLuaCity::lGetYieldRate(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const bool bIgnoreTrade = luaL_optbool(L, 3, false);
-	const int iResult = pkCity->getYieldRate(eIndex, bIgnoreTrade);
+	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade) / 100;
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -4499,7 +4500,8 @@ int CvLuaCity::lGetYieldRateTimes100(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const bool bIgnoreTrade = luaL_optbool(L, 3, false);
-	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade);
+	const bool bIgnoreProcess = luaL_optbool(L, 4, false);
+	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade, bIgnoreProcess);
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5568,7 +5570,7 @@ int CvLuaCity::lGetBaseYieldRateFromNonSpecialists(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 
-	int iNonSpecialist = GET_PLAYER(pkCity->getOwner()).getYieldFromNonSpecialistCitizens(eIndex);
+	int iNonSpecialist = GET_PLAYER(pkCity->getOwner()).getYieldFromNonSpecialistCitizensTimes100(eIndex);
 	int iBonusTimes100 = (iNonSpecialist * (pkCity->getPopulation() - pkCity->GetCityCitizens()->GetTotalSpecialistCount()));
 	lua_pushinteger(L, iBonusTimes100 / 100);
 	return 1;

@@ -374,7 +374,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piArtYieldChanges(NULL),
 	m_piLitYieldChanges(NULL),
 	m_piMusicYieldChanges(NULL),
-	m_piYieldFromNonSpecialistCitizens(NULL),
+	m_piYieldFromNonSpecialistCitizensTimes100(NULL),
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
@@ -477,7 +477,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
 	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
 	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
-	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizens);
+	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizensTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
@@ -1196,7 +1196,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piRelicYieldChanges, "Policy_RelicYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piFilmYieldChanges, "Policy_FilmYieldChanges", "PolicyType", szPolicyType);
 
-	kUtility.SetYields(m_piYieldFromNonSpecialistCitizens, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromNonSpecialistCitizensTimes100, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
@@ -3488,16 +3488,16 @@ int* CvPolicyEntry::GetFilmYieldChangesArray() const
 	return m_piFilmYieldChanges;
 }
 
-int CvPolicyEntry::GetYieldFromNonSpecialistCitizens(int i) const
+int CvPolicyEntry::GetYieldFromNonSpecialistCitizensTimes100(int i) const
 {
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_piYieldFromNonSpecialistCitizens ? m_piYieldFromNonSpecialistCitizens[i] : 0;
+	return m_piYieldFromNonSpecialistCitizensTimes100 ? m_piYieldFromNonSpecialistCitizensTimes100[i] : 0;
 }
 
-int* CvPolicyEntry::GetYieldFromNonSpecialistCitizensArray() const
+int* CvPolicyEntry::GetYieldFromNonSpecialistCitizensTimes100Array() const
 {
-	return m_piYieldFromNonSpecialistCitizens;
+	return m_piYieldFromNonSpecialistCitizensTimes100;
 }
 int CvPolicyEntry::GetYieldModifierFromGreatWorks(int i) const
 {

@@ -4673,15 +4673,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield);
 			}
 		}
-		if (PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) != 0)
+		if (PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) * 10;
+				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) / 10;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) * 5;
+				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) / 20;
 			}
 		}
 		if (PolicyInfo->GetYieldModifierFromGreatWorks(eYield) != 0)

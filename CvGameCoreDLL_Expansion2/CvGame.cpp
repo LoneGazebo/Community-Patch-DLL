@@ -10629,17 +10629,17 @@ void CvGame::updateGlobalMedians()
 			float fPopulation = (float)iPopulation;
 
 			// Distress
-			int iBasicNeedsYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true, false) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true, false);
+			int iBasicNeedsYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
 			float fBasicNeedsAvg = iBasicNeedsYield / fPopulation;
 			vfBasicNeedsYield.push_back(fBasicNeedsAvg);
 
 			// Poverty
-			int iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true, false);
+			int iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
 			float fGoldAvg = iGoldYield / fPopulation;
 			vfGoldYield.push_back(fGoldAvg);
 
 			// Illiteracy
-			int iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true, false);
+			int iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
 			float fScienceAvg = iScienceYield / fPopulation;
 			vfScienceYield.push_back(fScienceAvg);
 
@@ -12320,6 +12320,23 @@ void CvGame::SetCombatWarned(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
+/// Shortcut for generating yield tool tip help
+void CvGame::BuildYieldTimes100HelpText(CvString* toolTipSink, const char* strTextKey, int iYieldTimes100, const char* strYieldIcon, bool bIgnoreZero) const
+{
+	if (toolTipSink && (iYieldTimes100 != 0 || !bIgnoreZero))
+	{
+		// add a newline for every item that's not the first one
+		/*if (!toolTipSink->IsEmpty())
+		{
+			(*toolTipSink) += CvString("[NEWLINE]");
+		}*/
+		(*toolTipSink) += CvString("[ICON_BULLET]") + GetLocalizedText(strTextKey, (float)iYieldTimes100 / 100, strYieldIcon);
+		(*toolTipSink) += CvString("[NEWLINE]");
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
 /// Shortcut for generating production mod tool tip help
 void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey, bool bShowIfZero) const
 {
@@ -12328,16 +12345,16 @@ void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey,
 		Localization::String localizedText = Localization::Lookup(strTextKey);
 		localizedText << iMod;
 
-		if(strExtraKey)
+		if (strExtraKey)
 		{
 			std::string extraKey(strExtraKey);
-			if(!extraKey.empty())
+			if (!extraKey.empty())
 				localizedText << strExtraKey;
-
-			const char* const localized = localizedText.toUTF8();
-			if(localized)
-				(*toolTipSink) += localized;
 		}
+
+		const char* const localized = localizedText.toUTF8();
+		if(localized)
+			(*toolTipSink) += localized;
 	}
 }
 

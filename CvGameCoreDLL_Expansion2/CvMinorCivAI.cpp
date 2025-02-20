@@ -9734,7 +9734,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 			iTarget = pCity->getPopulation();
 
 			// Gold increases proclivity.
-			iTarget += pCity->getYieldRateTimes100(YIELD_GOLD, true, false) / 100;
+			iTarget += pCity->getYieldRateTimes100(YIELD_GOLD, true) / 100;
 			iTarget += pMinorLoop->GetTrade()->GetNumDifferentTradingPartners() * 3;
 
 			// Less military units = higher score.
@@ -11239,8 +11239,8 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				continue;
 
 			int iValue = pLoopCity->getPopulation();
-			iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
-			iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
+			iValue += pLoopCity->getBaseYieldRateTimes100(YIELD_GOLD) / 100;
+			iValue += pLoopCity->getBaseYieldRateTimes100(YIELD_SCIENCE) / 100;
 
 			if (iValue > iBestValue)
 			{

@@ -415,8 +415,8 @@ public:
 
 	bool IsOnlyTradeSameIdeology() const;
 
-	int GetYieldFromNonSpecialistCitizens(int i) const;
-	int* GetYieldFromNonSpecialistCitizensArray() const;
+	int GetYieldFromNonSpecialistCitizensTimes100(int i) const;
+	int* GetYieldFromNonSpecialistCitizensTimes100Array() const;
 
 	int GetYieldModifierFromGreatWorks(int i) const;
 	int* GetYieldModifierFromGreatWorksArray() const;
@@ -879,7 +879,7 @@ private:
 	int* m_piMusicYieldChanges;
 	int* m_piRelicYieldChanges;
 	int* m_piFilmYieldChanges;
-	int* m_piYieldFromNonSpecialistCitizens;
+	int* m_piYieldFromNonSpecialistCitizensTimes100;
 	int* m_piYieldModifierFromGreatWorks;
 	int* m_piYieldModifierFromActiveSpies;
 	int* m_piYieldFromDelegateCount;

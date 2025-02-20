@@ -5955,7 +5955,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	iBase += m_pCity->GetCityBuildings()->GetCurrentThemingBonuses(YIELD_CULTURE);
 
 	// Add in all the tourism from yields
-	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
+	iBase += m_pCity->getYieldRateTimes100(YIELD_TOURISM) / 100;
 
 	if(kPlayer.isGoldenAge())
 	{
@@ -6353,7 +6353,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW - m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM));
+	int iRemainder = ((m_pCity->getYieldRateTimes100(YIELD_TOURISM) / 100) - iTraitBonuses - iTourismFromWW - m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM));
 	if(iRemainder != 0)
 	{
 		if (!szRtnValue.empty())
