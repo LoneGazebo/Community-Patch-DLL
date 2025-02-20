@@ -18,7 +18,6 @@ VALUES
 ----------------------------------------------------------
 -- Unique Unit: Warak'aq (Slinger)
 ----------------------------------------------------------
-DELETE FROM Civilization_UnitClassOverrides WHERE UnitClassType = 'UNITCLASS_ARCHER' AND CivilizationType = "CIVILIZATION_INCA";
 INSERT INTO Civilization_UnitClassOverrides
 	(CivilizationType, UnitClassType, UnitType)
 VALUES
@@ -92,7 +91,7 @@ VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1, 2),
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_MANUFACTORY', 'YIELD_FOOD', 1, 2);
 
-DELETE FROM Improvement_AdjacentMountainYieldChanges WHERE ImprovementType = "IMPROVEMENT_TERRACE_FARM";
+DELETE FROM Improvement_AdjacentMountainYieldChanges WHERE ImprovementType = 'IMPROVEMENT_TERRACE_FARM';
 
 INSERT INTO Improvement_YieldPerXAdjacentTerrain
 	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
