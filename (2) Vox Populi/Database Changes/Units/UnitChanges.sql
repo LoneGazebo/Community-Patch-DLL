@@ -63,6 +63,8 @@ UPDATE Units SET PrereqTech = 'TECH_COMBINED_ARMS' WHERE Class = 'UNITCLASS_INFA
 ----------------------------------------------------------------------------
 
 -- Slinger
+DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_INCAN_SLINGER';
+
 UPDATE Units
 SET
 	UnitArtInfo = 'ART_DEF_UNIT_SLINGER',
